@@ -1,0 +1,145 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: genuine empty
+[2/4] [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+  1) [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      32 |     await info.attach('mural-painted.png',{body:await page.screenshot(),contentType:'image/png'});
+      33 |     expect(measure.position).toBe('fixed');expect(measure.root.h).toBeGreaterThanOrEqual(measure.viewport.h*0.9);expect(measure.panel.h).toBeGreaterThan(300);
+    > 34 |     expect(measure.pointReceives).toBe(true);expect(errors).toEqual([]);
+         |                                   ^
+      35 |     if(withPhoto){expect(measure.natural).toBeGreaterThan(0);expect(Number(measure.opacity)).toBeGreaterThan(0);expect(Math.min(measure.content.x+measure.content.w,measure.viewport.w)-Math.max(0,measure.content.x)).toBeGreaterThan(50);expect(Math.min(measure.content.y+measure.content.h,measure.viewport.h)-Math.max(0,measure.content.y)).toBeGreaterThan(50);}
+      36 |   }finally{await post.delete();await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}
+      37 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\tests\e2e\101-mural.spec.ts:34:35
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\error-context.md
+
+    Error Context: qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\error-context.md
+
+
+[3/4] [chromium-mobile] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: genuine empty
+[4/4] [chromium-mobile] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+  2) [chromium-mobile] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      32 |     await info.attach('mural-painted.png',{body:await page.screenshot(),contentType:'image/png'});
+      33 |     expect(measure.position).toBe('fixed');expect(measure.root.h).toBeGreaterThanOrEqual(measure.viewport.h*0.9);expect(measure.panel.h).toBeGreaterThan(300);
+    > 34 |     expect(measure.pointReceives).toBe(true);expect(errors).toEqual([]);
+         |                                   ^
+      35 |     if(withPhoto){expect(measure.natural).toBeGreaterThan(0);expect(Number(measure.opacity)).toBeGreaterThan(0);expect(Math.min(measure.content.x+measure.content.w,measure.viewport.w)-Math.max(0,measure.content.x)).toBeGreaterThan(50);expect(Math.min(measure.content.y+measure.content.h,measure.viewport.h)-Math.max(0,measure.content.y)).toBeGreaterThan(50);}
+      36 |   }finally{await post.delete();await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}
+      37 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\tests\e2e\101-mural.spec.ts:34:35
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-mobile\error-context.md
+
+    Error Context: qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+    [chromium-mobile] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+  2 passed (1.9m)
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+[2/2] [chromium-mobile] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+  2 passed (54.8s)
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+  1) [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.ak-live-stage img.object-contain[src*="barra-tragos-ak-01"]').first()
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 60000ms
+      - waiting for locator('.ak-live-stage img.object-contain[src*="barra-tragos-ak-01"]').first()
+
+
+      21 |     expect((await page.goto('/evento/muro-en-vivo/'+id,{waitUntil:'domcontentloaded'}))?.status()).toBe(200);
+      22 |     const content=withPhoto?page.locator('.ak-live-stage img.object-contain[src*="barra-tragos-ak-01"]').first():page.getByTestId('live-wall-empty');
+    > 23 |     await expect(content).toBeVisible({timeout:60000});await page.waitForTimeout(4000);
+         |                           ^
+      24 |     const measure=await page.evaluate(({withPhoto})=>{
+      25 |       const root=document.querySelector('.ak-live-stage'),content=withPhoto?document.querySelector('.ak-live-stage img.object-contain[src*="barra-tragos-ak-01"]'):document.querySelector('[data-testid="live-wall-empty"]');
+      26 |       let panel=content;while(panel&&panel.parentElement!==root)panel=panel.parentElement;
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\tests\e2e\101-mural.spec.ts:23:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\error-context.md
+
+    Error Context: qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-mobile] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+  1 failed
+    [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+  1 passed (1.6m)
+
+Running 1 test using 1 worker
+
+[1/1] [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+  1) [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.ak-live-stage img[src*="barra-tragos-ak-01"]:not([class*="blur"])').first()
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 60000ms
+      - waiting for locator('.ak-live-stage img[src*="barra-tragos-ak-01"]:not([class*="blur"])').first()
+
+
+      21 |     expect((await page.goto('/evento/muro-en-vivo/'+id,{waitUntil:'domcontentloaded'}))?.status()).toBe(200);
+      22 |     const content=withPhoto?page.locator('.ak-live-stage img[src*="barra-tragos-ak-01"]:not([class*="blur"])').first():page.getByTestId('live-wall-empty');
+    > 23 |     await expect(content).toBeVisible({timeout:60000});await page.waitForTimeout(4000);
+         |                           ^
+      24 |     const measure=await page.evaluate(({withPhoto})=>{
+      25 |       const root=document.querySelector('.ak-live-stage'),content=withPhoto?document.querySelector('.ak-live-stage img[src*="barra-tragos-ak-01"]:not([class*="blur"])'):document.querySelector('[data-testid="live-wall-empty"]');
+      26 |       let panel=content;while(panel&&panel.parentElement!==root)panel=panel.parentElement;
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\tests\e2e\101-mural.spec.ts:23:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\error-context.md
+
+    Error Context: qa101-mural-artifacts\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\error-context.md
+
+
+  1 failed
+    [chromium-desktop] › tests\e2e\101-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo

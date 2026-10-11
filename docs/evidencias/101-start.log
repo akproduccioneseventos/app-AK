@@ -1,0 +1,547 @@
+[31m[1m!!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-ak-producciones", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[33m[1m!  emulators:[22m[39m It seems that you are running multiple instances of the emulator suite for project demo-ak-producciones. This may result in unexpected behavior.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m! [22m[39m Unexpected rules runtime error: Picked up JAVA_TOOL_OPTIONS: -Xmx512m
+
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌───────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator  [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore [90m│[39m 127.0.0.1:8085 [90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage   [90m│[39m 127.0.0.1:9195 [90m│[39m
+[90m└───────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+
+[33m[1m!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 13.1s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 3.2s (161 modules)
+ ○ Compiling /fiestas/nueva/tareas ...
+ ✓ Compiled /fiestas/nueva/tareas in 57.9s (5105 modules)
+ ✓ Compiled in 3.7s (1810 modules)
+ GET /fiestas/nueva/tareas?fiestaId=e2e_101_scope_18068_1791728415586_a 200 in 62228ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_18068_1791728415586_a 200 in 2498ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_18068_1791728415586_a 200 in 2444ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_18068_1791728415586_a 200 in 1513ms
+ ○ Compiling /api/multiagent/message ...
+ ✓ Compiled /api/multiagent/message in 31.5s (6331 modules)
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_18068_1791728415586_a 200 in 34269ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] Firestore listCollection failed for "fiestas": {
+  name: 'Error',
+  message: 'Timeout de consulta a base de datos superado (3500ms)'
+}
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_18068_1791728415586_a 200 in 4815ms
+[QA101] Provider unavailable locally: generativelanguage.googleapis.com
+Error: QA101 controlled provider outage; no outbound request
+    at globalThis.fetch (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\qa101-provider.cjs:8:11)
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:563:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[Multiagent] La IA no respondió, se usa el respaldo: Error: Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA101 controlled provider outage; no outbound request
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:563:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error; {
+  traceId: '00000000000000000000000000000000',
+  ignoreFailedSpan: true
+}
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_18068_1791728415586_a 200 in 612ms
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+ POST /api/multiagent/message 200 in 42027ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_18068_1791728415586_a 200 in 374ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_101_scope_21196_1791728537894_a 200 in 1743ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_21196_1791728537894_a 200 in 412ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_21196_1791728537894_a 200 in 508ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_21196_1791728537894_a 200 in 1069ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_21196_1791728537894_a 200 in 1363ms
+[QA101] Provider unavailable locally: generativelanguage.googleapis.com
+Error: QA101 controlled provider outage; no outbound request
+    at globalThis.fetch (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\qa101-provider.cjs:8:11)
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:563:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[Multiagent] La IA no respondió, se usa el respaldo: Error: Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA101 controlled provider outage; no outbound request
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:563:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error; {
+  traceId: '00000000000000000000000000000000',
+  ignoreFailedSpan: true
+}
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_21196_1791728537894_a 200 in 1768ms
+ POST /api/multiagent/message 200 in 4145ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_21196_1791728537894_a 200 in 1715ms
+ ○ Compiling /api/asistente/voz-parte ...
+ ✓ Compiled /api/asistente/voz-parte in 5.7s (6337 modules)
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_101_scope_17868_1791728571121_a 200 in 1539ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_17868_1791728571121_a 200 in 2039ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_17868_1791728571121_a 200 in 572ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_17868_1791728571121_a 200 in 3141ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_17868_1791728571121_a 200 in 906ms
+[QA101] Provider unavailable locally: generativelanguage.googleapis.com
+Error: QA101 controlled provider outage; no outbound request
+    at globalThis.fetch (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\qa101-provider.cjs:8:11)
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:563:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[Multiagent] La IA no respondió, se usa el respaldo: Error: Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA101 controlled provider outage; no outbound request
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:563:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error; {
+  traceId: '00000000000000000000000000000000',
+  ignoreFailedSpan: true
+}
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_17868_1791728571121_a 200 in 1170ms
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+ POST /api/multiagent/message 200 in 5070ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_101_scope_17868_1791728571121_a 200 in 727ms
+ POST /api/asistente/voz-parte 200 in 1025ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ ○ Compiling /evento/muro-en-vivo/[fiestaId] ...
+ ✓ Compiled /evento/muro-en-vivo/[fiestaId] in 17.7s (6380 modules)
+ GET /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 23791ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 2039ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 1765ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 593ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 649ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 1057ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 898ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 753ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 942ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728608694 200 in 3403ms
+ GET /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 1409ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 494ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 720ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 716ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 1110ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 587ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 1163ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 601ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 622ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 694ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 503ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 631ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 1002ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 781ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 703ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 749ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 947ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 998ms
+ POST /evento/muro-en-vivo/e2e_101_mural_14212_1791728648182 200 in 546ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 1800ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 624ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 526ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 588ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 562ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 494ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 493ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 580ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 486ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 517ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 466ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 490ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 825ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 626ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 548ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728669632 200 in 583ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 9871ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 972ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 527ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 2810ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 1393ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 664ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 684ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 751ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 607ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 967ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 754ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 870ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 1346ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 999ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 865ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 1134ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 921ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 1515ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 536ms
+ POST /evento/muro-en-vivo/e2e_101_mural_23292_1791728683766 200 in 716ms
+ GET /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 1610ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 1149ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 2289ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 818ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 1460ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 1035ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 830ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 831ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 1014ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 972ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 609ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 944ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 2985ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 1034ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26856_1791728753334 200 in 1341ms
+[Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException: [Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException:  [Error: aborted] { code: 'ECONNRESET' }
+ GET /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 1279ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 626ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 809ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 572ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 1313ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 1197ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 1091ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 609ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 1209ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 1013ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 574ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 658ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 716ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 866ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 896ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 761ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 847ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 873ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 758ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 1768ms
+ POST /evento/muro-en-vivo/e2e_101_mural_22268_1791728780291 200 in 819ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ ○ Compiling /invitacion/[fiestaId]/invitado/[guestId] ...
+ ✓ Compiled /invitacion/[fiestaId]/invitado/[guestId] in 15.1s (5107 modules)
+ GET /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 20168ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 3338ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 1144ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 558ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 653ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 1127ms
+ ○ Compiling /evento/accesos/[fiestaId] ...
+ ✓ Compiled /evento/accesos/[fiestaId] in 10.6s (5175 modules)
+ GET /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 17181ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 2019ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 677ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 2534ms
+ GET /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 2349ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 1032ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 2019ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 613ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 741ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 1955ms
+ GET /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 1258ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 558ms
+ GET /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 923ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 644ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 537ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 812ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 754ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 785ms
+ GET /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 1137ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 576ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 616ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 1163ms
+ GET /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 868ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 957ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 466ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 510ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 617ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 648ms
+ GET /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 969ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 1156ms
+ GET /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1760ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1749ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 975ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 618ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1691ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 843ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1331ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1228ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1814ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 584ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 605ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 546ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 533ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 672ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 748ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 606ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 601ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1323ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 3252ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 740ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 767ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 581ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 859ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 768ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 2146ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 704ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 616ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 579ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1267ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 751ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 487ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 491ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 673ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 607ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 785ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 830ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 586ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 606ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 610ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 572ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 614ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1456ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 2856ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 512ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 621ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 987ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 556ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 817ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 540ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 612ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 604ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 582ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 531ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 525ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 553ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 547ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 777ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 641ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 629ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 654ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 887ms
+ POST /evento/muro-en-vivo/e2e_101_mural_1716_1791729111079 200 in 1418ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 1472ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 816ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 652ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 1548ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 1434ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 739ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 854ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 587ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 717ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 538ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 609ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 800ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 732ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 793ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 895ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 868ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 761ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 1061ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 1675ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 598ms
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 772ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 883ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_26560_1791729178528 200 in 1529ms
+ ⨯ [Error: aborted]
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 11.2s (5527 modules)
+ GET /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 2543ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+(node:26984) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGTERM listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 3502ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 984ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 1809ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 555ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 592ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 996ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 629ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 943ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 653ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 811ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 1179ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 677ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 744ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 749ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 3810ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 777ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 550ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 639ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 513ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 14212ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 837ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 1053ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 834ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 705ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 631ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 2206ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 603ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 629ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 582ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 657ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 631ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 803ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 621ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 846ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 1120ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 732ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 940ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 626ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 997ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 686ms
+ POST /evento/muro-en-vivo/e2e_101_mural_20920_1791729276540 200 in 884ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 1491ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 715ms
+ GET /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 1203ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 1226ms

@@ -1,0 +1,30 @@
+[
+  {
+    "title": "respaldo de ESTA fiesta no mezcla otro evento",
+    "project": "chromium-desktop",
+    "status": "timedOut",
+    "duration": 120796,
+    "errors": [
+      "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+      "Error: page.waitForResponse: Test timeout of 120000ms exceeded.\n\n  76 |     await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();\n  77 |     await page.getByPlaceholder(/Hablar con/).fill('Qu\\u00e9 le falta a ESTA fiesta, sonda alcance '+prefix);\n> 78 |     const pending=page.waitForResponse(r=>r.url().endsWith('/api/multiagent/message')&&r.request().method()==='POST',{timeout:90000});\n     |                        ^\n  79 |     await page.getByTitle('Enviar',{exact:true}).click();const response=await pending;\n  80 |     const result=await response.json(),request=response.request().postDataJSON();\n  81 |     observation={ids,actual:fixtures[0].configuracion.nombreEvento,ajena:fixtures[1].configuracion.nombreEvento,request,result};\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-ia.spec.ts:78:24"
+    ],
+    "attachments": []
+  },
+  {
+    "title": "respaldo de ESTA fiesta no mezcla otro evento",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 14467,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "alcance-real.json",
+        "file": "docs/evidencias/101-artifactos/101-e2e-primer-01-0.json"
+      },
+      {
+        "name": "alcance-real.png",
+        "file": "docs/evidencias/101-artifactos/101-e2e-primer-01-1.png"
+      }
+    ]
+  }
+]

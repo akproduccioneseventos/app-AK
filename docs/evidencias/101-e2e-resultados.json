@@ -1,0 +1,19 @@
+[
+  {
+    "title": "respaldo de ESTA fiesta no mezcla otro evento",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 16444,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "alcance-real.json",
+        "file": "docs/evidencias/101-artifactos/101-e2e-00-0.json"
+      },
+      {
+        "name": "alcance-real.png",
+        "file": "docs/evidencias/101-artifactos/101-e2e-00-1.png"
+      }
+    ]
+  }
+]

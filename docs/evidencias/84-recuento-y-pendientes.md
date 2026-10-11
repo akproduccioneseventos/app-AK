@@ -1,5 +1,18 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion101: entrega1290, sin reabrir lo ya aprobado
+
+Fuente99faf4eb:149 SDKaliasactual/nativo/control SI y respaldoFiestaA SOLO A
+PCmovil2pass.150vacio fixed/panel590-659/tituloPCmovilSI;foto principal movil
+natural602/opacidad1SI. FotoPCvista inicialmente, medicion final inconclusa:
+vacio/Reconectando, causa NO confirmada, NO orden de bug sin contrasteSDK.
+147corto2pass/reentrada sin duplicar;UUID276identico PCmovil2fail, exacto99.
+PNG conservado falla/SDKsin cambios/checkedInfalse:2diagnosticos NO cierreQR.
+Orden147 ampliada;151 sin delta/no corrida duplicada. Informe101 manda para
+7parespositivos/2negativos/1par parcial;los errores propios de sonda no son
+fallosapp. Runtime cerrado/fixturespropios cero/agregadosdemo preservados.
+Aceptar criterios acotados149, NO14areaslimpias/modelosdePago/Hosting/0errores.
+
 ## Actualizacion100: cadena de lectura real, dos efectos nuevos
 
 Main ca5b714d, sin delta149/150/147residuo. Corte SDK Query.getfiestas:

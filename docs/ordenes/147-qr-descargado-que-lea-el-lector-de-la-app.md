@@ -50,6 +50,30 @@ legible. Comparar original contra controles, no alterar tokens ni omitir la
 validacion del servidor. Revisar otras exportaciones SOLO si comparten la
 misma causa; no declarar RSVP defectuoso sin reproducirlo.
 
+## Contraste101 de1290 - Modulos enteros, UUID todavia no aceptado
+
+Fuente EJECUTADA main99faf4eb061fa46341cfdde6f81b93b3bfb9c73c.
+NO CONTRASTADO CON TANDA CORRECTIVA LOCAL NO SUBIDA. No reimplementar el
+generador anterior ni pedir otra propuesta: esta es UNA ampliacion de147.
+Informe101-retest-1290-ia-mural-qr.md/raw101-qr/qrcontrol/artifactos.
+
+- Id e2e_99_qr_uuid_1791695586308, guestIdg99uuid, token UUID
+  11111111-2222-4333-8444-555555555555: GuardarQR entrega PNG276cuadrado,
+  el lector real no lo detecta en PC ni movil. Mismos datos del negativo99.
+- Ambos archivos SON iguales SHA256178ee11b19547512912630eaca90474726b0244b409b2afa73ba92a677c62498.
+  Repeticion con el PNG conservado confirma el error, SDK intacto/checkedInfalse.
+- Corto PC/movil si lee, segunda lectura no duplica y conserva timestamp.
+  No es permiso ni marca de entrada falsa. No declarar100% por una muestra
+  aleatoria que no incluyo este caso conocido; 299/300 no cierra el negativo.
+
+Revisar compatibilidad de la exportacion con el decodificador real usando
+ESTE PNG como regresion, y validar consumidor antes de cerrar. No adjudicar
+causa interna al lector sin comparar ni aumentar borde/resolucion a ciegas:
+modulos enteros/DPR independiente ya estan implementados. No cambiar tokens,
+permisos ni contenido comercial del QR sin decision del dueno. Si se elige
+otro motor o respaldo, justificar y probar; Codex no instalo ni programo uno.
+No afirmar que RSVP/los otros QR fallan por este caso: no ejecutados101.
+
 ## Aceptacion pendiente de la correccion
 
 En el SHA corregido, descargar desde Guardar QR y subir EXACTAMENTE esos bytes
@@ -80,4 +104,6 @@ prueba: src/__tests__/el-qr-descargado-tiene-zona-blanca.test.ts
 prueba: tests/e2e/qr-descargado-lector-real.spec.ts
 prueba: docs/evidencias/99-qr-retest.spec.ts
 prueba: docs/evidencias/99-qr-persistidos.spec.ts
+prueba: docs/evidencias/101-qr-retest.spec.ts
+prueba: docs/evidencias/101-qr-control.spec.ts
 ```

@@ -1,0 +1,181 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "playwright.101.config.ts",
+      "--grep",
+      "approved photo",
+      "--project",
+      "chromium-desktop"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\playwright.101.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-101/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-101/qa101-mural-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-101/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/101-mural.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-101/qa101-mural-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-101/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/101-mural.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-verificacion-81-20261009\\docs\\evidencias\\101-mural.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "101-mural.spec.ts",
+      "file": "101-mural.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Mural painted without CSS override: approved photo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 64677,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])').first()\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])').first()\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])').first()\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])').first()\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-mural.spec.ts:23:27",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-mural.spec.ts",
+                      "column": 27,
+                      "line": 23
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     expect((\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/evento/muro-en-vivo/'\u001b[39m\u001b[33m+\u001b[39mid\u001b[33m,\u001b[39m{waitUntil\u001b[33m:\u001b[39m\u001b[32m'domcontentloaded'\u001b[39m}))\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mstatus())\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m     \u001b[36mconst\u001b[39m content\u001b[33m=\u001b[39mwithPhoto\u001b[33m?\u001b[39mpage\u001b[33m.\u001b[39mlocator(\u001b[32m'.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m:\u001b[39mpage\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'live-wall-empty'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m     \u001b[36mawait\u001b[39m expect(content)\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m60000\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m4000\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m     \u001b[36mconst\u001b[39m measure\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(({withPhoto})\u001b[33m=>\u001b[39m{\n \u001b[90m 25 |\u001b[39m       \u001b[36mconst\u001b[39m root\u001b[33m=\u001b[39mdocument\u001b[33m.\u001b[39mquerySelector(\u001b[32m'.ak-live-stage'\u001b[39m)\u001b[33m,\u001b[39mcontent\u001b[33m=\u001b[39mwithPhoto\u001b[33m?\u001b[39mdocument\u001b[33m.\u001b[39mquerySelector(\u001b[32m'.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])'\u001b[39m)\u001b[33m:\u001b[39mdocument\u001b[33m.\u001b[39mquerySelector(\u001b[32m'[data-testid=\"live-wall-empty\"]'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m       \u001b[36mlet\u001b[39m panel\u001b[33m=\u001b[39mcontent\u001b[33m;\u001b[39m\u001b[36mwhile\u001b[39m(panel\u001b[33m&&\u001b[39mpanel\u001b[33m.\u001b[39mparentElement\u001b[33m!==\u001b[39mroot)panel\u001b[33m=\u001b[39mpanel\u001b[33m.\u001b[39mparentElement\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-mural.spec.ts",
+                        "column": 27,
+                        "line": 23
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])').first()\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])').first()\u001b[22m\n\n\n  21 |     expect((await page.goto('/evento/muro-en-vivo/'+id,{waitUntil:'domcontentloaded'}))?.status()).toBe(200);\n  22 |     const content=withPhoto?page.locator('.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])').first():page.getByTestId('live-wall-empty');\n> 23 |     await expect(content).toBeVisible({timeout:60000});await page.waitForTimeout(4000);\n     |                           ^\n  24 |     const measure=await page.evaluate(({withPhoto})=>{\n  25 |       const root=document.querySelector('.ak-live-stage'),content=withPhoto?document.querySelector('.ak-live-stage img[src*=\"barra-tragos-ak-01\"]:not([class*=\"blur\"])'):document.querySelector('[data-testid=\"live-wall-empty\"]');\n  26 |       let panel=content;while(panel&&panel.parentElement!==root)panel=panel.parentElement;\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-mural.spec.ts:23:27"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T14:34:36.203Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\qa101-mural-artifacts\\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\qa101-mural-artifacts\\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\qa101-mural-artifacts\\101-mural-Mural-painted-without-CSS-override-approved-photo-chromium-desktop\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-mural.spec.ts",
+                    "column": 27,
+                    "line": 23
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "597c7c6ae4627ee96ca0-a932a449cfe23ef6bb1d",
+          "file": "101-mural.spec.ts",
+          "line": 10,
+          "column": 41
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T14:34:34.175Z",
+    "duration": 67721.45599999999,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

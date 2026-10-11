@@ -1,7 +1,7 @@
-# Estado actual - 11/10/2026 (Codex88-100)
+# Estado actual - 11/10/2026 (Codex88-101)
 
 Rama codex/auditoria-97-ia-contexto-20261011; PR1288 QA/149-151,NOfusionar.
-Main99faf4eb/1290recibido:147/149/150correcciones presentes,pendientes retest.
+Main99faf4eb/1290 ejecutado101;149 criterios SI,150parcial,147UUID NO.
 99QR en ca5:6pass/2fail historicos;100lector sin delta,NOrepetir.
 Tanda local no subida NO contrastada. No reencargar lo presente en main.
 
@@ -21,20 +21,20 @@ Tanda local no subida NO contrastada. No reencargar lo presente en main.
   excluido del muralPUBLICO cargado/recarga sin duplicar PASAN. Nohardware.
 ## Fuente correctiva presente; no reprogramar criterios cerrados98
 - 144/145a1bc1977;1460910b888;14873c4dd0f/08aa9319 aceptados98acotado.
-- 147QR:1289recibida;historico94 PCmovilSI,dos patronesmovilesNO. Ampliada99.
-- NUEVO150P1:mural flex0px/CSSpositionrelative ganafixed;control540/659pxSI.
+- 147QR101:corto PCmovilSI,UUID276identicoNO/checkedInfalse;ampliada NOduplicar.
+- 150101:vacioPCmovilfixed/panel590-659SI;foto principal movilSI/PCparcial.
 - Barrido697102a1/a535407b lectores/camaras:Claude explicita limitesnavegador.
 ## Nuevos hallazgos y limites
-- NUEVO149Gemini:primera generacionNodeSDK no constructor por aliasfalse;
-  minisonda nativoSI/configactualNO/controlSI. Hosting no probado.
-- NUEVO149Gemini:respaldo agenteFiestaA priorizaB PCmovil2fail,SDK/UI real.
-  Filtrar antes de limitar;general conserva alcance. No fuga entre cuentas.
+- 149101:SDKaliasactual/nativo/control construyenSI, respaldoA no incluyeB
+  PCmovil2pass. No reabrir esos criterios;modeloreal/Hosting NO probados.
+- FotoPC101:capturas anterioresSI;ultima medicion vacio/Reconectando,
+  causa no confirmada/sin SDKal timeout;NOorden de bug ni aceptacion plena.
 - 151Claude:lector traga fallo->portal falsoexpirado/presupuesto[]sinaviso;
   100PCmovil4negativos,claveinexistente2pass,SDKintacto. No throwglobal ciego.
 - 3Dhistorico falla reconciler/foto!=canvas;sin escena aceptada.
 - Video URLs reales/integraciones necesitan cuentas/staging autorizados.
 - 19manuales requieren export+originales;gRPC7/JSONlocal0 NO son ausencia.
 - Hardwarefinal pendiente;build/Hosting mismoSHA registraClaude, noActionsrojos.
-- Informes97-100/orden149-151/matriz84/YA compartidos;no0errores/14limpias.
-- TEMP97-100/agente cerrados;demofinal limpio,errorQAprep100documentado.
+- Informe101:7paresSI/2UUIDNO/1parcial;ord147/151+matrix84/YA,no0errores.
+- TEMP97-101cerrados;fixturespropios0/agregadosdemo preservados,QAerroresanotados.
 - Control dos-controles intermitente segun Claude:usar su JSON si reaparece.

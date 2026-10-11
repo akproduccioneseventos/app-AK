@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/10/2026 - Codex101: entrega1290, aceptaciones acotadas y QR residual
+
+- Ejecutado main99faf4eb.149: miniwebpack real construye SDK con alias,
+  nativo y control; widget de FiestaA ante proveedor caido responde SOLO A,
+  PC/movil2pass. No repetir historia97 ni pagar modelos para este criterio.
+-150: mural vacio fixed y titulo pintado PC/movil2pass (panel590/659).
+  Foto principal movil decodificada natural602/opacity1/panel614 pasa.
+  FotoPC vista en capturas, geometria principal final NO aceptada: ultimo
+  intento muestra vacio/Reconectando, sin snapshotSDK individual al timeout.
+  Causa NO confirmada; NO nueva orden de bug por ese intento incompleto.
+-147: corto PC/movil2pass/reentrada no duplica; UUID exacto de99 PC/movil
+  2fail con nuevo PNG276x276 identico en ambos. Archivo conservado vuelve
+  a fallar,SDKintacto/checkedInfalse. Dos controles diagnosticos no aprueban
+  QR.147 ampliada, NO otra orden ni aumentar margen/DPR a ciegas.
+-151lector sin delta, NO sondas repetidas. Conservar aceptaciones88-100.
+-Errores/limites propios QA: PCfrio120s timeout, repetido SOLO PC pasa;
+  foto no debe recibir clicks bajo caption; intermedio midio fondo borroso.
+  Raw intermedios conservados; no contar esos intentos como defectos app.
+  Informe101 manda:7parespositivos/2negativos/1par parcial, NO app limpia.
+-Runtime101detenido/puertoslibres/fixturespropios cero. Agregadosdemochat/
+  memoria/consumo/rate-limit preservados hasta parada; no datosreales/build.
+  Sin dependencias de produccion ni programacion de app por Codex; PR1288
+  abierta. Claude registra compilacion/Hosting; no Actionsrojos/0errores.
+
 ## 11/10/2026 - Codex100: lector real, dos avisos no reciben el fallo
 
 - Ejecutado main ca5b714d:portal valido ante corte controlado dice invalido/

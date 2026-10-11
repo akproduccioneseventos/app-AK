@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Auditorias97-100: IA con widget/API/SDK reales en entorno aislado9a y contraste
+Auditorias97-101: IA con widget/API/SDK reales en entorno aislado9a y contraste
 contra main755. No correcciones de app; orden149 para Gemini/Claude.
 Dos causas P2: primera generacion falla antes de proveedor por sdk-node
 anulado; respaldoFiestaA priorizaB. Chatpersistente A-B/NOtarea ficticia
@@ -26,6 +26,12 @@ producto identico a main, cambios1289 no son de Codex. PRno fusionada.
 lectura SDK;PCmovil4negativos/clave realmente ausente2pass. Ord151Claude;
 datos intactos/recuperacion,lector intermedio traga error. No app corregida.
 Dos errores propios de preparacion QA aclarados,NO dos fallos mas de app.
+101main99faf4eb/1290:149SDKarranque/respaldoA PCmovil aceptados acotados;
+150vacioPCmovil y foto principal movil SI, fotoPC medicion final inconclusa.
+147cortoPCmovilSI/reentrada, UUID276identicoPCmovilNO;SDKintacto/checkedInfalse.
+Se amplia147,NO orden nueva.151sin delta NOrepetido. Errores/limites propios
+de sonda preservados;7paresSI/2NO/1parcial, no suite verde ni app lista.
+Merge1290solo para contraste y registros;codigo producto identico a main.
 
 ## Tipo de Cambio
 - [ ] Correccion de errores (bug fix)
@@ -41,6 +47,7 @@ Dos errores propios de preparacion QA aclarados,NO dos fallos mas de app.
 - [x] Retests98 PC/movil:18ejecucionespositivas/16pares;visual4negativas,ninguna omitida.
 - [x] Retest99QR PC/movil:6pass/2fail,no omitidos;controles no aprueban PNGoriginal.
 - [x] Auditoria100 cadena lectorreal/HTTP/UI/SDK PCmovil,4negativos,2controlesausencia.
+- [x] Retest101 de cambios1290; IA aceptada acotada, mural parcial, UUID sigue fallando.
 - [x] Comparacion causal miniwebpack, NO build de producto.
 - [x] Sintaxis de sondas y git diff --check.
 - [x] Fixtures propios retirados/runtime detenido/puertos libres.

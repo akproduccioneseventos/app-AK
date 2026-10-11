@@ -1,0 +1,98 @@
+[
+  {
+    "title": "Downloaded QR actual reader and SDK persistence: short",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 66802,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "actual-downloaded-qr.png",
+        "file": "docs/evidencias/101-artifactos/101-qr-00-0.png"
+      },
+      {
+        "name": "reader-first.png",
+        "file": "docs/evidencias/101-artifactos/101-qr-00-1.png"
+      },
+      {
+        "name": "sdk-after-second.json",
+        "file": "docs/evidencias/101-artifactos/101-qr-00-2.json"
+      }
+    ]
+  },
+  {
+    "title": "Downloaded QR actual reader and SDK persistence: uuid",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 60339,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n\n\n  54 |     const payload = { name: 'actual-download.png', mimeType: 'image/png', buffer: bytes };\n  55 |     await input.setInputFiles(payload);\n> 56 |     await expect(page.getByText(/ACCESO PERMITIDO/)).toBeVisible({ timeout: 45000 });\n     |                                                      ^\n  57 |     await expect.poll(async () => (await ref.get()).data()?.invitados?.[0]?.checkedIn, { timeout: 30000 }).toBe(true);\n  58 |     const first = (await ref.get()).data().invitados[0]; expect(first.checkInTimestamp).toBeTruthy();\n  59 |     await info.attach('reader-first.png', { body: await page.screenshot(), contentType: 'image/png' });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-qr-retest.spec.ts:56:54"
+    ],
+    "attachments": [
+      {
+        "name": "actual-downloaded-qr.png",
+        "file": "docs/evidencias/101-artifactos/101-qr-01-0.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/101-artifactos/101-qr-01-1.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-qr-01-2.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-qr-01-3.txt"
+      }
+    ]
+  },
+  {
+    "title": "Downloaded QR actual reader and SDK persistence: short",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 25907,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "actual-downloaded-qr.png",
+        "file": "docs/evidencias/101-artifactos/101-qr-02-0.png"
+      },
+      {
+        "name": "reader-first.png",
+        "file": "docs/evidencias/101-artifactos/101-qr-02-1.png"
+      },
+      {
+        "name": "sdk-after-second.json",
+        "file": "docs/evidencias/101-artifactos/101-qr-02-2.json"
+      }
+    ]
+  },
+  {
+    "title": "Downloaded QR actual reader and SDK persistence: uuid",
+    "project": "chromium-mobile",
+    "status": "failed",
+    "duration": 57017,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n\n\n  54 |     const payload = { name: 'actual-download.png', mimeType: 'image/png', buffer: bytes };\n  55 |     await input.setInputFiles(payload);\n> 56 |     await expect(page.getByText(/ACCESO PERMITIDO/)).toBeVisible({ timeout: 45000 });\n     |                                                      ^\n  57 |     await expect.poll(async () => (await ref.get()).data()?.invitados?.[0]?.checkedIn, { timeout: 30000 }).toBe(true);\n  58 |     const first = (await ref.get()).data().invitados[0]; expect(first.checkInTimestamp).toBeTruthy();\n  59 |     await info.attach('reader-first.png', { body: await page.screenshot(), contentType: 'image/png' });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-qr-retest.spec.ts:56:54"
+    ],
+    "attachments": [
+      {
+        "name": "actual-downloaded-qr.png",
+        "file": "docs/evidencias/101-artifactos/101-qr-03-0.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/101-artifactos/101-qr-03-1.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-qr-03-2.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-qr-03-3.txt"
+      }
+    ]
+  }
+]
