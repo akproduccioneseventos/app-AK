@@ -309,7 +309,7 @@ const nextConfig = {
       ...config.resolve.alias,
       '@firebase/auth': path.resolve(__dirname, 'node_modules/firebase/node_modules/@firebase/auth/dist/node/index.js'),
       '@opentelemetry/exporter-jaeger': false,
-      '@opentelemetry/sdk-node': false,
+      '@opentelemetry/sdk-node': path.resolve(__dirname, 'src/lib/telemetria-apagada-node-sdk.js'),
       'canvg': false,
       'dompurify': false,
     };
