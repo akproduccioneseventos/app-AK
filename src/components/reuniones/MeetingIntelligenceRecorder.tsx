@@ -126,6 +126,16 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
     }
   };
 
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const startRecording = async () => {
     if (isRecording) return;
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
@@ -145,6 +155,10 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
       chunksRef.current = [];
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (desmontadoRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = stream;
       const options = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? { mimeType: 'audio/webm;codecs=opus' } : undefined;
       const recorder = new MediaRecorder(stream, options);

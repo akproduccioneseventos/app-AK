@@ -1,0 +1,317 @@
+PASS src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts
+  ● Console
+
+    console.error
+      [Multiagent] No se pudo armar el contexto del negocio: Error: manual roto
+          at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:76:28
+          at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:305:39
+          at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:102:19)
+          at buildContext (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\ai\flows\multiagent-flow.ts:373:49)
+          at runMultiAgent (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\ai\flows\multiagent-flow.ts:497:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:299:15)
+
+    [0m [90m 496 |[39m [32m  const agentType = detectAgent(input);[39m
+     [90m 497 |[39m [32m  const context   = await buildContext(input, agentType).catch((error) => {[39m
+    [31m[1m>[22m[39m[90m 498 |[39m [32m    console.error('[Multiagent] No se pudo armar el contexto del negocio:', error);[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 499 |[39m [32m    return {[39m
+     [90m 500 |[39m [32m      fiesta: null, briefing: null, fiestas: [], memory: null,[39m
+     [90m 501 |[39m [32m      text: 'NO SE PUDO LEER NINGÚN DATO DEL NEGOCIO AHORA. No tenés cifras reales: no inventes ni digas que "no hay" fiestas, plata o presupuestos; decí que no pudiste leerlos.',[39m[0m
+
+      at error (src/ai/flows/multiagent-flow.ts:498:13)
+      at runMultiAgent (src/ai/flows/multiagent-flow.ts:497:21)
+      at Object.<anonymous> (src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts:299:15)
+
+    console.error
+      [Multiagent] La IA no respondió, se usa el respaldo: Error: IA caída
+          at iaResponde (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:307:38)
+          at iaResponde (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:40:12)
+          at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:305:39
+          at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:57:19)
+          at runMultiAgent (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\ai\flows\multiagent-flow.ts:560:54)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:309:15)
+
+    [0m [90m 480 |[39m [32m  };[39m
+     [90m 481 |[39m [32m[39m
+    [31m[1m>[22m[39m[90m 482 |[39m [32m  if (error) console.error('[Multiagent] La IA no respondió, se usa el respaldo:', error);[39m
+     [90m     |[39m                      [31m[1m^[22m[39m
+     [90m 483 |[39m [32m[39m
+     [90m 484 |[39m [32m  return [[39m
+     [90m 485 |[39m [32m    LINEA_MODO_RESPALDO,[39m[0m
+
+      at error (src/ai/flows/multiagent-flow.ts:482:22)
+      at buildFallback (src/ai/flows/multiagent-flow.ts:714:18)
+      at Object.<anonymous> (src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts:309:15)
+
+    console.error
+      [Multiagent] La IA no respondió, se usa el respaldo: Error: IA caída
+          at iaResponde (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:318:38)
+          at iaResponde (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:40:12)
+          at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:305:39
+          at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:57:19)
+          at runMultiAgent (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\ai\flows\multiagent-flow.ts:560:54)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:320:19)
+
+    [0m [90m 480 |[39m [32m  };[39m
+     [90m 481 |[39m [32m[39m
+    [31m[1m>[22m[39m[90m 482 |[39m [32m  if (error) console.error('[Multiagent] La IA no respondió, se usa el respaldo:', error);[39m
+     [90m     |[39m                      [31m[1m^[22m[39m
+     [90m 483 |[39m [32m[39m
+     [90m 484 |[39m [32m  return [[39m
+     [90m 485 |[39m [32m    LINEA_MODO_RESPALDO,[39m[0m
+
+      at error (src/ai/flows/multiagent-flow.ts:482:22)
+      at buildFallback (src/ai/flows/multiagent-flow.ts:714:18)
+      at Object.<anonymous> (src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts:320:19)
+
+    console.error
+      [Multiagent] La IA no respondió, se usa el respaldo: Error: IA caída
+          at iaResponde (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:318:38)
+          at iaResponde (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:40:12)
+          at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:305:39
+          at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:312:13
+          at mockConstructor (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-mock\build\index.js:57:19)
+          at runMultiAgent (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\ai\flows\multiagent-flow.ts:560:54)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\ia-asistente-sabe-lo-que-dice.test.ts:324:21)
+
+    [0m [90m 480 |[39m [32m  };[39m
+     [90m 481 |[39m [32m[39m
+    [31m[1m>[22m[39m[90m 482 |[39m [32m  if (error) console.error('[Multiagent] La IA no respondió, se usa el respaldo:', error);[39m
+     [90m     |[39m                      [31m[1m^[22m[39m
+     [90m 483 |[39m [32m[39m
+     [90m 484 |[39m [32m  return [[39m
+     [90m 485 |[39m [32m    LINEA_MODO_RESPALDO,[39m[0m
+
+      at error (src/ai/flows/multiagent-flow.ts:482:22)
+      at buildFallback (src/ai/flows/multiagent-flow.ts:714:18)
+      at Object.<anonymous> (src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts:324:21)
+
+PASS src/__tests__/ia-flujos-no-fingen-exito.test.ts
+PASS src/__tests__/la-voz-en-vivo-cliente.test.ts
+PASS src/__tests__/la-voz-en-vivo-ruta.test.ts
+PASS src/__tests__/el-album-entrega-lo-que-dice.test.ts
+PASS src/__tests__/compras-suman-en-la-misma-unidad.test.ts
+PASS src/__tests__/el-secretario-hace-lo-del-dia.test.ts (7.781 s)
+  ● Console
+
+    console.log
+      Firebase Admin SDK initialized with Application Default Credentials.
+
+      at Object.log (src/lib/firebase/server.ts:43:17)
+
+    console.log
+      Firestore connected to emulator at 127.0.0.1:8085
+
+      at Object.log (src/lib/firebase/server.ts:46:19)
+
+    console.error
+      Error getting Firestore/Auth instance: Unexpected token 'export'
+
+    [0m [90m 90 |[39m   }
+     [90m 91 |[39m } [36mcatch[39m (e[33m:[39m any) {
+    [31m[1m>[22m[39m[90m 92 |[39m   console[33m.[39merror([32m'Error getting Firestore/Auth instance:'[39m[33m,[39m e[33m.[39mmessage)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 93 |[39m   console[33m.[39merror([32m'Full error:'[39m[33m,[39m e)[33m;[39m
+     [90m 94 |[39m }
+     [90m 95 |[39m[0m
+
+      at Object.error (src/lib/firebase/server.ts:92:11)
+      at Object.<anonymous> (src/lib/firebase/firestore.ts:39:17)
+      at Object.<anonymous> (src/app/actions/notifications.ts:48:20)
+      at Object.<anonymous> (src/lib/notifications/create-notification.ts:12:24)
+      at Object.<anonymous> (src/app/actions/customers.ts:47:29)
+      at Object.<anonymous> (src/app/actions/crm.ts:79:20)
+      at Object.<anonymous> (src/app/actions/presupuestos.ts:76:14)
+      at Object.<anonymous> (src/app/actions/fiesta/fiesta.actions.ts:130:23)
+      at Object.<anonymous> (src/lib/multiagent/diagnostics.ts:22:24)
+      at Object.<anonymous> (src/app/actions/multiagent.ts:53:22)
+      at Object.<anonymous> (src/__tests__/el-secretario-hace-lo-del-dia.test.ts:40:21)
+
+    console.error
+      Full error: Jest encountered an unexpected token
+
+      Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+      Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+      By default "node_modules" folder is ignored by transformers.
+
+      Here's what you can do:
+       • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+       • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+       • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+       • If you need a custom transformation, specify a "transform" option in your config.
+       • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+      You'll find more details and examples of these config options in the docs:
+      https://jestjs.io/docs/configuration
+      For information about custom transformations, see:
+      https://jestjs.io/docs/code-transformation
+
+      Details:
+
+      C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jose\dist\browser\index.js:1
+      export { compactDecrypt } from './jwe/compact/decrypt.js';
+      ^^^^^^
+
+      SyntaxError: Unexpected token 'export'
+          at internalCompileFunction (node:internal/vm:137:18)
+          at compileFunction (node:vm:365:10)
+          at Runtime.createScriptFromCode (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1314:40)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1240:35)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jwks-rsa\src\utils.js:1:14)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jwks-rsa\src\JwksClient.js:2:33)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jwks-rsa\src\index.js:1:24)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\firebase-admin\lib\utils\jwt.js:24:14)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\firebase-admin\lib\auth\token-verifier.js:26:15)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\firebase-admin\lib\auth\base-auth.js:26:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\firebase-admin\lib\auth\tenant-manager.js:23:21)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\firebase-admin\lib\auth\auth.js:22:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at FirebaseNamespace.get auth [as auth] (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\firebase-admin\lib\app\firebase-namespace.js:94:22)
+          at Object.auth (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\lib\firebase\server.ts:80:26)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\lib\firebase\firestore.ts:39:17)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\app\actions\notifications.ts:48:20)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\lib\notifications\create-notification.ts:12:24)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\app\actions\customers.ts:47:29)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\app\actions\crm.ts:79:20)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\app\actions\presupuestos.ts:76:14)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\app\actions\fiesta\fiesta.actions.ts:130:23)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\lib\multiagent\diagnostics.ts:22:24)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\app\actions\multiagent.ts:53:22)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+          at Runtime._loadModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:940:12)
+          at Runtime.requireModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:828:12)
+          at Runtime.requireModuleOrMock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:960:21)
+          at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\el-secretario-hace-lo-del-dia.test.ts:40:21)
+          at Runtime._execModule (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runtime\build\index.js:1264:24)
+
+    [0m [90m 91 |[39m } [36mcatch[39m (e[33m:[39m any) {
+     [90m 92 |[39m   console[33m.[39merror([32m'Error getting Firestore/Auth instance:'[39m[33m,[39m e[33m.[39mmessage)[33m;[39m
+    [31m[1m>[22m[39m[90m 93 |[39m   console[33m.[39merror([32m'Full error:'[39m[33m,[39m e)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 94 |[39m }
+     [90m 95 |[39m
+     [90m 96 |[39m [36mexport[39m [36mconst[39m dbAdmin [33m=[39m dbInstance[33m;[39m[0m
+
+      at Object.error (src/lib/firebase/server.ts:93:11)
+      at Object.<anonymous> (src/lib/firebase/firestore.ts:39:17)
+      at Object.<anonymous> (src/app/actions/notifications.ts:48:20)
+      at Object.<anonymous> (src/lib/notifications/create-notification.ts:12:24)
+      at Object.<anonymous> (src/app/actions/customers.ts:47:29)
+      at Object.<anonymous> (src/app/actions/crm.ts:79:20)
+      at Object.<anonymous> (src/app/actions/presupuestos.ts:76:14)
+      at Object.<anonymous> (src/app/actions/fiesta/fiesta.actions.ts:130:23)
+      at Object.<anonymous> (src/lib/multiagent/diagnostics.ts:22:24)
+      at Object.<anonymous> (src/app/actions/multiagent.ts:53:22)
+      at Object.<anonymous> (src/__tests__/el-secretario-hace-lo-del-dia.test.ts:40:21)
+
+PASS src/__tests__/la-voz-en-vivo-lib.test.ts
+  ● Console
+
+    console.log
+      Firebase Admin SDK initialized with Application Default Credentials.
+
+      at Object.log (src/lib/firebase/server.ts:43:17)
+
+    console.log
+      Firestore connected to emulator at 127.0.0.1:8085
+
+      at Object.log (src/lib/firebase/server.ts:46:19)
+
+    console.log
+      Firestore and Auth instances obtained successfully.
+
+      at Object.log (src/lib/firebase/server.ts:81:13)
+
+    console.log
+      Firestore connected to emulator at 127.0.0.1:8085
+
+      at Object.log (src/lib/firebase/server.ts:84:15)
+
+PASS src/__tests__/el-qr-viejo-no-entra.test.ts
+PASS src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
+PASS src/__tests__/recibos-del-personal-suman-y-se-reemplazan.test.ts
+PASS src/__tests__/ia-tarea-sin-fiesta-queda-como-recordatorio.test.ts
+PASS src/__tests__/asistente-modelos-y-fallback.test.ts
+PASS src/__tests__/un-si-de-casualidad-no-confirma.test.ts
+
+Test Suites: 14 passed, 14 total
+Tests:       143 passed, 143 total
+Snapshots:   0 total
+Time:        17.874 s
+Ran all test suites within paths "src/__tests__/compras-suman-en-la-misma-unidad.test.ts", "src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts", "src/__tests__/el-album-entrega-lo-que-dice.test.ts", "src/__tests__/recibos-del-personal-suman-y-se-reemplazan.test.ts", "src/__tests__/el-qr-viejo-no-entra.test.ts", "src/__tests__/la-voz-en-vivo-lib.test.ts", "src/__tests__/la-voz-en-vivo-cliente.test.ts", "src/__tests__/la-voz-en-vivo-ruta.test.ts", "src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts", "src/__tests__/asistente-modelos-y-fallback.test.ts", "src/__tests__/ia-flujos-no-fingen-exito.test.ts", "src/__tests__/ia-tarea-sin-fiesta-queda-como-recordatorio.test.ts", "src/__tests__/un-si-de-casualidad-no-confirma.test.ts", "src/__tests__/el-secretario-hace-lo-del-dia.test.ts".
+Test results written to: ..\..\..\..\..\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009\docs\evidencias\94-jest.json

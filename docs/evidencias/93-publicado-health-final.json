@@ -1,0 +1,20 @@
+{
+    "checkedAt":  "2026-10-10T21:36:01.4150245Z",
+    "url":  "https://akproducciones.uy/api/health",
+    "status":  200,
+    "body":  {
+                 "status":  "ok",
+                 "timestamp":  "2026-10-10T21:36:02.030Z",
+                 "version":  "0af74652ebdf4c813b9eb443c358d51bc24542d7 Â· compilada 2026-10-10T02:07:17.435Z",
+                 "services":  {
+                                  "firebase":  false,
+                                  "gemini":  true,
+                                  "googleWorkspace":  true,
+                                  "mail":  true,
+                                  "instagram":  false,
+                                  "mercadoPago":  false
+                              },
+                 "environment":  "production",
+                 "uptime":  9
+             }
+}

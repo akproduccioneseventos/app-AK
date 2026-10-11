@@ -1,0 +1,99 @@
+  console.error
+    Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+
+    [0m [90m 22 |[39m [36mconst[39m text[33m=[39m()[33m=>[39mdocument[33m.[39mbody[33m.[39mtextContent[33m||[39m[32m''[39m[33m;[39m
+     [90m 23 |[39m [36mconst[39m photo[33m=[39m()[33m=>[39mdocument[33m.[39mquerySelector([32m'img[alt="Foto 1"]'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 24 |[39m [36masync[39m [36mfunction[39m mount(){[36mawait[39m act([36masync[39m()[33m=>[39m{root[33m=[39mcreateRoot(document[33m.[39mbody[33m.[39mappendChild(document[33m.[39mcreateElement([32m'div'[39m)))[33m;[39mroot[33m.[39mrender([33m<[39m[33mVideoVidaPage[39m[33m/[39m[33m>[39m)[33m;[39m})[33m;[39m}
+     [90m    |[39m                                 [31m[1m^[22m[39m
+     [90m 25 |[39m [36masync[39m [36mfunction[39m wait(check){[36mfor[39m([36mlet[39m i[33m=[39m[35m0[39m[33m;[39mi[33m<[39m[35m60[39m[33m;[39mi[33m++[39m){[36mif[39m(check())[36mreturn[39m[33m;[39m[36mawait[39m act([36masync[39m()[33m=>[39m[36mnew[39m [33mPromise[39m(r[33m=>[39msetTimeout(r[33m,[39m[35m50[39m)))[33m;[39m}[36mthrow[39m [36mnew[39m [33mError[39m([32m'QA DOM did not reach expected state: '[39m[33m+[39mtext())[33m;[39m}
+     [90m 26 |[39m beforeEach(()[33m=>[39m{globalThis[33m.[39m[33mIS_REACT_ACT_ENVIRONMENT[39m[33m=[39m[36mtrue[39m[33m;[39mmockList[33m.[39mmockReset()[33m;[39mmockUpload[33m.[39mmockReset()[33m;[39mmockToast[33m.[39mmockReset()[33m;[39m})[33m;[39m
+     [90m 27 |[39m afterEach(()[33m=>[39m{[36mif[39m(root)act(()[33m=>[39mroot[33m.[39munmount())[33m;[39mroot[33m=[39m[36mnull[39m[33m;[39mdocument[33m.[39mbody[33m.[39mreplaceChildren()[33m;[39m})[33m;[39m[0m
+
+      at printWarning (../../../../../Documents/Codex/2026-05-28/quiero-que-tomando-el-chat-de/.audit-source-20260922/node_modules/react-dom/cjs/react-dom-test-utils.development.js:71:30)
+      at error (../../../../../Documents/Codex/2026-05-28/quiero-que-tomando-el-chat-de/.audit-source-20260922/node_modules/react-dom/cjs/react-dom-test-utils.development.js:45:7)
+      at actWithWarning (../../../../../Documents/Codex/2026-05-28/quiero-que-tomando-el-chat-de/.audit-source-20260922/node_modules/react-dom/cjs/react-dom-test-utils.development.js:1736:7)
+      at mount (src/__tests__/qa96-video-lector.test.tsx:24:33)
+      at Object.mount (src/__tests__/qa96-video-lector.test.tsx:30:9)
+
+  console.log
+    QA96_READ_FAILURE {"heading":"Tu Galería (0 de 2)","errorVisible":false,"uploadControls":2}
+
+      at Object.log (src/__tests__/qa96-video-lector.test.tsx:39:11)
+
+  console.log
+    QA96_SIGN_FAILURE {"filesListed":2,"publicReadable":1,"result":[]}
+
+      at Object.log (src/__tests__/qa96-video-lector.test.tsx:48:11)
+
+  console.error
+    Error uploading life story photo: Error: QA96: subida rechazada antes de guardar
+        at Object.<anonymous> (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\src\__tests__\qa96-video-lector.test.tsx:53:32)
+        at Promise.finally.completed (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\jestAdapterInit.js:1557:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\jestAdapterInit.js:1497:10)
+        at _callCircusTest (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\jestAdapterInit.js:1007:40)
+        at _runTest (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\jestAdapterInit.js:947:3)
+        at C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\jestAdapterInit.js:849:7
+        at _runTestsForDescribeBlock (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\jestAdapterInit.js:862:11)
+        at run (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\jestAdapterInit.js:761:3)
+        at runAndTransformResultsToJestFormat (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\jestAdapterInit.js:1918:21)
+        at jestAdapter (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-circus\build\runner.js:101:19)
+        at runTestInternal (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runner\build\index.js:275:16)
+        at runTest (C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-source-20260922\node_modules\jest-runner\build\index.js:343:7)
+
+    [0m [90m 196 |[39m     [36mreturn[39m { success[33m:[39m [36mtrue[39m[33m,[39m url[33m:[39m publicUrl }[33m;[39m
+     [90m 197 |[39m   } [36mcatch[39m (error[33m:[39m any) {
+    [31m[1m>[22m[39m[90m 198 |[39m     console[33m.[39merror([32m'Error uploading life story photo:'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m             [31m[1m^[22m[39m
+     [90m 199 |[39m     [36mreturn[39m { success[33m:[39m [36mfalse[39m[33m,[39m error[33m:[39m [32m'Error al subir el archivo: '[39m [33m+[39m error[33m.[39mmessage }[33m;[39m
+     [90m 200 |[39m   }
+     [90m 201 |[39m }[0m
+
+      at error (src/app/actions/fiesta/video-vida.actions.ts:198:13)
+      at handleFileChange (src/app/video-vida/[fiestaId]/page.tsx:54:22)
+
+FAIL src/__tests__/qa96-video-lector.test.tsx
+  √ control sano: lector real devuelve la foto y pagina muestra un recuadro ocupado (181 ms)
+  × si Storage no responde la pagina informa fallo, no cero fotos (21 ms)
+  × si falla una firma no hace pasar toda la lista como vacia (3 ms)
+  √ reemplazo fallido conserva vista y contador de la foto anterior (40 ms)
+
+  ● si Storage no responde la pagina informa fallo, no cero fotos
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+    [0m [90m 39 |[39m   console[33m.[39mlog([32m'QA96_READ_FAILURE '[39m[33m+[39m[33mJSON[39m[33m.[39mstringify({heading[33m:[39m[32m'Tu Galer\u00eda (0 de 2)'[39m[33m,[39m
+     [90m 40 |[39m     errorVisible[33m:[39mtext()[33m.[39mincludes([32m'Error de Acceso'[39m)[33m,[39muploadControls[33m:[39mdocument[33m.[39mquerySelectorAll([32m'input[type=file]'[39m)[33m.[39mlength}))[33m;[39m
+    [31m[1m>[22m[39m[90m 41 |[39m   expect(text()[33m.[39mincludes([32m'Tu Galer\u00eda (0 de 2)'[39m))[33m.[39mtoBe([36mfalse[39m)[33m;[39m
+     [90m    |[39m                                                       [31m[1m^[22m[39m
+     [90m 42 |[39m })[33m;[39m
+     [90m 43 |[39m test([32m'si falla una firma no hace pasar toda la lista como vacia'[39m[33m,[39m[36masync[39m()[33m=>[39m{
+     [90m 44 |[39m   [36mconst[39m bad[33m=[39m{name[33m:[39m[32m'video-vida-photos/qa96_video/01.jpg'[39m[33m,[39mgetMetadata[33m:[39mjest[33m.[39mfn([36masync[39m()[33m=>[39m[{}])[33m,[39m[0m
+
+      at Object.toBe (src/__tests__/qa96-video-lector.test.tsx:41:55)
+
+  ● si falla una firma no hace pasar toda la lista como vacia
+
+    expect(received).not.toEqual(expected) // deep equality
+
+    Expected: not []
+
+    [0m [90m 47 |[39m   [36mconst[39m result[33m=[39m[36mawait[39m getLifeStoryVideoPhotos([32m'qa96_video'[39m)[33m;[39m
+     [90m 48 |[39m   console[33m.[39mlog([32m'QA96_SIGN_FAILURE '[39m[33m+[39m[33mJSON[39m[33m.[39mstringify({filesListed[33m:[39m[35m2[39m[33m,[39mpublicReadable[33m:[39m[35m1[39m[33m,[39mresult}))[33m;[39m
+    [31m[1m>[22m[39m[90m 49 |[39m   expect(result)[33m.[39mnot[33m.[39mtoEqual([])[33m;[39m
+     [90m    |[39m                      [31m[1m^[22m[39m
+     [90m 50 |[39m })[33m;[39m
+     [90m 51 |[39m test([32m'reemplazo fallido conserva vista y contador de la foto anterior'[39m[33m,[39m[36masync[39m()[33m=>[39m{
+     [90m 52 |[39m   mockList[33m.[39mmockResolvedValue([[publicFile([32m'01'[39m)]])[33m;[39m[0m
+
+      at Object.toEqual (src/__tests__/qa96-video-lector.test.tsx:49:22)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 2 passed, 4 total
+Snapshots:   0 total
+Time:        3.69 s
+Ran all test suites within paths "src/__tests__/qa96-video-lector.test.tsx".
+Test results written to: ..\..\..\..\..\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009\docs\evidencias\96-lector.json

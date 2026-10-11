@@ -189,6 +189,7 @@ export default function FotocabinaPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [avisoDelMuro, setAvisoDelMuro] = useState<string | null>(null);
   const [guardadaEnEsteEquipo, setGuardadaEnEsteEquipo] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `cab_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
@@ -267,6 +268,16 @@ export default function FotocabinaPage() {
     }
   }, []);
 
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const startCamera = useCallback(async () => {
     setErrorMsg(null);
     // Este efecto se vuelve a disparar en cada cambio de estado (espera, cuenta, foto).
@@ -288,6 +299,10 @@ export default function FotocabinaPage() {
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: false
       });
+      if (desmontadoRef.current) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = mediaStream;
       streamFacingRef.current = facingMode;
       if (videoRef.current) {
@@ -1012,6 +1027,9 @@ export default function FotocabinaPage() {
         if (!isLiveSession()) return;
         const mediaUrl = res.media?.url || '';
         setQrCodeUrl(mediaUrl);
+        // Guardada no es publicada: si quedó esperando al equipo, se dice tal cual.
+        const esperaAlEquipo = res.muro?.estado === 'pendiente_aprobacion' && res.muro.sinRevisar;
+        setAvisoDelMuro(esperaAlEquipo ? 'Tu foto quedó guardada y está esperando la aprobación del equipo para salir en el muro.' : null);
         setLocalStatus('done');
         // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
         await updateEntertainmentSessionStatus(
@@ -1021,7 +1039,7 @@ export default function FotocabinaPage() {
           { mediaUrl, reviewPending: false, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
           capturedAccessToken
         );
-        speak("¡Excelente! Tu foto ya está lista.");
+        speak(esperaAlEquipo ? 'Tu foto quedó guardada y espera la aprobación del equipo.' : "¡Excelente! Tu foto ya está lista.");
         setShowSuccess(true);
 
         // Auto reset tras revisión
@@ -1776,6 +1794,9 @@ export default function FotocabinaPage() {
                 )}
                 {!qrCodeUrl && errorMsg && (
                   <p className="text-xs font-bold text-rose-400" role="alert">{errorMsg}</p>
+                )}
+                {avisoDelMuro && (
+                  <p data-testid="aviso-foto-pendiente" className="rounded-xl bg-amber-500/15 px-3 py-2 text-sm font-bold text-amber-300">{avisoDelMuro}</p>
                 )}
               </div>
 

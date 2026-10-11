@@ -1,0 +1,144 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\96-video-lector.spec.ts:13:38 › video lector vacio genuino se muestra como cero
+[2/4] [chromium-desktop] › tests\e2e\96-video-lector.spec.ts:13:38 › video lector no inventa cero cuando no firma
+  1) [chromium-desktop] › tests\e2e\96-video-lector.spec.ts:13:38 › video lector no inventa cero cuando no firma
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /no pudimos|no se pudo|error al cargar/i
+    Received string:  "AK
+    Fiesta de esta noche·
+    Carga de Fotos para el Video de Vida·
+    Tu Galería (0 de 2)
+    Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan 2 fotos.
+    Subir foto
+    01
+    Subir foto
+    02
+    AK
+    AK Producciones
+    PRODUCCIÓN INTEGRAL DE EVENTOS • SALTO, URUGUAY·
+    Diseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía gourmet, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.·
+    WHATSAPP DIRECTO
+    COTIZÁ TU FIESTA
+    SALONES DESTACADOS
+    Salón Club Uruguay (Exclusivo)
+    Gastronomía Gourmet & Catering
+    Discoteca & Pistas de Luces LED
+    Plataforma 360° & Fotocabina QR
+    ACCESOS RÁPIDOS
+    →
+    Simulador de Presupuesto
+    →
+    Galería de Eventos Reales
+    →
+    Blog & Guías de Organización
+    →
+    Testimonios & Preguntas Frecuentes
+    Acceso Staff & Equipo AK
+    OFICINA & ATENCION·
+    Salto, Uruguay·
+    +598 98 355 530·
+    Coordinación presencial el día de tu celebración.·
+    COMUNIDAD & REDES·
+    Seguinos en redes para ver coberturas en vivo, montajes reales y salones armados.·
+    © 2026 AK Producciones Eventos. Todos los derechos reservados.·
+    ··
+    Tus datos se tratan según la Ley 18.331 de Protección de Datos Personales.·
+    Club Uruguay
+    Simulador
+    Privacidad
+    Acceso Staff"
+
+      29 |     await info.attach('lector-final.json',{body:JSON.stringify(evidence,null,2),contentType:'application/json'});
+      30 |     await info.attach('lector-final.png',{body:await page.screenshot(),contentType:'image/png'});
+    > 31 |     if(stored){expect(objects).toEqual([name]);expect(evidence.body).toMatch(/no pudimos|no se pudo|error al cargar/i);}
+         |                                                                      ^
+      32 |     else expect(objects).toEqual([]);
+      33 |   }finally{if((await file.exists())[0])await file.delete();await ref.delete();borrarFiesta(id);}
+      34 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-96\tests\e2e\96-video-lector.spec.ts:31:70
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa96-artifacts\96-video-lector-video-lector-no-inventa-cero-cuando-no-firma-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa96-artifacts\96-video-lector-video-lector-no-inventa-cero-cuando-no-firma-chromium-desktop\error-context.md
+
+    Error Context: qa96-artifacts\96-video-lector-video-lector-no-inventa-cero-cuando-no-firma-chromium-desktop\error-context.md
+
+
+[3/4] [chromium-mobile] › tests\e2e\96-video-lector.spec.ts:13:38 › video lector vacio genuino se muestra como cero
+[4/4] [chromium-mobile] › tests\e2e\96-video-lector.spec.ts:13:38 › video lector no inventa cero cuando no firma
+  2) [chromium-mobile] › tests\e2e\96-video-lector.spec.ts:13:38 › video lector no inventa cero cuando no firma
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /no pudimos|no se pudo|error al cargar/i
+    Received string:  "AK
+    Fiesta de esta noche·
+    Carga de Fotos para el Video de Vida·
+    Tu Galería (0 de 2)
+    Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan 2 fotos.
+    Subir foto
+    01
+    Subir foto
+    02
+    AK
+    AK Producciones
+    PRODUCCIÓN INTEGRAL DE EVENTOS • SALTO, URUGUAY·
+    Diseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía gourmet, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.·
+    WHATSAPP DIRECTO
+    COTIZÁ TU FIESTA
+    SALONES DESTACADOS
+    Salón Club Uruguay (Exclusivo)
+    Gastronomía Gourmet & Catering
+    Discoteca & Pistas de Luces LED
+    Plataforma 360° & Fotocabina QR
+    ACCESOS RÁPIDOS
+    →
+    Simulador de Presupuesto
+    →
+    Galería de Eventos Reales
+    →
+    Blog & Guías de Organización
+    →
+    Testimonios & Preguntas Frecuentes
+    Acceso Staff & Equipo AK
+    OFICINA & ATENCION·
+    Salto, Uruguay·
+    +598 98 355 530·
+    Coordinación presencial el día de tu celebración.·
+    COMUNIDAD & REDES·
+    Seguinos en redes para ver coberturas en vivo, montajes reales y salones armados.·
+    © 2026 AK Producciones Eventos. Todos los derechos reservados.·
+    Tus datos se tratan según la Ley 18.331 de Protección de Datos Personales.·
+    Club Uruguay
+    Simulador
+    Privacidad
+    Acceso Staff"
+
+      29 |     await info.attach('lector-final.json',{body:JSON.stringify(evidence,null,2),contentType:'application/json'});
+      30 |     await info.attach('lector-final.png',{body:await page.screenshot(),contentType:'image/png'});
+    > 31 |     if(stored){expect(objects).toEqual([name]);expect(evidence.body).toMatch(/no pudimos|no se pudo|error al cargar/i);}
+         |                                                                      ^
+      32 |     else expect(objects).toEqual([]);
+      33 |   }finally{if((await file.exists())[0])await file.delete();await ref.delete();borrarFiesta(id);}
+      34 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-96\tests\e2e\96-video-lector.spec.ts:31:70
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa96-artifacts\96-video-lector-video-lector-no-inventa-cero-cuando-no-firma-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa96-artifacts\96-video-lector-video-lector-no-inventa-cero-cuando-no-firma-chromium-mobile\error-context.md
+
+    Error Context: qa96-artifacts\96-video-lector-video-lector-no-inventa-cero-cuando-no-firma-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\96-video-lector.spec.ts:13:38 › video lector no inventa cero cuando no firma
+    [chromium-mobile] › tests\e2e\96-video-lector.spec.ts:13:38 › video lector no inventa cero cuando no firma
+  2 passed (1.7m)

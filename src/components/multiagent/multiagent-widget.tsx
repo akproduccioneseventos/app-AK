@@ -32,7 +32,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import type { AkAgentType, AkMultiAgentMessage, AkPersistentMultiAgentOutput } from '@/types/multiagent';
 import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
-import { iniciarVozEnVivo, type SesionVozEnVivo, type EstadoVozEnVivo } from '@/lib/asistente/sesion-voz-en-vivo';
+import { type EstadoVozEnVivo } from '@/lib/asistente/sesion-voz-en-vivo';
+import { crearControlVozEnVivo, type ControlVozEnVivo } from '@/lib/asistente/control-voz-en-vivo';
 
 async function sendPersistentMultiAgentMessage(input: {
   message: string;
@@ -272,7 +273,7 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
   const [vozEnVivo, setVozEnVivo] = useState<EstadoVozEnVivo>('cerrada');
   const [vozEnVivoRestante, setVozEnVivoRestante] = useState(0);
   const [vozEnVivoTexto, setVozEnVivoTexto] = useState('');
-  const vozEnVivoRef = useRef<SesionVozEnVivo | null>(null);
+  const vozEnVivoControlRef = useRef<ControlVozEnVivo | null>(null);
   const vozEnVivoCuentaRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -302,7 +303,7 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
 
   useEffect(() => {
     return () => {
-      vozEnVivoRef.current?.detener();
+      vozEnVivoControlRef.current?.cortar(true);
       if (vozEnVivoCuentaRef.current) clearInterval(vozEnVivoCuentaRef.current);
       detenerVozReal();
       if (silenceTimerRef.current) {
@@ -326,19 +327,51 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
     setIsRecordingVoice(false);
   }, []);
 
+  // Un solo control para todo el widget: el intento vigente vive adentro (orden 146).
+  const controlVozEnVivo = () => {
+    if (!vozEnVivoControlRef.current) {
+      vozEnVivoControlRef.current = crearControlVozEnVivo({
+        onEstado: (estado, info) => {
+          setVozEnVivo(estado);
+          if (estado === 'escuchando' && info?.segundosMaximos) {
+            setVozEnVivoRestante(info.segundosMaximos);
+            if (vozEnVivoCuentaRef.current) clearInterval(vozEnVivoCuentaRef.current);
+            vozEnVivoCuentaRef.current = setInterval(() => setVozEnVivoRestante((s) => Math.max(0, s - 1)), 1000);
+          }
+          if (estado === 'cerrada') {
+            if (vozEnVivoCuentaRef.current) clearInterval(vozEnVivoCuentaRef.current);
+            vozEnVivoCuentaRef.current = null;
+          }
+        },
+        onTexto: (texto, quien) => {
+          if (quien === 'asistente') setVozEnVivoTexto((previo) => (previo + texto).slice(-400));
+        },
+        onError: (mensaje) => {
+          setToast({ message: mensaje, type: 'warning' });
+          setTimeout(() => setToast(null), 6000);
+        },
+      });
+    }
+    return vozEnVivoControlRef.current;
+  };
+
   const cortarVozEnVivo = useCallback(() => {
     if (vozEnVivoCuentaRef.current) {
       clearInterval(vozEnVivoCuentaRef.current);
       vozEnVivoCuentaRef.current = null;
     }
-    vozEnVivoRef.current?.detener();
-    vozEnVivoRef.current = null;
+    vozEnVivoControlRef.current?.cortar();
     setVozEnVivo('cerrada');
     setVozEnVivoTexto('');
   }, []);
 
+  // Cerrar el asistente corta la voz en vivo (también un intento que todavía está conectando).
+  useEffect(() => {
+    if (!isOpen && vozEnVivoControlRef.current?.hayIntento()) cortarVozEnVivo();
+  }, [isOpen, cortarVozEnVivo]);
+
   const alternarVozEnVivo = useCallback(async () => {
-    if (vozEnVivoRef.current || vozEnVivo === 'conectando') {
+    if (vozEnVivoControlRef.current?.hayIntento()) {
       cortarVozEnVivo();
       return;
     }
@@ -346,31 +379,8 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
     stopListening();
     detenerVozReal();
     setVozEnVivoTexto('');
-    setVozEnVivo('conectando');
-    const sesion = await iniciarVozEnVivo({
-      onEstado: (estado, info) => {
-        setVozEnVivo(estado);
-        if (estado === 'escuchando' && info?.segundosMaximos) {
-          setVozEnVivoRestante(info.segundosMaximos);
-          if (vozEnVivoCuentaRef.current) clearInterval(vozEnVivoCuentaRef.current);
-          vozEnVivoCuentaRef.current = setInterval(() => setVozEnVivoRestante((s) => Math.max(0, s - 1)), 1000);
-        }
-        if (estado === 'cerrada') {
-          if (vozEnVivoCuentaRef.current) clearInterval(vozEnVivoCuentaRef.current);
-          vozEnVivoCuentaRef.current = null;
-          vozEnVivoRef.current = null;
-        }
-      },
-      onTexto: (texto, quien) => {
-        if (quien === 'asistente') setVozEnVivoTexto((previo) => (previo + texto).slice(-400));
-      },
-      onError: (mensaje) => {
-        setToast({ message: mensaje, type: 'warning' });
-        setTimeout(() => setToast(null), 6000);
-      },
-    });
-    vozEnVivoRef.current = sesion;
-  }, [vozEnVivo, cortarVozEnVivo, stopListening]);
+    await controlVozEnVivo().alternar();
+  }, [cortarVozEnVivo, stopListening]);
 
 
   const speakText = useCallback((text: string, onFinish?: () => void) => {

@@ -296,6 +296,7 @@ export default function SocialEventPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [sectionStale, setSectionStale] = useState(false);
   const [authorName, setAuthorName] = useState('');
   const [nameDraft, setNameDraft] = useState('');
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
@@ -366,10 +367,17 @@ export default function SocialEventPage() {
   }, [fiestaId]);
 
   const loadSection = useCallback(async (target: SocialSection) => {
-    if (target === 'songs') setSongs(await getSongRequests(fiestaId));
-    if (target === 'dedications') setDedications(await getPublicDedications(fiestaId));
-    if (target === 'chat') setMessages(await getChatMessages(fiestaId));
-    if (target === 'poll') setPoll(await getActivePoll(fiestaId));
+    // Si la lectura falla se conserva la lista anterior (no se vacía) y se avisa en chico.
+    try {
+      if (target === 'songs') setSongs(await getSongRequests(fiestaId));
+      if (target === 'dedications') setDedications(await getPublicDedications(fiestaId));
+      if (target === 'chat') setMessages(await getChatMessages(fiestaId));
+      if (target === 'poll') setPoll(await getActivePoll(fiestaId));
+      setSectionStale(false);
+    } catch (error) {
+      console.warn('[SocialEvent] section refresh failed:', target, error);
+      setSectionStale(true);
+    }
   }, [fiestaId]);
 
   useEffect(() => {
@@ -1064,6 +1072,11 @@ export default function SocialEventPage() {
       </nav>
 
       <main className="mx-auto w-full max-w-3xl py-4 sm:px-4 sm:py-6">
+        {sectionStale && section !== 'feed' && (
+          <p role="status" className="mx-4 mb-3 rounded-md bg-amber-50 px-3 py-2 text-center text-xs font-semibold text-amber-800 sm:mx-0">
+            No pudimos actualizar, reintentamos solos.
+          </p>
+        )}
         <div>
           {section === 'feed' && (
             <div className="space-y-4">

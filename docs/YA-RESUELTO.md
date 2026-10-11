@@ -1,5 +1,249 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11 de octubre de 2026 — Una lectura que falla ya no se muestra como "vacío" (barrido de la orden 148)
+
+- **Lo que frenó la verificación:** con las secundarias lanzando, el muro en vivo pedía fotos, dedicatorias, chat y
+  canciones todo junto, y si UNA fallaba no mostraba ninguna foto (las pruebas del muro lo agarraron). Ahora las tres
+  secundarias, si fallan, conservan lo que ya estaba y las fotos siguen. Y sin base (modo local) chat, canciones y
+  dedicatorias devuelven vacío, porque ahí no hay dónde se hayan guardado.
+- **Fotos, chat, canciones y dedicatorias:** `getSocialPosts`, `getChatMessages`, `getSongRequests` y `getDedications`
+  devolvían `[]` si se caía la lectura; la galería, el muro y la pantalla social decían "todavía no hay nada". Ahora
+  **lanzan**. Cada pantalla conserva lo que ya mostraba: en la social del invitado una sección que no se actualiza
+  deja la lista y avisa "No pudimos actualizar, reintentamos solos"; el muro en vivo ya no se traga la falla del chat
+  ni de las canciones; el tótem conserva las fotos; la previsualización del invitado dice "No pudimos cargar las
+  fotos ahora." en vez de "Todavía no hay fotos publicadas".
+- **Descargas:** el paquete de recuerdos y el zip del muro responden 502 "No pudimos leer las fotos, probá de nuevo."
+  (antes un zip vacío o un 404 "no hay fotos"). `getPhotoFilePathsForZip` también lanza.
+- **Portal del cliente:** `getFiestaByAccessKey` lanza si falló la lectura (antes `null` = "enlace expirado"); si el
+  enlace no existe sigue igual. La carpeta del portal tiene `error.tsx` con "No pudimos cargar tu portal en este
+  momento" y botón Reintentar. No cambia permisos ni datos.
+- **Calendario del presupuesto:** `getOcupiedDates` lanza; la pantalla de crear presupuesto avisa "No pudimos leer las
+  fechas ocupadas: revisá el calendario antes de confirmar la fecha." y deja seguir (antes tomaba "ninguna ocupada").
+- **Bogue:** la tira de fotos que no subía se perdía en silencio; ahora va a la cola offline y se avisa.
+- **Cartel de "pendiente de aprobación":** el panel de la invitación, la fotocabina y la Plataforma 360 decían que la
+  foto ya estaba en el muro aunque quedara esperando; ahora dicen que espera al equipo (mismo criterio que el Espejo).
+  El caso publicado queda igual.
+- **Cámaras y micrófono:** el tótem nunca apagaba el micrófono; ahora lo apaga al salir y si se activa dos veces. Las
+  cámaras (barra, fotocabina, touchpix, videos de invitados, grabadora de reuniones, 360, muro) y los escáneres
+  (accesos, check-in, bienvenida) ya no quedan prendidos si se sale mientras el navegador pide el permiso.
+- **Por qué se eligió así:** "vacío" y "no se pudo leer" son cosas distintas; la que lee lanza y la pantalla decide
+  qué conservar. Las tareas internas que ya envolvían la llamada con `.catch(() => [])` (sorteo, borradores de redes,
+  álbum, portal de fotos) se dejaron como estaban.
+- **Sin verificar acá:** no se corrió navegador; el apagado de cámaras en fotocabina y demás se cubre con un control
+  de código (el de render sólo existe para el tótem).
+
+```comprobar
+archivo: src/__tests__/una-lectura-que-falla-no-se-muestra-como-vacio.test.ts
+usa: No pudimos leer las fotos en src/app/api/fiestas/[fiestaId]/download-recuerdos/route.ts
+usa: No pudimos leer las fotos en src/app/api/social-gallery/[fiestaId]/download/route.ts
+usa: sectionStale en src/app/evento/social/[fiestaId]/page.tsx
+usa: PortalError en src/app/portal/c/[accessKey]/error.tsx
+usa: occupiedDatesFailed en src/app/(app)/presupuestos/nuevo/crear/page.tsx
+usa: avisoDeTira en src/app/evento/bogue/[fiestaId]/page.tsx
+usa: quedoPendiente en src/components/invitacion/InvitacionConfigPanel.tsx
+usa: avisoDelMuro en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: avisoDelMuro en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+usa: apagarAudio en src/app/evento/totem/[fiestaId]/[totemId]/page.tsx
+usa: desmontadoRef en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: src/__tests__/una-lectura-que-falla-no-se-muestra-como-vacio.test.ts
+prueba: src/__tests__/el-totem-apaga-el-microfono.test.tsx
+prueba: src/__tests__/las-camaras-se-apagan-si-se-sale-pidiendo-permiso.test.ts
+```
+
+## 10 de octubre de 2026 — Orden 148: un error al leer las fotos del Video de Vida ya no se muestra como "0 fotos"
+
+- **Qué estaba mal:** `getLifeStoryVideoPhotos` devolvía `[]` si fallaba el listado de Storage o la firma de UNA
+  foto (y en ese caso tiraba a la basura también las demás). La pantalla del cliente decía "Tu Galería (0 de N)" con
+  recuadros para subir, sin aviso: podía reemplazar fotos que sí estaban.
+- **Cómo es ahora:** el lector devuelve un resultado de cuatro estados (`LecturaDeFotos`,
+  `src/lib/video-vida/lectura-fotos.ts`): `ok` (vacía o con fotos), `parcial` (algunas se leyeron, `fallidas` cuenta
+  las que no se pudieron firmar) y `error` (no se pudo listar, o ninguna se pudo firmar). La pantalla del cliente
+  avisa "No pudimos leer tus fotos ahora; no se perdieron. Reintentá." con botón **Reintentar**, no muestra el "0 de"
+  mientras no sabe, conserva las fotos que ya se veían si la recarga falla, y **bloquea subir/reemplazar** mientras la
+  lista es desconocida o parcial (no se sabe qué recuadro está ocupado). Una galería realmente vacía sigue diciendo
+  "0 de N" y deja subir; el reemplazo rechazado sigue conservando vista y contador.
+- **Por qué se eligió así:** un resultado estructurado y no una excepción, porque el parcial necesita devolver las
+  buenas y la cuenta de las malas. Una lectura tardía no pisa a una más nueva (turno de lectura). Sin permisos
+  nuevos: el lector sigue sin sesión, como antes.
+- **Quién más lo llama, adaptado:** la descarga del zip (error -> 502, no 404 "sin fotos"; una foto sin firmar cuenta
+  como faltante), el panel del equipo (`fiestas/nueva/video-vida`: error -> pantalla de error, parcial -> aviso) y el
+  portal del cliente (`evento/video-vida`: error -> pantalla de error). Sin cambios cuando todo sale bien.
+- **Sin verificar acá:** la prueba de navegador `video-vida-error-lectura.spec.ts` se escribió y no se corrió.
+
+```comprobar
+archivo: src/lib/video-vida/lectura-fotos.ts
+usa: lecturaConError en src/app/actions/fiesta/video-vida.actions.ts
+usa: MENSAJE_LECTURA_FALLIDA en src/app/video-vida/[fiestaId]/page.tsx
+usa: lectura.estado en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
+usa: lectura.estado en src/app/evento/video-vida/[fiestaId]/page.tsx
+usa: lectura.estado en src/app/(app)/fiestas/nueva/video-vida/page.tsx
+prueba: src/__tests__/video-vida-error-de-lectura-no-es-galeria-vacia.test.tsx
+prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
+prueba: tests/e2e/video-vida-error-lectura.spec.ts
+```
+
+## 10 de octubre de 2026 — Orden 146: la voz en vivo se corta y se reintenta de verdad (la 147, el QR, sigue abierta)
+
+- **Cortar la voz (146):** antes, si se pulsaba Cortar mientras esperaba la ficha del servidor, el panel se iba
+  pero la respuesta tardía igual pedía el micrófono, abría el socket y volvía a mostrar el panel. Ahora cada
+  intento tiene identidad propia (`crearControlVozEnVivo`, `src/lib/asistente/control-voz-en-vivo.ts`): cortar,
+  cerrar el asistente o desmontarlo aborta el intento **antes de la primera espera**. `iniciarVozEnVivo` recibe
+  una señal (`senal`), la pasa al pedido y la mira después de cada espera (ficha, permiso del micrófono, audio):
+  lo que llega tarde se descarta, las pistas se paran y no se abre el socket ni se avisa nada.
+- **Reintentar (146):** un pedido que falló (por ejemplo 503) devolvía un objeto "detener" vacío que el widget
+  guardaba como sesión activa; el primer toque sólo lo limpiaba. Ahora lo que falla o se cierra por su cuenta no
+  queda guardado: el botón y el intento vigente son lo mismo, y **un solo toque** hace un pedido nuevo.
+  Dos inicios seguidos: sólo vive el último; la respuesta fuera de orden del anterior se descarta.
+- **Versión de Google (146):** la guía actual de Google documenta `v1beta` para las fichas temporales y el
+  socket en vivo, así que ese es el valor por omisión (`VERSION_API_EN_VIVO_POR_OMISION`). `GEMINI_LIVE_API_VERSION`
+  sigue mandando. La ruta lee la versión **una sola vez** y se la pasa a la ficha y al socket: no pueden salir de
+  versiones distintas. No se pudo probar contra Google real (sin clave en el contenedor): queda sin verificar.
+  Sin cambios: permiso de la ruta, ficha efímera, tope diario y corte duro, interrupción por voz, política de
+  reserva y devolución de minutos.
+- **QR descargado (147): SIGUE ABIERTA.** Se probó reconstruir el código grande con zona blanca: en el
+  navegador de escritorio el lector lo leyó, pero en el de celular (pantalla de alta densidad) no, dos veces. Se
+  probó también dibujarlo de nuevo a 640 px con margen y el lector no lo leyó. Se sacó el cambio de esta tanda
+  para no publicar algo que en el celular podía andar peor que antes. Pista medida por Codex: el mismo QR de
+  170 px con un borde blanco de 32 px, sin agrandar, SÍ lo lee el lector; agrandarlo 3x no.
+- **Sin verificar acá:** la prueba de navegador `voz-en-vivo-reintento-y-cancelacion` corre en la puerta. Tampoco se probó el revocado del token después de
+  abrir el lector (orden 147, aceptación): sigue cubierto por la prueba de la orden 143, no por esta.
+
+```comprobar
+archivo: src/lib/asistente/control-voz-en-vivo.ts
+usa: crearControlVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: senal en src/lib/asistente/sesion-voz-en-vivo.ts
+usa: versionApiEnVivo en src/app/api/asistente/voz-en-vivo/route.ts
+no-usa: await iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+prueba: src/__tests__/la-voz-en-vivo-cancela-y-reintenta.test.ts
+prueba: tests/e2e/voz-en-vivo-reintento-y-cancelacion.spec.ts
+```
+
+## 10 de octubre de 2026 — Órdenes 144 y 145: la foto de Touchpix no sale negra, y una foto sin revisar no se pierde
+
+- **Touchpix (145):** el video de la cámara está oculto y el navegador lo dejaba en pausa con la señal
+  viva: la foto salía negra. Ahora, antes de dibujar, espera `asegurarCuadroDeVideo` (el mismo ayudante de
+  la fotocabina: pone a andar el video y espera un cuadro real; si ya anda, no espera nada). Si la cámara
+  no entrega cuadro, la pantalla avisa, muestra "Reintentar camara" y **no entrega ninguna foto**. La señal
+  viva de la misma cámara se reutiliza en vez de cortarla y pedirla en cada cambio de paso (era lo que dejaba
+  el video sin cuadro justo al disparar). No se mira qué tan oscura es la imagen: una foto oscura de verdad vale.
+- **Barrido de las demás estaciones (regla del dueño):** misma forma en el espejo mágico, Bogue, la plataforma
+  360, la barra (foto del tótem) y el buzón (foto): dibujaban el video sin asegurarse de que hubiera imagen.
+  Todas usan ahora el mismo ayudante. Quedó afuera la galería (`extraerVectorLocal`): saca un vector de 160 px
+  para buscar por cara con el video visible y no entrega ninguna foto. El buzón en modo VHS ya volvía a hacer
+  `play()` en cada cuadro. Un control recorre toda la app: una pantalla que dibuje un video sin el ayudante
+  no entra.
+- **Foto sin revisar (144):** cuando el análisis automático de la imagen se caía (proveedor, clave), el muro
+  lo tomaba como "contenido adulto" y rechazaba la foto sin crear el posteo, y la pantalla decía "Foto enviada
+  al muro". El mismo error rechazaba **todos los videos** de Bogue y la 360 (los videos nunca se revisan solos)
+  y **todas las fotos del tótem de la barra** con la publicación automática prendida. Ahora hay tres estados:
+  **segura** (se publica según la regla de aprobación de la fiesta), **riesgosa** (se rechaza en el acto, como
+  antes) y **sin revisar** (queda **pendiente de aprobación manual**: nunca aprobada, nunca en el muro público
+  hasta que un moderador la apruebe). Por qué así: caerse el proveedor no prueba que la foto sea mala, y rechazar
+  era perder el recuerdo del invitado sin que nadie se enterara; aprobar sin mirar era publicar a ciegas.
+- **La respuesta dice la verdad:** `uploadEntretenimientoMedia` devuelve `muro.estado` (`publicado` /
+  `pendiente_aprobacion` / `error` / `rechazado`) y `muro.sinRevisar`. Si el posteo no se creó, la respuesta ya
+  **no** es `success: true` (así todas las estaciones lo tratan como subida fallida y la reintentan); la captura
+  queda guardada y el reintento de la **misma** captura repite solo el posteo: ni sube el archivo de nuevo, ni
+  vuelve a pagar la revisión, ni duplica la media ni el posteo. El espejo usa una identidad por captura (también
+  para "Reintentar" a mano) y, si la foto quedó esperando al equipo, lo dice en pantalla y en voz en vez de "enviada
+  al muro". La barra (pantalla del tótem y mini quiosco del invitado) también dice si quedó publicada, esperando
+  al equipo o solo guardada.
+- **Permisos y moderación sin tocar:** la estación sigue exigiendo su credencial de invitado; el lector público
+  sigue filtrando con `soloAprobados`; el riesgo real y el texto bloqueado se siguen rechazando.
+- **Sin probar en navegador:** los dos e2e nuevos (`touchpix-camara-y-recuerdo-con-imagen`,
+  `espejo-moderacion-caida-y-reintento`) se escribieron pero no se corrieron (no hay build en este contenedor);
+  el de Visión caída necesita el entorno aislado de Codex y se saltea con el motivo escrito.
+
+```comprobar
+archivo: src/lib/entertainment/camera-readiness.ts
+usa: asegurarCuadroDeVideo en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/espejo-magico/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/bogue/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/barra/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/buzon/[fiestaId]/page.tsx
+usa: imageAiSafeDesde en src/app/actions/social-gallery.ts
+usa: revisionImagen en src/app/actions/fiesta/entretenimiento.actions.ts
+usa: revisionImagen en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: avisoDelMuro en src/app/evento/espejo-magico/[fiestaId]/page.tsx
+no-usa: revisionManual === false en src/app/actions/social-gallery.ts
+prueba: src/__tests__/las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts
+prueba: src/__tests__/la-foto-sin-revisar-queda-pendiente-no-rechazada.test.ts
+prueba: src/__tests__/espejo-guardada-no-es-publicada.test.ts
+prueba: tests/e2e/touchpix-camara-y-recuerdo-con-imagen.spec.ts
+prueba: tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts
+```
+
+## 10/10/2026 - Codex96: error de lectura no significa galeria vacia
+
+- Main9a/PR1286 QA; tanda local NO contrastada, verificar antes de programar.
+- NUEVO148Gemini: getLifeStoryVideoPhotos retorna[] ante fallo listado/firma;
+  consumidor muestra0sin aviso aunque Storageguarda/HTTP200bytes.
+- Componente2pass/2fail;navegadorPCmovil2pass/2fail.UNAcausa,no cuatro bugs.
+- Galeria vacia funciona;reemplazo rechazado conserva preview:DESCARTADO.
+- Firmante emulador NO demuestra cuenta real rota;URLreal aun pendiente.
+- Agente inventario19 cerrado:sin export;gRPC7 limite,no ausencia.
+- Sin app/build/merge/cobros/envios.Fixtureslimpios/runtimepropio detenido.
+- Informe96/orden148/matriz84/ESTADO juntosPR1286.Mantener144-147/3D/limites95.
+- No0errores/14limpias.No duplicar aceptacion92/retests94 por nueva sonda.
+
+## 10/10/2026 - Codex95: contraste de entrega, no otra auditoria duplicada
+
+- Main9a054620/PR1286QA siguen sin correcciones144-147 nuevas accesibles.
+  Tanda local NO contrastada; no afirmar que Gemini/Claude no trabajan.
+- Health declara0af74652 y38rutas de producto difieren de main. Version es
+  metadata del build, NO lectura independiente Hosting: Claude contrastara
+  fuente/log/revision antes de publicar o reprogramar lo ya corregido.
+- GETvoz307/login y GitHubdeployments[] NO prueban ausencia de voz/despliegue.
+  No buscar Actionsrojos por facturacion ni usar booleanshealth como entrega.
+- Reutilizadas143Jest/20positivas94 sin repetir SHA igual. No mas pruebas,
+  agentes, build, emuladores ni codigo cambiado para este contraste pequeno.
+- Informe95-publicacion-y-pendientes-exactos.md/raw95-publicacion.json deja
+  ocho acciones concretas; no nuevas ordenes duplicadas ni0errores/14limpias.
+
+## 10/10/2026 - Codex94: retests reales; tres fallos nuevos, no correcciones
+
+- Main9a054620 ejecutado en TEMP nuevo demo; PR1286 QA sigue ABIERTA.
+  NO CONTRASTADO CON TANDA LOCAL NO SUBIDA: verificarla antes de reprogramar.
+- 143Jest/14suites pasan;20ejecuciones positivas navegador/18parescaso-contexto.
+  Dos sondas diagnosticas adicionales no cuentan como aceptaciones de producto.
+- 140fotocabina: fotografia nativa falsa con contenido/pixels/Storage/HTTPbytes.
+  142personal: centavos/reemplazo/fecha PC+movil pasan. No volver a encargarlos.
+- 141album: PNG/WebM correctos y todosGET403 no anuncia ZIPexitoso; reintento
+  real entrega dos archivos exactos PC+movil.143revocacionQR y ubicacion nativa
+  dentro/fuera pasan.139Hoja cocina abre por el enlace, NO URL de rescate.
+- NUEVOS sin corregir:146Gemini voz pendiente de ficha ignora Cortar, luego
+  abre micro/socket/panel; tras error segundo toque no reintenta y terceroSI.
+- 147Gemini QRdescargado170 no lee un patron concreto;ZXingdirectoSI;
+  MISMO codigo/lector/invitado con borde32SI. No repetir143 permisos.
+- Falso positivo de sonda: WebSocket mock cortaba NextHMR, timeout descartado;
+  corregir QA y repetir revelo fallo real de cancelacion. Guardados ambosraw.
+- Health Hosting publicado0af74652 != fuente9a;proveedorestrue no equivalen
+  a entrega real.19originales sin lectura, no deducir ausencia del JSONlocal0.
+- Mantener144/145sin delta;3Dhistorico/foto != escena;videovisual limitado por
+  emulador;cuentas/hardware/buildHosting mismoSHA pendientes. No0errores.
+- Informe94-cierre-retets-y-voz.md/matriz84/ordenes146147/artefactos suben juntos.
+  QA/no app modificada/no merge. Fixtures propios limpiados y runtime detenido.
+
+## 10/10/2026 - Codex93: cierre de pendientes antiguos, no repetir recientes
+
+- Fuente85215484 ejecutada/contrastada9a054620 sin delta en consumidores aqui.
+  PR1284 fusionada durante pruebas: continuacion en rama93, no rama cerrada.
+- Recordatorio3HTTP->un mensaje manual persistido/un marcador/CERO envios
+  pasa47.9s. Barra invitado->barman->entregado/recarga->stock10a8 pasa1.2min.
+- Touchpix archivo/transporte/URL200/bytes/mural pendiente pasa; NO contenido:
+  ENT93-CAM P1 foto negra; control MISMA senal297200pixeles/original pausado0.
+  Orden145Gemini, no rehacer140fotocabina. No foto=archivo existente.
+- ENT93-MOD nuevoP1: espejo guarda foto pero mural0 si Vision falla; responde
+  success:true/syncStatus:pendiente/sin post y anuncia enviada. Dos reproducciones.
+  Orden144Gemini, Claude revisa moderacion/compila; no retirar filtro ni permisos.
+- No repetir86Bogue/360/itinerario/tareas,88contabilidad/contrato,89color,
+  90album,91recibos,92catering/papel/album/archivo video.139-143 FUERA de tanda.
+- Errores de sonda: permiso/modo/boton incorrectos; cron sin cookie dio HTML;
+  barman alcanzo entregado pero traza/contexto cerraron mal; reintento limpio pasa.
+- Externos/19originales/3Dhistorico/recarga visual video/Hosting/hardware siguen
+  acotados en informe93/matriz84. No14areaslimpias, no app completa ni0errores.
+
 ## 10 de octubre de 2026 — Orden 105, bloque 3: hablar con el asistente en vivo
 
 - **Qué hay ahora:** un botón "Hablar" junto al micrófono del asistente. El dueño habla, el asistente

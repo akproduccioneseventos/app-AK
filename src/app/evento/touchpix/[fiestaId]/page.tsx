@@ -40,7 +40,7 @@ import {
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
-import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { isVideoFrameReady, asegurarCuadroDeVideo } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { saveOfflineMedia, removeOfflineMedia } from '@/lib/offline/offline-db';
 import { renovarRetencionOfflineMedia } from '@/lib/offline/offline-db';
@@ -142,7 +142,11 @@ export default function TouchpixPage() {
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [isEventLoading, setIsEventLoading] = useState(true);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+  // La señal viva vive en una referencia (no en estado): así se la puede reutilizar sin volver a
+  // pedir la cámara en cada cambio de pantalla, y se la corta de verdad al salir.
+  const streamRef = useRef<MediaStream | null>(null);
+  const streamFacingRef = useRef<'user' | 'environment' | null>(null);
+  const [camaraSinCuadro, setCamaraSinCuadro] = useState(false);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
 
   const [activeTab, setActiveTab] = useState<TabMode>('foto');
@@ -284,10 +288,11 @@ export default function TouchpixPage() {
   }, [isProcessing, triviaList.length]);
 
   const stopCamera = useCallback(() => {
-    setStream(prev => {
-      if (prev) prev.getTracks().forEach(t => t.stop());
-      return null;
-    });
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+      streamFacingRef.current = null;
+    }
   }, []);
 
   /* ── Load fiesta data ── */
@@ -335,15 +340,43 @@ export default function TouchpixPage() {
   }, [fiesta?.station?.activeTemplateId]);
 
   /* ── Camera ── */
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const startCamera = useCallback(async () => {
-    stopCamera();
     setErrorMsg(null);
+    setCamaraSinCuadro(false);
+    // Este efecto se dispara al abrir, al cambiar de paso y al volver de una captura. Si la señal
+    // sigue viva y es de la misma cámara, no se la corta: se la vuelve a enganchar al video si
+    // hace falta. Cortarla y pedirla de nuevo dejaba un video sin cuadro justo al dibujar la foto.
+    const viva = streamRef.current;
+    if (
+      viva
+      && streamFacingRef.current === facingMode
+      && viva.getVideoTracks().some((t) => t.readyState === 'live')
+    ) {
+      if (videoRef.current && videoRef.current.srcObject !== viva) videoRef.current.srcObject = viva;
+      return;
+    }
+    stopCamera();
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: false,
       });
-      setStream(mediaStream);
+      if (desmontadoRef.current) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      streamRef.current = mediaStream;
+      streamFacingRef.current = facingMode;
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
@@ -487,7 +520,21 @@ export default function TouchpixPage() {
   }, [drawWatermark, selectedTheme, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey]);
 
   /* ── Capture ── */
-  const captureRawPhoto = useCallback((): string | null => {
+  const captureRawPhoto = useCallback(async (): Promise<string | null> => {
+    if (!videoRef.current || !canvasRef.current) return null;
+    // El video está oculto: el navegador puede dejarlo en pausa con la señal viva, y dibujarlo así
+    // da una foto negra. Se lo vuelve a enganchar si hace falta, se lo pone a andar y se espera un
+    // cuadro real. Si no hay, se avisa, se ofrece reintentar y NO se entrega ninguna foto.
+    if (streamRef.current && videoRef.current.srcObject !== streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+    try {
+      await asegurarCuadroDeVideo(videoRef.current);
+    } catch {
+      setCamaraSinCuadro(true);
+      setErrorMsg('La camara no esta entregando imagen. Toca "Reintentar camara" para volver a intentarlo.');
+      return null;
+    }
     if (!videoRef.current || !canvasRef.current) return null;
     if (!isVideoFrameReady(videoRef.current)) {
       setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
@@ -577,7 +624,7 @@ export default function TouchpixPage() {
   }, [accessToken, capturaDe, fiestaId]);
 
   const handleCapture = useCallback(async () => {
-    const raw = captureRawPhoto();
+    const raw = await captureRawPhoto();
     if (!raw) return;
     // Aviso a la pantalla del operador. NO se espera (orden 91): si el servidor tardaba, la foto
     // no se guardaba en el equipo hasta que contestara, y recargar la perdía. La respuesta trae
@@ -1530,6 +1577,21 @@ export default function TouchpixPage() {
           <div className="p-6 text-center text-red-400 font-medium">
             <p className="text-5xl mb-4">📷🚫</p>
             {errorMsg}
+            {camaraSinCuadro && (
+              <button
+                type="button"
+                data-testid="boton-reintentar-camara"
+                onClick={() => {
+                  setErrorMsg(null);
+                  setCamaraSinCuadro(false);
+                  stopCamera();
+                  void startCamera();
+                }}
+                className="mt-6 mx-auto flex h-12 items-center justify-center rounded-xl bg-white/10 px-6 text-sm font-black uppercase tracking-wider text-white transition hover:bg-white/20"
+              >
+                Reintentar camara
+              </button>
+            )}
           </div>
         ) : !capturedImage ? (
 

@@ -19,6 +19,32 @@ agregó— y el control que lo frena.
 
 ---
 
+## 10 de octubre de 2026 — Foto negra en Touchpix y "sin revisar" tomado como "adulto" (órdenes 144 y 145, Codex)
+
+- **Touchpix dibujaba un video oculto y pausado** (foto negra). Ya se había arreglado en la fotocabina (orden
+  140) y **no se barrió el resto de las estaciones**: la misma forma estaba en Touchpix, el espejo mágico,
+  Bogue, la 360, la barra y el buzón. Pregunta que lo hubiera agarrado: **al arreglar una forma, ¿dónde más
+  está escrita igual?** (ya era la regla del 8 de octubre; esta vez el barrido se hizo y apareció más).
+- **El muro convertía "no se pudo revisar" en "contenido adulto".** `imageAiSafe: input.revisionManual === false`
+  da `false` cuando no se sabe. Efecto: fotos rechazadas sin que nadie lo viera, todos los videos de Bogue y 360
+  rechazados, todas las fotos del tótem de la barra rechazadas con la publicación automática, y la pantalla
+  anunciando "enviada". Pregunta nueva (la **48** de `docs/COMO-AUDITAR.md`): **cuando un dato puede ser "sí / no / no sé", ¿el "no sé" se trata como "no"?**
+  Control: `la-foto-sin-revisar-queda-pendiente-no-rechazada.test.ts` y `espejo-guardada-no-es-publicada.test.ts`.
+- **Una respuesta con `success: true` mientras el paso de adentro falló** (el posteo del muro): la pantalla
+  anunciaba algo que no existía. Control: la respuesta distingue `publicado` / `pendiente_aprobacion` / `error` /
+  `rechazado`, y el reintento de la misma captura solo repite el posteo.
+
+Controles: `las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts` (recorre toda la app buscando
+`drawImage` de un video sin el ayudante).
+
+```comprobar
+prueba: src/__tests__/las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts
+prueba: src/__tests__/la-foto-sin-revisar-queda-pendiente-no-rechazada.test.ts
+prueba: src/__tests__/espejo-guardada-no-es-publicada.test.ts
+```
+
+---
+
 ## 23 de septiembre de 2026 — Plata entre servidores, votos y permisos por fiesta (orden 81 de Codex)
 
 Codex pidió revisar idempotencia, permisos del operador y conciliación. Revisándolo apareció

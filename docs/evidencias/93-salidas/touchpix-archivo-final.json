@@ -1,0 +1,23 @@
+{
+  "row": {
+    "id": "post_1791667547671_gtaydic",
+    "fiestaId": "e2e_93_touchpix_16764_1791667528068",
+    "imageUrl": "http://127.0.0.1:9195/v0/b/demo-ak-producciones.appspot.com/o/social-gallery%2Fe2e_93_touchpix_16764_1791667528068%2Fpost_1791667547671_gtaydic.jpg?alt=media",
+    "mediaType": "image",
+    "moderationStatus": "pending",
+    "timestamp": "2026-10-10T21:25:49.223Z",
+    "authorName": "Cabina Touchpix",
+    "likes": 0,
+    "comments": [],
+    "source": "entertainment",
+    "sourceModule": "espejoMagicoIA",
+    "dedication": "📸 Touchpix AI",
+    "momentTag": "touchpix",
+    "imageHash": "f01bbce32dfc72c48b8a513de4c430d906206c25f846d8838a864b0f20a0888c"
+  },
+  "downloadBytes": 6729,
+  "finalBytes": 6729,
+  "http": 200,
+  "sha256": "f01bbce32dfc72c48b8a513de4c430d906206c25f846d8838a864b0f20a0888c",
+  "errors": []
+}

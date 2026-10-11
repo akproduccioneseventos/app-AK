@@ -213,9 +213,12 @@ export default function MuroEnVivoPage() {
       getPublicSocialPosts(fiestaId),
       getPublicSocialEvent(fiestaId),
       getActivePoll(fiestaId),
-      getDedications(fiestaId),
-      getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
-      getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
+      // Dedicatorias, chat y canciones son secundarias: si una falla no frena las fotos.
+      // `null` quiere decir "no se pudo leer": se conserva lo que ya estaba en pantalla
+      // (no se confunde con "no hay ninguna").
+      getDedications(fiestaId).catch(() => null), // no pasa nada si falla: queda lo anterior
+      getChatMessages(fiestaId).catch(() => null), // no pasa nada si falla: queda lo anterior
+      getSongRequests(fiestaId).catch(() => null), // no pasa nada si falla: queda lo anterior
     ]);
 
     // El timeout visual no cancela las Server Actions que ya salieron. La traba se
@@ -293,7 +296,9 @@ export default function MuroEnVivoPage() {
         setActivePoll(null);
       }
       // Update recent chat messages: keep only the last 3 for display on screen
-      if (chatData && chatData.length > 0) {
+      if (chatData === null) {
+        // no se pudo leer: queda lo anterior
+      } else if (chatData.length > 0) {
         const recent = [...chatData]
           .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
           .slice(-3);
@@ -302,7 +307,9 @@ export default function MuroEnVivoPage() {
         setRecentChatMessages([]);
       }
       // Show the 3 most recent song requests on screen
-      if (songData && songData.length > 0) {
+      if (songData === null) {
+        // no se pudo leer: queda lo anterior
+      } else if (songData.length > 0) {
         const recentSongs = [...songData]
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
           .slice(0, 3);
@@ -310,7 +317,7 @@ export default function MuroEnVivoPage() {
       } else {
         setRecentSongRequests([]);
       }
-      setHighlightedDedications((dedicationsData ?? []).filter(d => d.highlighted));
+      if (dedicationsData !== null) setHighlightedDedications(dedicationsData.filter(d => d.highlighted));
       // Extract comments for the live wall: prefer operator-highlighted comments; fall back
       // to the 3 most recent comments across all posts so that comments are visible by default.
       const hComments: { postId: string; comment: SocialComment }[] = [];
@@ -1403,9 +1410,23 @@ function AudioRhythmSlide({
     };
   }, [config.enabled]);
 
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const activateAudio = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      if (desmontadoRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       mediaStreamRef.current = stream;
       const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
       const context = new AudioContextCtor();

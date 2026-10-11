@@ -1,0 +1,323 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "playwright.94.config.ts",
+      "--grep",
+      "QR reentrada|album todo-falla",
+      "--workers=1"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\playwright.94.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/qa94-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/94-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/qa94-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/94-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-verificacion-81-20261009\\docs\\evidencias\\94-e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "94-entrada.spec.ts",
+      "file": "94-entrada.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "QR reentrada con lector real y pagina abierta",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 52360,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-entrada.spec.ts:36:85",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-entrada.spec.ts",
+                      "column": 85,
+                      "line": 36
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 34 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mreload({waitUntil\u001b[33m:\u001b[39m\u001b[32m'domcontentloaded'\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'guest-portal-qr'\u001b[39m))\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 35 |\u001b[39m     }\u001b[36melse\u001b[39m{\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m       \u001b[36mawait\u001b[39m input\u001b[33m.\u001b[39msetInputFiles(png)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(op\u001b[33m.\u001b[39mgetByText(\u001b[35m/ACCESO PERMITIDO/\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m       \u001b[36mconst\u001b[39m first\u001b[33m=\u001b[39m(\u001b[36mawait\u001b[39m ref\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m())\u001b[33m.\u001b[39mdata()\u001b[33m;\u001b[39mexpect(first\u001b[33m.\u001b[39minvitados[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mcheckedIn)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39mexpect(first\u001b[33m.\u001b[39minvitados[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mcheckInTimestamp)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 38 |\u001b[39m       \u001b[36mawait\u001b[39m expect(op\u001b[33m.\u001b[39mgetByText(\u001b[35m/ACCESO PERMITIDO/\u001b[39m))\u001b[33m.\u001b[39mtoBeHidden({timeout\u001b[33m:\u001b[39m\u001b[35m15000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m       \u001b[36mawait\u001b[39m input\u001b[33m.\u001b[39msetInputFiles([])\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m input\u001b[33m.\u001b[39msetInputFiles(png)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-entrada.spec.ts",
+                        "column": 85,
+                        "line": 36
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n\n\n  34 |       await page.reload({waitUntil:'domcontentloaded'});await expect(page.getByTestId('guest-portal-qr')).toHaveCount(0);\n  35 |     }else{\n> 36 |       await input.setInputFiles(png);await expect(op.getByText(/ACCESO PERMITIDO/)).toBeVisible({timeout:30000});\n     |                                                                                     ^\n  37 |       const first=(await ref.get()).data();expect(first.invitados[0].checkedIn).toBe(true);expect(first.invitados[0].checkInTimestamp).toBeTruthy();\n  38 |       await expect(op.getByText(/ACCESO PERMITIDO/)).toBeHidden({timeout:15000});\n  39 |       await input.setInputFiles([]);await input.setInputFiles(png);\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-entrada.spec.ts:36:85"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T22:20:45.442Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-entrada-QR-reentrada-con-lector-real-y-pagina-abierta-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-entrada-QR-reentrada-con-lector-real-y-pagina-abierta-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-entrada-QR-reentrada-con-lector-real-y-pagina-abierta-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-entrada-QR-reentrada-con-lector-real-y-pagina-abierta-chromium-desktop\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-entrada.spec.ts",
+                    "column": 85,
+                    "line": 36
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dde83c6cb31e88baf3b2-1bab5f9f0567a8101b32",
+          "file": "94-entrada.spec.ts",
+          "line": 10,
+          "column": 48
+        },
+        {
+          "title": "QR reentrada con lector real y pagina abierta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 30931,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T22:21:52.460Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qr-reentrada.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcmltZXJhIjogWwogICAgewogICAgICAiaWQiOiAiZ3E5MnJtdjJ5bG9iMyIsCiAgICAgICJub21icmUiOiAiSW52aXRhZG8gZmljdGljaW8gQTkyIiwKICAgICAgInJzdnAiOiAiQ29uZmlybWFkbyIsCiAgICAgICJjYXRlZ29yaWEiOiAiQWR1bHRvIiwKICAgICAgInBhcnR5U2l6ZSI6IDIsCiAgICAgICJndWVzdEFjY2Vzc1Rva2VuIjogInFhOTJ0b2tlbm12Mnlsb2IzIiwKICAgICAgImNoZWNrZWRJbiI6IHRydWUsCiAgICAgICJpbnZpdGFjaW9uQWJpZXJ0YUF0IjogIjIwMjYtMTAtMTBUMjI6MjI6MDEuMTY3WiIsCiAgICAgICJjaGVja0luVGltZXN0YW1wIjogIjIwMjYtMTAtMTBUMjI6MjI6MTMuNzk1WiIKICAgIH0KICBdLAogICJzZWd1bmRhIjogWwogICAgewogICAgICAiaWQiOiAiZ3E5MnJtdjJ5bG9iMyIsCiAgICAgICJub21icmUiOiAiSW52aXRhZG8gZmljdGljaW8gQTkyIiwKICAgICAgInJzdnAiOiAiQ29uZmlybWFkbyIsCiAgICAgICJjYXRlZ29yaWEiOiAiQWR1bHRvIiwKICAgICAgInBhcnR5U2l6ZSI6IDIsCiAgICAgICJndWVzdEFjY2Vzc1Rva2VuIjogInFhOTJ0b2tlbm12Mnlsb2IzIiwKICAgICAgImNoZWNrZWRJbiI6IHRydWUsCiAgICAgICJpbnZpdGFjaW9uQWJpZXJ0YUF0IjogIjIwMjYtMTAtMTBUMjI6MjI6MDEuMTY3WiIsCiAgICAgICJjaGVja0luVGltZXN0YW1wIjogIjIwMjYtMTAtMTBUMjI6MjI6MTMuNzk1WiIKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dde83c6cb31e88baf3b2-c0cce45aaa54496e61c2",
+          "file": "94-entrada.spec.ts",
+          "line": 10,
+          "column": 48
+        }
+      ]
+    },
+    {
+      "title": "94-pendientes.spec.ts",
+      "file": "94-pendientes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "album todo-falla no miente sobre descarga",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10507,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T22:21:40.538Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "album-todo-falla.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJhdmlzbyI6ICJOb3RpZmljYXRpb24gTm8gc2UgcHVkbyBkZXNjYXJnYXIgZWwgw6FsYnVtTm8gc2UgcHVkbyBiYWphciBuaW5nw7puIHJlY3VlcmRvLiBSZXZpc8OhIHR1IGNvbmV4acOzbiB5IHByb2LDoSBkZSBudWV2by4iLAogICJkb3dubG9hZHMiOiAwCn0="
+                    },
+                    {
+                      "name": "album-reintento-entregado.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJuYW1lcyI6IFsKICAgICJyZWN1ZXJkb3MtZTJlXzk0X2FsYnVtXzIyMTkyXzE3OTE2NzA5MDA5NTgvcmVjdWVyZG9fMV9mb3RvY2FiaW5hLndlYm0iLAogICAgInJlY3VlcmRvcy1lMmVfOTRfYWxidW1fMjIxOTJfMTc5MTY3MDkwMDk1OC9yZWN1ZXJkb18yX2ZvdG9jYWJpbmEucG5nIgogIF0sCiAgImRvd25sb2FkcyI6IDEsCiAgImJ5dGVzQ29ycmVjdG9zIjogdHJ1ZSwKICAicG9zdHNJbnRhY3RvcyI6IHRydWUKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cf15deaf5d387a2bea4d-a20669a9becf0192c9f3",
+          "file": "94-pendientes.spec.ts",
+          "line": 78,
+          "column": 49
+        },
+        {
+          "title": "album todo-falla no miente sobre descarga",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9711,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T22:22:26.385Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "album-todo-falla.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJhdmlzbyI6ICJOb3RpZmljYXRpb24gTm8gc2UgcHVkbyBkZXNjYXJnYXIgZWwgw6FsYnVtTm8gc2UgcHVkbyBiYWphciBuaW5nw7puIHJlY3VlcmRvLiBSZXZpc8OhIHR1IGNvbmV4acOzbiB5IHByb2LDoSBkZSBudWV2by4iLAogICJkb3dubG9hZHMiOiAwCn0="
+                    },
+                    {
+                      "name": "album-reintento-entregado.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJuYW1lcyI6IFsKICAgICJyZWN1ZXJkb3MtZTJlXzk0X2FsYnVtXzE3NTUyXzE3OTE2NzA5NDY3MzcvcmVjdWVyZG9fMV9mb3RvY2FiaW5hLndlYm0iLAogICAgInJlY3VlcmRvcy1lMmVfOTRfYWxidW1fMTc1NTJfMTc5MTY3MDk0NjczNy9yZWN1ZXJkb18yX2ZvdG9jYWJpbmEucG5nIgogIF0sCiAgImRvd25sb2FkcyI6IDEsCiAgImJ5dGVzQ29ycmVjdG9zIjogdHJ1ZSwKICAicG9zdHNJbnRhY3RvcyI6IHRydWUKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cf15deaf5d387a2bea4d-6dfd9fc98a5f80d93153",
+          "file": "94-pendientes.spec.ts",
+          "line": 78,
+          "column": 49
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T22:20:42.464Z",
+    "duration": 114077.238,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

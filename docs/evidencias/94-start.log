@@ -1,0 +1,487 @@
+[31m[1m!!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-ak-producciones", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[33m[1m!  emulators:[22m[39m It seems that you are running multiple instances of the emulator suite for project demo-ak-producciones. This may result in unexpected behavior.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m! [22m[39m Unexpected rules runtime error: Picked up JAVA_TOOL_OPTIONS: -Xmx512m
+
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌───────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator  [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore [90m│[39m 127.0.0.1:8085 [90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage   [90m│[39m 127.0.0.1:9195 [90m│[39m
+[90m└───────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+
+[33m[1m!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 7.9s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1446ms (161 modules)
+ ○ Compiling /invitacion/[fiestaId]/invitado/[guestId] ...
+ ✓ Compiled /invitacion/[fiestaId]/invitado/[guestId] in 30.1s (2895 modules)
+ ✓ Compiled in 1771ms (805 modules)
+ GET /invitacion/q92rmv2xzpbq/invitado/gq92rmv2xzpbq?token=qa92tokenmv2xzpbq 200 in 35161ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /invitacion/q92rmv2xzpbq/invitado/gq92rmv2xzpbq?token=qa92tokenmv2xzpbq 200 in 5499ms
+ POST /invitacion/q92rmv2xzpbq/invitado/gq92rmv2xzpbq?token=qa92tokenmv2xzpbq 200 in 786ms
+ POST /invitacion/q92rmv2xzpbq/invitado/gq92rmv2xzpbq?token=qa92tokenmv2xzpbq 200 in 852ms
+ POST /invitacion/q92rmv2xzpbq/invitado/gq92rmv2xzpbq?token=qa92tokenmv2xzpbq 200 in 687ms
+ POST /invitacion/q92rmv2xzpbq/invitado/gq92rmv2xzpbq?token=qa92tokenmv2xzpbq 200 in 1164ms
+ ○ Compiling /evento/accesos/[fiestaId] ...
+ ✓ Compiled /evento/accesos/[fiestaId] in 27.1s (2825 modules)
+ GET /evento/accesos/q92rmv2xzpbq 200 in 30477ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/accesos/q92rmv2xzpbq 200 in 1540ms
+ POST /evento/accesos/q92rmv2xzpbq 200 in 985ms
+ GET /invitacion/q92rmv2xzpbq/invitado/gq92rmv2xzpbq?token=qa92tokenmv2xzpbq 200 in 1493ms
+ ○ Compiling /fiestas/nueva/personal/recibos ...
+ ✓ Compiled /fiestas/nueva/personal/recibos in 13.1s (4567 modules)
+ GET /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 14996ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 731ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 375ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 866ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 638ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 655ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 682ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 567ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 784ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 542ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 876ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791669984261 200 in 886ms
+ ○ Compiling /empleados/[id]/historial ...
+ ✓ Compiled /empleados/[id]/historial in 3.8s (4590 modules)
+ GET /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 7326ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 799ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 513ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 728ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 1336ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 781ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 672ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 717ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 663ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 864ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 1902ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 465ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 565ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 817ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 1145ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 822ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 860ms
+ POST /empleados/emp_e2e_personal91_10340_1791670012762/historial 200 in 456ms
+ GET /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 904ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 1332ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 533ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 743ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 471ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 407ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 423ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 457ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 539ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 481ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_10340_1791670040391 200 in 367ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ ○ Compiling /evento/fotocabina/[fiestaId] ...
+ ✓ Compiled /evento/fotocabina/[fiestaId] in 7.8s (4687 modules)
+ GET /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 11199ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 1721ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 462ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 1138ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 895ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 710ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 482ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 855ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 426ms
+[AK] [ContentSafetyAI] API returned error response: 400 {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "vision.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 1682ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 546ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 734ms
+ POST /evento/fotocabina/e2e_94_foto_2592_1791670053485?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOTRfZm90b18yNTkyXzE3OTE2NzAwNTM0ODUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzM0ODU0NTE0LCJub25jZSI6IjdkMGYxYWY1LTVmYzYtNDhjNy04YzI1LTgxMDg0NzcwN2ZmNSJ9.Pol2k3RcVtPLhHVPQTKrQiwo43IxnVqJ8-fFOXrVyO8 200 in 303ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ ○ Compiling /acceso-personal/[tokenId] ...
+ ✓ Compiled /acceso-personal/[tokenId] in 7.7s (4731 modules)
+ GET /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 10758ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "roles.json"; Firestore vacio o no disponible.
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 1143ms
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 405ms
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 548ms
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 871ms
+ GET /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 712ms
+[AK] [readData] FALLBACK JSON usado para "roles.json"; Firestore vacio o no disponible.
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 409ms
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 510ms
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670079086 200 in 298ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /acceso-personal/tok_e2e_94_geo_2592_1791670098915 200 in 531ms
+[AK] [readData] FALLBACK JSON usado para "roles.json"; Firestore vacio o no disponible.
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670098915 200 in 397ms
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670098915 200 in 387ms
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670098915 200 in 1514ms
+ POST /acceso-personal/tok_e2e_94_geo_2592_1791670098915 200 in 615ms
+ ○ Compiling /evento/album/[fiestaId] ...
+ ✓ Compiled /evento/album/[fiestaId] in 4.6s (4804 modules)
+ GET /evento/album/e2e_94_album_2592_1791670105687 200 in 8120ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/album/e2e_94_album_2592_1791670105687 200 in 837ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/album/e2e_94_album_2592_1791670105687 200 in 467ms
+ POST /evento/album/e2e_94_album_2592_1791670105687 200 in 774ms
+ POST /evento/album/e2e_94_album_2592_1791670105687 200 in 403ms
+ GET /evento/album/e2e_94_album_2592_1791670119697 200 in 748ms
+ POST /evento/album/e2e_94_album_2592_1791670119697 200 in 521ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/album/e2e_94_album_2592_1791670119697 200 in 447ms
+ POST /evento/album/e2e_94_album_2592_1791670119697 200 in 551ms
+ POST /evento/album/e2e_94_album_2592_1791670119697 200 in 647ms
+ ○ Compiling /fiestas/nueva/catering ...
+ ✓ Compiled /fiestas/nueva/catering in 3.7s (4824 modules)
+ GET /fiestas/nueva/catering?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 5530ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/catering?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1478ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 508ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 571ms
+ POST /fiestas/nueva/catering?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 557ms
+ ○ Compiling /fiestas/nueva/catering/hoja-de-cocina ...
+ ✓ Compiled /fiestas/nueva/catering/hoja-de-cocina in 6.1s (4836 modules)
+ GET /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 7138ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1532ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 897ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1154ms
+ POST /fiestas/nueva/catering 200 in 805ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1584ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 783ms
+ POST /fiestas/nueva/personal/recibos 200 in 1145ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1815ms
+[AK] [readData] FALLBACK JSON usado para "insumos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering 200 in 1592ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 2153ms
+ POST /fiestas/nueva/personal/recibos 200 in 1860ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 3330ms
+ POST /fiestas/nueva/catering 200 in 2357ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 5483ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 525ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 746ms
+ POST /fiestas/nueva/catering 200 in 587ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1275ms
+[AK] [readData] FALLBACK JSON usado para "proveedores.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering 200 in 708ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1344ms
+ POST /fiestas/nueva/catering 200 in 636ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1194ms
+ POST /fiestas/nueva/catering 200 in 583ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1187ms
+[AK] [readData] FALLBACK JSON usado para "proveedores.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering 200 in 895ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1626ms
+ POST /fiestas/nueva/catering 200 in 1614ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 2495ms
+ GET /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 819ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 579ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 553ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 595ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 1612ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 589ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 747ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 659ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 548ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 753ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 757ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 562ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 804ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 566ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 463ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 448ms
+ POST /fiestas/nueva/catering/hoja-de-cocina?fiestaId=e2e_94_cocina_2592_1791670125529 200 in 458ms
+ ○ Compiling /api/asistente/voz-en-vivo ...
+ ✓ Compiled /api/asistente/voz-en-vivo in 11s (5612 modules)
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+(node:17884) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGTERM listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17884) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGINT listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+ POST /api/asistente/voz-en-vivo 503 in 18569ms
+ ○ Compiling /fiestas/nueva/tareas ...
+ ✓ Compiled /fiestas/nueva/tareas in 13.3s (6188 modules)
+ GET /fiestas/nueva/tareas?fiestaId=e2e_94_live_21320_1791670232424 200 in 16718ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_21320_1791670232424 200 in 3790ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_21320_1791670232424 200 in 1921ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_21320_1791670232424 200 in 1942ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_21320_1791670232424 200 in 1939ms
+ GET /fiestas/nueva/tareas?fiestaId=e2e_94_live_22052_1791670267257 200 in 1056ms
+ GET /fiestas/nueva/tareas?fiestaId=e2e_94_live_22212_1791670482214 200 in 2577ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_22212_1791670482214 200 in 1009ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_22212_1791670482214 200 in 2638ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_22212_1791670482214 200 in 2861ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_94_live_24264_1791670498425 200 in 1104ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_24264_1791670498425 200 in 1041ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_24264_1791670498425 200 in 901ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_94_live_24264_1791670498425 200 in 4145ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ ○ Compiling /invitacion/[fiestaId]/invitado/[guestId] ...
+ ✓ Compiled /invitacion/[fiestaId]/invitado/[guestId] in 10.3s (3388 modules)
+ GET /invitacion/q92rmv2ye3hs/invitado/gq92rmv2ye3hs?token=qa92tokenmv2ye3hs 200 in 15347ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /invitacion/q92rmv2ye3hs/invitado/gq92rmv2ye3hs?token=qa92tokenmv2ye3hs 200 in 3036ms
+ POST /invitacion/q92rmv2ye3hs/invitado/gq92rmv2ye3hs?token=qa92tokenmv2ye3hs 200 in 1665ms
+ ⚠ Server is approaching the used memory threshold, restarting...
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 11.5s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 3.8s (161 modules)
+ ○ Compiling /evento/accesos/[fiestaId] ...
+ ✓ Compiled /evento/accesos/[fiestaId] in 34.6s (2586 modules)
+ ✓ Compiled in 2.3s (727 modules)
+ GET /evento/accesos/q92rmv2ye3hs 200 in 41600ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/accesos/q92rmv2ye3hs 200 in 4945ms
+ POST /evento/accesos/q92rmv2ye3hs 200 in 1121ms
+ ○ Compiling /invitacion/[fiestaId]/invitado/[guestId] ...
+ ✓ Compiled /invitacion/[fiestaId]/invitado/[guestId] in 23s (2825 modules)
+ GET /invitacion/q92rmv2ye3hs/invitado/gq92rmv2ye3hs?token=qa92tokenmv2ye3hs 200 in 26820ms
+ ○ Compiling /fiestas/nueva/personal/recibos ...
+ ✓ Compiled /fiestas/nueva/personal/recibos in 10.9s (4567 modules)
+ GET /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 12752ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 1414ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 661ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 803ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 543ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 385ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 370ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 413ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 438ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 1137ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 797ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 969ms
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 514ms
+[AK] [readData] FALLBACK JSON usado para "roles.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670685239 200 in 533ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ ○ Compiling /empleados/[id]/historial ...
+ ✓ Compiled /empleados/[id]/historial in 3.8s (4590 modules)
+ GET /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 7582ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 1455ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 1310ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 655ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 551ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 421ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 552ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 434ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 652ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 626ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 945ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 410ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 430ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 588ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 414ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 591ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 859ms
+ POST /empleados/emp_e2e_personal91_7680_1791670710331/historial 200 in 603ms
+ GET /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 852ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 1651ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 438ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 668ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 668ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 500ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 424ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 497ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 545ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 442ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 541ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 546ms
+ POST /fiestas/nueva/personal/recibos?fiestaId=e2e_personal91_7680_1791670736356 200 in 293ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ ○ Compiling /evento/album/[fiestaId] ...
+ ✓ Compiled /evento/album/[fiestaId] in 5s (4655 modules)
+ GET /evento/album/e2e_94_album_18596_1791670750756 200 in 8086ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/album/e2e_94_album_18596_1791670750756 200 in 2800ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/album/e2e_94_album_18596_1791670750756 200 in 357ms
+ POST /evento/album/e2e_94_album_18596_1791670750756 200 in 1022ms
+ POST /evento/album/e2e_94_album_18596_1791670750756 200 in 495ms
+ GET /evento/album/e2e_94_album_18596_1791670769785 200 in 1177ms
+ POST /evento/album/e2e_94_album_18596_1791670769785 200 in 2504ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/album/e2e_94_album_18596_1791670769785 200 in 464ms
+ POST /evento/album/e2e_94_album_18596_1791670769785 200 in 1936ms
+ POST /evento/album/e2e_94_album_18596_1791670769785 200 in 1096ms
+ ○ Compiling /invitacion/[fiestaId]/invitado/[guestId] ...
+ ✓ Compiled /invitacion/[fiestaId]/invitado/[guestId] in 3.4s (3091 modules)
+ GET /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 6329ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 2129ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 372ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 457ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 917ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 671ms
+ GET /evento/accesos/q92rmv2yk9b9 200 in 1589ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 706ms
+ GET /evento/album/e2e_94_album_22192_1791670900958 200 in 1764ms
+ POST /evento/album/e2e_94_album_22192_1791670900958 200 in 806ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/album/e2e_94_album_22192_1791670900958 200 in 893ms
+ POST /evento/album/e2e_94_album_22192_1791670900958 200 in 550ms
+ POST /evento/album/e2e_94_album_22192_1791670900958 200 in 968ms
+ GET /invitacion/q92rmv2ylob3/invitado/gq92rmv2ylob3?token=qa92tokenmv2ylob3 200 in 1211ms
+ POST /invitacion/q92rmv2ylob3/invitado/gq92rmv2ylob3?token=qa92tokenmv2ylob3 200 in 609ms
+ POST /invitacion/q92rmv2ylob3/invitado/gq92rmv2ylob3?token=qa92tokenmv2ylob3 200 in 656ms
+ POST /invitacion/q92rmv2ylob3/invitado/gq92rmv2ylob3?token=qa92tokenmv2ylob3 200 in 1082ms
+ POST /invitacion/q92rmv2ylob3/invitado/gq92rmv2ylob3?token=qa92tokenmv2ylob3 200 in 434ms
+ POST /invitacion/q92rmv2ylob3/invitado/gq92rmv2ylob3?token=qa92tokenmv2ylob3 200 in 500ms
+ GET /evento/accesos/q92rmv2ylob3 200 in 695ms
+ POST /evento/accesos/q92rmv2ylob3 200 in 2092ms
+ POST /evento/accesos/q92rmv2ylob3 200 in 1168ms
+ POST /evento/accesos/q92rmv2ylob3 200 in 601ms
+ GET /evento/album/e2e_94_album_17552_1791670946737 200 in 946ms
+ POST /evento/album/e2e_94_album_17552_1791670946737 200 in 930ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/album/e2e_94_album_17552_1791670946737 200 in 853ms
+ POST /evento/album/e2e_94_album_17552_1791670946737 200 in 462ms
+ POST /evento/album/e2e_94_album_17552_1791670946737 200 in 1077ms
+ GET /evento/accesos/q92rmv2yk9b9 200 in 804ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 510ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 673ms

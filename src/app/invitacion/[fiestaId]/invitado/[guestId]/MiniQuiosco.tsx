@@ -153,7 +153,15 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
       formData.append('source', 'kiosco');
       const result = await uploadBarMagicPhoto(formData);
       toast(result.success
-        ? { title: 'Recuerdo enviado', description: 'Tu foto aparecera en el muro social.' }
+        ? {
+            title: 'Recuerdo enviado',
+            // Lo que pasó de verdad con el muro: publicada, esperando al equipo, o solo guardada.
+            description: result.publicacion === 'pendiente_aprobacion'
+              ? 'Tu foto quedó guardada y espera la aprobación del equipo para salir en el muro.'
+              : result.publicacion === 'sin_publicar'
+                ? 'Tu foto quedó guardada.'
+                : 'Tu foto aparecera en el muro social.',
+          }
         : { title: 'No se pudo subir', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
     } catch {
       toast({ title: 'No se pudo subir', description: 'Intenta nuevamente.', variant: 'destructive' });

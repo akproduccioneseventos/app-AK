@@ -1,0 +1,152 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/93-barra-final.spec.ts",
+      "--grep=barra:",
+      "--project=chromium-desktop",
+      "--trace=off",
+      "--output=93-barra-final-artifactos",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/93-barra-final-artifactos",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/93-barra-final-artifactos",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "93-barra-final.spec.ts",
+      "file": "93-barra-final.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "barra: invitado pide barman entrega y el stock baja una sola vez",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 360000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 74360,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:31:58.730Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "pedido-entregado.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJvcmRlciI6IHsKICAgICJpZCI6ICJiYXJfMzY1Y2E2NzctYzgwYi00NGI2LTlkZjctNTFiZDJkODNhY2JmIiwKICAgICJmaWVzdGFJZCI6ICJlMmVfYmFycmE5M18xMjk0NF8xNzkxNjY3OTE5MTExIiwKICAgICJkcmlua0lkIjogImN1c3RvbV9lMmVfYmFycmE5M18xMjk0NF8xNzkxNjY3OTE5MTExIiwKICAgICJkcmlua05hbWUiOiAiVHJhZ28gUUE5MyIsCiAgICAiZ3Vlc3ROYW1lIjogIkx1Y8OtYSBGZXJuw6FuZGV6IiwKICAgICJndWVzdElkIjogImludl9wcnVlYmFfMCIsCiAgICAidGFibGVOdW1iZXIiOiAiMSIsCiAgICAibm90ZSI6ICIiLAogICAgImNyZWF0ZWRBdCI6ICIyMDI2LTEwLTEwVDIxOjMyOjE1LjAxOVoiLAogICAgInNvdXJjZSI6ICJ0b3VjaHNjcmVlbiIsCiAgICAic3RvY2tNb3ZlbWVudHMiOiBbCiAgICAgIHsKICAgICAgICAiaW5zdW1vSWQiOiAiaW5zX2UyZV9iYXJyYTkzXzEyOTQ0XzE3OTE2Njc5MTkxMTEiLAogICAgICAgICJjYW50aWRhZCI6IDIKICAgICAgfQogICAgXSwKICAgICJzdGF0dXMiOiAiZW50cmVnYWRvIiwKICAgICJ1cGRhdGVkQXQiOiAiMjAyNi0xMC0xMFQyMTozMjo0Ny44MzhaIgogIH0sCiAgInN0b2NrIjogewogICAgImlkIjogImluc19lMmVfYmFycmE5M18xMjk0NF8xNzkxNjY3OTE5MTExIiwKICAgICJub21icmUiOiAiSW5zdW1vIFFBOTMiLAogICAgInVuaWRhZCI6ICJVZHMuIiwKICAgICJ2YWxvclVuaXRhcmlvRXN0aW1hZG8iOiAwLAogICAgImNhbnRpZGFkRGlzcG9uaWJsZSI6IDgKICB9Cn0="
+                    },
+                    {
+                      "name": "barra-final.txt",
+                      "contentType": "text/plain",
+                      "body": "UE9SVEFMIERFTCBJTlZJVEFETyAvLyBBQ0NFU08gRVhDTFVTSVZPCkZpZXN0YSBkZSBlc3RhIG5vY2hlCgpIb2xhLCBMdWPDrWEgRmVybsOhbmRlegoKQmllbnZlbmlkbyBhIGxhIGV4cGVyaWVuY2lhIGRlbW8gQUsuCgpTw6FiYWRvLCAxMCBEZSBPY3R1YnJlIERlIDIwMjYgLSAyMTowMCBIcwpDbHViIFVydWd1YXkKRWwgZXZlbnRvIGVzIGhveQpIdWIgZGVsIGV2ZW50bwpDw7NtbyBsbGVnYXIKVmVyIGludml0YWNpw7NuCgpBQ0NFU09TCgpUb2RvIHR1IGV2ZW50bwo4IGRpc3BvbmlibGVzClJlZCBzb2NpYWwKR2FsZXLDrWEKUGVkaXIgY2FuY2nDs24KQ2FydGEgZGUgdHJhZ29zCkp1ZWdvcwpCdXrDs24gZGUgc2FsdWRvcwrCv0TDs25kZSBtZSBzaWVudG8/CkJ1esOzbiBkZSByZWN1ZXJkb3MKCk1JIENSRURFTkNJQUwgVklQCgpMdWPDrWEgRmVybsOhbmRlegpBc2lzdGVuY2lhIGNvbmZpcm1hZGEKCk1FU0EgQVNJR05BREEKCk1lc2EgMQoKQ1JFREVOQ0lBTCBERSBFTlRSQURBCgpQcmVzZW50w6EgZXN0ZSBjw7NkaWdvIFFSIGFsIGluZ3Jlc2FyCgpUdSBwYXNlIGVzIHBlcnNvbmFsLgoKR3VhcmRhciBRUgoKREFUT1MgREVMIEVWRU5UTwoKQ2x1YiBVcnVndWF5CgpVcnVndWF5IDU4MCwgU2FsdG8KClPDoWJhZG8sIDEwIERlIE9jdHVicmUgRGUgMjAyNiAtIDIxOjAwIEhzCgpWZXIgZW4gR29vZ2xlIE1hcHMKCkdBU1RST05PTcONQQoKTWVuw7ogc2VsZWNjaW9uYWRvClJlY3VlcmRvcyBlbiB2aXZvCgpGb3RvcyBhcHJvYmFkYXMgZGUgZXN0YSBmaWVzdGEuCgrDgWxidW0gb2ZpY2lhbApNdXJvIHNvY2lhbApHYWxlcsOtYQoKUFJPR1JBTUEKCjIyOjAwCgpDb21pZW56bwoKMjI6MTUKClNlcnZpY2lvIGRlIEVudHJhZGEgMQoKMjI6MzAKCkVudHJhZGEgZGUgbGEgUXVpbmNlYcOxZXJhIHkgVmFscwoKMjI6NDUKClNlcnZpY2lvIGRlIEVudHJhZGEgMgoKMDA6MDAKCsKhQSBCYWlsYXIhCgowMTowMAoKQ2VuYSAvIENpZXJyZSBkZSBCYXJyYQoKMDE6NDUKClZpZGVvIGRlIFZpZGEKCjAyOjAwCgpSZWFwZXJ0dXJhIGRlIEJhcnJhIHkgQmFpbGUKCjAyOjMwCgpQbGF0YWZvcm1hIDM2MCAvIEZvdG9jYWJpbmEKCjAzOjAwCgpDb3RpbGzDs24KCjAzOjQ1CgpGdWVudGUgZGUgQ2hvY29sYXRlCgowNDowMAoKQXBhZ2FkbyBkZSBWZWxhcyB5IFRvcnRhCgowNTowMAoKRmluYWwgZGUgbGEgRmllc3RhCgpVTkEgRVhQRVJJRU5DSUEgREUKCkFLIFBST0RVQ0NJT05FUwoKRXN0YSBleHBlcmllbmNpYSBmdWUgY3JlYWRhIHBvciBBSyBQcm9kdWNjaW9uZXMgRXZlbnRvcy4gT3JnYW5pemFtb3MgZmllc3RhcyBjb21wbGV0YXMgZSBpbm9sdmlkYWJsZXMgZW4gU2FsdG8sIFVydWd1YXkuCgpJbnN0YWdyYW0KRmFjZWJvb2sKVGlrVG9rCldoYXRzQXBwClF1aWVybyBvcmdhbml6YXIgbWkgZXZlbnRvCgpFc3RhbW9zIHByZXBhcmFuZG8gZWwgcXVpb3NjbyBkZSB0cmFnb3MuCgrCv1RlbsOpcyB1bmEgZHVkYT8="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "30a092b4e241a96f9445-de057bd0dea45237b552",
+          "file": "93-barra-final.spec.ts",
+          "line": 83,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T21:31:56.451Z",
+    "duration": 77409.48800000001,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

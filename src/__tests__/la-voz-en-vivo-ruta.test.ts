@@ -72,6 +72,7 @@ beforeEach(() => {
   process.env.GEMINI_API_KEY = CLAVE;
   delete process.env.GOOGLE_API_KEY;
   delete process.env.GEMINI_LIVE_MODEL;
+  delete process.env.GEMINI_LIVE_API_VERSION;
   respuestaGoogle = () => ({ ok: true, status: 200, body: { name: 'auth_tokens/ficha-temporal-1' } });
   (global as any).fetch = jest.fn(async (url: string, init: any) => {
     pedidosAGoogle.push({ url, cuerpo: JSON.parse(init.body) });
@@ -150,11 +151,23 @@ describe('POST /api/asistente/voz-en-vivo', () => {
     expect(cuerpo.wsUrl).toContain('BidiGenerateContentConstrained?access_token=');
     expect(cuerpo.wsUrl).toContain(encodeURIComponent('auth_tokens/ficha-temporal-1'));
     // La clave sólo viaja del servidor a Google, y la ficha es de un solo uso con el contexto del negocio.
-    expect(pedidosAGoogle[0].url).toContain('/v1alpha/auth_tokens?key=');
+    expect(pedidosAGoogle[0].url).toContain('/v1beta/auth_tokens?key=');
     expect(pedidosAGoogle[0].cuerpo.uses).toBe(1);
     const instrucciones = pedidosAGoogle[0].cuerpo.liveConnectConstraints.config.systemInstruction.parts[0].text;
     expect(instrucciones).toContain('Fiesta de Ana en 3 días');
     expect(almacen[ARCHIVO]).toEqual({ fecha: hoyEnUruguay(), minutos: 10 });
+  });
+
+  it('la ficha y el socket salen SIEMPRE de la misma versión (v1beta por omisión, o la de la variable)', async () => {
+    // Probado rompiéndolo: dejar una versión fija en direccionDelSocket puso en rojo el segundo caso.
+    ajustes.vozEnVivoMinutosPorDia = 60;
+    const porOmision = await (await POST()).json();
+    expect(pedidosAGoogle[0].url).toContain('/v1beta/auth_tokens');
+    expect(porOmision.wsUrl).toContain('google.ai.generativelanguage.v1beta.');
+    process.env.GEMINI_LIVE_API_VERSION = 'v1alpha';
+    const conVariable = await (await POST()).json();
+    expect(pedidosAGoogle[1].url).toContain('/v1alpha/auth_tokens');
+    expect(conVariable.wsUrl).toContain('google.ai.generativelanguage.v1alpha.');
   });
 
   it('si el primer modelo no existe prueba el siguiente', async () => {

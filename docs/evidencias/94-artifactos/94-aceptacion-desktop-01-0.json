@@ -1,0 +1,21 @@
+{
+  "native": {
+    "lat": -34.9065,
+    "lng": -56.1998
+  },
+  "headers": "camera=(self), microphone=(self), geolocation=(self)",
+  "personal": [
+    {
+      "empleadoId": "emp_e2e_94_geo_2592_1791670079086",
+      "rolId": "rol94",
+      "eventSalary": 0,
+      "checkInTimestamp": "2026-10-10T22:08:14.782Z",
+      "checkInUbicacion": {
+        "lat": -34.9065,
+        "lng": -56.1998,
+        "distanciaMetros": 0
+      }
+    }
+  ],
+  "avisos": []
+}

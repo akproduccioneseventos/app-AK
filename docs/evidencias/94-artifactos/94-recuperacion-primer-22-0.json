@@ -1,0 +1,28 @@
+{
+  "primera": [
+    {
+      "id": "gq92rmv2ylob3",
+      "nombre": "Invitado ficticio A92",
+      "rsvp": "Confirmado",
+      "categoria": "Adulto",
+      "partySize": 2,
+      "guestAccessToken": "qa92tokenmv2ylob3",
+      "checkedIn": true,
+      "invitacionAbiertaAt": "2026-10-10T22:22:01.167Z",
+      "checkInTimestamp": "2026-10-10T22:22:13.795Z"
+    }
+  ],
+  "segunda": [
+    {
+      "id": "gq92rmv2ylob3",
+      "nombre": "Invitado ficticio A92",
+      "rsvp": "Confirmado",
+      "categoria": "Adulto",
+      "partySize": 2,
+      "guestAccessToken": "qa92tokenmv2ylob3",
+      "checkedIn": true,
+      "invitacionAbiertaAt": "2026-10-10T22:22:01.167Z",
+      "checkInTimestamp": "2026-10-10T22:22:13.795Z"
+    }
+  ]
+}

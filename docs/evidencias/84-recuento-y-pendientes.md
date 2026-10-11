@@ -1,5 +1,58 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion96: lector final, nuevo criterio de fallo probado
+
+Main9a/PR1286QA;NO contrastado con tanda local. VID96-LECTOR P2:fallo
+lectura/firma retorna[] y anuncia0sin aviso.Componente2pass/2fail;navegador
+PCmovil2pass/2fail;Storage01.png/HTTPbytes conservados.Orden148Gemini UNAcausa.
+Reemplazo fallido conserva preview,descartado.Limite firmanteemulador NO
+prueba cuenta real rota.Inventario19sin export:no ausencia.Reusar92/94;
+informe95/lista restante+148 vigentes.Runtime96 detenido/fixtureslimpios.
+No aceptar area completa ni0errores por dos controles positivos.
+
+## Actualizacion95: version declarada no coincide; no duplicar auditoria
+
+Main9a sin delta, PR1286 QA unicaabierta. Health declara0af,38rutasproducto
+de diferencia; validar fuente/log/Hosting porque metadata no es revision
+independiente. GETvoz307 y deployments[] no prueban ausencia. Retests94 se
+reutilizan sin nueva corrida. NO nueva orden:144-147 ya existen y necesitan
+contraste de tanda local/correccion/retest. Informe95 ordena los ocho pasos
+restantes concretos y separa3D/videolector/19originales/integraciones/release/
+hardware. La tabla historica de abajo no reabre lo aceptado por88-94.
+0areaslimpias en JSON no significa0partesprobadas. No certificar app entera.
+
+## Actualizacion94: retests cerrados y tres fallos nuevos
+
+Fuente exacta9a054620 ejecutada; main mismoSHA, PR1286QA abierta. Tanda local
+NO contrastada: no duplicar trabajo. Informe94-cierre-retets-y-voz.md manda.
+143Jest14suites y20ejecucionespositivas/18parescaso-contexto. No app completa.
+140foto con contenido nativo falso/bytes;142centavos/reemplazo/fecha PCmovil;
+141PNG/WebM y noZIPfalso+reintentocompleto PCmovil;143revocacion lectorabierto/
+ubicacionnativa dentro-fuera;139enlacecocina sin rescate PASAN. Reutilizarlos.
+Orden146 dos NUEVOS: Cortar mientrasconecta reabre micro/socket; tras503segundo
+toqueNOreintenta/terceroSI. Orden147NUEVO: PNGQRvalido170 no lee la propiaapp,
+bordeblanco32 mismoarchivo/codigo/invitadoSI. Reentrada movilSI, no cierrePC.
+SondasQR positivas son diagnostico, no aprobar producto por el control corregido.
+Timeout mockHMR propio descartado. Mantener144/145sin delta, no reauditarigual.
+3Dhistorico sin escena, videolector visual limitado emulador,19originales sin
+export autorizado, proveedores/hardware reales y buildHostingMISMO SHA quedan
+pendientes. Publicado0af74652 !=9a;health no prueba integraciones. Runtimecerrado.
+No14areaslimpias ni0errores. Propuestas/mejoras aparte, no inventar certificacion.
+
+## Actualizacion93: pendientes antiguos, recientes excluidos
+
+Informe93-cierre-pendientes-anteriores.md. Fuente85215484/contraste9a054620:
+sin delta en casos usados. Recordatorio3HTTP/un mensaje manual/un marcador
+sin envios y barra pedido->entregado/recarga/stock10->8 aprobados. No repetir.
+Touchpix archivo/HTTP/bytes bien; ENT93-CAM P1control MISMA senal297200pixeles
+vsoriginal pausado0. Orden145Gemini, no duplicar140fotocabina.
+ENT93-MOD P1nuevo: espejo guarda foto pero mural0 ante Vision caido, anuncia
+envio. Orden144Gemini/Claude moderacion; dos reproducciones. No app corregida.
+Conservar86Bogue/360/planificacion y86/88widget; nuevas entregasIA FUERA.
+Historico3D, lector visualvideo, cuentasproveedores/19originales/hardware
+y verificacion de MISMO SHApublicado siguen separados.139-143al final,
+no reprogramar ni certificar14areaslimpias/0errores por estos dos casos nuevos.
+
 ## Actualizacion92: seis huecos de la lista real
 
 Informe92-seis-pendientes.md, main85215484 ejecutado. Catering integrado207.830s

@@ -168,7 +168,14 @@
         "src/app/invitado",
         "src/app/portal-invitado"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "ultimaRevision": {
+        "fecha": "2026-10-10",
+        "commit": "9a054620",
+        "hallazgos": 2,
+        "reporte": "Auditorías 94-96 de Codex (órdenes 144 a 148)"
+      },
+      "nota": "Auditorías 94 y 96: el QR descargado no lo lee el lector en el celular (147, SIGUE ABIERTO) y el Video de Vida mostraba galería vacía cuando no pudo leer las fotos (148, arreglado el 10/10)."
     },
     {
       "id": "web",
@@ -258,7 +265,14 @@
         "src/app/api/integrations",
         "src/app/api/buzon"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "ultimaRevision": {
+        "fecha": "2026-10-10",
+        "commit": "9a054620",
+        "hallazgos": 2,
+        "reporte": "Auditorías 94-96 de Codex (órdenes 144 a 148)"
+      },
+      "nota": "Auditorías 94-96: el espejo perdía la publicación si fallaba la revisión de la foto (144) y Touchpix sacaba la foto negra con el video en pausa (145). Arreglados el 10/10; falta que Codex la vuelva a mirar."
     },
     {
       "id": "barra",
@@ -304,7 +318,14 @@
         "src/app/(app)/contabilidad/crm",
         "src/app/(app)/empresa/crm"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "ultimaRevision": {
+        "fecha": "2026-10-10",
+        "commit": "9a054620",
+        "hallazgos": 1,
+        "reporte": "Auditorías 94-96 de Codex (órdenes 144 a 148)"
+      },
+      "nota": "Auditoría 94: la voz en vivo, al cortarla con la conexión pendiente, abría igual el micrófono, y tras un error pedía un tercer toque para reintentar (146). Arreglado el 10/10; falta que Codex la vuelva a mirar."
     },
     {
       "id": "personal",

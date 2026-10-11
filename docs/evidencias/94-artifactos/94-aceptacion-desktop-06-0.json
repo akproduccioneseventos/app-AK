@@ -1,0 +1,7 @@
+{
+  "status": 503,
+  "body": {
+    "error": "No hay clave de Gemini configurada para la voz en vivo."
+  },
+  "usageUnchanged": true
+}

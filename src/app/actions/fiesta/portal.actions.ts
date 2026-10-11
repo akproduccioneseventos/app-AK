@@ -242,8 +242,11 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
         f.clientPortalSettings?.accessKey === safeAccessKey
     ) ?? null;
     return mapFiestaToClientPortal(fiesta);
-  } catch {
-    return null;
+  } catch (error) {
+    // "No existe" (null, arriba) es distinto de "no se pudo leer": una falla de lectura
+    // se lanza para que la pantalla no le diga al cliente que su enlace expiró.
+    console.error('[portal] getFiestaByAccessKey: falló la lectura', error);
+    throw error;
   }
 }
 

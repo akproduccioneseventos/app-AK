@@ -1,0 +1,34 @@
+{
+  "antes": {
+    "id": "r_e2e_personal91_10340_1791670012762",
+    "fiestaId": "e2e_personal91_10340_1791670012762",
+    "empleadoId": "emp_e2e_personal91_10340_1791670012762",
+    "monto": 1000,
+    "fecha": "2026-10-10",
+    "estado": "firmado_subido",
+    "archivoUrl": "http://127.0.0.1:9195/v0/b/demo-ak-producciones.appspot.com/o/public-page-assets%2Fpersonal-recibos%2Femp_e2e_personal91_10340_1791670012762%2Fanterior-a91.pdf?alt=media&token=ficticio-a91",
+    "archivoNombre": "anterior-a91.pdf",
+    "createdAt": "2026-10-10T22:06:53.455Z",
+    "updatedAt": "2026-10-10T22:06:53.455Z"
+  },
+  "despues": {
+    "id": "r_e2e_personal91_10340_1791670012762",
+    "fiestaId": "e2e_personal91_10340_1791670012762",
+    "empleadoId": "emp_e2e_personal91_10340_1791670012762",
+    "monto": 1000,
+    "fecha": "2026-10-10",
+    "archivoUrl": "http://127.0.0.1:9195/v0/b/demo-ak-producciones.appspot.com/o/public-page-assets%2Fpersonal-recibos%2Femp_e2e_personal91_10340_1791670012762%2Fasset_1791670037734_agxpcjj.pdf?alt=media",
+    "archivoNombre": "reemplazo-a91.pdf",
+    "estado": "firmado_subido",
+    "notas": "",
+    "createdAt": "2026-10-10T22:06:53.455Z",
+    "updatedAt": "2026-10-10T22:07:18.473Z"
+  },
+  "avisos": [
+    "Notification Recibo firmado subidoEl archivo quedó asociado al evento."
+  ],
+  "archivos": [
+    "public-page-assets/personal-recibos/emp_e2e_personal91_10340_1791670012762/anterior-a91.pdf",
+    "public-page-assets/personal-recibos/emp_e2e_personal91_10340_1791670012762/asset_1791670037734_agxpcjj.pdf"
+  ]
+}

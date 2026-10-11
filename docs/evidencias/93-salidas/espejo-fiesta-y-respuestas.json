@@ -1,0 +1,27 @@
+{
+    "fixtureId":  "e2e_93_espejomagico_20492_1791667853440",
+    "media":  [
+                  {
+                      "id":  "ent_offline_1791667866594_vvv83p6",
+                      "moduleId":  "espejoMagicoFoto",
+                      "fileName":  "espejo-1791667866595.jpg",
+                      "url":  "http://127.0.0.1:9195/v0/b/demo-ak-producciones.appspot.com/o/entertainment%2Fe2e_93_espejomagico_20492_1791667853440%2FespejoMagicoFoto%2Fent_offline_1791667866594_vvv83p6.jpg?alt=media",
+                      "type":  "image",
+                      "caption":  "",
+                      "authorName":  "Espejo MÃ¡gico Foto",
+                      "uploadedAt":  "2026-10-10T21:31:10.001Z",
+                      "publishTarget":  "muro-social",
+                      "syncStatus":  "pendiente"
+                  }
+              ],
+    "responses":  [
+                      {
+                          "status":  200,
+                          "body":  ":N1791667870514.2463\n0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"development\"}\n1:{\"success\":true,\"media\":{\"id\":\"ent_offline_1791667866594_vvv83p6\",\"moduleId\":\"espejoMagicoFoto\",\"fileName\":\"espejo-1791667866595.jpg\",\"url\":\"http://127.0.0.1:9195/v0/b/demo-ak-producciones.appspot.com/o/entertainment%2Fe2e_93_espejomagico_20492_1791667853440%2FespejoMagicoFoto%2Fent_offline_1791667866594_vvv83p6.jpg?alt=media\",\"type\":\"image\",\"caption\":\"\",\"authorName\":\"Espejo MÃƒÂ¡gico Foto\",\"guestId\":\"$undefined\",\"uploadedAt\":\"2026-10-10T21:31:10.001Z\",\"publishTarget\":\"muro-social\",\"socialPostId\":\"$undefined\",\"syncStatus\":\"pendiente\"},\"data\":{\"modules\":{\"0\":\"fotocabina\",\"1\":\"plataforma360\",\"2\":\"bogue\",\"3\":\"espejo-magico\",\"espejoMagicoFoto\":{\"enabled\":true,\"countdownSeconds\":1,\"segundosCuentaRegresiva\":1,\"reviewSeconds\":180,\"allowGuestRetake\":true,\"maxRetakes\":3,\"consentRequired\":false,\"autoPublish\":false,\"media\":[\"$1:media\"]}},\"updatedAt\":\"2026-10-10T21:31:10.053Z\"}}\n"
+                      }
+                  ],
+    "errors":  [
+
+               ],
+    "fullOriginal":  "93-espejo-diagnostico.json adjunto fiesta-y-respuestas.json"
+}

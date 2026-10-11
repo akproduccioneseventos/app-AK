@@ -1,0 +1,180 @@
+{
+  "checkedAt": "2026-10-10T22:52:58.516Z",
+  "main": "9a054620718673f00e10b52f0811cc1af729ba4e",
+  "health": {
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "timestamp": "2026-10-10T22:52:56.684Z",
+      "version": "0af74652ebdf4c813b9eb443c358d51bc24542d7 · compilada 2026-10-10T02:07:17.435Z",
+      "services": {
+        "firebase": true,
+        "gemini": true,
+        "googleWorkspace": true,
+        "mail": true,
+        "instagram": false,
+        "mercadoPago": false
+      },
+      "environment": "production",
+      "uptime": 2836
+    }
+  },
+  "publishedClaim": "0af74652ebdf4c813b9eb443c358d51bc24542d7",
+  "sameClaim": false,
+  "changedProductPaths": [
+    "next.config.js",
+    "src/ai/flows/extract-contract-data.ts",
+    "src/ai/flows/generate-dj-profile-flow.ts",
+    "src/ai/flows/generate-sales-pitch-flow.ts",
+    "src/ai/flows/generate-timeline-flow.ts",
+    "src/ai/flows/meeting-intelligence-flow.ts",
+    "src/ai/flows/multiagent-flow.ts",
+    "src/ai/genkit.test.ts",
+    "src/ai/genkit.ts",
+    "src/app/(app)/empleados/[id]/historial/page.tsx",
+    "src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx",
+    "src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx",
+    "src/app/(app)/fiestas/nueva/personal/recibos/page.tsx",
+    "src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx",
+    "src/app/(app)/settings/asistente/page.tsx",
+    "src/app/actions/fiesta-actual.ts",
+    "src/app/actions/fiesta/invitados.actions.ts",
+    "src/app/actions/multiagent.ts",
+    "src/app/api/asistente/voz-en-vivo/route.ts",
+    "src/app/api/fiestas/[fiestaId]/download-recuerdos/route.ts",
+    "src/app/evento/accesos/[fiestaId]/page.tsx",
+    "src/app/evento/actual/checkin/page.tsx",
+    "src/app/evento/album/[fiestaId]/page.tsx",
+    "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+    "src/components/multiagent/multiagent-widget.tsx",
+    "src/lib/album/armar-zip-del-album.ts",
+    "src/lib/asistente/avisar-al-duenio.ts",
+    "src/lib/asistente/sesion-voz-en-vivo.ts",
+    "src/lib/asistente/voz-en-vivo.ts",
+    "src/lib/compras/consolidar-compras.ts",
+    "src/lib/compras/unidades.ts",
+    "src/lib/entertainment/camera-readiness.ts",
+    "src/lib/multiagent/confirmacion.ts",
+    "src/lib/multiagent/contexto-negocio.ts",
+    "src/lib/multiagent/encargado.ts",
+    "src/lib/personal/desglose-recibo.ts",
+    "src/lib/social-media/clasificador-comentarios.ts",
+    "src/lib/social-media/comments-backfill.ts"
+  ],
+  "commitsSinceClaim": [
+    "9a054620 Merge pull request #1285 from akproduccioneseventos/claude/app-debug-stabilize-m70e6z",
+    "301ee30c Merge branch 'fix/ia-que-sirva' into claude/app-debug-stabilize-m70e6z",
+    "db96aa73 fix(asistente): sólo un sí de verdad confirma la reunión o el mail",
+    "1330d33b fix(ia): que el asistente y los flujos de IA sirvan de verdad",
+    "26ebefb1 Merge branch 'feat/voz-en-vivo' into claude/app-debug-stabilize-m70e6z",
+    "e6380dba test: el QR de la noche de fiesta lleva la credencial del invitado",
+    "d01c8c0c fix(permisos): la voz en vivo es de administración o contabilidad",
+    "ade5450f Voz en vivo del asistente: botón Hablar con la API en vivo de Gemini, tope de minutos por día en Ajustes (orden 105, bloque 3)",
+    "78481ccb chore: el apagado de la cámara al salir lleva su motivo",
+    "dfcce0c0 test: los tres lectores de QR mandan la credencial",
+    "8e789b6e fix(permisos): el QR con credencial vieja no entra; la ubicación del personal no queda bloqueada (orden 143)",
+    "2ee96015 docs: auditoria92 seis recorridos y orden143 de accesos",
+    "85215484 Merge pull request #1283 from akproduccioneseventos/claude/app-debug-stabilize-m70e6z",
+    "efcc8885 test: la pantalla de recibos queda nombrada y comprobada",
+    "4eb72dfb Merge remote-tracking branch 'origin/codex/auditoria-88-cierre-20261009' into claude/app-debug-stabilize-m70e6z",
+    "a1de41d8 fix(sueldos): el desglose del recibo suma el total, se reemplaza el papel firmado y la fecha no se corre; fotocabina sin espera de más",
+    "a244f3b7 docs: auditoria91 recibos de personal y orden142 Claude",
+    "3942cc56 Album: el ZIP entrega el formato real y dice cuantos recuerdos entraron (orden 141)",
+    "0e344953 Merge remote-tracking branch 'origin/codex/auditoria-88-cierre-20261009' into fix/album-141",
+    "b2434efe fix(fotocabina): una señal quieta con cuadro se usa; no se corta la foto esperando un cuadro nuevo",
+    "715368d9 auditoria 90: ZIP real del album y dos defectos de entrega",
+    "ebd61224 test: la prueba de la foto con imagen usa el navegador instalado",
+    "aaaf4d92 test: la prueba del turno de las tareas no espera a la base de verdad",
+    "72940e97 docs: lo que no vi en compras (la prueba miraba el ingrediente)",
+    "b505348b fix(control): las sondas de Codex en docs/evidencias no cuentan como pruebas de la app",
+    "c1af4e92 Merge branch 'fix/fotocabina-140' into claude/app-debug-stabilize-m70e6z",
+    "8a7e20f4 Compras: se convierten cantidades, stock y precio a la misma unidad antes de sumar (orden 139)",
+    "b748642c Orden 140: la fotocabina asegura un cuadro real de la camara antes de sacar la foto",
+    "a8a69cc4 docs(qa): captura real de fotocabina y color de portal verificado",
+    "4a534eab docs(qa): auditoria 88 y regresion de unidades en compras"
+  ],
+  "areas": [
+    {
+      "id": "plata",
+      "nombre": "Cobros, cuotas, facturas y recibos",
+      "estado": "con-hallazgos"
+    },
+    {
+      "id": "contrato",
+      "nombre": "Contrato, seña y firma",
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "comida",
+      "nombre": "Menús, compras e insumos",
+      "estado": "con-hallazgos"
+    },
+    {
+      "id": "permisos",
+      "nombre": "Ingreso, sesiones y quién ve qué",
+      "estado": "con-hallazgos"
+    },
+    {
+      "id": "fiesta",
+      "nombre": "Fiesta, invitados y confirmaciones",
+      "estado": "con-hallazgos"
+    },
+    {
+      "id": "portal",
+      "nombre": "Portal del cliente",
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "invitado",
+      "nombre": "Invitación y pantallas del invitado",
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "web",
+      "nombre": "Web pública, blog y simulador",
+      "estado": "con-hallazgos"
+    },
+    {
+      "id": "redes",
+      "nombre": "Instagram, YouTube y galería",
+      "estado": "con-hallazgos"
+    },
+    {
+      "id": "estaciones",
+      "nombre": "Entretenimiento: fotocabina, 360, espejo, muro, tótem",
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "barra",
+      "nombre": "Barra de tragos",
+      "estado": "con-hallazgos"
+    },
+    {
+      "id": "asistente",
+      "nombre": "Asistente AK y WhatsApp",
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "personal",
+      "nombre": "Personal, llegada y recibos de sueldo",
+      "estado": "con-hallazgos"
+    },
+    {
+      "id": "automaticos",
+      "nombre": "Tareas automáticas y avisos",
+      "estado": "con-hallazgos"
+    }
+  ],
+  "unauthenticatedVoiceGET": {
+    "status": 307,
+    "location": "/login?redirect=%2Fapi%2Fasistente%2Fvoz-en-vivo",
+    "meaning": "307 login neither proves existence nor absence of the new route; no POST or voice token requested."
+  },
+  "githubDeployments": [],
+  "limitations": [
+    "Health reports build metadata, not an independent Hosting revision; cross-check build source/log.",
+    "Empty GitHub deployment list does not mean Firebase was not deployed.",
+    "No credentials, production data or provider sends/charges accessed. No GitHub billing checks inspected.",
+    "Areas are not automatically marked clean from partial accepted journeys."
+  ]
+}

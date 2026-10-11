@@ -956,3 +956,18 @@ El candado de la plata mira cobros y facturas. Nadie miraba los ajustes generale
 podía apagar los agentes automáticos, y con la misma forma otros 32 ajustes (datos de la empresa,
 WhatsApp, roles, conexiones a redes, promociones) pedían sólo sesión. **Toda acción que guarda una
 configuración general se mira con el perfil "personal"**: si guarda, es un hallazgo.
+
+## Pregunta 48 — la que sumó el 10 de octubre de 2026 (Codex, órdenes 144 y 145)
+
+### 48. Cuando un dato puede ser "sí / no / no sé", ¿el "no sé" se trata como "no"?
+
+La revisión automática de una foto puede decir segura, riesgosa o **no pude mirar**. El muro lo
+convertía en `false` ("adulto") y rechazaba la foto, todos los videos de las estaciones y las fotos
+del tótem de la barra, sin crear el posteo, mientras la pantalla anunciaba "enviada". **Se buscan los
+`=== false` / `!== true` sobre un resultado que puede faltar**: el "no sé" es un tercer estado
+(pendiente de revisión manual), nunca aprobado y nunca rechazado. Y se sigue la respuesta hasta la
+pantalla: si un paso de adentro falló, `success: true` es mentira.
+
+Y la hermana, de la foto negra: **al arreglar una forma en una estación, se busca la misma forma en
+todas** (`drawImage(video` en `src/app` y `src/components`); lo recorre
+`las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts`.

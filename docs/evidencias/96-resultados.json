@@ -1,0 +1,98 @@
+[
+  {
+    "title": "video lector vacio genuino se muestra como cero",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 48164,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "lector-final.json",
+        "file": "docs/evidencias/96-artifactos/00-0.json"
+      },
+      {
+        "name": "lector-final.png",
+        "file": "docs/evidencias/96-artifactos/00-1.png"
+      }
+    ]
+  },
+  {
+    "title": "video lector no inventa cero cuando no firma",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 31297,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/no pudimos|no se pudo|error al cargar/i\u001b[39m\nReceived string:  \u001b[31m\"AK\u001b[39m\n\u001b[31mFiesta de esta noche·\u001b[39m\n\u001b[31mCarga de Fotos para el Video de Vida·\u001b[39m\n\u001b[31mTu Galería (0 de 2)\u001b[39m\n\u001b[31mSube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan 2 fotos.\u001b[39m\n\u001b[31mSubir foto\u001b[39m\n\u001b[31m01\u001b[39m\n\u001b[31mSubir foto\u001b[39m\n\u001b[31m02\u001b[39m\n\u001b[31mAK\u001b[39m\n\u001b[31mAK Producciones\u001b[39m\n\u001b[31mPRODUCCIÓN INTEGRAL DE EVENTOS • SALTO, URUGUAY·\u001b[39m\n\u001b[31mDiseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía gourmet, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.·\u001b[39m\n\u001b[31mWHATSAPP DIRECTO\u001b[39m\n\u001b[31mCOTIZÁ TU FIESTA\u001b[39m\n\u001b[31mSALONES DESTACADOS\u001b[39m\n\u001b[31mSalón Club Uruguay (Exclusivo)\u001b[39m\n\u001b[31mGastronomía Gourmet & Catering\u001b[39m\n\u001b[31mDiscoteca & Pistas de Luces LED\u001b[39m\n\u001b[31mPlataforma 360° & Fotocabina QR\u001b[39m\n\u001b[31mACCESOS RÁPIDOS\u001b[39m\n\u001b[31m→\u001b[39m\n\u001b[31mSimulador de Presupuesto\u001b[39m\n\u001b[31m→\u001b[39m\n\u001b[31mGalería de Eventos Reales\u001b[39m\n\u001b[31m→\u001b[39m\n\u001b[31mBlog & Guías de Organización\u001b[39m\n\u001b[31m→\u001b[39m\n\u001b[31mTestimonios & Preguntas Frecuentes\u001b[39m\n\u001b[31mAcceso Staff & Equipo AK\u001b[39m\n\u001b[31mOFICINA & ATENCION·\u001b[39m\n\u001b[31mSalto, Uruguay·\u001b[39m\n\u001b[31m+598 98 355 530·\u001b[39m\n\u001b[31mCoordinación presencial el día de tu celebración.·\u001b[39m\n\u001b[31mCOMUNIDAD & REDES·\u001b[39m\n\u001b[31mSeguinos en redes para ver coberturas en vivo, montajes reales y salones armados.·\u001b[39m\n\u001b[31m© 2026 AK Producciones Eventos. Todos los derechos reservados.·\u001b[39m\n\u001b[31m··\u001b[39m\n\u001b[31mTus datos se tratan según la Ley 18.331 de Protección de Datos Personales.·\u001b[39m\n\u001b[31mClub Uruguay\u001b[39m\n\u001b[31mSimulador\u001b[39m\n\u001b[31mPrivacidad\u001b[39m\n\u001b[31mAcceso Staff\"\u001b[39m\n\n  29 |     await info.attach('lector-final.json',{body:JSON.stringify(evidence,null,2),contentType:'application/json'});\n  30 |     await info.attach('lector-final.png',{body:await page.screenshot(),contentType:'image/png'});\n> 31 |     if(stored){expect(objects).toEqual([name]);expect(evidence.body).toMatch(/no pudimos|no se pudo|error al cargar/i);}\n     |                                                                      ^\n  32 |     else expect(objects).toEqual([]);\n  33 |   }finally{if((await file.exists())[0])await file.delete();await ref.delete();borrarFiesta(id);}\n  34 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-96\\tests\\e2e\\96-video-lector.spec.ts:31:70"
+    ],
+    "attachments": [
+      {
+        "name": "lector-final.json",
+        "file": "docs/evidencias/96-artifactos/01-0.json"
+      },
+      {
+        "name": "lector-final.png",
+        "file": "docs/evidencias/96-artifactos/01-1.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/96-artifactos/01-2.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/96-artifactos/01-3.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/96-artifactos/01-4.txt"
+      }
+    ]
+  },
+  {
+    "title": "video lector vacio genuino se muestra como cero",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 8200,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "lector-final.json",
+        "file": "docs/evidencias/96-artifactos/02-0.json"
+      },
+      {
+        "name": "lector-final.png",
+        "file": "docs/evidencias/96-artifactos/02-1.png"
+      }
+    ]
+  },
+  {
+    "title": "video lector no inventa cero cuando no firma",
+    "project": "chromium-mobile",
+    "status": "failed",
+    "duration": 6104,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/no pudimos|no se pudo|error al cargar/i\u001b[39m\nReceived string:  \u001b[31m\"AK\u001b[39m\n\u001b[31mFiesta de esta noche·\u001b[39m\n\u001b[31mCarga de Fotos para el Video de Vida·\u001b[39m\n\u001b[31mTu Galería (0 de 2)\u001b[39m\n\u001b[31mSube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan 2 fotos.\u001b[39m\n\u001b[31mSubir foto\u001b[39m\n\u001b[31m01\u001b[39m\n\u001b[31mSubir foto\u001b[39m\n\u001b[31m02\u001b[39m\n\u001b[31mAK\u001b[39m\n\u001b[31mAK Producciones\u001b[39m\n\u001b[31mPRODUCCIÓN INTEGRAL DE EVENTOS • SALTO, URUGUAY·\u001b[39m\n\u001b[31mDiseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía gourmet, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.·\u001b[39m\n\u001b[31mWHATSAPP DIRECTO\u001b[39m\n\u001b[31mCOTIZÁ TU FIESTA\u001b[39m\n\u001b[31mSALONES DESTACADOS\u001b[39m\n\u001b[31mSalón Club Uruguay (Exclusivo)\u001b[39m\n\u001b[31mGastronomía Gourmet & Catering\u001b[39m\n\u001b[31mDiscoteca & Pistas de Luces LED\u001b[39m\n\u001b[31mPlataforma 360° & Fotocabina QR\u001b[39m\n\u001b[31mACCESOS RÁPIDOS\u001b[39m\n\u001b[31m→\u001b[39m\n\u001b[31mSimulador de Presupuesto\u001b[39m\n\u001b[31m→\u001b[39m\n\u001b[31mGalería de Eventos Reales\u001b[39m\n\u001b[31m→\u001b[39m\n\u001b[31mBlog & Guías de Organización\u001b[39m\n\u001b[31m→\u001b[39m\n\u001b[31mTestimonios & Preguntas Frecuentes\u001b[39m\n\u001b[31mAcceso Staff & Equipo AK\u001b[39m\n\u001b[31mOFICINA & ATENCION·\u001b[39m\n\u001b[31mSalto, Uruguay·\u001b[39m\n\u001b[31m+598 98 355 530·\u001b[39m\n\u001b[31mCoordinación presencial el día de tu celebración.·\u001b[39m\n\u001b[31mCOMUNIDAD & REDES·\u001b[39m\n\u001b[31mSeguinos en redes para ver coberturas en vivo, montajes reales y salones armados.·\u001b[39m\n\u001b[31m© 2026 AK Producciones Eventos. Todos los derechos reservados.·\u001b[39m\n\u001b[31mTus datos se tratan según la Ley 18.331 de Protección de Datos Personales.·\u001b[39m\n\u001b[31mClub Uruguay\u001b[39m\n\u001b[31mSimulador\u001b[39m\n\u001b[31mPrivacidad\u001b[39m\n\u001b[31mAcceso Staff\"\u001b[39m\n\n  29 |     await info.attach('lector-final.json',{body:JSON.stringify(evidence,null,2),contentType:'application/json'});\n  30 |     await info.attach('lector-final.png',{body:await page.screenshot(),contentType:'image/png'});\n> 31 |     if(stored){expect(objects).toEqual([name]);expect(evidence.body).toMatch(/no pudimos|no se pudo|error al cargar/i);}\n     |                                                                      ^\n  32 |     else expect(objects).toEqual([]);\n  33 |   }finally{if((await file.exists())[0])await file.delete();await ref.delete();borrarFiesta(id);}\n  34 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-96\\tests\\e2e\\96-video-lector.spec.ts:31:70"
+    ],
+    "attachments": [
+      {
+        "name": "lector-final.json",
+        "file": "docs/evidencias/96-artifactos/03-0.json"
+      },
+      {
+        "name": "lector-final.png",
+        "file": "docs/evidencias/96-artifactos/03-1.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/96-artifactos/03-2.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/96-artifactos/03-3.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/96-artifactos/03-4.txt"
+      }
+    ]
+  }
+]

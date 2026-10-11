@@ -7,6 +7,7 @@ import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
+import type { ResultadoRevisionImagen } from '@/lib/social-fiesta/content-review';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -170,6 +171,26 @@ export async function saveEntretenimientoFiesta(fiestaId: string, entretenimient
   }
 }
 
+/**
+ * Que paso con la foto en el muro, para la pantalla de la estacion:
+ * - `publicado`: ya se ve.
+ * - `pendiente_aprobacion`: esta en el muro esperando a un moderador. `sinRevisar` avisa que fue
+ *   porque la revision automatica no pudo correr (no por la regla de aprobacion de la fiesta).
+ * - `error`: el posteo no se creo.
+ */
+type ResultadoDelMuro = {
+  estado: 'publicado' | 'pendiente_aprobacion' | 'error' | 'rechazado';
+  sinRevisar: boolean;
+  error?: string;
+};
+
+function muroDeLoGuardado(media: { syncStatus?: string; revisionImagen?: string }): ResultadoDelMuro {
+  const estado = media.syncStatus === 'publicado'
+    ? 'publicado'
+    : media.syncStatus === 'pendiente_aprobacion' ? 'pendiente_aprobacion' : 'error';
+  return { estado, sinRevisar: media.revisionImagen !== 'segura' };
+}
+
 export async function uploadEntretenimientoMedia(formData: FormData) {
   const fiestaId = String(formData.get('fiestaId') || '');
   // La pantalla de la 360 (y las capturas que ya quedaron en cola sin señal) mandan el nombre de
@@ -229,14 +250,17 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     const mediaId = clientMediaId
       ? `ent_${clientMediaId}`
       : `ent_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    if (clientMediaId) {
-      const yaGuardada = (getStoredEntertainment(fiesta)?.modules?.[moduleId]?.media || [])
-        .find((item: { id?: string }) => item.id === mediaId);
-      if (yaGuardada) return { success: true, media: yaGuardada, duplicate: true };
+    const yaGuardada: any = clientMediaId
+      ? (getStoredEntertainment(fiesta)?.modules?.[moduleId]?.media || [])
+        .find((item: { id?: string }) => item.id === mediaId)
+      : undefined;
+    // Una captura que ya quedo con su posteo en el muro (publicado o esperando aprobacion) no se
+    // vuelve a procesar. Una que se guardo pero NO llego al muro (el posteo fallo) si reintenta,
+    // pero solo el posteo: no se sube de nuevo el archivo ni se vuelve a pagar la revision.
+    if (yaGuardada && yaGuardada.socialPostId && yaGuardada.syncStatus !== 'pendiente') {
+      return { success: true, media: yaGuardada, duplicate: true, muro: muroDeLoGuardado(yaGuardada) };
     }
     const storagePath = `entertainment/${fiestaId}/${moduleId}/${mediaId}${extension}`;
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
     const esVideo = file.type.startsWith('video/');
 
     /**
@@ -250,13 +274,25 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
      * casos la publicacion queda esperando el visto bueno del equipo en vez de
      * salir a la pantalla.
      */
-    let revisionManual = esVideo;
-    if (!esVideo) {
-      const seguridad = await checkImageSafety(buffer);
-      if (!seguridad.safe) {
-        return { success: false, error: 'La foto fue bloqueada por riesgo de contenido inapropiado.' };
+    // Tres estados, no dos: segura / riesgosa / sin revisar. Que el analisis se caiga (proveedor,
+    // clave, tiempo) NO significa que la foto sea segura ni que sea adulta: queda pendiente de
+    // aprobacion manual. Solo el riesgo real se rechaza en el acto.
+    let revisionImagen: ResultadoRevisionImagen = 'sin_revisar';
+    let url: string;
+    if (yaGuardada) {
+      url = yaGuardada.url;
+      revisionImagen = yaGuardada.revisionImagen === 'segura' ? 'segura' : 'sin_revisar';
+    } else {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      if (!esVideo) {
+        const seguridad = await checkImageSafety(buffer);
+        if (!seguridad.safe) {
+          return { success: false, error: 'La foto fue bloqueada por riesgo de contenido inapropiado.' };
+        }
+        revisionImagen = seguridad.reason === 'error' ? 'sin_revisar' : 'segura';
       }
-      if (seguridad.reason === 'error') revisionManual = true;
+      url = await uploadToStorage(buffer, storagePath, file.type, true);
     }
 
     // De quien es la foto. Va con su enlace personal porque el identificador
@@ -265,12 +301,11 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     // comprueba es el muro, no esta pantalla.
     const guestId = (formData.get('guestId') as string) || undefined;
     const guestAccessToken = (formData.get('guestAccessToken') as string) || undefined;
-    const url = await uploadToStorage(buffer, storagePath, file.type, true);
 
     const socialPostResult = await createSocialMediaPostFromUrlForStation({
       fiestaId,
       mediaUrl: url,
-      revisionManual,
+      revisionImagen,
       mediaType: esVideo ? 'video' : 'image',
       authorName,
       guestId,
@@ -303,7 +338,17 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       uploadedAt: new Date().toISOString(),
       publishTarget: 'muro-social',
       socialPostId: socialPostResult.post?.id,
-      syncStatus: socialPostResult.success ? 'publicado' : 'pendiente',
+      // publicado = ya se ve en el muro · pendiente_aprobacion = esta en el muro esperando a un
+      // moderador · pendiente = el posteo NO se creo (se reintenta con la misma captura).
+      syncStatus: !socialPostResult.success
+        ? 'pendiente'
+        : socialPostResult.post?.moderationStatus === 'approved' ? 'publicado' : 'pendiente_aprobacion',
+      revisionImagen,
+    };
+    const muro: ResultadoDelMuro = {
+      ...muroDeLoGuardado(mediaItem),
+      ...(socialPostResult.success ? {} : { error: socialPostResult.error }),
+      ...(socialPostResult.bloqueado ? { estado: 'rechazado' as const } : {}),
     };
 
     // ESCRITURA ANGOSTA (Codex, auditoría 83, ENT83-GUEST). Antes se guardaba la fiesta entera
@@ -332,7 +377,18 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
 
     if (!result.success) throw new Error(result.error || 'No se pudo guardar la captura.');
 
-    return { success: true, media: mediaItem, data: nextEntertainment };
+    // Si el muro no la acepto, la captura queda guardada (el reintento solo repite el posteo) pero la
+    // respuesta NO dice que salio bien: antes decia `success: true` y la pantalla anunciaba "enviada
+    // al muro" sin que existiera ningun posteo.
+    if (!socialPostResult.success) {
+      return {
+        success: false,
+        error: socialPostResult.error || 'La foto quedo guardada pero no se pudo publicar en el muro.',
+        media: mediaItem,
+        muro,
+      };
+    }
+    return { success: true, media: mediaItem, data: nextEntertainment, muro };
   } catch (error: any) {
     logger.error('[entretenimiento] upload failed', error);
     return { success: false, error: error.message || 'No se pudo subir el archivo.' };

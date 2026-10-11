@@ -33,7 +33,15 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
   }
 
   try {
-    const { photos: photoPaths, stats } = await getPhotoFilePathsForZip(fiestaId);
+    let lectura: Awaited<ReturnType<typeof getPhotoFilePathsForZip>>;
+    try {
+      lectura = await getPhotoFilePathsForZip(fiestaId);
+    } catch (lecturaError) {
+      // Un error de lectura no es "no hay fotos" (404): se avisa para probar de nuevo.
+      console.error(`No se pudieron leer las fotos de la fiesta ${fiestaId}:`, lecturaError);
+      return NextResponse.json({ error: 'No pudimos leer las fotos, probá de nuevo.' }, { status: 502 });
+    }
+    const { photos: photoPaths, stats } = lectura;
     
     if (photoPaths.length === 0) {
       return NextResponse.json({ error: 'No se encontraron fotos para este evento.' }, { status: 404 });

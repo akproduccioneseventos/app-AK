@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "file": "93-pendientes-anteriores.spec.ts",
+      "errors": []
+    },
+    {
+      "file": "93-recordatorio-integrado.spec.ts",
+      "errors": []
+    }
+  ],
+  "typecheckGlobal": false,
+  "build": false
+}

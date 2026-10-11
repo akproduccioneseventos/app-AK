@@ -44,7 +44,7 @@ import {
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
-import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { isVideoFrameReady, asegurarCuadroDeVideo } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { saveOfflineMedia, nuevoIdDeCaptura } from '@/lib/offline/offline-db';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
@@ -173,6 +173,7 @@ export default function EspejoMagicoPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [camaraSinCuadro, setCamaraSinCuadro] = useState(false);
   // null = todavia no se pregunto. Solo le interesa al operador, para saber
   // antes de abrir la fila si la estacion va a transformar las fotos o las va a
   // devolver tal cual.
@@ -233,6 +234,11 @@ export default function EspejoMagicoPage() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  // Lo que pasó con la foto en el muro cuando NO está publicada todavía (espera a un moderador).
+  const [avisoDelMuro, setAvisoDelMuro] = useState<string | null>(null);
+  // Una identidad por captura: "Reintentar" repite la MISMA, así el servidor no duplica ni el
+  // archivo ni el posteo. Se renueva al sacar otra foto o al repetir.
+  const idDeLaCapturaRef = useRef<string | null>(null);
 
   const isDrawingActiveRef = useRef(false);
   const [drawColor, setDrawColor] = useState('#f43f5e');
@@ -297,6 +303,7 @@ export default function EspejoMagicoPage() {
   const startCamera = useCallback(async () => {
     stopCamera();
     setErrorMsg(null);
+    setCamaraSinCuadro(false);
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
@@ -724,6 +731,21 @@ export default function EspejoMagicoPage() {
 
   const captureToCanvas = async () => {
     if (!videoRef.current || !canvasRef.current || !containerRef.current) return;
+    // El video puede quedar en pausa con la señal viva y dibujarse en negro: se lo pone a andar y
+    // se espera un cuadro real. Si no hay, se avisa, se ofrece reintentar y NO se entrega la foto.
+    if (streamRef.current && videoRef.current.srcObject !== streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+    idDeLaCapturaRef.current = null;
+    try {
+      await asegurarCuadroDeVideo(videoRef.current);
+    } catch {
+      setCamaraSinCuadro(true);
+      setErrorMsg('La camara no esta entregando imagen. Toca "Reintentar camara" para volver a intentarlo.');
+      setLocalStatus('idle');
+      return;
+    }
+    if (!videoRef.current || !canvasRef.current || !containerRef.current) return;
     if (!isVideoFrameReady(videoRef.current)) {
       setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
       setLocalStatus('idle');
@@ -883,7 +905,8 @@ export default function EspejoMagicoPage() {
     const capturedAccessToken = accessToken;
     // Una identidad por captura, la misma en la primera subida y en cualquier reintento sin
     // conexión: si la primera termina después del tope de espera, el reintento no la duplica.
-    const idDeLaCaptura = nuevoIdDeCaptura();
+    if (!idDeLaCapturaRef.current) idDeLaCapturaRef.current = nuevoIdDeCaptura();
+    const idDeLaCaptura = idDeLaCapturaRef.current;
     const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     setIsUploading(true);
@@ -920,6 +943,10 @@ export default function EspejoMagicoPage() {
 
       const mediaUrl = res.media?.url || '';
       setQrCodeUrl(mediaUrl);
+      // Guardada no es publicada: si la revisión automática no pudo correr, la foto quedó en el
+      // muro esperando que el equipo la apruebe, y se le dice a la persona tal cual.
+      const esperaAlEquipo = res.muro?.estado === 'pendiente_aprobacion' && res.muro.sinRevisar;
+      setAvisoDelMuro(esperaAlEquipo ? 'Tu foto quedó guardada y está esperando la aprobación del equipo para salir en el muro.' : null);
       setLocalStatus('done');
       // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
@@ -929,7 +956,7 @@ export default function EspejoMagicoPage() {
         { mediaUrl, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
         capturedAccessToken
       ).catch(() => undefined);
-      speak('Listo. Foto enviada al muro.');
+      speak(esperaAlEquipo ? 'Listo. Tu foto quedó guardada y espera la aprobación del equipo.' : 'Listo. Foto enviada al muro.');
 
       if (autoRetakeTimerRef.current) clearTimeout(autoRetakeTimerRef.current);
       autoRetakeTimerRef.current = setTimeout(() => {
@@ -1025,6 +1052,8 @@ export default function EspejoMagicoPage() {
     setCapturedImage(null);
     setStickers([]);
     setQrCodeUrl('');
+    setAvisoDelMuro(null);
+    idDeLaCapturaRef.current = null;
     setOriginalPhotoUrl(null);
     setAiImageBase64(null);
     setAiStep('idle');
@@ -1268,9 +1297,25 @@ export default function EspejoMagicoPage() {
         {errorMsg ? (
           <div className="absolute inset-0 z-40 flex items-center justify-center bg-zinc-950 p-6 text-center">
             <div className="max-w-md">
-              <h3 className="text-2xl font-black text-white">No pudimos subir la foto</h3>
+              <h3 className="text-2xl font-black text-white">{camaraSinCuadro ? 'La camara no responde' : 'No pudimos subir la foto'}</h3>
               <p className="mt-3 font-medium text-red-300">{errorMsg}</p>
-              <p className="mt-2 text-sm text-zinc-400">El recuerdo sigue en esta pantalla y no mostramos un QR inválido.</p>
+              {camaraSinCuadro ? (
+                <button
+                  type="button"
+                  data-testid="boton-reintentar-camara"
+                  onClick={() => {
+                    setErrorMsg(null);
+                    setCamaraSinCuadro(false);
+                    stopCamera();
+                    void startCamera();
+                  }}
+                  className="mt-6 mx-auto flex h-12 items-center justify-center rounded-xl bg-white/10 px-6 text-sm font-black uppercase tracking-wider text-white transition hover:bg-white/20"
+                >
+                  Reintentar camara
+                </button>
+              ) : (
+                <p className="mt-2 text-sm text-zinc-400">El recuerdo sigue en esta pantalla y no mostramos un QR inválido.</p>
+              )}
               {capturedImage && (
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <button
@@ -1611,6 +1656,9 @@ export default function EspejoMagicoPage() {
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">Escanea tu recuerdo</h3>
                 <p className="text-sm text-zinc-400">Usá este código QR con tu celular para descargarlo o compartirlo.</p>
+                {avisoDelMuro && (
+                  <p data-testid="aviso-foto-pendiente" className="rounded-xl bg-amber-500/15 px-3 py-2 text-sm font-bold text-amber-300">{avisoDelMuro}</p>
+                )}
               </div>
 
               {/* QR Container con texto de marca */}

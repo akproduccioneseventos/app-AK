@@ -1,4 +1,5 @@
 'use client';
+import { asegurarCuadroDeVideo } from '@/lib/entertainment/camera-readiness';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -952,9 +953,17 @@ export default function GuestBuzonPage() {
     }, 1000);
   };
 
-  const takePhotoSnapshot = () => {
+  const takePhotoSnapshot = async () => {
     const video = videoRef.current;
     if (!video) return;
+    // Sin un cuadro real la foto sale negra: se pone a andar el video y se espera imagen; si no
+    // hay, se avisa y no se entrega nada.
+    try {
+      await asegurarCuadroDeVideo(video);
+    } catch {
+      toast({ title: 'La camara no entrega imagen', description: 'Volve a intentarlo en un instante.', variant: 'destructive' });
+      return;
+    }
 
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth || 640;

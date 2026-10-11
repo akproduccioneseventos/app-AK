@@ -1,0 +1,252 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "playwright.94.config.ts",
+      "--project=chromium-desktop",
+      "--grep",
+      "voz fallida|Cortar mientras",
+      "--workers=1"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\playwright.94.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/qa94-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/94-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/qa94-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/94-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-verificacion-81-20261009\\docs\\evidencias\\94-e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "94-live-widget.spec.ts",
+      "file": "94-live-widget.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "voz fallida permite REINTENTAR con un solo clic",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 31730,
+                  "error": {
+                    "message": "Error: el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m1\u001b[39m",
+                    "stack": "Error: el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:29:101",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts",
+                      "column": 101,
+                      "line": 29
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 27 |\u001b[39m     \u001b[36mif\u001b[39m(segundo\u001b[33m===\u001b[39m\u001b[35m1\u001b[39m){\u001b[36mawait\u001b[39m b\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(()\u001b[33m=>\u001b[39mllamadas)\u001b[33m.\u001b[39mtoBe(\u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m 28 |\u001b[39m     \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'live-reintento.json'\u001b[39m\u001b[33m,\u001b[39m{body\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({first\u001b[33m:\u001b[39m\u001b[35m1\u001b[39m\u001b[33m,\u001b[39mafterRetry\u001b[33m:\u001b[39msegundo\u001b[33m,\u001b[39mafterThirdClick\u001b[33m:\u001b[39mllamadas\u001b[33m,\u001b[39mprovider\u001b[33m:\u001b[39m\u001b[32m'controlled HTTP503'\u001b[39m\u001b[33m,\u001b[39mbuttonTitle\u001b[33m:\u001b[39m\u001b[36mawait\u001b[39m b\u001b[33m.\u001b[39mgetAttribute(\u001b[32m'title'\u001b[39m)}\u001b[33m,\u001b[39m\u001b[36mnull\u001b[39m\u001b[33m,\u001b[39m\u001b[35m2\u001b[39m)\u001b[33m,\u001b[39mcontentType\u001b[33m:\u001b[39m\u001b[32m'application/json'\u001b[39m})\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 29 |\u001b[39m     expect(segundo\u001b[33m,\u001b[39m\u001b[32m'el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada'\u001b[39m)\u001b[33m.\u001b[39mtoBe(\u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 30 |\u001b[39m   }\u001b[36mfinally\u001b[39m{\u001b[36mawait\u001b[39m limpiar()\u001b[33m;\u001b[39m}\n \u001b[90m 31 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 32 |\u001b[39m test(\u001b[32m'Cortar mientras conecta impide abrir despues microfono y socket'\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m({page\u001b[33m,\u001b[39mcontext\u001b[33m,\u001b[39mbaseURL}\u001b[33m,\u001b[39minfo)\u001b[33m=>\u001b[39m{\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts",
+                        "column": 101,
+                        "line": 29
+                      },
+                      "message": "Error: el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n\n  27 |     if(segundo===1){await b.click();await expect.poll(()=>llamadas).toBe(2);}\n  28 |     await info.attach('live-reintento.json',{body:JSON.stringify({first:1,afterRetry:segundo,afterThirdClick:llamadas,provider:'controlled HTTP503',buttonTitle:await b.getAttribute('title')},null,2),contentType:'application/json'});\n> 29 |     expect(segundo,'el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada').toBe(2);\n     |                                                                                                     ^\n  30 |   }finally{await limpiar();}\n  31 | });\n  32 | test('Cortar mientras conecta impide abrir despues microfono y socket',async({page,context,baseURL},info)=>{\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:29:101"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T22:10:31.935Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "live-reintento.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaXJzdCI6IDEsCiAgImFmdGVyUmV0cnkiOiAxLAogICJhZnRlclRoaXJkQ2xpY2siOiAyLAogICJwcm92aWRlciI6ICJjb250cm9sbGVkIEhUVFA1MDMiLAogICJidXR0b25UaXRsZSI6ICJDb3J0YXIgbGEgY29udmVyc2FjacOzbiBlbiB2aXZvIgp9"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts",
+                    "column": 101,
+                    "line": 29
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "b0922981534589c549d3-868a3722e7e262de367c",
+          "file": "94-live-widget.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "Cortar mientras conecta impide abrir despues microfono y socket",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 180891,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts",
+                        "column": 65,
+                        "line": 16
+                      },
+                      "message": "Error: locator.click: Test timeout of 180000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Abrir Asistente IA AK' })\u001b[22m\n\n\n  14 |   await db.collection('fiestas').doc(id).set(JSON.parse(JSON.stringify(fiesta)));await ponerSesionDelEquipo(context,baseURL);\n  15 |   await page.goto('/fiestas/nueva/tareas?fiestaId='+id,{waitUntil:'domcontentloaded'});\n> 16 |   await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();await expect(page.getByTestId('boton-hablar-en-vivo')).toBeVisible();\n     |                                                                 ^\n  17 |   return async()=>{await db.collection('fiestas').doc(id).delete();borrarFiesta(id);};\n  18 | }\n  19 | test('voz fallida permite REINTENTAR con un solo clic',async({page,context,baseURL},info)=>{\n    at abrir (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:16:65)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:46:17"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T22:11:06.698Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\qa94-artifacts\\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\\error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "b0922981534589c549d3-a97eca598770009bb17b",
+          "file": "94-live-widget.spec.ts",
+          "line": 32,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T22:10:28.686Z",
+    "duration": 219810.25,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

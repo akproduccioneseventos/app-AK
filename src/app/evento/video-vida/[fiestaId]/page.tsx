@@ -13,6 +13,7 @@ import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import NextImage from 'next/image';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
@@ -207,7 +208,10 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
       if (!fiestaData.videoVida?.galleryEnabled) throw new Error("La carga de fotos no está habilitada para este evento.");
 
       setFiesta(fiestaData);
-      const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
+      const lectura = await getLifeStoryVideoPhotos(fiestaData.id);
+      // Orden 148: un error de lectura no se muestra como galería vacía.
+      if (lectura.estado === 'error') throw new Error(lectura.error);
+      const photoUrls = lectura.urls;
 
       const slotCount = fiestaData.videoVida?.photoCount || 50;
 
@@ -250,6 +254,8 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
         <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
         <h1 className="text-2xl font-bold">Error de Acceso</h1>
         <p className="text-muted-foreground mt-2">{error || "No se encontró la información del evento."}</p>
+        {/* Orden 148: si no se pudieron leer las fotos, el invitado puede reintentar sin recargar. */}
+        <Button className="mt-6" onClick={() => { void loadData(); }}>Reintentar</Button>
     </div>;
   }
 

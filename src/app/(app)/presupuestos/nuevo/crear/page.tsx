@@ -98,6 +98,7 @@ function CrearPresupuestoContent() {
     const [formData, setFormData] = useState<PresupuestoFormData>(() => formStateInitializer(initialFormData));
     const [editingPresupuestoId, setEditingPresupuestoId] = useState<string | null>(null);
     const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
+    const [occupiedDatesFailed, setOccupiedDatesFailed] = useState(false);
     const [armadoConfig, setArmadoConfig] = useState<ArmadoRapidoConfig | null>(null);
     const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(
         defaultBudgetDisplaySettings.annualAdjustmentPercentage ?? 15,
@@ -206,11 +207,16 @@ function CrearPresupuestoContent() {
                     getArmadoRapidoConfig(), 
                     getMenus(), 
                     getServiciosEmpresa(),
-                    getOcupiedDates(),
+                    // Si falla la lectura NO se toma como "ninguna fecha ocupada": se avisa en pantalla.
+                    getOcupiedDates().catch((occupiedError) => {
+                        console.error('[crear presupuesto] no se pudieron leer las fechas ocupadas:', occupiedError);
+                        return null;
+                    }),
                     getBudgetDisplaySettings(),
                 ]);
                 setArmadoConfig(config);
-                setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
+                setOccupiedDatesFailed(occupiedDatesStrings === null);
+                setOccupiedDates((occupiedDatesStrings ?? []).map(d => new Date(d)));
                 setServiciosCatalogo(services.filter(s => s.tipoItem === 'Servicio'));
                 setPaquetesBase(config.paquetes || []);
                 setAllMenus(menuData || []);
@@ -490,6 +496,11 @@ function CrearPresupuestoContent() {
                 <CardContent>
                     {isLoadingInitialData ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> : (
                         <>
+                            {paso === 1 && occupiedDatesFailed && (
+                                <p role="alert" className="mb-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
+                                    No pudimos leer las fechas ocupadas: revisá el calendario antes de confirmar la fecha.
+                                </p>
+                            )}
                             {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} occupiedDates={occupiedDates} />}
                             {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} allMenus={allMenus} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} config={armadoConfig} />}
                             {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} annualAdjustmentPercentage={annualAdjustmentPercentage} />}

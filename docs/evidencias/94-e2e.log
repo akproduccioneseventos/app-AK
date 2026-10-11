@@ -1,0 +1,219 @@
+Cannot use({ launchOptions }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at 94-pendientes.spec.ts:21
+
+  19 |
+  20 | test.describe('fotocabina corregida140',()=>{
+> 21 |   test.use({launchOptions:{args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']}});
+     |        ^
+  22 |   test('fotocabina guarda una fotografia con imagen de camara',async({page,context},info)=>{
+  23 |     test.setTimeout(210000);const id=idNuevo('foto'),fiesta=crearFiestaDeEstaNoche({id});
+  24 |     fiesta.others={...fiesta.others,entretenimiento:{...fiesta.others?.entretenimiento,modules:{...fiesta.others?.entretenimiento?.modules,
+
+
+Running 11 tests using 1 worker
+
+[1/11] [chromium-desktop] › tests\e2e\94-entrada.spec.ts:10:48 › QR revocada con lector real y pagina abierta
+[2/11] [chromium-desktop] › tests\e2e\94-recibos.spec.ts:110:5 › el papel de pago suma sus conceptos redondeados exactamente al total
+[3/11] [chromium-desktop] › tests\e2e\94-recibos.spec.ts:140:5 › Reemplazar debe permitir cambiar el papel firmado sin deshacer el pago
+[4/11] [chromium-desktop] › tests\e2e\94-recibos.spec.ts:176:5 › fecha calendario del evento no retrocede un dia en el recibo
+[5/11] [chromium-desktop] › tests\e2e\94-pendientes.spec.ts:22:7 › fotocabina corregida140 › fotocabina guarda una fotografia con imagen de camara
+[6/11] [chromium-desktop] › tests\e2e\94-pendientes.spec.ts:49:41 › personal con ubicacion NATIVA cerca
+[7/11] [chromium-desktop] › tests\e2e\94-pendientes.spec.ts:49:41 › personal con ubicacion NATIVA fuera
+[8/11] [chromium-desktop] › tests\e2e\94-pendientes.spec.ts:78:49 › album formatos no miente sobre descarga
+[9/11] [chromium-desktop] › tests\e2e\94-pendientes.spec.ts:78:49 › album todo-falla no miente sobre descarga
+[10/11] [chromium-desktop] › tests\e2e\94-pendientes.spec.ts:109:5 › hoja de cocina se abre por su enlace sin URL directa de rescate
+[11/11] [chromium-desktop] › tests\e2e\94-pendientes.spec.ts:128:5 › voz en vivo sin clave devuelve error real sin reservar ni cobrar
+  11 passed (5.4m)
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:19:5 › voz fallida permite REINTENTAR con un solo clic
+  1) [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:19:5 › voz fallida permite REINTENTAR con un solo clic
+
+    Error: el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 1
+
+      27 |     if(segundo===1){await b.click();await expect.poll(()=>llamadas).toBe(2);}
+      28 |     await info.attach('live-reintento.json',{body:JSON.stringify({first:1,afterRetry:segundo,afterThirdClick:llamadas,provider:'controlled HTTP503',buttonTitle:await b.getAttribute('title')},null,2),contentType:'application/json'});
+    > 29 |     expect(segundo,'el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada').toBe(2);
+         |                                                                                                     ^
+      30 |   }finally{await limpiar();}
+      31 | });
+      32 | test('Cortar mientras conecta impide abrir despues microfono y socket',async({page,context,baseURL},info)=>{
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\tests\e2e\94-live-widget.spec.ts:29:101
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa94-artifacts\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa94-artifacts\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\error-context.md
+
+    Error Context: qa94-artifacts\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:32:5 › Cortar mientras conecta impide abrir despues microfono y socket
+  2) [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:32:5 › Cortar mientras conecta impide abrir despues microfono y socket
+
+    Test timeout of 180000ms exceeded.
+
+    Error: locator.click: Test timeout of 180000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Abrir Asistente IA AK' })
+
+
+      14 |   await db.collection('fiestas').doc(id).set(JSON.parse(JSON.stringify(fiesta)));await ponerSesionDelEquipo(context,baseURL);
+      15 |   await page.goto('/fiestas/nueva/tareas?fiestaId='+id,{waitUntil:'domcontentloaded'});
+    > 16 |   await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();await expect(page.getByTestId('boton-hablar-en-vivo')).toBeVisible();
+         |                                                                 ^
+      17 |   return async()=>{await db.collection('fiestas').doc(id).delete();borrarFiesta(id);};
+      18 | }
+      19 | test('voz fallida permite REINTENTAR con un solo clic',async({page,context,baseURL},info)=>{
+        at abrir (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\tests\e2e\94-live-widget.spec.ts:16:65)
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\tests\e2e\94-live-widget.spec.ts:46:17
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa94-artifacts\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa94-artifacts\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\error-context.md
+
+    Error Context: qa94-artifacts\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:19:5 › voz fallida permite REINTENTAR con un solo clic
+    [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:32:5 › Cortar mientras conecta impide abrir despues microfono y socket
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:19:5 › voz fallida permite REINTENTAR con un solo clic
+  1) [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:19:5 › voz fallida permite REINTENTAR con un solo clic
+
+    Error: el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 1
+
+      27 |     if(segundo===1){await b.click();await expect.poll(()=>llamadas).toBe(2);}
+      28 |     await info.attach('live-reintento.json',{body:JSON.stringify({first:1,afterRetry:segundo,afterThirdClick:llamadas,provider:'controlled HTTP503',buttonTitle:await b.getAttribute('title')},null,2),contentType:'application/json'});
+    > 29 |     expect(segundo,'el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada').toBe(2);
+         |                                                                                                     ^
+      30 |   }finally{await limpiar();}
+      31 | });
+      32 | test('Cortar mientras conecta impide abrir despues microfono y socket',async({page,context,baseURL},info)=>{
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\tests\e2e\94-live-widget.spec.ts:29:101
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa94-artifacts\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa94-artifacts\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\error-context.md
+
+    Error Context: qa94-artifacts\94-live-widget-voz-fallida-9f124-REINTENTAR-con-un-solo-clic-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:32:5 › Cortar mientras conecta impide abrir despues microfono y socket
+  2) [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:32:5 › Cortar mientras conecta impide abrir despues microfono y socket
+
+    Error: Cortar antes de la ficha debe evitar adquirir el microfono
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 1
+
+      55 |     // Release every resource in the QA even when the product reopens after cancellation.
+      56 |     await b.click();await page.evaluate(()=>window.__voz94.tracks.forEach(t=>t.stop()));
+    > 57 |     expect(after.micro,'Cortar antes de la ficha debe evitar adquirir el microfono').toBe(0);expect(after.sockets).toBe(0);
+         |                                                                                      ^
+      58 |   }finally{liberar();await limpiar();}
+      59 | });
+      60 |
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\tests\e2e\94-live-widget.spec.ts:57:86
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa94-artifacts\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa94-artifacts\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\error-context.md
+
+    Error Context: qa94-artifacts\94-live-widget-Cortar-mien-04c7f--despues-microfono-y-socket-chromium-desktop\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:19:5 › voz fallida permite REINTENTAR con un solo clic
+    [chromium-desktop] › tests\e2e\94-live-widget.spec.ts:32:5 › Cortar mientras conecta impide abrir despues microfono y socket
+
+Running 6 tests using 1 worker
+
+[1/6] [chromium-mobile] › tests\e2e\94-entrada.spec.ts:10:48 › QR revocada con lector real y pagina abierta
+[2/6] [chromium-mobile] › tests\e2e\94-recibos.spec.ts:110:5 › el papel de pago suma sus conceptos redondeados exactamente al total
+[3/6] [chromium-mobile] › tests\e2e\94-recibos.spec.ts:140:5 › Reemplazar debe permitir cambiar el papel firmado sin deshacer el pago
+[4/6] [chromium-mobile] › tests\e2e\94-recibos.spec.ts:176:5 › fecha calendario del evento no retrocede un dia en el recibo
+[5/6] [chromium-mobile] › tests\e2e\94-pendientes.spec.ts:78:49 › album formatos no miente sobre descarga
+[6/6] [chromium-mobile] › tests\e2e\94-pendientes.spec.ts:78:49 › album todo-falla no miente sobre descarga
+  6 passed (3.8m)
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\94-entrada.spec.ts:10:48 › QR reentrada con lector real y pagina abierta
+  1) [chromium-desktop] › tests\e2e\94-entrada.spec.ts:10:48 › QR reentrada con lector real y pagina abierta
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/ACCESO PERMITIDO/)
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 30000ms
+      - waiting for getByText(/ACCESO PERMITIDO/)
+
+
+      34 |       await page.reload({waitUntil:'domcontentloaded'});await expect(page.getByTestId('guest-portal-qr')).toHaveCount(0);
+      35 |     }else{
+    > 36 |       await input.setInputFiles(png);await expect(op.getByText(/ACCESO PERMITIDO/)).toBeVisible({timeout:30000});
+         |                                                                                     ^
+      37 |       const first=(await ref.get()).data();expect(first.invitados[0].checkedIn).toBe(true);expect(first.invitados[0].checkInTimestamp).toBeTruthy();
+      38 |       await expect(op.getByText(/ACCESO PERMITIDO/)).toBeHidden({timeout:15000});
+      39 |       await input.setInputFiles([]);await input.setInputFiles(png);
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-94\tests\e2e\94-entrada.spec.ts:36:85
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa94-artifacts\94-entrada-QR-reentrada-con-lector-real-y-pagina-abierta-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa94-artifacts\94-entrada-QR-reentrada-con-lector-real-y-pagina-abierta-chromium-desktop\test-failed-2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa94-artifacts\94-entrada-QR-reentrada-con-lector-real-y-pagina-abierta-chromium-desktop\error-context.md
+
+    Error Context: qa94-artifacts\94-entrada-QR-reentrada-con-lector-real-y-pagina-abierta-chromium-desktop\error-context.md
+
+
+[2/4] [chromium-desktop] › tests\e2e\94-pendientes.spec.ts:78:49 › album todo-falla no miente sobre descarga
+[3/4] [chromium-mobile] › tests\e2e\94-entrada.spec.ts:10:48 › QR reentrada con lector real y pagina abierta
+[4/4] [chromium-mobile] › tests\e2e\94-pendientes.spec.ts:78:49 › album todo-falla no miente sobre descarga
+  1 failed
+    [chromium-desktop] › tests\e2e\94-entrada.spec.ts:10:48 › QR reentrada con lector real y pagina abierta
+  3 passed (1.9m)
+
+Running 1 test using 1 worker
+
+[1/1] [chromium-desktop] › tests\e2e\94-qr-imagen.spec.ts:9:5 › QR diagnostico del PNG descargado sin alterar el original
+  1 passed (8.0s)
+
+Running 1 test using 1 worker
+
+[1/1] [chromium-desktop] › tests\e2e\94-qr-imagen.spec.ts:36:5 › QR control mismo PNG mismo lector original y margen
+  1 passed (25.8s)

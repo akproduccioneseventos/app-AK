@@ -1,0 +1,102 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: 96-video-lector.spec.ts >> video lector no inventa cero cuando no firma
+- Location: tests\e2e\96-video-lector.spec.ts:13:38
+
+# Error details
+
+```
+Error: expect(received).toMatch(expected)
+
+Expected pattern: /no pudimos|no se pudo|error al cargar/i
+Received string:  "AK
+Fiesta de esta noche·
+Carga de Fotos para el Video de Vida·
+Tu Galería (0 de 2)
+Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan 2 fotos.
+Subir foto
+01
+Subir foto
+02
+AK
+AK Producciones
+PRODUCCIÓN INTEGRAL DE EVENTOS • SALTO, URUGUAY·
+Diseñamos bodas, 15 años y eventos empresariales inolvidables. Gastronomía gourmet, discoteca profesional, salones de gala y tecnología interactiva en un solo lugar.·
+WHATSAPP DIRECTO
+COTIZÁ TU FIESTA
+SALONES DESTACADOS
+Salón Club Uruguay (Exclusivo)
+Gastronomía Gourmet & Catering
+Discoteca & Pistas de Luces LED
+Plataforma 360° & Fotocabina QR
+ACCESOS RÁPIDOS
+→
+Simulador de Presupuesto
+→
+Galería de Eventos Reales
+→
+Blog & Guías de Organización
+→
+Testimonios & Preguntas Frecuentes
+Acceso Staff & Equipo AK
+OFICINA & ATENCION·
+Salto, Uruguay·
++598 98 355 530·
+Coordinación presencial el día de tu celebración.·
+COMUNIDAD & REDES·
+Seguinos en redes para ver coberturas en vivo, montajes reales y salones armados.·
+© 2026 AK Producciones Eventos. Todos los derechos reservados.·
+··
+Tus datos se tratan según la Ley 18.331 de Protección de Datos Personales.·
+Club Uruguay
+Simulador
+Privacidad
+Acceso Staff"
+```
+
+# Test source
+
+```ts
+  1  | // @ts-nocheck -- Actual public page and emulators, no real Google signer/clients.
+  2  | import fs from 'node:fs';
+  3  | import os from 'node:os';
+  4  | import path from 'node:path';
+  5  | import admin from 'firebase-admin';
+  6  | import {test,expect} from '@playwright/test';
+  7  | import {crearFiestaDeEstaNoche,guardarFiesta,borrarFiesta} from './helpers/fiesta-de-prueba';
+  8  | if(process.env.AK_ENTORNO_AISLADO!=='true'||path.basename(process.cwd())!=='ak-entorno-aislado-96'||
+  9  |   process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085'||process.env.FIREBASE_STORAGE_EMULATOR_HOST!=='127.0.0.1:9195')throw new Error('Only TEMP96');
+  10 | const app=admin.initializeApp({projectId:'demo-ak-producciones',storageBucket:'demo-ak-producciones.appspot.com'},'qa96-'+process.pid);
+  11 | const db=app.firestore(),bucket=app.storage().bucket();db.settings({ignoreUndefinedProperties:true});
+  12 | test.afterAll(async()=>app.delete());
+  13 | for(const stored of [false,true])test('video lector '+(stored?'no inventa cero cuando no firma':'vacio genuino se muestra como cero'),async({page,context},info)=>{
+  14 |   test.setTimeout(120000);const id='e2e_96_video_'+process.pid+'_'+Date.now(),fiesta=crearFiestaDeEstaNoche({id});
+  15 |   fiesta.videoVida={...fiesta.videoVida,galleryEnabled:true,photoCount:2,photosUploaded:stored};
+  16 |   const ref=db.collection('fiestas').doc(id),name='video-vida-photos/'+id+'/01.png',file=bucket.file(name);
+  17 |   const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jV2kAAAAASUVORK5CYII=','base64');
+  18 |   try {
+  19 |     guardarFiesta(fiesta);await ref.set(JSON.parse(JSON.stringify(fiesta)));
+  20 |     if(stored){await file.save(png,{resumable:false,metadata:{contentType:'image/png'}});
+  21 |       const r=await page.request.get('http://127.0.0.1:9195/v0/b/demo-ak-producciones.appspot.com/o/'+encodeURIComponent(name)+'?alt=media');
+  22 |       expect(r.status()).toBe(200);expect(await r.body()).toEqual(png);}
+  23 |     await page.goto('/video-vida/'+id,{waitUntil:'domcontentloaded'});
+  24 |     await expect(page.getByText('Tu Galer\u00eda (0 de 2)',{exact:true})).toBeVisible({timeout:60000});
+  25 |     expect((await context.cookies()).some(c=>c.name==='ak_session')).toBe(false);
+  26 |     const objects=(await bucket.getFiles({prefix:'video-vida-photos/'+id+'/'}))[0].map(f=>f.name);
+  27 |     const evidence={stored,objects,body:await page.locator('body').innerText(),inputs:await page.locator('input[type=file]').count(),
+  28 |       images:await page.locator('img[alt="Foto 1"]').count(),environment:'Native browser/emulators; no Google signer credentials'};
+  29 |     await info.attach('lector-final.json',{body:JSON.stringify(evidence,null,2),contentType:'application/json'});
+  30 |     await info.attach('lector-final.png',{body:await page.screenshot(),contentType:'image/png'});
+> 31 |     if(stored){expect(objects).toEqual([name]);expect(evidence.body).toMatch(/no pudimos|no se pudo|error al cargar/i);}
+     |                                                                      ^ Error: expect(received).toMatch(expected)
+  32 |     else expect(objects).toEqual([]);
+  33 |   }finally{if((await file.exists())[0])await file.delete();await ref.delete();borrarFiesta(id);}
+  34 | });
+  35 |
+```

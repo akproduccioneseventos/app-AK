@@ -138,7 +138,13 @@ export default function VideoVidaAdminPage() {
       };
       setVideoVidaData(currentVideoVidaDataClamped);
       
-      const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
+      const lectura = await getLifeStoryVideoPhotos(fiestaData.id);
+      // Orden 148: un error de lectura no se muestra como galería vacía.
+      if (lectura.estado === 'error') throw new Error(lectura.error);
+      const photoUrls = lectura.urls;
+      if (lectura.estado === 'parcial') {
+        toast({ title: 'Faltan fotos por mostrar', description: `No pudimos leer ${lectura.fallidas} foto(s) ahora; no se perdieron. Recargá en un rato.`, variant: 'destructive' });
+      }
       
       const slotCount = clampedCount;
       const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
