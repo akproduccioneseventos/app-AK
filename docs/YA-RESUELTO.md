@@ -20,6 +20,7 @@ archivo: next.config.js
 usa: seleccionarItemsDeRespaldo en src/ai/flows/multiagent-flow.ts
 prueba: src/__tests__/la-ia-arranca-sin-telemetria.test.ts
 prueba: src/__tests__/el-respaldo-de-la-ia-respeta-la-fiesta.test.ts
+```
 
 ## 11 de octubre de 2026 — Orden 150: el mural a pantalla completa se veía vacío o recortado
 
