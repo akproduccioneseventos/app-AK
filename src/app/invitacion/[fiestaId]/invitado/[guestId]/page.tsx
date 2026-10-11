@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { qrParaDescargar } from '@/lib/qr/qr-para-descargar';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -261,9 +260,7 @@ function GuestPortalContent() {
     const canvas = document.getElementById('qr-guest-portal') as HTMLCanvasElement | null;
     if (!canvas) return;
     const link = document.createElement('a');
-    // Con zona blanca y módulos enteros: el canvas de pantalla, pelado, no lo leía el lector de la app.
-    const archivo = qrParaDescargar(canvas) as HTMLCanvasElement;
-    link.href = archivo.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    link.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
     link.download = `QR-Entrada-${guest?.nombre ?? 'invitado'}.png`;
     document.body.appendChild(link);
     link.click();
