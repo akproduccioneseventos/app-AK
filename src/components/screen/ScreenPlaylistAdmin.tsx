@@ -18,7 +18,7 @@ interface ScreenPlaylistAdminProps {
   fiestaId: string;
 }
 
-const typeIcons: Record<PlaylistItemType, React.ElementType> = {
+const typeIcons: Record<PlaylistItemType, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   'muro-fotos': Image,
   'video-publicitario': Video,
   'redes-sociales': Share2,

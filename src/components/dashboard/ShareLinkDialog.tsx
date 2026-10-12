@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ClipboardCopy, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import QRCodeStylized from 'qrcode.react';
+import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 
 interface ShareLinkDialogProps {
   children: ReactNode;

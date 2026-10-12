@@ -1,0 +1,11 @@
+{
+  "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "suites": 692,
+  "tests": 4139,
+  "passed": 4139,
+  "failed": 0,
+  "pending": 0,
+  "success": true,
+  "rawSha256": "61055213d6415405c8348b38136774f0cc5e712fe1e7ff954957895421436706",
+  "archiveSha256": "9cfba3ea0005887d31162084ccffe1104284b6015c9b21ebfaf91b7769a076dd"
+}

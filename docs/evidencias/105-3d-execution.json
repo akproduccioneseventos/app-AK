@@ -1,0 +1,18 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "e7f5e7fccf94af5aa8ff7ef8ae006f8b4eef0773",
+  "applicationSourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "mode": "3d",
+  "args": [
+    "node_modules/@playwright/test/cli",
+    "test",
+    "--config",
+    "playwright.105.config.ts"
+  ],
+  "launcher": 2488,
+  "child": 11156,
+  "started": "2026-10-11T22:30:09.241Z",
+  "status": "finished",
+  "finished": "2026-10-11T22:31:56.580Z",
+  "exitCode": 0
+}

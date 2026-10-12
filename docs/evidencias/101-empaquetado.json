@@ -1,0 +1,26 @@
+{
+  "sha": "99faf4eb061fa46341cfdde6f81b93b3bfb9c73c",
+  "webpack": "5.106.2",
+  "native": {
+    "type": "function",
+    "constructed": true
+  },
+  "variants": [
+    {
+      "control": false,
+      "actualAlias": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\src\\lib\\telemetria-apagada-node-sdk.js",
+      "observed": {
+        "type": "function",
+        "constructed": true
+      }
+    },
+    {
+      "control": true,
+      "actualAlias": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\src\\lib\\telemetria-apagada-node-sdk.js",
+      "observed": {
+        "type": "function",
+        "constructed": true
+      }
+    }
+  ]
+}

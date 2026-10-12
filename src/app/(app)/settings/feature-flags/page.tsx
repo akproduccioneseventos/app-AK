@@ -22,7 +22,7 @@ import {
   type FeatureModule,
 } from '@/types/feature-flags';
 
-const TIER_ICONS: Record<ServiceTier, React.ElementType> = {
+const TIER_ICONS: Record<ServiceTier, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   Básico: Shield,
   Premium: Star,
   Elite: Crown,

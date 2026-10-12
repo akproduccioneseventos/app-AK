@@ -1,0 +1,409 @@
+[31m[1m!!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-ak-producciones", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[33m[1m!  emulators:[22m[39m It seems that you are running multiple instances of the emulator suite for project demo-ak-producciones. This may result in unexpected behavior.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m! [22m[39m Unexpected rules runtime error: Picked up JAVA_TOOL_OPTIONS: -Xmx512m
+
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌───────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator  [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore [90m│[39m 127.0.0.1:8085 [90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage   [90m│[39m 127.0.0.1:9195 [90m│[39m
+[90m└───────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+
+[33m[1m!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 8.4s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1388ms (161 modules)
+ ○ Compiling /video-vida/[fiestaId] ...
+ ✓ Compiled /video-vida/[fiestaId] in 31.6s (2771 modules)
+ ✓ Compiled in 2.3s (739 modules)
+ GET /video-vida/e2e_98_video_2164_1791689973356 200 in 38590ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 4203ms
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 697ms
+No se pudo firmar una foto del Video de Vida: video-vida-photos/e2e_98_video_2164_1791689973356/01.png [Error [SigningError]: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.]
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 1091ms
+No se pudo firmar una foto del Video de Vida: video-vida-photos/e2e_98_video_2164_1791689973356/01.png [Error [SigningError]: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.]
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 1790ms
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 630ms
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 1235ms
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 362ms
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 503ms
+No se pudo firmar una foto del Video de Vida: video-vida-photos/e2e_98_video_2164_1791689973356/01.png [Error [SigningError]: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.]
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 1052ms
+ POST /video-vida/e2e_98_video_2164_1791689973356 200 in 568ms
+ GET /video-vida/e2e_98_video_2164_1791690035500 200 in 1028ms
+ POST /video-vida/e2e_98_video_2164_1791690035500 200 in 1076ms
+ POST /video-vida/e2e_98_video_2164_1791690035500 200 in 896ms
+ POST /video-vida/e2e_98_video_2164_1791690035500 200 in 436ms
+ POST /video-vida/e2e_98_video_2164_1791690035500 200 in 1912ms
+ POST /video-vida/e2e_98_video_2164_1791690035500 200 in 551ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ ○ Compiling /fiestas/nueva/tareas ...
+ ✓ Compiled /fiestas/nueva/tareas in 28.6s (5017 modules)
+ GET /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690050092 200 in 31248ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690050092 200 in 1939ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690050092 200 in 1232ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690050092 200 in 1121ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690050092 200 in 1078ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690050092 200 in 445ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690050092 200 in 547ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690050092 200 in 659ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690095196 200 in 743ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690095196 200 in 449ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690095196 200 in 985ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690095196 200 in 1020ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690095196 200 in 881ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690095196 200 in 761ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_18040_1791690095196 200 in 672ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ GET /video-vida/e2e_98_video_23600_1791690108874 200 in 1074ms
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 460ms
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 463ms
+No se pudo firmar una foto del Video de Vida: video-vida-photos/e2e_98_video_23600_1791690108874/01.png [Error [SigningError]: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.]
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 1030ms
+No se pudo firmar una foto del Video de Vida: video-vida-photos/e2e_98_video_23600_1791690108874/01.png [Error [SigningError]: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.]
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 559ms
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 535ms
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 324ms
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 550ms
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 572ms
+No se pudo firmar una foto del Video de Vida: video-vida-photos/e2e_98_video_23600_1791690108874/01.png [Error [SigningError]: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.]
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 415ms
+ POST /video-vida/e2e_98_video_23600_1791690108874 200 in 410ms
+ GET /video-vida/e2e_98_video_23600_1791690121183 200 in 763ms
+ POST /video-vida/e2e_98_video_23600_1791690121183 200 in 459ms
+ POST /video-vida/e2e_98_video_23600_1791690121183 200 in 464ms
+ POST /video-vida/e2e_98_video_23600_1791690121183 200 in 421ms
+ POST /video-vida/e2e_98_video_23600_1791690121183 200 in 580ms
+ POST /video-vida/e2e_98_video_23600_1791690121183 200 in 633ms
+ POST /video-vida/e2e_98_video_23600_1791690121183 200 in 584ms
+ POST /video-vida/e2e_98_video_23600_1791690121183 200 in 361ms
+ POST /video-vida/e2e_98_video_23600_1791690121183 200 in 457ms
+ GET /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690133218 200 in 8755ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690133218 200 in 1014ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690133218 200 in 908ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690133218 200 in 1068ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690133218 200 in 745ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690133218 200 in 1096ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690133218 200 in 645ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690133218 200 in 648ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690159687 200 in 799ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690159687 200 in 905ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690159687 200 in 1134ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690159687 200 in 620ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690159687 200 in 446ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690159687 200 in 639ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_98_live_24212_1791690159687 200 in 2390ms
+ ○ Compiling /evento/touchpix/[fiestaId] ...
+ ✓ Compiled /evento/touchpix/[fiestaId] in 7.6s (5103 modules)
+ GET /evento/touchpix/e2e_98_station_6124_1791690180664?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAxODA2NjQiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NDk4MTY5NSwibm9uY2UiOiJlMDA2YjA0MC1mMWE2LTRkODAtYjIxNy1hMWZmMjQ1MmU1MzcifQ.kyES0lPbwF1vDhGXyQz8hW3j1e-z0R9FvRUtut2EnfU 200 in 12055ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/touchpix/e2e_98_station_6124_1791690180664?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAxODA2NjQiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NDk4MTY5NSwibm9uY2UiOiJlMDA2YjA0MC1mMWE2LTRkODAtYjIxNy1hMWZmMjQ1MmU1MzcifQ.kyES0lPbwF1vDhGXyQz8hW3j1e-z0R9FvRUtut2EnfU 200 in 2082ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690180664?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAxODA2NjQiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NDk4MTY5NSwibm9uY2UiOiJlMDA2YjA0MC1mMWE2LTRkODAtYjIxNy1hMWZmMjQ1MmU1MzcifQ.kyES0lPbwF1vDhGXyQz8hW3j1e-z0R9FvRUtut2EnfU 200 in 583ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690180664?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAxODA2NjQiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NDk4MTY5NSwibm9uY2UiOiJlMDA2YjA0MC1mMWE2LTRkODAtYjIxNy1hMWZmMjQ1MmU1MzcifQ.kyES0lPbwF1vDhGXyQz8hW3j1e-z0R9FvRUtut2EnfU 200 in 1338ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690180664?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAxODA2NjQiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NDk4MTY5NSwibm9uY2UiOiJlMDA2YjA0MC1mMWE2LTRkODAtYjIxNy1hMWZmMjQ1MmU1MzcifQ.kyES0lPbwF1vDhGXyQz8hW3j1e-z0R9FvRUtut2EnfU 200 in 1655ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690180664?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAxODA2NjQiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NDk4MTY5NSwibm9uY2UiOiJlMDA2YjA0MC1mMWE2LTRkODAtYjIxNy1hMWZmMjQ1MmU1MzcifQ.kyES0lPbwF1vDhGXyQz8hW3j1e-z0R9FvRUtut2EnfU 200 in 804ms
+[sesion-entretenimiento] Error en getEntertainmentSession: Error: Sesion no autorizada.
+    at requireAppSession (src\lib\auth\require-session.ts:11:11)
+    at async getHistorialFiestas (src\app\actions\fiesta\fiesta.actions.ts:205:3)
+    at async getFiestaById (src\app\actions\fiesta\fiesta.actions.ts:384:28)
+    at async isStationEnabled (src\app\actions\fiesta\sesion-entretenimiento.ts:35:18)
+    at async getEntertainmentSession (src\app\actions\fiesta\sesion-entretenimiento.ts:152:11)
+   9 | export async function requireAppSession(): Promise<void> {
+  10 |   if (!(await hasAppSession())) {
+> 11 |     throw new Error('Sesion no autorizada.');
+     |           ^
+  12 |   }
+  13 | }
+  14 |
+ POST /evento/touchpix/e2e_98_station_6124_1791690180664?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAxODA2NjQiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NDk4MTY5NSwibm9uY2UiOiJlMDA2YjA0MC1mMWE2LTRkODAtYjIxNy1hMWZmMjQ1MmU1MzcifQ.kyES0lPbwF1vDhGXyQz8hW3j1e-z0R9FvRUtut2EnfU 200 in 2216ms
+ GET /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 752ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 859ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 1077ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 784ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 1212ms
+ GET /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 1333ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 1069ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 693ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690204577?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMDQ1NzciLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAwNDY3Nywibm9uY2UiOiIxNmE3YTg1Yy1hOGM0LTQ1YWYtOWM0Yy03Y2ZlNDA5ZWQzYmEifQ.uA2an0lAxsBODPo2v1i2XjBH6je_ytDkNJoJQFo2uDw 200 in 891ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/touchpix/e2e_98_station_6124_1791690221931?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjE5MzEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAyMjAxNywibm9uY2UiOiJiY2U2YzFmNS1lN2FjLTRiOWItYjBiMS03MGI0YmRlODRiYTMifQ.XxnzrsNZllbNo0eFvRYp5ZNRECuPDQRC7jSM7kqz5IY 200 in 1896ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690221931?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjE5MzEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAyMjAxNywibm9uY2UiOiJiY2U2YzFmNS1lN2FjLTRiOWItYjBiMS03MGI0YmRlODRiYTMifQ.XxnzrsNZllbNo0eFvRYp5ZNRECuPDQRC7jSM7kqz5IY 200 in 422ms
+ POST /evento/touchpix/e2e_98_station_6124_1791690221931?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjE5MzEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0lBIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTAyMjAxNywibm9uY2UiOiJiY2U2YzFmNS1lN2FjLTRiOWItYjBiMS03MGI0YmRlODRiYTMifQ.XxnzrsNZllbNo0eFvRYp5ZNRECuPDQRC7jSM7kqz5IY 200 in 914ms
+ ○ Compiling /evento/espejo-magico/[fiestaId] ...
+ ✓ Compiled /evento/espejo-magico/[fiestaId] in 5.8s (5138 modules)
+ GET /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 9205ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 1571ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 3053ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 713ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 875ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 620ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 788ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 626ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 1215ms
+[AK] [ContentSafetyAI] API returned error response: 400 {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "vision.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 2731ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 812ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 840ms
+ ○ Compiling /evento/muro-en-vivo/[fiestaId] ...
+ ✓ Compiled /evento/muro-en-vivo/[fiestaId] in 11.8s (5166 modules)
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 13940ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 1515ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 1152ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 1140ms
+ GET /evento/muro-en-vivo/e2e_98_station_6124_1791690229545 200 in 24344ms
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 1199ms
+[Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException: [Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException:  [Error: aborted] { code: 'ECONNRESET' }
+ POST /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 3019ms
+ GET /evento/espejo-magico/e2e_98_station_6124_1791690229545?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl82MTI0XzE3OTE2OTAyMjk1NDUiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MDI5NjQxLCJub25jZSI6IjQwNWE0ZWE3LTdiNzAtNDJhNy1iN2I1LTg0M2UxNGY4MTY3OSJ9.RHpvJM3wJbwYSPtoxxu9WbDXvLFbi3BSWT9siuYgEUo&mode=foto 200 in 3452ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/touchpix/e2e_98_station_21876_1791690293926?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMjkzOTI2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUwOTQ3MDcsIm5vbmNlIjoiODQ4MTUxNDItOWFiNi00ZGVkLTljMDQtZWJhZDBiMTIxMTg5In0.rmC8RW7Z3f7MgLGRq1w6QpeUgkgouQile5Uzz_49km4 200 in 1000ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690293926?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMjkzOTI2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUwOTQ3MDcsIm5vbmNlIjoiODQ4MTUxNDItOWFiNi00ZGVkLTljMDQtZWJhZDBiMTIxMTg5In0.rmC8RW7Z3f7MgLGRq1w6QpeUgkgouQile5Uzz_49km4 200 in 542ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690293926?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMjkzOTI2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUwOTQ3MDcsIm5vbmNlIjoiODQ4MTUxNDItOWFiNi00ZGVkLTljMDQtZWJhZDBiMTIxMTg5In0.rmC8RW7Z3f7MgLGRq1w6QpeUgkgouQile5Uzz_49km4 200 in 974ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690293926?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMjkzOTI2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUwOTQ3MDcsIm5vbmNlIjoiODQ4MTUxNDItOWFiNi00ZGVkLTljMDQtZWJhZDBiMTIxMTg5In0.rmC8RW7Z3f7MgLGRq1w6QpeUgkgouQile5Uzz_49km4 200 in 1016ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690293926?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMjkzOTI2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUwOTQ3MDcsIm5vbmNlIjoiODQ4MTUxNDItOWFiNi00ZGVkLTljMDQtZWJhZDBiMTIxMTg5In0.rmC8RW7Z3f7MgLGRq1w6QpeUgkgouQile5Uzz_49km4 200 in 877ms
+[sesion-entretenimiento] Error en getEntertainmentSession: Error: Sesion no autorizada.
+    at requireAppSession (src\lib\auth\require-session.ts:11:11)
+    at async getHistorialFiestas (src\app\actions\fiesta\fiesta.actions.ts:205:3)
+    at async getFiestaById (src\app\actions\fiesta\fiesta.actions.ts:384:28)
+    at async isStationEnabled (src\app\actions\fiesta\sesion-entretenimiento.ts:35:18)
+    at async getEntertainmentSession (src\app\actions\fiesta\sesion-entretenimiento.ts:152:11)
+   9 | export async function requireAppSession(): Promise<void> {
+  10 |   if (!(await hasAppSession())) {
+> 11 |     throw new Error('Sesion no autorizada.');
+     |           ^
+  12 |   }
+  13 | }
+  14 |
+ POST /evento/touchpix/e2e_98_station_21876_1791690293926?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMjkzOTI2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUwOTQ3MDcsIm5vbmNlIjoiODQ4MTUxNDItOWFiNi00ZGVkLTljMDQtZWJhZDBiMTIxMTg5In0.rmC8RW7Z3f7MgLGRq1w6QpeUgkgouQile5Uzz_49km4 200 in 1523ms
+ GET /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 1308ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 573ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 667ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 1463ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 966ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 2270ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 486ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 1405ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 973ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690304985?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzA0OTg1IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMDUwODEsIm5vbmNlIjoiY2E2MzliZTgtM2E1NS00MTAxLWI1MmItYjYxZDY4Zjk4ODIxIn0.vgY7AAnq-tTcP8Mb7I8vL4jTbEH65_IOa0yFv_4NkFU 200 in 504ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/touchpix/e2e_98_station_21876_1791690321266?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzIxMjY2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMjE0NDYsIm5vbmNlIjoiZjgyMGU3MmQtMDY1ZC00YjFhLTg0ZmMtZjcxYTE4MGQzMDQ5In0.m3xtIUbfnSr-vF_bbM6PGrE2TCIdcWU7xO4kUzKKVKk 200 in 1081ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690321266?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzIxMjY2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMjE0NDYsIm5vbmNlIjoiZjgyMGU3MmQtMDY1ZC00YjFhLTg0ZmMtZjcxYTE4MGQzMDQ5In0.m3xtIUbfnSr-vF_bbM6PGrE2TCIdcWU7xO4kUzKKVKk 200 in 800ms
+ POST /evento/touchpix/e2e_98_station_21876_1791690321266?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzIxMjY2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29JQSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTE3NTUxMjE0NDYsIm5vbmNlIjoiZjgyMGU3MmQtMDY1ZC00YjFhLTg0ZmMtZjcxYTE4MGQzMDQ5In0.m3xtIUbfnSr-vF_bbM6PGrE2TCIdcWU7xO4kUzKKVKk 200 in 1078ms
+ GET /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 6522ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 1188ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 3282ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 3015ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 684ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 713ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 700ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 1357ms
+[AK] [ContentSafetyAI] API returned error response: 400 {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "vision.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 2742ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 1085ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 1178ms
+ GET /evento/muro-en-vivo/e2e_98_station_21876_1791690330351 200 in 2111ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 986ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 1188ms
+ POST /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 906ms
+ GET /evento/espejo-magico/e2e_98_station_21876_1791690330351?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8yMTg3Nl8xNzkxNjkwMzMwMzUxIiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTEzMDQzNywibm9uY2UiOiJiZThmYWY3Ny1kYTNhLTQwMDMtYjlmZS1jOGQ2NWMyZWU2NzIifQ.amnYN5eShIkwyY7PgRTZYWSL4h037k4BNI5KQ4pUAow&mode=foto 200 in 931ms
+ GET /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 947ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 638ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 682ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 2585ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 1080ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 901ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 907ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 1097ms
+[AK] [ContentSafetyAI] API returned error response: 400 {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "vision.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 3203ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 926ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 1427ms
+ GET /evento/muro-en-vivo/e2e_98_station_8320_1791690379221 200 in 2329ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 1039ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 1851ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_station_8320_1791690379221 200 in 1051ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_station_8320_1791690379221 200 in 1368ms
+ POST /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 1024ms
+ POST /evento/muro-en-vivo/e2e_98_station_8320_1791690379221 200 in 804ms
+ POST /evento/muro-en-vivo/e2e_98_station_8320_1791690379221 200 in 533ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/espejo-magico/e2e_98_station_8320_1791690379221?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl84MzIwXzE3OTE2OTAzNzkyMjEiLCJtb2R1bGVJZCI6ImVzcGVqb01hZ2ljb0ZvdG8iLCJzY29wZSI6Imd1ZXN0IiwiZXhwaXJlc0F0IjoxNzkxNzU1MTgwNjcxLCJub25jZSI6ImJlYmQxYjNlLTFiMDgtNDFjYy1iYmRjLWU5MjE5OGI1ZjYzMyJ9.MJhJYMro77Q0UHJjiW77LjvxyTIVqITXHCxJdkR_LEw&mode=foto 200 in 2988ms
+ GET /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 2109ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 908ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 1040ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 910ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 1004ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 724ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 608ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 829ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 667ms
+[AK] [ContentSafetyAI] API returned error response: 400 {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "vision.googleapis.com"
+        }
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",
+        "locale": "en-US",
+        "message": "API key not valid. Please pass a valid API key."
+      }
+    ]
+  }
+}
+
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 2154ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 581ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 1315ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 1463ms
+ GET /evento/muro-en-vivo/e2e_98_station_15016_1791690413196 200 in 2107ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 3331ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_station_15016_1791690413196 200 in 879ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_station_15016_1791690413196 200 in 1097ms
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 1400ms
+ POST /evento/muro-en-vivo/e2e_98_station_15016_1791690413196 200 in 1213ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ POST /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 2388ms
+ ⨯ [Error: aborted]
+ ○ Compiling /_error ...
+ GET /evento/espejo-magico/e2e_98_station_15016_1791690413196?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfOThfc3RhdGlvbl8xNTAxNl8xNzkxNjkwNDEzMTk2IiwibW9kdWxlSWQiOiJlc3Blam9NYWdpY29Gb3RvIiwic2NvcGUiOiJndWVzdCIsImV4cGlyZXNBdCI6MTc5MTc1NTIxNDMzOSwibm9uY2UiOiIzZTNmY2ViOC05ZWFkLTQzODEtYTEwNy1kNDI2ZDc5ZjNkYmUifQ.gzkMPNkBrJ4I1t5HOaLxEsn1IfUEmeqAsKW0LDegy_Y&mode=foto 200 in 5245ms
+ ✓ Compiled /_error in 14.5s (5518 modules)

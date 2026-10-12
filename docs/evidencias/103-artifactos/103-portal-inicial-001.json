@@ -1,0 +1,7 @@
+{
+  "body": "No pudimos cargar tu portal\n\nNo pudimos cargar tu portal en este momento. Probá de nuevo en unos minutos.\n\nReintentar",
+  "url": "http://127.0.0.1:3300/portal/c/e2e_103_portal_32956_1791741939870_key",
+  "retry": 1,
+  "faults": "{\"time\":\"2026-10-11T18:05:43.832Z\",\"pid\":31136,\"collection\":\"fiestas\",\"filters\":2}\n{\"time\":\"2026-10-11T18:05:43.853Z\",\"pid\":31136,\"collection\":\"fiestas\",\"filters\":0}\n{\"time\":\"2026-10-11T18:05:44.365Z\",\"pid\":31136,\"collection\":\"fiestas\",\"filters\":2}\n{\"time\":\"2026-10-11T18:05:44.368Z\",\"pid\":31136,\"collection\":\"fiestas\",\"filters\":0}\n",
+  "dataExists": true
+}

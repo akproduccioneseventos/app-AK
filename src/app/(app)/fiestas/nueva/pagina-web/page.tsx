@@ -21,7 +21,7 @@ import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
-import QRCodeStylized from 'qrcode.react';
+import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';

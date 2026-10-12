@@ -1,0 +1,379 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli",
+      "test",
+      "--config",
+      "playwright.106.config.ts",
+      "--grep",
+      "titulo legible|LED y cantidad",
+      "--workers=1"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\playwright.106.config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/qa106-3d-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/salon-3d-ayuda-recorrido.spec.ts",
+          "**/salon-3d-real.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/qa106-3d-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/salon-3d-ayuda-recorrido.spec.ts",
+          "**/salon-3d-real.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\docs\\evidencias\\106-3d.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "salon-3d-ayuda-recorrido.spec.ts",
+      "file": "salon-3d-ayuda-recorrido.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "titulo legible y colores LED circulares sin controles comprimidos",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8823,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m4.5\u001b[39m\nReceived:    \u001b[31m1.0013007246017014\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m4.5\u001b[39m\nReceived:    \u001b[31m1.0013007246017014\u001b[39m\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:96:27",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                      "column": 27,
+                      "line": 96
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 94 |\u001b[39m     \u001b[36mreturn\u001b[39m { foreground\u001b[33m,\u001b[39m background\u001b[33m,\u001b[39m contrast\u001b[33m:\u001b[39m (\u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmax(a\u001b[33m,\u001b[39m b) \u001b[33m+\u001b[39m \u001b[35m0.05\u001b[39m) \u001b[33m/\u001b[39m (\u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmin(a\u001b[33m,\u001b[39m b) \u001b[33m+\u001b[39m \u001b[35m0.05\u001b[39m) }\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m   })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 96 |\u001b[39m   expect(colors\u001b[33m.\u001b[39mcontrast)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m4.5\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 97 |\u001b[39m   \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m name \u001b[36mof\u001b[39m [\u001b[32m'Dorado'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Fucsia'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Azul'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Violeta'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Esmeralda'\u001b[39m]) {\n \u001b[90m 98 |\u001b[39m     \u001b[36mconst\u001b[39m swatch \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m`Color ${name}`\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 99 |\u001b[39m     \u001b[36mconst\u001b[39m box \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m swatch\u001b[33m.\u001b[39mboundingBox()\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                        "column": 27,
+                        "line": 96
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m4.5\u001b[39m\nReceived:    \u001b[31m1.0013007246017014\u001b[39m\n\n  94 |     return { foreground, background, contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };\n  95 |   });\n> 96 |   expect(colors.contrast).toBeGreaterThanOrEqual(4.5);\n     |                           ^\n  97 |   for (const name of ['Dorado', 'Fucsia', 'Azul', 'Violeta', 'Esmeralda']) {\n  98 |     const swatch = page.getByRole('button', { name: `Color ${name}`, exact: true });\n  99 |     const box = await swatch.boundingBox();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:96:27"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-12T13:49:06.582Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa106-3d-artifacts\\salon-3d-ayuda-recorrido-t-736cd-s-sin-controles-comprimidos-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa106-3d-artifacts\\salon-3d-ayuda-recorrido-t-736cd-s-sin-controles-comprimidos-chromium-desktop\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                    "column": 27,
+                    "line": 96
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1a67a0ee506ededd0d86-2c402fcec693445a90a1",
+          "file": "salon-3d-ayuda-recorrido.spec.ts",
+          "line": 81,
+          "column": 5
+        },
+        {
+          "title": "LED y cantidad de invitados cambian la escena real",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 59186,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Color Azul', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  45000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Color Azul', exact: true })\u001b[22m\n\u001b[2m    77 × locator resolved to <button title=\"Azul\" type=\"button\" aria-label=\"Color Azul\" class=\"h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md\"></button>\u001b[22m\n\u001b[2m       - unexpected value \"null\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Color Azul', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  45000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Color Azul', exact: true })\u001b[22m\n\u001b[2m    77 × locator resolved to <button title=\"Azul\" type=\"button\" aria-label=\"Color Azul\" class=\"h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md\"></button>\u001b[22m\n\u001b[2m       - unexpected value \"null\"\u001b[22m\n\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:114:22",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                      "column": 22,
+                      "line": 114
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 112 |\u001b[39m   \u001b[36mconst\u001b[39m blue \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Color Azul'\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 113 |\u001b[39m   \u001b[36mawait\u001b[39m blue\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 114 |\u001b[39m   \u001b[36mawait\u001b[39m expect(blue)\u001b[33m.\u001b[39mtoHaveAttribute(\u001b[32m'aria-pressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 115 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'canvas'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mscrollIntoViewIfNeeded()\u001b[33m;\u001b[39m\n \u001b[90m 116 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m1500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 117 |\u001b[39m   \u001b[36mconst\u001b[39m colored \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m imagen(page)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                        "column": 22,
+                        "line": 114
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Color Azul', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  45000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Color Azul', exact: true })\u001b[22m\n\u001b[2m    77 × locator resolved to <button title=\"Azul\" type=\"button\" aria-label=\"Color Azul\" class=\"h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md\"></button>\u001b[22m\n\u001b[2m       - unexpected value \"null\"\u001b[22m\n\n\n  112 |   const blue = page.getByRole('button', { name: 'Color Azul', exact: true });\n  113 |   await blue.click();\n> 114 |   await expect(blue).toHaveAttribute('aria-pressed', 'true');\n      |                      ^\n  115 |   await page.locator('canvas').first().scrollIntoViewIfNeeded();\n  116 |   await page.waitForTimeout(1500);\n  117 |   const colored = await imagen(page);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:114:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-12T13:49:17.518Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa106-3d-artifacts\\salon-3d-ayuda-recorrido-L-338e5-ados-cambian-la-escena-real-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa106-3d-artifacts\\salon-3d-ayuda-recorrido-L-338e5-ados-cambian-la-escena-real-chromium-desktop\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                    "column": 22,
+                    "line": 114
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1a67a0ee506ededd0d86-fdc1ab5dcfbc4054f15a",
+          "file": "salon-3d-ayuda-recorrido.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "titulo legible y colores LED circulares sin controles comprimidos",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 18007,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m4.5\u001b[39m\nReceived:    \u001b[31m1.0013007246017014\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m4.5\u001b[39m\nReceived:    \u001b[31m1.0013007246017014\u001b[39m\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:96:27",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                      "column": 27,
+                      "line": 96
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 94 |\u001b[39m     \u001b[36mreturn\u001b[39m { foreground\u001b[33m,\u001b[39m background\u001b[33m,\u001b[39m contrast\u001b[33m:\u001b[39m (\u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmax(a\u001b[33m,\u001b[39m b) \u001b[33m+\u001b[39m \u001b[35m0.05\u001b[39m) \u001b[33m/\u001b[39m (\u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmin(a\u001b[33m,\u001b[39m b) \u001b[33m+\u001b[39m \u001b[35m0.05\u001b[39m) }\u001b[33m;\u001b[39m\n \u001b[90m 95 |\u001b[39m   })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 96 |\u001b[39m   expect(colors\u001b[33m.\u001b[39mcontrast)\u001b[33m.\u001b[39mtoBeGreaterThanOrEqual(\u001b[35m4.5\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 97 |\u001b[39m   \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m name \u001b[36mof\u001b[39m [\u001b[32m'Dorado'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Fucsia'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Azul'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Violeta'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'Esmeralda'\u001b[39m]) {\n \u001b[90m 98 |\u001b[39m     \u001b[36mconst\u001b[39m swatch \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m`Color ${name}`\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 99 |\u001b[39m     \u001b[36mconst\u001b[39m box \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m swatch\u001b[33m.\u001b[39mboundingBox()\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                        "column": 27,
+                        "line": 96
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m4.5\u001b[39m\nReceived:    \u001b[31m1.0013007246017014\u001b[39m\n\n  94 |     return { foreground, background, contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };\n  95 |   });\n> 96 |   expect(colors.contrast).toBeGreaterThanOrEqual(4.5);\n     |                           ^\n  97 |   for (const name of ['Dorado', 'Fucsia', 'Azul', 'Violeta', 'Esmeralda']) {\n  98 |     const swatch = page.getByRole('button', { name: `Color ${name}`, exact: true });\n  99 |     const box = await swatch.boundingBox();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:96:27"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-12T13:50:18.466Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa106-3d-artifacts\\salon-3d-ayuda-recorrido-t-736cd-s-sin-controles-comprimidos-chromium-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa106-3d-artifacts\\salon-3d-ayuda-recorrido-t-736cd-s-sin-controles-comprimidos-chromium-mobile\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                    "column": 27,
+                    "line": 96
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1a67a0ee506ededd0d86-6aeb51a2d93711f465a5",
+          "file": "salon-3d-ayuda-recorrido.spec.ts",
+          "line": 81,
+          "column": 5
+        },
+        {
+          "title": "LED y cantidad de invitados cambian la escena real",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 95121,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Color Azul', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  45000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Color Azul', exact: true })\u001b[22m\n\u001b[2m    17 × locator resolved to <button title=\"Azul\" type=\"button\" aria-label=\"Color Azul\" class=\"h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md\"></button>\u001b[22m\n\u001b[2m       - unexpected value \"null\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Color Azul', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  45000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Color Azul', exact: true })\u001b[22m\n\u001b[2m    17 × locator resolved to <button title=\"Azul\" type=\"button\" aria-label=\"Color Azul\" class=\"h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md\"></button>\u001b[22m\n\u001b[2m       - unexpected value \"null\"\u001b[22m\n\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:114:22",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                      "column": 22,
+                      "line": 114
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 112 |\u001b[39m   \u001b[36mconst\u001b[39m blue \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Color Azul'\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 113 |\u001b[39m   \u001b[36mawait\u001b[39m blue\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 114 |\u001b[39m   \u001b[36mawait\u001b[39m expect(blue)\u001b[33m.\u001b[39mtoHaveAttribute(\u001b[32m'aria-pressed'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'true'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 115 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'canvas'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mscrollIntoViewIfNeeded()\u001b[33m;\u001b[39m\n \u001b[90m 116 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForTimeout(\u001b[35m1500\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 117 |\u001b[39m   \u001b[36mconst\u001b[39m colored \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m imagen(page)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                        "column": 22,
+                        "line": 114
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Color Azul', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  45000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Color Azul', exact: true })\u001b[22m\n\u001b[2m    17 × locator resolved to <button title=\"Azul\" type=\"button\" aria-label=\"Color Azul\" class=\"h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md\"></button>\u001b[22m\n\u001b[2m       - unexpected value \"null\"\u001b[22m\n\n\n  112 |   const blue = page.getByRole('button', { name: 'Color Azul', exact: true });\n  113 |   await blue.click();\n> 114 |   await expect(blue).toHaveAttribute('aria-pressed', 'true');\n      |                      ^\n  115 |   await page.locator('canvas').first().scrollIntoViewIfNeeded();\n  116 |   await page.waitForTimeout(1500);\n  117 |   const colored = await imagen(page);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:114:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-12T13:50:38.638Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa106-3d-artifacts\\salon-3d-ayuda-recorrido-L-338e5-ados-cambian-la-escena-real-chromium-mobile\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                    "column": 22,
+                    "line": 114
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1a67a0ee506ededd0d86-3d56232abc94634aaf47",
+          "file": "salon-3d-ayuda-recorrido.spec.ts",
+          "line": 109,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-12T13:49:05.120Z",
+    "duration": 197580.497,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

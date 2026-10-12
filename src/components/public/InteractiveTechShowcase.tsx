@@ -33,9 +33,9 @@ export interface TechStationItem {
   badge: string;
   tagline: string;
   description: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   highlights: string[];
-  features: { icon: React.ElementType; title: string; desc: string }[];
+  features: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; title: string; desc: string }[];
   color: string;
   ctaText: string;
 }

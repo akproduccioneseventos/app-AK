@@ -1,0 +1,21 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "48829bfde9e419903944b60f8b4f26fe86dc1415",
+  "applicationSourceSha": "48829bfde9e419903944b60f8b4f26fe86dc1415",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\docs\\evidencias\\106-unit.json",
+    "--runTestsByPath",
+    "src/__tests__/dependencias-multipart-mapas-regresion.test.ts"
+  ],
+  "launcher": 4056,
+  "child": 15204,
+  "started": "2026-10-12T12:39:27.451Z",
+  "status": "finished",
+  "finished": "2026-10-12T12:39:34.737Z",
+  "exitCode": 1
+}

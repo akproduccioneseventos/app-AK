@@ -1,0 +1,33 @@
+{
+  "ids": [
+    "e2e_101_scope_17868_1791728571121_a",
+    "e2e_101_scope_17868_1791728571121_b"
+  ],
+  "actual": "QA101_ACTUAL_e2e_101_scope_17868_1791728571121",
+  "ajena": "QA101_AJENA_e2e_101_scope_17868_1791728571121",
+  "request": {
+    "message": "Qué le falta a ESTA fiesta, sonda alcance e2e_101_scope_17868_1791728571121",
+    "history": [
+      {
+        "role": "user",
+        "content": "Qué le falta a ESTA fiesta, sonda alcance e2e_101_scope_17868_1791728571121"
+      }
+    ],
+    "pathname": "/fiestas/nueva/tareas",
+    "fiestaId": "e2e_101_scope_17868_1791728571121_a",
+    "agentType": "fiesta"
+  },
+  "result": {
+    "success": true,
+    "response": "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.\n\nLo más importante ahora:\n1. [MEDIA] QA101_ACTUAL_e2e_101_scope_17868_1791728571121: falta Tareas internas: 3 pendiente(s) de 5.\n\n→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta.",
+    "agentType": "fiesta",
+    "agentName": "Agente \"QA101_ACTUAL_e2e_101_scope_17868_1791728571121\"",
+    "action": {
+      "type": "none"
+    },
+    "modoRespaldo": true,
+    "error": "Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA101 controlled provider outage; no outbound request",
+    "sessionId": "chat_1791728585270_tv9fbj",
+    "savedChat": true
+  }
+}

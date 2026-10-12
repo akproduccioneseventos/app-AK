@@ -1,0 +1,61 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:36:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+[2/8] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+  1) [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+
+    Error: Pausar detiene el giro automatico
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 0.01
+    Received:   0.0939670138888889
+
+      74 |   await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused }), contentType: 'application/json' });
+      75 |   // OrbitControls frena con amortiguacion: se tolera antialias, no un giro sostenido.
+    > 76 |   expect(paused, 'Pausar detiene el giro automatico').toBeLessThan(0.01);
+         |                                                       ^
+      77 |   expect(paused).toBeLessThan(rotating / 10);
+      78 |   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');
+      79 | });
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:76:55
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-desktop\error-context.md
+
+
+[3/8] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[4/8] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+[5/8] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:36:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+[6/8] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+  2) [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+
+    Error: Pausar detiene el giro automatico
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 0.01
+    Received:   0.05154079861111111
+
+      74 |   await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused }), contentType: 'application/json' });
+      75 |   // OrbitControls frena con amortiguacion: se tolera antialias, no un giro sostenido.
+    > 76 |   expect(paused, 'Pausar detiene el giro automatico').toBeLessThan(0.01);
+         |                                                       ^
+      77 |   expect(paused).toBeLessThan(rotating / 10);
+      78 |   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');
+      79 | });
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:76:55
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-mobile\error-context.md
+
+
+[7/8] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[8/8] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+  2 failed
+    [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+    [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+  6 passed (4.1m)

@@ -1,0 +1,15 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "b7206bc77917c8b5f31e01b4a024ed8a4a02f8ce",
+  "applicationSourceSha": "b7206bc77917c8b5f31e01b4a024ed8a4a02f8ce",
+  "mode": "build",
+  "args": [
+    "scripts/build-next-with-memory.mjs"
+  ],
+  "launcher": 13460,
+  "child": 14252,
+  "started": "2026-10-12T13:22:21.647Z",
+  "status": "finished",
+  "finished": "2026-10-12T13:31:39.090Z",
+  "exitCode": 0
+}

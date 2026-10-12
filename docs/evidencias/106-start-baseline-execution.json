@@ -1,0 +1,18 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "48829bfde9e419903944b60f8b4f26fe86dc1415",
+  "applicationSourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "mode": "start-baseline",
+  "args": [
+    "node_modules/next/dist/bin/next",
+    "start",
+    "--hostname",
+    "127.0.0.1",
+    "--port",
+    "3300"
+  ],
+  "launcher": 8604,
+  "child": 15252,
+  "started": "2026-10-12T12:36:15.437Z",
+  "status": "running"
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Mural painted without CSS override: approved photo",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 64096,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.ak-live-stage img.object-contain[src*=\"barra-tragos-ak-01\"]').first()\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ak-live-stage img.object-contain[src*=\"barra-tragos-ak-01\"]').first()\u001b[22m\n\n\n  21 |     expect((await page.goto('/evento/muro-en-vivo/'+id,{waitUntil:'domcontentloaded'}))?.status()).toBe(200);\n  22 |     const content=withPhoto?page.locator('.ak-live-stage img.object-contain[src*=\"barra-tragos-ak-01\"]').first():page.getByTestId('live-wall-empty');\n> 23 |     await expect(content).toBeVisible({timeout:60000});await page.waitForTimeout(4000);\n     |                           ^\n  24 |     const measure=await page.evaluate(({withPhoto})=>{\n  25 |       const root=document.querySelector('.ak-live-stage'),content=withPhoto?document.querySelector('.ak-live-stage img.object-contain[src*=\"barra-tragos-ak-01\"]'):document.querySelector('[data-testid=\"live-wall-empty\"]');\n  26 |       let panel=content;while(panel&&panel.parentElement!==root)panel=panel.parentElement;\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-mural.spec.ts:23:27"
+    ],
+    "attachments": [
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/101-artifactos/101-mural-selector-primer-00-0.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-mural-selector-primer-00-1.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-mural-selector-primer-00-2.txt"
+      }
+    ]
+  },
+  {
+    "title": "Mural painted without CSS override: approved photo",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 24953,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mural-measured.json",
+        "file": "docs/evidencias/101-artifactos/101-mural-selector-primer-01-0.json"
+      },
+      {
+        "name": "mural-painted.png",
+        "file": "docs/evidencias/101-artifactos/101-mural-selector-primer-01-1.png"
+      }
+    ]
+  }
+]

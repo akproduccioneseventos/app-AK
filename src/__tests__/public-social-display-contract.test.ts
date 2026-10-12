@@ -23,9 +23,9 @@ describe('public social display contract', () => {
     expect(liveWallPage).toContain('getPublicSocialEvent');
     expect(liveWallPage).toContain('getPublicSocialPosts');
     expect(liveWallPage).toContain("document.visibilityState !== 'visible'");
-    expect(liveWallPage).toContain('pollingRef.current');
-    expect(liveWallPage).toContain('waitForInitialPublicLoad(fetchData(true))');
-    expect(liveWallPage).toContain('withPublicRequestTimeout(requestTask)');
+    expect(liveWallPage).toContain('requestsInFlightRef.current');
+    expect(liveWallPage).toContain('waitForInitialPublicLoad(fetchDataRef.current?.(true)');
+    expect(liveWallPage).toContain('withPublicRequestTimeout(primaryTask)');
     expect(liveWallPage).toContain('void requestTask.finally(() => {');
     expect(liveWallPage).toContain('prefers-reduced-motion');
     expect(liveWallPage).toContain('data-testid="live-wall-empty"');

@@ -1,0 +1,89 @@
+{
+  "sourceSha": "a6d2086109e0e1a113307fde23674471f62bc377",
+  "stats": {
+    "startTime": "2026-10-11T19:39:47.377Z",
+    "duration": 28496.327,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "A genuinely missing portal still says not found",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 3006,
+      "errors": [],
+      "files": [
+        {
+          "name": "missing-portal.png",
+          "path": "104-artifactos/104-portal-000.png"
+        }
+      ]
+    },
+    {
+      "title": "Existing client portal distinguishes a read outage and recovers without losing data",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 8330,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-read-outage.json",
+          "path": "104-artifactos/104-portal-001.json"
+        },
+        {
+          "name": "actual-read-outage.png",
+          "path": "104-artifactos/104-portal-002.png"
+        },
+        {
+          "name": "after-recovery.json",
+          "path": "104-artifactos/104-portal-003.json"
+        },
+        {
+          "name": "after-recovery.png",
+          "path": "104-artifactos/104-portal-004.png"
+        }
+      ]
+    },
+    {
+      "title": "A genuinely missing portal still says not found",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 1666,
+      "errors": [],
+      "files": [
+        {
+          "name": "missing-portal.png",
+          "path": "104-artifactos/104-portal-005.png"
+        }
+      ]
+    },
+    {
+      "title": "Existing client portal distinguishes a read outage and recovers without losing data",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 9353,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-read-outage.json",
+          "path": "104-artifactos/104-portal-006.json"
+        },
+        {
+          "name": "actual-read-outage.png",
+          "path": "104-artifactos/104-portal-007.png"
+        },
+        {
+          "name": "after-recovery.json",
+          "path": "104-artifactos/104-portal-008.json"
+        },
+        {
+          "name": "after-recovery.png",
+          "path": "104-artifactos/104-portal-009.png"
+        }
+      ]
+    }
+  ]
+}

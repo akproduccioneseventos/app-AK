@@ -15,7 +15,7 @@ interface TestimonialsCarouselProps {
 
 const sourceConfig: Record<
   Testimonial['source'],
-  { label: string; Icon: React.ElementType; colorClass: string }
+  { label: string; Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; colorClass: string }
 > = {
   instagram: {
     label: 'Instagram',

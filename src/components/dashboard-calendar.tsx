@@ -4,9 +4,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar, type CalendarProps } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { es } from 'date-fns/locale';
+import { es } from 'react-day-picker/locale';
 
-interface DashboardCalendarProps extends Omit<CalendarProps, 'mode' | 'selected' | 'onSelect'> {
+interface DashboardCalendarProps extends Omit<Extract<CalendarProps, { mode: 'single'; required?: false }>, 'mode' | 'selected' | 'onSelect'> {
   occupiedDates?: Date[];
   selected?: Date;
   onSelect?: (date: Date | undefined) => void;
@@ -51,14 +51,14 @@ export function DashboardCalendar({ occupiedDates = [], ...props }: DashboardCal
       modifiers={modifiers}
       modifiersStyles={modifiersStyles}
       locale={es}
-      className="p-0 rounded-md border shadow-sm mx-auto"
+      className="p-0 [--calendar-padding:0px] rounded-md border shadow-sm mx-auto"
       classNames={{
         caption_label: "text-base font-medium",
-        head_cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm",
-        cell: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm",
-        day: "w-8 h-8 sm:w-9 sm:h-9",
-        day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
+        weekday: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm",
+        day: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm",
+        day_button: "w-8 h-8 sm:w-9 sm:h-9",
+        selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+        today: "bg-accent text-accent-foreground",
       }}
       {...props}
     />

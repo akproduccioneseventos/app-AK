@@ -1,0 +1,12 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium-desktop] › tests\e2e\103-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: original94
+[2/8] [chromium-desktop] › tests\e2e\103-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: short
+[3/8] [chromium-desktop] › tests\e2e\103-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: uuid
+[4/8] [chromium-desktop] › tests\e2e\103-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: production-shaped
+[5/8] [chromium-mobile] › tests\e2e\103-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: original94
+[6/8] [chromium-mobile] › tests\e2e\103-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: short
+[7/8] [chromium-mobile] › tests\e2e\103-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: uuid
+[8/8] [chromium-mobile] › tests\e2e\103-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: production-shaped
+  8 passed (2.1m)

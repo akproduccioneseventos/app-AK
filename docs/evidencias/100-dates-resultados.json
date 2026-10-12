@@ -1,0 +1,72 @@
+[
+  {
+    "title": "Budget wizard warns instead of silently assuming no occupied dates",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 86386,
+    "errors": [
+      "Error: reader failure must reach the existing warning in the wizard\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\n  35 |     expect((await ref.get()).data()).toEqual(before);\n  36 |     await info.attach('dates-recovered.png',{body:await page.screenshot(),contentType:'image/png'});\n> 37 |     expect(warning,'reader failure must reach the existing warning in the wizard').toBe(1);\n     |                                                                                    ^\n  38 |   }finally{clear();await ref.delete();borrarFiesta(id);}\n  39 | });\n  40 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100\\tests\\e2e\\100-calendario-reader.spec.ts:37:84"
+    ],
+    "attachments": [
+      {
+        "name": "dates-outage.json",
+        "file": "docs/evidencias/100-artifactos/100-dates-00-0.json"
+      },
+      {
+        "name": "dates-outage.png",
+        "file": "docs/evidencias/100-artifactos/100-dates-00-1.png"
+      },
+      {
+        "name": "dates-recovered.png",
+        "file": "docs/evidencias/100-artifactos/100-dates-00-2.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/100-artifactos/100-dates-00-3.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/100-artifactos/100-dates-00-4.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/100-artifactos/100-dates-00-5.txt"
+      }
+    ]
+  },
+  {
+    "title": "Budget wizard warns instead of silently assuming no occupied dates",
+    "project": "chromium-mobile",
+    "status": "failed",
+    "duration": 53914,
+    "errors": [
+      "Error: reader failure must reach the existing warning in the wizard\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\n  35 |     expect((await ref.get()).data()).toEqual(before);\n  36 |     await info.attach('dates-recovered.png',{body:await page.screenshot(),contentType:'image/png'});\n> 37 |     expect(warning,'reader failure must reach the existing warning in the wizard').toBe(1);\n     |                                                                                    ^\n  38 |   }finally{clear();await ref.delete();borrarFiesta(id);}\n  39 | });\n  40 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100\\tests\\e2e\\100-calendario-reader.spec.ts:37:84"
+    ],
+    "attachments": [
+      {
+        "name": "dates-outage.json",
+        "file": "docs/evidencias/100-artifactos/100-dates-01-0.json"
+      },
+      {
+        "name": "dates-outage.png",
+        "file": "docs/evidencias/100-artifactos/100-dates-01-1.png"
+      },
+      {
+        "name": "dates-recovered.png",
+        "file": "docs/evidencias/100-artifactos/100-dates-01-2.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/100-artifactos/100-dates-01-3.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/100-artifactos/100-dates-01-4.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/100-artifactos/100-dates-01-5.txt"
+      }
+    ]
+  }
+]

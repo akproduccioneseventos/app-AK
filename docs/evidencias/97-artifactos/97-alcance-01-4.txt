@@ -1,0 +1,128 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: 97-ia.spec.ts >> respaldo de ESTA fiesta no mezcla otro evento
+- Location: tests\e2e\97-ia.spec.ts:63:5
+
+# Error details
+
+```
+Error: expect(received).not.toContain(expected) // indexOf
+
+Expected substring: not "QA97_AJENA_e2e_97_scope_17456_1791689179040"
+Received string:        "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.
+
+Lo más importante ahora:
+1. [ALTA] QA97_AJENA_e2e_97_scope_17456_1791689179040: cierre post-fiesta: Ya pasó hace 3 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.
+2. [ALTA] QA97_AJENA_e2e_97_scope_17456_1791689179040: oportunidad post-fiesta: Pasaron 3 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.
+3. [MEDIA] QA97_ACTUAL_e2e_97_scope_17456_1791689179040: falta Tareas internas: 3 pendiente(s) de 5.
+4. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.
+
+→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta."
+```
+
+# Test source
+
+```ts
+  1  | // @ts-nocheck -- Actual widget/API/storage; provider locally unavailable, no model output stub.
+  2  | import fs from 'node:fs';
+  3  | import path from 'node:path';
+  4  | import admin from 'firebase-admin';
+  5  | import {test,expect} from '@playwright/test';
+  6  | import {crearFiestaDeEstaNoche,guardarFiesta,borrarFiesta,ponerSesionDelEquipo} from './helpers/fiesta-de-prueba';
+  7  | if(process.env.AK_ENTORNO_AISLADO!=='true'||path.basename(process.cwd())!=='ak-entorno-aislado-97'||process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('Demo97 only');
+  8  | const app=admin.initializeApp({projectId:'demo-ak-producciones'},'qa97-'+process.pid),db=app.firestore();
+  9  | db.settings({ignoreUndefinedProperties:true});test.afterAll(async()=>app.delete());
+  10 | test('IA caida no inventa tarea; historial por fiesta persiste en UI y SDK',async({page,context,baseURL},info)=>{
+  11 |   test.setTimeout(240000);
+  12 |   const prefix='e2e_97_'+process.pid+'_'+Date.now(),ids=[prefix+'_a',prefix+'_b'];
+  13 |   const fixtures=ids.map(id=>crearFiestaDeEstaNoche({id}));
+  14 |   const observations=[];
+  15 |   const chatsRef=db.collection('multiagent').doc('chats');
+  16 |   const preguntas=ids.map((id,i)=>'Cre\u00e1 una tarea para confirmar men\u00fa, sonda IA97_'+(i?'B':'A')+' '+id);
+  17 |   try{
+  18 |     for(const fiesta of fixtures){guardarFiesta(fiesta);await db.collection('fiestas').doc(fiesta.id).set(JSON.parse(JSON.stringify(fiesta)));}
+  19 |     await ponerSesionDelEquipo(context,baseURL);
+  20 |     for(const [i,id] of ids.entries()){
+  21 |       const before=(await db.collection('fiestas').doc(id).get()).data();
+  22 |       await page.goto('/fiestas/nueva/tareas?fiestaId='+id,{waitUntil:'domcontentloaded'});
+  23 |       await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();
+  24 |       const input=page.getByPlaceholder(/Hablar con/);await expect(input).toBeVisible();
+  25 |       if(i)await expect(page.getByText(preguntas[0],{exact:true})).toHaveCount(0);
+  26 |       await input.fill(preguntas[i]);
+  27 |       const pending=page.waitForResponse(r=>r.url().endsWith('/api/multiagent/message')&&r.request().method()==='POST',{timeout:120000});
+  28 |       await page.getByTitle('Enviar',{exact:true}).click();const response=await pending;
+  29 |       const result=await response.json();
+  30 |       const after=(await db.collection('fiestas').doc(id).get()).data();
+  31 |       const saved=(await chatsRef.get()).data();const sessions=(saved?._data??saved)?.sessions||[];
+  32 |       const session=sessions.find(s=>s.fiestaId===id&&s.messages.some(m=>m.content===preguntas[i]));
+  33 |       observations.push({id,status:response.status(),result,beforeTasks:before?.tareas,afterTasks:after?.tareas,session});
+  34 |       expect(response.status()).toBe(200);expect(result.response).toContain('La IA no est\u00e1 respondiendo ahora; esto es un resumen autom\u00e1tico de tus datos.');
+  35 |       expect(result.action?.type??'none').toBe('none');expect(after?.tareas).toEqual(before?.tareas);
+  36 |       expect(session).toBeTruthy();expect(session.messages.filter(m=>m.role==='user'&&m.content===preguntas[i])).toHaveLength(1);
+  37 |       expect(session.messages.filter(m=>m.role==='assistant')).toHaveLength(1);
+  38 |       await expect(page.getByText(/La IA no est\u00e1 respondiendo ahora;/)).toBeVisible();
+  39 |       await expect(page.getByText(/Tarea creada al toque/)).toHaveCount(0);
+  40 |       await page.reload({waitUntil:'domcontentloaded'});
+  41 |       await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();
+  42 |       await expect(page.getByText(preguntas[i],{exact:true})).toBeVisible();
+  43 |       if(i)await expect(page.getByText(preguntas[0],{exact:true})).toHaveCount(0);
+  44 |     }
+  45 |     await page.goto('/fiestas/nueva/tareas?fiestaId='+ids[0],{waitUntil:'domcontentloaded'});
+  46 |     await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();
+  47 |     await expect(page.getByText(preguntas[0],{exact:true})).toBeVisible();
+  48 |     await expect(page.getByText(preguntas[1],{exact:true})).toHaveCount(0);
+  49 |     await info.attach('ia-final.png',{body:await page.screenshot(),contentType:'image/png'});
+  50 |   }finally{
+  51 |     await info.attach('ia-servidor-sdk.json',{body:JSON.stringify(observations,null,2),contentType:'application/json'});
+  52 |     for(const id of ids){await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}
+  53 |     for(const c of ['multiagent','json_documents'])for(const doc of (await db.collection(c).get()).docs){
+  54 |       const data=doc.data(),state=data._data??data;
+  55 |       if(Array.isArray(state.sessions)){
+  56 |         const filtered=state.sessions.filter(s=>!ids.includes(s.fiestaId));
+  57 |         if(filtered.length!==state.sessions.length)await doc.ref.set(data._data?{...data,_data:{...state,sessions:filtered}}:{...data,sessions:filtered});
+  58 |       }
+  59 |     }
+  60 |   }
+  61 | });
+  62 |
+  63 | test('respaldo de ESTA fiesta no mezcla otro evento',async({page,context,baseURL},info)=>{
+  64 |   test.setTimeout(120000);
+  65 |   const prefix='e2e_97_scope_'+process.pid+'_'+Date.now(),ids=[prefix+'_a',prefix+'_b'];
+  66 |   const fixtures=ids.map(id=>crearFiestaDeEstaNoche({id}));
+  67 |   fixtures[0].configuracion.nombreEvento='QA97_ACTUAL_'+prefix;
+  68 |   fixtures[0].configuracion.fechaEvento='2099-10-11';
+  69 |   fixtures[1].configuracion.nombreEvento='QA97_AJENA_'+prefix;
+  70 |   fixtures[1].configuracion.fechaEvento='2026-10-09';
+  71 |   let observation;
+  72 |   try{
+  73 |     for(const f of fixtures){guardarFiesta(f);await db.collection('fiestas').doc(f.id).set(JSON.parse(JSON.stringify(f)));}
+  74 |     await ponerSesionDelEquipo(context,baseURL);
+  75 |     await page.goto('/fiestas/nueva/tareas?fiestaId='+ids[0],{waitUntil:'domcontentloaded'});
+  76 |     await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();
+  77 |     await page.getByPlaceholder(/Hablar con/).fill('Qu\u00e9 le falta a ESTA fiesta, sonda alcance '+prefix);
+  78 |     const pending=page.waitForResponse(r=>r.url().endsWith('/api/multiagent/message')&&r.request().method()==='POST',{timeout:90000});
+  79 |     await page.getByTitle('Enviar',{exact:true}).click();const response=await pending;
+  80 |     const result=await response.json(),request=response.request().postDataJSON();
+  81 |     observation={ids,actual:fixtures[0].configuracion.nombreEvento,ajena:fixtures[1].configuracion.nombreEvento,request,result};
+  82 |     await info.attach('alcance-real.json',{body:JSON.stringify(observation,null,2),contentType:'application/json'});
+  83 |     await info.attach('alcance-real.png',{body:await page.screenshot(),contentType:'image/png'});
+  84 |     expect(request.fiestaId).toBe(ids[0]);expect(result.agentType).toBe('fiesta');
+  85 |     expect(result.response).toContain('La IA no est\u00e1 respondiendo ahora;');
+> 86 |     expect(result.response).not.toContain(fixtures[1].configuracion.nombreEvento);
+     |                                 ^ Error: expect(received).not.toContain(expected) // indexOf
+  87 |   }finally{
+  88 |     for(const id of ids){await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}
+  89 |     const ref=db.collection('multiagent').doc('chats'),doc=await ref.get();
+  90 |     if(doc.exists){const data=doc.data(),state=data._data??data;
+  91 |       const sessions=(state.sessions||[]).filter(s=>!ids.includes(s.fiestaId));
+  92 |       await ref.set(data._data?{...data,_data:{...state,sessions}}:{...data,sessions});}
+  93 |   }
+  94 | });
+  95 |
+```

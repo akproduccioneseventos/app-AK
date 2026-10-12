@@ -1,0 +1,18 @@
+[
+  {
+    "title": "A genuinely missing portal still says not found",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "file": "100-artifactos/100-missing-chromium-desktop.png",
+    "source": "100-browser-setup-primer.json",
+    "attachment": "missing-portal.png"
+  },
+  {
+    "title": "A genuinely missing portal still says not found",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "file": "100-artifactos/100-missing-chromium-mobile.png",
+    "source": "100-browser-setup-primer.json",
+    "attachment": "missing-portal.png"
+  }
+]

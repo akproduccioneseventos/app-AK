@@ -1,0 +1,54 @@
+{
+  "stats": {
+    "startTime": "2026-10-11T18:11:31.710Z",
+    "duration": 29364.105000000003,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "Budget wizard warns instead of silently assuming no occupied dates",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 10378,
+      "errors": [],
+      "files": [
+        {
+          "name": "dates-outage.json",
+          "path": "103-artifactos/103-dates-000.json"
+        },
+        {
+          "name": "dates-outage.png",
+          "path": "103-artifactos/103-dates-001.png"
+        },
+        {
+          "name": "dates-recovered.png",
+          "path": "103-artifactos/103-dates-002.png"
+        }
+      ]
+    },
+    {
+      "title": "Budget wizard warns instead of silently assuming no occupied dates",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 12939,
+      "errors": [],
+      "files": [
+        {
+          "name": "dates-outage.json",
+          "path": "103-artifactos/103-dates-003.json"
+        },
+        {
+          "name": "dates-outage.png",
+          "path": "103-artifactos/103-dates-004.png"
+        },
+        {
+          "name": "dates-recovered.png",
+          "path": "103-artifactos/103-dates-005.png"
+        }
+      ]
+    }
+  ]
+}

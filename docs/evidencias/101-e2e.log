@@ -1,0 +1,37 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\101-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+  1) [chromium-desktop] › tests\e2e\101-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.waitForResponse: Test timeout of 120000ms exceeded.
+
+      76 |     await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();
+      77 |     await page.getByPlaceholder(/Hablar con/).fill('Qu\u00e9 le falta a ESTA fiesta, sonda alcance '+prefix);
+    > 78 |     const pending=page.waitForResponse(r=>r.url().endsWith('/api/multiagent/message')&&r.request().method()==='POST',{timeout:90000});
+         |                        ^
+      79 |     await page.getByTitle('Enviar',{exact:true}).click();const response=await pending;
+      80 |     const result=await response.json(),request=response.request().postDataJSON();
+      81 |     observation={ids,actual:fixtures[0].configuracion.nombreEvento,ajena:fixtures[1].configuracion.nombreEvento,request,result};
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\tests\e2e\101-ia.spec.ts:78:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa101-e2e-artifacts\101-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa101-e2e-artifacts\101-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-desktop\error-context.md
+
+    Error Context: qa101-e2e-artifacts\101-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-mobile] › tests\e2e\101-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+  1 failed
+    [chromium-desktop] › tests\e2e\101-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+  1 passed (2.4m)
+
+Running 1 test using 1 worker
+
+[1/1] [chromium-desktop] › tests\e2e\101-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+  1 passed (20.3s)

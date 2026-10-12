@@ -1,0 +1,124 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+  1) [chromium-desktop] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+
+    Error: main visible region has space
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 200
+    Received:   80
+
+      41 |     await info.attach('wall-later.json',{body:JSON.stringify({...later,errors},null,2),contentType:'application/json'});
+      42 |     await info.attach('wall-later.png',{body:await page.screenshot(),contentType:'image/png'});
+    > 43 |     expect(later.section.height,'main visible region has space').toBeGreaterThan(200);
+         |                                                                  ^
+      44 |     expect(later.titleReceivesPoint,'message is painted in front, not clipped by an ancestor').toBe(true);
+      45 |   } finally { await db.collection('fiestas').doc(id).delete(); borrarFiesta(id); }
+      46 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-98\tests\e2e\98-mural-visual.spec.ts:43:66
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-desktop\error-context.md
+
+    Error Context: qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-mobile] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+  2) [chromium-mobile] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+
+    Error: main visible region has space
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 200
+    Received:   80
+
+      41 |     await info.attach('wall-later.json',{body:JSON.stringify({...later,errors},null,2),contentType:'application/json'});
+      42 |     await info.attach('wall-later.png',{body:await page.screenshot(),contentType:'image/png'});
+    > 43 |     expect(later.section.height,'main visible region has space').toBeGreaterThan(200);
+         |                                                                  ^
+      44 |     expect(later.titleReceivesPoint,'message is painted in front, not clipped by an ancestor').toBe(true);
+      45 |   } finally { await db.collection('fiestas').doc(id).delete(); borrarFiesta(id); }
+      46 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-98\tests\e2e\98-mural-visual.spec.ts:43:66
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-mobile\error-context.md
+
+    Error Context: qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+    [chromium-mobile] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+  1) [chromium-desktop] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+
+    Error: main visible region has space
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 200
+    Received:   80
+
+      49 |     expect(control.section.height,'control restoring only fixed position has room').toBeGreaterThan(200);
+      50 |     expect(control.titleReceivesPoint,'same page, same data; one positioning override').toBe(true);
+    > 51 |     expect(later.section.height,'main visible region has space').toBeGreaterThan(200);
+         |                                                                  ^
+      52 |     expect(later.titleReceivesPoint,'message is painted in front, not clipped by an ancestor').toBe(true);
+      53 |   } finally { await db.collection('fiestas').doc(id).delete(); borrarFiesta(id); }
+      54 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-98\tests\e2e\98-mural-visual.spec.ts:51:66
+
+    attachment #7: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-desktop\error-context.md
+
+    Error Context: qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-mobile] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+  2) [chromium-mobile] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+
+    Error: main visible region has space
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 200
+    Received:   80
+
+      49 |     expect(control.section.height,'control restoring only fixed position has room').toBeGreaterThan(200);
+      50 |     expect(control.titleReceivesPoint,'same page, same data; one positioning override').toBe(true);
+    > 51 |     expect(later.section.height,'main visible region has space').toBeGreaterThan(200);
+         |                                                                  ^
+      52 |     expect(later.titleReceivesPoint,'message is painted in front, not clipped by an ancestor').toBe(true);
+      53 |   } finally { await db.collection('fiestas').doc(id).delete(); borrarFiesta(id); }
+      54 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-98\tests\e2e\98-mural-visual.spec.ts:51:66
+
+    attachment #7: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-mobile\error-context.md
+
+    Error Context: qa98-visual-artifacts\98-mural-visual-Empty-mura-28a34-tling-not-just-DOM-presence-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence
+    [chromium-mobile] › tests\e2e\98-mural-visual.spec.ts:13:5 › Empty mural paints its message after settling, not just DOM presence

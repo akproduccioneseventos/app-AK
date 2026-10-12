@@ -1,0 +1,18 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium-desktop] › tests\e2e\98-estaciones-retest.spec.ts:77:58 › Touchpix camera native
+[2/8] [chromium-desktop] › tests\e2e\98-estaciones-retest.spec.ts:77:58 › Touchpix camera colors
+[3/8] [chromium-desktop] › tests\e2e\98-estaciones-retest.spec.ts:77:58 › Touchpix camera no-frame
+[4/8] [chromium-desktop] › tests\e2e\98-estaciones-retest.spec.ts:114:5 › Mirror failed image review creates one pending post and truthful notice
+[5/8] [chromium-mobile] › tests\e2e\98-estaciones-retest.spec.ts:77:58 › Touchpix camera native
+[6/8] [chromium-mobile] › tests\e2e\98-estaciones-retest.spec.ts:77:58 › Touchpix camera colors
+[7/8] [chromium-mobile] › tests\e2e\98-estaciones-retest.spec.ts:77:58 › Touchpix camera no-frame
+[8/8] [chromium-mobile] › tests\e2e\98-estaciones-retest.spec.ts:114:5 › Mirror failed image review creates one pending post and truthful notice
+  8 passed (3.2m)
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\98-estaciones-retest.spec.ts:114:5 › Mirror failed image review creates one pending post and truthful notice
+[2/2] [chromium-mobile] › tests\e2e\98-estaciones-retest.spec.ts:114:5 › Mirror failed image review creates one pending post and truthful notice
+  2 passed (1.2m)

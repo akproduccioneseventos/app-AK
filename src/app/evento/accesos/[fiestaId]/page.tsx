@@ -159,8 +159,11 @@ function AccessControlContent() {
         if (desmontadoRef.current) return;
         setHasCameraPermission(true);
         if (!scannerRef.current) {
-          const { Html5QrcodeScanner } = await import('html5-qrcode');
+          const { Html5QrcodeScanner, Html5Qrcode } = await import('html5-qrcode');
           if (scannerRef.current || desmontadoRef.current) return;
+          const { habilitarReintentoQrGirado } = await import('@/lib/qr/lectura-archivo-con-rotaciones');
+          if (scannerRef.current || desmontadoRef.current) return;
+          habilitarReintentoQrGirado(Html5Qrcode);
           const scanner = new Html5QrcodeScanner(
             'qr-acceso-reader',
             { fps: 15, qrbox: { width: 260, height: 260 }, rememberLastUsedCamera: true },

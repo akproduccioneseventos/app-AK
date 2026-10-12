@@ -1,0 +1,14 @@
+
+Running 10 tests using 1 worker
+
+[1/10] [chromium-desktop] › tests\e2e\105-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+[2/10] [chromium-desktop] › tests\e2e\105-mural.spec.ts:10:41 › Mural painted without CSS override: genuine empty
+[3/10] [chromium-desktop] › tests\e2e\105-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+[4/10] [chromium-desktop] › tests\e2e\105-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[5/10] [chromium-desktop] › tests\e2e\105-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+[6/10] [chromium-mobile] › tests\e2e\105-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+[7/10] [chromium-mobile] › tests\e2e\105-mural.spec.ts:10:41 › Mural painted without CSS override: genuine empty
+[8/10] [chromium-mobile] › tests\e2e\105-mural.spec.ts:10:41 › Mural painted without CSS override: approved photo
+[9/10] [chromium-mobile] › tests\e2e\105-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[10/10] [chromium-mobile] › tests\e2e\105-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  10 passed (1.5m)

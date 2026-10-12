@@ -1,0 +1,98 @@
+[
+  {
+    "title": "Mural painted without CSS override: genuine empty",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 39389,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mural-measured.json",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-00-0.json"
+      },
+      {
+        "name": "mural-painted.png",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-00-1.png"
+      }
+    ]
+  },
+  {
+    "title": "Mural painted without CSS override: approved photo",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 18531,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  32 |     await info.attach('mural-painted.png',{body:await page.screenshot(),contentType:'image/png'});\n  33 |     expect(measure.position).toBe('fixed');expect(measure.root.h).toBeGreaterThanOrEqual(measure.viewport.h*0.9);expect(measure.panel.h).toBeGreaterThan(300);\n> 34 |     expect(measure.pointReceives).toBe(true);expect(errors).toEqual([]);\n     |                                   ^\n  35 |     if(withPhoto){expect(measure.natural).toBeGreaterThan(0);expect(Number(measure.opacity)).toBeGreaterThan(0);expect(Math.min(measure.content.x+measure.content.w,measure.viewport.w)-Math.max(0,measure.content.x)).toBeGreaterThan(50);expect(Math.min(measure.content.y+measure.content.h,measure.viewport.h)-Math.max(0,measure.content.y)).toBeGreaterThan(50);}\n  36 |   }finally{await post.delete();await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}\n  37 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-mural.spec.ts:34:35"
+    ],
+    "attachments": [
+      {
+        "name": "mural-measured.json",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-01-0.json"
+      },
+      {
+        "name": "mural-painted.png",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-01-1.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-01-2.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-01-3.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-01-4.txt"
+      }
+    ]
+  },
+  {
+    "title": "Mural painted without CSS override: genuine empty",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 14150,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mural-measured.json",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-02-0.json"
+      },
+      {
+        "name": "mural-painted.png",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-02-1.png"
+      }
+    ]
+  },
+  {
+    "title": "Mural painted without CSS override: approved photo",
+    "project": "chromium-mobile",
+    "status": "failed",
+    "duration": 34921,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  32 |     await info.attach('mural-painted.png',{body:await page.screenshot(),contentType:'image/png'});\n  33 |     expect(measure.position).toBe('fixed');expect(measure.root.h).toBeGreaterThanOrEqual(measure.viewport.h*0.9);expect(measure.panel.h).toBeGreaterThan(300);\n> 34 |     expect(measure.pointReceives).toBe(true);expect(errors).toEqual([]);\n     |                                   ^\n  35 |     if(withPhoto){expect(measure.natural).toBeGreaterThan(0);expect(Number(measure.opacity)).toBeGreaterThan(0);expect(Math.min(measure.content.x+measure.content.w,measure.viewport.w)-Math.max(0,measure.content.x)).toBeGreaterThan(50);expect(Math.min(measure.content.y+measure.content.h,measure.viewport.h)-Math.max(0,measure.content.y)).toBeGreaterThan(50);}\n  36 |   }finally{await post.delete();await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}\n  37 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-101\\tests\\e2e\\101-mural.spec.ts:34:35"
+    ],
+    "attachments": [
+      {
+        "name": "mural-measured.json",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-03-0.json"
+      },
+      {
+        "name": "mural-painted.png",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-03-1.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-03-2.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-03-3.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/101-artifactos/101-mural-primer-03-4.txt"
+      }
+    ]
+  }
+]

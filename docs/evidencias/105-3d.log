@@ -1,0 +1,8 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[2/4] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+[3/4] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[4/4] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+  4 passed (1.7m)

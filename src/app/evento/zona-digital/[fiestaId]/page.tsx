@@ -41,7 +41,7 @@ import {
 } from '@/lib/zona-digital-adolescentes';
 import { cn } from '@/lib/utils';
 
-const featureIcon: Record<string, React.ElementType> = {
+const featureIcon: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   muro_social: ImageIcon,
   retos: Trophy,
   juegos: Gamepad2,

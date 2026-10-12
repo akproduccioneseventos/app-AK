@@ -1,0 +1,21 @@
+
+> ak-producciones@0.1.0 graphify:update
+> uv tool run --from graphifyy graphify extract . --code-only && uv tool run --from graphifyy graphify cluster-only .
+
+[graphify extract] incremental scan of C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009
+[graphify extract] --code-only: skipping 2 non-code file(s) (2 docs, 0 papers, 0 images) — no LLM extraction
+[graphify extract] 1 code, 0 docs, 0 papers, 0 images changed; 2530 unchanged; 0 deleted
+[graphify extract] 151 file(s) not classified (no supported extension or shebang), skipped: .abacus.donotdelete, .env.example, .firebaserc, .git, .gitignore, .gitkeep (+145 more)
+[graphify extract] AST extraction on 1 code files...
+[graphify] backed up curated graph (5 files) -> 2026-10-11/
+[graphify extract] wrote C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009\graphify-out\graph.json: 13648 nodes, 42372 edges, 835 communities
+[graphify extract] wrote C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009\graphify-out\.graphify_analysis.json
+[graphify extract] incremental summary: 2530 files cached/unchanged, 1 re-extracted, 0 deleted
+[graphify extract] next: run `graphify cluster-only C:\Users\Usuario\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009` to generate GRAPH_REPORT.md and name communities
+[graphify] community set changed since labeling (824 saved labels, 832 communities now; renamed 774 community(ies) by their hub). Run `graphify label` to refresh names with the LLM.
+Loading existing graph...
+Graph: 13648 nodes, 42372 edges
+Re-clustering...
+[graphify] backed up curated graph (5 files) -> 2026-10-11/
+Skipped graph.html: Graph has 13648 nodes - too large for HTML viz (limit: 5000). Use --no-viz, raise GRAPHIFY_VIZ_NODE_LIMIT, or reduce input size.
+Done - 832 communities. GRAPH_REPORT.md and graph.json updated.

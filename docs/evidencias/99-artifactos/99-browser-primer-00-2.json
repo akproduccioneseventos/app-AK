@@ -1,0 +1,34 @@
+{
+  "id": "e2e_99_qr_corto_1791695355549",
+  "first": {
+    "id": "g99",
+    "nombre": "Invitado ficticio auditoria 99",
+    "rsvp": "Confirmado",
+    "categoria": "Adulto",
+    "partySize": 2,
+    "guestAccessToken": "qa99corto",
+    "checkedIn": true,
+    "invitacionAbiertaAt": "2026-10-11T05:10:07.653Z",
+    "checkInTimestamp": "2026-10-11T05:10:44.706Z"
+  },
+  "second": {
+    "id": "g99",
+    "nombre": "Invitado ficticio auditoria 99",
+    "rsvp": "Confirmado",
+    "categoria": "Adulto",
+    "partySize": 2,
+    "guestAccessToken": "qa99corto",
+    "checkedIn": true,
+    "invitacionAbiertaAt": "2026-10-11T05:10:07.653Z",
+    "checkInTimestamp": "2026-10-11T05:10:44.706Z"
+  },
+  "bytes": 14900,
+  "width": 234,
+  "height": 234,
+  "onScreen": {
+    "width": 170,
+    "height": 170
+  },
+  "border": 0,
+  "errors": []
+}

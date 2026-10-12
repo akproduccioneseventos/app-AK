@@ -1,0 +1,880 @@
+{
+  "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "checks": {
+    "types": {
+      "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+      "sha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "mode": "types",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--pretty",
+        "false"
+      ],
+      "launcher": 5416,
+      "child": 14312,
+      "started": "2026-10-12T13:55:20.563Z",
+      "status": "finished",
+      "finished": "2026-10-12T13:55:57.903Z",
+      "exitCode": 0
+    },
+    "acentos": {
+      "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+      "sha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "mode": "acentos",
+      "args": [
+        "scripts/check-acentos.mjs"
+      ],
+      "launcher": 14904,
+      "child": 3204,
+      "started": "2026-10-12T13:56:12.421Z",
+      "status": "finished",
+      "finished": "2026-10-12T13:56:14.275Z",
+      "exitCode": 0
+    },
+    "unit": {
+      "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+      "sha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "mode": "unit",
+      "args": [
+        "node_modules/jest/bin/jest",
+        "--runInBand",
+        "--silent",
+        "--json",
+        "--outputFile=C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\docs\\evidencias\\106-unit.json",
+        "--runTestsByPath",
+        "src/__tests__/dependencias-multipart-mapas-regresion.test.ts",
+        "src/__tests__/configurador-reunion-layout-real.test.tsx"
+      ],
+      "launcher": 15356,
+      "child": 16388,
+      "started": "2026-10-12T13:55:12.970Z",
+      "status": "finished",
+      "finished": "2026-10-12T13:55:19.793Z",
+      "exitCode": 0
+    },
+    "jest": {
+      "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+      "sha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "mode": "jest",
+      "args": [
+        "node_modules/jest/bin/jest",
+        "--runInBand",
+        "--silent",
+        "--json",
+        "--outputFile=C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\docs\\evidencias\\106-jest.json"
+      ],
+      "launcher": 17184,
+      "child": 18404,
+      "started": "2026-10-12T13:56:15.109Z",
+      "status": "finished",
+      "finished": "2026-10-12T14:01:41.157Z",
+      "exitCode": 0
+    },
+    "build": {
+      "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+      "sha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "mode": "build",
+      "args": [
+        "scripts/build-next-with-memory.mjs"
+      ],
+      "launcher": 16264,
+      "child": 18324,
+      "started": "2026-10-12T14:01:43.133Z",
+      "status": "finished",
+      "finished": "2026-10-12T14:11:43.517Z",
+      "exitCode": 0
+    }
+  },
+  "jest": {
+    "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+    "suites": 692,
+    "tests": 4139,
+    "passed": 4139,
+    "failed": 0,
+    "pending": 0,
+    "success": true,
+    "rawSha256": "61055213d6415405c8348b38136774f0cc5e712fe1e7ff954957895421436706",
+    "archiveSha256": "9cfba3ea0005887d31162084ccffe1104284b6015c9b21ebfaf91b7769a076dd"
+  },
+  "browser": {
+    "3d-baseline": {
+      "sourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+      "harnessSha": "48829bfde9e419903944b60f8b4f26fe86dc1415",
+      "stats": {
+        "startTime": "2026-10-12T12:36:41.739Z",
+        "duration": 73110.473,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "results": [
+        {
+          "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+          "project": "chromium-desktop",
+          "status": "failed",
+          "duration": 12653,
+          "errors": [
+            {
+              "location": {
+                "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                "column": 68,
+                "line": 29
+              },
+              "message": "Error: La ayuda no tapa la escena\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m265\u001b[39m\nReceived:    \u001b[31m732\u001b[39m\n\n  27 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });\n  28 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });\n> 29 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);\n     |                                                                    ^\n  30 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });\n  31 |   for (const button of await nav.getByRole('button').all()) {\n  32 |     await expect(button).toBeVisible();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:29:68"
+            }
+          ],
+          "files": [
+            {
+              "name": "ayuda-lienzo.json",
+              "file": "106-artifactos/106-3d-baseline-000.json",
+              "sha256": "326d1591f78775b93eb88cde4edcb9fb03ffa455ac87e9422a6de928057111d3"
+            },
+            {
+              "name": "ayuda-lienzo.png",
+              "file": "106-artifactos/106-3d-baseline-001.png",
+              "sha256": "36dedd355f7dd5a485a2845835f5ce2025f52eae2de4d0c3cd2fa21a85575694"
+            },
+            {
+              "name": "screenshot",
+              "file": "106-artifactos/106-3d-baseline-002.png",
+              "sha256": "b19be3ff8359787efa1652a7e72d17fcd67fb5808fb64b6bcd2271d91cd9403d"
+            },
+            {
+              "name": "error-context",
+              "file": "106-artifactos/106-3d-baseline-003.bin",
+              "sha256": "edb45959dcf66e0eda7e85be8a4995ba6d04d2e243e5898868750ed9e2a32b61"
+            }
+          ]
+        },
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "project": "chromium-desktop",
+          "status": "failed",
+          "duration": 13438,
+          "errors": [
+            {
+              "location": {
+                "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                "column": 80,
+                "line": 49
+              },
+              "message": "Error: Recorrer debe mover la camara, no solo su icono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  47 |   const moving = await imagen(page);\n  48 |   await info.attach('recorrido-automatico.json', { body: JSON.stringify({ changed: before !== moving }), contentType: 'application/json' });\n> 49 |   expect(moving !== before, 'Recorrer debe mover la camara, no solo su icono').toBe(true);\n     |                                                                                ^\n  50 |   const pause = page.getByRole('button', { name: 'Pausar recorrido', exact: true });\n  51 |   await expect(pause).toHaveAttribute('aria-pressed', 'true');\n  52 |   await pause.click();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:49:80"
+            }
+          ],
+          "files": [
+            {
+              "name": "recorrido-automatico.json",
+              "file": "106-artifactos/106-3d-baseline-004.json",
+              "sha256": "2c0ca167d4e8d6d2041b6228ebd0a017fb2b4792a74dbb88aea68d0d3f9dd3f0"
+            },
+            {
+              "name": "screenshot",
+              "file": "106-artifactos/106-3d-baseline-005.png",
+              "sha256": "c6ff37d1d7891097f784725f05a175291283520bd7176d9c6fc4687d8a4f1a36"
+            },
+            {
+              "name": "error-context",
+              "file": "106-artifactos/106-3d-baseline-006.bin",
+              "sha256": "e36b2738e67615e5a599e0873b865742972ec712ae835a3d80a7541bda97521f"
+            }
+          ]
+        },
+        {
+          "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+          "project": "chromium-mobile",
+          "status": "failed",
+          "duration": 19066,
+          "errors": [
+            {
+              "location": {
+                "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                "column": 68,
+                "line": 29
+              },
+              "message": "Error: La ayuda no tapa la escena\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m460\u001b[39m\nReceived:    \u001b[31m827\u001b[39m\n\n  27 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });\n  28 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });\n> 29 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);\n     |                                                                    ^\n  30 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });\n  31 |   for (const button of await nav.getByRole('button').all()) {\n  32 |     await expect(button).toBeVisible();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:29:68"
+            }
+          ],
+          "files": [
+            {
+              "name": "ayuda-lienzo.json",
+              "file": "106-artifactos/106-3d-baseline-007.json",
+              "sha256": "cc08e2c0cdec72df92a8b50b695916148d90af0bea1504cd585f251a7649edf2"
+            },
+            {
+              "name": "ayuda-lienzo.png",
+              "file": "106-artifactos/106-3d-baseline-008.png",
+              "sha256": "a27ae553787144f0cd12f6e08ff1495b8182cd0d5a2f4760eb045a1c1cbf5079"
+            },
+            {
+              "name": "screenshot",
+              "file": "106-artifactos/106-3d-baseline-009.png",
+              "sha256": "a27ae553787144f0cd12f6e08ff1495b8182cd0d5a2f4760eb045a1c1cbf5079"
+            },
+            {
+              "name": "error-context",
+              "file": "106-artifactos/106-3d-baseline-010.bin",
+              "sha256": "b372ad1e85b8da9c14f4b5158c3b5291e644690571ecb708405332e264c2c41e"
+            }
+          ]
+        },
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "project": "chromium-mobile",
+          "status": "failed",
+          "duration": 19208,
+          "errors": [
+            {
+              "location": {
+                "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                "column": 80,
+                "line": 49
+              },
+              "message": "Error: Recorrer debe mover la camara, no solo su icono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  47 |   const moving = await imagen(page);\n  48 |   await info.attach('recorrido-automatico.json', { body: JSON.stringify({ changed: before !== moving }), contentType: 'application/json' });\n> 49 |   expect(moving !== before, 'Recorrer debe mover la camara, no solo su icono').toBe(true);\n     |                                                                                ^\n  50 |   const pause = page.getByRole('button', { name: 'Pausar recorrido', exact: true });\n  51 |   await expect(pause).toHaveAttribute('aria-pressed', 'true');\n  52 |   await pause.click();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:49:80"
+            }
+          ],
+          "files": [
+            {
+              "name": "recorrido-automatico.json",
+              "file": "106-artifactos/106-3d-baseline-011.json",
+              "sha256": "2c0ca167d4e8d6d2041b6228ebd0a017fb2b4792a74dbb88aea68d0d3f9dd3f0"
+            },
+            {
+              "name": "screenshot",
+              "file": "106-artifactos/106-3d-baseline-012.png",
+              "sha256": "67b61b1b49905747a4dd47702d29f57219e3cd9fc5e74f5f0a5e7bd012c50136"
+            },
+            {
+              "name": "error-context",
+              "file": "106-artifactos/106-3d-baseline-013.bin",
+              "sha256": "aff434af5472fa289402442915570e9bbbb18b497a444d76c3429b23bb6cd00a"
+            }
+          ]
+        }
+      ]
+    },
+    "3d-pre-framebuffer": {
+      "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "harnessSha": "a9cbc48ab051f545861cf292d8a5f1980dcbec59",
+      "stats": {
+        "startTime": "2026-10-12T14:25:38.124Z",
+        "duration": 702144.145,
+        "expected": 11,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "results": [
+        {
+          "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 26077,
+          "errors": [],
+          "files": [
+            {
+              "name": "ayuda-lienzo.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-000.json",
+              "sha256": "a8fe995a8dc51d4d1718d4531d6e984755bc79a44f14412cddb6d811f09f0c86"
+            },
+            {
+              "name": "ayuda-lienzo.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-001.png",
+              "sha256": "e90af770d3664f86a9f57d11e0605361ebb26fed68b727b2ab983776a5297dae"
+            }
+          ]
+        },
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 39515,
+          "errors": [],
+          "files": [
+            {
+              "name": "recorrido-automatico.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-002.json",
+              "sha256": "2a0841c54e6a38ac431b75deeb0e8c820539f032936297f8d2457fb34bbd6ddd"
+            },
+            {
+              "name": "recorrido-pausado.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-003.json",
+              "sha256": "960f5cfcd38545080ee44329ed1b42d1a2cc991c93a73c162e21e28ba1065fe7"
+            }
+          ]
+        },
+        {
+          "title": "titulo legible y colores LED circulares sin controles comprimidos",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 23533,
+          "errors": [],
+          "files": [
+            {
+              "name": "titulo-colores.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-004.json",
+              "sha256": "dca7b7dfa30e05ad63273be7af21408fba3e36d164dceda3942fdcbb13a28b82"
+            },
+            {
+              "name": "salon-con-mesas.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-005.png",
+              "sha256": "f0bc3e6f44bc7f89c63fb97d36e7c527c18dff117e8af70d6f702542ce3d184f"
+            }
+          ]
+        },
+        {
+          "title": "LED y cantidad de invitados cambian la escena real",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 44107,
+          "errors": [],
+          "files": [
+            {
+              "name": "layout-led.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-006.json",
+              "sha256": "4ed256c30654d29d2aa9a43950a2a8e552255b6c366bb6aa403f68d5cacdc61c"
+            },
+            {
+              "name": "salon-azul-13-mesas.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-007.png",
+              "sha256": "99b55ee0dfc5e2e725fd464b79ff052703de123a180192f782950d5fd0909278"
+            }
+          ]
+        },
+        {
+          "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 63936,
+          "errors": [],
+          "files": [
+            {
+              "name": "ayuda-lienzo.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-008.json",
+              "sha256": "d2859f7a5a6fa30a7beae6a0d89bd20e7af16a8a3b6043361dbffcb77aee7cb5"
+            },
+            {
+              "name": "ayuda-lienzo.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-009.png",
+              "sha256": "89d311cf651ccfb492e84decd6853a4abcc8b0f1e3fd498f4bf533829df812e7"
+            }
+          ]
+        },
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "project": "chromium-mobile",
+          "status": "timedOut",
+          "duration": 132997,
+          "errors": [
+            {
+              "message": "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m"
+            },
+            {
+              "location": {
+                "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+                "column": 41,
+                "line": 26
+              },
+              "message": "Error: locator.evaluate: Test timeout of 120000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('canvas').first()\u001b[22m\n\u001b[2m    - locator resolved to visible <canvas width=\"756\" height=\"760\" data-engine=\"three.js r169\"></canvas>\u001b[22m\n\n\n  24 |\n  25 | async function camara(page: Page) {\n> 26 |   return page.locator('canvas').first().evaluate((node: HTMLCanvasElement & { __akViewMatrix?: number[] }) => node.__akViewMatrix || []);\n     |                                         ^\n  27 | }\n  28 |\n  29 | function movimientoCamara(before: number[], after: number[]) {\n    at camara (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:26:41)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:109:31"
+            }
+          ],
+          "files": [
+            {
+              "name": "recorrido-automatico.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-010.json",
+              "sha256": "ee2f3f73f52b56c24c8096511e19be5e5cc7e8560882c11b6be21e514746c263"
+            },
+            {
+              "name": "error-context",
+              "file": "106-artifactos/106-3d-pre-framebuffer-011.bin",
+              "sha256": "bfad804b806877f87312ab794835f1bdc6160e5ae6ecc79912bbec66795f7fe8"
+            }
+          ]
+        },
+        {
+          "title": "titulo legible y colores LED circulares sin controles comprimidos",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 53210,
+          "errors": [],
+          "files": [
+            {
+              "name": "titulo-colores.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-012.json",
+              "sha256": "dca7b7dfa30e05ad63273be7af21408fba3e36d164dceda3942fdcbb13a28b82"
+            },
+            {
+              "name": "salon-con-mesas.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-013.png",
+              "sha256": "64b34cc9facbb3072a63999571acc9c61c4b7327159ddd23a4859781981c6d92"
+            }
+          ]
+        },
+        {
+          "title": "LED y cantidad de invitados cambian la escena real",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 125018,
+          "errors": [],
+          "files": [
+            {
+              "name": "layout-led.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-014.json",
+              "sha256": "45a80b3f8dd9b40c05bda396d07ce70a4bc9a88c635fa62e4d3d3fe7485f6e43"
+            },
+            {
+              "name": "salon-azul-13-mesas.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-015.png",
+              "sha256": "d199f128218f2701778543d943f520211abf506fb6f55eb18d81eb97b28391ec"
+            }
+          ]
+        },
+        {
+          "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 32769,
+          "errors": [],
+          "files": [
+            {
+              "name": "salon-real.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-016.json",
+              "sha256": "b318a10bb3af6d6abc86bc726ea50c8985dceb5bc2399bf7f36c7f3eb067867c"
+            },
+            {
+              "name": "salon-real.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-017.png",
+              "sha256": "23e85e0c4f40ac35faabaa33f801e80f00809962836e2fbffc0e434c341451b9"
+            },
+            {
+              "name": "errores-de-pagina.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-018.json",
+              "sha256": "4122fb6760168774290bf1734b75e18fd16c9e7f041b89bb93885f2fa9471389"
+            }
+          ]
+        },
+        {
+          "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 26038,
+          "errors": [],
+          "files": [
+            {
+              "name": "salon-real.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-019.json",
+              "sha256": "fc79ddf80286ce3521f629b3fd7fc0ccabf8512979ca1818fcc21db45334fd0a"
+            },
+            {
+              "name": "salon-real.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-020.png",
+              "sha256": "e8a5319466353ef3ae271491092acd2dc0dc8f4cfc20b551ae6bf537cc19327e"
+            },
+            {
+              "name": "errores-de-pagina.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-021.json",
+              "sha256": "b5a6cdf5fae9554f44192926009c07fe83fe3f74231937eb9734a76843d50e4c"
+            }
+          ]
+        },
+        {
+          "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 72009,
+          "errors": [],
+          "files": [
+            {
+              "name": "salon-real.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-022.json",
+              "sha256": "b334fc60477648c158b48fde5c1ccf99d2f7d8024ce32285cd51a858af4696f0"
+            },
+            {
+              "name": "salon-real.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-023.png",
+              "sha256": "f23546c25b705cfced3d924509a5ce5f52b9f8aa4ab20d1a968ca9d763835def"
+            },
+            {
+              "name": "errores-de-pagina.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-024.json",
+              "sha256": "a9253d5c528b945ea84d1f5ee50808bcf9d1cbed7dc51af9794f217282debccc"
+            }
+          ]
+        },
+        {
+          "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 52748,
+          "errors": [],
+          "files": [
+            {
+              "name": "salon-real.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-025.json",
+              "sha256": "f295adb94a7d425defd654f9e421dd6587ef1109067e69391b1adfbb71f8c9ea"
+            },
+            {
+              "name": "salon-real.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-026.png",
+              "sha256": "c394d6bcd91ecdfd551f655f943b9b1321381236ce114a1034c67f15fbc6997e"
+            },
+            {
+              "name": "errores-de-pagina.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-027.json",
+              "sha256": "64252b9b1d7ea92ad717de15d86f0fabd77cdba7856e4ee1ac5e257d1dec292b"
+            }
+          ]
+        }
+      ]
+    },
+    "3d": {
+      "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "harnessSha": "6c3d69717f4aff83a389ff28fd169a99e0297e3e",
+      "stats": {
+        "startTime": "2026-10-12T14:50:03.978Z",
+        "duration": 139306.621,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "results": [
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 49255,
+          "errors": [],
+          "files": [
+            {
+              "name": "recorrido-automatico.json",
+              "file": "106-artifactos/106-3d-000.json",
+              "sha256": "f489c866475544b2d7f65eaaa8dce3006dbbc066050a8ebbb85959afd5b36a22"
+            },
+            {
+              "name": "recorrido-pausado.json",
+              "file": "106-artifactos/106-3d-001.json",
+              "sha256": "5a9ec7b91d3eb060661f58a4bfce5970726129937235d8f32b9aaefd21f047ca"
+            }
+          ]
+        },
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 86238,
+          "errors": [],
+          "files": [
+            {
+              "name": "recorrido-automatico.json",
+              "file": "106-artifactos/106-3d-002.json",
+              "sha256": "bd74778037425997a8a36623b8685b4925c9f87fe7657567b43b1dd053acb8f5"
+            },
+            {
+              "name": "recorrido-pausado.json",
+              "file": "106-artifactos/106-3d-003.json",
+              "sha256": "1f1c343e43e3fa9267dc54bb31dc35bdf29ae6c2f959cee3e6a9b900ffe80b33"
+            }
+          ]
+        }
+      ]
+    },
+    "acceptance": {
+      "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+      "uniqueCases": 12,
+      "passed": 12,
+      "results": [
+        {
+          "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 26077,
+          "errors": [],
+          "files": [
+            {
+              "name": "ayuda-lienzo.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-000.json",
+              "sha256": "a8fe995a8dc51d4d1718d4531d6e984755bc79a44f14412cddb6d811f09f0c86"
+            },
+            {
+              "name": "ayuda-lienzo.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-001.png",
+              "sha256": "e90af770d3664f86a9f57d11e0605361ebb26fed68b727b2ab983776a5297dae"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 49255,
+          "errors": [],
+          "files": [
+            {
+              "name": "recorrido-automatico.json",
+              "file": "106-artifactos/106-3d-000.json",
+              "sha256": "f489c866475544b2d7f65eaaa8dce3006dbbc066050a8ebbb85959afd5b36a22"
+            },
+            {
+              "name": "recorrido-pausado.json",
+              "file": "106-artifactos/106-3d-001.json",
+              "sha256": "5a9ec7b91d3eb060661f58a4bfce5970726129937235d8f32b9aaefd21f047ca"
+            }
+          ],
+          "run": "3d"
+        },
+        {
+          "title": "titulo legible y colores LED circulares sin controles comprimidos",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 23533,
+          "errors": [],
+          "files": [
+            {
+              "name": "titulo-colores.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-004.json",
+              "sha256": "dca7b7dfa30e05ad63273be7af21408fba3e36d164dceda3942fdcbb13a28b82"
+            },
+            {
+              "name": "salon-con-mesas.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-005.png",
+              "sha256": "f0bc3e6f44bc7f89c63fb97d36e7c527c18dff117e8af70d6f702542ce3d184f"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "LED y cantidad de invitados cambian la escena real",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 44107,
+          "errors": [],
+          "files": [
+            {
+              "name": "layout-led.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-006.json",
+              "sha256": "4ed256c30654d29d2aa9a43950a2a8e552255b6c366bb6aa403f68d5cacdc61c"
+            },
+            {
+              "name": "salon-azul-13-mesas.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-007.png",
+              "sha256": "99b55ee0dfc5e2e725fd464b79ff052703de123a180192f782950d5fd0909278"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 63936,
+          "errors": [],
+          "files": [
+            {
+              "name": "ayuda-lienzo.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-008.json",
+              "sha256": "d2859f7a5a6fa30a7beae6a0d89bd20e7af16a8a3b6043361dbffcb77aee7cb5"
+            },
+            {
+              "name": "ayuda-lienzo.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-009.png",
+              "sha256": "89d311cf651ccfb492e84decd6853a4abcc8b0f1e3fd498f4bf533829df812e7"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 86238,
+          "errors": [],
+          "files": [
+            {
+              "name": "recorrido-automatico.json",
+              "file": "106-artifactos/106-3d-002.json",
+              "sha256": "bd74778037425997a8a36623b8685b4925c9f87fe7657567b43b1dd053acb8f5"
+            },
+            {
+              "name": "recorrido-pausado.json",
+              "file": "106-artifactos/106-3d-003.json",
+              "sha256": "1f1c343e43e3fa9267dc54bb31dc35bdf29ae6c2f959cee3e6a9b900ffe80b33"
+            }
+          ],
+          "run": "3d"
+        },
+        {
+          "title": "titulo legible y colores LED circulares sin controles comprimidos",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 53210,
+          "errors": [],
+          "files": [
+            {
+              "name": "titulo-colores.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-012.json",
+              "sha256": "dca7b7dfa30e05ad63273be7af21408fba3e36d164dceda3942fdcbb13a28b82"
+            },
+            {
+              "name": "salon-con-mesas.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-013.png",
+              "sha256": "64b34cc9facbb3072a63999571acc9c61c4b7327159ddd23a4859781981c6d92"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "LED y cantidad de invitados cambian la escena real",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 125018,
+          "errors": [],
+          "files": [
+            {
+              "name": "layout-led.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-014.json",
+              "sha256": "45a80b3f8dd9b40c05bda396d07ce70a4bc9a88c635fa62e4d3d3fe7485f6e43"
+            },
+            {
+              "name": "salon-azul-13-mesas.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-015.png",
+              "sha256": "d199f128218f2701778543d943f520211abf506fb6f55eb18d81eb97b28391ec"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 32769,
+          "errors": [],
+          "files": [
+            {
+              "name": "salon-real.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-016.json",
+              "sha256": "b318a10bb3af6d6abc86bc726ea50c8985dceb5bc2399bf7f36c7f3eb067867c"
+            },
+            {
+              "name": "salon-real.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-017.png",
+              "sha256": "23e85e0c4f40ac35faabaa33f801e80f00809962836e2fbffc0e434c341451b9"
+            },
+            {
+              "name": "errores-de-pagina.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-018.json",
+              "sha256": "4122fb6760168774290bf1734b75e18fd16c9e7f041b89bb93885f2fa9471389"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+          "project": "chromium-desktop",
+          "status": "passed",
+          "duration": 26038,
+          "errors": [],
+          "files": [
+            {
+              "name": "salon-real.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-019.json",
+              "sha256": "fc79ddf80286ce3521f629b3fd7fc0ccabf8512979ca1818fcc21db45334fd0a"
+            },
+            {
+              "name": "salon-real.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-020.png",
+              "sha256": "e8a5319466353ef3ae271491092acd2dc0dc8f4cfc20b551ae6bf537cc19327e"
+            },
+            {
+              "name": "errores-de-pagina.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-021.json",
+              "sha256": "b5a6cdf5fae9554f44192926009c07fe83fe3f74231937eb9734a76843d50e4c"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 72009,
+          "errors": [],
+          "files": [
+            {
+              "name": "salon-real.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-022.json",
+              "sha256": "b334fc60477648c158b48fde5c1ccf99d2f7d8024ce32285cd51a858af4696f0"
+            },
+            {
+              "name": "salon-real.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-023.png",
+              "sha256": "f23546c25b705cfced3d924509a5ce5f52b9f8aa4ab20d1a968ca9d763835def"
+            },
+            {
+              "name": "errores-de-pagina.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-024.json",
+              "sha256": "a9253d5c528b945ea84d1f5ee50808bcf9d1cbed7dc51af9794f217282debccc"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        },
+        {
+          "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 52748,
+          "errors": [],
+          "files": [
+            {
+              "name": "salon-real.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-025.json",
+              "sha256": "f295adb94a7d425defd654f9e421dd6587ef1109067e69391b1adfbb71f8c9ea"
+            },
+            {
+              "name": "salon-real.png",
+              "file": "106-artifactos/106-3d-pre-framebuffer-026.png",
+              "sha256": "c394d6bcd91ecdfd551f655f943b9b1321381236ce114a1034c67f15fbc6997e"
+            },
+            {
+              "name": "errores-de-pagina.json",
+              "file": "106-artifactos/106-3d-pre-framebuffer-027.json",
+              "sha256": "64252b9b1d7ea92ad717de15d86f0fabd77cdba7856e4ee1ac5e257d1dec292b"
+            }
+          ],
+          "run": "3d-pre-framebuffer"
+        }
+      ],
+      "strategy": "Reuse 11 passed cases from the same application SHA; repeat both camera cases after fixing only the test probe. Preserve original timeout."
+    }
+  },
+  "audit": {
+    "metadata": {
+      "info": 0,
+      "low": 1,
+      "moderate": 65,
+      "high": 25,
+      "critical": 0,
+      "total": 91
+    },
+    "uniqueAdvisories": 27,
+    "removed": [
+      "https://github.com/advisories/GHSA-xjh9-v7x6-24jw",
+      "https://github.com/advisories/GHSA-x8mw-p69m-v3mx",
+      "https://github.com/advisories/GHSA-gxm5-99cw-xjw9",
+      "https://github.com/advisories/GHSA-68fv-2mgg-jv7q"
+    ],
+    "added": []
+  },
+  "limits": [
+    "27 avisos remanentes requieren evaluacion, no seguridad total",
+    "No acredita todos los botones/variantes de toda la app",
+    "No cuentas externas, datos originales, despliegue Firebase ni hardware fisico"
+  ]
+}

@@ -164,7 +164,7 @@ const getPageTitle = (pathname: string): string => {
   return 'AK Producciones';
 };
 
-const getPageIcon = (pathname: string): React.ElementType | null => {
+const getPageIcon = (pathname: string): React.ComponentType<React.SVGProps<SVGSVGElement>> | null => {
   if (pathname === '/admin') return LayoutDashboard;
   if (pathname === '/multiagente') return Bot;
   if (pathname.startsWith('/fiestas/nueva')) {

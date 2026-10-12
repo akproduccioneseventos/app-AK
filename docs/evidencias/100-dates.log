@@ -1,0 +1,62 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\100-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+  1) [chromium-desktop] › tests\e2e\100-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+
+    Error: reader failure must reach the existing warning in the wizard
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      35 |     expect((await ref.get()).data()).toEqual(before);
+      36 |     await info.attach('dates-recovered.png',{body:await page.screenshot(),contentType:'image/png'});
+    > 37 |     expect(warning,'reader failure must reach the existing warning in the wizard').toBe(1);
+         |                                                                                    ^
+      38 |   }finally{clear();await ref.delete();borrarFiesta(id);}
+      39 | });
+      40 |
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-100\tests\e2e\100-calendario-reader.spec.ts:37:84
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa100-dates-artifacts\100-calendario-reader-Budg-ed891--assuming-no-occupied-dates-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa100-dates-artifacts\100-calendario-reader-Budg-ed891--assuming-no-occupied-dates-chromium-desktop\error-context.md
+
+    Error Context: qa100-dates-artifacts\100-calendario-reader-Budg-ed891--assuming-no-occupied-dates-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-mobile] › tests\e2e\100-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+  2) [chromium-mobile] › tests\e2e\100-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+
+    Error: reader failure must reach the existing warning in the wizard
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      35 |     expect((await ref.get()).data()).toEqual(before);
+      36 |     await info.attach('dates-recovered.png',{body:await page.screenshot(),contentType:'image/png'});
+    > 37 |     expect(warning,'reader failure must reach the existing warning in the wizard').toBe(1);
+         |                                                                                    ^
+      38 |   }finally{clear();await ref.delete();borrarFiesta(id);}
+      39 | });
+      40 |
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-100\tests\e2e\100-calendario-reader.spec.ts:37:84
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa100-dates-artifacts\100-calendario-reader-Budg-ed891--assuming-no-occupied-dates-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa100-dates-artifacts\100-calendario-reader-Budg-ed891--assuming-no-occupied-dates-chromium-mobile\error-context.md
+
+    Error Context: qa100-dates-artifacts\100-calendario-reader-Budg-ed891--assuming-no-occupied-dates-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\100-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+    [chromium-mobile] › tests\e2e\100-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates

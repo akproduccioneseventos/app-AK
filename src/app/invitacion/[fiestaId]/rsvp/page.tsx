@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import QRCodeStylized from 'qrcode.react';
+import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { parseEventDate } from '@/lib/public-experience/event-date';
@@ -231,7 +231,7 @@ function RsvpFormContent() {
                   Guarda tu pase digital. Lo necesitarás en la entrada.
                 </p>
                 <div className="rounded-lg border border-slate-100 bg-white p-6 shadow-inner" data-testid="guest-qr-container">
-                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="M" renderAs="canvas" />
+                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="M" />
                 </div>
 
                 {/* Event details for guest */}

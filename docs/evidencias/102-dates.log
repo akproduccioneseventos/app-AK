@@ -1,0 +1,4 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\102-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates

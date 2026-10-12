@@ -550,7 +550,10 @@ export async function forceDeleteCollectionFromFirestore(collectionName: string)
  * List all documents from a Firestore collection and return them as an array.
  * Omits the internal `_syncedAt` property from each document.
  */
-export async function listCollectionFromFirestore(collectionName: string): Promise<any[]> {
+export async function listCollectionFromFirestore(
+  collectionName: string,
+  options: { throwOnError?: boolean } = {},
+): Promise<any[]> {
   if (logger.shouldSkipFirestoreDuringBuild()) return [];
 
   try {
@@ -567,6 +570,7 @@ export async function listCollectionFromFirestore(collectionName: string): Promi
     if (!logger.isBuildTime() || !logger.isDefaultCredentialError(error)) {
       logger.warn(`Firestore listCollection failed for "${collectionName}":`, logger.compactError(error));
     }
+    if (options.throwOnError) throw error;
     return [];
   }
 }

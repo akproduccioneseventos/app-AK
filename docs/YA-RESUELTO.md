@@ -1,5 +1,261 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/10/2026 - Codex106: salón y parches comprobados; NO cierre global
+
+- Base PR1288/48829bfd, main99faf4eb: no se repite la auditoría105 aprobada.
+- 4 fallos de navegador PC/celular contra appa33: ayuda dentro del lienzo y
+  Recorrer sin movimiento real. El estado sólo movía el icono y el aviso.
+- Corrección: ayuda encima del lienzo, autoRotate enganchado a OrbitControls,
+  Pausar recorrido y aviso sin prometer pantalla completa. No cambia geometría.
+- Primer retest:6pass/2fail. La pausa retenía inercia; se desactiva damping
+  sólo durante el giro automático, conservándolo al mover la cámara a mano.
+  Se conserva el fallo y la prueba no se afloja. Rueda sólo se indica en PC.
+- Dos parches compatibles lock-only: busboy3.2.2 y source-map-js1.2.2.
+  3 pruebas fallan con bibliotecas anteriores y pasan con las parcheadas.
+- Retest b720: 4138 pruebas y 8 de navegador pasan, pero la inspección visual
+  descubre otro defecto: se anuncian12 mesas y se muestra un salón vacío.
+  La pantalla mandaba elements/primaryColor; SalonScene consume salonElements/
+  colorPalette. Se usan ahora los campos reales y un Pick estricto para evitar
+  repetir el desenganche. El título tenía contraste1.001:1; queda blanco localmente.
+  Los colores se mantienen circulares44px sin compresión y señalan selección.
+  Se rectifica cualquier interpretación de "salón vacío esperado": era un fallo.
+  El canvas no vacío y la cámara girando NO comprueban el mobiliario anunciado.
+- Prueba del consumidor real: viejo falla por salonElements undefined; corregido
+  entrega12 mesas/pista/DJ/barra, LEDazul y13 mesas al aumentar invitados.
+  Catálogo/renderer/precios se aíslan sólo en esta prueba; la escena se comprueba
+  aparte con WebGL real. Un mock inicial vacío y el aforo10 mal esperado se
+  corrigen en el harness, NO son errores nuevos de la app.4 focalizadas pasan.
+- Al dibujar la pista real, sus luces animadas cambian los píxeles aunque la
+  cámara esté quieta. La vieja prueba de pausa da rojo3.6%-3.8%; aún no acredita
+  cámara en movimiento. La sonda nueva observa viewMatrix del WebGL real sólo
+  en el navegador de prueba; NO se añade telemetría ni puerta de prueba a la app.
+  Giro debe cambiar matriz y píxeles; pausa debe conservar la matriz(1e-6).
+  Retest final: matriz gira(PC0.0394, móvil0.0684) y pausa0 en ambos.
+  Sonda inicial getParameter agotó120s en móvil; se observa bindFramebuffer sin
+  consulta GPU por frame. Se conserva el timeout y el mismo límite120s.
+  TSC auxiliar2GB agotó memoria;4GB aprobó. No se modifica la app para aprobar.
+- Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e:4focalizadas, tipos,
+  acentos2771archivos,692suites/4139Jest y build canónico exit0, lint/tipos/PWA activos.
+  Navegador12casos únicos aprobados:11de ronda general +2cámaras repetidas;
+  se reemplaza el resultado anterior de cada cámara, NO se inventa una corrida12/12.
+  Harness6c3d6971 difiere de8fa sólo en E2E/documentación, app idéntica.
+- Audit:27GHSA únicos pendientes,4menos y ninguno nuevo;0critical NO significa
+  seguridad total. Standalone apagado sólo en QA local; no certificado Firebase.
+- Fricción observada aparte: barra flotante tapa parte de Guardar en capturaPC.
+  No se probó el guardado ni se rediseñó el asistente en esta tanda. No darlo cerrado.
+- Evidencia106 separada, se conserva105 para su SHA. No todos los botones,
+  cuentas reales,19originales manuales ni hardware físico acreditados.
+- Graphify actualizado localmente:13713nodos/42463relaciones/838comunidades;
+  log106 conservado. Salida ignorada por Git, no se afirma entrega remota del grafo.
+  Orden152 deja a Claude el contraste del guardado/solapamiento y triageGHSA;
+  no acredita que haya comenzado ni repite las correcciones106.
+
+## 11/10/2026 - Codex105: 3D, QR y calendarios probados; NO cierre global
+
+- Fuente app a33a54d91bf704f52fe11d1afbc956ebd8e819a5. Harness e7f5e7fc
+  SOLO corrige el selector E2E de Cola de Mensajes (enlace, no boton).
+  La guarda del corredor rechaza cualquier diferencia de app frente al build.
+- 3D reunion/vista cliente PC/movil:4pass, canvas real y movimiento mouse/tactil.
+  React19/Fiber9/Drei10 dibujan; foto fallback NO acredita 3D. Geometria intacta.
+- DayPicker9 tenia2defectos moviles: caption sobre flecha en agenda e interceptaba
+  clicks en redes. Nav sobre caption, eventos solo en botones, padding reservado;
+  accesos agenda envuelven. Retest calendarios4pass y QR real4pass, sin forceclick.
+- Tras React, SDK demo: mural4pass, aviso de fechas2pass, portal4pass (inexistente,
+  caida real de Query.get y Reintentar conserva datos). No cuentas ni datos reales.
+- Tipos/build canonico exit0, lint/tipos/PWA activos;690suites/4135tests0fail/0skip.
+  Standalone desactivado SOLO en QA local: empaquetado Firebase no certificado.
+  Capturas/hashes/JSON comprimidos en105; se conservan fallos anteriores.
+- Pendiente aparte: ayuda3D movil solapada con controles flotantes. No todos los
+  controles, permisos,19 originales, cuentas ni hardware certificados.
+- Audit0critical pero31GHSA unicos pendientes: NO seguridad total.
+- Antecedentes siguientes son etapas anteriores, NO estado final105.
+
+- Segunda congelacion4aed259f53f20fb010a27c270edcec634f1937e7: el audit
+  encontro handlebars4.7.9 y proxy-addr2.0.7 ya presentes en d0. Se parcha
+  SOLO a4.7.10/2.0.8, compatibles con sus consumidores Genkit/Express.
+  Regresion con librerias reales:2fallos contra versiones anteriores y2pass
+  con las nuevas; no se afirma explotacion en una ruta publicada.
+- Audit productivo ahora0criticos, pero27high/65moderate/2low pendientes
+  de clasificar; NO certificacion de seguridad. JSON antes/despues conservado.
+- Corrida33ad:689suites/4132tests pasan,0omitidos. Tipos4aed exit0.
+  Se interrumpio build33ad antes de instalar el parche; nuevo build pendiente.
+
+- Fuente congelada33adb2843b8dd5fa0260659e9365fdd677c993a8; PR1288 sigue
+  abierta. React19/Fiber9/Drei10 reemplazan la mezcla de renderizadores y el
+  parche de internals. No cambia geometria, cobros, permisos ni servicios.
+- Se adaptan QR a QRCodeCanvas y calendarios a DayPicker9; iconos: solo tipos
+  SVG. React19.2.8/Next15.5.27; lock acotado, sin actualizar todo el arbol.
+- Instalacion privada limpia: npm ci --ignore-scripts --no-audit --no-fund
+  exit0, sin force/legacy-peer-deps. Omite prepare porque .git es archivo en
+  worktree; NO prueba el hook. Tipos33ad exit0; acentos2764 archivos exit0.
+- Jest inicial:4131pass/1fail, exigia renderAs de la API antigua. Se conserva
+  fallo y se exige import+consumo QRCodeCanvas, sin quitar pruebas del token.
+  Corrida final completa en curso; compilacion/navegador pendientes.
+- Preflight dev: la pagina quedo cargando, WebGLtrue pero no hubo canvas.
+  NO acredita 3D arreglado ni identifica por si solo la causa. Resultado,
+  captura y SHA en 105-3d-dev-inicial; no ocultarlo ni darlo por aprobado.
+- Las aceptaciones102-104 se conservan como historicas de sus SHAs. El cambio
+  de dependencias requiere validar sus consumidores, no trasladar verdes.
+
+## 11/10/2026 - Codex102: autorizacion de correccion directa y lector151
+
+- Graphify: npm run graphify:update ahora usa --code-only para actualizar
+  AST/relaciones sin llaveLLM ni gastos de API. El comando anterior se freno
+  por dos documentos sin llave; NO era un error de la app ni una corrida verde.
+  No cambia dependencias/build de produccion. Los documentos se conservan
+  como registro compartido; no afirmar extraccion semantica de esos documentos.
+- Cierre103/104: QR147 pantalla real+SDK8pass (cuatro PNG por PC/movil,
+  llegada y reentrada sin duplicar); mural4pass (vacio/foto en PC/movil,
+  geometria y foto sin CSS forzado). Fechas2pass. Portal104 sobrea6d20861:
+  inexistente y fallo real se distinguen, Reintentar recupera y conserva SDK;
+  4pass. No reabrir esos criterios como pendientes por las notas anteriores.
+  Build104 a6 completo exit0, incluidos tipos/lint; no se omiten controles.
+  CompletaJest104 sobrea6:688suites/4129tests pasan, cero fallidos/omitidos.
+  Resumen104 y JSON completo comprimido con hash permiten reutilizar evidencia
+  sin leer miles de resultados por chat. No convertirlos en0errores de toda app.
+- Salon3D103: WebGLtrue/canvas0 PC/movil, errorReactCurrentBatchConfig real.
+  El candidato React19/Fiber9/Drei10 en copia privada NO paso tipos ni lock;
+  no se integra ni se fuerza npm. Geometria4tests/foto de respaldo no acreditan
+  escena. Sigue pendiente; no confundir esta propuesta con una app sin errores.
+- Retest compilado103: lector151 ya muestra el aviso correcto, pero Reintentar
+  solo reseteaba el cliente sin pedir otra lectura del servidor (PC/movil2fail).
+  El boton recarga el MISMO enlace, que es lo que permite recuperar la lectura;
+  no redirige al administrador ni modifica los datos. Retest104 verde arriba.
+- Cupones, consumidores finales: selector de regalos y etiquetas de ajustes
+  todavia comparaban fechas aparte y vencian antes. Usan la misma regla temporal;
+  fechas se muestran en Uruguay y se preserva el dia de ISO historico medianoche.
+  No cambia quienes tienen permiso, los usos ni los regalos ofrecidos.
+  Nuevo recalcula hoy en Uruguay al abrir, no en UTC al cargar el archivo;
+  conserva90dias/10porciento de defaults. Uso registrado es instante, no dia
+  elegido: su fecha se muestra en Uruguay sin convertir medianoche en otra fecha.
+- Cupones: el ultimo dia se calculaba en la zona del servidor, que podia
+  vencerlos antes de terminar el dia del negocio. Limites del dia en Uruguay;
+  se conserva una hora de inicio explicita y se rechazan fechas imposibles.
+  No cambia importe, usos ni descuento. Regresion probada tambien con TZ=UTC.
+- La corrida general inicial encontro tres fallos: cupon real; test de permiso
+  que consultaba Firestore sin fixture; contrato estatico del mural con nombres
+  anteriores. Los dos tests se ajustan a su frontera y al componente ya probado,
+  sin debilitar permisos ni sustituir la prueba de comportamiento del mural.
+  Sus 15 comprobaciones focalizadas pasan. Completa4c:686suites/4122tests pasan.
+- El dueno autoriza ahora a Codex corregir directamente con agentes economicos.
+  Se conserva PR1288 abierta, sin fusionar ni tocar datos reales.
+- Lector151: listCollectionFromFirestore ofrece throwOnError optativo; la
+  lectura de fiestas lo exige y no reemplaza una consulta fallida por JSON local.
+  Se mantienen vacio real, modo local, ausencia de SDK y omision durante build.
+- Nueva regresion recorre Query.get -> lectores REALES -> portal y fechas,
+  sin mockear leerFiestasCrudas/getFiestas. 16 pruebas de dos suites pasan.
+  Prueba de navegador del reintento104 pasa; no certificar app entera por Jest.
+- QR147: el PNG exacto101 falla sin giro y decodifica a90/270 grados con
+  el decoder existente. Se reintenta el archivo a90/180/270 SOLO si falla,
+  sin modificar token/PNG original ni escaneo de camara ni checkInGuest.
+  La instalacion es idempotente. Prueba de archivo real PC/movil2pass;
+  entrada persistida/reentrada en pantalla103 pasa, ocho casos reales.
+- Mural: el componente REAL con chat pendiente no pintaba la foto aprobada;
+  sonda falla en source main99 y pasa corregida. Primarias pintan sin esperar
+  secundarias; cada secundaria conserva datos si falla. allSettled mantiene
+  el bloqueo hasta acabar todas, incluso si falla una primaria. Guardas de
+  montaje/generacion descartan respuestas viejas. 19 tests/4suites pasan.
+  Corregido el borrador del agente (destructuring errado/dos refs); NO se
+  publico ese borrador. Geometria/WebGL/Hosting no quedan aprobados por Jest.
+- Graphify AST local final:13603nodos/42342relaciones/838comunidades,
+  sin API/LLM ni dependencias de produccion. 25 advertencias del parser no
+  prueban errores TypeScript; no confundir extraccion con compilacion.
+  Actualizacion npm completa exit0,2515 archivos; no semantica de documentos
+  ni etiquetasLLM ni HTML gigante, no afirmar grafo local ignorado como remoto.
+- Recuento economico revisado: el agente interpreto mal el criterio149:
+  que A NO incluya B es el resultado correcto, aceptado101; NO reabrirlo.
+  QR147 y muralPC cerrados acotados arriba; 3D sigue pendiente real.
+  Hardware, cuentas externas, 19 originales y Hosting no quedan certificados.
+
+## 11/10/2026 - Codex101: entrega1290, aceptaciones acotadas y QR residual
+
+- Ejecutado main99faf4eb.149: miniwebpack real construye SDK con alias,
+  nativo y control; widget de FiestaA ante proveedor caido responde SOLO A,
+  PC/movil2pass. No repetir historia97 ni pagar modelos para este criterio.
+-150: mural vacio fixed y titulo pintado PC/movil2pass (panel590/659).
+  Foto principal movil decodificada natural602/opacity1/panel614 pasa.
+  FotoPC vista en capturas, geometria principal final NO aceptada: ultimo
+  intento muestra vacio/Reconectando, sin snapshotSDK individual al timeout.
+  Causa NO confirmada; NO nueva orden de bug por ese intento incompleto.
+-147: corto PC/movil2pass/reentrada no duplica; UUID exacto de99 PC/movil
+  2fail con nuevo PNG276x276 identico en ambos. Archivo conservado vuelve
+  a fallar,SDKintacto/checkedInfalse. Dos controles diagnosticos no aprueban
+  QR.147 ampliada, NO otra orden ni aumentar margen/DPR a ciegas.
+-151lector sin delta, NO sondas repetidas. Conservar aceptaciones88-100.
+-Errores/limites propios QA: PCfrio120s timeout, repetido SOLO PC pasa;
+  foto no debe recibir clicks bajo caption; intermedio midio fondo borroso.
+  Raw intermedios conservados; no contar esos intentos como defectos app.
+  Informe101 manda:7parespositivos/2negativos/1par parcial, NO app limpia.
+-Runtime101detenido/puertoslibres/fixturespropios cero. Agregadosdemochat/
+  memoria/consumo/rate-limit preservados hasta parada; no datosreales/build.
+  Sin dependencias de produccion ni programacion de app por Codex; PR1288
+  abierta. Claude registra compilacion/Hosting; no Actionsrojos/0errores.
+
+## 11/10/2026 - Codex100: lector real, dos avisos no reciben el fallo
+
+- Ejecutado main ca5b714d:portal valido ante corte controlado dice invalido/
+  expirado;presupuesto devuelve[]sin aviso de fechas. PCmovil4negativos;
+  documentos SDKintactos y recuperacion al quitar corte. Una causa/dos efectos.
+- NOsimular leerFiestasCrudas/getFiestas:Query.getfiestas falla en limite SDK,
+  cadena real listCollectionFromFirestore traga y devuelve[]. Los catches/
+  textos superiores existen pero no llegan a activarse;ord151Claude.
+- Clave realmente ausente PASA PCmovil. NOtoken caducado ni dato perdido.
+  No repetir148video ni144-146;147residuo/149/150sin delta conservados.
+- Error propio preparacion:helper crea JSON;dos corridas pararon ANTES de
+  auditar. Corregida sonda,retirados2docs/4archivos propios;NOdefectos de app.
+- Informe100/SDK/HTTP/PNG/raw/ord151/matriz juntos;agente economico solo
+  inventario de contratos, cerrado. No throwglobal ciego/buildlocal roto.
+- Runtime100detenido/puertoslibres/demo limpio. Nocodigoapp/build/mergePR;
+  no0errores/14limpias/cuentasreales/hardware/19originales certificados.
+
+## 11/10/2026 - Codex99: QR recibido, no cerrar por cuatro ejemplos
+
+- Ejecutado main ca5b714d/1289:8recorridos,6pass/2fail. Caso historico94
+  PCmovil PASA; dos patrones moviles nuevos NOleen. No volver al codigo viejo.
+- PNGexactos preservados; misma imagen reintentada confirma checkedInfalse.
+  Cambiar ancho NOarregla;DPR1solo resuelve corto,UUIDno. No tamano universal.
+- Informe99/raw/SDK/capturas amplian147;NOorden duplicada.149/150sin delta
+  de causas,no repetir.144-146/148 aceptados98 siguen conservados.
+- Conflictos de registros resueltos conservando notasClaude yCodex; producto
+  identico a main,NOprogramacion app/mergePR por Codex.
+- Runtime99detenido/puertoslibres,datosdemo/locales propios retirados.
+  Helperlimpieza tenia ruta localTEMP98:esa parte NOusada;control TEMP99
+  separado en99-limpieza-verificada.json. No ocultar fallo de la propia QA.
+- No build/cuentasreales/Hosting/hardware/19originales;no0errores/14limpias.
+
+## 11/10/2026 - Codex98: cuatro arreglos recibidos, retest aprobado
+
+- Fuente755f0707 exacta:18 ejecuciones pass/16pares distintos PCmovil.
+- 146:Cortar antes de ficha NOabre micro/socket/panel;503 reintenta un clic.
+- 148:fallo de lectura avisa,conserva archivo y bloquea sobrescritura;reintenta.
+  Galeria genuinamente vacia permite subir;URLfirmadareal NOcertificada.
+- 145:Touchpix tiene imagen nativa/color,descarga bytes/segunda captura con
+  imagen;sin cuadro avisa/reintenta y NOcrea foto. Nohardware/transformacionIA.
+- 144:Visiondummy caido generaUNpending,avisa aprobacion;no en muralPUBLICO
+  cargado;recarga no duplica. No afirmar reenvio concurrente probado.
+- Informe98/raw/capturas/limpieza:10sesionespropias demo retiradas,runtime
+  detenido/puertoslibres. Sin cambios app/build/merge;no0errores/app completa.
+- No reprogramar144/145/146/148 por negativos historicos.149dosP2,147QR,3D,
+  19originales/cuentasintegraciones/releasehardware conservan limites separados.
+- NUEVO150P1:captura mural parecia vacia;sonda PCmovil confirma padres0px,
+  texto recortado auntras8s/toBeVisiblePASA;CSSlive>*positionrelative ganafixed.
+  Control SOLOpositionfixed da540/659px y texto pintado.4fail/UNAcausa,
+  NOapp corregida. Se agrega a1288;no reabrir moderacion144 por este fallo.
+
+## 11/10/2026 - Codex97: IA contextual; conservar lo aprobado
+
+- Ejecutado9a/contrastado755: DOS defectos nuevos, orden149Gemini/Claude.
+- Primer ai.generate falla NodeSDKantesGoogle; alias sdk-node:false sigue.
+  NativoSI/webpackconfigactualNO/control quitandoesealiasSI. Hosting no probado.
+- Respaldo agenteFiestaA pone pendientesB primero:PCmovil2fail, SDK/UI real.
+  buildFallback usa itemsglobales, no byAgent/fiesta. No fuga entre cuentas.
+- Chat/APIpersistenciaA-B y NOtarea ficticia pasanPCmovil2pass. No chat-store
+  roto ni reauditoria voz146. Sin modelo real/voz fisica/autonomia certificada.
+- 1286/1287 fusionadas por otraIA; nueva rama QA97desde755. NO repetir144/145/
+  146/148:codigo correctivo presente, retest separado.147retirado sigue abierto.
+- Runtime97 detenido/fixtures propios retirados; cinco agregadosSOLOdemo
+  preservados. Ningun dato real/envio/cobro/buildapp/merge por Codex.
+- Informe97/raw/capturas/minisonda/orden149/matriz84/ESTADO juntos. No0errores.
 ## 11 de octubre de 2026 — Orden 149: la IA arranca a la primera y el respaldo no mezcla fiestas
 
 - **Qué pasaba:** (1) la primera pregunta a la asistente después de arrancar el servidor fallaba con "NodeSDK is not a

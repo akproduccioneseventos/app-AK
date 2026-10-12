@@ -37,8 +37,8 @@ jest.mock('@/lib/data-service', () => ({
   }),
 }));
 
-import { registrarUsoCupon } from '@/app/actions/cupones';
-import { motivoParaNoUsarCupon } from '@/lib/cupones/motivo-para-no-usar';
+import { getCuponesRegaloActivos, registrarUsoCupon } from '@/app/actions/cupones';
+import { cuponAunNoComienza, cuponHaExpirado, motivoParaNoUsarCupon } from '@/lib/cupones/motivo-para-no-usar';
 
 const ayer = () => new Date(Date.now() - 86400000 * 2).toISOString().slice(0, 10);
 const manana = () => new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 10);
@@ -87,7 +87,46 @@ describe('Un cupón que ya no sirve no se registra', () => {
     expect(motivoParaNoUsarCupon({ ...base, activo: false })).toMatch(/desactivado/);
     expect(motivoParaNoUsarCupon({ ...base, fechaFin: 'no-es-fecha' })).toMatch(/fechas/);
     // 0 usos máximos = ilimitado; y el último día vale hasta la medianoche.
-    expect(motivoParaNoUsarCupon(base, new Date(2026, 9, 8, 23, 0))).toBeNull();
-    expect(motivoParaNoUsarCupon(base, new Date(2026, 9, 9, 0, 1))).toMatch(/expirado/);
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T23:00:00-03:00'))).toBeNull();
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-09T00:01:00-03:00'))).toMatch(/expirado/);
+  });
+
+  it('empieza y termina en Uruguay aunque el servidor use otra zona', () => {
+    const base: any = { activo: true, fechaInicio: '2026-10-08', fechaFin: '2026-10-08', usosMaximos: 0, usosActuales: 0 };
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T02:59:59Z'))).toMatch(/aún no/);
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T03:00:00Z'))).toBeNull();
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-09T02:59:59.999Z'))).toBeNull();
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-09T03:00:00Z'))).toMatch(/expirado/);
+    expect(motivoParaNoUsarCupon({ ...base, fechaFin: '2026-02-30' })).toMatch(/fechas/);
+  });
+
+  it('respeta una hora de inicio explicita sin adelantarla a medianoche', () => {
+    const base: any = { activo: true, fechaInicio: '2026-10-08T15:00:00-03:00', fechaFin: '2026-10-08', usosMaximos: 0, usosActuales: 0 };
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T17:59:59Z'))).toMatch(/aún no/);
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T18:00:00Z'))).toBeNull();
+    expect(motivoParaNoUsarCupon({ ...base, fechaInicio: '2026-10-08T15:00:00' }, new Date('2026-10-08T18:00:00Z'))).toBeNull();
+  });
+
+  it('el selector de regalos conserva el cupon durante su ultimo dia', async () => {
+    jest.useFakeTimers({ doNotFake: ['setTimeout'] });
+    jest.setSystemTime(new Date('2026-10-09T02:59:59Z'));
+    try {
+      coleccion.cupones['cup-1'].esRegalo = true;
+      coleccion.cupones['cup-1'].fechaFin = '2026-10-08';
+      expect((await getCuponesRegaloActivos()).map(c => c.id)).toEqual(['cup-1']);
+      jest.setSystemTime(new Date('2026-10-09T03:00:00Z'));
+      expect(await getCuponesRegaloActivos()).toEqual([]);
+    } finally { jest.useRealTimers(); }
+  });
+
+  it('los estados de ajustes coinciden con la validacion y las fechas historicas', () => {
+    const base: any = { activo: true, fechaInicio: '2026-10-08T00:00:00.000Z', fechaFin: '2026-10-08T00:00:00.000Z', usosMaximos: 0, usosActuales: 0 };
+    const antes = new Date('2026-10-08T02:59:59Z'), ultimo = new Date('2026-10-09T02:59:59.999Z'), despues = new Date('2026-10-09T03:00:00Z');
+    expect(cuponAunNoComienza(base, antes)).toBe(true);
+    expect(motivoParaNoUsarCupon(base, antes)).toMatch(/aún no/);
+    expect(cuponHaExpirado(base, ultimo)).toBe(false);
+    expect(motivoParaNoUsarCupon(base, ultimo)).toBeNull();
+    expect(cuponHaExpirado(base, despues)).toBe(true);
+    expect(motivoParaNoUsarCupon(base, despues)).toMatch(/expirado/);
   });
 });

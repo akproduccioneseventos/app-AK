@@ -1,0 +1,109 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: 99-qr-retest.spec.ts >> Downloaded QR actual reader and SDK persistence: short
+- Location: tests\e2e\99-qr-retest.spec.ts:19:28
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByText(/ACCESO PERMITIDO/)
+Expected: visible
+Timeout: 45000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 45000ms
+  - waiting for getByText(/ACCESO PERMITIDO/)
+
+```
+
+```yaml
+- img
+- text: Control de Acceso Fiesta de esta noche
+- img "Info icon"
+- text: "NotFoundException: No MultiFormat Readers were able to detect the code."
+- button "Choose Another - actual-download.png"
+- text: Or drop an image to scan Scan using camera directly
+- region "Notifications (F8)":
+  - list
+- alert
+```
+
+# Test source
+
+```ts
+  1  | // @ts-nocheck -- isolated browser audit, never production fixtures.
+  2  | import fs from 'node:fs';
+  3  | import os from 'node:os';
+  4  | import path from 'node:path';
+  5  | import admin from 'firebase-admin';
+  6  | import { test, expect } from '@playwright/test';
+  7  | import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+  8  | import { enchufarCamaraFalsa } from './helpers/camara-falsa';
+  9  | if (process.env.AK_ENTORNO_AISLADO !== 'true' || path.basename(process.cwd()) !== 'ak-entorno-aislado-99' ||
+  10 |     path.dirname(process.cwd()) !== path.join(os.tmpdir(), 'ak-codex88') || process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8085') throw new Error('Demo99 only');
+  11 | const app = admin.initializeApp({ projectId: 'demo-ak-producciones' }, 'qr99-' + process.pid);
+  12 | const db = app.firestore(); db.settings({ ignoreUndefinedProperties: true });
+  13 | test.afterAll(async () => app.delete());
+  14 | const cases = [
+  15 |   { name: 'short', event: 'corto', gid: 'g99', token: 'qa99corto' },
+  16 |   { name: 'uuid', event: 'uuid', gid: 'g99uuid', token: '11111111-2222-4333-8444-555555555555' },
+  17 |   { name: 'production-shaped', event: 'verified_fiesta_ficticia_2026_10_11', gid: 'invitado_11111111-2222-4333-8444-555555555555', token: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee' },
+  18 | ];
+  19 | for (const c of cases) test('Downloaded QR actual reader and SDK persistence: ' + c.name, async ({ page, context, baseURL }, info) => {
+  20 |   test.setTimeout(180000);
+  21 |   const id = 'e2e_99_qr_' + c.event + '_' + Date.now();
+  22 |   const fiesta = crearFiestaDeEstaNoche({ id });
+  23 |   fiesta.invitados = [{ id: c.gid, nombre: 'Invitado ficticio auditoria 99', rsvp: 'Confirmado', categoria: 'Adulto', partySize: 2, guestAccessToken: c.token, checkedIn: false }];
+  24 |   const ref = db.collection('fiestas').doc(id), errors = [];
+  25 |   page.on('pageerror', e => errors.push(e.message));
+  26 |   guardarFiesta(fiesta); await ref.set(JSON.parse(JSON.stringify(fiesta)));
+  27 |   try {
+  28 |     expect((await page.goto(`/invitacion/${id}/invitado/${c.gid}?token=${c.token}`, { waitUntil: 'domcontentloaded' }))?.status()).toBe(200);
+  29 |     const download = page.getByRole('button', { name: /Guardar QR/ });
+  30 |     await expect(download).toBeVisible({ timeout: 60000 });
+  31 |     const [file] = await Promise.all([page.waitForEvent('download'), download.click()]);
+  32 |     const bytes = fs.readFileSync((await file.path())!);
+  33 |     const onScreen = await page.locator('#qr-guest-portal').evaluate(e => ({ width: e.width, height: e.height }));
+  34 |     expect(bytes.subarray(1, 4).toString('ascii')).toBe('PNG');
+  35 |     const width = bytes.readUInt32BE(16), height = bytes.readUInt32BE(20);
+  36 |     expect(width).toBeGreaterThan(onScreen.width); expect(height).toBe(width);
+  37 |     const border = await page.evaluate(async b64 => {
+  38 |       const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
+  39 |       const canvas = document.createElement('canvas'); canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+  40 |       const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
+  41 |       const p = ctx.getImageData(0, 0, canvas.width, Math.floor(canvas.width * 0.12)).data;
+  42 |       let nonWhite = 0; for (let i = 0; i < p.length; i += 4) if (p[i] < 250 || p[i+1] < 250 || p[i+2] < 250 || p[i+3] !== 255) nonWhite++;
+  43 |       return nonWhite;
+  44 |     }, bytes.toString('base64'));
+  45 |     expect(border).toBe(0);
+  46 |     await info.attach('actual-downloaded-qr.png', { body: bytes, contentType: 'image/png' });
+  47 |     await ponerSesionDelEquipo(context, baseURL); await enchufarCamaraFalsa(page);
+  48 |     await page.goto('/evento/accesos/' + id, { waitUntil: 'domcontentloaded' });
+  49 |     const change = page.locator('#html5-qrcode-anchor-scan-type-change');
+  50 |     await expect(change).toBeVisible({ timeout: 60000 }); await change.click();
+  51 |     const input = page.locator('#qr-acceso-reader input[type=file]');
+  52 |     const payload = { name: 'actual-download.png', mimeType: 'image/png', buffer: bytes };
+  53 |     await input.setInputFiles(payload);
+> 54 |     await expect(page.getByText(/ACCESO PERMITIDO/)).toBeVisible({ timeout: 45000 });
+     |                                                      ^ Error: expect(locator).toBeVisible() failed
+  55 |     await expect.poll(async () => (await ref.get()).data()?.invitados?.[0]?.checkedIn, { timeout: 30000 }).toBe(true);
+  56 |     const first = (await ref.get()).data().invitados[0]; expect(first.checkInTimestamp).toBeTruthy();
+  57 |     await info.attach('reader-first.png', { body: await page.screenshot(), contentType: 'image/png' });
+  58 |     await page.waitForTimeout(7000); await input.setInputFiles([]); await input.setInputFiles(payload);
+  59 |     await expect(page.getByText(/Este QR ya fue utilizado anteriormente/)).toBeVisible({ timeout: 30000 });
+  60 |     const second = (await ref.get()).data().invitados[0]; expect(second.checkInTimestamp).toBe(first.checkInTimestamp);
+  61 |     expect(second.partySize).toBe(2); expect(errors).toEqual([]);
+  62 |     await info.attach('sdk-after-second.json', { body: JSON.stringify({ id, first, second, bytes: bytes.length, width, height, onScreen, border, errors }, null, 2), contentType: 'application/json' });
+  63 |   } finally { await ref.delete(); borrarFiesta(id); }
+  64 | });
+  65 |
+```

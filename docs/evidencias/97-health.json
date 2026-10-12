@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-10-11T03:31:40.901Z",
+  "http": 200,
+  "version": "755f0707d55a09dbc0641f65e2d56c2e7ac77c60 · compilada 2026-10-11T02:35:18.799Z",
+  "keys": [
+    "status",
+    "timestamp",
+    "version",
+    "services",
+    "environment",
+    "uptime"
+  ],
+  "note": "Build metadata, not independent Hosting revision"
+}

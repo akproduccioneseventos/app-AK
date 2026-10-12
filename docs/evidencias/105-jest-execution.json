@@ -1,0 +1,18 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "mode": "jest",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-verificacion-81-20261009\\docs\\evidencias\\105-jest.json"
+  ],
+  "launcher": 9812,
+  "child": 1552,
+  "started": "2026-10-11T22:14:10.952Z",
+  "status": "finished",
+  "finished": "2026-10-11T22:20:44.641Z",
+  "exitCode": 0
+}

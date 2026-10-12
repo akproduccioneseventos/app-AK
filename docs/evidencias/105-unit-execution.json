@@ -1,0 +1,22 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "4aed259f53f20fb010a27c270edcec634f1937e7",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-verificacion-81-20261009\\docs\\evidencias\\105-unit.json",
+    "--runTestsByPath",
+    "src/__tests__/calendarios-con-react19.test.tsx"
+  ],
+  "launcher": 5976,
+  "child": 11340,
+  "started": "2026-10-11T22:09:08.540Z",
+  "status": "finished",
+  "finished": "2026-10-11T22:09:22.124Z",
+  "exitCode": 0,
+  "workingTreeWasDirty": true,
+  "acceptanceWarning": "Pre-commit focused run, not acceptance of clean 4aed. Superseded by full Jest on a33a54d91bf704f52fe11d1afbc956ebd8e819a5."
+}

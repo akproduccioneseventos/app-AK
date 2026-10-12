@@ -1,0 +1,53 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\102-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+  1) [chromium-desktop] › tests\e2e\102-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - navigating to "http://127.0.0.1:3300/portal/c/e2e_102_missing_12132_1791738259219", waiting until "domcontentloaded"
+
+
+      15 |   test.setTimeout(120000); removeFlag();
+      16 |   const key = 'e2e_102_missing_'+process.pid+'_'+Date.now();
+    > 17 |   await page.goto('/portal/c/'+key,{waitUntil:'domcontentloaded'});
+         |              ^
+      18 |   await expect(page.getByText('Portal no encontrado',{exact:true})).toBeVisible({timeout:60000});
+      19 |   await expect(page.getByText('No pudimos cargar tu portal',{exact:true})).toHaveCount(0);
+      20 |   expect((await context.cookies()).some(c=>c.name==='ak_session')).toBe(false);
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-102\tests\e2e\102-portal-reader.spec.ts:17:14
+
+    Error Context: qa102-artifacts\102-portal-reader-A-genuin-b8a80-portal-still-says-not-found-chromium-desktop\error-context.md
+
+    Error Context: qa102-artifacts\102-portal-reader-A-genuin-b8a80-portal-still-says-not-found-chromium-desktop\error-context.md
+
+
+[2/4] [chromium-desktop] › tests\e2e\102-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  2) [chromium-desktop] › tests\e2e\102-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+
+    Test timeout of 180000ms exceeded.
+
+    Error: page.reload: net::ERR_ABORTED; maybe frame was detached?
+    Call log:
+      - waiting for navigation until "domcontentloaded"
+
+
+      38 |     const before = (await ref.get()).data(), logOffset = fs.existsSync(log)?fs.readFileSync(log,'utf8').length:0;
+      39 |     fs.writeFileSync(flag,'isolated transient read outage');
+    > 40 |     await page.reload({waitUntil:'domcontentloaded'});
+         |                ^
+      41 |     await expect.poll(async()=>/Portal no encontrado|No pudimos cargar tu portal/.test(await page.locator('body').innerText()),{timeout:60000}).toBe(true);
+      42 |     const outage = {body:await page.locator('body').innerText(),url:page.url(),retry:await page.getByRole('button',{name:'Reintentar',exact:true}).count(),faults:fs.existsSync(log)?fs.readFileSync(log,'utf8').slice(logOffset):'',dataExists:(await ref.get()).exists};
+      43 |     await info.attach('actual-read-outage.json',{body:JSON.stringify(outage,null,2),contentType:'application/json'});
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-102\tests\e2e\102-portal-reader.spec.ts:40:16
+
+    Error Context: qa102-dates-artifacts\102-portal-reader-Existing-6300c-ecovers-without-losing-data-chromium-desktop\error-context.md
+
+    Error Context: qa102-dates-artifacts\102-portal-reader-Existing-6300c-ecovers-without-losing-data-chromium-desktop\error-context.md
+
+
+[3/4] [chromium-mobile] › tests\e2e\102-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[4/4] [chromium-mobile] › tests\e2e\102-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data

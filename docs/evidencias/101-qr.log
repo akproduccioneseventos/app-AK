@@ -1,0 +1,75 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\101-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: short
+[2/4] [chromium-desktop] › tests\e2e\101-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: uuid
+  1) [chromium-desktop] › tests\e2e\101-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: uuid
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/ACCESO PERMITIDO/)
+    Expected: visible
+    Timeout: 45000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 45000ms
+      - waiting for getByText(/ACCESO PERMITIDO/)
+
+
+      54 |     const payload = { name: 'actual-download.png', mimeType: 'image/png', buffer: bytes };
+      55 |     await input.setInputFiles(payload);
+    > 56 |     await expect(page.getByText(/ACCESO PERMITIDO/)).toBeVisible({ timeout: 45000 });
+         |                                                      ^
+      57 |     await expect.poll(async () => (await ref.get()).data()?.invitados?.[0]?.checkedIn, { timeout: 30000 }).toBe(true);
+      58 |     const first = (await ref.get()).data().invitados[0]; expect(first.checkInTimestamp).toBeTruthy();
+      59 |     await info.attach('reader-first.png', { body: await page.screenshot(), contentType: 'image/png' });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\tests\e2e\101-qr-retest.spec.ts:56:54
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa101-qr-artifacts\101-qr-retest-Downloaded-Q-804b7-er-and-SDK-persistence-uuid-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa101-qr-artifacts\101-qr-retest-Downloaded-Q-804b7-er-and-SDK-persistence-uuid-chromium-desktop\error-context.md
+
+    Error Context: qa101-qr-artifacts\101-qr-retest-Downloaded-Q-804b7-er-and-SDK-persistence-uuid-chromium-desktop\error-context.md
+
+
+[3/4] [chromium-mobile] › tests\e2e\101-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: short
+[4/4] [chromium-mobile] › tests\e2e\101-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: uuid
+  2) [chromium-mobile] › tests\e2e\101-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: uuid
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/ACCESO PERMITIDO/)
+    Expected: visible
+    Timeout: 45000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 45000ms
+      - waiting for getByText(/ACCESO PERMITIDO/)
+
+
+      54 |     const payload = { name: 'actual-download.png', mimeType: 'image/png', buffer: bytes };
+      55 |     await input.setInputFiles(payload);
+    > 56 |     await expect(page.getByText(/ACCESO PERMITIDO/)).toBeVisible({ timeout: 45000 });
+         |                                                      ^
+      57 |     await expect.poll(async () => (await ref.get()).data()?.invitados?.[0]?.checkedIn, { timeout: 30000 }).toBe(true);
+      58 |     const first = (await ref.get()).data().invitados[0]; expect(first.checkInTimestamp).toBeTruthy();
+      59 |     await info.attach('reader-first.png', { body: await page.screenshot(), contentType: 'image/png' });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-101\tests\e2e\101-qr-retest.spec.ts:56:54
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa101-qr-artifacts\101-qr-retest-Downloaded-Q-804b7-er-and-SDK-persistence-uuid-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa101-qr-artifacts\101-qr-retest-Downloaded-Q-804b7-er-and-SDK-persistence-uuid-chromium-mobile\error-context.md
+
+    Error Context: qa101-qr-artifacts\101-qr-retest-Downloaded-Q-804b7-er-and-SDK-persistence-uuid-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\101-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: uuid
+    [chromium-mobile] › tests\e2e\101-qr-retest.spec.ts:20:28 › Downloaded QR actual reader and SDK persistence: uuid
+  2 passed (3.6m)

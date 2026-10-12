@@ -1,0 +1,263 @@
+{
+  "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "stats": {
+    "startTime": "2026-10-12T14:12:06.546Z",
+    "duration": 580552.5719999999,
+    "expected": 10,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 37639,
+      "errors": [],
+      "files": [
+        {
+          "name": "ayuda-lienzo.json",
+          "path": "106-artifactos/106-3d-pre-camera-000.json"
+        },
+        {
+          "name": "ayuda-lienzo.png",
+          "path": "106-artifactos/106-3d-pre-camera-001.png"
+        }
+      ]
+    },
+    {
+      "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 48955,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 55,
+            "line": 76
+          },
+          "message": "Error: Pausar detiene el giro automatico\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0.01\u001b[39m\nReceived:   \u001b[31m0.035807291666666664\u001b[39m\n\n  74 |   await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused }), contentType: 'application/json' });\n  75 |   // OrbitControls frena con amortiguacion: se tolera antialias, no un giro sostenido.\n> 76 |   expect(paused, 'Pausar detiene el giro automatico').toBeLessThan(0.01);\n     |                                                       ^\n  77 |   expect(paused).toBeLessThan(rotating / 10);\n  78 |   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');\n  79 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:76:55"
+        }
+      ],
+      "files": [
+        {
+          "name": "recorrido-automatico.json",
+          "path": "106-artifactos/106-3d-pre-camera-002.json"
+        },
+        {
+          "name": "recorrido-pausado.json",
+          "path": "106-artifactos/106-3d-pre-camera-003.json"
+        },
+        {
+          "name": "screenshot",
+          "path": "106-artifactos/106-3d-pre-camera-004.png"
+        },
+        {
+          "name": "error-context",
+          "path": "106-artifactos/106-3d-pre-camera-005.bin"
+        }
+      ]
+    },
+    {
+      "title": "titulo legible y colores LED circulares sin controles comprimidos",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 27892,
+      "errors": [],
+      "files": [
+        {
+          "name": "titulo-colores.json",
+          "path": "106-artifactos/106-3d-pre-camera-006.json"
+        },
+        {
+          "name": "salon-con-mesas.png",
+          "path": "106-artifactos/106-3d-pre-camera-007.png"
+        }
+      ]
+    },
+    {
+      "title": "LED y cantidad de invitados cambian la escena real",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 61661,
+      "errors": [],
+      "files": [
+        {
+          "name": "layout-led.json",
+          "path": "106-artifactos/106-3d-pre-camera-008.json"
+        },
+        {
+          "name": "salon-azul-13-mesas.png",
+          "path": "106-artifactos/106-3d-pre-camera-009.png"
+        }
+      ]
+    },
+    {
+      "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 37291,
+      "errors": [],
+      "files": [
+        {
+          "name": "ayuda-lienzo.json",
+          "path": "106-artifactos/106-3d-pre-camera-010.json"
+        },
+        {
+          "name": "ayuda-lienzo.png",
+          "path": "106-artifactos/106-3d-pre-camera-011.png"
+        }
+      ]
+    },
+    {
+      "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 86820,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 55,
+            "line": 76
+          },
+          "message": "Error: Pausar detiene el giro automatico\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0.01\u001b[39m\nReceived:   \u001b[31m0.037543402777777776\u001b[39m\n\n  74 |   if (!helpBox || !canvasBox) throw new Error('Ayuda/lienzo sin medidas');\n  75 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });\n> 76 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });\n     |                                                       ^\n  77 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);\n  78 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });\n  79 |   for (const button of await nav.getByRole('button').all()) {\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:76:55"
+        }
+      ],
+      "files": [
+        {
+          "name": "recorrido-automatico.json",
+          "path": "106-artifactos/106-3d-pre-camera-012.json"
+        },
+        {
+          "name": "recorrido-pausado.json",
+          "path": "106-artifactos/106-3d-pre-camera-013.json"
+        },
+        {
+          "name": "error-context",
+          "path": "106-artifactos/106-3d-pre-camera-014.bin"
+        }
+      ]
+    },
+    {
+      "title": "titulo legible y colores LED circulares sin controles comprimidos",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 46408,
+      "errors": [],
+      "files": [
+        {
+          "name": "titulo-colores.json",
+          "path": "106-artifactos/106-3d-pre-camera-015.json"
+        },
+        {
+          "name": "salon-con-mesas.png",
+          "path": "106-artifactos/106-3d-pre-camera-016.png"
+        }
+      ]
+    },
+    {
+      "title": "LED y cantidad de invitados cambian la escena real",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 91401,
+      "errors": [],
+      "files": [
+        {
+          "name": "layout-led.json",
+          "path": "106-artifactos/106-3d-pre-camera-017.json"
+        },
+        {
+          "name": "salon-azul-13-mesas.png",
+          "path": "106-artifactos/106-3d-pre-camera-018.png"
+        }
+      ]
+    },
+    {
+      "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 33073,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "106-artifactos/106-3d-pre-camera-019.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "106-artifactos/106-3d-pre-camera-020.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "106-artifactos/106-3d-pre-camera-021.json"
+        }
+      ]
+    },
+    {
+      "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 18880,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "106-artifactos/106-3d-pre-camera-022.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "106-artifactos/106-3d-pre-camera-023.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "106-artifactos/106-3d-pre-camera-024.json"
+        }
+      ]
+    },
+    {
+      "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 53381,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "106-artifactos/106-3d-pre-camera-025.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "106-artifactos/106-3d-pre-camera-026.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "106-artifactos/106-3d-pre-camera-027.json"
+        }
+      ]
+    },
+    {
+      "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 28001,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "106-artifactos/106-3d-pre-camera-028.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "106-artifactos/106-3d-pre-camera-029.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "106-artifactos/106-3d-pre-camera-030.json"
+        }
+      ]
+    }
+  ]
+}

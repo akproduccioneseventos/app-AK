@@ -1,0 +1,80 @@
+[
+  {
+    "title": "Existing client portal distinguishes a read outage and recovers without losing data",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 27480,
+    "errors": [
+      "Error: existing portal must not be called invalid or expired\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"No pudimos cargar tu portal\"\u001b[39m\nReceived string:    \u001b[31m\"Portal no encontrado·\u001b[39m\n\u001b[31mEl enlace al portal no es válido, ha expirado o el portal no está habilitado. Por favor, solicitá un nuevo enlace a tu organizador.·\u001b[39m\n\u001b[31mVolver al inicio\"\u001b[39m\n\n  54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});\n  55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});\n> 56 |     expect(outage.body,'existing portal must not be called invalid or expired').toContain('No pudimos cargar tu portal');\n     |                                                                                 ^\n  57 |     expect(outage.body).not.toContain('Portal no encontrado'); expect(outage.retry).toBe(1);\n  58 |   } finally { removeFlag(); await ref.delete(); }\n  59 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100\\tests\\e2e\\100-portal-reader.spec.ts:56:81"
+    ],
+    "attachments": [
+      {
+        "name": "actual-read-outage.json",
+        "file": "docs/evidencias/100-artifactos/100-portal-00-0.json"
+      },
+      {
+        "name": "actual-read-outage.png",
+        "file": "docs/evidencias/100-artifactos/100-portal-00-1.png"
+      },
+      {
+        "name": "after-recovery.json",
+        "file": "docs/evidencias/100-artifactos/100-portal-00-2.json"
+      },
+      {
+        "name": "after-recovery.png",
+        "file": "docs/evidencias/100-artifactos/100-portal-00-3.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/100-artifactos/100-portal-00-4.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/100-artifactos/100-portal-00-5.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/100-artifactos/100-portal-00-6.txt"
+      }
+    ]
+  },
+  {
+    "title": "Existing client portal distinguishes a read outage and recovers without losing data",
+    "project": "chromium-mobile",
+    "status": "failed",
+    "duration": 15610,
+    "errors": [
+      "Error: existing portal must not be called invalid or expired\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"No pudimos cargar tu portal\"\u001b[39m\nReceived string:    \u001b[31m\"Portal no encontrado·\u001b[39m\n\u001b[31mEl enlace al portal no es válido, ha expirado o el portal no está habilitado. Por favor, solicitá un nuevo enlace a tu organizador.·\u001b[39m\n\u001b[31mVolver al inicio\"\u001b[39m\n\n  54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});\n  55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});\n> 56 |     expect(outage.body,'existing portal must not be called invalid or expired').toContain('No pudimos cargar tu portal');\n     |                                                                                 ^\n  57 |     expect(outage.body).not.toContain('Portal no encontrado'); expect(outage.retry).toBe(1);\n  58 |   } finally { removeFlag(); await ref.delete(); }\n  59 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100\\tests\\e2e\\100-portal-reader.spec.ts:56:81"
+    ],
+    "attachments": [
+      {
+        "name": "actual-read-outage.json",
+        "file": "docs/evidencias/100-artifactos/100-portal-01-0.json"
+      },
+      {
+        "name": "actual-read-outage.png",
+        "file": "docs/evidencias/100-artifactos/100-portal-01-1.png"
+      },
+      {
+        "name": "after-recovery.json",
+        "file": "docs/evidencias/100-artifactos/100-portal-01-2.json"
+      },
+      {
+        "name": "after-recovery.png",
+        "file": "docs/evidencias/100-artifactos/100-portal-01-3.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/100-artifactos/100-portal-01-4.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/100-artifactos/100-portal-01-5.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/100-artifactos/100-portal-01-6.txt"
+      }
+    ]
+  }
+]

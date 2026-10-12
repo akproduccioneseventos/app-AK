@@ -75,7 +75,7 @@ export interface HubItem {
   title: string;
   description: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   lightColor: string;
   featured?: boolean;
   category: 'comercial' | 'operaciones' | 'finanzas' | 'marketing';

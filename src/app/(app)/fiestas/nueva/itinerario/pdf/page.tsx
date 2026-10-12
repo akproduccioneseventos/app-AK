@@ -27,7 +27,7 @@ const formatDate = (dateString?: string) => {
 
 const companyName = "AK Producciones";
 
-const iconMap: Record<string, React.ElementType> = {
+const iconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
 };
 

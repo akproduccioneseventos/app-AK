@@ -1,0 +1,19 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "583c9b27c1f129892fc5bac16dbee725d460eb52",
+  "applicationSourceSha": "583c9b27c1f129892fc5bac16dbee725d460eb52",
+  "mode": "jest",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\docs\\evidencias\\106-jest.json"
+  ],
+  "launcher": 15204,
+  "child": 15116,
+  "started": "2026-10-12T12:49:06.384Z",
+  "status": "finished",
+  "finished": "2026-10-12T12:54:28.638Z",
+  "exitCode": 0
+}

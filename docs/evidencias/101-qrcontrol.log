@@ -1,0 +1,6 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\101-qr-control.spec.ts:12:5 › Diagnostic: exact UUID PNG repeats decoder failure and never checks guest in
+[2/2] [chromium-mobile] › tests\e2e\101-qr-control.spec.ts:12:5 › Diagnostic: exact UUID PNG repeats decoder failure and never checks guest in
+  2 passed (19.1s)

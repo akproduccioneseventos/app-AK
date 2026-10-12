@@ -1,0 +1,34 @@
+{
+  "source": "/invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto",
+  "densityControls": [
+    {
+      "scale": 1,
+      "width": 234,
+      "state": {
+        "id": "g99",
+        "nombre": "Invitado ficticio archivo preservado99",
+        "rsvp": "Confirmado",
+        "categoria": "Adulto",
+        "partySize": 2,
+        "guestAccessToken": "qa99corto",
+        "checkedIn": true,
+        "checkInTimestamp": "2026-10-11T05:20:59.941Z"
+      },
+      "text": "Control de Acceso\nFiesta de esta noche\n\n✅ ACCESO PERMITIDO\n\nInvitado ficticio archivo preservado99\n\nGrupo: 2 personas\n\nEscanear otro\nChoose Another - density-control.png\nOr drop an image to scan\nScan using camera directly"
+    },
+    {
+      "scale": 2,
+      "width": 470,
+      "state": {
+        "id": "g99",
+        "nombre": "Invitado ficticio archivo preservado99",
+        "rsvp": "Confirmado",
+        "categoria": "Adulto",
+        "partySize": 2,
+        "guestAccessToken": "qa99corto",
+        "checkedIn": false
+      },
+      "text": "Control de Acceso\nFiesta de esta noche\nNotFoundException: No MultiFormat Readers were able to detect the code.\nChoose Another - density-control.png\nOr drop an image to scan\nScan using camera directly"
+    }
+  ]
+}

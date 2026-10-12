@@ -1,0 +1,60 @@
+[
+  {
+    "title": "Mirror failed image review creates one pending post and truthful notice",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 31274,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mirror-pending.json",
+        "file": "docs/evidencias/98-artifactos/98-mural-00-0.json"
+      },
+      {
+        "name": "mirror-notice.png",
+        "file": "docs/evidencias/98-artifactos/98-mural-00-1.png"
+      },
+      {
+        "name": "mirror-public-wall.png",
+        "file": "docs/evidencias/98-artifactos/98-mural-00-2.png"
+      },
+      {
+        "name": "mirror-public-wall.txt",
+        "file": "docs/evidencias/98-artifactos/98-mural-00-3.txt"
+      },
+      {
+        "name": "mirror-final.json",
+        "file": "docs/evidencias/98-artifactos/98-mural-00-4.json"
+      }
+    ]
+  },
+  {
+    "title": "Mirror failed image review creates one pending post and truthful notice",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 34559,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mirror-pending.json",
+        "file": "docs/evidencias/98-artifactos/98-mural-01-0.json"
+      },
+      {
+        "name": "mirror-notice.png",
+        "file": "docs/evidencias/98-artifactos/98-mural-01-1.png"
+      },
+      {
+        "name": "mirror-public-wall.png",
+        "file": "docs/evidencias/98-artifactos/98-mural-01-2.png"
+      },
+      {
+        "name": "mirror-public-wall.txt",
+        "file": "docs/evidencias/98-artifactos/98-mural-01-3.txt"
+      },
+      {
+        "name": "mirror-final.json",
+        "file": "docs/evidencias/98-artifactos/98-mural-01-4.json"
+      }
+    ]
+  }
+]

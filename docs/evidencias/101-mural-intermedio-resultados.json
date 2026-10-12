@@ -1,0 +1,36 @@
+[
+  {
+    "title": "Mural painted without CSS override: approved photo",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 23850,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mural-measured.json",
+        "file": "docs/evidencias/101-artifactos/101-mural-intermedio-00-0.json"
+      },
+      {
+        "name": "mural-painted.png",
+        "file": "docs/evidencias/101-artifactos/101-mural-intermedio-00-1.png"
+      }
+    ]
+  },
+  {
+    "title": "Mural painted without CSS override: approved photo",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 24556,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mural-measured.json",
+        "file": "docs/evidencias/101-artifactos/101-mural-intermedio-01-0.json"
+      },
+      {
+        "name": "mural-painted.png",
+        "file": "docs/evidencias/101-artifactos/101-mural-intermedio-01-1.png"
+      }
+    ]
+  }
+]

@@ -1,0 +1,113 @@
+{
+  "sourceSha": "b7206bc77917c8b5f31e01b4a024ed8a4a02f8ce",
+  "stats": {
+    "startTime": "2026-10-12T13:49:05.120Z",
+    "duration": 197580.497,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "titulo legible y colores LED circulares sin controles comprimidos",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 8823,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 27,
+            "line": 96
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m4.5\u001b[39m\nReceived:    \u001b[31m1.0013007246017014\u001b[39m\n\n  94 |     return { foreground, background, contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };\n  95 |   });\n> 96 |   expect(colors.contrast).toBeGreaterThanOrEqual(4.5);\n     |                           ^\n  97 |   for (const name of ['Dorado', 'Fucsia', 'Azul', 'Violeta', 'Esmeralda']) {\n  98 |     const swatch = page.getByRole('button', { name: `Color ${name}`, exact: true });\n  99 |     const box = await swatch.boundingBox();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:96:27"
+        }
+      ],
+      "files": [
+        {
+          "name": "screenshot",
+          "path": "106-artifactos/106-3d-layout-baseline-000.png"
+        },
+        {
+          "name": "error-context",
+          "path": "106-artifactos/106-3d-layout-baseline-001.bin"
+        }
+      ]
+    },
+    {
+      "title": "LED y cantidad de invitados cambian la escena real",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 59186,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 22,
+            "line": 114
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Color Azul', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  45000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Color Azul', exact: true })\u001b[22m\n\u001b[2m    77 × locator resolved to <button title=\"Azul\" type=\"button\" aria-label=\"Color Azul\" class=\"h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md\"></button>\u001b[22m\n\u001b[2m       - unexpected value \"null\"\u001b[22m\n\n\n  112 |   const blue = page.getByRole('button', { name: 'Color Azul', exact: true });\n  113 |   await blue.click();\n> 114 |   await expect(blue).toHaveAttribute('aria-pressed', 'true');\n      |                      ^\n  115 |   await page.locator('canvas').first().scrollIntoViewIfNeeded();\n  116 |   await page.waitForTimeout(1500);\n  117 |   const colored = await imagen(page);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:114:22"
+        }
+      ],
+      "files": [
+        {
+          "name": "screenshot",
+          "path": "106-artifactos/106-3d-layout-baseline-002.png"
+        },
+        {
+          "name": "error-context",
+          "path": "106-artifactos/106-3d-layout-baseline-003.bin"
+        }
+      ]
+    },
+    {
+      "title": "titulo legible y colores LED circulares sin controles comprimidos",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 18007,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 27,
+            "line": 96
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: >= \u001b[32m4.5\u001b[39m\nReceived:    \u001b[31m1.0013007246017014\u001b[39m\n\n  94 |     return { foreground, background, contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };\n  95 |   });\n> 96 |   expect(colors.contrast).toBeGreaterThanOrEqual(4.5);\n     |                           ^\n  97 |   for (const name of ['Dorado', 'Fucsia', 'Azul', 'Violeta', 'Esmeralda']) {\n  98 |     const swatch = page.getByRole('button', { name: `Color ${name}`, exact: true });\n  99 |     const box = await swatch.boundingBox();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:96:27"
+        }
+      ],
+      "files": [
+        {
+          "name": "screenshot",
+          "path": "106-artifactos/106-3d-layout-baseline-004.png"
+        },
+        {
+          "name": "error-context",
+          "path": "106-artifactos/106-3d-layout-baseline-005.bin"
+        }
+      ]
+    },
+    {
+      "title": "LED y cantidad de invitados cambian la escena real",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 95121,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 22,
+            "line": 114
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('button', { name: 'Color Azul', exact: true })\nExpected: \u001b[32m\"true\"\u001b[39m\nReceived: \u001b[31m\"\"\u001b[39m\nTimeout:  45000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Color Azul', exact: true })\u001b[22m\n\u001b[2m    17 × locator resolved to <button title=\"Azul\" type=\"button\" aria-label=\"Color Azul\" class=\"h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md\"></button>\u001b[22m\n\u001b[2m       - unexpected value \"null\"\u001b[22m\n\n\n  112 |   const blue = page.getByRole('button', { name: 'Color Azul', exact: true });\n  113 |   await blue.click();\n> 114 |   await expect(blue).toHaveAttribute('aria-pressed', 'true');\n      |                      ^\n  115 |   await page.locator('canvas').first().scrollIntoViewIfNeeded();\n  116 |   await page.waitForTimeout(1500);\n  117 |   const colored = await imagen(page);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:114:22"
+        }
+      ],
+      "files": [
+        {
+          "name": "error-context",
+          "path": "106-artifactos/106-3d-layout-baseline-006.bin"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+FAIL src/__tests__/configurador-reunion-layout-real.test.tsx
+  ● layout real del configurador de reunión › entrega al renderer el layout y los cambios de color/aforo
+
+    TypeError: expect(received).toHaveLength(expected)
+
+    Matcher error: received value must have a length property whose value must be a number
+
+    Received has value: undefined
+
+      57 |
+      58 |       const decoracionInicial = mockRenderScene.mock.calls.at(-1)?.[0]?.decoracion as any;
+    > 59 |       expect(decoracionInicial.salonElements).toHaveLength(13);
+         |                                               ^
+      60 |       expect(decoracionInicial.salonElements.filter((element: any) => element.name?.startsWith('Mesa '))).toHaveLength(10);
+      61 |       expect(decoracionInicial.salonElements.map((element: any) => element.id)).toEqual(
+      62 |         expect.arrayContaining(['pista-central', 'escenario-dj', 'barra-tragos'])
+
+      at Object.toHaveLength (src/__tests__/configurador-reunion-layout-real.test.tsx:59:47)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        2.736 s
+Ran all test suites matching src/__tests__/configurador-reunion-layout-real.test.tsx.
+Test results written to: docs\evidencias\106-layout-unit-baseline.json

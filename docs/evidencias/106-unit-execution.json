@@ -1,0 +1,22 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\docs\\evidencias\\106-unit.json",
+    "--runTestsByPath",
+    "src/__tests__/dependencias-multipart-mapas-regresion.test.ts",
+    "src/__tests__/configurador-reunion-layout-real.test.tsx"
+  ],
+  "launcher": 15356,
+  "child": 16388,
+  "started": "2026-10-12T13:55:12.970Z",
+  "status": "finished",
+  "finished": "2026-10-12T13:55:19.793Z",
+  "exitCode": 0
+}

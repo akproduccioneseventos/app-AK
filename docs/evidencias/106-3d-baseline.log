@@ -1,0 +1,112 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:21:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+  1) [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:21:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada 
+
+    Error: La ayuda no tapa la escena
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 265
+    Received:    732
+
+      27 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });
+      28 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });
+    > 29 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);
+         |                                                                    ^
+      30 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });
+      31 |   for (const button of await nav.getByRole('button').all()) {
+      32 |     await expect(button).toBeVisible();
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:29:68
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-baseline-artifacts\salon-3d-ayuda-recorrido-l-553b5-a-navegacion-no-esta-tapada-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-baseline-artifacts\salon-3d-ayuda-recorrido-l-553b5-a-navegacion-no-esta-tapada-chromium-desktop\error-context.md
+
+
+[2/4] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:40:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+  2) [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:40:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+
+    Error: Recorrer debe mover la camara, no solo su icono
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      47 |   const moving = await imagen(page);
+      48 |   await info.attach('recorrido-automatico.json', { body: JSON.stringify({ changed: before !== moving }), contentType: 'application/json' });
+    > 49 |   expect(moving !== before, 'Recorrer debe mover la camara, no solo su icono').toBe(true);
+         |                                                                                ^
+      50 |   const pause = page.getByRole('button', { name: 'Pausar recorrido', exact: true });
+      51 |   await expect(pause).toHaveAttribute('aria-pressed', 'true');
+      52 |   await pause.click();
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:49:80
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-baseline-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-baseline-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-desktop\error-context.md
+
+
+[3/4] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:21:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+  3) [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:21:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada 
+
+    Error: La ayuda no tapa la escena
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 460
+    Received:    827
+
+      27 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });
+      28 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });
+    > 29 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);
+         |                                                                    ^
+      30 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });
+      31 |   for (const button of await nav.getByRole('button').all()) {
+      32 |     await expect(button).toBeVisible();
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:29:68
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-baseline-artifacts\salon-3d-ayuda-recorrido-l-553b5-a-navegacion-no-esta-tapada-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-baseline-artifacts\salon-3d-ayuda-recorrido-l-553b5-a-navegacion-no-esta-tapada-chromium-mobile\error-context.md
+
+
+[4/4] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:40:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+  4) [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:40:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+
+    Error: Recorrer debe mover la camara, no solo su icono
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      47 |   const moving = await imagen(page);
+      48 |   await info.attach('recorrido-automatico.json', { body: JSON.stringify({ changed: before !== moving }), contentType: 'application/json' });
+    > 49 |   expect(moving !== before, 'Recorrer debe mover la camara, no solo su icono').toBe(true);
+         |                                                                                ^
+      50 |   const pause = page.getByRole('button', { name: 'Pausar recorrido', exact: true });
+      51 |   await expect(pause).toHaveAttribute('aria-pressed', 'true');
+      52 |   await pause.click();
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:49:80
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-baseline-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-baseline-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-mobile\error-context.md
+
+
+  4 failed
+    [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:21:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada 
+    [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:40:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+    [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:21:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada 
+    [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:40:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 

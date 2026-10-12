@@ -1,0 +1,305 @@
+[31m[1m!!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-ak-producciones", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[33m[1m!  emulators:[22m[39m It seems that you are running multiple instances of the emulator suite for project demo-ak-producciones. This may result in unexpected behavior.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m! [22m[39m Unexpected rules runtime error: Picked up JAVA_TOOL_OPTIONS: -Xmx512m
+
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌───────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator  [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore [90m│[39m 127.0.0.1:8085 [90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage   [90m│[39m 127.0.0.1:9195 [90m│[39m
+[90m└───────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+
+[33m[1m!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 11.7s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1217ms (161 modules)
+ ○ Compiling /portal/c/[accessKey] ...
+ ✓ Compiled /portal/c/[accessKey] in 41.4s (4175 modules)
+ ✓ Compiled in 3.1s (1376 modules)
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_100_missing_25556_1791696650825 200 in 53959ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_100_missing_20868_1791696719838 200 in 2167ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ GET /portal/c/e2e_100_portal_22080_1791696776181_key 200 in 11521ms
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:33:15.333Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 2
+}
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:33:15.375Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA100 isolated read unavailable' }
+ POST /portal/c/e2e_100_portal_22080_1791696776181_key 200 in 1365ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /portal/c/e2e_100_portal_22080_1791696776181_key 200 in 3302ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_100_portal_22080_1791696776181_key 200 in 1361ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_100_portal_24524_1791696804063_key 200 in 1868ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:33:29.725Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 2
+}
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:33:29.742Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA100 isolated read unavailable' }
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_100_portal_24524_1791696804063_key 200 in 2178ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_100_portal_24524_1791696804063_key 200 in 1373ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /portal/c/e2e_100_portal_24524_1791696804063_key 200 in 2990ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ ○ Compiling /presupuestos/nuevo/crear ...
+ ✓ Compiled /presupuestos/nuevo/crear in 22.5s (6410 modules)
+ GET /presupuestos/nuevo/crear 200 in 28058ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /presupuestos/nuevo/crear 200 in 1600ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 495ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 671ms
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 748ms
+[AK] [readData] FALLBACK JSON usado para "insumos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "menus-catering.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 591ms
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 505ms
+ POST /presupuestos/nuevo/crear 200 in 437ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 442ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 771ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /presupuestos/nuevo/crear 200 in 1910ms
+ POST /presupuestos/nuevo/crear 200 in 744ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 897ms
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:35:04.532Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA100 isolated read unavailable' }
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 1251ms
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 2139ms
+ POST /presupuestos/nuevo/crear 200 in 625ms
+ POST /presupuestos/nuevo/crear 200 in 2124ms
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:35:13.093Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA100 isolated read unavailable' }
+ POST /presupuestos/nuevo/crear 200 in 3785ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 3202ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 676ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 968ms
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:35:19.666Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA100 isolated read unavailable' }
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 945ms
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 2004ms
+ ⨯ [Error: aborted]
+ ○ Compiling /_error ...
+ GET /presupuestos/nuevo/crear 200 in 2136ms
+ ✓ Compiled /_error in 11.4s (6762 modules)
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /presupuestos/nuevo/crear 200 in 4344ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 811ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 988ms
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 668ms
+[AK] [readData] FALLBACK JSON usado para "insumos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "menus-catering.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 703ms
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 749ms
+ POST /presupuestos/nuevo/crear 200 in 1959ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 1679ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 781ms
+ POST /presupuestos/nuevo/crear 200 in 522ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /presupuestos/nuevo/crear 200 in 2459ms
+ POST /presupuestos/nuevo/crear 200 in 1469ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 930ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 1173ms
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 689ms
+ POST /presupuestos/nuevo/crear 200 in 539ms
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 533ms
+ POST /presupuestos/nuevo/crear 200 in 587ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 705ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 526ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 2049ms
+ GET /presupuestos/nuevo/crear 200 in 2004ms
+ POST /presupuestos/nuevo/crear 200 in 788ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 1106ms
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:36:11.950Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA100 isolated read unavailable' }
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 1957ms
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 783ms
+ POST /presupuestos/nuevo/crear 200 in 491ms
+ POST /presupuestos/nuevo/crear 200 in 695ms
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:36:14.623Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA100 isolated read unavailable' }
+ POST /presupuestos/nuevo/crear 200 in 571ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 847ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 599ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 1092ms
+[QA100] Controlled unavailable fiestas query {
+  time: '2026-10-11T05:36:18.039Z',
+  pid: 12212,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA100 isolated read unavailable' }
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 854ms
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 628ms
+ POST /presupuestos/nuevo/crear 200 in 778ms
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 1380ms
+ GET /presupuestos/nuevo/crear 200 in 1219ms
+ POST /presupuestos/nuevo/crear 200 in 660ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 860ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 895ms
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 1372ms
+ POST /presupuestos/nuevo/crear 200 in 572ms
+ POST /presupuestos/nuevo/crear 200 in 1427ms
+ POST /presupuestos/nuevo/crear 200 in 3970ms
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 7621ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /presupuestos/nuevo/crear 200 in 4417ms

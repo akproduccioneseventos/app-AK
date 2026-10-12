@@ -84,7 +84,7 @@ interface TemplateProps {
   selectedSectionId?: string | null;
 }
 
-const iconMap: Record<string, React.ElementType> = {
+const iconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   Utensils, GlassWater, Music, CakeSlice, Camera: CameraIcon, Diamond, PartyPopper, Clock,
 };
 
@@ -134,7 +134,7 @@ const SectionWrapper: React.FC<{
     );
 };
 
-const SectionHeader: React.FC<{ icon: React.ElementType, title: string, subtitle?: string, color: string, style?: TextStyle }> = ({ icon: Icon, title, subtitle, color, style }) => (
+const SectionHeader: React.FC<{ icon: React.ComponentType<React.SVGProps<SVGSVGElement>>, title: string, subtitle?: string, color: string, style?: TextStyle }> = ({ icon: Icon, title, subtitle, color, style }) => (
     <div className="mb-12 md:mb-16 space-y-4 md:space-y-6 text-center">
         <motion.div
             initial={{ scale: 0, rotate: -180 }}

@@ -1,0 +1,36 @@
+[
+  {
+    "title": "Diagnostic: exact UUID PNG repeats decoder failure and never checks guest in",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 7183,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "exact-uuid-failure-sdk.json",
+        "file": "docs/evidencias/101-artifactos/101-qrcontrol-00-0.json"
+      },
+      {
+        "name": "exact-uuid-failure.png",
+        "file": "docs/evidencias/101-artifactos/101-qrcontrol-00-1.png"
+      }
+    ]
+  },
+  {
+    "title": "Diagnostic: exact UUID PNG repeats decoder failure and never checks guest in",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 7619,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "exact-uuid-failure-sdk.json",
+        "file": "docs/evidencias/101-artifactos/101-qrcontrol-01-0.json"
+      },
+      {
+        "name": "exact-uuid-failure.png",
+        "file": "docs/evidencias/101-artifactos/101-qrcontrol-01-1.png"
+      }
+    ]
+  }
+]

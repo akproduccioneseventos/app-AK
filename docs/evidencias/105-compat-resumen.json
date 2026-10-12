@@ -1,0 +1,97 @@
+{
+  "sourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "stats": {
+    "startTime": "2026-10-11T22:32:04.232Z",
+    "duration": 110387.56199999999,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "agenda: elegir dia y navegar meses sin tapar los controles",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 3414,
+      "errors": [],
+      "files": [
+        {
+          "name": "agenda-calendario.png",
+          "path": "105-artifactos/105-compat-000.png"
+        }
+      ]
+    },
+    {
+      "title": "redes: calendario visible y navegacion mensual",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 4856,
+      "errors": [],
+      "files": [
+        {
+          "name": "redes-calendario.png",
+          "path": "105-artifactos/105-compat-001.png"
+        }
+      ]
+    },
+    {
+      "title": "agenda: elegir dia y navegar meses sin tapar los controles",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 6097,
+      "errors": [],
+      "files": [
+        {
+          "name": "agenda-calendario.png",
+          "path": "105-artifactos/105-compat-002.png"
+        }
+      ]
+    },
+    {
+      "title": "redes: calendario visible y navegacion mensual",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 8131,
+      "errors": [],
+      "files": [
+        {
+          "name": "redes-calendario.png",
+          "path": "105-artifactos/105-compat-003.png"
+        }
+      ]
+    },
+    {
+      "title": "el QR descargado con token corto entra por el lector real",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 22405,
+      "errors": [],
+      "files": []
+    },
+    {
+      "title": "el QR descargado con token largo entra por el lector real",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 21692,
+      "errors": [],
+      "files": []
+    },
+    {
+      "title": "el QR descargado con token corto entra por el lector real",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 20011,
+      "errors": [],
+      "files": []
+    },
+    {
+      "title": "el QR descargado con token largo entra por el lector real",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 19187,
+      "errors": [],
+      "files": []
+    }
+  ]
+}

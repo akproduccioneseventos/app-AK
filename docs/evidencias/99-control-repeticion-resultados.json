@@ -1,0 +1,44 @@
+[
+  {
+    "title": "Same downloaded file mobile failure and width control: 3",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 9069,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "reader-width-412.png",
+        "file": "docs/evidencias/99-artifactos/99-control-repeticion-00-0.png"
+      },
+      {
+        "name": "reader-width-1280.png",
+        "file": "docs/evidencias/99-artifactos/99-control-repeticion-00-1.png"
+      },
+      {
+        "name": "unchanged-file-controls.json",
+        "file": "docs/evidencias/99-artifactos/99-control-repeticion-00-2.json"
+      }
+    ]
+  },
+  {
+    "title": "Same downloaded file mobile failure and width control: 4",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 7664,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "reader-width-412.png",
+        "file": "docs/evidencias/99-artifactos/99-control-repeticion-01-0.png"
+      },
+      {
+        "name": "reader-width-1280.png",
+        "file": "docs/evidencias/99-artifactos/99-control-repeticion-01-1.png"
+      },
+      {
+        "name": "unchanged-file-controls.json",
+        "file": "docs/evidencias/99-artifactos/99-control-repeticion-01-2.json"
+      }
+    ]
+  }
+]

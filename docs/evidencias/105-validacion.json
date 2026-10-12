@@ -1,0 +1,346 @@
+{
+  "applicationSourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "baseMainSha": "99faf4eb061fa46341cfdde6f81b93b3bfb9c73c",
+  "build": {
+    "exitCode": 0,
+    "log": "105-build.log",
+    "lintAndTypesSkipped": false,
+    "pwaEnabled": true,
+    "standaloneDisabledForLocalQA": true
+  },
+  "types": {
+    "exitCode": 0,
+    "evidence": "105-types-execution.json"
+  },
+  "jest": {
+    "suites": 690,
+    "passed": 4135,
+    "failed": 0,
+    "pending": 0,
+    "evidence": "105-jest-resumen.json"
+  },
+  "browser": {
+    "3d": {
+      "passed": 4,
+      "failed": 0,
+      "sourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+      "harnessSha": "e7f5e7fccf94af5aa8ff7ef8ae006f8b4eef0773",
+      "evidence": "105-3d-resumen.json"
+    },
+    "compat": {
+      "passed": 8,
+      "failed": 0,
+      "sourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+      "harnessSha": "e7f5e7fccf94af5aa8ff7ef8ae006f8b4eef0773",
+      "evidence": "105-compat-resumen.json"
+    },
+    "sdk": {
+      "passed": 10,
+      "failed": 0,
+      "sourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+      "harnessSha": "e7f5e7fccf94af5aa8ff7ef8ae006f8b4eef0773",
+      "evidence": "105-sdk-resumen.json"
+    }
+  },
+  "artifacts": [
+    {
+      "file": "105-artifactos/105-3d-000.json",
+      "bytes": 313,
+      "sha256": "96953bfddb7ee54d78a60307064f37367ac6bb6606a290dd16c4510792627a53"
+    },
+    {
+      "file": "105-artifactos/105-3d-001.png",
+      "bytes": 38074,
+      "sha256": "3e4b289fdf02efa0e8361757cc77987c384851e27e53e1e722bc01fda9b9c106"
+    },
+    {
+      "file": "105-artifactos/105-3d-002.json",
+      "bytes": 216,
+      "sha256": "4122fb6760168774290bf1734b75e18fd16c9e7f041b89bb93885f2fa9471389"
+    },
+    {
+      "file": "105-artifactos/105-3d-003.json",
+      "bytes": 146,
+      "sha256": "ef61aca0b736ad328249c81ff2dc30efdc2ededfb6abe9a81ba86c830e422ea9"
+    },
+    {
+      "file": "105-artifactos/105-3d-004.png",
+      "bytes": 58778,
+      "sha256": "19273ba068c4ffb750a05c9af0fa70c02a48982170866c56a88c32c9194c4b97"
+    },
+    {
+      "file": "105-artifactos/105-3d-005.json",
+      "bytes": 48,
+      "sha256": "b5a6cdf5fae9554f44192926009c07fe83fe3f74231937eb9734a76843d50e4c"
+    },
+    {
+      "file": "105-artifactos/105-3d-006.json",
+      "bytes": 312,
+      "sha256": "87345800fc863f9c9a0de255250a15e663a4b22f0c0c740feed058fcc1c65284"
+    },
+    {
+      "file": "105-artifactos/105-3d-007.png",
+      "bytes": 180314,
+      "sha256": "054d14ef80dfdcae3bf8730b673b7206b9eb4a7240cada903267d4d03553c47c"
+    },
+    {
+      "file": "105-artifactos/105-3d-008.json",
+      "bytes": 215,
+      "sha256": "a9253d5c528b945ea84d1f5ee50808bcf9d1cbed7dc51af9794f217282debccc"
+    },
+    {
+      "file": "105-artifactos/105-3d-009.json",
+      "bytes": 146,
+      "sha256": "490bfef3165f6d75c5ce67d95a46fe82eafddbc53aa666d85c5c185fdbabfd30"
+    },
+    {
+      "file": "105-artifactos/105-3d-010.png",
+      "bytes": 172319,
+      "sha256": "e19f35b8269ff17663225c35b024827e61214465cacdf7087ff5ea00dd7bcc47"
+    },
+    {
+      "file": "105-artifactos/105-3d-011.json",
+      "bytes": 47,
+      "sha256": "64252b9b1d7ea92ad717de15d86f0fabd77cdba7856e4ee1ac5e257d1dec292b"
+    },
+    {
+      "file": "105-artifactos/105-3d-dev-inicial-000.png",
+      "bytes": 6392,
+      "sha256": "a463b6dc9a1464a628cedb032f84a8b11a7db64f60e32cc6efde12eb03ca9643"
+    },
+    {
+      "file": "105-artifactos/105-3d-dev-inicial-001.bin",
+      "bytes": 5366,
+      "sha256": "b5853d79322315ec25898b78991941e56424e6fa1d8f223503d2eeb0d57b1134"
+    },
+    {
+      "file": "105-artifactos/105-3d-dev-inicial-002.bin",
+      "bytes": 5366,
+      "sha256": "b5853d79322315ec25898b78991941e56424e6fa1d8f223503d2eeb0d57b1134"
+    },
+    {
+      "file": "105-artifactos/105-compat-000.png",
+      "bytes": 7503,
+      "sha256": "edad96760c2b5cdb68fcf3a3e17c99580888a126ab540e76d59b51758235a20a"
+    },
+    {
+      "file": "105-artifactos/105-compat-001.png",
+      "bytes": 13626,
+      "sha256": "8b088f6cc57e2c74872db4a24f58299783e5b8214d2a8b0f62f8d7ea15faf4ce"
+    },
+    {
+      "file": "105-artifactos/105-compat-002.png",
+      "bytes": 16019,
+      "sha256": "07254425ce89991450b3c6d986e729bf3a639b8a5763c8c331366072bd414921"
+    },
+    {
+      "file": "105-artifactos/105-compat-003.png",
+      "bytes": 18415,
+      "sha256": "468ed7eaf8761f6694eb5ba2b75e7a7c442b9d1baa77ca9867b1cc413eb57426"
+    },
+    {
+      "file": "105-artifactos/105-compat-inicial-000.png",
+      "bytes": 7411,
+      "sha256": "17cc78d5389c34e90bad617e8dbb23f8d6952f51e00bc41e9c612b0791fcf7f5"
+    },
+    {
+      "file": "105-artifactos/105-compat-inicial-001.png",
+      "bytes": 13606,
+      "sha256": "f50714cff1a7fa902c2e4b64f3bc02126aea25a4dccce355eb244f05fb5f0501"
+    },
+    {
+      "file": "105-artifactos/105-compat-inicial-002.png",
+      "bytes": 280024,
+      "sha256": "942511c9bf1042ee04edfb18dbe4b4c1499d34db3226305c0ae651c94966918f"
+    },
+    {
+      "file": "105-artifactos/105-compat-inicial-003.bin",
+      "bytes": 16048,
+      "sha256": "3b55e6e8829183d48fae74110de90851239249187b5d95dc21866fde4b32ca1f"
+    },
+    {
+      "file": "105-artifactos/105-compat-inicial-004.png",
+      "bytes": 164751,
+      "sha256": "309e57ece2fc8d567b6f6702aed9e72e5e3fef66aa0f37144f23a5d31c92eb11"
+    },
+    {
+      "file": "105-artifactos/105-compat-inicial-005.bin",
+      "bytes": 24399,
+      "sha256": "975bf41210b9f245617d912f46c45621975452d8c59c4e32a1838bca012cf63e"
+    },
+    {
+      "file": "105-artifactos/105-sdk-000.json",
+      "bytes": 206300,
+      "sha256": "c7193862a285934b08a2292a64fda24af7fc5ccd3ef454fcae966b2f62dda526"
+    },
+    {
+      "file": "105-artifactos/105-sdk-001.png",
+      "bytes": 73764,
+      "sha256": "0b9f38312f65665bde7858841607d054835cefc1d4f0bbb1b7261227f9458091"
+    },
+    {
+      "file": "105-artifactos/105-sdk-002.png",
+      "bytes": 75390,
+      "sha256": "3a11e7601d92b9faf01e91f2cd2df743ce4a91a95161a24248483b45d4f41846"
+    },
+    {
+      "file": "105-artifactos/105-sdk-003.json",
+      "bytes": 106675,
+      "sha256": "ea1117f8f345cf23cf70c15d4389a4c2bc833f4c8a161a200304f25c0716d598"
+    },
+    {
+      "file": "105-artifactos/105-sdk-004.png",
+      "bytes": 163105,
+      "sha256": "5d8eb8245c99ee14b09615dd7079fb763cef94111099345a2bdc347189d55744"
+    },
+    {
+      "file": "105-artifactos/105-sdk-005.png",
+      "bytes": 164611,
+      "sha256": "553bbd50698f40973d35207db94965b997d13ed06ccd7561d14e5c15b877a945"
+    },
+    {
+      "file": "105-artifactos/105-sdk-006.json",
+      "bytes": 777,
+      "sha256": "6fd96dd457936c44ee913cc244e306f09f8b800ae15a647871649761c85f322b"
+    },
+    {
+      "file": "105-artifactos/105-sdk-007.png",
+      "bytes": 96014,
+      "sha256": "ab01901f5c21f11352d0d076e4044f804446e59f40aea31fb8b4177fd8a9f8ce"
+    },
+    {
+      "file": "105-artifactos/105-sdk-008.json",
+      "bytes": 878,
+      "sha256": "f77a7f91ea409d7622daed91f50f7824a18d2c364a58201170299fff24d84360"
+    },
+    {
+      "file": "105-artifactos/105-sdk-009.png",
+      "bytes": 733905,
+      "sha256": "e1c8be878d1a12864d9ab686818383b195d2f6af168b550f2a121b6ef1fc1d1e"
+    },
+    {
+      "file": "105-artifactos/105-sdk-010.json",
+      "bytes": 775,
+      "sha256": "ba7fdb1dc0c1ecc1155bc6b826f5578984d3b37b46778eb397ad116ee6cf6138"
+    },
+    {
+      "file": "105-artifactos/105-sdk-011.png",
+      "bytes": 218220,
+      "sha256": "bd1f4970fb03d476b4a84f701cdca9cd32807c08927f89b7b10e74d4304fdd4a"
+    },
+    {
+      "file": "105-artifactos/105-sdk-012.json",
+      "bytes": 878,
+      "sha256": "6c9073b7808f50e8f18884e08febf13d19b9ceaab763217751aee26e5e2dd220"
+    },
+    {
+      "file": "105-artifactos/105-sdk-013.png",
+      "bytes": 1750358,
+      "sha256": "ace9ff94b66c0ca2ba83e6148e8d5c673355661917b1705599e27a38667ec232"
+    },
+    {
+      "file": "105-artifactos/105-sdk-014.png",
+      "bytes": 16074,
+      "sha256": "d342df54970945be4985bf643833da6882790cf56240c86019e9d3199f6f0f88"
+    },
+    {
+      "file": "105-artifactos/105-sdk-015.json",
+      "bytes": 651,
+      "sha256": "271b6b23fad15234535b9308007baa4ffcac5609cfdf486c2f53bc1f08bc75ce"
+    },
+    {
+      "file": "105-artifactos/105-sdk-016.png",
+      "bytes": 19342,
+      "sha256": "85612ceb422b06b37120d80e30f7722b774aa63df04cc701ba15798ff874c569"
+    },
+    {
+      "file": "105-artifactos/105-sdk-017.json",
+      "bytes": 176241,
+      "sha256": "b4693f48fa363471f28ac5f82ae448c822c36030c3d6e77e032d8b5ffd0f32b8"
+    },
+    {
+      "file": "105-artifactos/105-sdk-018.png",
+      "bytes": 423597,
+      "sha256": "14879c6d955e24d9847e1875e2b2536811af288dd1ca229ff15bc5f081015621"
+    },
+    {
+      "file": "105-artifactos/105-sdk-019.png",
+      "bytes": 39210,
+      "sha256": "a3357a1b27567ba046f340c125ae0434ac1825a29588aaa23fa6c98d4100bd60"
+    },
+    {
+      "file": "105-artifactos/105-sdk-020.json",
+      "bytes": 652,
+      "sha256": "75a2c4bba04357328fba55e47dbcf64aba5ab468ee77007c9c037e4decf7383d"
+    },
+    {
+      "file": "105-artifactos/105-sdk-021.png",
+      "bytes": 50187,
+      "sha256": "29379e3c575f89fbb6fba8d1f2df9882330da62612ed03d8d2cd8b907605eb6f"
+    },
+    {
+      "file": "105-artifactos/105-sdk-022.json",
+      "bytes": 176247,
+      "sha256": "0b074d7d7fc3b4ee809343a8624692301cba368d49ad97aa4fd760aab3aa9881"
+    },
+    {
+      "file": "105-artifactos/105-sdk-023.png",
+      "bytes": 845160,
+      "sha256": "76795dd39a57b19b128832c3a062b6608844c01f74cc5effd645d3a73a311eaa"
+    }
+  ],
+  "graphify": {
+    "command": "npm run graphify:update",
+    "exitCode": 0,
+    "applicationSourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+    "checkoutSha": "e7f5e7fccf94af5aa8ff7ef8ae006f8b4eef0773",
+    "mode": "incremental code-only AST",
+    "nodes": 13648,
+    "edges": 42372,
+    "communities": 832,
+    "changedFiles": 1,
+    "cachedFiles": 2530,
+    "deletedFiles": 0,
+    "partialParserFiles": [
+      "GraziaTemplate.tsx",
+      "LaAppDeTuFiestaSection.tsx",
+      "public-footer.tsx"
+    ],
+    "llmCalls": 0,
+    "localArtifactNotPublished": true,
+    "priorApplicationExtraction": {
+      "changedFiles": 55,
+      "cachedFiles": 2475,
+      "deletedFiles": 1
+    },
+    "log": "105-graphify.log"
+  },
+  "security": {
+    "counts": {
+      "info": 0,
+      "low": 2,
+      "moderate": 65,
+      "high": 27,
+      "critical": 0,
+      "total": 94
+    },
+    "uniqueAdvisories": 31,
+    "evidence": "105-npm-audit.json",
+    "allResolved": false
+  },
+  "runtime": {
+    "isolated": true,
+    "realBusinessWrites": 0,
+    "stopped": true,
+    "cleanup": "105-limpieza.json"
+  },
+  "notCertified": [
+    "Every button, permission and variant",
+    "Mobile 3D help overlaps floating controls",
+    "Remaining dependency advisories",
+    "19 original manual budgets",
+    "Live provider accounts and paid AI",
+    "Firebase packaging and production deployment",
+    "Physical event hardware"
+  ]
+}

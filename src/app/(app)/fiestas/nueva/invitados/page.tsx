@@ -15,7 +15,7 @@ import type { Invitado, RsvpStatus, CategoriaInvitado, PerfilInvitado, DietaryRe
 import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { addInvitado } from '@/app/actions/fiesta/invitados.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import QRCodeStylized from 'qrcode.react';
+import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 import { InvitadoQR } from '@/components/invitados/InvitadoQR';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
@@ -53,7 +53,7 @@ const DIETARY_OPTIONS: DietaryRestriction[] = [
   'Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'
 ];
 
-const PERFIL_OPTIONS: { value: PerfilInvitado; label: string; icon: React.ElementType; color: string }[] = [
+const PERFIL_OPTIONS: { value: PerfilInvitado; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string }[] = [
   { value: 'General', label: 'General', icon: User, color: 'text-slate-500' },
   { value: 'VIP', label: 'VIP', icon: Crown, color: 'text-amber-600' },
   { value: 'Familia', label: 'Familia', icon: Users, color: 'text-blue-600' },

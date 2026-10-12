@@ -1,0 +1,75 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\103-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[2/4] [chromium-desktop] › tests\e2e\103-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  1) [chromium-desktop] › tests\e2e\103-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Personalizar portada', exact: true })
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 60000ms
+      - waiting for getByRole('button', { name: 'Personalizar portada', exact: true })
+
+
+      50 |     if(outage.retry) await page.getByRole('button',{name:'Reintentar',exact:true}).click();
+      51 |     else await page.reload({waitUntil:'domcontentloaded'});
+    > 52 |     await expect(page.getByRole('button',{name:'Personalizar portada',exact:true})).toBeVisible({timeout:60000});
+         |                                                                                     ^
+      53 |     const after = (await ref.get()).data(); expect(after).toEqual(before);
+      54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});
+      55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-entorno-aislado-103\tests\e2e\103-portal-reader.spec.ts:52:85
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa103-artifacts\103-portal-reader-Existing-19b7d-ecovers-without-losing-data-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa103-artifacts\103-portal-reader-Existing-19b7d-ecovers-without-losing-data-chromium-desktop\error-context.md
+
+    Error Context: qa103-artifacts\103-portal-reader-Existing-19b7d-ecovers-without-losing-data-chromium-desktop\error-context.md
+
+
+[3/4] [chromium-mobile] › tests\e2e\103-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[4/4] [chromium-mobile] › tests\e2e\103-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  2) [chromium-mobile] › tests\e2e\103-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Personalizar portada', exact: true })
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 60000ms
+      - waiting for getByRole('button', { name: 'Personalizar portada', exact: true })
+
+
+      50 |     if(outage.retry) await page.getByRole('button',{name:'Reintentar',exact:true}).click();
+      51 |     else await page.reload({waitUntil:'domcontentloaded'});
+    > 52 |     await expect(page.getByRole('button',{name:'Personalizar portada',exact:true})).toBeVisible({timeout:60000});
+         |                                                                                     ^
+      53 |     const after = (await ref.get()).data(); expect(after).toEqual(before);
+      54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});
+      55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-entorno-aislado-103\tests\e2e\103-portal-reader.spec.ts:52:85
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa103-artifacts\103-portal-reader-Existing-19b7d-ecovers-without-losing-data-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa103-artifacts\103-portal-reader-Existing-19b7d-ecovers-without-losing-data-chromium-mobile\error-context.md
+
+    Error Context: qa103-artifacts\103-portal-reader-Existing-19b7d-ecovers-without-losing-data-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\103-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+    [chromium-mobile] › tests\e2e\103-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  2 passed (2.4m)

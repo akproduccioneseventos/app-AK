@@ -1,0 +1,401 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: calendarios-react19.spec.ts >> redes: calendario visible y navegacion mensual
+- Location: tests\e2e\calendarios-react19.spec.ts:38:5
+
+# Error details
+
+```
+Test timeout of 90000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 90000ms exceeded.
+Call log:
+  - waiting for getByRole('tabpanel').getByRole('button', { name: 'Ir al mes siguiente' })
+    - locator resolved to <button type="button" aria-label="Ir al mes siguiente" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold ring-offset-background transition-all duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input text-foregro…>…</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not stable
+    - retrying click action
+    - waiting 20ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div class="flex justify-center pt-1 relative items-center">…</div> from <div class="space-y-4">…</div> subtree intercepts pointer events
+  - retrying click action
+    - waiting 100ms
+    - waiting for element to be visible, enabled and stable
+    - element is not stable
+  - retrying click action
+    - waiting 100ms
+    159 × waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <div class="flex justify-center pt-1 relative items-center">…</div> from <div class="space-y-4">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+    - element is not stable
+  - retrying click action
+    - waiting 500ms
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - main [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]:
+            - button "Abrir menu lateral" [ref=e7] [cursor=pointer]:
+              - img
+              - generic [ref=e8]: Toggle Sidebar
+            - img [ref=e10]
+            - heading "Planificador de Contenido" [level=1] [ref=e12]
+          - generic [ref=e13]:
+            - link:
+              - /url: /pagos-rapidos
+            - link [ref=e14] [cursor=pointer]:
+              - /url: /pagos-rapidos
+              - button [ref=e15]:
+                - img
+            - button "Abrir notificaciones" [ref=e16] [cursor=pointer]:
+              - img
+              - generic [ref=e17]: Abrir notificaciones
+            - button "Logo de la Empresa" [ref=e18] [cursor=pointer]:
+              - img "Logo de la Empresa" [ref=e20]
+        - main [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]:
+                - img [ref=e25]
+                - heading "Planificador de Contenido" [level=1] [ref=e27]
+              - generic [ref=e28]:
+                - button "Generar desde fiesta" [ref=e29] [cursor=pointer]:
+                  - img
+                  - text: Generar desde fiesta
+                - link "Creador & Auditor de Anuncios" [ref=e30] [cursor=pointer]:
+                  - /url: /empresa/creador-anuncios
+                  - img
+                  - text: Creador & Auditor de Anuncios
+                - link "Centro de Presencia Digital" [ref=e31] [cursor=pointer]:
+                  - /url: /empresa/presencia-digital
+                  - img
+                  - text: Centro de Presencia Digital
+                - button "Importar historial" [ref=e32] [cursor=pointer]:
+                  - img
+                  - text: Importar historial
+                - button "Crear Publicación" [ref=e33] [cursor=pointer]:
+                  - img
+                  - text: Crear Publicación
+                - link "Volver a Empresa" [ref=e34] [cursor=pointer]:
+                  - /url: /empresa
+                  - img
+                  - text: Volver a Empresa
+            - generic [ref=e36]: "Publicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic."
+            - generic [ref=e37]:
+              - generic [ref=e39]:
+                - generic [ref=e40]:
+                  - generic [ref=e41]:
+                    - img [ref=e42]
+                    - text: Historial de Publicaciones en Redes
+                  - generic [ref=e46]: Controlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.
+                - button "Actualizar ahora" [ref=e47] [cursor=pointer]:
+                  - img
+                  - text: Actualizar ahora
+              - generic [ref=e49]:
+                - generic [ref=e50]:
+                  - generic [ref=e51]:
+                    - generic [ref=e52]:
+                      - img [ref=e53]
+                      - generic [ref=e56]: Instagram
+                    - generic [ref=e57]: Sin sincronizar
+                  - generic [ref=e58]:
+                    - generic [ref=e59]:
+                      - generic [ref=e60]: "Guardadas:"
+                      - strong [ref=e61]: 0 publicaciones
+                    - generic [ref=e62]:
+                      - generic [ref=e63]: "Última búsqueda:"
+                      - generic [ref=e64]: Pendiente
+                - generic [ref=e65]:
+                  - generic [ref=e66]:
+                    - generic [ref=e67]:
+                      - img [ref=e68]
+                      - generic [ref=e71]: YouTube
+                    - generic [ref=e72]: Sin sincronizar
+                  - generic [ref=e73]:
+                    - generic [ref=e74]:
+                      - generic [ref=e75]: "Guardadas:"
+                      - strong [ref=e76]: 0 publicaciones
+                    - generic [ref=e77]:
+                      - generic [ref=e78]: "Última búsqueda:"
+                      - generic [ref=e79]: Pendiente
+                - generic [ref=e80]:
+                  - generic [ref=e81]:
+                    - generic [ref=e82]:
+                      - img [ref=e83]
+                      - generic [ref=e85]: Facebook
+                    - generic [ref=e86]: Sin sincronizar
+                  - generic [ref=e87]:
+                    - generic [ref=e88]:
+                      - generic [ref=e89]: "Guardadas:"
+                      - strong [ref=e90]: 0 publicaciones
+                    - generic [ref=e91]:
+                      - generic [ref=e92]: "Última búsqueda:"
+                      - generic [ref=e93]: Pendiente
+            - generic [ref=e94]:
+              - generic [ref=e96]:
+                - generic [ref=e97]:
+                  - generic [ref=e98]:
+                    - img [ref=e99]
+                    - text: Landings para publicidad
+                  - generic [ref=e101]: Links listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.
+                - link "Ver Tecnologia AK" [ref=e102] [cursor=pointer]:
+                  - /url: /landing/tecnologia-ak
+                  - img
+                  - text: Ver Tecnologia AK
+              - generic [ref=e104]:
+                - generic [ref=e105]:
+                  - paragraph [ref=e106]: Tecnologia AK
+                  - heading "Tecnologia AK para tu fiesta" [level=3] [ref=e107]
+                  - paragraph [ref=e108]: Vender el diferencial tecnologico de AK antes del presupuesto.
+                  - generic [ref=e109]:
+                    - button "Copiar" [ref=e110] [cursor=pointer]:
+                      - img
+                      - text: Copiar
+                    - link "Abrir" [ref=e111] [cursor=pointer]:
+                      - /url: /landing/tecnologia-ak
+                - generic [ref=e112]:
+                  - paragraph [ref=e113]: XV con tecnologia
+                  - heading "XV anos con experiencia digital" [level=3] [ref=e114]
+                  - paragraph [ref=e115]: Captar familias que buscan una fiesta de XV moderna y completa.
+                  - generic [ref=e116]:
+                    - button "Copiar" [ref=e117] [cursor=pointer]:
+                      - img
+                      - text: Copiar
+                    - link "Abrir" [ref=e118] [cursor=pointer]:
+                      - /url: /landing/xv-anos-tecnologia
+                - generic [ref=e119]:
+                  - paragraph [ref=e120]: Fotocabina 360
+                  - heading "Fotocabina y 360 para tu evento" [level=3] [ref=e121]
+                  - paragraph [ref=e122]: Vender tecnologia puntual como entrada rapida a nuevos clientes.
+                  - generic [ref=e123]:
+                    - button "Copiar" [ref=e124] [cursor=pointer]:
+                      - img
+                      - text: Copiar
+                    - link "Abrir" [ref=e125] [cursor=pointer]:
+                      - /url: /landing/fotocabina-360
+                - generic [ref=e126]:
+                  - paragraph [ref=e127]: Muro social
+                  - heading "Muro social en vivo" [level=3] [ref=e128]
+                  - paragraph [ref=e129]: Promocionar pantalla, QR y experiencia participativa en fiestas.
+                  - generic [ref=e130]:
+                    - button "Copiar" [ref=e131] [cursor=pointer]:
+                      - img
+                      - text: Copiar
+                    - link "Abrir" [ref=e132] [cursor=pointer]:
+                      - /url: /landing/muro-social-eventos
+            - generic [ref=e133]:
+              - generic [ref=e134]:
+                - generic [ref=e135]: Gestor de Contenido
+                - generic [ref=e136]:
+                  - button "Filtrar por Evento" [ref=e137] [cursor=pointer]:
+                    - img
+                    - text: Filtrar por Evento
+                  - button "Filtrar por Plataforma" [ref=e138] [cursor=pointer]:
+                    - img
+                    - text: Filtrar por Plataforma
+              - generic [ref=e140]:
+                - tablist [ref=e141]:
+                  - tab "Todos (0)" [ref=e142] [cursor=pointer]:
+                    - img [ref=e143]
+                    - text: Todos (0)
+                  - tab "Listos para copiar (0)" [ref=e144] [cursor=pointer]:
+                    - img
+                    - text: Listos para copiar (0)
+                  - tab "Con error (0)" [ref=e147] [cursor=pointer]:
+                    - img [ref=e148]
+                    - text: Con error (0)
+                  - tab "Calendario" [active] [selected] [ref=e150] [cursor=pointer]:
+                    - img [ref=e151]
+                    - text: Calendario
+                - tabpanel "Calendario" [ref=e153]:
+                  - generic [ref=e155]:
+                    - navigation "Barra de navegación" [ref=e156]:
+                      - button "Ir al mes anterior" [ref=e157] [cursor=pointer]:
+                        - img
+                      - button "Ir al mes siguiente" [ref=e158] [cursor=pointer]:
+                        - img
+                    - generic [ref=e159]:
+                      - status [ref=e161]: octubre 2026
+                      - grid "octubre 2026" [ref=e162]:
+                        - rowgroup [ref=e163]:
+                          - row [ref=e164]:
+                            - columnheader [ref=e165]: lu
+                            - columnheader [ref=e166]: ma
+                            - columnheader [ref=e167]: mi
+                            - columnheader [ref=e168]: ju
+                            - columnheader [ref=e169]: vi
+                            - columnheader [ref=e170]: sá
+                            - columnheader [ref=e171]: do
+                        - rowgroup [ref=e172]:
+                          - row "lunes, 28 de septiembre de 2026 martes, 29 de septiembre de 2026 miércoles, 30 de septiembre de 2026 jueves, 1 de octubre de 2026 viernes, 2 de octubre de 2026 sábado, 3 de octubre de 2026 domingo, 4 de octubre de 2026" [ref=e173]:
+                            - gridcell "lunes, 28 de septiembre de 2026" [ref=e174]:
+                              - button "lunes, 28 de septiembre de 2026" [ref=e175] [cursor=pointer]: "28"
+                            - gridcell "martes, 29 de septiembre de 2026" [ref=e176]:
+                              - button "martes, 29 de septiembre de 2026" [ref=e177] [cursor=pointer]: "29"
+                            - gridcell "miércoles, 30 de septiembre de 2026" [ref=e178]:
+                              - button "miércoles, 30 de septiembre de 2026" [ref=e179] [cursor=pointer]: "30"
+                            - gridcell "jueves, 1 de octubre de 2026" [ref=e180]:
+                              - button "jueves, 1 de octubre de 2026" [ref=e181] [cursor=pointer]: "1"
+                            - gridcell "viernes, 2 de octubre de 2026" [ref=e182]:
+                              - button "viernes, 2 de octubre de 2026" [ref=e183] [cursor=pointer]: "2"
+                            - gridcell "sábado, 3 de octubre de 2026" [ref=e184]:
+                              - button "sábado, 3 de octubre de 2026" [ref=e185] [cursor=pointer]: "3"
+                            - gridcell "domingo, 4 de octubre de 2026" [ref=e186]:
+                              - button "domingo, 4 de octubre de 2026" [ref=e187] [cursor=pointer]: "4"
+                          - row "lunes, 5 de octubre de 2026 martes, 6 de octubre de 2026 miércoles, 7 de octubre de 2026 jueves, 8 de octubre de 2026 viernes, 9 de octubre de 2026 sábado, 10 de octubre de 2026 Hoy, domingo, 11 de octubre de 2026" [ref=e188]:
+                            - gridcell "lunes, 5 de octubre de 2026" [ref=e189]:
+                              - button "lunes, 5 de octubre de 2026" [ref=e190] [cursor=pointer]: "5"
+                            - gridcell "martes, 6 de octubre de 2026" [ref=e191]:
+                              - button "martes, 6 de octubre de 2026" [ref=e192] [cursor=pointer]: "6"
+                            - gridcell "miércoles, 7 de octubre de 2026" [ref=e193]:
+                              - button "miércoles, 7 de octubre de 2026" [ref=e194] [cursor=pointer]: "7"
+                            - gridcell "jueves, 8 de octubre de 2026" [ref=e195]:
+                              - button "jueves, 8 de octubre de 2026" [ref=e196] [cursor=pointer]: "8"
+                            - gridcell "viernes, 9 de octubre de 2026" [ref=e197]:
+                              - button "viernes, 9 de octubre de 2026" [ref=e198] [cursor=pointer]: "9"
+                            - gridcell "sábado, 10 de octubre de 2026" [ref=e199]:
+                              - button "sábado, 10 de octubre de 2026" [ref=e200] [cursor=pointer]: "10"
+                            - gridcell "Hoy, domingo, 11 de octubre de 2026" [ref=e201]:
+                              - button "Hoy, domingo, 11 de octubre de 2026" [ref=e202] [cursor=pointer]: "11"
+                          - row "lunes, 12 de octubre de 2026 martes, 13 de octubre de 2026 miércoles, 14 de octubre de 2026 jueves, 15 de octubre de 2026 viernes, 16 de octubre de 2026 sábado, 17 de octubre de 2026 domingo, 18 de octubre de 2026" [ref=e203]:
+                            - gridcell "lunes, 12 de octubre de 2026" [ref=e204]:
+                              - button "lunes, 12 de octubre de 2026" [ref=e205] [cursor=pointer]: "12"
+                            - gridcell "martes, 13 de octubre de 2026" [ref=e206]:
+                              - button "martes, 13 de octubre de 2026" [ref=e207] [cursor=pointer]: "13"
+                            - gridcell "miércoles, 14 de octubre de 2026" [ref=e208]:
+                              - button "miércoles, 14 de octubre de 2026" [ref=e209] [cursor=pointer]: "14"
+                            - gridcell "jueves, 15 de octubre de 2026" [ref=e210]:
+                              - button "jueves, 15 de octubre de 2026" [ref=e211] [cursor=pointer]: "15"
+                            - gridcell "viernes, 16 de octubre de 2026" [ref=e212]:
+                              - button "viernes, 16 de octubre de 2026" [ref=e213] [cursor=pointer]: "16"
+                            - gridcell "sábado, 17 de octubre de 2026" [ref=e214]:
+                              - button "sábado, 17 de octubre de 2026" [ref=e215] [cursor=pointer]: "17"
+                            - gridcell "domingo, 18 de octubre de 2026" [ref=e216]:
+                              - button "domingo, 18 de octubre de 2026" [ref=e217] [cursor=pointer]: "18"
+                          - row "lunes, 19 de octubre de 2026 martes, 20 de octubre de 2026 miércoles, 21 de octubre de 2026 jueves, 22 de octubre de 2026 viernes, 23 de octubre de 2026 sábado, 24 de octubre de 2026 domingo, 25 de octubre de 2026" [ref=e218]:
+                            - gridcell "lunes, 19 de octubre de 2026" [ref=e219]:
+                              - button "lunes, 19 de octubre de 2026" [ref=e220] [cursor=pointer]: "19"
+                            - gridcell "martes, 20 de octubre de 2026" [ref=e221]:
+                              - button "martes, 20 de octubre de 2026" [ref=e222] [cursor=pointer]: "20"
+                            - gridcell "miércoles, 21 de octubre de 2026" [ref=e223]:
+                              - button "miércoles, 21 de octubre de 2026" [ref=e224] [cursor=pointer]: "21"
+                            - gridcell "jueves, 22 de octubre de 2026" [ref=e225]:
+                              - button "jueves, 22 de octubre de 2026" [ref=e226] [cursor=pointer]: "22"
+                            - gridcell "viernes, 23 de octubre de 2026" [ref=e227]:
+                              - button "viernes, 23 de octubre de 2026" [ref=e228] [cursor=pointer]: "23"
+                            - gridcell "sábado, 24 de octubre de 2026" [ref=e229]:
+                              - button "sábado, 24 de octubre de 2026" [ref=e230] [cursor=pointer]: "24"
+                            - gridcell "domingo, 25 de octubre de 2026" [ref=e231]:
+                              - button "domingo, 25 de octubre de 2026" [ref=e232] [cursor=pointer]: "25"
+                          - row "lunes, 26 de octubre de 2026 martes, 27 de octubre de 2026 miércoles, 28 de octubre de 2026 jueves, 29 de octubre de 2026 viernes, 30 de octubre de 2026 sábado, 31 de octubre de 2026 domingo, 1 de noviembre de 2026" [ref=e233]:
+                            - gridcell "lunes, 26 de octubre de 2026" [ref=e234]:
+                              - button "lunes, 26 de octubre de 2026" [ref=e235] [cursor=pointer]: "26"
+                            - gridcell "martes, 27 de octubre de 2026" [ref=e236]:
+                              - button "martes, 27 de octubre de 2026" [ref=e237] [cursor=pointer]: "27"
+                            - gridcell "miércoles, 28 de octubre de 2026" [ref=e238]:
+                              - button "miércoles, 28 de octubre de 2026" [ref=e239] [cursor=pointer]: "28"
+                            - gridcell "jueves, 29 de octubre de 2026" [ref=e240]:
+                              - button "jueves, 29 de octubre de 2026" [ref=e241] [cursor=pointer]: "29"
+                            - gridcell "viernes, 30 de octubre de 2026" [ref=e242]:
+                              - button "viernes, 30 de octubre de 2026" [ref=e243] [cursor=pointer]: "30"
+                            - gridcell "sábado, 31 de octubre de 2026" [ref=e244]:
+                              - button "sábado, 31 de octubre de 2026" [ref=e245] [cursor=pointer]: "31"
+                            - gridcell "domingo, 1 de noviembre de 2026" [ref=e246]:
+                              - button "domingo, 1 de noviembre de 2026" [ref=e247] [cursor=pointer]: "1"
+              - paragraph [ref=e249]: Instagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.
+    - navigation "Navegacion del modulo" [ref=e250]:
+      - button "Volver" [ref=e251] [cursor=pointer]:
+        - img
+      - button "Ir al panel principal" [ref=e252] [cursor=pointer]:
+        - img
+    - button "Abrir Asistente IA AK" [ref=e253] [cursor=pointer]:
+      - img [ref=e254]
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e257]
+```
+
+# Test source
+
+```ts
+  1  | import { expect, test, type Locator } from '@playwright/test';
+  2  | import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+  3  | 
+  4  | test.skip(process.env.AK_ENTORNO_AISLADO !== 'true', 'Solo entorno aislado, sin cuentas reales');
+  5  | const monthName = /^(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre) \d{4}$/;
+  6  | 
+  7  | async function headerDoesNotOverlap(caption: Locator, next: Locator) {
+  8  |   const label = await caption.boundingBox();
+  9  |   const button = await next.boundingBox();
+  10 |   expect(label).not.toBeNull();
+  11 |   expect(button).not.toBeNull();
+  12 |   if (label && button) {
+  13 |     const overlapX = Math.min(label.x + label.width, button.x + button.width) - Math.max(label.x, button.x);
+  14 |     const overlapY = Math.min(label.y + label.height, button.y + button.height) - Math.max(label.y, button.y);
+  15 |     expect(overlapX > 0 && overlapY > 0, 'El mes no tapa el control de navegacion').toBe(false);
+  16 |   }
+  17 | }
+  18 | 
+  19 | test('agenda: elegir dia y navegar meses sin tapar los controles', async ({ page, context, baseURL }, info) => {
+  20 |   await ponerSesionDelEquipo(context, baseURL);
+  21 |   await page.goto('/contabilidad/crm/agenda', { waitUntil: 'domcontentloaded' });
+  22 |   const grid = page.getByRole('grid').first();
+  23 |   await expect(grid).toBeVisible();
+  24 |   const caption = page.getByText(monthName, { exact: true }).first();
+  25 |   const next = page.getByRole('button', { name: 'Ir al mes siguiente' });
+  26 |   await headerDoesNotOverlap(caption, next);
+  27 |   await headerDoesNotOverlap(caption, page.getByRole('button', { name: 'Ir al mes anterior' }));
+  28 |   const initialMonth = await caption.textContent();
+  29 |   await next.click();
+  30 |   await expect(caption).not.toHaveText(initialMonth!);
+  31 |   const selectedDay = grid.locator('td[data-day]:not([data-outside]) button').filter({ hasText: /^9$/ }).first();
+  32 |   await selectedDay.click();
+  33 |   await expect(selectedDay.locator('..')).toHaveAttribute('aria-selected', 'true');
+  34 |   await expect(page.getByText(/^Reuniones para:/)).toContainText('9');
+  35 |   await info.attach('agenda-calendario.png', { body: await grid.locator('..').screenshot(), contentType: 'image/png' });
+  36 | });
+  37 | 
+  38 | test('redes: calendario visible y navegacion mensual', async ({ page, context, baseURL }, info) => {
+  39 |   await ponerSesionDelEquipo(context, baseURL);
+  40 |   await page.goto('/empresa/redes-sociales', { waitUntil: 'domcontentloaded' });
+  41 |   await page.getByRole('tab', { name: 'Calendario', exact: true }).click();
+  42 |   const panel = page.getByRole('tabpanel');
+  43 |   await expect(panel.getByRole('grid')).toBeVisible();
+  44 |   const caption = panel.getByText(monthName, { exact: true });
+  45 |   const next = panel.getByRole('button', { name: 'Ir al mes siguiente' });
+  46 |   await headerDoesNotOverlap(caption, next);
+  47 |   await headerDoesNotOverlap(caption, panel.getByRole('button', { name: 'Ir al mes anterior' }));
+  48 |   const initialMonth = await caption.textContent();
+> 49 |   await next.click();
+     |              ^ Error: locator.click: Test timeout of 90000ms exceeded.
+  50 |   await expect(caption).not.toHaveText(initialMonth!);
+  51 |   await panel.getByRole('button', { name: 'Ir al mes anterior' }).click();
+  52 |   await expect(caption).toHaveText(initialMonth!);
+  53 |   await info.attach('redes-calendario.png', { body: await panel.screenshot(), contentType: 'image/png' });
+  54 | });
+  55 | 
+```

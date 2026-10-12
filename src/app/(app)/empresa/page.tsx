@@ -41,7 +41,7 @@ interface HubItem {
   title: string;
   description: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   color: string;
   badge?: string;
   external?: boolean;

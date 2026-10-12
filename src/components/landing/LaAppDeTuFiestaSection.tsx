@@ -38,7 +38,7 @@ interface MomentoConfig {
   titulo: string;
   subtitulo: string;
   loQueEntiende: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 export type { MomentoId, MomentoConfig };
