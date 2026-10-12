@@ -1,0 +1,35 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\backup-status.json",
+      "beforeSha256": null,
+      "qaSha256": "22f8dbc2562ae55faf482c26c78408f0604aa9d8da4a7032b0eaa6346534aecb"
+    },
+    {
+      "file": "src\\data\\incidentes.json",
+      "beforeSha256": null,
+      "qaSha256": "912756fa14b6f3c1f1286cd9eabce0134f22d5e6e9650890ac31b711d406ce26"
+    },
+    {
+      "file": "data\\backup-status.json",
+      "beforeSha256": null,
+      "qaSha256": "22f8dbc2562ae55faf482c26c78408f0604aa9d8da4a7032b0eaa6346534aecb"
+    },
+    {
+      "file": "data\\incidentes.json",
+      "beforeSha256": null,
+      "qaSha256": "912756fa14b6f3c1f1286cd9eabce0134f22d5e6e9650890ac31b711d406ce26"
+    }
+  ],
+  "bytesRestored": true,
+  "removedEmulatorDocuments": [
+    "backup_snapshots_v2/backup-AUTO-2026-10-12T20_07_25_920Z",
+    "backup_system/auto_backup",
+    "fiestas/QA111_desktop_2a1be20b-b835-4d42-a9f1-309001981fb1_fiesta",
+    "fiestas/QA111_mobile_7f65c7a0-5411-4b64-a5f2-6569e7aacf7c_fiesta",
+    "incidentes/inc_1791835645673_ok106o",
+    "incidentes/inc_1791835659028_xcxamf",
+    "json_documents/backup-status.json"
+  ],
+  "initialDocuments": 0
+}

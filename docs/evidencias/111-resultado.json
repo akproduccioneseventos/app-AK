@@ -1,0 +1,460 @@
+{
+  "auditoria": 111,
+  "generatedAt": "2026-10-12T20:36:07.484Z",
+  "evidenceHead": "39704d5c9f64c4914310be2b040c1a9b073c502f",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "comparedMain": "99faf4eb061fa46341cfdde6f81b93b3bfb9c73c",
+  "privateClaudeBranch": "NOT_CONTRASTED",
+  "summary": {
+    "PASS": 24,
+    "FAIL": 4
+  },
+  "criteria": [
+    {
+      "file": "111-operaciones.json",
+      "viewport": "desktop",
+      "name": "incident-failed-create-keeps-draft-then-recovers",
+      "status": "PASS"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "desktop",
+      "name": "incident-new-dialog-after-success-is-new",
+      "status": "FAIL"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "desktop",
+      "name": "incident-failed-update-keeps-note-and-recovers",
+      "status": "PASS"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "desktop",
+      "name": "playbook-dialog-context-cancel-and-missing-event",
+      "status": "PASS"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "desktop",
+      "name": "playbook-failed-apply-keeps-target-without-writing",
+      "status": "PASS"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "mobile",
+      "name": "incident-failed-create-keeps-draft-then-recovers",
+      "status": "PASS"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "mobile",
+      "name": "incident-new-dialog-after-success-is-new",
+      "status": "FAIL"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "mobile",
+      "name": "incident-failed-update-keeps-note-and-recovers",
+      "status": "PASS"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "mobile",
+      "name": "playbook-dialog-context-cancel-and-missing-event",
+      "status": "PASS"
+    },
+    {
+      "file": "111-operaciones.json",
+      "viewport": "mobile",
+      "name": "playbook-failed-apply-keeps-target-without-writing",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-segunda.json",
+      "viewport": "desktop",
+      "name": "asset-create-and-reopen",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-segunda.json",
+      "viewport": "desktop",
+      "name": "asset-failed-edit-keeps-draft-and-retries",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-segunda.json",
+      "viewport": "desktop",
+      "name": "asset-stock-report-and-print-command",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-segunda.json",
+      "viewport": "desktop",
+      "name": "ingredient-create-and-reopen",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-segunda.json",
+      "viewport": "desktop",
+      "name": "ingredient-fractional-stock-in-edit",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-segunda.json",
+      "viewport": "desktop",
+      "name": "ingredient-failed-edit-keeps-draft-and-retries",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-segunda.json",
+      "viewport": "desktop",
+      "name": "ingredient-stock-report-and-print-command",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-mobile.json",
+      "viewport": "mobile",
+      "name": "asset-create-and-reopen",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-mobile.json",
+      "viewport": "mobile",
+      "name": "asset-failed-edit-keeps-draft-and-retries",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-mobile.json",
+      "viewport": "mobile",
+      "name": "asset-stock-report-and-print-command",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-mobile.json",
+      "viewport": "mobile",
+      "name": "ingredient-create-and-reopen",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-mobile.json",
+      "viewport": "mobile",
+      "name": "ingredient-fractional-stock-in-edit",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-mobile.json",
+      "viewport": "mobile",
+      "name": "ingredient-failed-edit-keeps-draft-and-retries",
+      "status": "PASS"
+    },
+    {
+      "file": "111-recursos-mobile.json",
+      "viewport": "mobile",
+      "name": "ingredient-stock-report-and-print-command",
+      "status": "PASS"
+    },
+    {
+      "file": "111-titulos.json",
+      "viewport": "desktop",
+      "name": "asset-long-title-responsive",
+      "status": "PASS"
+    },
+    {
+      "file": "111-titulos.json",
+      "viewport": "desktop",
+      "name": "ingredient-long-title-responsive",
+      "status": "PASS"
+    },
+    {
+      "file": "111-titulos.json",
+      "viewport": "mobile",
+      "name": "asset-long-title-responsive",
+      "status": "FAIL"
+    },
+    {
+      "file": "111-titulos.json",
+      "viewport": "mobile",
+      "name": "ingredient-long-title-responsive",
+      "status": "FAIL"
+    }
+  ],
+  "hashes": [
+    {
+      "file": "111-artifactos-comprimidos.json",
+      "sha256": "6f3386fea8331544ddf75c5e9a28cd94f255b567718bf7e533a305d2eaa0ca7b"
+    },
+    {
+      "file": "111-asset-failed-edit-keeps-draft-and-retries-mobile-error.png",
+      "sha256": "47c8477e480dc9f71428b6d94c52b87f0b09c86adfbcb8ee817d73d0724e0eca"
+    },
+    {
+      "file": "111-asset-title-long-mobile.png",
+      "sha256": "9d1b8dc6af7fdf17eb37aeb95aa0f308b45d3ab3200c912b8e485e0d9ac13e6f"
+    },
+    {
+      "file": "111-asset-title-short-mobile.png",
+      "sha256": "0ff0cc919fdfa620eb93f5b8bd1adf8dc929d17d47b820749f493d7c50110262"
+    },
+    {
+      "file": "111-detener-entorno.ps1",
+      "sha256": "bb128d16456ec8a8b8a8789bd556583c80836bee9f6ca07d453db05d83c43e3f"
+    },
+    {
+      "file": "111-discovery-corrected-execution.json",
+      "sha256": "45207dc79844f6d8de967d9ca7a22e28f69e66ab4e8d9178b9e2760f7992449b"
+    },
+    {
+      "file": "111-discovery-corrected.json",
+      "sha256": "11ba7ba722819e223defc061237f4689aad59614bf76ba47682922464d2ba3d6"
+    },
+    {
+      "file": "111-discovery-execution.json",
+      "sha256": "45207dc79844f6d8de967d9ca7a22e28f69e66ab4e8d9178b9e2760f7992449b"
+    },
+    {
+      "file": "111-discovery-inicial-execution.json",
+      "sha256": "cbe9d7b186f35a787b9f67ac6a7787a100049a3602e072f66c277835c1dd7c82"
+    },
+    {
+      "file": "111-discovery-restauracion.json",
+      "sha256": "d10bedb52b57eb03d158c2a8a0f946e6e12554a537027515de978dc42b142a83"
+    },
+    {
+      "file": "111-discovery.json",
+      "sha256": "11ba7ba722819e223defc061237f4689aad59614bf76ba47682922464d2ba3d6"
+    },
+    {
+      "file": "111-discovery.mjs",
+      "sha256": "46c7a7a33f9536722fdd122b8b2411958290686f96eb80c21448c7cea7094263"
+    },
+    {
+      "file": "111-ejecutar-sdk.mjs",
+      "sha256": "444c6c771a339a187181cb443ad0c671765f102bc30a11c7185ef0f96762bffd"
+    },
+    {
+      "file": "111-entorno-detenido.json",
+      "sha256": "5dda9e1d2bfb6efb060a8c9d5d340d29de558d1638dcad6ec0eb3676790f3d10"
+    },
+    {
+      "file": "111-firestore-config.json",
+      "sha256": "8a1dffbda261c363c7cd9bb2c584428ddbcb4785c49cc074a27420b4dc0c792f"
+    },
+    {
+      "file": "111-ingredient-failed-edit-keeps-draft-and-retries-mobile-error.png",
+      "sha256": "44a62bbe766ad7afb84c6ca461fcff562ad4b358f7e946cd37a18ffd64a518b2"
+    },
+    {
+      "file": "111-ingredient-fraction-desktop.png",
+      "sha256": "f6bb99d09dc2583a071770aab21c56911bfe725414d4b69e850463d079a01496"
+    },
+    {
+      "file": "111-ingredient-fraction-mobile.png",
+      "sha256": "a83a9586e7c53eaf7ca2c8c1dc5539751e260e9b2096fc1b3dec17ec3e93bbff"
+    },
+    {
+      "file": "111-ingredient-fractional-stock-in-edit-mobile-error.png",
+      "sha256": "99a4df270d165bbf739c1040f2cefb55f0950a90ba2c22ba72a2f308b37e024c"
+    },
+    {
+      "file": "111-ingredient-title-long-mobile.png",
+      "sha256": "231eda8e88f5ebd0310881e15b0f33e1122d74f130097fdd382847bfde61942e"
+    },
+    {
+      "file": "111-ingredient-title-short-mobile.png",
+      "sha256": "caad6fe6ea61d641cfca2286a62a3ec9615ff3e19103622c6dc56e38dc9bb96e"
+    },
+    {
+      "file": "111-new-incident-desktop.png",
+      "sha256": "130c52a5af0195984d661135d12f2fd4f0544a215ed58e66585cfdf409b73649"
+    },
+    {
+      "file": "111-new-incident-mobile.png",
+      "sha256": "7a06c4f6bbae9e70b049e089421a40c88a0105118f2cf07f15b2578a85012980"
+    },
+    {
+      "file": "111-operaciones-execution.json",
+      "sha256": "f7cfa15b57492e9b13a88f6f9ef5742fd0de0b17b6b4ad2e1a61d4e52cf8b9dd"
+    },
+    {
+      "file": "111-operaciones-probe.mjs",
+      "sha256": "91d625f841b5ac199b91c710b0575d5265101ab9e1ae1206817c6b0a45b32858"
+    },
+    {
+      "file": "111-operaciones-restauracion.json",
+      "sha256": "f55508f76aeaa10454cdbb5ef5ca70b59a27db9c1e9cedd52bef18addb883c01"
+    },
+    {
+      "file": "111-operaciones.json",
+      "sha256": "93c93aef381effb8352d0db4e3082bd290676a8e9bf0817154546584585d607b"
+    },
+    {
+      "file": "111-probe-execution.json",
+      "sha256": "45207dc79844f6d8de967d9ca7a22e28f69e66ab4e8d9178b9e2760f7992449b"
+    },
+    {
+      "file": "111-probe.log.gz",
+      "sha256": "a35ad186a1a212baad01abfea089824a57f5347596fd73a0ad2d6df1a1aea27b"
+    },
+    {
+      "file": "111-recorridos-operativos.md",
+      "sha256": "d70c94b52d7d11cf0d73cba08516019e3bdbdd830779ccf773d424a7173f4f03"
+    },
+    {
+      "file": "111-recursos-discovery-restauracion.json",
+      "sha256": "d10bedb52b57eb03d158c2a8a0f946e6e12554a537027515de978dc42b142a83"
+    },
+    {
+      "file": "111-recursos-discovery.json",
+      "sha256": "c666568afb901c4eb21f9861b62ec20bca4f5e83927b676a5ad3cde318261515"
+    },
+    {
+      "file": "111-recursos-discovery.mjs",
+      "sha256": "4e3c7fa8b0dbefef6b7c11ead6401ca0921d1caa697fbcd5695faaab92829840"
+    },
+    {
+      "file": "111-recursos-inicial-execution.json",
+      "sha256": "5538ef6ceec4119acfe3fb1d980a309972b07f9add2afe9760c724a962aeab71"
+    },
+    {
+      "file": "111-recursos-inicial.json",
+      "sha256": "fbcc8678e06c386bdf78c1248e1dae02adcf5855c654ae3b1d64d3ecf8b7ebf6"
+    },
+    {
+      "file": "111-recursos-inicial.log.gz",
+      "sha256": "4cb19fe676692cc09d9e3e124cbae75839c9638ff0735442b373365e0c7719da"
+    },
+    {
+      "file": "111-recursos-mobile-execution.json",
+      "sha256": "e415362ebc89ed486a9cebc337dcc44c89f1960a24bbd5af2908370ca57b48c7"
+    },
+    {
+      "file": "111-recursos-mobile-instant-execution.json",
+      "sha256": "23e1ae86fd58cc983ee63fe3fe5c07597c283f144df69c07e6f671c01bccd583"
+    },
+    {
+      "file": "111-recursos-mobile-instant.json",
+      "sha256": "eec555ce9347eea6c64cf47402d4b9767716ce05c1f94996056686a5b209f0f7"
+    },
+    {
+      "file": "111-recursos-mobile-instant.log.gz",
+      "sha256": "d04522ab4e776a60d21a5766ac7d9715ffd8cf45a85d9d030f19dfc9b9bc512d"
+    },
+    {
+      "file": "111-recursos-mobile-probe.mjs",
+      "sha256": "7ec108a557407856574240a6c9c3265f1d9bc8e1aec568e8fc2a660bdaed0ee4"
+    },
+    {
+      "file": "111-recursos-mobile-restauracion.json",
+      "sha256": "a66206c83f2f5ca482da51a514703e05a60449c17874f96de131da1a1901cbcc"
+    },
+    {
+      "file": "111-recursos-mobile.json",
+      "sha256": "d3b1451bde89942e84a0336ea7f795cbad8f3bdc2fb005e37ed9c42fe72e6cc9"
+    },
+    {
+      "file": "111-recursos-mobile.log.gz",
+      "sha256": "50f4095a2abc4604d39b1680de44b23120b64c0226bbd4e86926eb0addb127ec"
+    },
+    {
+      "file": "111-recursos-probe.mjs",
+      "sha256": "cc71e6de32eec08b0260890333cef91d69d2e8d50c43778b2e0b6d03bf387749"
+    },
+    {
+      "file": "111-recursos-restauracion.json",
+      "sha256": "78c6c48723530b7dc8dcc7de191385b6ba999fba0aba2119ea4956582c5b65b7"
+    },
+    {
+      "file": "111-recursos-segunda-execution.json",
+      "sha256": "57adb4859f5e3ce7ea3d6e51ce55a82fc49b4b8f11db54d9f0ba8286cdf5be7f"
+    },
+    {
+      "file": "111-recursos-segunda.json",
+      "sha256": "95296e23979e477f0005a4ecbfe35dd558768b92fab3d864f1717ba6ee51ec2f"
+    },
+    {
+      "file": "111-recursos-segunda.log.gz",
+      "sha256": "c7e282f5c863f8e09884087e91bb696f63bc261d6e5053c839561a63ec1d2f88"
+    },
+    {
+      "file": "111-recursos.json",
+      "sha256": "95296e23979e477f0005a4ecbfe35dd558768b92fab3d864f1717ba6ee51ec2f"
+    },
+    {
+      "file": "111-sdk-emulator-execution.json",
+      "sha256": "4e4b8bf13c3f7451fb0c2344f4d8472fcf5a62036768a5798014c7f7b5d6d366"
+    },
+    {
+      "file": "111-sdk-emulator.log.gz",
+      "sha256": "6d1c2ac7bdf0a8bfaf8799786648191568bc2c402dfcc9718548bc60fe4c67c1"
+    },
+    {
+      "file": "111-sdk-probe-execution.json",
+      "sha256": "c608515500ffab533e176e16cfaf49d1832beca4221309496cd46412944bd4de"
+    },
+    {
+      "file": "111-sdk-probe.log.gz",
+      "sha256": "46b6a7a40399e05d06c95578a94270f4e13d67a936d410f76e9276e06c485fce"
+    },
+    {
+      "file": "111-sdk-start-execution.json",
+      "sha256": "0314bc14f37d91a276bd0f827be5216e65eebf0f7da3a7cda856ee9626b0eb17"
+    },
+    {
+      "file": "111-sdk-start.log.gz",
+      "sha256": "04ac28b8edfe82c2a1e72e505e8286291cd32b97337050dd37f32cf903adc3fa"
+    },
+    {
+      "file": "111-start-execution.json",
+      "sha256": "49308a1fb927323ec9a5a590ef63cdd14b0b779357914a187495a429ee5f8ee6"
+    },
+    {
+      "file": "111-start.log.gz",
+      "sha256": "cd910b025a42ec0f0f8c80bce6f76b5b407da6eb3fce0f5a14db37344e05e83c"
+    },
+    {
+      "file": "111-titulos-execution.json",
+      "sha256": "c608515500ffab533e176e16cfaf49d1832beca4221309496cd46412944bd4de"
+    },
+    {
+      "file": "111-titulos-inicial-execution.json",
+      "sha256": "06cbfde82cf741b90f7309bdfe88249cff229d0ae0871cf68add3ef7c7a0ae64"
+    },
+    {
+      "file": "111-titulos-inicial.json",
+      "sha256": "f7750f54eefca530072a6a0c931f8cd4e1d35da3efdb1c80be9f8c48b6f1b44d"
+    },
+    {
+      "file": "111-titulos-inicial.log.gz",
+      "sha256": "bc7bfbf41e1aee8bfde9f8a8bc6bd9d97cb588eb5e6d1ce974494c5af8985cb2"
+    },
+    {
+      "file": "111-titulos-probe.mjs",
+      "sha256": "58e88d464cfff2ac748d5faa5ed8d7e9ff10b41ac1c840adc5ac0c8cd309d8ad"
+    },
+    {
+      "file": "111-titulos-restauracion.json",
+      "sha256": "9f4fbd8288c6ea4becf039b5f2675a9b05d72db7bf8caf3a3cc4de089bb98330"
+    },
+    {
+      "file": "111-titulos.json",
+      "sha256": "2b8e7f8e2035081ff9a8b942b832c0721e10e326cf16850b93429eecad0cbb64"
+    },
+    {
+      "file": "111-titulos.log.gz",
+      "sha256": "46b6a7a40399e05d06c95578a94270f4e13d67a936d410f76e9276e06c485fce"
+    },
+    {
+      "file": "111-verificar-evidencia.mjs",
+      "sha256": "1f6ceca50dae0b42313b910baf15cbc3d61b7b2842e0cb203e13a6058c1e8a0d"
+    }
+  ],
+  "distinctDefects": 2,
+  "correctionsPending": [
+    "157",
+    "158"
+  ],
+  "allAppAccepted": false,
+  "productionChanges": false,
+  "limits": "Scoped fictitious-data emulator/browser checks; not all buttons/roles, external integrations, deployed SHA, hardware or 19 original budgets."
+}

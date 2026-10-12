@@ -1,0 +1,53 @@
+{
+    "stopped":  [
+                    {
+                        "file":  "111-start-execution.json",
+                        "processTree":  [
+                                            {
+                                                "ProcessId":  21284,
+                                                "ParentProcessId":  26704,
+                                                "Name":  "node.exe",
+                                                "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3300"
+                                            }
+                                        ],
+                        "stoppedAt":  "2026-10-12T20:29:11.3816446Z",
+                        "intentionalTermination":  true
+                    },
+                    {
+                        "file":  "111-sdk-start-execution.json",
+                        "processTree":  [
+                                            {
+                                                "ProcessId":  28708,
+                                                "ParentProcessId":  25328,
+                                                "Name":  "node.exe",
+                                                "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3301"
+                                            }
+                                        ],
+                        "stoppedAt":  "2026-10-12T20:29:11.9184067Z",
+                        "intentionalTermination":  true
+                    },
+                    {
+                        "file":  "111-sdk-emulator-execution.json",
+                        "processTree":  [
+                                            {
+                                                "ProcessId":  31668,
+                                                "ParentProcessId":  24892,
+                                                "Name":  "node.exe",
+                                                "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.105.json --only firestore --project demo-ak-producciones"
+                                            },
+                                            {
+                                                "ProcessId":  23024,
+                                                "ParentProcessId":  31668,
+                                                "Name":  "java.exe",
+                                                "CommandLine":  "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\firestore.rules --single_project_mode true"
+                                            }
+                                        ],
+                        "stoppedAt":  "2026-10-12T20:29:12.8422693Z",
+                        "intentionalTermination":  true
+                    }
+                ],
+    "listeners":  [
+
+                  ],
+    "appFailure":  false
+}

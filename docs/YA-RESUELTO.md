@@ -12844,3 +12844,34 @@ Claude compila. Plantillas base requieren decision del dueno sobre proteger u oc
 Solo datos QA y emulador, sin cuentas/pagos/mensajes reales. No areas completas
 limpias ni certificado0errores. El inventario109 mantiene cobertura pendiente.
 Mismo build/Jest106 reutilizado, no nuevas dependencias de produccion ni merge.
+
+## 2026-10-12 - Codex111: nuevos recorridos, NO corregidos aun
+
+PR1288, rama `codex/auditoria-97-ia-contexto-20261011`, HEAD probado39704d5c,
+fuente app8fa5b56a, main99faf4eb. Fuentes afectadas iguales a main. NO tanda
+privada de Claude; contrastar su HEAD antes de programar. No repetir152-156.
+
+**Dos P2 pendientes:**157, Nueva Incidencia conserva titulo/descripcion del caso
+ya guardado sin recargar;158, nombres largos desbordan editores de activo/insumo
+en Pixel7 (132/191px), dificultan alcanzar Guardar. PC no reproduce ese desborde.
+No se creo un segundo incidente duplicado para demostrar el primer defecto.
+
+**Comprobado, alcance acotado:** Incidentes conserva borrador/nota ante red
+fallida; reintentar persiste uno. Guias canceladas/evento inexistente/fallo de
+aplicar no escriben tareas/documentos/compras. Activos/insumos guardan, reabren,
+editan, recuperan fallo de red y entregan stock a reportes;2.5Kg SI persiste.
+Imprimir observado con espia, NO impresora ni PDF fisico. PC y celular.
+
+28criterios finales:24PASS/4FAIL, DOS defectos con dos reproducciones cada uno.
+`111-resultado.json` concilia rondas y hashes. No contar descubrimiento/reintentos
+ni confundir exit0 de la sonda con aceptacion de todo. Iniciales conservados.
+Sonda de titulos se corrigio por cache del fixture y selector h1 equivocado;
+nombres habituales pasan, largos comparados objetivamente si desbordan. No fue
+"todo culpa de la computadora", ni decimal rechazado, ni permiso roto inventado.
+
+Claude compila; Gemini UI de157/158. Pruebas propuestas PENDIENTES, no creadas
+ni aprobadas por escribir la orden. Datos QA restaurados, SDK emulado privado,
+procesos propios detenidos; notificaciones ajenas conservadas por hash.
+Un ayudante economico cerrado. Graphify puntual; build/Jest106 reutilizado solo
+por fuente inalterada. Sin cuentas/modelos/pagos/hardware reales, sin merge ni
+certificado0errores; mantenimiento/gastos y cobertura completa aun no aceptados.

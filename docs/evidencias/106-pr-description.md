@@ -60,6 +60,19 @@ Pendientes para Claude en docs/ordenes/152-claude-cierre-tanda106.md;
 la orden NO acredita que Claude la haya leido o ejecutado.
 Esta PR queda ABIERTA para revision y fusion del dueno.
 
+## Continuacion111: incidentes, guias e inventarios
+
+-28criterios finales PC/Pixel7:24PASS/4FAIL, dos P2 con dos reproducciones cada uno.
+-157: Nueva Incidencia conserva el caso YA guardado; no se envio otro duplicado.
+-158: titulo largo desborda editores activo/insumo132/191px en celular; PC correcto.
+-Guardar/releer/editar/reintentar/reportes, stock2.5Kg y rechazos de guia probados.
+  Imprimir solo comando observado con espia, no impresora/PDF real.
+-SDK Firestore emulado, datos ficticios restaurados y procesos propios detenidos.
+  Iniciales fallidos conservados y excluidos; no force-click ni cambios de app.
+-Ordenes157/158 PENDIENTES, NO contrastadas con tanda privada de Claude. Mismo
+  main99faf4eb y fuente8fa, sin nuevos build/Jest, dependencias ni fusion.
+-Ver111-resultado.json y111-recorridos-operativos.md. NO aceptacion completa0errores.
+
 ## Continuacion107: auditoria sin cambios de app
 
 - PC/Pixel7: cuenta Google needs_reconnect aparece Conectada/check verde;

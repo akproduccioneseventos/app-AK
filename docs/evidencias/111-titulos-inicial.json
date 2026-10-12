@@ -1,0 +1,59 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "asset-long-title-responsive",
+    "samples": [
+      {
+        "variant": "short",
+        "nombre": "QA111 Silla blanca",
+        "geometry": {
+          "innerWidth": 1440,
+          "innerHeight": 1000,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "visualViewport": {
+            "width": 1440,
+            "height": 1000,
+            "scale": 1
+          },
+          "title": {
+            "x": 281,
+            "width": 151.265625,
+            "right": 432.265625
+          }
+        },
+        "clickTrial": true,
+        "error": null
+      },
+      {
+        "variant": "long",
+        "nombre": "QA111_desktop_asset_a7b891da-5c73-4710-aeaf-931c1474816b",
+        "geometry": {
+          "innerWidth": 1440,
+          "innerHeight": 1000,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "visualViewport": {
+            "width": 1440,
+            "height": 1000,
+            "scale": 1
+          },
+          "title": {
+            "x": 281,
+            "width": 151.265625,
+            "right": 432.265625
+          }
+        },
+        "clickTrial": true,
+        "error": null
+      }
+    ],
+    "status": "PASS",
+    "details": {
+      "shortOverflow": 0,
+      "longOverflow": 0,
+      "readOnly": true,
+      "acceptance": "PASS"
+    }
+  }
+]
