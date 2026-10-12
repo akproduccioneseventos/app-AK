@@ -57,6 +57,8 @@ function SocialMediaPageContent() {
     const [platformFilter, setPlatformFilter] = useState<SocialPlatform | 'all'>('all');
 
     const { toast } = useToast();
+    // La lectura falló y no hay nada previo que mostrar: no es "cero publicaciones".
+    const sinLectura = !!error && posts.length === 0;
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -260,6 +262,19 @@ function SocialMediaPageContent() {
 
             <SocialHistoryPanel onSyncCompleted={fetchData} />
 
+            {error && !isLoading && (
+                <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-red-900">
+                        {posts.length > 0
+                            ? 'No se pudo actualizar la lista; lo que ves puede estar desactualizado.'
+                            : 'No pudimos leer las publicaciones.'}
+                    </p>
+                    <Button size="sm" variant="outline" onClick={fetchData} className="border-red-300 text-red-800 hover:bg-red-100">
+                        Reintentar
+                    </Button>
+                </div>
+            )}
+
             <Card className="border-emerald-100 bg-emerald-50/40 shadow-sm">
                 <CardHeader>
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -331,9 +346,9 @@ function SocialMediaPageContent() {
                 <CardContent>
                     <Tabs defaultValue="list">
                         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 md:w-auto md:inline-flex">
-                            <TabsTrigger value="list"><List className="w-4 h-4 mr-2"/>Todos ({filteredPosts.length})</TabsTrigger>
-                            <TabsTrigger value="manual"><Copy className="w-4 h-4 mr-2"/>Listos para copiar ({filteredPosts.filter(p => p.status === 'Listo para copiar' || p.platform === 'TikTok' || p.platform === 'WhatsApp' || p.platform === 'Threads' || p.platform === 'X').length})</TabsTrigger>
-                            <TabsTrigger value="failed"><AlertTriangle className="w-4 h-4 mr-2"/>Con error ({filteredPosts.filter(p => p.status === 'Falló' || p.status === 'Error' || !!p.lastError).length})</TabsTrigger>
+                            <TabsTrigger value="list"><List className="w-4 h-4 mr-2"/>{sinLectura ? 'Todos' : `Todos (${filteredPosts.length})`}</TabsTrigger>
+                            <TabsTrigger value="manual"><Copy className="w-4 h-4 mr-2"/>Listos para copiar{sinLectura ? '' : ` (${filteredPosts.filter(p => p.status === 'Listo para copiar' || p.platform === 'TikTok' || p.platform === 'WhatsApp' || p.platform === 'Threads' || p.platform === 'X').length})`}</TabsTrigger>
+                            <TabsTrigger value="failed"><AlertTriangle className="w-4 h-4 mr-2"/>Con error{sinLectura ? '' : ` (${filteredPosts.filter(p => p.status === 'Falló' || p.status === 'Error' || !!p.lastError).length})`}</TabsTrigger>
                             <TabsTrigger value="calendar"><Calendar className="w-4 h-4 mr-2"/>Calendario</TabsTrigger>
                         </TabsList>
                         <TabsContent value="list" className="mt-4">
@@ -343,6 +358,8 @@ function SocialMediaPageContent() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredPosts.map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} onDuplicate={handleDuplicatePost} />)}
                                 </div>
+                            ) : sinLectura ? (
+                                <p className="text-muted-foreground text-center py-10">No se pudieron leer las publicaciones. Usá &quot;Reintentar&quot; arriba.</p>
                             ) : (
                                 <p className="text-muted-foreground text-center py-10">No hay publicaciones que coincidan con los filtros seleccionados.</p>
                             )}
@@ -354,6 +371,8 @@ function SocialMediaPageContent() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredPosts.filter(p => p.status === 'Listo para copiar' || p.platform === 'TikTok' || p.platform === 'WhatsApp' || p.platform === 'Threads' || p.platform === 'X').map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} onDuplicate={handleDuplicatePost} />)}
                                 </div>
+                            ) : sinLectura ? (
+                                <p className="text-muted-foreground text-center py-10">No se pudieron leer las publicaciones. Usá &quot;Reintentar&quot; arriba.</p>
                             ) : (
                                 <p className="text-muted-foreground text-center py-10">No hay publicaciones pendientes para copiar manualmente.</p>
                             )}
@@ -365,6 +384,8 @@ function SocialMediaPageContent() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {filteredPosts.filter(p => p.status === 'Falló' || p.status === 'Error' || !!p.lastError).map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} onDuplicate={handleDuplicatePost} />)}
                                 </div>
+                            ) : sinLectura ? (
+                                <p className="text-muted-foreground text-center py-10">No se pudieron leer las publicaciones. Usá &quot;Reintentar&quot; arriba.</p>
                             ) : (
                                 <p className="text-muted-foreground text-center py-10">No hay publicaciones con error.</p>
                             )}

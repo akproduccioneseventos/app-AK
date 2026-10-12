@@ -12,7 +12,7 @@ export const metadata = {
 export default async function PresenciaDigitalPage() {
   const [dashboardRes, posts] = await Promise.all([
     getDigitalPresenceDashboard(),
-    getSocialPosts(),
+    getSocialPosts().catch(() => []),
   ]);
 
   const data = dashboardRes.data;

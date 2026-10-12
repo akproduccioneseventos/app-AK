@@ -1,5 +1,30 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12 de octubre de 2026 — Orden 154: conexiones y redes dicen cuando no pudieron leer
+
+- **Qué estaba mal:** si fallaba la lectura, "¿Qué está conectado?" decía "0 plataformas / 0 conectadas" y
+  Redes sociales, al cerrarse el cartel de error, quedaba en "No hay publicaciones / Todos (0)". Y el historial de
+  Instagram decía "Sincronización en curso" siempre que no estuviera completo, aunque nunca se hubiera intentado.
+- **Cómo quedó:** si nunca cargó, aviso "No pudimos leer…" con Reintentar y sin contadores; si ya había datos, se
+  conservan con el aviso "puede estar desactualizado". Instagram dice: "Todavía no se sincronizó", "La última
+  sincronización falló" (con motivo), "Historial parcial: N publicaciones traídas" o "Historial completo". "En curso"
+  no se muestra porque el servidor no guarda ninguna operación activa. En Redes, `getSocialPosts` ahora lanza si
+  la lectura falló (antes devolvía lista vacía) y el Reintentar sólo vuelve a leer, no llama a proveedores.
+- **Por qué así:** un cero falso se confunde con un cero real. La autorización no cambió (sin permiso sigue
+  devolviendo vacío). El centro de Presencia Digital, que también lee esa lista, sigue mostrando vacío si falla
+  (`.catch`) para no romperse; no era parte de la orden.
+
+```comprobar
+archivo: src/app/actions/social-media.ts
+usa: readDataConDetalle en src/app/actions/social-media.ts
+usa: estadoHistorialInstagram en src/app/(app)/settings/sincronizaciones/page.tsx
+usa: sinLectura en src/app/(app)/empresa/redes-sociales/page.tsx
+prueba: src/__tests__/conexiones-sincronizaciones-error-y-reintento.test.tsx
+prueba: src/__tests__/redes-sociales-error-y-reintento.test.tsx
+prueba: src/__tests__/get-social-posts-no-convierte-falla-en-vacio.test.ts
+prueba: tests/e2e/conexiones-redes-error-y-reintento.spec.ts
+```
+
 
 ## 12 de octubre de 2026 — Tres pruebas de navegador que fallaban tras React 19 y el selector de fechas 9 (la app andaba bien)
 
