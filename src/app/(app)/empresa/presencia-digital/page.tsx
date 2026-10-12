@@ -12,7 +12,8 @@ export const metadata = {
 export default async function PresenciaDigitalPage() {
   const [dashboardRes, posts] = await Promise.all([
     getDigitalPresenceDashboard(),
-    getSocialPosts().catch(() => []),
+    // Si no se pudieron leer las publicaciones se avisa arriba, en vez de mostrar "ninguna".
+    getSocialPosts().catch(() => null),
   ]);
 
   const data = dashboardRes.data;
@@ -61,7 +62,14 @@ export default async function PresenciaDigitalPage() {
           <p className="text-sm text-red-300 mt-1">{dashboardRes.error}</p>
         </div>
       ) : data ? (
-        <PresenciaDigitalClient initialData={data} initialPosts={posts} />
+        <>
+        {posts === null && (
+          <p role="alert" className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+            No pudimos leer las publicaciones guardadas. Recargá la página en unos segundos.
+          </p>
+        )}
+        <PresenciaDigitalClient initialData={data} initialPosts={posts ?? []} />
+        </>
       ) : (
         <div className="text-center py-12 text-slate-500">Cargando métricas...</div>
       )}
