@@ -45,7 +45,7 @@ describe('lectura de conexiones que falla', () => {
     mockEstado.mockRejectedValue(new Error('corte'));
     const r = await pintar();
     expect(r.texto()).toContain('No pudimos leer el estado de las conexiones');
-    expect(r.boton('Reintentar')).toBeTruthy();
+    expect(r.boton('Reintentar')?.textContent).toMatch(/Reintentar/);
     expect(r.texto()).not.toContain('TOTAL PLATAFORMAS');
     expect(r.texto()).not.toContain('CONECTADAS');
     r.limpiar();
