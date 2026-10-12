@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+
+## 12 de octubre de 2026 — Orden 155: los documentos de plata y sueldos piden permiso, y el procesador de imágenes al día
+
+- **Qué pasaba:** contratos de clientes y del salón, presupuestos, comprobantes de pago y contratos
+  laborales se bajaban con cualquier sesión: el operador y el personal también. Lo mismo el firmador
+  genérico de archivos (abre cualquier archivo guardado) y la exportación de presupuestos al tablero.
+- **Ahora:** contratos, presupuestos, comprobantes, el firmador y la exportación piden CONTABILIDAD
+  (dueño y secretaria); el contrato laboral pide SUELDOS (sólo el dueño: la secretaria factura pero no
+  ve sueldos, como ya decía el reparto de perfiles). Sin sesión, 401; sin permiso, 403, antes de leer.
+- **Barrido:** se miraron todas las rutas de `src/app/api` que pedían sólo sesión. Las descargas de
+  fotos, buzón y recuerdos de la fiesta quedan con sesión (las usa el operador la noche del evento);
+  la conexión de Google queda igual (cada empleado conecta la suya).
+- **Imágenes:** el procesador de imágenes de la web (sharp) pasó de 0.34.5 a 0.35.5, que Next admite
+  y cierra los tres avisos de memoria. Se fija con un override y quedó una sola versión.
+
+```comprobar
+usa: requirePermiso en src/app/api/employee-contracts/[filename]/route.ts
+usa: requirePermiso en src/app/api/contracts/[filename]/route.ts
+usa: requirePermiso en src/app/api/payment-proofs/[filename]/route.ts
+usa: requirePermiso en src/app/api/salon-contracts/[filename]/route.ts
+usa: requirePermiso en src/app/api/analytics/looker-export/route.ts
+prueba: src/__tests__/los-documentos-de-plata-piden-permiso.test.ts
+```
+
 ## 12 de octubre de 2026 — Orden 154: conexiones y redes dicen cuando no pudieron leer
 
 - **Qué estaba mal:** si fallaba la lectura, "¿Qué está conectado?" decía "0 plataformas / 0 conectadas" y

@@ -3,10 +3,14 @@ import { isFileNotFoundError } from '@/lib/error-utils';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { hasAppSession } from '@/lib/auth/require-session';
+import { hasAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 export async function GET(request: NextRequest, props: { params: Promise<{ filename: string }> }) {
   if (!(await hasAppSession())) return new NextResponse('Unauthorized', { status: 401 });
+  // Orden 155 (Codex): con sesión no alcanza. Contratos, presupuestos y comprobantes son plata:
+  // sólo quien maneja la contabilidad. El operador y el personal tienen sesión y no deben bajarlos.
+  if (!(await requirePermiso(PERMISOS.CONTABILIDAD)).ok) return new NextResponse('Forbidden', { status: 403 });
   const params = await props.params;
   const filename = params.filename;
 

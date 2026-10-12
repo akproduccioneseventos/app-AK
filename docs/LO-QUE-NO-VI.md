@@ -1152,3 +1152,12 @@ prueba: src/__tests__/la-ia-arranca-sin-telemetria.test.ts
 prueba: src/__tests__/el-respaldo-de-la-ia-respeta-la-fiesta.test.ts
 prueba: tests/e2e/pantallas-con-iconos-react19.spec.ts
 ```
+
+## 12 de octubre de 2026 — Documentos de plata que bajaba cualquiera con sesión (Codex, orden 155)
+
+Mi candado de la plata miraba las acciones del servidor y no las rutas que entregan archivos. Pregunta
+57 de `COMO-AUDITAR.md`; el barrido encontró además la exportación de presupuestos y el firmador genérico.
+
+```comprobar
+prueba: src/__tests__/los-documentos-de-plata-piden-permiso.test.ts
+```

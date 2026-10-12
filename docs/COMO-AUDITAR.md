@@ -1028,3 +1028,12 @@ La barra flotante tapaba parte de "Guardar como Presupuesto Formal". **Se compru
 
 Y la ampliación de la 13 (la hora): **también las vigencias de cupones y las pantallas de ajustes**
 (`new Date(`, `setHours`, `toISOString().slice` en `src/lib/cupones` y `src/app/(app)/settings`).
+
+## Pregunta 57 — la que sumó el 12 de octubre de 2026 (Codex, orden 155)
+
+### 57. Una ruta que entrega un ARCHIVO (`src/app/api/**/route.ts`), ¿pide el permiso del área o sólo sesión?
+
+El candado de la plata miraba las acciones del servidor, no las rutas que bajan archivos. Cinco
+rutas servían contratos, presupuestos, comprobantes y contratos laborales a cualquiera con sesión, y
+el firmador genérico abría cualquier archivo guardado. **Barrido: toda ruta con `hasAppSession()` y
+sin `requirePermiso`**; si lo que entrega es plata o sueldos, es un hallazgo.

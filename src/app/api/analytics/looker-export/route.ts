@@ -1,7 +1,8 @@
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { buildLookerExportRows } from '@/lib/analytics/looker-export';
-import { hasAppSession } from '@/lib/auth/require-session';
+import { hasAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { readData } from '@/lib/data-service';
 import type { CrmLead } from '@/types/crm';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -37,9 +38,15 @@ function hasValidToken(request: Request): boolean {
 }
 
 export async function GET(request: Request): Promise<NextResponse> {
-  const autorizado = hasValidToken(request) || (await hasAppSession());
+  const conToken = hasValidToken(request);
+  const autorizado = conToken || (await hasAppSession());
   if (!autorizado) {
     return new NextResponse('Unauthorized', { status: 401 });
+  }
+  // Barrido de la orden 155: la exportación lleva presupuestos e importes. Con la sesión del equipo
+  // no alcanza: sólo quien maneja la contabilidad (el token del tablero externo sigue igual).
+  if (!conToken && !(await requirePermiso(PERMISOS.CONTABILIDAD)).ok) {
+    return new NextResponse('Forbidden', { status: 403 });
   }
 
   try {
