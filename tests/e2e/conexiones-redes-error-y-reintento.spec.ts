@@ -15,11 +15,19 @@ import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
  */
 async function cortarAcciones(page: Page) {
   let cortado = true;
+  // La PRIMERA acción que sale es la del portero (`getSessionStatus` en `AuthGuard`): sin ella
+  // la pantalla rebota al ingreso y nunca llega a leer nada. Se deja pasar esa (por su id) y
+  // se corta cualquier otra, que son las lecturas de la pantalla.
+  let idDelPortero: string | null = null;
   await page.route('**/*', async (ruta) => {
     const r = ruta.request();
-    if (cortado && r.method() === 'POST' && r.headers()['next-action']) {
-      await ruta.abort('internetdisconnected');
-      return;
+    const id = r.method() === 'POST' ? r.headers()['next-action'] : undefined;
+    if (id) {
+      if (idDelPortero === null) idDelPortero = id;
+      if (cortado && id !== idDelPortero) {
+        await ruta.abort('internetdisconnected');
+        return;
+      }
     }
     await ruta.continue();
   });
