@@ -18,6 +18,7 @@ const mockWriteData = jest.fn();
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue({ user: { id: 'u1', role: 'admin' } }),
   requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: {} }),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined), // sesión del dueño: pasa la guarda
 }));
 
 jest.mock('@/lib/auth/session-token', () => ({

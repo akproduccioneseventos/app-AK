@@ -6,6 +6,7 @@ jest.mock('@/lib/data-service', () => ({
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(),
+  requirePermisoAlguno: jest.fn(),
 }));
 
 import {
@@ -13,7 +14,7 @@ import {
   toggleTareaProveedor,
   updateProveedorEstado,
 } from '@/app/actions/provider-portal';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { createDataItem, readData, updateDataItem } from '@/lib/data-service';
 import type { ProveedorPortalAccess } from '@/types/provider-portal';
 
@@ -52,7 +53,7 @@ describe('provider portal actions', () => {
       activo: true,
     });
 
-    expect(requireAppSession).toHaveBeenCalledTimes(1);
+    expect(requirePermisoAlguno).toHaveBeenCalledWith('organizacion', 'contabilidad');
     expect(result).toMatchObject({
       success: true,
       data: {

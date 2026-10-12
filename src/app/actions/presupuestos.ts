@@ -452,7 +452,7 @@ export async function updatePresupuesto(
   options: { preserveStoredTotal?: boolean } = {},
 ): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string; avisoCrm?: string }> {
   // Cambiar un presupuesto (precios, servicios) pide el perfil, igual que armarlo (candado de plata).
-  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   return await presupuestosMutex.runExclusive(() => guardarPresupuestoSinTurno(presupuestoData, options));
 }

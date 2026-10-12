@@ -5,7 +5,8 @@ import type { TipoEvento } from '@/types/presupuesto';
 import type { Tarea, DocumentoRequeridoFiesta, CompraSugeridaFiesta } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { verifySession } from '@/lib/auth/session-token';
 import { hoyEnUruguay } from '@/lib/utils';
 
@@ -30,7 +31,7 @@ export async function getPlaybookByTipoEvento(tipoEvento: TipoEvento | 'Otro'): 
 }
 
 export async function savePlaybook(playbook: Playbook): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
   try {
     const playbooks = await getPlaybooks();
     const index = playbooks.findIndex(p => p.id === playbook.id);
@@ -53,7 +54,7 @@ export async function savePlaybook(playbook: Playbook): Promise<{ success: boole
 export async function createPlaybook(
   data: Omit<Playbook, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<{ success: boolean; playbook?: Playbook; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
   try {
     const playbooks = await getPlaybooks();
     const now = new Date().toISOString();
@@ -75,7 +76,7 @@ export async function updatePlaybook(
   id: string,
   data: Partial<Omit<Playbook, 'id' | 'createdAt'>>
 ): Promise<{ success: boolean; playbook?: Playbook; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
   try {
     const playbooks = await getPlaybooks();
     const index = playbooks.findIndex(p => p.id === id);
@@ -89,7 +90,7 @@ export async function updatePlaybook(
 }
 
 export async function deletePlaybook(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
   try {
     const playbooks = await getPlaybooks();
     const filtered = playbooks.filter(p => p.id !== id);
@@ -114,7 +115,7 @@ export async function applyPlaybookToFiesta(
   errorHistorial?: string;
   error?: string;
 }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ORGANIZACION);
   const session = await verifySession();
   if (!session.success || !session.user) {
     return { success: false, tareasGeneradas: 0, documentosGenerados: 0, comprasGeneradas: 0, error: session.error || 'Sesion no autorizada.' };

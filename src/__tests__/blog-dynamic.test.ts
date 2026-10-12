@@ -10,6 +10,7 @@ jest.mock('@/lib/data-service', () => ({
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue(undefined),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined), // sesión del dueño: pasa la guarda
 }));
 
 describe('Blog Dinámico - Acciones de Servidor', () => {

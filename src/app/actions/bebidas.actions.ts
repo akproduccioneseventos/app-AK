@@ -4,7 +4,8 @@
 import type { BebidasData } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 
 const BEBIDAS_TEMPLATE_FILE = 'bebidas-template.json';
 
@@ -28,7 +29,7 @@ export async function getBebidasMasterTemplate(): Promise<BebidasData> {
 export async function saveBebidasMasterTemplate(
   data: BebidasData
 ): Promise<{ success: boolean; data?: BebidasData; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION, PERMISOS.INSUMOS);
   try {
     await writeData(BEBIDAS_TEMPLATE_FILE, data);
     return { success: true, data };
@@ -42,7 +43,7 @@ import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
 export async function updateBebidas(fiestaId: string, bebidas: BebidasData): Promise<{ success: boolean; updatedData?: BebidasData; error?: string }> {
   try {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.ORGANIZACION);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");
     const updatedFiesta = { ...fiesta, bebidas };

@@ -3,14 +3,15 @@
 
 import type { Proveedor, NuevoProveedorFormData } from '@/types/proveedor';
 import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
 
 const PROVEEDORES_FILE = 'proveedores.json';
 const PROVEEDORES_COLLECTION = 'proveedores';
 
 export async function getProveedores(): Promise<Proveedor[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
   const proveedores = await readData<Proveedor[]>(PROVEEDORES_FILE, []);
   return [...proveedores].sort((a, b) =>
     (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || '')
@@ -18,7 +19,7 @@ export async function getProveedores(): Promise<Proveedor[]> {
 }
 
 export async function getProveedorById(id: string): Promise<Proveedor | null> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
   const proveedores = await getProveedores();
   return proveedores.find(p => p.id === id) || null;
 }
@@ -36,7 +37,7 @@ const turnoDeProveedores = new AsyncMutex();
 export async function saveProveedor(
   proveedorData: NuevoProveedorFormData | Proveedor
 ): Promise<{ success: boolean; id?: string; proveedor?: Proveedor; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD);
   return turnoDeProveedores.runExclusive(() => saveProveedorInterno(proveedorData));
 }
 
@@ -103,7 +104,7 @@ async function saveProveedorInterno(
 import { getInsumos } from './insumos';
 
 export async function deleteProveedor(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD);
   return turnoDeProveedores.runExclusive(() => deleteProveedorInterno(id));
 }
 

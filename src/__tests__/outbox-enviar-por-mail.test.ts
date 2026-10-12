@@ -41,17 +41,20 @@ describe('Orden 86 Bloque 3: Enviar mensajes de outbox por mail', () => {
     jest.clearAllMocks();
   });
 
-  it('sin sesión del equipo no manda nada y arroja error', async () => {
-    (requireSessionModule.requireAppSession as jest.Mock).mockRejectedValueOnce(
-      new Error('Sesion no autorizada.')
-    );
+  it('sin permiso de CRM (personal, operador) no manda nada y devuelve el error', async () => {
+    (requireSessionModule.requirePermiso as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      error: 'Tu perfil (Personal) no tiene acceso a esta parte.',
+    });
 
-    await expect(sendScheduledMessageByEmail('msg_123')).rejects.toThrow('Sesion no autorizada.');
+    const result = await sendScheduledMessageByEmail('msg_123');
+    expect(result.success).toBe(false);
+    expect(result.error).toMatch(/perfil/);
+    expect(requireSessionModule.requirePermiso).toHaveBeenCalledWith('crm');
     expect(googleWorkspaceModule.sendGoogleGmailMessage).not.toHaveBeenCalled();
   });
 
   it('con sesión y sin cuenta de Google, devuelve aviso de conectar Google y no manda', async () => {
-    (requireSessionModule.requireAppSession as jest.Mock).mockResolvedValueOnce(undefined);
     (dataServiceModule.readData as jest.Mock).mockImplementation((file: string) => {
       if (file.includes('scheduled-messages')) return Promise.resolve([dummyMessage]);
       if (file.includes('google-workspace-accounts')) return Promise.resolve([]);
@@ -66,7 +69,6 @@ describe('Orden 86 Bloque 3: Enviar mensajes de outbox por mail', () => {
   });
 
   it('con cuenta de Google conectada, llama a sendGoogleGmailMessage y marca como enviado', async () => {
-    (requireSessionModule.requireAppSession as jest.Mock).mockResolvedValueOnce(undefined);
 
     const connectedAccount = {
       id: 'company',

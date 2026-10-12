@@ -133,6 +133,9 @@ const CAMPOS_DE_PLATA_Y_CONTRATO = [
   'planDePagos',
   'pagosProveedores',
   'clientPaymentNotifications',
+  // Senia, saldo, ajuste y plan de pagos del contrato, y el texto del contrato (barrido 12/10/2026).
+  'contratoDatos',
+  'contratoServicioTexto',
 ] as const;
 
 /** Lo de pagar en cada compra al proveedor: plata, aunque la compra sea de organización. */

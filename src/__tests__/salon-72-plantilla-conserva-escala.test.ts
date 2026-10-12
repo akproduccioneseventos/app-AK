@@ -8,7 +8,10 @@
  * Se probó rompiéndolo: sacando `pixelsPerMeter` de lo que se guarda, se pone en rojo.
  */
 let guardado: any[] = [];
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn(async () => undefined) }));
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn(async () => undefined),
+  requirePermisoAlguno: jest.fn(async () => undefined), // sesión del dueño: pasa la guarda
+}));
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async () => JSON.parse(JSON.stringify(guardado))),
   writeData: jest.fn(async (_f: string, d: any) => { guardado = JSON.parse(JSON.stringify(d)); }),

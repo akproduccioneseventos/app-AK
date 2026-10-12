@@ -3,7 +3,8 @@
 import { readData, writeData, createDataItem, deleteDataItem, mutateDataItem } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import type { CatalogoFoto } from '@/types/catalogo';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { AsyncMutex } from '@/lib/mutex';
 
 const CATALOGO_FILE = 'catalogo-fotos.json';
@@ -51,7 +52,7 @@ function corregirCategoriaImportada(foto: CatalogoFoto): CatalogoFoto {
 }
 
 export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!SIN_BASE()) {
     await createDataItem(CATALOGO_FILE, CATALOGO_COLLECTION, foto.id, foto);
     return;
@@ -64,7 +65,7 @@ export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
 }
 
 export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!SIN_BASE()) {
     await mutateDataItem<CatalogoFoto>(CATALOGO_FILE, CATALOGO_COLLECTION, foto.id, () => foto);
     return;
@@ -80,7 +81,7 @@ export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
 }
 
 export async function deleteCatalogoFoto(id: string): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!SIN_BASE()) {
     await deleteDataItem(CATALOGO_FILE, CATALOGO_COLLECTION, id);
     return;
@@ -92,7 +93,7 @@ export async function deleteCatalogoFoto(id: string): Promise<void> {
 }
 
 export async function toggleCatalogoFotoDestacada(id: string): Promise<void> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!SIN_BASE()) {
     // Adentro de la transaccion: dos toques a la vez dan vuelta el valor dos veces, no una.
     await mutateDataItem<CatalogoFoto>(CATALOGO_FILE, CATALOGO_COLLECTION, id, (actual) => ({
@@ -138,7 +139,7 @@ export async function uploadCatalogoFotoFromFile(formData: FormData): Promise<{
   foto?: CatalogoFoto;
   error?: string;
 }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   const file = formData.get('file') as File | null;
   const categoriaServicio = (formData.get('categoriaServicio') as string | null) || 'General';
   const tipoFiesta = (formData.get('tipoFiesta') as string | null) || undefined;

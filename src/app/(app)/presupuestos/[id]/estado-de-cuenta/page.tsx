@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Presupuesto, PagoCliente } from '@/types/presupuesto';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { getInvoiceTemplateSettings, getCompanyInfo, getWhatsAppSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -78,7 +78,7 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
         await Promise.all([
           getPresupuestoById(presupuestoId),
           getInvoiceTemplateSettings(),
-          getSocialConnections(),
+          getSocialConnectionsPublicas(),
           getCompanyInfo(),
           getWhatsAppSettings(),
           getBudgetDisplaySettings(),

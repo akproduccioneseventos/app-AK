@@ -2,7 +2,8 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 
 export interface MeetingMasterTemplate {
   checklist: { id: string; text: string; }[];
@@ -35,7 +36,7 @@ export async function getMeetingMasterTemplate(): Promise<MeetingMasterTemplate>
 }
 
 export async function saveMeetingMasterTemplate(data: MeetingMasterTemplate): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   try {
     await writeData(TEMPLATE_FILE, data);
     return { success: true };

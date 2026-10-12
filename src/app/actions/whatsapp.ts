@@ -5,7 +5,7 @@ import type { WhatsAppConfig, WhatsAppConversation, WhatsAppMessage, WhatsAppSta
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import type { CrmLead } from '@/types/crm';
 import { createNotification } from '@/lib/notifications/create-notification';
-import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
@@ -44,7 +44,8 @@ const defaultConfig: WhatsAppConfig = {
 
 export async function getWhatsAppConfig(internalToken?: symbol): Promise<WhatsAppConfig> {
   if (internalToken !== WHATSAPP_WEBHOOK_INTERNAL_TOKEN) {
-    await requireAppSession();
+    // Devuelve apiKey y appSecret: sólo administración (barrido de permisos, 12/10/2026).
+    await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   }
   const data = await readData<Partial<WhatsAppConfig>>(CONFIG_FILE, {});
   return { ...defaultConfig, ...data } as WhatsAppConfig;
@@ -92,14 +93,14 @@ export async function saveWhatsAppConfig(
 // --- Conversations ---
 
 export async function getWhatsAppConversations(): Promise<WhatsAppConversation[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM);
   const data = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
   if (!Array.isArray(data)) return [];
   return [...data].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
 export async function getWhatsAppConversation(id: string): Promise<WhatsAppConversation | null> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM);
   const conversations = await getWhatsAppConversations();
   return conversations.find(c => c.id === id) ?? null;
 }
@@ -108,7 +109,7 @@ export async function sendWhatsAppMessage(
   conversationId: string,
   message: string
 ): Promise<{ success: boolean; message?: WhatsAppMessage; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM);
   try {
     const normalizedMessage = message.trim();
     if (!normalizedMessage || normalizedMessage.length > 4096) {
@@ -116,7 +117,7 @@ export async function sendWhatsAppMessage(
     }
     const [conversations, config] = await Promise.all([
       readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []),
-      getWhatsAppConfig(),
+      getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN),
     ]);
     const idx = conversations.findIndex(c => c.id === conversationId);
     if (idx === -1) return { success: false, error: 'Conversación no encontrada.' };
@@ -372,7 +373,7 @@ function generateAutoResponse(message: string, config: WhatsAppConfig, isFirst: 
 export async function takeOverConversation(
   conversationId: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM);
   try {
     const conversations = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
     const idx = conversations.findIndex(c => c.id === conversationId);
@@ -390,7 +391,7 @@ export async function takeOverConversation(
 export async function returnToBotConversation(
   conversationId: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM);
   try {
     const conversations = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
     const idx = conversations.findIndex(c => c.id === conversationId);
@@ -405,7 +406,7 @@ export async function returnToBotConversation(
 }
 
 export async function getWhatsAppStats(): Promise<WhatsAppStats> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM);
   const conversations = await getWhatsAppConversations();
   const active = conversations.filter(c => c.status === 'active' || c.status === 'waiting_human');
   const withLeads = conversations.filter(c => c.leadId);

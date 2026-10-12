@@ -3,7 +3,8 @@
 import { readData, writeData } from '@/lib/data-service';
 import { DECO_PREBUILT_TEMPLATES } from '@/lib/deco-prebuilt-templates';
 import type { DecoCanvasTemplate, ElementoDecorativo } from '@/types/fiesta';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 
 const TEMPLATES_FILE = 'deco-canvas-templates.json';
 const PRESET_ID_PREFIX = 'preset_';
@@ -27,7 +28,7 @@ export async function saveDecoCanvasTemplate(
   fondoImagenUrl?: string,
   miniatura?: string,
 ): Promise<{ success: boolean; template?: DecoCanvasTemplate; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   try {
     const templates = await getUserDecoCanvasTemplates();
     const template: DecoCanvasTemplate = {
@@ -47,7 +48,7 @@ export async function saveDecoCanvasTemplate(
 }
 
 export async function deleteDecoCanvasTemplate(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   try {
     if (id.startsWith(PRESET_ID_PREFIX)) {
       return { success: false, error: 'Las plantillas pre-armadas no se pueden eliminar.' };
