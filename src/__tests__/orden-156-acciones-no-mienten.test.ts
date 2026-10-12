@@ -4,7 +4,12 @@
  * Orden 156 (2, 7, 8, 9): las acciones no anuncian exito si no cambio nada, una lectura caida de
  * fiestas no se disfraza de "cero fiestas", y solo se cuenta como creado un aviso nuevo de verdad.
  */
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn().mockResolvedValue(undefined) }));
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn().mockResolvedValue(undefined),
+  // Sesión del dueño: el permiso de las plantillas lo prueba barrido-de-permisos-personal-y-operador.
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined),
+  requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: { perfil: 'dueno' } }),
+}));
 
 // --- plantillas ---
 const mockReadData = jest.fn();
