@@ -16,7 +16,7 @@ import merge from 'lodash/merge';
 import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-publica-client';
 import { InvitacionConfigPanel } from '@/components/invitacion/InvitacionConfigPanel';
 import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
 import Link from 'next/link';
@@ -106,7 +106,7 @@ function PaginaWebPageContent() {
       if(fiestaId) {
         [data, socialData] = await Promise.all([
             getFiestaById(fiestaId),
-            getSocialConnections(),
+            getSocialConnectionsPublicas(),
         ]);
         if (!data) throw new Error("Fiesta no encontrada");
         setFiesta(data);

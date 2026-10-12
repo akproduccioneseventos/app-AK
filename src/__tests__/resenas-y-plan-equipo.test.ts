@@ -32,6 +32,7 @@ jest.mock('@/lib/whatsapp/meta-sender', () => ({
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined), // sesión del dueño: pasa la guarda
 }));
 
 jest.mock('@/app/actions/accesos-personal', () => ({

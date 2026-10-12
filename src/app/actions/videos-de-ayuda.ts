@@ -2,7 +2,8 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import {
   LUGARES_CON_VIDEO,
   idDeYoutube,
@@ -53,7 +54,7 @@ export async function guardarVideoDeAyuda(
   url: string,
   titulo?: string,
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
 
   const esValido = LUGARES_CON_VIDEO.some((l) => l.clave === lugar);
   if (!esValido) {
@@ -124,7 +125,7 @@ export async function guardarVideoDeAyuda(
 export async function quitarVideoDeAyuda(
   lugar: string,
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
 
   const esValido = LUGARES_CON_VIDEO.some((l) => l.clave === lugar);
   if (!esValido) {

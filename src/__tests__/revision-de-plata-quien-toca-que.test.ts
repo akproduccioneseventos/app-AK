@@ -26,6 +26,7 @@ function cuerpo(archivo: string, nombre: string): string {
 
 const CASOS: Array<[string, string, RegExp]> = [
   ['src/app/actions/presupuestos.ts', 'savePresupuesto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM, PERMISOS\.ORGANIZACION\)/],
+  ['src/app/actions/presupuestos.ts', 'updatePresupuesto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM\)/],
   ['src/app/actions/presupuestos.ts', 'importarPresupuestoDesdeTexto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM\)/],
   ['src/app/actions/presupuestos.ts', 'approvePresupuesto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD\)/],
   ['src/app/actions/presupuestos.ts', 'markPresupuestoAsFacturado', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD\)/],

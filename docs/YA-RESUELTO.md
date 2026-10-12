@@ -1,6 +1,38 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 
+## 12 de octubre de 2026 — Barrido de permisos: lo que sólo pedía sesión ahora pide el perfil
+
+- **Qué pasaba:** muchas acciones pedían sólo "tener sesión", y el personal y el operador también la tienen.
+  Entre otras: la clave de WhatsApp y los tokens de las redes se podían leer, y la bandeja de WhatsApp, los pagos al
+  salón, el plan de pagos del contrato, los clientes, los proveedores, el borrado masivo y las plantillas.
+- **Ahora, por grupo:** WhatsApp y redes con claves, sólo administración (el webhook sigue entrando con su llave
+  interna, y las pantallas del equipo que sólo muestran qué está conectado usan la versión pública sin tokens);
+  bandeja de WhatsApp, mail del outbox, respuesta a reseñas y marketing, CRM; pagos al salón y plan/texto del contrato,
+  contabilidad (y `contratoDatos`/`contratoServicioTexto` se suman a lo que el guardado general de la fiesta no cambia
+  sin contabilidad); `getSalones` saca los pagos a quien no es contabilidad y el gerente a quien no es CRM/organización;
+  cambiar un presupuesto y aprobar pedidos del cliente, contabilidad o CRM; clientes, CRM o contabilidad (verlos suma
+  organización); proveedores, insumos o contabilidad; borrados y reseteos masivos, sólo administrador; plantillas,
+  administración u organización. Las lecturas de plantillas que usan todas las pantallas siguen con sesión.
+- **Por qué se dejó `savePresupuesto` con organización:** el configurador de la reunión de organización lo usa, y ya nace
+  sin cobros ni firma y como propuesta (auditoría 71). Lo que no se puede es cambiar uno hecho (`updatePresupuesto`).
+- **Candado:** `el-candado-de-la-plata` ahora ve `salones.json`, `pagos`, `contratoDatos`/`planPagos`, también los
+  archivos que empiezan con comentario antes de `'use server'` (se los saltaba), y frena toda acción que devuelva claves
+  o tokens de conexiones con sólo sesión.
+
+```comprobar
+usa: ADMINISTRACION en src/app/actions/whatsapp.ts
+usa: ADMINISTRACION en src/app/actions/social-connections.ts
+usa: CONTABILIDAD en src/app/actions/salones.ts
+usa: CONTABILIDAD en src/app/actions/fiesta-actual.ts
+usa: contratoDatos en src/app/actions/fiesta/fiesta.actions.ts
+usa: requireAdminSession en src/app/actions/fiestas-historicas.ts
+usa: requirePermisoAlguno en src/app/actions/customers.ts
+usa: requirePermisoAlguno en src/app/actions/proveedores.ts
+prueba: src/__tests__/barrido-de-permisos-personal-y-operador.test.ts
+prueba: src/__tests__/el-candado-de-la-plata.test.ts
+```
+
 ## 12 de octubre de 2026 — Orden 155: los documentos de plata y sueldos piden permiso, y el procesador de imágenes al día
 
 - **Qué pasaba:** contratos de clientes y del salón, presupuestos, comprobantes de pago y contratos

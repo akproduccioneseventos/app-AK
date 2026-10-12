@@ -25,7 +25,7 @@ import {
   rejectPagoCliente,
   getPresupuestosWithPendingPayments,
 } from '@/app/actions/presupuestos';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -319,7 +319,7 @@ function PagosRapidosContent() {
     try {
       const [allPresupuestos, socialConnections, companyInfo, pendientes, templateSettings] = await Promise.all([
         getPresupuestos(),
-        getSocialConnections(),
+        getSocialConnectionsPublicas(),
         getCompanyInfo(),
         getPresupuestosWithPendingPayments(),
         getInvoiceTemplateSettings(),

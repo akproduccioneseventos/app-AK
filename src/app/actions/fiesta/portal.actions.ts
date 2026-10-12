@@ -17,7 +17,7 @@ import {
 import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
 import { sanitizeActionError, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 import { uploadToStorage } from '@/lib/firebase/storage';
-import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
@@ -693,7 +693,7 @@ export async function addClientMusicSuggestion(
 }
 
 export async function approveClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -850,7 +850,7 @@ export async function approveClientGuestCountChangeRequest(
   fiestaId: string,
   requestId: string,
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -934,7 +934,7 @@ export async function rejectClientGuestCountChangeRequest(
 }
 
 export async function approveClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };

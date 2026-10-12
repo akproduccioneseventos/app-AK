@@ -14,7 +14,8 @@ import {
   getAccesosGenerales,
 } from '@/app/actions/accesos-personal';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   applyCargaOperativaItemPatch,
   mergeGeneratedCargaWithManualItems,
@@ -271,8 +272,10 @@ export async function getCargaOperativaMasterTemplate(): Promise<ListaDeCargaOpe
 export async function saveCargaOperativaMasterTemplate(
   data: ListaDeCargaOperativa
 ): Promise<{ success: boolean; data?: ListaDeCargaOperativa; error?: string }> {
-  if (!(await verifySession()).success) {
-    return { success: false, error: 'Acceso no autorizado.' };
+  // La plantilla maestra la cambia administración u organización, no cualquier sesión.
+  for (const permiso of [PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION]) {
+    if ((await requirePermiso(permiso)).ok) break;
+    if (permiso === PERMISOS.ORGANIZACION) return { success: false, error: 'Tu perfil no tiene acceso a esta parte.' };
   }
   try {
     const dataToSave = { ...data, id: 'master', name: 'Plantilla Maestra de Carga Operativa' };

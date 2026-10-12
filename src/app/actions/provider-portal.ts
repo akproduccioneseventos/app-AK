@@ -3,7 +3,9 @@
 import { createDataItem, readData, updateDataItem } from '@/lib/data-service';
 import type { ProveedorPortalAccess, EstadoProveedorPortal } from '@/types/provider-portal';
 import { randomUUID } from 'crypto';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const DATA_PATH = 'proveedor-portal.json';
 const DATA_COLLECTION = 'proveedor_portal';
@@ -48,7 +50,7 @@ export async function getProveedoresPortal(fiestaId: string): Promise<{ success:
 export async function createProveedorAcceso(
   data: Omit<ProveedorPortalAccess, 'id' | 'token' | 'createdAt'>,
 ): Promise<{ success: boolean; data?: ProveedorPortalAccess; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD);
   try {
     const nombreProveedor = data.nombreProveedor.trim();
     const fiestaId = data.fiestaId.trim();

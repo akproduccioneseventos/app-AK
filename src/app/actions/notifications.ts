@@ -14,7 +14,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestas } from './fiesta/fiesta.actions';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
-import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { hasAppSession, requireAdminSession, requireAppSession } from '@/lib/auth/require-session';
 import { NOTIFICATION_INTERNAL_TOKEN } from '@/lib/notifications/internal-token';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
@@ -533,7 +533,8 @@ export async function generateAllSmartNotifications(): Promise<{ success: boolea
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetAllNotifications(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
-  await requireAppSession();
+  const admin = await requireAdminSession();
+  if (!admin.ok) return { success: false, error: admin.error };
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     let deletedCount = 0;

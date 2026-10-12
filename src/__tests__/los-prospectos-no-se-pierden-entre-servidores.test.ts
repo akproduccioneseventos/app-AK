@@ -19,6 +19,7 @@ jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue({ userId: 'admin', email: 'admin@ak.test', role: 'admin', perfil: 'dueno' }),
   requirePermiso: jest.fn().mockResolvedValue({ ok: true }),
   requireAdminSession: jest.fn().mockResolvedValue({ ok: true }),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined), // sesión del dueño: pasa la guarda
 }));
 
 jest.mock('@/lib/notifications/create-notification', () => ({

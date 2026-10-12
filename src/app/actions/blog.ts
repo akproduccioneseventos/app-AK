@@ -1,7 +1,8 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import type { BlogPost } from '@/types/blog';
 import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
 import { corregirPromesasDelBlog } from '@/lib/blog/sin-promesas';
@@ -20,7 +21,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 export async function saveBlogPost(
   post: BlogPost
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
   try {
     const posts = await getBlogPosts();
     const idx = posts.findIndex(p => p.slug === post.slug);
@@ -48,7 +49,7 @@ export async function saveBlogPost(
 export async function deleteBlogPost(
   slug: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
   try {
     const posts = await getBlogPosts();
     const filtered = posts.filter(p => p.slug !== slug);

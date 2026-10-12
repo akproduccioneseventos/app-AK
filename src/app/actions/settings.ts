@@ -648,7 +648,7 @@ const GEMINI_CONNECTION_MODELS = [
 ] as const;
 
 export async function testGeminiConnection(): Promise<{ ok: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return {

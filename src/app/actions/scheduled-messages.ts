@@ -290,7 +290,9 @@ export async function checkGoogleMailStatus(): Promise<{ connected: boolean; ema
 export async function sendScheduledMessageByEmail(
   messageId: string,
 ): Promise<{ success: boolean; error?: string; notice?: string }> {
-  await requireAppSession();
+  // Manda un mail de verdad al cliente: es de quien atiende clientes.
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
 
   const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
   const message = messages.find((m) => m.id === messageId);

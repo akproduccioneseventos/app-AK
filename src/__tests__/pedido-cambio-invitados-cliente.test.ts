@@ -63,7 +63,7 @@ describe('pedido de cambio de invitados desde el portal del cliente', () => {
       portalActions.indexOf('export async function rejectClientGuestCountChangeRequest'),
       portalActions.indexOf('export async function approveClientServiceChangeRequest'),
     );
-    expect(aprobar).toContain('requireAppSession');
+    expect(aprobar).toContain('requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM)');
     expect(rechazar).toContain('requireAppSession');
   });
 
