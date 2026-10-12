@@ -1,6 +1,25 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 
+## 12 de octubre de 2026 — Orden 153: Google dice el estado real de la cuenta
+
+- **Qué estaba mal:** en Ajustes > Google Workspace, una cuenta de AK que Google ya no aceptaba
+  (hay que volver a conectarla) figuraba "Conectada" con tilde verde y dejaba tocar "Sincronizar
+  fiestas". Y un empleado con error contaba como conectado en el contador y en el porcentaje.
+- **Cómo quedó:** la pantalla mira el estado real. "Hay que volver a conectar" o "Con error" (con el
+  motivo si lo hay), el botón de conectar sigue visible y las sincronizaciones quedan deshabilitadas.
+  El contador y el porcentaje cuentan sólo empleados conectados; los que tienen problema siguen en la
+  lista con su aviso (campo nuevo `employeesNeedingAttention`, sin cambiar el significado de los otros).
+  La cuenta de servicio válida sigue andando sin pedir el ingreso con Google.
+- **Por qué así:** "existe el registro" no es "anda". No se promete un chequeo remoto que no se hace.
+
+```comprobar
+archivo: src/app/actions/google-workspace.ts
+usa: employeesNeedingAttention en src/app/(app)/settings/google-workspace/page.tsx
+prueba: src/__tests__/google-workspace-estado-real.test.tsx
+prueba: tests/e2e/google-workspace-estado-conexion.spec.ts
+```
+
 ## 12 de octubre de 2026 — Revisión de lo que programó Codex (PR 1288) y el simulador que decía "libre"
 
 - **Revisado el código de Codex** antes de fusionar: cupones (permisos sin cambios; las fechas ahora

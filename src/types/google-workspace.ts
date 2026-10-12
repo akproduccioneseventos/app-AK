@@ -48,7 +48,10 @@ export interface GoogleWorkspaceDashboard {
   missingConfig: string[];
   redirectUri: string;
   companyAccount?: PublicGoogleWorkspaceAccount;
+  /** Sólo empleados con status 'connected'. */
   connectedEmployees: PublicGoogleWorkspaceAccount[];
+  /** Empleados con cuenta guardada pero que necesitan reconexión o tienen error. */
+  employeesNeedingAttention: PublicGoogleWorkspaceAccount[];
   employeeCount: number;
   employeesWithEmail: number;
   syncedFiestas: number;

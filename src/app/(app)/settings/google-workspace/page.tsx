@@ -73,6 +73,9 @@ export default function GoogleWorkspaceSettingsPage() {
   const [warnings, setWarnings] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
 
+  const companyStatus = dashboard?.companyAccount?.status;
+  const companyReady = companyStatus === 'connected';
+
   const employeeCoverage = useMemo(() => {
     if (!dashboard?.employeeCount) return 0;
     return Math.round((dashboard.connectedEmployees.length / dashboard.employeeCount) * 100);
@@ -167,15 +170,15 @@ export default function GoogleWorkspaceSettingsPage() {
                 Conectar AK
               </Link>
             </Button>
-            <Button variant="outline" onClick={handleSyncAll} disabled={isPending || !dashboard?.companyAccount}>
+            <Button variant="outline" onClick={handleSyncAll} disabled={isPending || !companyReady}>
               <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
               Sincronizar fiestas
             </Button>
-            <Button variant="outline" onClick={handleSyncCurrentFiesta} disabled={isPending || !dashboard?.companyAccount || !fiestaId}>
+            <Button variant="outline" onClick={handleSyncCurrentFiesta} disabled={isPending || !companyReady || !fiestaId}>
               <Users className="mr-2 h-4 w-4" />
               Avisar equipo
             </Button>
-            <Button variant="outline" onClick={handleNotifyGuests} disabled={isPending || !dashboard?.companyAccount || !fiestaId}>
+            <Button variant="outline" onClick={handleNotifyGuests} disabled={isPending || !companyReady || !fiestaId}>
               <Mail className="mr-2 h-4 w-4" />
               Avisar invitados
             </Button>
@@ -218,15 +221,33 @@ export default function GoogleWorkspaceSettingsPage() {
           <CardHeader className="pb-2">
             <CardDescription>Cuenta de AK</CardDescription>
             <CardTitle className="flex items-center gap-2 text-lg">
-              {dashboard?.companyAccount ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertTriangle className="h-5 w-5 text-amber-600" />}
-              {dashboard?.companyAccount ? 'Conectada' : 'Pendiente'}
+              {companyReady ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertTriangle className="h-5 w-5 text-amber-600" />}
+              {companyReady
+                ? 'Conectada'
+                : companyStatus === 'needs_reconnect'
+                  ? 'Hay que volver a conectar'
+                  : companyStatus === 'error'
+                    ? 'Con error'
+                    : 'Pendiente'}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             <p>{dashboard?.companyAccount?.email || 'Conecta la cuenta que enviara mails y administrara el calendario general.'}</p>
-            {dashboard?.companyAccount && (
-              <p className={`mt-2 font-medium ${dashboard.contactsEnabled ? 'text-emerald-700' : 'text-amber-700'}`}>
-                {dashboard.contactsEnabled
+            {companyStatus === 'error' && (
+              <p className="mt-2 font-medium text-red-700">
+                {dashboard?.companyAccount?.lastError
+                  ? `Google respondió con un problema: ${dashboard.companyAccount.lastError}`
+                  : 'Google respondió con un problema. Volvé a conectar la cuenta.'}
+              </p>
+            )}
+            {companyStatus === 'needs_reconnect' && (
+              <p className="mt-2 font-medium text-amber-700">
+                Google ya no acepta el acceso de esta cuenta. Tocá "Conectar AK" para volver a conectarla.
+              </p>
+            )}
+            {companyReady && (
+              <p className={`mt-2 font-medium ${dashboard?.contactsEnabled ? 'text-emerald-700' : 'text-amber-700'}`}>
+                {dashboard?.contactsEnabled
                   ? 'Contactos de prospectos habilitados.'
                   : 'Vuelve a conectar la cuenta para habilitar Contactos.'}
               </p>
@@ -345,20 +366,29 @@ export default function GoogleWorkspaceSettingsPage() {
         </CardContent>
       </Card>
 
-      {dashboard?.connectedEmployees.length ? (
+      {dashboard?.connectedEmployees.length || dashboard?.employeesNeedingAttention?.length ? (
         <Card>
           <CardHeader>
-            <CardTitle>Personal ya conectado</CardTitle>
+            <CardTitle>Personal con cuenta de Google</CardTitle>
             <CardDescription>Cuentas que ya pueden recibir eventos directamente en su Google Calendar.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {dashboard.connectedEmployees.map((account) => (
+            {[...dashboard.connectedEmployees, ...(dashboard.employeesNeedingAttention || [])].map((account) => (
               <div key={account.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
                 <div>
                   <p className="font-medium">{account.email || 'Cuenta sin email visible'}</p>
                   <p className="text-xs text-muted-foreground">Conectado: {formatDate(account.connectedAt)}</p>
+                  {account.status !== 'connected' && (
+                    <p className="text-xs font-medium text-amber-700">
+                      {account.status === 'needs_reconnect'
+                        ? 'Hay que volver a conectar esta cuenta.'
+                        : `Con error${account.lastError ? `: ${account.lastError}` : ''}. Hay que volver a conectarla.`}
+                    </p>
+                  )}
                 </div>
-                <Badge variant={account.status === 'connected' ? 'default' : 'secondary'}>{account.status}</Badge>
+                <Badge variant={account.status === 'connected' ? 'default' : 'secondary'}>
+                  {account.status === 'connected' ? 'Conectada' : account.status === 'needs_reconnect' ? 'Reconectar' : 'Con error'}
+                </Badge>
               </div>
             ))}
           </CardContent>
