@@ -1,7 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { FullMenu } from '@/types/catering';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getMenuById } from '@/app/actions/menus-catering';
@@ -37,8 +38,11 @@ interface SubServicioItem {
   comentarios?: string;
 }
 
-export default function ServiciosContratadosPage() {
+function ServiciosContratadosContenido() {
   const { toast } = useToast();
+  // La fiesta sale de la dirección (?fiestaId=): la tienda del portal la manda. Antes se ignoraba
+  // y se mostraba la "fiesta actual", que puede ser otra. Sin fiestaId queda como estaba.
+  const fiestaIdPedida = useSearchParams().get('fiestaId');
   const [fiestaActual, setFiestaActual] = useState<FiestaEnPlanificacion | null>(null);
   const [clienteNombre, setClienteNombre] = useState<string>('');
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
@@ -52,7 +56,8 @@ export default function ServiciosContratadosPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const fiesta = await getFiestaActual();
+      const fiesta = fiestaIdPedida ? await getFiestaById(fiestaIdPedida) : await getFiestaActual();
+      if (!fiesta) throw new Error('No se encontró la fiesta pedida.');
       setFiestaActual(fiesta);
 
       if (fiesta.configuracion.clienteId) {
@@ -89,7 +94,7 @@ export default function ServiciosContratadosPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaIdPedida]);
 
   useEffect(() => {
     loadData();
@@ -299,5 +304,13 @@ export default function ServiciosContratadosPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function ServiciosContratadosPage() {
+  return (
+    <Suspense fallback={null}>
+      <ServiciosContratadosContenido />
+    </Suspense>
   );
 }

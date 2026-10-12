@@ -1,4 +1,5 @@
 'use server';
+import { diasHastaEnUruguay } from '@/lib/utils';
 
 import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from '@/lib/notifications/create-notification';
@@ -35,11 +36,7 @@ function toDate(value?: string | Date | null): Date | null {
 }
 
 function daysAfter(date: Date) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(date);
-  target.setHours(0, 0, 0, 0);
-  return Math.floor((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
+  return -diasHastaEnUruguay(date);
 }
 
 function getNombre(fiesta: any) {

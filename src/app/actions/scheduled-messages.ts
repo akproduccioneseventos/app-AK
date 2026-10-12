@@ -1,4 +1,5 @@
 'use server';
+import { hoyEnUruguay } from '@/lib/utils';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
@@ -261,15 +262,13 @@ export async function getPendingMessagesForToday(): Promise<ScheduledMessage[]> 
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return [];
   const messages = await getScheduledMessages();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const hoy = hoyEnUruguay();
 
   return messages.filter(m => {
     if (m.status !== 'pendiente' && m.status !== 'reprogramado') return false;
-    const scheduled = new Date(m.scheduledAt);
-    return scheduled < tomorrow;
+    const cuando = new Date(m.scheduledAt);
+    if (Number.isNaN(cuando.getTime())) return false;
+    return hoyEnUruguay(cuando) <= hoy;
   });
 }
 
