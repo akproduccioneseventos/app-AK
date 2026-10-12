@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, ClipboardCopy, Loader2, PhoneCall, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, ClipboardCopy, Loader2, PhoneCall, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,12 +21,19 @@ export default function CommercialFollowupsPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [items, setItems] = useState<CommercialFollowupItem[]>([]);
   const [status, setStatus] = useState('');
+  // Error de lectura o de la accion: se queda en pantalla hasta que algo salga bien.
+  const [loadError, setLoadError] = useState('');
+  const [alertsError, setAlertsError] = useState('');
 
   async function load() {
     setLoading(true);
+    setLoadError('');
     try {
       const result = await getCommercialFollowups();
       setItems(result.data || []);
+    } catch {
+      // Los datos anteriores (si habia) se conservan; solo se avisa que no se pudo leer.
+      setLoadError('No se pudieron leer los seguimientos comerciales, así que no sabemos si hay algo para atender.');
     } finally {
       setLoading(false);
     }
@@ -43,9 +50,12 @@ export default function CommercialFollowupsPage() {
   async function createAlerts() {
     setCreating(true);
     setStatus('');
+    setAlertsError('');
     try {
       const result = await createCommercialFollowupAlerts();
       setStatus(`Avisos creados: ${result.created}. Seguimientos detectados: ${result.total}.`);
+    } catch {
+      setAlertsError('No se pudieron crear los avisos. Revisá la conexión y probá de nuevo; no se creó ninguno que podamos confirmar.');
     } finally {
       setCreating(false);
     }
@@ -101,11 +111,20 @@ export default function CommercialFollowupsPage() {
         </CardContent>
       </Card>
 
+      {alertsError && <div role="alert" className="flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800"><AlertCircle className="h-5 w-5 shrink-0" /> {alertsError}</div>}
+
+      {loadError && (
+        <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800 sm:flex-row sm:items-center sm:justify-between">
+          <span className="flex items-start gap-2"><AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> {loadError}</span>
+          <Button onClick={load} disabled={loading} variant="outline" className="rounded-2xl font-bold">Reintentar</Button>
+        </div>
+      )}
+
       {status && <div className="flex items-center gap-2 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-800"><CheckCircle2 className="h-5 w-5" /> {status}</div>}
 
       {loading && <Card className="rounded-2xl"><CardContent className="flex items-center gap-2 p-5 text-slate-500"><Loader2 className="h-4 w-4 animate-spin" /> Cargando seguimientos...</CardContent></Card>}
 
-      {!loading && items.length === 0 && <Card className="rounded-2xl border-green-100 bg-green-50"><CardContent className="p-5 text-sm font-bold text-green-800">Todo tranquilo. No hay seguimientos comerciales importantes detectados.</CardContent></Card>}
+      {!loading && !loadError && items.length === 0 && <Card className="rounded-2xl border-green-100 bg-green-50"><CardContent className="p-5 text-sm font-bold text-green-800">Todo tranquilo. No hay seguimientos comerciales importantes detectados.</CardContent></Card>}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {items.map(item => (

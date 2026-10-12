@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, ClipboardCopy, Loader2, PartyPopper, Save, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, ClipboardCopy, Loader2, PartyPopper, Save, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,11 +18,17 @@ export default function PostEventPage() {
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [status, setStatus] = useState('');
 
+  const [loadError, setLoadError] = useState('');
+
   async function load() {
     setLoading(true);
+    setLoadError('');
     try {
       const result = await getPostEventOpportunities();
       setItems(result.data || []);
+    } catch {
+      // Los datos anteriores (si habia) se conservan; solo se avisa que no se pudo leer.
+      setLoadError('No se pudieron leer las fiestas recientes, así que no sabemos si hay cierres para preparar.');
     } finally {
       setLoading(false);
     }
@@ -94,9 +100,15 @@ export default function PostEventPage() {
         </div>
       </section>
 
+      {loadError && (
+        <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800 sm:flex-row sm:items-center sm:justify-between">
+          <span className="flex items-start gap-2"><AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> {loadError}</span>
+          <Button onClick={load} disabled={loading} variant="outline" className="rounded-2xl font-bold">Reintentar</Button>
+        </div>
+      )}
       {status && <div className="flex items-center gap-2 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-800"><CheckCircle2 className="h-5 w-5" /> {status}</div>}
       {loading && <Card className="rounded-2xl"><CardContent className="flex items-center gap-2 p-5 text-slate-500"><Loader2 className="h-4 w-4 animate-spin" /> Cargando fiestas finalizadas...</CardContent></Card>}
-      {!loading && items.length === 0 && <Card className="rounded-2xl border-green-100 bg-green-50"><CardContent className="p-5 text-sm font-bold text-green-800">No hay fiestas recientes para cierre post-fiesta.</CardContent></Card>}
+      {!loading && !loadError && items.length === 0 && <Card className="rounded-2xl border-green-100 bg-green-50"><CardContent className="p-5 text-sm font-bold text-green-800">No hay fiestas recientes para cierre post-fiesta.</CardContent></Card>}
 
       <div className="grid gap-4 xl:grid-cols-2">
         {items.map(item => (

@@ -1,5 +1,40 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12 de octubre de 2026 — Órdenes 156, 157 y 158: sin falsos éxitos, formulario nuevo vacío, títulos largos en celular
+
+- **156 (1) Último proveedor borrado reaparecía:** al borrar el último documento de una colección, la copia local no se
+  vaciaba (la lectura devuelve "nada" tanto si está vacía como si falló). Ahora se vacía sólo si una lectura directa
+  confirma que no queda nada; si esa lectura falla, no se toca la copia.
+- **156 (2) Plantilla base "eliminada" que volvía:** borrar una plantilla base (nunca editada) ya no anuncia éxito:
+  avisa que es una plantilla base. Si las bases se podrán ocultar o no lo decide el dueño; no se impuso esa política.
+- **156 (3 a 6) Sin estado de error:** Seguimientos comerciales, Post-fiesta y Automatizaciones muestran un aviso que
+  queda en pantalla cuando la lectura o la acción falla (nunca "Todo tranquilo", "No hay fiestas recientes" ni
+  "Revisión completa"), conservan lo que ya había y ofrecen Reintentar; "Crear avisos" avisa si falló.
+- **156 (7 y 8) Fiestas no leídas = cero fiestas:** Control Tower marca `fiestasNoSeLeyeron`, muestra alerta con
+  Reintentar, "—" en Fiestas próximas y no dice "Todo tranquilo"; Preparación devuelve error (no éxito vacío) y la
+  pantalla avisa en vez de "No hay fiestas para revisar". Un cero real sigue siendo cero.
+- **156 (9) Avisos silenciados contados como creados:** sólo cuenta como creado un aviso con `notification` y sin
+  `isDuplicate`; lo silenciado figura "Detectado". Mismo contrato corregido en "Crear avisos" comerciales.
+- **157 Nueva incidencia heredaba el caso anterior:** al guardar bien, se vacían título, descripción, plan y
+  seguimiento (responsable, categoría, prioridad y evento quedan como estaban). Si falla el guardado, el borrador se conserva.
+- **158 Títulos largos desbordaban en celular:** en los editores de activo fijo e insumo la fila del título envuelve
+  (`flex-wrap`), el título puede achicarse y partir palabras (`min-w-0`, `break-words`) y Volver no se achica. Guardar
+  Cambios ya estaba en su propia fila (el pie). No se tocó nada de cálculos.
+- **Por qué así:** un cero o un "listo" falso se confunde con uno real; el aviso tiene que decir qué no se pudo saber.
+
+```comprobar
+archivo: src/lib/data-service.ts
+prueba: src/__tests__/collection-fallback-empty-after-delete.test.ts
+usa: fiestasNoSeLeyeron en src/app/control-tower/page.tsx
+usa: loadError en src/app/control-tower/comercial/page.tsx
+usa: loadError en src/app/control-tower/post-fiesta/page.tsx
+usa: setError en src/app/control-tower/automatizaciones/page.tsx
+prueba: src/__tests__/orden-156-acciones-no-mienten.test.ts
+prueba: src/__tests__/orden-156-paginas-del-centro-fallan-con-aviso.test.tsx
+prueba: src/__tests__/incidentes-dialogo-nuevo-sin-caso-anterior.test.tsx
+prueba: src/__tests__/inventario-titulos-largos-en-celular.test.tsx
+```
+
 
 ## 12 de octubre de 2026 — Orden 155: los documentos de plata y sueldos piden permiso, y el procesador de imágenes al día
 

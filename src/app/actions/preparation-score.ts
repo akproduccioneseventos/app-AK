@@ -22,7 +22,13 @@ export async function getFiestaPreparationScore(fiestaId: string) {
 
 export async function getAllFiestasPreparationScores() {
   await requireAppSession();
-  const fiestas = await getAllFiestas().catch(() => []);
+  let fiestas: Awaited<ReturnType<typeof getAllFiestas>>;
+  try {
+    fiestas = await getAllFiestas();
+  } catch {
+    // Una lectura caida no es "no hay fiestas": se avisa en vez de devolver una lista vacia con exito.
+    return { success: false as const, error: 'No se pudieron leer las fiestas. Reintentá en unos minutos.', data: [] as never[] };
+  }
   const data = fiestas.map((fiesta: any) => ({
     fiestaId: fiesta.id,
     nombreEvento: fiesta.configuracion?.nombreEvento || 'Fiesta sin nombre',

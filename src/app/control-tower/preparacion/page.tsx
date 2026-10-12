@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, ClipboardCheck, PartyPopper, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, ClipboardCheck, PartyPopper, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ const levelStyles = {
 export default async function PreparationScoresPage() {
   const result = await getAllFiestasPreparationScores();
   const fiestas = result.success ? result.data || [] : [];
+  const fallo = !result.success;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-24">
@@ -37,7 +38,13 @@ export default async function PreparationScoresPage() {
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {fiestas.length === 0 && (
+        {fallo && (
+          <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-sm font-bold text-amber-900 sm:flex-row sm:items-center sm:justify-between lg:col-span-2">
+            <span className="flex items-start gap-2"><AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> No se pudieron leer las fiestas, así que no sabemos cuáles hay para revisar.</span>
+            <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower/preparacion">Reintentar</Link></Button>
+          </div>
+        )}
+        {fiestas.length === 0 && !fallo && (
           <Card className="rounded-2xl border-green-100 bg-green-50">
             <CardContent className="flex items-center gap-2 p-5 text-sm font-bold text-green-800">
               <CheckCircle2 className="h-5 w-5" /> No hay fiestas para revisar en este momento.

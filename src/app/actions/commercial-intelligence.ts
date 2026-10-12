@@ -169,9 +169,13 @@ export async function createCommercialFollowupAlerts() {
       entidadRelacionadaId: item.id,
       rolDestino: 'admin',
     }).catch(() => null);
-    if (response?.success) {
+    // success tambien llega con el aviso silenciado (sin notification) o repetido (isDuplicate):
+    // solo se cuenta como creado un aviso nuevo de verdad.
+    if (response?.success && response.notification && !response.isDuplicate) {
       created++;
-      if (response.notification) existing.unshift(response.notification);
+      existing.unshift(response.notification);
+    } else if (response?.success && response.isDuplicate) {
+      skipped++;
     }
   }
 

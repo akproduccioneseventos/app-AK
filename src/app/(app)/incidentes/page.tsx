@@ -219,6 +219,10 @@ function IncidentesContent() {
       }));
       if (result.success) {
         toast({ title: 'Incidente creado', description: 'El incidente fue registrado correctamente.' });
+        // Ya quedo guardado: la proxima "Nueva Incidencia" arranca sin el texto de este caso.
+        // (Si el guardado falla, el borrador se conserva para reintentar.) Responsable, categoria,
+        // prioridad y evento se dejan como estaban.
+        setForm(f => ({ ...f, titulo: '', descripcion: '', planAccion: '', seguimiento: '' }));
         setNuevaDialogOpen(false);
         load();
       } else {
