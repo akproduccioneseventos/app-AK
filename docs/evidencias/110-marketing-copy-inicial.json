@@ -1,0 +1,56 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "marketing-template-save-and-apply-after-reload",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(received).toContain(expected) // indexOf\n\nExpected substring: \"QA110_desktop_c8525ca7-0666-4774-9479-1e1e278be48e\"\nReceived string:    \"¡Hola! Gracias por escribirnos 😊\n¿La fiesta es para qué fecha aproximada y cuántos invitados esperan?·\nCon eso te armo las opciones del paquete completo y te paso el simulador para que veas un presupuesto en segundos.·\n📲 También podés verlo directamente acá: /simulador-de-presupuesto\""
+  },
+  {
+    "viewport": "desktop",
+    "name": "marketing-checklist-save-and-reload",
+    "details": {
+      "id": "mv5mu0vh7zmjg",
+      "state": "hecho",
+      "by": "QA110_desktop_c8525ca7-0666-4774-9479-1e1e278be48e",
+      "persisted": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "marketing-download-json",
+    "details": {
+      "filename": "marketing-backup-2026-10-12.json",
+      "templatePresent": true,
+      "checklistPresent": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-template-save-and-apply-after-reload",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(received).toContain(expected) // indexOf\n\nExpected substring: \"QA110_mobile_b16b941a-b859-4a53-af8a-dcac3f6b15a4\"\nReceived string:    \"¡Hola! Gracias por escribirnos 😊\n¿La fiesta es para qué fecha aproximada y cuántos invitados esperan?·\nCon eso te armo las opciones del paquete completo y te paso el simulador para que veas un presupuesto en segundos.·\n📲 También podés verlo directamente acá: /simulador-de-presupuesto\""
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-checklist-save-and-reload",
+    "details": {
+      "id": "mv5mu0vhubg8v",
+      "state": "hecho",
+      "by": "QA110_mobile_b16b941a-b859-4a53-af8a-dcac3f6b15a4",
+      "persisted": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-download-json",
+    "details": {
+      "filename": "marketing-backup-2026-10-12.json",
+      "templatePresent": true,
+      "checklistPresent": true
+    },
+    "status": "PASS"
+  }
+]

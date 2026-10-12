@@ -1,40 +1,35 @@
-# Estado actual - 12/10/2026 (Codex109, app sin cambios)
+# Estado actual - 12/10/2026 (Codex110, app sin cambios)
 Rama codex/auditoria-97-ia-contexto-20261011; PR1288 ABIERTA, no fusionar.
-Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e.
-109 contrastadoHEAD43620d4c/main99faf4eb; tanda privada Claude desconocida.
-107 PC/movil: cuenta needs_reconnect verde/Conectada y empleado error contado: P2orden153.
-107 corte dashboard/Reintentar REAL pasa ambos; fixture retirado.
-108 PC/movil: lectura fallida falsa vacia, error redes oculto, Instagram en curso falso.
-Tres P2orden154 pendientes;8recorridos login y6RPC no filtran datos en casos probados.
-Dueno autoriza correccion directa y QA aislado. No datos reales ni cuentas pagas.
-109P1:5descargas sirven documentos a perfiles restringidos;35lecturas/20negativos filtran.
-155pendienteClaude;backup403/5perfiles y2clicks reales, no fuga de backup.
-27avisos evaluados:3sharp runtime publico,9tooling,4telemetria y11condiciones no vistas.
-Inventario421rutas;matriz109 enlaza106Jest por hashes, no cada boton aceptado.
-## Comprobado en106
-- Ayuda3D fuera del lienzo; Recorrer/Pausar controlan camara real, no sólo icono.
-- Configurador mandaba elements/primaryColor pero renderer consumia otros campos.
-  salonElements/colorPalette ahora llegan:12mesas+pista/DJ/barra,13con125invitados.
-- Titulo blanco legible, LED circulares44px sin compresion, color cambia escena.
-- busboy3.2.2/source-map-js1.2.2:2parches compatibles,3regresiones viejas fallan.
-- Fuente8fa:4focalizadas,tipos/acentos2771exit0,692suites/4139Jest0fail/0skip.
-- Build canonico exit0, lint/tipos/PWA activos. Standalone off SOLO QA local.
-- Navegador12casos unicos aprobados mismoappSHA:11ronda +2camaras retest.
-  Matriz camara gira(PC0.0394/movil0.0684) y pausa0; pista sigue animada.
-- Fallo pixel-pausa y timeout de sonda se conservan; no cambios app para aprobar.
-- QA en candidato privado propio:Documents/Codex/ak-codex88/ak-react19-candidato-103.
-  node_modules propios, sin .env. NO instalar ni compilar en junction main.
-## No repetir por rutina
-- Reutilizar102-recuento y matrix84 para88-101;105 por su propio SHAa33.
--105:22E2E y4135Jest son historicos, NO corridos otra vez sobre8fa.
--106-validacion.json contiene matriz/sha/hashes y limites; registros compartidos.
--Graphify puntual; no reconstruccion por documentos109 ni grafo remoto.
-## Pendientes reales / limites
--27GHSA pendientes de parche:analisis109 no modifica dependencias ni elimina avisos.
--Barra flotante tapa parte de Guardar en capturaPC; guardado no validado aqui.
--19presupuestos manuales:requieren export+originales;no reconstruir/borrar.
--Cuentas/modelos externos,Hosting mismoSHA,empaquetado Firebase yhardware sin certificar.
--No prueba de cada boton/variante ni certificado0errores de toda la app.
--Notificaciones ajenas del checkout principal intactas:no subir ni revertir.
--Servidor QA propio detenido; ninguna fusion automatica.
--Claude trabaja152 segun usuario; NO repetir.153-155pendientes, no cierre global.
+Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e; HEAD probado2f6007be.
+Main contrastado99faf4eb; NO tanda privada Claude, pedir SHA antes de programar.
+## Auditoria110 independiente
+- Nueve defectos nuevos en orden156; no declarar corregidos por subir la orden.
+- Ultimo proveedor borrado en Firestore reaparece desde JSON; base de invitacion
+  anuncia borrado falso; cuatro errores de acciones sin resultado visible.
+- Torre/preparacion presentan lectura fallida como cero/vacio.
+- Revision anuncia1/2avisos nuevos con cero delta: preferencias silencian tareas.
+- PC/Pixel7, JSON3300 y SDK3301 con emulador8085. Todo QA ficticio, no cuentas reales.
+- Maestros/consumidores, reuniones, invitacion propia, cierre y marketing probados.
+- Portada llega al visitante despues de cache300; LED/catalogo tambien sincronizan.
+- Matriz110-resultado.json: criterios finales y hashes; no cuenta reintentos.
+- Errores del harness archivados/excluidos; fuentes y datos originales sin delta.
+- Codex revisa, Claude datos/avisos/permisos/dinero; Gemini UI; Claude compila.
+- No build/Jest repetido: misma fuente que106. Graphify puntual, sin reconstruir.
+## Pendiente en programacion: no repetir por rutina
+-152:barra flotante tapa Guardar3D; Claude trabaja segun usuario.
+-153:Google needs_reconnect figuraConectada; empleado error contado.
+-154:lectura Conexiones falsa vacia, error redes oculto, Instagram en curso falso.
+-155:P1 cincoPDF sirven documentos a perfiles restringidos;27GHSA analizados.
+-3sharp runtime publico pendientes; otros24 clasificados, NO solucionados por analisis.
+## Evidencia reutilizable
+-1068fa:4focalizadas,tipos/acentos,692suites/4139Jest ybuild canonico exit0.
+-3Dcamara gira/pausa real, props renderer correctos yLED44px; busboy/source-map-js.
+-105a33:22E2E/4135Jest historicos; no reasignar a8fa ni toda la app.
+-102recuento/matrix84 para88-101; inventario109:421rutas, no cada boton aceptado.
+## Limites reales
+-Aceptacion funcional completa sigue incompleta; no14areas limpias automaticas.
+-19presupuestos requieren export+originales; no reconstruir/borrar.
+-Hosting mismoSHA,empaquetado Firebase,OAuth/modelos,push/correo/pagos reales yhardware
+  sin certificar. Usuario hace ensayo fisico al final, no sustituirlo por browser.
+-No tocar notificaciones ajenas ni herramientas en node_modulesjunction de main.
+-QA propio detenido con arbol de procesos/puertos comprobados; no fusion automatica.

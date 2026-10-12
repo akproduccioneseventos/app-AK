@@ -1,0 +1,12 @@
+[
+  {
+    "file": "data/marketing-checklist.json",
+    "generatedRowsRemoved": 28,
+    "restoredSha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5"
+  },
+  {
+    "file": "src/data/marketing-checklist.json",
+    "generatedRowsRemoved": 28,
+    "restoredSha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5"
+  }
+]

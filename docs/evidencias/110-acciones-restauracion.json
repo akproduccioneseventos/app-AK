@@ -1,0 +1,45 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\invitacion-digital-templates.json",
+      "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+      "qaSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "file": "src\\data\\meeting-checklist-template.json",
+      "beforeSha256": "d47eb610ed651001aabc1256390cdb29d0a7489417a1913becd88303f2f63689",
+      "qaSha256": "acf4e9f5b6a31fdcc71062d35aa7b2ac2d484c9d013a4ea2b3213ad194c2bc34"
+    },
+    {
+      "file": "src\\data\\fiestas\\qa110_meeting_desktop_2e98f80a-13eb-4f67-89de-758dc3a6091f.json",
+      "beforeSha256": null,
+      "qaSha256": "2b7a07980cd7724e82ab3a9cf42b69aa5dd6ba5ba74005919699927bb2a66512"
+    },
+    {
+      "file": "src\\data\\fiestas\\qa110_meeting_mobile_3a1d8d88-022c-40a3-930b-87b907536ace.json",
+      "beforeSha256": null,
+      "qaSha256": "704f6126cf1b65e5181da9e222c5973b3e6313688e757ab503f9d58386450e8d"
+    },
+    {
+      "file": "data\\fiestas\\qa110_meeting_desktop_2e98f80a-13eb-4f67-89de-758dc3a6091f.json",
+      "beforeSha256": null,
+      "qaSha256": "2b7a07980cd7724e82ab3a9cf42b69aa5dd6ba5ba74005919699927bb2a66512"
+    },
+    {
+      "file": "data\\fiestas\\qa110_meeting_mobile_3a1d8d88-022c-40a3-930b-87b907536ace.json",
+      "beforeSha256": null,
+      "qaSha256": "704f6126cf1b65e5181da9e222c5973b3e6313688e757ab503f9d58386450e8d"
+    },
+    {
+      "file": "data\\invitacion-digital-templates.json",
+      "beforeSha256": null,
+      "qaSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "file": "data\\meeting-checklist-template.json",
+      "beforeSha256": null,
+      "qaSha256": "acf4e9f5b6a31fdcc71062d35aa7b2ac2d484c9d013a4ea2b3213ad194c2bc34"
+    }
+  ],
+  "bytesRestored": true
+}

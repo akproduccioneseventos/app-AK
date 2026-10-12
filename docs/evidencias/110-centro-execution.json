@@ -1,0 +1,13 @@
+{
+  "head": "2f6007beaf8fe93c5f87dfc632c63f66eeb0428d",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "args": [
+    "docs/evidencias/110-centro-probe.mjs"
+  ],
+  "launcher": 25920,
+  "child": 26012,
+  "started": "2026-10-12T19:02:28.669Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-12T19:02:48.552Z"
+}

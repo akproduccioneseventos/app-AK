@@ -1,0 +1,45 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\agentes-configuracion.json",
+      "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+      "qaSha256": "e628c7facf9869b8d55f0d508be58d84d74cf0b5f2b4a629cf7cc12c99590a3c"
+    },
+    {
+      "file": "src\\data\\agentes-historial.json",
+      "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+      "qaSha256": "34f952c7ac658491d1c18e454cfe4054c850b195aca38a322f276e8cb7a318d8"
+    },
+    {
+      "file": "src\\data\\tareas-al-entrar-estado.json",
+      "beforeSha256": "be802cf80baa3fcfde7ce94ad620457ea98bd0fdcb8ce817139f87e8317cf68b",
+      "qaSha256": "7fb8a7bb01f8ea33985a1796d86610720e233350b345e493a0927da1ec4737f5"
+    },
+    {
+      "file": "src\\data\\tareas-automaticas.json",
+      "beforeSha256": "bff11b11e034de1406de0f391bd9e2129f8b61c17ffb3f759865a7f7fc4af83e",
+      "qaSha256": "98e25b43b768e84f13d18f9f5a8b076a6aa5c58c842dc6115d40737762a32493"
+    },
+    {
+      "file": "data\\agentes-configuracion.json",
+      "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+      "qaSha256": "e628c7facf9869b8d55f0d508be58d84d74cf0b5f2b4a629cf7cc12c99590a3c"
+    },
+    {
+      "file": "data\\agentes-historial.json",
+      "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+      "qaSha256": "34f952c7ac658491d1c18e454cfe4054c850b195aca38a322f276e8cb7a318d8"
+    },
+    {
+      "file": "data\\tareas-al-entrar-estado.json",
+      "beforeSha256": "be802cf80baa3fcfde7ce94ad620457ea98bd0fdcb8ce817139f87e8317cf68b",
+      "qaSha256": "7fb8a7bb01f8ea33985a1796d86610720e233350b345e493a0927da1ec4737f5"
+    },
+    {
+      "file": "data\\tareas-automaticas.json",
+      "beforeSha256": "bff11b11e034de1406de0f391bd9e2129f8b61c17ffb3f759865a7f7fc4af83e",
+      "qaSha256": "98e25b43b768e84f13d18f9f5a8b076a6aa5c58c842dc6115d40737762a32493"
+    }
+  ],
+  "bytesRestored": true
+}

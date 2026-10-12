@@ -95,3 +95,21 @@ Esta PR queda ABIERTA para revision y fusion del dueno.
 -No aprobar cada boton/variante ni toda el area por referencias a pruebas. La
   aceptacion funcional total sigue incompleta y las correcciones nuevas pendientes.
 -Fixtures retirados, datos sin delta; servidor propio detenido. Sin merge.
+
+## Continuacion110: recorridos independientes
+
+- Misma fuente compilada8fa, sin cambios productivos ni dependencias. Browser
+  PC/Pixel7, JSON local y SDK con Firestore emulado, sin credenciales reales.
+- Nueve defectos nuevos: ultimo proveedor borrado reaparece desde fallback;
+  plantilla base anuncia borrado falso; cuatro fallos de transporte sin aviso;
+  torre/preparacion confunden lectura fallida con cero fiestas; contador anuncia
+  avisos silenciados como creados aunque la base recibe cero nuevos.
+- Orden156 contrasta main visible, pero NO tanda privada de Claude desconocida.
+  Claude/Gemini corrigen segun reparto, Claude compila. Ningun arreglo se declara
+  implementado por publicar esta evidencia. No repetir152-155 aun en programacion.
+- Guardados/consumidores, maestros de reuniones, invitacion propia, cierre y
+  marketing probados; ver matriz final110 por criterio/SHA/hash. Fallos iniciales
+  del auditor quedan conservados y excluidos del conteo aceptado.
+- Copias/fixtures restaurados. No cada boton/rol de421rutas certificado,
+  ni integraciones reales,19presupuestos originales,Hosting mismoSHA o hardware.
+- Documento compartido actualizado. PR permanece abierta, sin fusion automatica.

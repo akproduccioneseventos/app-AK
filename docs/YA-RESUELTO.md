@@ -12813,3 +12813,34 @@ Segundo ayudante: busqueda acotada de otros consumidores publicos directos del
 lector privado de empresa, sin otro fallo demostrado. Ambos ayudantes cerrados.
 Servidor de prueba detenido al acabar; copia compilada conservada SOLO para
 reproducir f790a002, no para aceptar una correccion posterior sin reconstruirla.
+
+## 2026-10-12 - Codex110: lote independiente, NO correccion productiva
+
+PR1288, rama `codex/auditoria-97-ia-contexto-20261011`. HEAD probado2f6007be,
+fuente app8fa5b56a, main99faf4eb; archivos afectados sin diferencia con main.
+NO contrastado con la tanda privada de Claude. No repetir152-155 mientras se corrigen.
+
+**Pendientes nuevos, no resueltos:** nueve comportamientos de orden156: proveedor
+final resucita desde JSON despues de eliminarse en Firestore; plantilla base
+anuncia borrado falso; cuatro errores de acciones no informados; lectura fallida
+en torre/preparacion presentada como cero/vacio; contador cuenta avisos silenciados
+como nuevos aunque el delta real sea cero. Evidencia PC/movil y proveedor emulado.
+
+**Comprobado:** guardar/releer proveedor, duplicados y error de guardar; maestro
+de reuniones consumido por reunion; borrar invitacion propia; abrir fiesta desde
+preparacion; cierre persiste aprendizaje en tres perfiles; avisos reales no
+duplicados; plantilla/checklist/export marketing. Editores y consumidores anonimos:
+resultado final en110-editores.json; portada contempla su cache300segundos.
+`110-resultado.json` concilia unicamente criterios finales y sus hashes.
+
+**No reabrir falsas alarmas de las sondas:** guardia deliberada de escritura local,
+checklist buscado fuera de su solapa, expectativa inventada de texto de marketing,
+loader esbuild ausente, interceptacion demasiado amplia de POST, stream HTTP
+esperado indefinidamente, indicador Guardado oculto en movil. Initiales conservados,
+corregidos en QA sin tocar codigo app. Matriz distingue recopilacion de aceptacion.
+
+Claude corrige persistencia/avisos/permisos/dinero; Gemini pantallas no sensibles;
+Claude compila. Plantillas base requieren decision del dueno sobre proteger u ocultar.
+Solo datos QA y emulador, sin cuentas/pagos/mensajes reales. No areas completas
+limpias ni certificado0errores. El inventario109 mantiene cobertura pendiente.
+Mismo build/Jest106 reutilizado, no nuevas dependencias de produccion ni merge.

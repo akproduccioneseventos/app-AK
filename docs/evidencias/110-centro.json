@@ -1,0 +1,154 @@
+[
+  {
+    "viewport": "desktop",
+    "path": "/control-tower/comercial",
+    "name": "commercial-read-network-failure",
+    "read": true,
+    "action": "0017fcfad3a7cb6b02f28412013b7697e5a2f6daec",
+    "blocked": [
+      "0017fcfad3a7cb6b02f28412013b7697e5a2f6daec"
+    ],
+    "errors": [
+      "Failed to fetch"
+    ],
+    "body": "Comercial inteligente\nSeguimientos comerciales\n\nRevisa leads y presupuestos enviados para ayudarte a saber a quién escribir, por qué y con qué mensaje.\n\nVolver\n\nCrear avisos comerciales\n\nGenera notificaciones para los seguimientos detectados.\n\nCrear avisos\nTodo tranquilo. No hay seguimientos comerciales importantes detectados.",
+    "url": "http://127.0.0.1:3300/control-tower/comercial",
+    "falseCalm": true,
+    "visibleFailure": false,
+    "retryButton": 0,
+    "enabled": null
+  },
+  {
+    "viewport": "desktop",
+    "path": "/control-tower/post-fiesta",
+    "name": "postevent-read-network-failure",
+    "read": true,
+    "action": "00abbc95106351d9186b620bb367678bba84cab6ab",
+    "blocked": [
+      "00abbc95106351d9186b620bb367678bba84cab6ab"
+    ],
+    "errors": [
+      "Failed to fetch"
+    ],
+    "body": "Post-fiesta\nCierre, testimonios y marketing\n\nDespués de cada evento, prepara mensajes para testimonio, autorización de fotos, publicación sugerida y aprendizaje para los agentes.\n\nVolver\nNo hay fiestas recientes para cierre post-fiesta.",
+    "url": "http://127.0.0.1:3300/control-tower/post-fiesta",
+    "falseCalm": false,
+    "visibleFailure": false,
+    "retryButton": 0,
+    "enabled": null
+  },
+  {
+    "viewport": "desktop",
+    "path": "/control-tower/automatizaciones",
+    "name": "automations-run-network-failure",
+    "button": "Ejecutar revisión inteligente",
+    "action": "00559a3646f2fca0c77707a728f7f06b58701ac9e1",
+    "blocked": [
+      "00559a3646f2fca0c77707a728f7f06b58701ac9e1"
+    ],
+    "errors": [
+      "Failed to fetch"
+    ],
+    "body": "Automatizaciones\nAutomatizaciones inteligentes AK\n\nRevisan presupuestos, CRM, fiestas, menú, invitados y tareas para crear avisos útiles sin usar lenguaje alarmante.\n\nVolver\nRevisión automática\n\nAl ejecutar, la app revisa datos reales y crea notificaciones cuando detecta algo para atender: seguimientos comerciales, menú pendiente, invitados sin cargar o tareas con fecha cercana.\n\nEjecutar revisión inteligente",
+    "url": "http://127.0.0.1:3300/control-tower/automatizaciones",
+    "falseCalm": false,
+    "visibleFailure": false,
+    "retryButton": 0,
+    "enabled": true
+  },
+  {
+    "viewport": "desktop",
+    "path": "/control-tower/comercial",
+    "name": "commercial-alert-network-failure",
+    "button": "Crear avisos",
+    "action": "00ca8d7c5c7d6866f3545f03a5a7409283bff02243",
+    "blocked": [
+      "00ca8d7c5c7d6866f3545f03a5a7409283bff02243"
+    ],
+    "errors": [
+      "Failed to fetch"
+    ],
+    "body": "Comercial inteligente\nSeguimientos comerciales\n\nRevisa leads y presupuestos enviados para ayudarte a saber a quién escribir, por qué y con qué mensaje.\n\nVolver\n\nCrear avisos comerciales\n\nGenera notificaciones para los seguimientos detectados.\n\nCrear avisos\nTodo tranquilo. No hay seguimientos comerciales importantes detectados.",
+    "url": "http://127.0.0.1:3300/control-tower/comercial",
+    "falseCalm": true,
+    "visibleFailure": false,
+    "retryButton": 0,
+    "enabled": true
+  },
+  {
+    "viewport": "mobile",
+    "path": "/control-tower/comercial",
+    "name": "commercial-read-network-failure",
+    "read": true,
+    "action": "0017fcfad3a7cb6b02f28412013b7697e5a2f6daec",
+    "blocked": [
+      "0017fcfad3a7cb6b02f28412013b7697e5a2f6daec"
+    ],
+    "errors": [
+      "Failed to fetch"
+    ],
+    "body": "Comercial inteligente\nSeguimientos comerciales\n\nRevisa leads y presupuestos enviados para ayudarte a saber a quién escribir, por qué y con qué mensaje.\n\nVolver\n\nCrear avisos comerciales\n\nGenera notificaciones para los seguimientos detectados.\n\nCrear avisos\nTodo tranquilo. No hay seguimientos comerciales importantes detectados.",
+    "url": "http://127.0.0.1:3300/control-tower/comercial",
+    "falseCalm": true,
+    "visibleFailure": false,
+    "retryButton": 0,
+    "enabled": null
+  },
+  {
+    "viewport": "mobile",
+    "path": "/control-tower/post-fiesta",
+    "name": "postevent-read-network-failure",
+    "read": true,
+    "action": "00abbc95106351d9186b620bb367678bba84cab6ab",
+    "blocked": [
+      "00abbc95106351d9186b620bb367678bba84cab6ab"
+    ],
+    "errors": [
+      "Failed to fetch"
+    ],
+    "body": "Post-fiesta\nCierre, testimonios y marketing\n\nDespués de cada evento, prepara mensajes para testimonio, autorización de fotos, publicación sugerida y aprendizaje para los agentes.\n\nVolver\nNo hay fiestas recientes para cierre post-fiesta.",
+    "url": "http://127.0.0.1:3300/control-tower/post-fiesta",
+    "falseCalm": false,
+    "visibleFailure": false,
+    "retryButton": 0,
+    "enabled": null
+  },
+  {
+    "viewport": "mobile",
+    "path": "/control-tower/automatizaciones",
+    "name": "automations-run-network-failure",
+    "button": "Ejecutar revisión inteligente",
+    "action": "00559a3646f2fca0c77707a728f7f06b58701ac9e1",
+    "blocked": [
+      "00559a3646f2fca0c77707a728f7f06b58701ac9e1"
+    ],
+    "errors": [
+      "Failed to fetch"
+    ],
+    "body": "Automatizaciones\nAutomatizaciones inteligentes AK\n\nRevisan presupuestos, CRM, fiestas, menú, invitados y tareas para crear avisos útiles sin usar lenguaje alarmante.\n\nVolver\nRevisión automática\n\nAl ejecutar, la app revisa datos reales y crea notificaciones cuando detecta algo para atender: seguimientos comerciales, menú pendiente, invitados sin cargar o tareas con fecha cercana.\n\nEjecutar revisión inteligente",
+    "url": "http://127.0.0.1:3300/control-tower/automatizaciones",
+    "falseCalm": false,
+    "visibleFailure": false,
+    "retryButton": 0,
+    "enabled": true
+  },
+  {
+    "viewport": "mobile",
+    "path": "/control-tower/comercial",
+    "name": "commercial-alert-network-failure",
+    "button": "Crear avisos",
+    "action": "00ca8d7c5c7d6866f3545f03a5a7409283bff02243",
+    "blocked": [
+      "00ca8d7c5c7d6866f3545f03a5a7409283bff02243"
+    ],
+    "errors": [
+      "Failed to fetch"
+    ],
+    "body": "Comercial inteligente\nSeguimientos comerciales\n\nRevisa leads y presupuestos enviados para ayudarte a saber a quién escribir, por qué y con qué mensaje.\n\nVolver\n\nCrear avisos comerciales\n\nGenera notificaciones para los seguimientos detectados.\n\nCrear avisos\nTodo tranquilo. No hay seguimientos comerciales importantes detectados.",
+    "url": "http://127.0.0.1:3300/control-tower/comercial",
+    "falseCalm": true,
+    "visibleFailure": false,
+    "retryButton": 0,
+    "enabled": true
+  }
+]

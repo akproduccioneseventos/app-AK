@@ -1,0 +1,15 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\proveedores.json",
+      "beforeSha256": "ef2d64435b1c91005eb553e96067d197b7c79766e8342c2255cf921f2d7bf620",
+      "qaSha256": "ce8f593dddbb81687cb70f1988a3d08f7b9c2acf249b0e7cacc83eb593765e1f"
+    },
+    {
+      "file": "data\\proveedores.json",
+      "beforeSha256": null,
+      "qaSha256": "ce8f593dddbb81687cb70f1988a3d08f7b9c2acf249b0e7cacc83eb593765e1f"
+    }
+  ],
+  "bytesRestored": true
+}
