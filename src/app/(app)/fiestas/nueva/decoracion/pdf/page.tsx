@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Printer as PrinterIcon, Palette, CakeSlice, MapPin, StickyNote, Image as ImageIconLucide, Building, PartyPopper, Gift, Camera, Sparkles as SparklesIcon, Share2, AlertTriangle, Info, LayoutDashboard } from 'lucide-react';
 import type { FiestaEnPlanificacion, DecoracionData, ZonaContratada, LayoutElement, Invitado, DecorationItem } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +28,10 @@ function DecorationPdfPageContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const showLayout = searchParams.get('layout') === 'true';
+  // La fiesta sale de la dirección: los enlaces de Decoración y del plano la mandan. Antes se
+  // ignoraba y se mostraba la "fiesta actual", que puede ser otra: el PDF salía con la decoración
+  // de otro cliente. Sin fiestaId (el enlace del personal) queda como estaba.
+  const fiestaIdPedida = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
@@ -36,7 +40,8 @@ function DecorationPdfPageContent() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = fiestaIdPedida ? await getFiestaById(fiestaIdPedida) : await getFiestaActual();
+      if (!fiestaData) throw new Error('No se encontró la fiesta pedida.');
       setFiesta(fiestaData);
       if (fiestaData.configuracion.clienteId) {
         const clienteData = await getCustomerById(fiestaData.configuracion.clienteId);
@@ -48,7 +53,7 @@ function DecorationPdfPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaIdPedida]);
 
   useEffect(() => { loadData(); }, [loadData]);
   
