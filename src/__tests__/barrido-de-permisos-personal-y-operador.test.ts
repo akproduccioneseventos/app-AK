@@ -37,6 +37,8 @@ jest.mock('@/lib/firebase/storage', () => ({
 }));
 
 import { getWhatsAppConfig, sendWhatsAppMessage } from '@/app/actions/whatsapp';
+import { updateBebidas } from '@/app/actions/fiesta/bebidas.actions';
+import { updateReposteria } from '@/app/actions/fiesta/reposteria.actions';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { addSalonPago } from '@/app/actions/salones';
 import { savePlanPagosContrato } from '@/app/actions/fiesta-actual';
@@ -83,6 +85,8 @@ const casos: Caso[] = [
   { nombre: 'reiniciar las fiestas históricas', correr: () => resetAllFiestasHistoricas(), permitidos: ['dueno'] },
   { nombre: 'borrar un cliente', correr: () => deleteCustomer('c1'), permitidos: ['dueno', 'secretaria'] },
   { nombre: 'guardar una plantilla de tareas', correr: () => saveTaskTemplate('x', []), permitidos: ['dueno', 'secretaria', 'operador'] },
+  { nombre: 'cambiar las bebidas de una fiesta', correr: () => updateBebidas('f1', {} as never), permitidos: ['dueno', 'secretaria', 'operador'] },
+  { nombre: 'cambiar la repostería de una fiesta', correr: () => updateReposteria('f1', {} as never), permitidos: ['dueno', 'secretaria', 'operador'] },
 ];
 
 describe('el barrido de permisos deja afuera al personal y al operador donde no les toca', () => {
