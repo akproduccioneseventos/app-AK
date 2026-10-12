@@ -1,6 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 
+## 12 de octubre de 2026 — Tres pruebas de navegador que fallaban tras React 19 y el selector de fechas 9 (la app andaba bien)
+
+- **Simulador, avanzar de mes y elegir fecha (`simulator-budget-journey`):** causa medida: la prueba buscaba
+  `button[name="next-month"]` y `button[name="day"]` del selector de fechas 8; el 9 usa otro HTML. La persona
+  avanza de mes y elige fecha igual (computadora y celular). Prueba corregida con nombres accesibles
+  ("next month" y el día 15 dentro de la grilla). Los rótulos del botón son en inglés ahora y antes: no hubo cambio.
+- **Simulador, "no tiene cómo cerrar" (`prospecto-simulador`):** causa medida: la prueba buscaba una celda
+  llamada "15"; en la 9 el nombre lo lleva el botón del día, así que nunca elegía fecha y se quedaba en el paso 2
+  ("Seleccioná la fecha"). No era `checkDateAvailability`: elegida la fecha el recorrido llega al cierre.
+- **Muro en vivo (`public-experience-matrix`):** causa medida (probando la pantalla anterior y la actual): la
+  prueba esperaba el cartel "Muro social en vivo" (muro vacío), que sólo se veía unos 200 ms mientras cargaba el
+  programa; el estado estable de esta fiesta (con programa y sin fotos) es "Qué viene ahora en la fiesta", antes y
+  ahora. La pantalla no cambió de comportamiento; la prueba ahora mira el estado estable.
+
 ## 12 de octubre de 2026 — Revisión de lo que programó Codex (PR 1288) y el simulador que decía "libre"
 
 - **Revisado el código de Codex** antes de fusionar: cupones (permisos sin cambios; las fechas ahora

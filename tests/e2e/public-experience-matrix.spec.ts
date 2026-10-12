@@ -181,11 +181,15 @@ test('client and guest portals load as public experiences without admin links', 
 
 test('social wall, bar, totem and live mural render without broken public states', async ({ page }) => {
   test.setTimeout(240_000);
-  const routes = [
+  const routes: { path: string; marker: string | RegExp }[] = [
     { path: `/evento/social/${fiestaId}`, marker: EVENT_NAME },
     { path: `/evento/barra/${fiestaId}`, marker: 'Elegí tu Trago' },
     { path: `/evento/totem/${fiestaId}/principal`, marker: 'Bienvenidos' },
-    { path: `/evento/muro-en-vivo/${fiestaId}`, marker: 'Muro social en vivo' },
+    // Esta fiesta tiene programa y ninguna foto: la rotacion del muro queda en la
+    // diapositiva "Que viene ahora en la fiesta". Antes la prueba buscaba el cartel
+    // de muro vacio y lo veia por unos 200 ms mientras cargaba, antes de que llegara
+    // el programa (medido): era un parpadeo, no el estado estable de la pantalla.
+    { path: `/evento/muro-en-vivo/${fiestaId}`, marker: /Qu[eé] viene ahora en la fiesta/i },
   ];
 
   for (const route of routes) {
@@ -195,7 +199,7 @@ test('social wall, bar, totem and live mural render without broken public states
     try {
       const response = await page.goto(route.path, { waitUntil: 'domcontentloaded' });
       expect(response?.status(), route.path).toBeLessThan(400);
-      await expect(page.getByText(route.marker, { exact: false }).first(), route.path).toBeVisible();
+      await expect(page.getByText(route.marker, typeof route.marker === 'string' ? { exact: false } : undefined).first(), route.path).toBeVisible();
       await expectHealthyPublicPage(page);
       expect(pageErrors, `${route.path}: ${pageErrors.join(' | ')}`).toEqual([]);
     } finally {

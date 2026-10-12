@@ -63,7 +63,9 @@ test.describe('recorrido del prospecto', () => {
       await calendario.click();
       const siguiente = page.getByRole('button', { name: /next month|mes siguiente/i }).first();
       if (await siguiente.isVisible().catch(() => false)) await siguiente.click();
-      const dia = page.getByRole('gridcell', { name: '15', exact: true }).first();
+      // react-day-picker 9: el dia es un boton dentro de la grilla, con nombre
+      // accesible largo ("viernes, 15 de ..."), no una celda llamada "15".
+      const dia = page.getByRole('grid').getByRole('button', { name: /\b15\b/, disabled: false }).first();
       if (await dia.isVisible().catch(() => false)) await dia.click();
     }
 

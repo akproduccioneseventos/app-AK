@@ -63,9 +63,11 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   await page.getByRole('button', { name: /Tengo sal[oó]n o locaci[oó]n propia/i }).click();
 
   await page.getByRole('button', { name: /Selecciona una fecha/i }).click();
-  const nextMonth = page.locator('button[name="next-month"]');
+  // react-day-picker 9: el boton de mes siguiente se ubica por su nombre accesible
+  // (antes era `button[name="next-month"]`) y los dias son botones dentro de la grilla.
+  const nextMonth = page.getByRole('button', { name: /next month/i });
   for (let month = 0; month < 12; month += 1) await nextMonth.click();
-  await page.locator('button[name="day"]:not([disabled])').filter({ hasText: /^15$/ }).first().click();
+  await page.getByRole('grid').getByRole('button', { name: /\b15\b/, disabled: false }).first().click();
   await page.waitForFunction(() => !document.body.innerText.includes('Verificando disponibilidad'));
 
   await page.getByRole('button', { name: /Continuar/i }).click();
