@@ -1,5 +1,6 @@
 'use server';
 
+import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
@@ -143,18 +144,12 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       const entry = monthlyMap.get(key);
       if (!entry) return;
 
-      // Manual cost items
-      const costoItems = fiesta.gestionCostos?.costosItems?.reduce((s, item) => s + (item.montoEstimado || 0), 0) || 0;
-
-      // Staff salary costs (eventSalary + employer contributions)
-      let staffCosts = 0;
-      fiesta.personalAsignado?.forEach(pa => {
-        const rol = rolesData.find(r => r.id === pa.rolId);
-        const contributions = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-        staffCosts += pa.eventSalary + contributions;
-      });
-
-      entry.costos += costoItems + staffCosts;
+      // El costo sale de la cuenta oficial de ganancia (ganancia-evento.ts), la misma que usa la
+      // pantalla de rentabilidad de la fiesta: catering, bebidas, reposteria y sueldos (con aportes)
+      // de gestionCostos, mas los renglones manuales, con lo realmente pagado donde hay pagos y SIN la
+      // merma de bebidas duplicada. Antes se sumaban solo los renglones manuales y los sueldos
+      // salian de eventSalary a mano, asi que el mismo mes daba otro numero. (12/10/2026)
+      entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores).costoReal;
     });
 
     const monthlyProfitability: MonthlyProfitabilityData[] = Array.from(monthlyMap.entries()).map(
@@ -267,16 +262,9 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     fiestasData.forEach(fiesta => {
       const linkedPresupuesto = presupuestosData.find(p => p.id === fiesta.presupuestoId);
       const tipo = linkedPresupuesto?.eventoTipo || fiesta.configuracion?.tipoCelebracion || 'Otro';
-      const costoItems =
-        fiesta.gestionCostos?.costosItems?.reduce((s, item) => s + (item.montoEstimado || 0), 0) || 0;
-      let staffCosts = 0;
-      fiesta.personalAsignado?.forEach(pa => {
-        const rol = rolesData.find(r => r.id === pa.rolId);
-        const contributions = (pa.eventSalary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-        staffCosts += pa.eventSalary + contributions;
-      });
       const entry = eventTypeMap.get(tipo);
-      if (entry) entry.costos += costoItems + staffCosts;
+      // Misma cuenta oficial que el resto (ver arriba).
+      if (entry) entry.costos += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores).costoReal;
     });
 
     const eventTypeProfitability: EventTypeProfitabilityData[] = Array.from(

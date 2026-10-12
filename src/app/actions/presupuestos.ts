@@ -19,7 +19,7 @@ import { getAllFiestas, saveFiesta, syncFiestaFromBudget } from './fiesta/fiesta
 import { syncLaundryCosts } from './fiesta/costos.actions';
 import { recalcularCostoItem } from '@/lib/calculations';
 import { parseBudgetText } from '@/lib/parse-budget-text';
-import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
+import { isConfirmedClientPayment, normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
@@ -30,9 +30,11 @@ import { verifySession } from '@/lib/auth/session-token';
 import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 import { AsyncMutex } from '@/lib/mutex';
+import { mutarPresupuesto } from '@/lib/budget/mutar-presupuesto';
 
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 const presupuestosMutex = new AsyncMutex();
+const fiestasDesdePresupuestoMutex = new AsyncMutex();
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 function shouldDedupePaymentReference(referencia?: string): boolean {
@@ -1017,6 +1019,9 @@ export async function createFiestaFromPresupuesto(
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado.' };
 
+  // El chequeo "ya existe una fiesta de este presupuesto" y la creacion van juntos bajo un turno:
+  // dos toques seguidos creaban dos fiestas del mismo presupuesto.
+  return fiestasDesdePresupuestoMutex.runExclusive(async () => {
   const allFiestas = await getAllFiestas();
   const existing = allFiestas.find(f => f.presupuestoId === presupuestoId);
   if (existing) {
@@ -1075,6 +1080,7 @@ export async function createFiestaFromPresupuesto(
   });
 
   return { success: true, fiestaId: result.fiesta.id };
+  });
 }
 
 export async function approvePresupuesto(
@@ -1084,15 +1090,24 @@ export async function approvePresupuesto(
     try {
       const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD);
       if (!auth.success) return { success: false, error: auth.error };
-      const presupuestos = await getPresupuestos();
-      const index = presupuestos.findIndex(p => p.id === presupuestoId);
-      if (index === -1) return { success: false, error: 'Presupuesto no encontrado' };
-
-      presupuestos[index].estado = 'Enviado';
-      await writeData(PRESUPUESTOS_FILE, presupuestos);
+      // "Enviar" no puede bajar un presupuesto que ya es contrato: ni uno Aceptado o Facturado, ni
+      // uno con la firma o con cobros confirmados. Se decide adentro de la transaccion, sobre el
+      // dato recien leido (12/10/2026).
+      let rechazo: string | undefined;
+      const resultado = await mutarPresupuesto(presupuestoId, (actual) => {
+        rechazo = undefined;
+        const tieneCobros = (actual.pagosCliente || []).some(isConfirmedClientPayment);
+        if (actual.estado === 'Aceptado' || actual.estado === 'Facturado' || actual.fechaFirmaContrato || tieneCobros) {
+          rechazo = 'Este presupuesto ya está aceptado o tiene contrato o cobros: no se puede volver a marcar como enviado.';
+          return null;
+        }
+        return { ...actual, estado: 'Enviado' };
+      });
+      if (!resultado.encontrado) return { success: false, error: 'Presupuesto no encontrado' };
+      if (rechazo) return { success: false, error: rechazo };
 
       // Automation: fire presupuesto_enviado rules (non-blocking)
-      const p = presupuestos[index];
+      const p = resultado.presupuesto as Presupuesto;
       const sendPhone = await (async () => {
         if ((p as any).clienteTelefono) return normalizeUruguayPhone((p as any).clienteTelefono);
         if (p.leadId) {

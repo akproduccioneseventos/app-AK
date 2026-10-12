@@ -22,6 +22,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
 import { suspenderFiestaAction, reactivarFiestaAction } from '@/app/actions/fiesta/fiesta.actions';
 import { esFiestaSuspendida, calcularLiquidacionSuspension } from '@/lib/fiesta/revisar-fiestas';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import type { FiestaEnPlanificacion, ModulosContratados } from '@/types/fiesta';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -364,7 +366,26 @@ function PlannerDashboardContent() {
   const [isProcessingSuspension, setIsProcessingSuspension] = useState(false);
 
   const estaSuspendida = useMemo(() => esFiestaSuspendida(fiesta), [fiesta]);
-  const liquidacion = useMemo(() => fiesta ? calcularLiquidacionSuspension(fiesta) : null, [fiesta]);
+  // Total vigente y cobrado del estado de cuenta oficial del presupuesto (la liquidacion solo se muestra suspendida).
+  const [cuentaPresupuesto, setCuentaPresupuesto] = useState<{ total: number; pagado: number } | null>(null);
+  const presupuestoIdDeLaFiesta = fiesta?.presupuestoId;
+  useEffect(() => {
+    if (!estaSuspendida || !presupuestoIdDeLaFiesta) { setCuentaPresupuesto(null); return; }
+    let vigente = true;
+    getPresupuestoById(presupuestoIdDeLaFiesta)
+      .then((p) => {
+        if (!vigente) return;
+        if (!p) { setCuentaPresupuesto(null); return; }
+        const cuenta = calcularEstadoDeCuenta(p);
+        setCuentaPresupuesto({ total: cuenta.total, pagado: cuenta.pagado });
+      })
+      .catch(() => { if (vigente) setCuentaPresupuesto(null); });
+    return () => { vigente = false; };
+  }, [estaSuspendida, presupuestoIdDeLaFiesta]);
+  const liquidacion = useMemo(
+    () => fiesta ? calcularLiquidacionSuspension(fiesta, cuentaPresupuesto?.total, cuentaPresupuesto?.pagado) : null,
+    [fiesta, cuentaPresupuesto],
+  );
 
   const handleSuspender = async () => {
     if (!fiestaId || !motivoSuspension.trim()) {

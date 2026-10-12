@@ -1,5 +1,6 @@
 'use client';
 
+import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { TrendingUp, Loader2, RefreshCw, DollarSign, TrendingDown, Wallet, CalendarDays, ArrowRight } from 'lucide-react';
@@ -29,13 +30,10 @@ interface FiestaFinanzas {
 }
 
 function calcularEgresos(fiesta: FiestaEnPlanificacion): number {
-  const costos = fiesta.gestionCostos?.costosItems ?? [];
-  const pagos = fiesta.pagosProveedores ?? [];
-  const totalCostos = costos.reduce((s, c) => s + (c.montoEstimado ?? 0), 0);
-  const totalPagos = pagos.reduce((s, p) => s + (p.monto ?? 0), 0);
-  // Use actual payments if available (real money received is more accurate than estimates).
-  // Fall back to estimated costs when no actual payment records exist.
-  return totalPagos > 0 ? totalPagos : totalCostos;
+  // La cuenta oficial de ganancia: lo pagado donde hay pagos, lo estimado donde no, con los bloques
+  // automaticos (catering, bebidas, reposteria, sueldos) y sin la merma duplicada. Antes aca se usaba
+  // "los pagos o los renglones manuales", y el mismo mes no coincidia con Analiticas.
+  return calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores).costoReal;
 }
 
 function calcularIngresos(fiesta: FiestaEnPlanificacion): number {

@@ -1,4 +1,5 @@
 'use server';
+import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
@@ -373,17 +374,11 @@ export async function getCashFlowProjection() {
       const monthEntry = projectionMonths.find(m => m.month === getMonthKey(eventDate));
       if (!monthEntry) return;
 
-      const manualCosts = fiesta.gestionCostos?.costosItems?.reduce((s, i) => s + roundMoney(i.montoEstimado), 0) || 0;
-      const paidProviders = fiesta.pagosProveedores?.reduce((s, p) => s + roundMoney(p.monto), 0) || 0;
-      let staffCosts = 0;
-      fiesta.personalAsignado?.forEach(pa => {
-        const rol = roles.find(r => r.id === pa.rolId);
-        const salary = roundMoney(pa.eventSalary);
-        const contributions = (salary * (rol?.porcentajeAportesPatronales || 0)) / 100;
-        staffCosts += salary + contributions;
-      });
-
-      monthEntry.expenses += Math.max(0, manualCosts - paidProviders) + staffCosts;
+      // Lo que falta gastar de la cuenta oficial (ganancia-evento.ts): lo estimado de cada renglon y
+      // de cada bloque (catering, bebidas, reposteria, sueldos con aportes) que todavia no tiene ningun
+      // pago cargado, sin la merma de bebidas duplicada. Antes usaba los renglones manuales y los
+      // sueldos a mano, y el mismo mes no daba lo mismo que Finanzas y Analiticas. (12/10/2026)
+      monthEntry.expenses += calcularGananciaDeEvento(fiesta.gestionCostos, fiesta.pagosProveedores).sinRendir;
     });
 
     projectionMonths.forEach(m => {

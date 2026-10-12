@@ -20,7 +20,8 @@ import {
 } from '@/app/actions/fiesta/live.actions';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
-import { getInvoiceById } from '@/app/actions/invoices';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
@@ -64,16 +65,12 @@ function LiveEventDashboardContent() {
             setEmpleados(empData);
             setRoles(rolesData);
 
-            if (fiestaData.invoiceIds && fiestaData.invoiceIds.length > 0) {
-                let totalPagado = 0;
-                for (const id of fiestaData.invoiceIds) {
-                    const inv = await getInvoiceById(id);
-                    if (inv) {
-                        totalPagado += inv.payments?.reduce((s, p) => s + p.amount, 0) || 0;
-                    }
-                }
-                const totalAcordado = fiestaData.configuracion.presupuestoEstimado || 0;
-                setSaldoPendiente(totalAcordado - totalPagado);
+            // El saldo sale del estado de cuenta oficial del presupuesto (cobros confirmados + ajuste
+            // anual), el mismo que ve el panel y el portal. Antes sumaba solo los pagos de las facturas
+            // y restaba del presupuesto estimado: ignoraba los cobros anotados en el presupuesto.
+            if (fiestaData.presupuestoId) {
+                const presupuesto = await getPresupuestoById(fiestaData.presupuestoId);
+                if (presupuesto) setSaldoPendiente(calcularEstadoDeCuenta(presupuesto).saldo);
             }
         } catch (e: any) {
             toast({ title: "Error", description: e.message, variant: "destructive" });

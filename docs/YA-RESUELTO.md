@@ -1,5 +1,55 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12 de octubre de 2026 — Barrido de plata: doble toque, ajustes a medias y saldos que ignoraban cobros
+
+- **Cancelar servicios / cambiar la fecha desde el portal:** un doble toque sumaba dos multas o dos recargos del 10%
+  (la segunda sobre el total ya ajustado). Ahora el cálculo corre adentro de la transacción del presupuesto, sobre el
+  dato recién leído; si ya estaba cancelado o la fecha ya era la pedida, devuelve "ya estaba" sin cobrar de nuevo, y
+  queda una marca (`ajustesAplicados`). Orden elegido: primero el presupuesto, después el documento y la fiesta; si
+  eso falla se **revierte el presupuesto** (más simple y seguro que guardar la fiesta primero: una fiesta cambiada sin
+  multa es plata perdida). El botón del portal además no deja salir una segunda llamada.
+- **Ajuste de precios "ambos" y revertir:** el registro se anota antes de tocar nada y cada parte hecha se marca; el
+  reintento termina sólo lo que falta (antes subía los precios dos veces).
+- **Insumos:** el marcador de ajuste pendiente se escribe ANTES de guardar los costos (con los costos finales
+  anotados, así repetir no multiplica); y el costo se redondea a 2 decimales, porque con enteros un insumo de $6
+  con +5% no subía. Un error al llevar el costo a los menús se devuelve como error (antes escapaba sin marcador).
+- **Servicios de la empresa:** guardar, borrar y ajustar ya no escriben la lista entera de un cache de 15 s: cada
+  servicio se guarda o borra solo; el ajuste masivo lee fresco y con marcas de lectura; `servicios` entra en las
+  colecciones que no se borran por omisión.
+- **Saldos:** el recibo de pago, "Saldo por cobrar hoy" del panel en vivo y la liquidación de una fiesta suspendida
+  usan el estado de cuenta oficial (cobros confirmados del presupuesto, con el ajuste anual).
+- **Doble toque en presupuestos:** crear la fiesta de un presupuesto no puede duplicarse (chequeo y creación bajo
+  un turno); "enviar" no baja a Enviado un presupuesto Aceptado/Facturado, firmado o con cobros.
+- **Aprobar pago informado:** el mail sale sólo si esa llamada hizo el cambio (la fiesta se actualiza en transacción),
+  y sin presupuesto no se marca aprobado.
+- **Ganancia:** Finanzas, Analíticas y Flujo de caja usan `calcularGananciaDeEvento` (el flujo toma "lo que falta
+  gastar"); el mismo mes ya no da números distintos.
+- **Por qué así:** una operación de plata se decide sobre el dato leído adentro de la transacción, y todo lo que
+  mueve varias partes anota primero qué va a hacer. Límite conocido: el turno de creación de fiestas vive en un
+  servidor; con dos servidores a la vez el chequeo previo es lo que protege.
+
+```comprobar
+archivo: src/lib/budget/mutar-presupuesto.ts
+usa: mutarPresupuesto en src/app/actions/fiesta/portal.actions.ts
+usa: mutarPresupuesto en src/app/actions/presupuestos.ts
+usa: ajustesAplicados en src/app/actions/fiesta/portal.actions.ts
+usa: estadoDeCuenta.pagado en src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx
+usa: calcularEstadoDeCuenta en src/app/(app)/fiestas/nueva/en-vivo/page.tsx
+usa: calcularGananciaDeEvento en src/app/actions/analytics.ts
+usa: calcularGananciaDeEvento en src/app/actions/dashboard.ts
+usa: calcularGananciaDeEvento en src/app/admin/finanzas/page.tsx
+usa: SERVICIOS_COLLECTION en src/app/actions/servicios-empresa.ts
+prueba: src/__tests__/portal-cancelar-y-cambiar-fecha-no-se-aplican-dos-veces.test.ts
+prueba: src/__tests__/ajuste-de-precios-no-queda-a-medias-ni-se-duplica.test.ts
+prueba: src/__tests__/insumos-ajuste-marcador-antes-y-decimales.test.ts
+prueba: src/__tests__/servicios-empresa-guarda-de-a-uno.test.ts
+prueba: src/__tests__/los-saldos-usan-el-estado-de-cuenta-oficial.test.ts
+prueba: src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts
+prueba: src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts
+prueba: src/__tests__/ajustar-margenes-guarda-todos-los-menus-sin-colgarse.test.ts
+```
+
+
 ## 12 de octubre de 2026 — Órdenes 156, 157 y 158: sin falsos éxitos, formulario nuevo vacío, títulos largos en celular
 
 - **156 (1) Último proveedor borrado reaparecía:** al borrar el último documento de una colección, la copia local no se

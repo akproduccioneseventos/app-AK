@@ -290,8 +290,13 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
   // queda clavado en 15% y vuelve a mostrar un saldo distinto al de la pantalla.
   const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto, ajusteAnualPorcentaje);
   const costoTotal = estadoDeCuenta.total;
-  const totalPagado = allPayments.reduce((sum, p) => sum + p.amount, 0);
-  const saldoPendiente = costoTotal - totalPagado;
+  // Lo cobrado y el saldo salen del estado de cuenta oficial (cobros confirmados del presupuesto,
+  // con el ajuste anual): sumar solo los pagos de las facturas ignoraba los cobros anotados en el
+  // presupuesto y el recibo mostraba un saldo distinto al de la pantalla. Sin presupuesto cargado
+  // no hay cuenta oficial, y se usa lo que traen las facturas.
+  const totalPagadoFacturas = allPayments.reduce((sum, p) => sum + p.amount, 0);
+  const totalPagado = presupuesto ? estadoDeCuenta.pagado : totalPagadoFacturas;
+  const saldoPendiente = presupuesto ? estadoDeCuenta.saldo : costoTotal - totalPagadoFacturas;
   const lastPayment = allPayments.length > 0 ? allPayments[allPayments.length - 1] : null;
 
   const receiptNumber = invoices[0]?.invoiceNumber

@@ -63,21 +63,30 @@ export function reactivarFiesta(fiesta: FiestaEnPlanificacion): FiestaEnPlanific
   return copia;
 }
 
-/** Calcula el dinero cobrado y la penalidad del contrato (30% sobre presupuesto vigente). */
+/**
+ * Calcula el dinero cobrado y la penalidad del contrato (30% sobre presupuesto vigente).
+ *
+ * `presupuestoVigenteTotal` es el total del presupuesto CON el ajuste anual y `cobradoDelPresupuesto`
+ * lo cobrado y confirmado segun el presupuesto (ambos del estado de cuenta oficial,
+ * `calcularEstadoDeCuenta`). Sin ellos, la cuenta se arma con el plan de cuotas de la fiesta, que
+ * no ve los cobros anotados en el presupuesto (12/10/2026).
+ */
 export function calcularLiquidacionSuspension(
   fiesta: FiestaEnPlanificacion,
-  presupuestoVigenteTotal?: number
+  presupuestoVigenteTotal?: number,
+  cobradoDelPresupuesto?: number
 ): LiquidacionSuspension {
   const totalPresupuesto = presupuestoVigenteTotal ?? (fiesta.configuracion?.presupuestoEstimado || 0);
   const penalidad30 = Math.round(totalPresupuesto * 0.30);
 
   const cuotas: CuotaPlanPago[] = fiesta.planDePagos?.cuotas || [];
-  const totalCobrado = cuotas.reduce((acc, c) => {
+  const cobradoPorCuotas = cuotas.reduce((acc, c) => {
     if (c.estado === 'pagado') {
       return acc + (c.montoPagado || c.monto || 0);
     }
     return acc + (c.montoPagado || 0);
   }, 0);
+  const totalCobrado = cobradoDelPresupuesto ?? cobradoPorCuotas;
 
   const diferenciaACobrar = Math.max(0, penalidad30 - totalCobrado);
   const saldoAFavor = Math.max(0, totalCobrado - penalidad30);
