@@ -82,3 +82,16 @@ Esta PR queda ABIERTA para revision y fusion del dueno.
 - Evidencias108 conservan fallos del harness, capturas y datos ficticios restaurados.
   Fuente app8fa intacta; sin build/Jest nuevo, cuentas externas ni fusion automatica.
 - Pendientes de correccion; estos controles NO certifican toda la app sin errores.
+
+## Continuacion109: seguridad y cobertura (sin cambios productivos)
+
+-27avisos evaluados con metadata oficial y dependencias reales. Tres sharp llegan
+  al optimizador publico; otros24 clasificados por condicion/uso, no descartados.
+-P1 nuevo: cinco descargas comprueban solo sesion y sirven documentos a perfiles
+  restringidos.35lecturas conPDF ficticios, positivos/negativos; backup403 demuestra
+  que el servidor SI distingue perfiles. Orden155 paraClaude, pendiente de contraste.
+-421rutas inventariadas por AST,4992declaraciones de controles. Conciliacion con
+  E2E/imports y106Jest cuyos hashes se comprueban, sin repetir build/Jest.
+-No aprobar cada boton/variante ni toda el area por referencias a pruebas. La
+  aceptacion funcional total sigue incompleta y las correcciones nuevas pendientes.
+-Fixtures retirados, datos sin delta; servidor propio detenido. Sin merge.

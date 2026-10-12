@@ -1,0 +1,222 @@
+{
+  "sourceApp": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "fixture": {
+    "filename": "qa109-7890e8a0-d903-4694-9da0-26de32013f82.pdf",
+    "marker": "QA109_DOCUMENTO_PRIVADO_FICTICIO",
+    "sha256": "15d772a15cfad02ec6f4469b8a8b6994d1424448785238b17086f52b6120aa4f",
+    "bytes": 3184
+  },
+  "results": [
+    {
+      "profile": "dueno",
+      "target": "employee-contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "dueno",
+      "target": "contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "dueno",
+      "target": "payment-proofs",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "secretaria",
+      "target": "employee-contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "secretaria",
+      "target": "contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "secretaria",
+      "target": "payment-proofs",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "operador",
+      "target": "employee-contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "operador",
+      "target": "contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "operador",
+      "target": "payment-proofs",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "personal",
+      "target": "employee-contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "personal",
+      "target": "contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "personal",
+      "target": "payment-proofs",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "cliente",
+      "target": "employee-contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "cliente",
+      "target": "contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "cliente",
+      "target": "payment-proofs",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "invitado",
+      "target": "employee-contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "invitado",
+      "target": "contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "invitado",
+      "target": "payment-proofs",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "anonimo",
+      "target": "employee-contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "anonimo",
+      "target": "contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "anonimo",
+      "target": "payment-proofs",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "case": "public-image-optimizer",
+      "status": 200,
+      "contentType": "image/png",
+      "bytes": 9528,
+      "cache": "MISS"
+    },
+    {
+      "case": "restricted-profile-ui",
+      "viewport": "desktop",
+      "url": "http://127.0.0.1:3300/login?redirect=%2Fsettings%2Fbackup-final",
+      "accessMessage": false,
+      "downloadButtons": 0
+    },
+    {
+      "case": "restricted-profile-ui",
+      "viewport": "mobile",
+      "url": "http://127.0.0.1:3300/login?redirect=%2Fsettings%2Fbackup-final",
+      "accessMessage": false,
+      "downloadButtons": 0
+    }
+  ],
+  "fixtureCleanup": true
+}

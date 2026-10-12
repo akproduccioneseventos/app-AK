@@ -1,5 +1,33 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/10/2026 - Codex109: seguridad27 y matriz; permisos de documentos pendientes
+
+- Fuente8fa/HEAD43620d4c/main99faf4eb. Cinco handlers de documentos iguales a main;
+  entrega privada de Claude desconocida, orden155 exige contrastar. Sin codigo app.
+- P1 nuevo: employee-contracts/contracts/payment-proofs/budgets/salon-contracts
+  sirvenPDF ajeno a operador/personal con sesion firmada.35lecturas con5PDF propios:
+  dueno200/bytes iguales,anonimo401;20negativos de cuatro perfiles filtran bytes.
+  Cliente/invitado son controles sinteticos, no afirmar que reciben sesion del equipo.
+  Secretaria se registra sin inventar que toda descarga suya este prohibida.
+- Backup403 para cinco perfiles restringidos demuestra que la sesion SI distingue
+  perfiles. Click real operadorPC/movil403, no backupfiltrado; UI ofrece accion no
+  permitida (friccion). NO cambiar HMAC por el primer error de cookie del auditor.
+-27GHSA evaluados con fuente oficial/rangos instalados/lock:3sharp runtime publico
+  comprobado con imagen normal,9tooling,4telemetria apagada y11condiciones no vistas.
+  NO27exploits demostrados ni24avisos eliminados. Ninguna dependencia modificada;
+  sharp0.34.5/libvips8.17.3 prioritario. Mantener27pendientes hasta parche verificado.
+- Inventario AST421rutas/4992declaraciones, no botones pulsados.106referenciasE2E;
+  imports de106Jest con hashes11directas/325dependencias/73sin referencia automatica.
+  Conjuntos solapados: NO porcentajes de aceptacion ni reencargar73modulos.
+- Se descartan rutas propuestas genericas inexistentes y matches de simbolos comunes
+  del ayudante. No se reabre comida/cobros/QR/mural por ausencia textual de URL.
+  Se conservan JSON iniciales, error expires/serializacion, timeout y ENOBUFS;
+  el segundo inventario no convierte coincidencias documentales en PASS.
+- Fixtures propios retirados, datos sin delta, servidor propio detenido. Artefactos
+  y limites109; no build/Jest nuevo, publicacion/fusion ni certificado0errores.
+ 152-154 siguen separados.155pendiente; completar cobertura funcional requiere casos,
+  no contar archivos/controles.19originales/cuentas/hardware/Hosting sin certificar.
+
 ## 12/10/2026 - Codex108: Conexiones, redes y acceso; tres P2 pendientes
 
 - Fuente8fa, PR1288HEAD3804674f, main99faf4eb. Consumidores contrastados con main;

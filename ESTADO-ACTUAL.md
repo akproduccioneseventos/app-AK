@@ -1,14 +1,16 @@
-# Estado actual - 12/10/2026 (Codex108, app sin cambios)
+# Estado actual - 12/10/2026 (Codex109, app sin cambios)
 Rama codex/auditoria-97-ia-contexto-20261011; PR1288 ABIERTA, no fusionar.
 Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e.
-Harness6c3d6971 cambia SOLO E2E/registro; app identica a la compilada.
-Base contrastada48829bfd, main99faf4eb; una sola propuesta.
-108 contrastadoHEAD3804674f/main99faf4eb; tanda privada Claude desconocida.
+109 contrastadoHEAD43620d4c/main99faf4eb; tanda privada Claude desconocida.
 107 PC/movil: cuenta needs_reconnect verde/Conectada y empleado error contado: P2orden153.
 107 corte dashboard/Reintentar REAL pasa ambos; fixture retirado.
 108 PC/movil: lectura fallida falsa vacia, error redes oculto, Instagram en curso falso.
 Tres P2orden154 pendientes;8recorridos login y6RPC no filtran datos en casos probados.
 Dueno autoriza correccion directa y QA aislado. No datos reales ni cuentas pagas.
+109P1:5descargas sirven documentos a perfiles restringidos;35lecturas/20negativos filtran.
+155pendienteClaude;backup403/5perfiles y2clicks reales, no fuga de backup.
+27avisos evaluados:3sharp runtime publico,9tooling,4telemetria y11condiciones no vistas.
+Inventario421rutas;matriz109 enlaza106Jest por hashes, no cada boton aceptado.
 ## Comprobado en106
 - Ayuda3D fuera del lienzo; Recorrer/Pausar controlan camara real, no sólo icono.
 - Configurador mandaba elements/primaryColor pero renderer consumia otros campos.
@@ -26,13 +28,13 @@ Dueno autoriza correccion directa y QA aislado. No datos reales ni cuentas pagas
 - Reutilizar102-recuento y matrix84 para88-101;105 por su propio SHAa33.
 -105:22E2E y4135Jest son historicos, NO corridos otra vez sobre8fa.
 -106-validacion.json contiene matriz/sha/hashes y limites; registros compartidos.
--Graphify local, log106; no grafo remoto ni reconstruccion por docs107/108.
+-Graphify puntual; no reconstruccion por documentos109 ni grafo remoto.
 ## Pendientes reales / limites
--27GHSA unicos pendientes,4menos:0critical/25high/65moderate/1low agregados.
+-27GHSA pendientes de parche:analisis109 no modifica dependencias ni elimina avisos.
 -Barra flotante tapa parte de Guardar en capturaPC; guardado no validado aqui.
 -19presupuestos manuales:requieren export+originales;no reconstruir/borrar.
 -Cuentas/modelos externos,Hosting mismoSHA,empaquetado Firebase yhardware sin certificar.
 -No prueba de cada boton/variante ni certificado0errores de toda la app.
 -Notificaciones ajenas del checkout principal intactas:no subir ni revertir.
 -Servidor QA propio detenido; ninguna fusion automatica.
--Claude trabaja152 segun usuario; NO repetir.153/154 pendientes, no cierre global.
+-Claude trabaja152 segun usuario; NO repetir.153-155pendientes, no cierre global.

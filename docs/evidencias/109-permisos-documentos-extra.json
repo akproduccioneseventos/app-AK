@@ -1,0 +1,199 @@
+{
+  "sourceApp": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "fixture": {
+    "filename": "qa109-d904d2c2-4a4a-47ca-bb4b-8fafb0a9588a.pdf",
+    "marker": "QA109_DOCUMENTO_PRIVADO_FICTICIO",
+    "sha256": "0dfa6cb5f695358b8c19165d3baac9133ac0d5e16b992c767113fb8f352fefc6",
+    "bytes": 3184
+  },
+  "results": [
+    {
+      "profile": "dueno",
+      "target": "budgets",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "profile": "dueno",
+      "target": "salon-contracts",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "profile": "secretaria",
+      "target": "budgets",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "profile": "secretaria",
+      "target": "salon-contracts",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "case": "role-denial-positive-control",
+      "profile": "secretaria",
+      "status": 403,
+      "deniedByProfile": true,
+      "contentType": "application/json"
+    },
+    {
+      "profile": "operador",
+      "target": "budgets",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "profile": "operador",
+      "target": "salon-contracts",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "case": "role-denial-positive-control",
+      "profile": "operador",
+      "status": 403,
+      "deniedByProfile": true,
+      "contentType": "application/json"
+    },
+    {
+      "profile": "personal",
+      "target": "budgets",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "profile": "personal",
+      "target": "salon-contracts",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "case": "role-denial-positive-control",
+      "profile": "personal",
+      "status": 403,
+      "deniedByProfile": true,
+      "contentType": "application/json"
+    },
+    {
+      "profile": "cliente",
+      "target": "budgets",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "profile": "cliente",
+      "target": "salon-contracts",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "case": "role-denial-positive-control",
+      "profile": "cliente",
+      "status": 403,
+      "deniedByProfile": true,
+      "contentType": "application/json"
+    },
+    {
+      "profile": "invitado",
+      "target": "budgets",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "profile": "invitado",
+      "target": "salon-contracts",
+      "status": 200,
+      "identicalFixture": true,
+      "markerPresent": true,
+      "bodyBytes": 3184,
+      "contentType": "application/pdf"
+    },
+    {
+      "case": "role-denial-positive-control",
+      "profile": "invitado",
+      "status": 403,
+      "deniedByProfile": true,
+      "contentType": "application/json"
+    },
+    {
+      "profile": "anonimo",
+      "target": "budgets",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "profile": "anonimo",
+      "target": "salon-contracts",
+      "status": 401,
+      "identicalFixture": false,
+      "markerPresent": false,
+      "bodyBytes": 12,
+      "contentType": "text/plain;charset=UTF-8"
+    },
+    {
+      "case": "restricted-profile-ui",
+      "viewport": "desktop",
+      "url": "http://127.0.0.1:3300/settings/backup-final",
+      "accessMessage": false,
+      "downloadLinks": 1
+    },
+    {
+      "case": "operator-backup-real-click",
+      "viewport": "desktop",
+      "status": 403,
+      "noBackupDelivered": true
+    },
+    {
+      "case": "restricted-profile-ui",
+      "viewport": "mobile",
+      "url": "http://127.0.0.1:3300/settings/backup-final",
+      "accessMessage": false,
+      "downloadLinks": 1
+    },
+    {
+      "case": "operator-backup-real-click",
+      "viewport": "mobile",
+      "status": 403,
+      "noBackupDelivered": true
+    }
+  ],
+  "fixtureCleanup": true
+}
