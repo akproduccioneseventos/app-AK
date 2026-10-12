@@ -50,11 +50,11 @@ test.beforeEach(async ({ page, context, baseURL }) => {
         if (location && name === 'viewMatrix') locations.add(location);
         return location;
       };
-      proto.uniformMatrix4fv = function (location, transpose, value, ...rest: number[]) {
+      proto.uniformMatrix4fv = function (location: WebGLUniformLocation | null, transpose: boolean, value: Float32List, ...rest: number[]) {
         if (location && locations.has(location) && this.getParameter(this.FRAMEBUFFER_BINDING) === null) {
           (this.canvas as HTMLCanvasElement & { __akViewMatrix?: number[] }).__akViewMatrix = Array.from(value);
         }
-        return sendMatrix.call(this, location, transpose, value, ...rest);
+        return Reflect.apply(sendMatrix, this, [location, transpose, value, ...rest]);
       };
     }
   });
