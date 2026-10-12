@@ -14,6 +14,12 @@ Main99faf4eb, sin cambios desde la tanda105. No se fusiona ni se repite toda la 
   en una ruta de la app ni se ejecuta un bucle malicioso de millones de líneas.
 
 ## Corrección mínima, aún pendiente de aceptación final
+- Primer retest583c9b27: 4138Jest/tipos/acentos/build pasan, navegador6pass/2fail.
+  Recorrer ya gira; Pausar conserva demasiada inercia(PC9.4%, móvil5.2% de píxeles).
+  Se mantiene el criterio de la prueba: desactivar damping sólo durante el giro
+  automático evita acumular inercia; la interacción manual conserva damping.
+  El texto de rueda se muestra sólo en escritorio. Se repetirán los controles
+  sobre el nuevo SHA; NO se aprueba por los resultados anteriores.
 - La ayuda existente pasa al flujo normal encima del lienzo; no tapa la cámara.
 - Recorrer transmite autoRotate a SceneContent/OrbitControls; apagado por defecto.
   Pausar recorrido conserva el control manual. El aviso ya no promete pantalla completa.

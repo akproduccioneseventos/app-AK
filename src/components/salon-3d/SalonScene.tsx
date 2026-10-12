@@ -541,7 +541,7 @@ function SceneContent({
       <OrbitControls
         makeDefault
         autoRotate={autoRotate}
-        enableDamping
+        enableDamping={!autoRotate}
         dampingFactor={0.05}
         minDistance={2}
         maxDistance={Math.max(salonWidth, salonHeight) * 1.5}

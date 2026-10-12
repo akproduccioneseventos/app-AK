@@ -7,6 +7,9 @@
   Recorrer sin movimiento real. El estado sólo movía el icono y el aviso.
 - Corrección: ayuda encima del lienzo, autoRotate enganchado a OrbitControls,
   Pausar recorrido y aviso sin prometer pantalla completa. No cambia geometría.
+- Primer retest:6pass/2fail. La pausa retenía inercia; se desactiva damping
+  sólo durante el giro automático, conservándolo al mover la cámara a mano.
+  Se conserva el fallo y la prueba no se afloja. Rueda sólo se indica en PC.
 - Dos parches compatibles lock-only: busboy3.2.2 y source-map-js1.2.2.
   3 pruebas fallan con bibliotecas anteriores; retest nuevo aún pendiente.
 - NO aprobado todavía. Evidencia106 separada, se conserva105 para su SHA.

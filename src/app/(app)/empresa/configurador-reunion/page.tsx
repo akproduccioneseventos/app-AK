@@ -686,7 +686,7 @@ export default function ConfiguradorReunionPage() {
             </CardHeader>
 
             <div className="border-b border-slate-800 bg-slate-950 px-4 py-2 text-[11px] text-slate-300">
-              Arrastrá para rotar la cámara 3D · Rueda para zoom
+              Arrastrá para rotar la cámara 3D<span className="hidden sm:inline"> · Rueda para zoom</span>
             </div>
             <CardContent className="p-0 h-[380px] sm:h-[480px] bg-slate-950 relative">
               <SalonSceneAislada>
