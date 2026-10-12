@@ -26,6 +26,7 @@ export default async function ControlTowerPage() {
   const data = result.success ? result.data : null;
   const items = data?.items || [];
   const kpis = data?.kpis;
+  const noSeLeyo = Boolean(data?.fiestasNoSeLeyeron);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-24">
@@ -58,8 +59,15 @@ export default async function ControlTowerPage() {
         </div>
       </section>
 
+      {noSeLeyo && (
+        <div role="alert" className="flex flex-col gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm font-bold text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+          <span className="flex items-start gap-2"><AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> No se pudieron leer las fiestas. Los números y la lista de abajo están incompletos; no es que no haya nada para hacer.</span>
+          <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower">Reintentar</Link></Button>
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><CalendarCheck className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Fiestas próximas</p><p className="text-2xl font-black text-slate-950">{kpis?.fiestasFuturas ?? 0}</p></CardContent></Card>
+        <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><CalendarCheck className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Fiestas próximas</p><p className="text-2xl font-black text-slate-950">{noSeLeyo ? '—' : (kpis?.fiestasFuturas ?? 0)}</p></CardContent></Card>
         <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><Users className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Prospectos activos</p><p className="text-2xl font-black text-slate-950">{kpis?.prospectosActivos ?? 0}</p></CardContent></Card>
         <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><ClipboardList className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Presupuestos enviados</p><p className="text-2xl font-black text-slate-950">{kpis?.presupuestosPendientes ?? 0}</p></CardContent></Card>
         <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><DollarSign className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Saldo a revisar</p><p className="text-xl font-black text-slate-950">{kpis?.totalPendiente ?? 'UYU 0'}</p></CardContent></Card>
@@ -86,7 +94,7 @@ export default async function ControlTowerPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {items.length === 0 && (
+          {items.length === 0 && !noSeLeyo && (
             <div className="rounded-2xl border border-green-100 bg-green-50 p-5 text-sm font-bold text-green-800">
               Todo tranquilo por ahora. No hay pendientes importantes detectados.
             </div>

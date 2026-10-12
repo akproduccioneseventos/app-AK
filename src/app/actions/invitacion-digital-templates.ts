@@ -177,6 +177,11 @@ export async function deleteInvitationTemplate(id: string): Promise<{ success: b
   // Only remove from the saved list; built-ins simply won't appear in savedTemplates
   const savedTemplates = await readSavedTemplates();
   const filtered = savedTemplates.filter(t => t.id !== id);
+  if (filtered.length === savedTemplates.length) {
+    // Una plantilla base (nunca editada) no esta en la lista guardada: no hay nada que borrar.
+    // No se anuncia exito si no cambio nada (si las bases se podran ocultar lo decide el dueno).
+    return { success: false, error: "Esta es una plantilla base de la app y no se puede eliminar." };
+  }
   await writeData(TEMPLATES_FILE, filtered);
   return { success: true };
 }

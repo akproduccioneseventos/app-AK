@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BellRing, CheckCircle2, Loader2, Play, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowLeft, BellRing, CheckCircle2, Loader2, Play, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,14 +12,19 @@ export default function SmartAutomationsPage() {
   const [loading, setLoading] = useState(false);
   const [created, setCreated] = useState<number | null>(null);
   const [results, setResults] = useState<SmartAutomationResult[]>([]);
+  const [error, setError] = useState('');
 
   async function run() {
     setLoading(true);
     setCreated(null);
+    setError('');
     try {
       const response = await runSmartAutomations();
       setCreated(response.created);
       setResults(response.results);
+    } catch {
+      // No se anuncia "revision completa" si la revision no llego a terminar.
+      setError('La revisión no se pudo completar, así que no sabemos si se crearon avisos. Probá de nuevo; los avisos que ya existen no se repiten.');
     } finally {
       setLoading(false);
     }
@@ -49,6 +54,11 @@ export default function SmartAutomationsPage() {
           <Button onClick={run} disabled={loading} className="rounded-2xl bg-red-600 font-bold hover:bg-red-700">
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Ejecutar revisión inteligente
           </Button>
+          {error && (
+            <div role="alert" className="flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> {error}
+            </div>
+          )}
           {created !== null && (
             <div className="flex items-center gap-2 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-800">
               <CheckCircle2 className="h-5 w-5" /> Revisión completa. Avisos creados: {created}

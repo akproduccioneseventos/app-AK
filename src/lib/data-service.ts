@@ -312,10 +312,25 @@ function cleanCollectionItem<T extends object>(item: T): T {
 async function refreshCollectionFallback(
   normalizedFilePath: string,
   options?: WriteDataOptions,
+  /** Solo al borrar: si la coleccion quedo vacia de verdad, la copia local tambien queda vacia. */
+  coleccionTrasBorrar?: string,
 ): Promise<void> {
   const persisted = await readFromFirestore(normalizedFilePath);
   if (persisted !== null && persisted !== undefined) {
     await writeLocalJsonFallback(normalizedFilePath, persisted);
+  } else if (coleccionTrasBorrar) {
+    // readFromFirestore devuelve null tanto para "coleccion vacia" como para "la lectura fallo".
+    // Se vacia la copia SOLO si una lectura directa sale bien y confirma que no queda nada;
+    // si la lectura falla, la copia no se toca (una caida nunca vacia datos).
+    try {
+      const { dbAdmin } = await import("./firebase/server");
+      if (dbAdmin) {
+        const snapshot = await dbAdmin.collection(coleccionTrasBorrar).limit(1).get();
+        if (snapshot.empty) await writeLocalJsonFallback(normalizedFilePath, []);
+      }
+    } catch (err) {
+      logger.warn(`[deleteDataItem] No se pudo confirmar que ${coleccionTrasBorrar} quedo vacia:`, logger.compactError(err));
+    }
   }
   await scheduleAutoBackupAfterWrite(normalizedFilePath, options);
 }
@@ -397,7 +412,7 @@ export async function deleteDataItem(
     transaction.delete(ref);
     deleted = true;
   });
-  if (deleted) await refreshCollectionFallback(normalizedFilePath, options);
+  if (deleted) await refreshCollectionFallback(normalizedFilePath, options, collectionName);
   return deleted;
 }
 

@@ -38,9 +38,14 @@ import { requireAppSession } from '@/lib/auth/require-session';
 
 export async function getControlTowerData() {
   await requireAppSession();
+  // Una lectura que FALLA no es una lista vacia: se anota para que la pantalla no diga "todo tranquilo".
+  let lecturaDeFiestasFallo = false;
   const [dashboardResult, fiestas, presupuestos, leads, notifications] = await Promise.all([
     getDashboardKpiData(),
-    getAllFiestas().catch(() => []),
+    getAllFiestas().catch(() => {
+      lecturaDeFiestasFallo = true;
+      return [];
+    }),
     getPresupuestos().catch(() => []),
     getCrmLeads().catch(() => []),
     getNotifications().catch(() => []),
@@ -138,6 +143,8 @@ export async function getControlTowerData() {
   return {
     success: true,
     data: {
+      // true = no se pudieron leer las fiestas; los numeros y la lista de abajo estan incompletos.
+      fiestasNoSeLeyeron: lecturaDeFiestasFallo || !dashboard,
       kpis: {
         fiestasFuturas: dashboard?.fiestasFuturas ?? 0,
         prospectosActivos: dashboard?.prospectosActivos ?? 0,
