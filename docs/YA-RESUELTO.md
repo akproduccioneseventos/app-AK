@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/10/2026 - Codex106: hallazgos nuevos del salón; validación pendiente
+
+- Base PR1288/48829bfd, main99faf4eb: no se repite la auditoría105 aprobada.
+- 4 fallos de navegador PC/celular contra appa33: ayuda dentro del lienzo y
+  Recorrer sin movimiento real. El estado sólo movía el icono y el aviso.
+- Corrección: ayuda encima del lienzo, autoRotate enganchado a OrbitControls,
+  Pausar recorrido y aviso sin prometer pantalla completa. No cambia geometría.
+- Dos parches compatibles lock-only: busboy3.2.2 y source-map-js1.2.2.
+  3 pruebas fallan con bibliotecas anteriores; retest nuevo aún pendiente.
+- NO aprobado todavía. Evidencia106 separada, se conserva105 para su SHA.
+
 ## 11/10/2026 - Codex105: 3D, QR y calendarios probados; NO cierre global
 
 - Fuente app a33a54d91bf704f52fe11d1afbc956ebd8e819a5. Harness e7f5e7fc

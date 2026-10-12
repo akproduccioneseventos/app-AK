@@ -283,7 +283,7 @@ export default function ConfiguradorReunionPage() {
     setEnRecorridoCamara((prev) => !prev);
     toast({
       title: !enRecorridoCamara ? 'Paseo panorámico iniciado' : 'Paseo pausado',
-      description: !enRecorridoCamara ? 'Recorriendo el salón 3D a pantalla completa.' : 'Control manual restaurado.',
+      description: !enRecorridoCamara ? 'La cámara gira alrededor del salón 3D.' : 'Control manual restaurado.',
     });
   };
 
@@ -642,9 +642,10 @@ export default function ConfiguradorReunionPage() {
                   size="sm"
                   variant="outline"
                   onClick={handleRecorrerCamara}
+                  aria-pressed={enRecorridoCamara}
                   className="h-8 border-slate-700 bg-slate-900 text-slate-200 font-bold text-xs hover:bg-slate-800"
                 >
-                  <Compass className={`w-3.5 h-3.5 mr-1 ${enRecorridoCamara ? 'animate-spin text-amber-400' : ''}`} /> Recorrer
+                  <Compass className={`w-3.5 h-3.5 mr-1 ${enRecorridoCamara ? 'animate-spin text-amber-400' : ''}`} /> {enRecorridoCamara ? 'Pausar recorrido' : 'Recorrer'}
                 </Button>
 
                 <Button
@@ -684,13 +685,13 @@ export default function ConfiguradorReunionPage() {
               </div>
             </CardHeader>
 
+            <div className="border-b border-slate-800 bg-slate-950 px-4 py-2 text-[11px] text-slate-300">
+              Arrastrá para rotar la cámara 3D · Rueda para zoom
+            </div>
             <CardContent className="p-0 h-[380px] sm:h-[480px] bg-slate-950 relative">
               <SalonSceneAislada>
-                <SalonScene decoracion={decoracion3D} />
+                <SalonScene decoracion={decoracion3D} autoRotate={enRecorridoCamara} />
               </SalonSceneAislada>
-              <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-xs text-white text-[11px] px-3 py-1.5 rounded-lg border border-white/10 pointer-events-none">
-                💡 Arrastrá para rotar la cámara 3D · Rueda para zoom
-              </div>
             </CardContent>
           </Card>
 

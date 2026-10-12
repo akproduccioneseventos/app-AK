@@ -18,6 +18,7 @@ export interface SalonSceneRef {
 
 interface SalonSceneProps {
   decoracion: DecoracionData;
+  autoRotate?: boolean;
   onCapture?: (dataUrl: string) => void;
   captureRef?: React.MutableRefObject<SalonSceneRef | null>;
 }
@@ -461,9 +462,11 @@ function SalonFloor({ width, depth, primaryColor }: { width: number; depth: numb
 function SceneContent({
   decoracion,
   captureRef,
+  autoRotate = false,
 }: {
   decoracion: DecoracionData;
   captureRef?: React.MutableRefObject<SalonSceneRef | null>;
+  autoRotate?: boolean;
 }) {
   const salonWidth = decoracion.salonWidth || 15;
   const salonHeight = decoracion.salonHeight || 15;
@@ -537,6 +540,7 @@ function SceneContent({
 
       <OrbitControls
         makeDefault
+        autoRotate={autoRotate}
         enableDamping
         dampingFactor={0.05}
         minDistance={2}
@@ -548,7 +552,7 @@ function SceneContent({
 }
 
 // --- Exported component ---
-export function SalonScene({ decoracion, onCapture, captureRef }: SalonSceneProps) {
+export function SalonScene({ decoracion, onCapture, captureRef, autoRotate = false }: SalonSceneProps) {
   return (
     <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-slate-900">
       <Canvas
@@ -565,7 +569,7 @@ export function SalonScene({ decoracion, onCapture, captureRef }: SalonSceneProp
         style={{ width: '100%', height: '100%' }}
       >
         <fog attach="fog" args={['#f8f5f0', 20, 60]} />
-        <SceneContent decoracion={decoracion} captureRef={captureRef} />
+        <SceneContent decoracion={decoracion} captureRef={captureRef} autoRotate={autoRotate} />
       </Canvas>
     </div>
   );
