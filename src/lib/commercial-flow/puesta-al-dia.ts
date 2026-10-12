@@ -1,6 +1,7 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
+import { hoyEnUruguay, diasHastaEnUruguay } from '@/lib/utils';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
 /**
@@ -51,19 +52,27 @@ export interface PuestaAlDiaReporte {
   items: PuestaAlDiaItem[];
 }
 
-/** Una fiesta ya pasó si su día quedó atrás. El mismo día todavía no cuenta. */
-function yaPaso(fechaEvento: string | undefined, hoy: Date): boolean {
+/** El día del evento como AAAA-MM-DD, tal cual se escribió (sin pasar por la hora del servidor). */
+function diaDelEvento(fechaEvento: string | undefined): string | null {
+  const suelto = fechaEvento?.match(/^(\d{4}-\d{2}-\d{2})(?:$|T)/);
+  if (suelto) return suelto[1];
   const fecha = parseEventDate(fechaEvento);
-  if (!fecha) return false;
-  const finDelDia = new Date(fecha);
-  finDelDia.setHours(23, 59, 59, 999);
-  return finDelDia.getTime() < hoy.getTime();
+  if (!fecha) return null;
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${fecha.getFullYear()}-${p(fecha.getMonth() + 1)}-${p(fecha.getDate())}`;
+}
+
+/** Una fiesta ya pasó si su día quedó atrás. El mismo día todavía no cuenta. */
+export function yaPaso(fechaEvento: string | undefined, hoy: Date): boolean {
+  const dia = diaDelEvento(fechaEvento);
+  if (!dia) return false;
+  return dia < hoyEnUruguay(hoy);
 }
 
 function diasDesde(fechaEvento: string | undefined, hoy: Date): number {
-  const fecha = parseEventDate(fechaEvento);
-  if (!fecha) return 0;
-  return Math.floor((hoy.getTime() - fecha.getTime()) / (1000 * 60 * 60 * 24));
+  const dia = diaDelEvento(fechaEvento);
+  if (!dia) return 0;
+  return -diasHastaEnUruguay(dia, hoy);
 }
 
 function nombreDe(fiesta: FiestaEnPlanificacion): string {

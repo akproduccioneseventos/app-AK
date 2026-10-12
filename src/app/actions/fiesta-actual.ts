@@ -3,6 +3,7 @@
  * @fileOverview Central de Acciones de Servidor para la Planificación de Fiestas.
  */
 'use server';
+import { hoyEnUruguay } from '@/lib/utils';
 
 import * as FiestaModule from './fiesta/fiesta.actions';
 import * as ConfigModule from './fiesta/configuracion.actions';
@@ -192,10 +193,7 @@ export async function getFiestaActivaDeHoy(): Promise<{ success: boolean; fiesta
   // pleno evento.
   try {
     const fiestas = await FiestaModule.getFiestas(false);
-    const today = new Date();
-    const offset = today.getTimezoneOffset();
-    const localToday = new Date(today.getTime() - (offset * 60 * 1000));
-    const todayStr = localToday.toISOString().split('T')[0];
+    const todayStr = hoyEnUruguay();
 
     const activeFiesta = fiestas.find(f => f.configuracion?.fechaEvento === todayStr);
 

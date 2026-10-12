@@ -1,6 +1,35 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 
+## 12 de octubre de 2026 — La noche de la fiesta sigue siendo "hoy", y los enlaces con fiestaId abren esa fiesta
+
+- **Qué pasaba:** el servidor cuenta en hora de Greenwich, y desde las 21:00 de Uruguay ya era "mañana".
+  Los tótems y la Plataforma 360 dejaban de encontrar la fiesta de esa misma noche; "ya pasó" marcaba como
+  pasada la fiesta de hoy; los días que faltan (torre de control, automatismos, inteligencia comercial y
+  posevento) salían corridos un día; los mensajes de mañana aparecían como "para hoy"; y el tope diario de
+  búsquedas del asistente se reiniciaba a las 21:00.
+- **Cómo quedó:** todo cuenta el día de Uruguay (`hoyEnUruguay`, y `diasHastaEnUruguay` en `src/lib/utils.ts`,
+  una sola función que usan las cuatro pantallas). El mismo día nunca cuenta como pasado.
+- **Enlaces con `?fiestaId=`:** la tienda de servicios contratados, el Centro y los atajos Centro total y
+  Mission Control ignoraban el parámetro y mostraban la "fiesta actual", que puede ser otra. Ahora abren la
+  fiesta pedida (y si no existe, no muestran otra). Video de Vida no recibe `fiestaId` de ningún enlace: se deja.
+- **Por qué así:** una fiesta equivocada en pantalla es plata o logística de otro cliente.
+
+```comprobar
+archivo: src/lib/utils.ts
+usa: diasHastaEnUruguay en src/app/actions/control-tower.ts
+usa: diasHastaEnUruguay en src/app/actions/smart-automations.ts
+usa: diasHastaEnUruguay en src/app/actions/commercial-intelligence.ts
+usa: diasHastaEnUruguay en src/app/actions/post-event-intelligence.ts
+usa: hoyEnUruguay en src/app/actions/fiesta-actual.ts
+usa: hoyEnUruguay en src/app/actions/scheduled-messages.ts
+usa: hoyEnUruguay en src/app/actions/multiagent.ts
+usa: hoyEnUruguay en src/lib/commercial-flow/puesta-al-dia.ts
+usa: getFiestaById en src/app/(app)/fiestas/nueva/servicios-contratados/page.tsx
+usa: getFiestaById en src/app/(app)/fiestas/nueva/centro/page.tsx
+prueba: src/__tests__/la-noche-de-la-fiesta-sigue-siendo-hoy.test.ts
+```
+
 ## 12 de octubre de 2026 — Orden 155: los documentos de plata y sueldos piden permiso, y el procesador de imágenes al día
 
 - **Qué pasaba:** contratos de clientes y del salón, presupuestos, comprobantes de pago y contratos

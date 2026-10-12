@@ -878,7 +878,8 @@ export async function ejecutarAccionSecretario(input: {
     const query = datos.consulta || datos.query || '';
     try {
       const { readData, writeData } = await import('@/lib/data-service');
-      const hoyStr = new Date().toISOString().slice(0, 10);
+      const { hoyEnUruguay } = await import('@/lib/utils');
+      const hoyStr = hoyEnUruguay();
       const tracking = await readData<{ fecha: string; count: number }>('asistente-web-busquedas.json', {
         fecha: hoyStr,
         count: 0,
