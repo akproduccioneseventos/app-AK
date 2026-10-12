@@ -22,9 +22,42 @@ function cambio(before: number[], after: number[]) {
   return changed / (before.length / 4);
 }
 
+async function camara(page: Page) {
+  return page.locator('canvas').first().evaluate((node: HTMLCanvasElement & { __akViewMatrix?: number[] }) => node.__akViewMatrix || []);
+}
+
+function movimientoCamara(before: number[], after: number[]) {
+  expect(before).toHaveLength(16);
+  expect(after).toHaveLength(16);
+  expect([...before, ...after].every(Number.isFinite)).toBe(true);
+  return Math.max(...before.map((value, i) => Math.abs(value - after[i])));
+}
+
 test.beforeEach(async ({ page, context, baseURL }) => {
   test.setTimeout(120000);
   await ponerSesionDelEquipo(context, baseURL);
+  // Sonda solo del navegador de prueba: observa la matriz enviada al WebGL real.
+  // La pista sigue animada al pausar; sus pixeles no representan movimiento de camara.
+  await page.addInitScript(() => {
+    const locations = new WeakSet<WebGLUniformLocation>();
+    for (const Constructor of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {
+      if (!Constructor) continue;
+      const proto = Constructor.prototype;
+      const getLocation = proto.getUniformLocation;
+      const sendMatrix = proto.uniformMatrix4fv;
+      proto.getUniformLocation = function (program, name) {
+        const location = getLocation.call(this, program, name);
+        if (location && name === 'viewMatrix') locations.add(location);
+        return location;
+      };
+      proto.uniformMatrix4fv = function (location, transpose, value, ...rest: number[]) {
+        if (location && locations.has(location) && this.getParameter(this.FRAMEBUFFER_BINDING) === null) {
+          (this.canvas as HTMLCanvasElement & { __akViewMatrix?: number[] }).__akViewMatrix = Array.from(value);
+        }
+        return sendMatrix.call(this, location, transpose, value, ...rest);
+      };
+    }
+  });
   await page.goto('/empresa/configurador-reunion', { waitUntil: 'domcontentloaded' });
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible({ timeout: 60000 });
@@ -58,23 +91,27 @@ test('Recorrer mueve la escena sin arrastrar y se puede pausar', async ({ page }
   await page.locator('canvas').first().scrollIntoViewIfNeeded();
   await page.waitForTimeout(1200);
   const before = await imagen(page);
+  const cameraBefore = await camara(page);
   await page.waitForTimeout(1600);
   const moving = await imagen(page);
+  const cameraMoving = await camara(page);
   const rotating = cambio(before, moving);
-  await info.attach('recorrido-automatico.json', { body: JSON.stringify({ rotating }), contentType: 'application/json' });
+  const cameraRotating = movimientoCamara(cameraBefore, cameraMoving);
+  await info.attach('recorrido-automatico.json', { body: JSON.stringify({ rotating, cameraRotating, cameraBefore, cameraMoving }), contentType: 'application/json' });
   expect(rotating, 'Recorrer debe mover la camara, no solo su icono').toBeGreaterThan(0.02);
+  expect(cameraRotating, 'La matriz de la camara real cambia al recorrer').toBeGreaterThan(0.001);
   const pause = page.getByRole('button', { name: 'Pausar recorrido', exact: true });
   await expect(pause).toHaveAttribute('aria-pressed', 'true');
   await pause.click();
   await page.locator('canvas').first().scrollIntoViewIfNeeded();
   await page.waitForTimeout(1800);
   const stopped = await imagen(page);
+  const cameraStopped = await camara(page);
   await page.waitForTimeout(1000);
   const paused = cambio(stopped, await imagen(page));
-  await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused }), contentType: 'application/json' });
-  // OrbitControls frena con amortiguacion: se tolera antialias, no un giro sostenido.
-  expect(paused, 'Pausar detiene el giro automatico').toBeLessThan(0.01);
-  expect(paused).toBeLessThan(rotating / 10);
+  const cameraPaused = movimientoCamara(cameraStopped, await camara(page));
+  await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused, cameraRotating, cameraPaused, cameraStopped }), contentType: 'application/json' });
+  expect(cameraPaused, 'Pausar detiene la camara aunque la pista siga animada').toBeLessThan(0.000001);
   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');
 });
 

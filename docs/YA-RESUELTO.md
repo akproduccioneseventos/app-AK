@@ -25,6 +25,12 @@
   Catálogo/renderer/precios se aíslan sólo en esta prueba; la escena se comprueba
   aparte con WebGL real. Un mock inicial vacío y el aforo10 mal esperado se
   corrigen en el harness, NO son errores nuevos de la app.4 focalizadas pasan.
+- Al dibujar la pista real, sus luces animadas cambian los píxeles aunque la
+  cámara esté quieta. La vieja prueba de pausa da rojo3.6%-3.8%; aún no acredita
+  cámara en movimiento. La sonda nueva observa viewMatrix del WebGL real sólo
+  en el navegador de prueba; NO se añade telemetría ni puerta de prueba a la app.
+  Giro debe cambiar matriz y píxeles; pausa debe conservar la matriz(1e-6).
+  Retest pendiente; no apagar animaciones ni relajar el umbral por conveniencia.
 - NO aprobado todavía. Evidencia106 separada, se conserva105 para su SHA.
 
 ## 11/10/2026 - Codex105: 3D, QR y calendarios probados; NO cierre global
