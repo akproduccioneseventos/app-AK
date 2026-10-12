@@ -39,8 +39,9 @@ export function ShareLinkDialog({ children, relativePath, title, description }: 
 
   const handleCopyToClipboard = () => {
     if (!fullLink) return;
-    navigator.clipboard.writeText(fullLink);
-    toast({ title: "Enlace Copiado", description: "El enlace se ha copiado al portapapeles." });
+    navigator.clipboard.writeText(fullLink)
+      .then(() => toast({ title: "Enlace Copiado", description: "El enlace se ha copiado al portapapeles." }))
+      .catch(() => toast({ title: "No se pudo copiar", description: fullLink, variant: "destructive" }));
   };
 
   const handleWhatsAppSend = () => {

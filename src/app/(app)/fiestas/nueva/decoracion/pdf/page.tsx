@@ -65,8 +65,9 @@ function DecorationPdfPageContent() {
       if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); } 
       else { throw new Error('Share API not supported'); }
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." });
+      navigator.clipboard.writeText(shareData.url)
+        .then(() => toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." }))
+        .catch(() => toast({ title: "No se pudo copiar", description: shareData.url, variant: "destructive" }));
     }
   };
 

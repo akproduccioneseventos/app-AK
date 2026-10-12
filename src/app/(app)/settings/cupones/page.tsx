@@ -244,8 +244,9 @@ export default function CuponesPage() {
   };
 
   const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast({ title: 'Código copiado', description: `"${code}" copiado al portapapeles.` });
+    navigator.clipboard.writeText(code)
+      .then(() => toast({ title: 'Código copiado', description: `"${code}" copiado al portapapeles.` }))
+      .catch(() => toast({ title: 'No se pudo copiar', description: `Copialo a mano: ${code}`, variant: 'destructive' }));
   };
 
   return (
