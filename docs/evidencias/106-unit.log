@@ -1,0 +1,8 @@
+PASS src/__tests__/configurador-reunion-layout-real.test.tsx
+PASS src/__tests__/dependencias-multipart-mapas-regresion.test.ts
+
+Test Suites: 2 passed, 2 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        2.763 s
+Test results written to: docs\evidencias\106-unit.json

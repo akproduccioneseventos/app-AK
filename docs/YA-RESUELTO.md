@@ -1,6 +1,6 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 12/10/2026 - Codex106: hallazgos nuevos del salón; validación pendiente
+## 12/10/2026 - Codex106: salón y parches comprobados; NO cierre global
 
 - Base PR1288/48829bfd, main99faf4eb: no se repite la auditoría105 aprobada.
 - 4 fallos de navegador PC/celular contra appa33: ayuda dentro del lienzo y
@@ -11,7 +11,7 @@
   sólo durante el giro automático, conservándolo al mover la cámara a mano.
   Se conserva el fallo y la prueba no se afloja. Rueda sólo se indica en PC.
 - Dos parches compatibles lock-only: busboy3.2.2 y source-map-js1.2.2.
-  3 pruebas fallan con bibliotecas anteriores; retest nuevo aún pendiente.
+  3 pruebas fallan con bibliotecas anteriores y pasan con las parcheadas.
 - Retest b720: 4138 pruebas y 8 de navegador pasan, pero la inspección visual
   descubre otro defecto: se anuncian12 mesas y se muestra un salón vacío.
   La pantalla mandaba elements/primaryColor; SalonScene consume salonElements/
@@ -30,8 +30,25 @@
   cámara en movimiento. La sonda nueva observa viewMatrix del WebGL real sólo
   en el navegador de prueba; NO se añade telemetría ni puerta de prueba a la app.
   Giro debe cambiar matriz y píxeles; pausa debe conservar la matriz(1e-6).
-  Retest pendiente; no apagar animaciones ni relajar el umbral por conveniencia.
-- NO aprobado todavía. Evidencia106 separada, se conserva105 para su SHA.
+  Retest final: matriz gira(PC0.0394, móvil0.0684) y pausa0 en ambos.
+  Sonda inicial getParameter agotó120s en móvil; se observa bindFramebuffer sin
+  consulta GPU por frame. Se conserva el timeout y el mismo límite120s.
+  TSC auxiliar2GB agotó memoria;4GB aprobó. No se modifica la app para aprobar.
+- Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e:4focalizadas, tipos,
+  acentos2771archivos,692suites/4139Jest y build canónico exit0, lint/tipos/PWA activos.
+  Navegador12casos únicos aprobados:11de ronda general +2cámaras repetidas;
+  se reemplaza el resultado anterior de cada cámara, NO se inventa una corrida12/12.
+  Harness6c3d6971 difiere de8fa sólo en E2E/documentación, app idéntica.
+- Audit:27GHSA únicos pendientes,4menos y ninguno nuevo;0critical NO significa
+  seguridad total. Standalone apagado sólo en QA local; no certificado Firebase.
+- Fricción observada aparte: barra flotante tapa parte de Guardar en capturaPC.
+  No se probó el guardado ni se rediseñó el asistente en esta tanda. No darlo cerrado.
+- Evidencia106 separada, se conserva105 para su SHA. No todos los botones,
+  cuentas reales,19originales manuales ni hardware físico acreditados.
+- Graphify actualizado localmente:13713nodos/42463relaciones/838comunidades;
+  log106 conservado. Salida ignorada por Git, no se afirma entrega remota del grafo.
+  Orden152 deja a Claude el contraste del guardado/solapamiento y triageGHSA;
+  no acredita que haya comenzado ni repite las correcciones106.
 
 ## 11/10/2026 - Codex105: 3D, QR y calendarios probados; NO cierre global
 

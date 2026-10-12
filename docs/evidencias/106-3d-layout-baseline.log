@@ -1,0 +1,118 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:81:5 › titulo legible y colores LED circulares sin controles comprimidos
+  1) [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:81:5 › titulo legible y colores LED circulares sin controles comprimidos 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 4.5
+    Received:    1.0013007246017014
+
+      94 |     return { foreground, background, contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };
+      95 |   });
+    > 96 |   expect(colors.contrast).toBeGreaterThanOrEqual(4.5);
+         |                           ^
+      97 |   for (const name of ['Dorado', 'Fucsia', 'Azul', 'Violeta', 'Esmeralda']) {
+      98 |     const swatch = page.getByRole('button', { name: `Color ${name}`, exact: true });
+      99 |     const box = await swatch.boundingBox();
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:96:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-artifacts\salon-3d-ayuda-recorrido-t-736cd-s-sin-controles-comprimidos-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-t-736cd-s-sin-controles-comprimidos-chromium-desktop\error-context.md
+
+
+[2/4] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:5 › LED y cantidad de invitados cambian la escena real
+  2) [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:5 › LED y cantidad de invitados cambian la escena real 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('button', { name: 'Color Azul', exact: true })
+    Expected: "true"
+    Received: ""
+    Timeout:  45000ms
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 45000ms
+      - waiting for getByRole('button', { name: 'Color Azul', exact: true })
+        77 × locator resolved to <button title="Azul" type="button" aria-label="Color Azul" class="h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md"></button>
+           - unexpected value "null"
+
+
+      112 |   const blue = page.getByRole('button', { name: 'Color Azul', exact: true });
+      113 |   await blue.click();
+    > 114 |   await expect(blue).toHaveAttribute('aria-pressed', 'true');
+          |                      ^
+      115 |   await page.locator('canvas').first().scrollIntoViewIfNeeded();
+      116 |   await page.waitForTimeout(1500);
+      117 |   const colored = await imagen(page);
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:114:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-artifacts\salon-3d-ayuda-recorrido-L-338e5-ados-cambian-la-escena-real-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-L-338e5-ados-cambian-la-escena-real-chromium-desktop\error-context.md
+
+
+[3/4] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:81:5 › titulo legible y colores LED circulares sin controles comprimidos
+  3) [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:81:5 › titulo legible y colores LED circulares sin controles comprimidos 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 4.5
+    Received:    1.0013007246017014
+
+      94 |     return { foreground, background, contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };
+      95 |   });
+    > 96 |   expect(colors.contrast).toBeGreaterThanOrEqual(4.5);
+         |                           ^
+      97 |   for (const name of ['Dorado', 'Fucsia', 'Azul', 'Violeta', 'Esmeralda']) {
+      98 |     const swatch = page.getByRole('button', { name: `Color ${name}`, exact: true });
+      99 |     const box = await swatch.boundingBox();
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:96:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-artifacts\salon-3d-ayuda-recorrido-t-736cd-s-sin-controles-comprimidos-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-t-736cd-s-sin-controles-comprimidos-chromium-mobile\error-context.md
+
+
+[4/4] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:5 › LED y cantidad de invitados cambian la escena real
+  4) [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:5 › LED y cantidad de invitados cambian la escena real 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator:  getByRole('button', { name: 'Color Azul', exact: true })
+    Expected: "true"
+    Received: ""
+    Timeout:  45000ms
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 45000ms
+      - waiting for getByRole('button', { name: 'Color Azul', exact: true })
+        17 × locator resolved to <button title="Azul" type="button" aria-label="Color Azul" class="h-5 w-5 rounded-full border-2 transition-transform scale-125 border-white shadow-md"></button>
+           - unexpected value "null"
+
+
+      112 |   const blue = page.getByRole('button', { name: 'Color Azul', exact: true });
+      113 |   await blue.click();
+    > 114 |   await expect(blue).toHaveAttribute('aria-pressed', 'true');
+          |                      ^
+      115 |   await page.locator('canvas').first().scrollIntoViewIfNeeded();
+      116 |   await page.waitForTimeout(1500);
+      117 |   const colored = await imagen(page);
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:114:22
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-L-338e5-ados-cambian-la-escena-real-chromium-mobile\error-context.md
+
+
+  4 failed
+    [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:81:5 › titulo legible y colores LED circulares sin controles comprimidos 
+    [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:5 › LED y cantidad de invitados cambian la escena real 
+    [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:81:5 › titulo legible y colores LED circulares sin controles comprimidos 
+    [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:5 › LED y cantidad de invitados cambian la escena real 

@@ -1,40 +1,33 @@
-# Estado actual - 11/10/2026 (Codex105)
+# Estado actual - 12/10/2026 (Codex106)
 Rama codex/auditoria-97-ia-contexto-20261011; PR1288 ABIERTA, no fusionar.
-Fuente app a33a54d91bf704f52fe11d1afbc956ebd8e819a5.
-Harness e7f5e7fc SOLO corrige un selector E2E; app identica a la compilada.
-Main contrastado99faf4eb; remotePR d0c8d858. Una sola propuesta, sin duplicar.
-El dueno autoriza correccion directa y entorno aislado; no datos reales.
-## Comprobado en esta tanda
-- Salon3D: React19/Fiber9/Drei10, sin parche de internals; canvas/camara4pass.
-- Se adaptan QRCanvas4, calendarios9 y tipos SVG, sin cambios de negocio.
-- Next15.5.27/React19.2.8; lock acotado; dos parches transitivos adicionales.
-- Candidato privado propio en Documents/Codex/ak-codex88/ak-react19-candidato-103.
-  node_modules propios, sin .env ni credenciales; NO instalar en junction main.
-
-## Evidencia nueva (fuente a33, no certificado global)
-- Instalacion limpia acotada exit0; --ignore-scripts por prepare/worktree.
-- Tipos a33 exit0; acentos a33 exit0 (2765 archivos).
-- Jest inicial4131pass/1fail: test estatico QR esperaba APIantigua; actualizado
-  sin debilitar tokens. Corrida33ad:689suites/4132tests0fail/0skip.
-  Final a33:690suites/4135tests0fail/0skip; seguridad:2fail viejo/2pass nuevo.
-- Preflightdev reunionPC: pantalla cargando, WebGLtrue/canvas0, NO aprobado.
-  105-3d-dev-inicial preservado; servidor dev detenido.
-- Build canonico exit0 con tipos/lint/PWA activos, avisos conservados.
-  Standalone desactivado SOLO QA local; empaquetado Firebase no certificado.
-- Navegador22pass PC/movil:3D4, calendarios4, QR real4, mural4, fechas2, portal4.
-  Mural/fechas/portal usan SDK real y Firestore demo; outage y recuperacion.
-- Audit prod:0criticos;27high/65moderate/2low,31GHSA unicos pendientes.
-
-## No reabrir por rutina
-- Correcciones102-104: lector151,QR147,mural,cupones,portal-reintento.
-  Builda6 exit0,688suites/4129tests y navegador relacionado aprobados sobrea6.
-  Nueva dependencia obliga comprobar consumidores, NO certificar por herencia.
-- Consultar102-recuento y matrix84 para auditorias88-101 ya verificadas.
-
-## Limites
-- 19 presupuestos manuales requieren export+originales; NO reconstruir/borrar.
-- Cuentas/proveedores/modelos reales, Hosting mismoSHA y hardware no certificados.
-- No hay prueba de cada boton/variante ni certificado de 0errores de toda la app.
-- Friccion3D movil: ayuda solapada con controles flotantes; no arreglo declarado.
-- Cambios de notificaciones en main son ajenos/anteriores: no subir ni revertir.
-- QA propio limpiado/servidores detenidos;105-validacion y registro compartido.
+Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e.
+Harness6c3d6971 cambia SOLO E2E/registro; app identica a la compilada.
+Base contrastada48829bfd, main99faf4eb; una sola propuesta.
+Dueno autoriza correccion directa y QA aislado. No datos reales ni cuentas pagas.
+## Comprobado en106
+- Ayuda3D fuera del lienzo; Recorrer/Pausar controlan camara real, no sólo icono.
+- Configurador mandaba elements/primaryColor pero renderer consumia otros campos.
+  salonElements/colorPalette ahora llegan:12mesas+pista/DJ/barra,13con125invitados.
+- Titulo blanco legible, LED circulares44px sin compresion, color cambia escena.
+- busboy3.2.2/source-map-js1.2.2:2parches compatibles,3regresiones viejas fallan.
+- Fuente8fa:4focalizadas,tipos/acentos2771exit0,692suites/4139Jest0fail/0skip.
+- Build canonico exit0, lint/tipos/PWA activos. Standalone off SOLO QA local.
+- Navegador12casos unicos aprobados mismoappSHA:11ronda +2camaras retest.
+  Matriz camara gira(PC0.0394/movil0.0684) y pausa0; pista sigue animada.
+- Fallo pixel-pausa y timeout de sonda se conservan; no cambios app para aprobar.
+- QA en candidato privado propio:Documents/Codex/ak-codex88/ak-react19-candidato-103.
+  node_modules propios, sin .env. NO instalar ni compilar en junction main.
+## No repetir por rutina
+- Reutilizar102-recuento y matrix84 para88-101;105 por su propio SHAa33.
+-105:22E2E y4135Jest son historicos, NO corridos otra vez sobre8fa.
+-106-validacion.json contiene matriz/sha/hashes y limites; registros compartidos.
+-Graphify local:13713nodos/42463relaciones/838comunidades, log106; no grafo remoto.
+## Pendientes reales / limites
+-27GHSA unicos pendientes,4menos:0critical/25high/65moderate/1low agregados.
+-Barra flotante tapa parte de Guardar en capturaPC; guardado no validado aqui.
+-19presupuestos manuales:requieren export+originales;no reconstruir/borrar.
+-Cuentas/modelos externos,Hosting mismoSHA,empaquetado Firebase yhardware sin certificar.
+-No prueba de cada boton/variante ni certificado0errores de toda la app.
+-Notificaciones ajenas del checkout principal intactas:no subir ni revertir.
+-Servidor QA propio detenido; ninguna fusion automatica.
+-Claude disponible:orden152 en docs/ordenes; guardar/triageGHSA pendientes, no iniciados.

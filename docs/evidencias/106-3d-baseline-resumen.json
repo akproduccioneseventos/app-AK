@@ -1,0 +1,156 @@
+{
+  "sourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "harnessSha": "48829bfde9e419903944b60f8b4f26fe86dc1415",
+  "stats": {
+    "startTime": "2026-10-12T12:36:41.739Z",
+    "duration": 73110.473,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 12653,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 68,
+            "line": 29
+          },
+          "message": "Error: La ayuda no tapa la escena\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m265\u001b[39m\nReceived:    \u001b[31m732\u001b[39m\n\n  27 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });\n  28 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });\n> 29 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);\n     |                                                                    ^\n  30 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });\n  31 |   for (const button of await nav.getByRole('button').all()) {\n  32 |     await expect(button).toBeVisible();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:29:68"
+        }
+      ],
+      "files": [
+        {
+          "name": "ayuda-lienzo.json",
+          "file": "106-artifactos/106-3d-baseline-000.json",
+          "sha256": "326d1591f78775b93eb88cde4edcb9fb03ffa455ac87e9422a6de928057111d3"
+        },
+        {
+          "name": "ayuda-lienzo.png",
+          "file": "106-artifactos/106-3d-baseline-001.png",
+          "sha256": "36dedd355f7dd5a485a2845835f5ce2025f52eae2de4d0c3cd2fa21a85575694"
+        },
+        {
+          "name": "screenshot",
+          "file": "106-artifactos/106-3d-baseline-002.png",
+          "sha256": "b19be3ff8359787efa1652a7e72d17fcd67fb5808fb64b6bcd2271d91cd9403d"
+        },
+        {
+          "name": "error-context",
+          "file": "106-artifactos/106-3d-baseline-003.bin",
+          "sha256": "edb45959dcf66e0eda7e85be8a4995ba6d04d2e243e5898868750ed9e2a32b61"
+        }
+      ]
+    },
+    {
+      "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 13438,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 80,
+            "line": 49
+          },
+          "message": "Error: Recorrer debe mover la camara, no solo su icono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  47 |   const moving = await imagen(page);\n  48 |   await info.attach('recorrido-automatico.json', { body: JSON.stringify({ changed: before !== moving }), contentType: 'application/json' });\n> 49 |   expect(moving !== before, 'Recorrer debe mover la camara, no solo su icono').toBe(true);\n     |                                                                                ^\n  50 |   const pause = page.getByRole('button', { name: 'Pausar recorrido', exact: true });\n  51 |   await expect(pause).toHaveAttribute('aria-pressed', 'true');\n  52 |   await pause.click();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:49:80"
+        }
+      ],
+      "files": [
+        {
+          "name": "recorrido-automatico.json",
+          "file": "106-artifactos/106-3d-baseline-004.json",
+          "sha256": "2c0ca167d4e8d6d2041b6228ebd0a017fb2b4792a74dbb88aea68d0d3f9dd3f0"
+        },
+        {
+          "name": "screenshot",
+          "file": "106-artifactos/106-3d-baseline-005.png",
+          "sha256": "c6ff37d1d7891097f784725f05a175291283520bd7176d9c6fc4687d8a4f1a36"
+        },
+        {
+          "name": "error-context",
+          "file": "106-artifactos/106-3d-baseline-006.bin",
+          "sha256": "e36b2738e67615e5a599e0873b865742972ec712ae835a3d80a7541bda97521f"
+        }
+      ]
+    },
+    {
+      "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 19066,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 68,
+            "line": 29
+          },
+          "message": "Error: La ayuda no tapa la escena\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m460\u001b[39m\nReceived:    \u001b[31m827\u001b[39m\n\n  27 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });\n  28 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });\n> 29 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);\n     |                                                                    ^\n  30 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });\n  31 |   for (const button of await nav.getByRole('button').all()) {\n  32 |     await expect(button).toBeVisible();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:29:68"
+        }
+      ],
+      "files": [
+        {
+          "name": "ayuda-lienzo.json",
+          "file": "106-artifactos/106-3d-baseline-007.json",
+          "sha256": "cc08e2c0cdec72df92a8b50b695916148d90af0bea1504cd585f251a7649edf2"
+        },
+        {
+          "name": "ayuda-lienzo.png",
+          "file": "106-artifactos/106-3d-baseline-008.png",
+          "sha256": "a27ae553787144f0cd12f6e08ff1495b8182cd0d5a2f4760eb045a1c1cbf5079"
+        },
+        {
+          "name": "screenshot",
+          "file": "106-artifactos/106-3d-baseline-009.png",
+          "sha256": "a27ae553787144f0cd12f6e08ff1495b8182cd0d5a2f4760eb045a1c1cbf5079"
+        },
+        {
+          "name": "error-context",
+          "file": "106-artifactos/106-3d-baseline-010.bin",
+          "sha256": "b372ad1e85b8da9c14f4b5158c3b5291e644690571ecb708405332e264c2c41e"
+        }
+      ]
+    },
+    {
+      "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 19208,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 80,
+            "line": 49
+          },
+          "message": "Error: Recorrer debe mover la camara, no solo su icono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  47 |   const moving = await imagen(page);\n  48 |   await info.attach('recorrido-automatico.json', { body: JSON.stringify({ changed: before !== moving }), contentType: 'application/json' });\n> 49 |   expect(moving !== before, 'Recorrer debe mover la camara, no solo su icono').toBe(true);\n     |                                                                                ^\n  50 |   const pause = page.getByRole('button', { name: 'Pausar recorrido', exact: true });\n  51 |   await expect(pause).toHaveAttribute('aria-pressed', 'true');\n  52 |   await pause.click();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:49:80"
+        }
+      ],
+      "files": [
+        {
+          "name": "recorrido-automatico.json",
+          "file": "106-artifactos/106-3d-baseline-011.json",
+          "sha256": "2c0ca167d4e8d6d2041b6228ebd0a017fb2b4792a74dbb88aea68d0d3f9dd3f0"
+        },
+        {
+          "name": "screenshot",
+          "file": "106-artifactos/106-3d-baseline-012.png",
+          "sha256": "67b61b1b49905747a4dd47702d29f57219e3cd9fc5e74f5f0a5e7bd012c50136"
+        },
+        {
+          "name": "error-context",
+          "file": "106-artifactos/106-3d-baseline-013.bin",
+          "sha256": "aff434af5472fa289402442915570e9bbbb18b497a444d76c3429b23bb6cd00a"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+
+> ak-producciones@0.1.0 graphify:update
+> uv tool run --from graphifyy graphify extract . --code-only && uv tool run --from graphifyy graphify cluster-only .
+
+  warning: 1 file(s) had syntax errors and may be partially extracted: page.tsx (first error at line 510) (#2551)
+[graphify] Replaced 40 node(s) from re-extracted source file(s).
+[graphify extract] incremental scan of C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103
+[graphify extract] --code-only: skipping 2 non-code file(s) (2 docs, 0 papers, 0 images) — no LLM extraction
+[graphify extract] 6 code, 0 docs, 0 papers, 0 images changed; 2529 unchanged; 0 deleted
+[graphify extract] 186 file(s) not classified (no supported extension or shebang), skipped: .abacus.donotdelete, .env.example, .firebaserc, .git, .gitignore, .gitkeep (+180 more)
+[graphify extract] AST extraction on 6 code files...
+[graphify] backed up curated graph (5 files) -> 2026-10-12/
+[graphify extract] wrote C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\graphify-out\graph.json: 13713 nodes, 42463 edges, 841 communities
+[graphify extract] wrote C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\graphify-out\.graphify_analysis.json
+[graphify extract] incremental summary: 2529 files cached/unchanged, 6 re-extracted, 0 deleted
+[graphify extract] next: run `graphify cluster-only C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103` to generate GRAPH_REPORT.md and name communities
+[graphify] community set changed since labeling (838 saved labels, 838 communities now; renamed 816 community(ies) by their hub). Run `graphify label` to refresh names with the LLM.
+Loading existing graph...
+Graph: 13713 nodes, 42463 edges
+Re-clustering...
+[graphify] backed up curated graph (5 files) -> 2026-10-12/
+Skipped graph.html: Graph has 13713 nodes - too large for HTML viz (limit: 5000). Use --no-viz, raise GRAPHIFY_VIZ_NODE_LIMIT, or reduce input size.
+Done - 838 communities. GRAPH_REPORT.md and graph.json updated.

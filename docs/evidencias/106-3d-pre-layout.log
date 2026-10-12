@@ -1,0 +1,12 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:36:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+[2/8] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+[3/8] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[4/8] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+[5/8] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:36:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+[6/8] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+[7/8] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[8/8] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+  8 passed (4.0m)

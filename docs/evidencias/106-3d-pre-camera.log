@@ -1,0 +1,65 @@
+
+Running 12 tests using 1 worker
+
+[1/12] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:36:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+[2/12] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+  1) [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+
+    Error: Pausar detiene el giro automatico
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 0.01
+    Received:   0.035807291666666664
+
+      74 |   await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused }), contentType: 'application/json' });
+      75 |   // OrbitControls frena con amortiguacion: se tolera antialias, no un giro sostenido.
+    > 76 |   expect(paused, 'Pausar detiene el giro automatico').toBeLessThan(0.01);
+         |                                                       ^
+      77 |   expect(paused).toBeLessThan(rotating / 10);
+      78 |   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');
+      79 | });
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:76:55
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa106-3d-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-desktop\error-context.md
+
+
+[3/12] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:81:5 › titulo legible y colores LED circulares sin controles comprimidos
+[4/12] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:5 › LED y cantidad de invitados cambian la escena real
+[5/12] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[6/12] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+[7/12] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:36:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+[8/12] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+  2) [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+
+    Error: Pausar detiene el giro automatico
+
+    expect(received).toBeLessThan(expected)
+
+    Expected: < 0.01
+    Received:   0.037543402777777776
+
+      74 |   if (!helpBox || !canvasBox) throw new Error('Ayuda/lienzo sin medidas');
+      75 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });
+    > 76 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });
+         |                                                       ^
+      77 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);
+      78 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });
+      79 |   for (const button of await nav.getByRole('button').all()) {
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:76:55
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-mobile\error-context.md
+
+
+[9/12] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:81:5 › titulo legible y colores LED circulares sin controles comprimidos
+[10/12] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:5 › LED y cantidad de invitados cambian la escena real
+[11/12] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[12/12] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+  2 failed
+    [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+    [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+  10 passed (9.7m)

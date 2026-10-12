@@ -1,0 +1,1120 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: salon-3d-ayuda-recorrido.spec.ts >> Recorrer mueve la escena sin arrastrar y se puede pausar
+- Location: tests\e2e\salon-3d-ayuda-recorrido.spec.ts:55:5
+
+# Error details
+
+```
+Error: Pausar detiene el giro automatico
+
+expect(received).toBeLessThan(expected)
+
+Expected: < 0.01
+Received:   0.0939670138888889
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e6]:
+      - link "Logo de la Empresa" [ref=e8] [cursor=pointer]:
+        - /url: /admin
+        - img "Logo de la Empresa" [ref=e10]
+      - generic [ref=e11]:
+        - list [ref=e12]:
+          - listitem [ref=e13]:
+            - link "Centro de Control" [ref=e14] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e15]
+              - generic [ref=e20]: Centro de Control
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Mi Día
+            - generic [ref=e24]: ☀️
+          - list [ref=e26]:
+            - listitem [ref=e27]:
+              - link "Mi Día" [ref=e28] [cursor=pointer]:
+                - /url: /mi-dia
+                - img [ref=e29]
+                - generic [ref=e35]: Mi Día
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]: Fiestas
+            - generic [ref=e39]: 🎉
+          - list [ref=e41]:
+            - listitem [ref=e42]:
+              - link "Eventos Activos" [ref=e43] [cursor=pointer]:
+                - /url: /eventos
+                - img [ref=e44]
+                - generic [ref=e50]: Eventos Activos
+            - listitem [ref=e51]:
+              - link "Calendario" [ref=e52] [cursor=pointer]:
+                - /url: /calendario
+                - img [ref=e53]
+                - generic [ref=e55]: Calendario
+            - listitem [ref=e56]:
+              - link "Muro Social" [ref=e57] [cursor=pointer]:
+                - /url: /empresa/red-social-eventos
+                - img [ref=e58]
+                - generic [ref=e61]: Muro Social
+            - listitem [ref=e62]:
+              - link "Incidentes" [ref=e63] [cursor=pointer]:
+                - /url: /incidentes
+                - img [ref=e64]
+                - generic [ref=e66]: Incidentes
+            - listitem [ref=e67]:
+              - link "Guias de Armado" [ref=e68] [cursor=pointer]:
+                - /url: /playbooks
+                - img [ref=e69]
+                - generic [ref=e72]: Guias de Armado
+            - listitem [ref=e73]:
+              - link "Alergias y Dietas" [ref=e74] [cursor=pointer]:
+                - /url: /fiestas/nueva/alergias
+                - img [ref=e75]
+                - generic [ref=e84]: Alergias y Dietas
+            - listitem [ref=e85]:
+              - link "Portal de Proveedores" [ref=e86] [cursor=pointer]:
+                - /url: /fiestas/nueva/proveedores-portal
+                - img [ref=e87]
+                - generic [ref=e92]: Portal de Proveedores
+            - listitem [ref=e93]:
+              - link "Personal en dos fiestas" [ref=e94] [cursor=pointer]:
+                - /url: /recursos-multi-evento
+                - img [ref=e95]
+                - generic [ref=e99]: Personal en dos fiestas
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: La Empresa
+            - generic [ref=e103]: 🏢
+          - list [ref=e105]:
+            - listitem [ref=e106]:
+              - link "Gestión de Empresa" [ref=e107] [cursor=pointer]:
+                - /url: /empresa
+                - img [ref=e108]
+                - generic [ref=e112]: Gestión de Empresa
+            - generic [ref=e115]: Vender
+            - listitem [ref=e116]:
+              - link "Prospectos" [ref=e117] [cursor=pointer]:
+                - /url: /contabilidad/crm
+                - img [ref=e118]
+                - generic [ref=e120]: Prospectos
+            - listitem [ref=e121]:
+              - link "Presupuestos" [ref=e122] [cursor=pointer]:
+                - /url: /presupuestos/nuevo
+                - img [ref=e123]
+                - generic [ref=e126]: Presupuestos
+            - listitem [ref=e127]:
+              - link "Clientes" [ref=e128] [cursor=pointer]:
+                - /url: /customers
+                - img [ref=e129]
+                - generic [ref=e134]: Clientes
+            - listitem [ref=e135]:
+              - link "Simulador IA" [ref=e136] [cursor=pointer]:
+                - /url: /simulador-ak
+                - img [ref=e137]
+                - generic [ref=e140]: Simulador IA
+            - generic [ref=e143]: Plata
+            - listitem [ref=e144]:
+              - link "Pagos Rápidos" [ref=e145] [cursor=pointer]:
+                - /url: /pagos-rapidos
+                - img [ref=e146]
+                - generic [ref=e149]: Pagos Rápidos
+            - listitem [ref=e150]:
+              - link "Panel Contable" [ref=e151] [cursor=pointer]:
+                - /url: /empresa/contabilidad
+                - img [ref=e152]
+                - generic [ref=e154]: Panel Contable
+            - listitem [ref=e155]:
+              - link "Facturas" [ref=e156] [cursor=pointer]:
+                - /url: /invoices
+                - img [ref=e157]
+                - generic [ref=e160]: Facturas
+            - listitem [ref=e161]:
+              - link "Cambios a Aprobar" [ref=e162] [cursor=pointer]:
+                - /url: /aprobaciones
+                - img [ref=e163]
+                - generic [ref=e166]: Cambios a Aprobar
+            - listitem [ref=e167]:
+              - link "Métricas del Negocio" [ref=e168] [cursor=pointer]:
+                - /url: /empresa/dashboard
+                - img [ref=e169]
+                - generic [ref=e172]: Métricas del Negocio
+            - generic [ref=e175]: Recursos
+            - listitem [ref=e176]:
+              - link "Comida / Menús" [ref=e177] [cursor=pointer]:
+                - /url: /empresa/menus
+                - img [ref=e178]
+                - generic [ref=e180]: Comida / Menús
+            - listitem [ref=e181]:
+              - link "Lista de Compras" [ref=e182] [cursor=pointer]:
+                - /url: /compras
+                - img [ref=e183]
+                - generic [ref=e187]: Lista de Compras
+            - listitem [ref=e188]:
+              - link "Salones" [ref=e189] [cursor=pointer]:
+                - /url: /empresa/salones
+                - img [ref=e190]
+                - generic [ref=e193]: Salones
+            - listitem [ref=e194]:
+              - link "Catálogo de Servicios" [ref=e195] [cursor=pointer]:
+                - /url: /empresa/servicios
+                - img [ref=e196]
+                - generic [ref=e200]: Catálogo de Servicios
+            - listitem [ref=e201]:
+              - link "Proveedores" [ref=e202] [cursor=pointer]:
+                - /url: /proveedores
+                - img [ref=e203]
+                - generic [ref=e207]: Proveedores
+            - listitem [ref=e208]:
+              - link "Empleados" [ref=e209] [cursor=pointer]:
+                - /url: /empleados
+                - img [ref=e210]
+                - generic [ref=e213]: Empleados
+            - generic [ref=e216]: Marketing
+            - listitem [ref=e217]:
+              - link "Marketing y Difusión" [ref=e218] [cursor=pointer]:
+                - /url: /empresa/marketing
+                - img [ref=e219]
+                - generic [ref=e223]: Marketing y Difusión
+            - listitem [ref=e224]:
+              - link "Redes Sociales" [ref=e225] [cursor=pointer]:
+                - /url: /empresa/redes-sociales
+                - img [ref=e226]
+                - generic [ref=e229]: Redes Sociales
+            - listitem [ref=e230]:
+              - link "WhatsApp del Día" [ref=e231] [cursor=pointer]:
+                - /url: /contabilidad/crm/outbox
+                - img [ref=e232]
+                - generic [ref=e235]: WhatsApp del Día
+            - listitem [ref=e236]:
+              - link "Rendimiento Anuncios" [ref=e237] [cursor=pointer]:
+                - /url: /contabilidad/crm/marketing-ads
+                - img [ref=e238]
+                - generic [ref=e241]: Rendimiento Anuncios
+            - listitem [ref=e242]:
+              - link "Presentación LED" [ref=e243] [cursor=pointer]:
+                - /url: /empresa/presentacion-led/configuracion
+                - img [ref=e244]
+                - generic [ref=e247]: Presentación LED
+        - generic [ref=e248]:
+          - generic [ref=e249]:
+            - generic [ref=e250]: Configuración
+            - generic [ref=e251]: ⚙️
+          - list [ref=e253]:
+            - listitem [ref=e254]:
+              - link "Ajustes Generales" [ref=e255] [cursor=pointer]:
+                - /url: /settings
+                - img [ref=e256]
+                - generic [ref=e259]: Ajustes Generales
+            - listitem [ref=e260]:
+              - link "Tareas Automáticas" [ref=e261] [cursor=pointer]:
+                - /url: /settings/tareas-automaticas
+                - img [ref=e262]
+                - generic [ref=e264]: Tareas Automáticas
+            - listitem [ref=e265]:
+              - link "Conexiones" [ref=e266] [cursor=pointer]:
+                - /url: /settings/sincronizaciones
+                - img [ref=e267]
+                - generic [ref=e270]: Conexiones
+            - listitem [ref=e271]:
+              - link "WhatsApp" [ref=e272] [cursor=pointer]:
+                - /url: /settings/whatsapp
+                - img [ref=e273]
+                - generic [ref=e275]: WhatsApp
+            - listitem [ref=e276]:
+              - link "Cláusulas de Contrato" [ref=e277] [cursor=pointer]:
+                - /url: /settings/contratos/clausulas
+                - img [ref=e278]
+                - generic [ref=e282]: Cláusulas de Contrato
+            - listitem [ref=e283]:
+              - link "Seguridad" [ref=e284] [cursor=pointer]:
+                - /url: /settings/account
+                - img [ref=e285]
+                - generic [ref=e288]: Seguridad
+            - listitem [ref=e289]:
+              - link "Promociones" [ref=e290] [cursor=pointer]:
+                - /url: /settings/promos
+                - img [ref=e291]
+                - generic [ref=e294]: Promociones
+            - listitem [ref=e295]:
+              - link "Asistente IA" [ref=e296] [cursor=pointer]:
+                - /url: /settings/ai-assistant
+                - img [ref=e297]
+                - generic [ref=e300]: Asistente IA
+            - listitem [ref=e301]:
+              - link "Mapa Tecnológico" [ref=e302] [cursor=pointer]:
+                - /url: /settings/mapa-tecnologico-ak
+                - img [ref=e303]
+                - generic [ref=e306]: Mapa Tecnológico
+            - listitem [ref=e307]:
+              - link "Laboratorio Experimental" [ref=e308] [cursor=pointer]:
+                - /url: /settings/feature-flags
+                - img [ref=e309]
+                - generic [ref=e312]: Laboratorio Experimental
+      - list [ref=e314]:
+        - listitem [ref=e315]:
+          - link "Alertas" [ref=e316] [cursor=pointer]:
+            - /url: /alertas
+            - img [ref=e317]
+            - generic [ref=e320]: Alertas
+    - main [ref=e321]:
+      - generic [ref=e322]:
+        - generic [ref=e323]:
+          - heading "AK Producciones" [level=1] [ref=e325]
+          - generic [ref=e326]:
+            - link "Ingreso/Egreso Rápido" [ref=e327] [cursor=pointer]:
+              - /url: /pagos-rapidos
+              - button "Ingreso/Egreso Rápido" [ref=e328]:
+                - img
+                - generic [ref=e329]: Ingreso/Egreso Rápido
+            - button "Abrir notificaciones" [ref=e330] [cursor=pointer]:
+              - img
+              - generic [ref=e331]: Abrir notificaciones
+            - button "Logo de la Empresa" [ref=e332] [cursor=pointer]:
+              - img "Logo de la Empresa" [ref=e334]
+        - main [ref=e335]:
+          - generic [ref=e336]:
+            - generic [ref=e337]:
+              - generic [ref=e338]:
+                - generic [ref=e339]:
+                  - generic [ref=e340]: Reunión de Cierre
+                  - generic [ref=e341]: · Modo Presentación en Vivo
+                - heading "Configurador Visual 3D & Cierre" [level=1] [ref=e342]
+                - paragraph [ref=e343]: Diseñá el salón y ajustá los servicios en vivo junto a los padres o clientes.
+              - button "Generar Presupuesto Formal" [ref=e345] [cursor=pointer]:
+                - img
+                - generic [ref=e346]: Generar Presupuesto Formal
+            - generic [ref=e347]:
+              - generic [ref=e348]:
+                - generic [ref=e349]:
+                  - generic [ref=e350]:
+                    - img [ref=e351]
+                    - generic [ref=e354]: "Armar con una frase:"
+                  - 'textbox "Ej: quince de Morena, lila y dorado, 120 invitados..." [ref=e355]'
+                  - button "Hablarle a la IA" [ref=e356] [cursor=pointer]:
+                    - img
+                    - text: Hablar
+                  - button "Armar" [ref=e357] [cursor=pointer]
+                - generic [ref=e358]:
+                  - generic [ref=e359]:
+                    - generic [ref=e360]:
+                      - generic [ref=e361]:
+                        - img [ref=e362]
+                        - text: Salón Interactivo 3D
+                      - generic [ref=e364]: 12 Mesas distribuidas · 120 Invitados
+                    - generic [ref=e365]:
+                      - button "Ver salón decorado" [ref=e366] [cursor=pointer]:
+                        - img
+                        - text: Ver salón decorado
+                      - button "Recorrer" [active] [ref=e367] [cursor=pointer]:
+                        - img
+                        - text: Recorrer
+                      - button "Asistente" [ref=e368] [cursor=pointer]:
+                        - img
+                        - text: Asistente
+                    - generic [ref=e369]:
+                      - generic [ref=e370]: "LED:"
+                      - button "Color Dorado" [ref=e371] [cursor=pointer]
+                      - button "Color Fucsia" [ref=e372] [cursor=pointer]
+                      - button "Color Azul" [ref=e373] [cursor=pointer]
+                      - button "Color Violeta" [ref=e374] [cursor=pointer]
+                      - button "Color Esmeralda" [ref=e375] [cursor=pointer]
+                  - generic [ref=e376]: Arrastrá para rotar la cámara 3D · Rueda para zoom
+                - generic [ref=e383]:
+                  - generic [ref=e385]:
+                    - generic [ref=e386]: Catálogo de Servicios AK (2 seleccionados)
+                    - generic [ref=e387]: Tocá para agregar o quitar
+                  - generic [ref=e389]:
+                    - button "✓ 20 kilos de Hielo Otros servicios $460 fijo" [ref=e390] [cursor=pointer]:
+                      - generic [ref=e391]:
+                        - generic [ref=e392]:
+                          - generic [ref=e393]: ✓
+                          - paragraph [ref=e394]: 20 kilos de Hielo
+                        - paragraph [ref=e395]: Otros servicios
+                      - generic [ref=e396]:
+                        - paragraph [ref=e397]: $460
+                        - text: fijo
+                    - button "✓ Peluquería uñas y maquillaje Otros servicios $3.500 fijo" [ref=e398] [cursor=pointer]:
+                      - generic [ref=e399]:
+                        - generic [ref=e400]:
+                          - generic [ref=e401]: ✓
+                          - paragraph [ref=e402]: Peluquería uñas y maquillaje
+                        - paragraph [ref=e403]: Otros servicios
+                      - generic [ref=e404]:
+                        - paragraph [ref=e405]: $3.500
+                        - text: fijo
+                    - button "✓ Salón de fiesta - Club Uruguay Otros servicios $20.000 fijo" [ref=e406] [cursor=pointer]:
+                      - generic [ref=e407]:
+                        - generic [ref=e408]:
+                          - generic [ref=e409]: ✓
+                          - paragraph [ref=e410]: Salón de fiesta - Club Uruguay
+                        - paragraph [ref=e411]: Otros servicios
+                      - generic [ref=e412]:
+                        - paragraph [ref=e413]: $20.000
+                        - text: fijo
+                    - button "✓ Asador profesional Personal $3.990 fijo" [ref=e414] [cursor=pointer]:
+                      - generic [ref=e415]:
+                        - generic [ref=e416]:
+                          - generic [ref=e417]: ✓
+                          - paragraph [ref=e418]: Asador profesional
+                        - paragraph [ref=e419]: Personal
+                      - generic [ref=e420]:
+                        - paragraph [ref=e421]: $3.990
+                        - text: fijo
+                    - button "✓ Chef Personal $3.500 fijo" [ref=e422] [cursor=pointer]:
+                      - generic [ref=e423]:
+                        - generic [ref=e424]:
+                          - generic [ref=e425]: ✓
+                          - paragraph [ref=e426]: Chef
+                        - paragraph [ref=e427]: Personal
+                      - generic [ref=e428]:
+                        - paragraph [ref=e429]: $3.500
+                        - text: fijo
+                    - button "✓ Mozo Personal $2.990 fijo" [ref=e430] [cursor=pointer]:
+                      - generic [ref=e431]:
+                        - generic [ref=e432]:
+                          - generic [ref=e433]: ✓
+                          - paragraph [ref=e434]: Mozo
+                        - paragraph [ref=e435]: Personal
+                      - generic [ref=e436]:
+                        - paragraph [ref=e437]: $2.990
+                        - text: fijo
+                    - button "✓ Mozo de cocina Personal $2.990 fijo" [ref=e438] [cursor=pointer]:
+                      - generic [ref=e439]:
+                        - generic [ref=e440]:
+                          - generic [ref=e441]: ✓
+                          - paragraph [ref=e442]: Mozo de cocina
+                        - paragraph [ref=e443]: Personal
+                      - generic [ref=e444]:
+                        - paragraph [ref=e445]: $2.990
+                        - text: fijo
+                    - button "✓ Portero Personal $2.500 fijo" [ref=e446] [cursor=pointer]:
+                      - generic [ref=e447]:
+                        - generic [ref=e448]:
+                          - generic [ref=e449]: ✓
+                          - paragraph [ref=e450]: Portero
+                        - paragraph [ref=e451]: Personal
+                      - generic [ref=e452]:
+                        - paragraph [ref=e453]: $2.500
+                        - text: fijo
+                    - button "✓ Album digital Regalo exclusivo $2.500 fijo" [ref=e454] [cursor=pointer]:
+                      - generic [ref=e455]:
+                        - generic [ref=e456]:
+                          - generic [ref=e457]: ✓
+                          - paragraph [ref=e458]: Album digital
+                        - paragraph [ref=e459]: Regalo exclusivo
+                      - generic [ref=e460]:
+                        - paragraph [ref=e461]: $2.500
+                        - text: fijo
+                    - button "✓ Fuegos fríos (2 disparos) Regalo exclusivo $3.000 fijo" [ref=e462] [cursor=pointer]:
+                      - generic [ref=e463]:
+                        - generic [ref=e464]:
+                          - generic [ref=e465]: ✓
+                          - paragraph [ref=e466]: Fuegos fríos (2 disparos)
+                        - paragraph [ref=e467]: Regalo exclusivo
+                      - generic [ref=e468]:
+                        - paragraph [ref=e469]: $3.000
+                        - text: fijo
+                    - button "✓ Invitaciones digitales Regalo exclusivo $2.500 fijo" [ref=e470] [cursor=pointer]:
+                      - generic [ref=e471]:
+                        - generic [ref=e472]:
+                          - generic [ref=e473]: ✓
+                          - paragraph [ref=e474]: Invitaciones digitales
+                        - paragraph [ref=e475]: Regalo exclusivo
+                      - generic [ref=e476]:
+                        - paragraph [ref=e477]: $2.500
+                        - text: fijo
+                    - button "✓ Lluvia de burbujas Regalo exclusivo $1.500 fijo" [ref=e478] [cursor=pointer]:
+                      - generic [ref=e479]:
+                        - generic [ref=e480]:
+                          - generic [ref=e481]: ✓
+                          - paragraph [ref=e482]: Lluvia de burbujas
+                        - paragraph [ref=e483]: Regalo exclusivo
+                      - generic [ref=e484]:
+                        - paragraph [ref=e485]: $1.500
+                        - text: fijo
+                    - button "✓ Mesa de café Regalo exclusivo $1.900 fijo" [ref=e486] [cursor=pointer]:
+                      - generic [ref=e487]:
+                        - generic [ref=e488]:
+                          - generic [ref=e489]: ✓
+                          - paragraph [ref=e490]: Mesa de café
+                        - paragraph [ref=e491]: Regalo exclusivo
+                      - generic [ref=e492]:
+                        - paragraph [ref=e493]: $1.900
+                        - text: fijo
+                    - button "✓ Organizamos de la fiesta Regalo exclusivo $11.000 fijo" [ref=e494] [cursor=pointer]:
+                      - generic [ref=e495]:
+                        - generic [ref=e496]:
+                          - generic [ref=e497]: ✓
+                          - paragraph [ref=e498]: Organizamos de la fiesta
+                        - paragraph [ref=e499]: Regalo exclusivo
+                      - generic [ref=e500]:
+                        - paragraph [ref=e501]: $11.000
+                        - text: fijo
+                    - button "✓ Pantalla gigante y proyector Regalo exclusivo $2.500 fijo" [ref=e502] [cursor=pointer]:
+                      - generic [ref=e503]:
+                        - generic [ref=e504]:
+                          - generic [ref=e505]: ✓
+                          - paragraph [ref=e506]: Pantalla gigante y proyector
+                        - paragraph [ref=e507]: Regalo exclusivo
+                      - generic [ref=e508]:
+                        - paragraph [ref=e509]: $2.500
+                        - text: fijo
+                    - button "✓ Video de vida Regalo exclusivo $2.500 fijo" [ref=e510] [cursor=pointer]:
+                      - generic [ref=e511]:
+                        - generic [ref=e512]:
+                          - generic [ref=e513]: ✓
+                          - paragraph [ref=e514]: Video de vida
+                        - paragraph [ref=e515]: Regalo exclusivo
+                      - generic [ref=e516]:
+                        - paragraph [ref=e517]: $2.500
+                        - text: fijo
+                    - button "✓ Barra de tragos Servicio de bebidas $399 / pers." [ref=e518] [cursor=pointer]:
+                      - generic [ref=e519]:
+                        - generic [ref=e520]:
+                          - generic [ref=e521]: ✓
+                          - paragraph [ref=e522]: Barra de tragos
+                        - paragraph [ref=e523]: Servicio de bebidas
+                      - generic [ref=e524]:
+                        - paragraph [ref=e525]: $399
+                        - text: / pers.
+                    - button "✓ Cerveza corona por unidad Servicio de bebidas $90 fijo" [ref=e526] [cursor=pointer]:
+                      - generic [ref=e527]:
+                        - generic [ref=e528]:
+                          - generic [ref=e529]: ✓
+                          - paragraph [ref=e530]: Cerveza corona por unidad
+                        - paragraph [ref=e531]: Servicio de bebidas
+                      - generic [ref=e532]:
+                        - paragraph [ref=e533]: $90
+                        - text: fijo
+                    - button "✓ Refrescos Servicio de bebidas $145 / pers." [ref=e534] [cursor=pointer]:
+                      - generic [ref=e535]:
+                        - generic [ref=e536]:
+                          - generic [ref=e537]: ✓
+                          - paragraph [ref=e538]: Refrescos
+                        - paragraph [ref=e539]: Servicio de bebidas
+                      - generic [ref=e540]:
+                        - paragraph [ref=e541]: $145
+                        - text: / pers.
+                    - button "✓ Manteleria básica (sin cubre sillas) Servicio de catering $49 / pers." [ref=e542] [cursor=pointer]:
+                      - generic [ref=e543]:
+                        - generic [ref=e544]:
+                          - generic [ref=e545]: ✓
+                          - paragraph [ref=e546]: Manteleria básica (sin cubre sillas)
+                        - paragraph [ref=e547]: Servicio de catering
+                      - generic [ref=e548]:
+                        - paragraph [ref=e549]: $49
+                        - text: / pers.
+                    - button "✓ Mantelería completa Servicio de catering $79 / pers." [ref=e550] [cursor=pointer]:
+                      - generic [ref=e551]:
+                        - generic [ref=e552]:
+                          - generic [ref=e553]: ✓
+                          - paragraph [ref=e554]: Mantelería completa
+                        - paragraph [ref=e555]: Servicio de catering
+                      - generic [ref=e556]:
+                        - paragraph [ref=e557]: $79
+                        - text: / pers.
+                    - button "✓ Mobiliario completo Servicio de catering $75 / pers." [ref=e558] [cursor=pointer]:
+                      - generic [ref=e559]:
+                        - generic [ref=e560]:
+                          - generic [ref=e561]: ✓
+                          - paragraph [ref=e562]: Mobiliario completo
+                        - paragraph [ref=e563]: Servicio de catering
+                      - generic [ref=e564]:
+                        - paragraph [ref=e565]: $75
+                        - text: / pers.
+                    - button "✓ Vajilla Completa Servicio de catering $79 / pers." [ref=e566] [cursor=pointer]:
+                      - generic [ref=e567]:
+                        - generic [ref=e568]:
+                          - generic [ref=e569]: ✓
+                          - paragraph [ref=e570]: Vajilla Completa
+                        - paragraph [ref=e571]: Servicio de catering
+                      - generic [ref=e572]:
+                        - paragraph [ref=e573]: $79
+                        - text: / pers.
+                    - button "✓ Alquiler de Centros de mesa florales Servicio de decoración $599 fijo" [ref=e574] [cursor=pointer]:
+                      - generic [ref=e575]:
+                        - generic [ref=e576]:
+                          - generic [ref=e577]: ✓
+                          - paragraph [ref=e578]: Alquiler de Centros de mesa florales
+                        - paragraph [ref=e579]: Servicio de decoración
+                      - generic [ref=e580]:
+                        - paragraph [ref=e581]: $599
+                        - text: fijo
+                    - button "✓ Banner Gigantografía Servicio de decoración $2.990 fijo" [ref=e582] [cursor=pointer]:
+                      - generic [ref=e583]:
+                        - generic [ref=e584]:
+                          - generic [ref=e585]: ✓
+                          - paragraph [ref=e586]: Banner Gigantografía
+                        - paragraph [ref=e587]: Servicio de decoración
+                      - generic [ref=e588]:
+                        - paragraph [ref=e589]: $2.990
+                        - text: fijo
+                    - button "✓ Cuadro de firmas Servicio de decoración $2.990 fijo" [ref=e590] [cursor=pointer]:
+                      - generic [ref=e591]:
+                        - generic [ref=e592]:
+                          - generic [ref=e593]: ✓
+                          - paragraph [ref=e594]: Cuadro de firmas
+                        - paragraph [ref=e595]: Servicio de decoración
+                      - generic [ref=e596]:
+                        - paragraph [ref=e597]: $2.990
+                        - text: fijo
+                    - button "✓ Decoración Básica (atrás de la torta) Servicio de decoración $8.490 fijo" [ref=e598] [cursor=pointer]:
+                      - generic [ref=e599]:
+                        - generic [ref=e600]:
+                          - generic [ref=e601]: ✓
+                          - paragraph [ref=e602]: Decoración Básica (atrás de la torta)
+                        - paragraph [ref=e603]: Servicio de decoración
+                      - generic [ref=e604]:
+                        - paragraph [ref=e605]: $8.490
+                        - text: fijo
+                    - button "✓ Servicio de Decoración Servicio de decoración $14.990 fijo" [ref=e606] [cursor=pointer]:
+                      - generic [ref=e607]:
+                        - generic [ref=e608]:
+                          - generic [ref=e609]: ✓
+                          - paragraph [ref=e610]: Servicio de Decoración
+                        - paragraph [ref=e611]: Servicio de decoración
+                      - generic [ref=e612]:
+                        - paragraph [ref=e613]: $14.990
+                        - text: fijo
+                    - button "✓ Zona de fotografía con sillón diván Servicio de decoración $4.990 fijo" [ref=e614] [cursor=pointer]:
+                      - generic [ref=e615]:
+                        - generic [ref=e616]:
+                          - generic [ref=e617]: ✓
+                          - paragraph [ref=e618]: Zona de fotografía con sillón diván
+                        - paragraph [ref=e619]: Servicio de decoración
+                      - generic [ref=e620]:
+                        - paragraph [ref=e621]: $4.990
+                        - text: fijo
+                    - button "✓ Pista Led chica Servicio de discoteca $7.900 fijo" [ref=e622] [cursor=pointer]:
+                      - generic [ref=e623]:
+                        - generic [ref=e624]:
+                          - generic [ref=e625]: ✓
+                          - paragraph [ref=e626]: Pista Led chica
+                        - paragraph [ref=e627]: Servicio de discoteca
+                      - generic [ref=e628]:
+                        - paragraph [ref=e629]: $7.900
+                        - text: fijo
+                    - button "✓ Pista Led grande Servicio de discoteca $12.900 fijo" [ref=e630] [cursor=pointer]:
+                      - generic [ref=e631]:
+                        - generic [ref=e632]:
+                          - generic [ref=e633]: ✓
+                          - paragraph [ref=e634]: Pista Led grande
+                        - paragraph [ref=e635]: Servicio de discoteca
+                      - generic [ref=e636]:
+                        - paragraph [ref=e637]: $12.900
+                        - text: fijo
+                    - button "✓ Servicio de Discoteca Servicio de discoteca $0 fijo" [ref=e638] [cursor=pointer]:
+                      - generic [ref=e639]:
+                        - generic [ref=e640]:
+                          - generic [ref=e641]: ✓
+                          - paragraph [ref=e642]: Servicio de Discoteca
+                        - paragraph [ref=e643]: Servicio de discoteca
+                      - generic [ref=e644]:
+                        - paragraph [ref=e645]: $0
+                        - text: fijo
+                    - button "✓ Bogue Servicio de entretenimiento $2.990 fijo" [ref=e646] [cursor=pointer]:
+                      - generic [ref=e647]:
+                        - generic [ref=e648]:
+                          - generic [ref=e649]: ✓
+                          - paragraph [ref=e650]: Bogue
+                        - paragraph [ref=e651]: Servicio de entretenimiento
+                      - generic [ref=e652]:
+                        - paragraph [ref=e653]: $2.990
+                        - text: fijo
+                    - button "✓ Espejo Magico Classic (tactil, firmas y stickers) Servicio de entretenimiento $3.490 fijo" [ref=e654] [cursor=pointer]:
+                      - generic [ref=e655]:
+                        - generic [ref=e656]:
+                          - generic [ref=e657]: ✓
+                          - paragraph [ref=e658]: Espejo Magico Classic (tactil, firmas y stickers)
+                        - paragraph [ref=e659]: Servicio de entretenimiento
+                      - generic [ref=e660]:
+                        - paragraph [ref=e661]: $3.490
+                        - text: fijo
+                    - button "✓ Face Swap IA (avatares, reemplazo de rostros y estilos artisticos) Servicio de entretenimiento $4.990 fijo" [ref=e662] [cursor=pointer]:
+                      - generic [ref=e663]:
+                        - generic [ref=e664]:
+                          - generic [ref=e665]: ✓
+                          - paragraph [ref=e666]: Face Swap IA (avatares, reemplazo de rostros y estilos artisticos)
+                        - paragraph [ref=e667]: Servicio de entretenimiento
+                      - generic [ref=e668]:
+                        - paragraph [ref=e669]: $4.990
+                        - text: fijo
+                    - button "✓ Fotocabina Servicio de entretenimiento $2.990 fijo" [ref=e670] [cursor=pointer]:
+                      - generic [ref=e671]:
+                        - generic [ref=e672]:
+                          - generic [ref=e673]: ✓
+                          - paragraph [ref=e674]: Fotocabina
+                        - paragraph [ref=e675]: Servicio de entretenimiento
+                      - generic [ref=e676]:
+                        - paragraph [ref=e677]: $2.990
+                        - text: fijo
+                    - button "✓ Fuegos fríos (4 disparos) Servicio de entretenimiento $3.900 fijo" [ref=e678] [cursor=pointer]:
+                      - generic [ref=e679]:
+                        - generic [ref=e680]:
+                          - generic [ref=e681]: ✓
+                          - paragraph [ref=e682]: Fuegos fríos (4 disparos)
+                        - paragraph [ref=e683]: Servicio de entretenimiento
+                      - generic [ref=e684]:
+                        - paragraph [ref=e685]: $3.900
+                        - text: fijo
+                    - button "✓ Mesa de Glitter Bar Servicio de entretenimiento $110 / pers." [ref=e686] [cursor=pointer]:
+                      - generic [ref=e687]:
+                        - generic [ref=e688]:
+                          - generic [ref=e689]: ✓
+                          - paragraph [ref=e690]: Mesa de Glitter Bar
+                        - paragraph [ref=e691]: Servicio de entretenimiento
+                      - generic [ref=e692]:
+                        - paragraph [ref=e693]: $110
+                        - text: / pers.
+                    - button "✓ Plataforma 360 Servicio de entretenimiento $3.490 fijo" [ref=e694] [cursor=pointer]:
+                      - generic [ref=e695]:
+                        - generic [ref=e696]:
+                          - generic [ref=e697]: ✓
+                          - paragraph [ref=e698]: Plataforma 360
+                        - paragraph [ref=e699]: Servicio de entretenimiento
+                      - generic [ref=e700]:
+                        - paragraph [ref=e701]: $3.490
+                        - text: fijo
+                    - button "✓ Filmación de exteriores Servicio de filmación $3.990 fijo" [ref=e702] [cursor=pointer]:
+                      - generic [ref=e703]:
+                        - generic [ref=e704]:
+                          - generic [ref=e705]: ✓
+                          - paragraph [ref=e706]: Filmación de exteriores
+                        - paragraph [ref=e707]: Servicio de filmación
+                      - generic [ref=e708]:
+                        - paragraph [ref=e709]: $3.990
+                        - text: fijo
+                    - button "✓ Filmación de la fiesta Servicio de filmación $9.990 fijo" [ref=e710] [cursor=pointer]:
+                      - generic [ref=e711]:
+                        - generic [ref=e712]:
+                          - generic [ref=e713]: ✓
+                          - paragraph [ref=e714]: Filmación de la fiesta
+                        - paragraph [ref=e715]: Servicio de filmación
+                      - generic [ref=e716]:
+                        - paragraph [ref=e717]: $9.990
+                        - text: fijo
+                    - button "✓ Filmacion de la iglesia Servicio de filmación $3.990 fijo" [ref=e718] [cursor=pointer]:
+                      - generic [ref=e719]:
+                        - generic [ref=e720]:
+                          - generic [ref=e721]: ✓
+                          - paragraph [ref=e722]: Filmacion de la iglesia
+                        - paragraph [ref=e723]: Servicio de filmación
+                      - generic [ref=e724]:
+                        - paragraph [ref=e725]: $3.990
+                        - text: fijo
+                    - button "✓ Filmacion de la pintada Servicio de filmación $3.990 fijo" [ref=e726] [cursor=pointer]:
+                      - generic [ref=e727]:
+                        - generic [ref=e728]:
+                          - generic [ref=e729]: ✓
+                          - paragraph [ref=e730]: Filmacion de la pintada
+                        - paragraph [ref=e731]: Servicio de filmación
+                      - generic [ref=e732]:
+                        - paragraph [ref=e733]: $3.990
+                        - text: fijo
+                    - button "✓ Filmación del civil Servicio de filmación $3.990 fijo" [ref=e734] [cursor=pointer]:
+                      - generic [ref=e735]:
+                        - generic [ref=e736]:
+                          - generic [ref=e737]: ✓
+                          - paragraph [ref=e738]: Filmación del civil
+                        - paragraph [ref=e739]: Servicio de filmación
+                      - generic [ref=e740]:
+                        - paragraph [ref=e741]: $3.990
+                        - text: fijo
+                    - button "✓ Foto álbum 100 fotos Servicio de fotografía $3.890 fijo" [ref=e742] [cursor=pointer]:
+                      - generic [ref=e743]:
+                        - generic [ref=e744]:
+                          - generic [ref=e745]: ✓
+                          - paragraph [ref=e746]: Foto álbum 100 fotos
+                        - paragraph [ref=e747]: Servicio de fotografía
+                      - generic [ref=e748]:
+                        - paragraph [ref=e749]: $3.890
+                        - text: fijo
+                    - button "✓ Fotografía 2 horas Servicio de fotografía $3.990 fijo" [ref=e750] [cursor=pointer]:
+                      - generic [ref=e751]:
+                        - generic [ref=e752]:
+                          - generic [ref=e753]: ✓
+                          - paragraph [ref=e754]: Fotografía 2 horas
+                        - paragraph [ref=e755]: Servicio de fotografía
+                      - generic [ref=e756]:
+                        - paragraph [ref=e757]: $3.990
+                        - text: fijo
+                    - button "✓ Fotografía de exteriores Servicio de fotografía $3.990 fijo" [ref=e758] [cursor=pointer]:
+                      - generic [ref=e759]:
+                        - generic [ref=e760]:
+                          - generic [ref=e761]: ✓
+                          - paragraph [ref=e762]: Fotografía de exteriores
+                        - paragraph [ref=e763]: Servicio de fotografía
+                      - generic [ref=e764]:
+                        - paragraph [ref=e765]: $3.990
+                        - text: fijo
+                    - button "✓ Fotografía de la fiesta Servicio de fotografía $9.990 fijo" [ref=e766] [cursor=pointer]:
+                      - generic [ref=e767]:
+                        - generic [ref=e768]:
+                          - generic [ref=e769]: ✓
+                          - paragraph [ref=e770]: Fotografía de la fiesta
+                        - paragraph [ref=e771]: Servicio de fotografía
+                      - generic [ref=e772]:
+                        - paragraph [ref=e773]: $9.990
+                        - text: fijo
+                    - button "✓ Fotografía de la Iglesia Servicio de fotografía $3.990 fijo" [ref=e774] [cursor=pointer]:
+                      - generic [ref=e775]:
+                        - generic [ref=e776]:
+                          - generic [ref=e777]: ✓
+                          - paragraph [ref=e778]: Fotografía de la Iglesia
+                        - paragraph [ref=e779]: Servicio de fotografía
+                      - generic [ref=e780]:
+                        - paragraph [ref=e781]: $3.990
+                        - text: fijo
+                    - button "✓ Fotografía de la pintada Servicio de fotografía $3.990 fijo" [ref=e782] [cursor=pointer]:
+                      - generic [ref=e783]:
+                        - generic [ref=e784]:
+                          - generic [ref=e785]: ✓
+                          - paragraph [ref=e786]: Fotografía de la pintada
+                        - paragraph [ref=e787]: Servicio de fotografía
+                      - generic [ref=e788]:
+                        - paragraph [ref=e789]: $3.990
+                        - text: fijo
+                    - button "✓ Fotografía del civil Servicio de fotografía $3.990 fijo" [ref=e790] [cursor=pointer]:
+                      - generic [ref=e791]:
+                        - generic [ref=e792]:
+                          - generic [ref=e793]: ✓
+                          - paragraph [ref=e794]: Fotografía del civil
+                        - paragraph [ref=e795]: Servicio de fotografía
+                      - generic [ref=e796]:
+                        - paragraph [ref=e797]: $3.990
+                        - text: fijo
+                    - button "✓ Candy Bar Temático Servicio de repostería $110 / pers." [ref=e798] [cursor=pointer]:
+                      - generic [ref=e799]:
+                        - generic [ref=e800]:
+                          - generic [ref=e801]: ✓
+                          - paragraph [ref=e802]: Candy Bar Temático
+                        - paragraph [ref=e803]: Servicio de repostería
+                      - generic [ref=e804]:
+                        - paragraph [ref=e805]: $110
+                        - text: / pers.
+                    - button "✓ Mesa dulce con fuente de chocolate Servicio de repostería $119 / pers." [ref=e806] [cursor=pointer]:
+                      - generic [ref=e807]:
+                        - generic [ref=e808]:
+                          - generic [ref=e809]: ✓
+                          - paragraph [ref=e810]: Mesa dulce con fuente de chocolate
+                        - paragraph [ref=e811]: Servicio de repostería
+                      - generic [ref=e812]:
+                        - paragraph [ref=e813]: $119
+                        - text: / pers.
+                    - button "✓ Postre Brounnie Servicio de repostería $1.400 fijo" [ref=e814] [cursor=pointer]:
+                      - generic [ref=e815]:
+                        - generic [ref=e816]:
+                          - generic [ref=e817]: ✓
+                          - paragraph [ref=e818]: Postre Brounnie
+                        - paragraph [ref=e819]: Servicio de repostería
+                      - generic [ref=e820]:
+                        - paragraph [ref=e821]: $1.400
+                        - text: fijo
+                    - button "✓ Postre Chesecake Servicio de repostería $1.500 fijo" [ref=e822] [cursor=pointer]:
+                      - generic [ref=e823]:
+                        - generic [ref=e824]:
+                          - generic [ref=e825]: ✓
+                          - paragraph [ref=e826]: Postre Chesecake
+                        - paragraph [ref=e827]: Servicio de repostería
+                      - generic [ref=e828]:
+                        - paragraph [ref=e829]: $1.500
+                        - text: fijo
+                    - button "✓ Postre Chesecake de menta y chocolate Servicio de repostería $1.700 fijo" [ref=e830] [cursor=pointer]:
+                      - generic [ref=e831]:
+                        - generic [ref=e832]:
+                          - generic [ref=e833]: ✓
+                          - paragraph [ref=e834]: Postre Chesecake de menta y chocolate
+                        - paragraph [ref=e835]: Servicio de repostería
+                      - generic [ref=e836]:
+                        - paragraph [ref=e837]: $1.700
+                        - text: fijo
+                    - button "✓ Postre Chocomenta Servicio de repostería $1.700 fijo" [ref=e838] [cursor=pointer]:
+                      - generic [ref=e839]:
+                        - generic [ref=e840]:
+                          - generic [ref=e841]: ✓
+                          - paragraph [ref=e842]: Postre Chocomenta
+                        - paragraph [ref=e843]: Servicio de repostería
+                      - generic [ref=e844]:
+                        - paragraph [ref=e845]: $1.700
+                        - text: fijo
+                    - button "✓ Postre Chocotorta Servicio de repostería $1.700 fijo" [ref=e846] [cursor=pointer]:
+                      - generic [ref=e847]:
+                        - generic [ref=e848]:
+                          - generic [ref=e849]: ✓
+                          - paragraph [ref=e850]: Postre Chocotorta
+                        - paragraph [ref=e851]: Servicio de repostería
+                      - generic [ref=e852]:
+                        - paragraph [ref=e853]: $1.700
+                        - text: fijo
+                    - button "✓ Postre de Flan de coco Servicio de repostería $1.200 fijo" [ref=e854] [cursor=pointer]:
+                      - generic [ref=e855]:
+                        - generic [ref=e856]:
+                          - generic [ref=e857]: ✓
+                          - paragraph [ref=e858]: Postre de Flan de coco
+                        - paragraph [ref=e859]: Servicio de repostería
+                      - generic [ref=e860]:
+                        - paragraph [ref=e861]: $1.200
+                        - text: fijo
+                    - button "✓ Postre de mouse de chocolate Servicio de repostería $1.200 fijo" [ref=e862] [cursor=pointer]:
+                      - generic [ref=e863]:
+                        - generic [ref=e864]:
+                          - generic [ref=e865]: ✓
+                          - paragraph [ref=e866]: Postre de mouse de chocolate
+                        - paragraph [ref=e867]: Servicio de repostería
+                      - generic [ref=e868]:
+                        - paragraph [ref=e869]: $1.200
+                        - text: fijo
+                    - button "✓ Postre de mouse de dulce de leche Servicio de repostería $1.089 fijo" [ref=e870] [cursor=pointer]:
+                      - generic [ref=e871]:
+                        - generic [ref=e872]:
+                          - generic [ref=e873]: ✓
+                          - paragraph [ref=e874]: Postre de mouse de dulce de leche
+                        - paragraph [ref=e875]: Servicio de repostería
+                      - generic [ref=e876]:
+                        - paragraph [ref=e877]: $1.089
+                        - text: fijo
+                    - button "✓ Postre frutal Servicio de repostería $1.400 fijo" [ref=e878] [cursor=pointer]:
+                      - generic [ref=e879]:
+                        - generic [ref=e880]:
+                          - generic [ref=e881]: ✓
+                          - paragraph [ref=e882]: Postre frutal
+                        - paragraph [ref=e883]: Servicio de repostería
+                      - generic [ref=e884]:
+                        - paragraph [ref=e885]: $1.400
+                        - text: fijo
+                    - button "✓ Postre Imperial Ruso Servicio de repostería $1.390 fijo" [ref=e886] [cursor=pointer]:
+                      - generic [ref=e887]:
+                        - generic [ref=e888]:
+                          - generic [ref=e889]: ✓
+                          - paragraph [ref=e890]: Postre Imperial Ruso
+                        - paragraph [ref=e891]: Servicio de repostería
+                      - generic [ref=e892]:
+                        - paragraph [ref=e893]: $1.390
+                        - text: fijo
+                    - button "✓ Postre Lemon Pie Servicio de repostería $1.300 fijo" [ref=e894] [cursor=pointer]:
+                      - generic [ref=e895]:
+                        - generic [ref=e896]:
+                          - generic [ref=e897]: ✓
+                          - paragraph [ref=e898]: Postre Lemon Pie
+                        - paragraph [ref=e899]: Servicio de repostería
+                      - generic [ref=e900]:
+                        - paragraph [ref=e901]: $1.300
+                        - text: fijo
+                    - button "✓ Postre Mouse de Chocolate Servicio de repostería $1.089 fijo" [ref=e902] [cursor=pointer]:
+                      - generic [ref=e903]:
+                        - generic [ref=e904]:
+                          - generic [ref=e905]: ✓
+                          - paragraph [ref=e906]: Postre Mouse de Chocolate
+                        - paragraph [ref=e907]: Servicio de repostería
+                      - generic [ref=e908]:
+                        - paragraph [ref=e909]: $1.089
+                        - text: fijo
+                    - button "✓ Postre oreo Servicio de repostería $1.700 fijo" [ref=e910] [cursor=pointer]:
+                      - generic [ref=e911]:
+                        - generic [ref=e912]:
+                          - generic [ref=e913]: ✓
+                          - paragraph [ref=e914]: Postre oreo
+                        - paragraph [ref=e915]: Servicio de repostería
+                      - generic [ref=e916]:
+                        - paragraph [ref=e917]: $1.700
+                        - text: fijo
+                    - button "✓ Postre Selva negra Servicio de repostería $1.700 fijo" [ref=e918] [cursor=pointer]:
+                      - generic [ref=e919]:
+                        - generic [ref=e920]:
+                          - generic [ref=e921]: ✓
+                          - paragraph [ref=e922]: Postre Selva negra
+                        - paragraph [ref=e923]: Servicio de repostería
+                      - generic [ref=e924]:
+                        - paragraph [ref=e925]: $1.700
+                        - text: fijo
+                    - button "✓ Torta Principal Servicio de repostería $109 / pers." [ref=e926] [cursor=pointer]:
+                      - generic [ref=e927]:
+                        - generic [ref=e928]:
+                          - generic [ref=e929]: ✓
+                          - paragraph [ref=e930]: Torta Principal
+                        - paragraph [ref=e931]: Servicio de repostería
+                      - generic [ref=e932]:
+                        - paragraph [ref=e933]: $109
+                        - text: / pers.
+              - generic [ref=e934]:
+                - generic [ref=e935]:
+                  - generic [ref=e937]: 1. Datos de la Fiesta
+                  - generic [ref=e938]:
+                    - generic [ref=e939]:
+                      - generic [ref=e940]:
+                        - text: Cliente / Familia
+                        - textbox "Ej. Familia Rodríguez" [ref=e941]
+                      - generic [ref=e942]:
+                        - text: WhatsApp
+                        - textbox "Ej. 099 123 456" [ref=e943]
+                    - generic [ref=e944]:
+                      - generic [ref=e945]:
+                        - text: Tipo de Evento
+                        - combobox [ref=e946] [cursor=pointer]:
+                          - generic: 15 Años
+                          - img [ref=e947]
+                      - generic [ref=e949]:
+                        - text: Fecha Prevista
+                        - textbox [ref=e950]
+                    - generic [ref=e951]:
+                      - generic [ref=e952]:
+                        - generic [ref=e953]: Adultos
+                        - generic [ref=e954]:
+                          - button "-" [ref=e955] [cursor=pointer]
+                          - generic [ref=e956]: "100"
+                          - button "+" [ref=e957] [cursor=pointer]
+                      - generic [ref=e958]:
+                        - generic [ref=e959]: Menores
+                        - generic [ref=e960]:
+                          - button "-" [ref=e961] [cursor=pointer]
+                          - generic [ref=e962]: "20"
+                          - button "+" [ref=e963] [cursor=pointer]
+                - generic [ref=e964]:
+                  - generic [ref=e966]:
+                    - generic [ref=e967]: 2. Resumen Financiero en Vivo
+                    - generic [ref=e968]: Motor Oficial AK
+                  - generic [ref=e969]:
+                    - generic [ref=e970]:
+                      - generic [ref=e971]:
+                        - generic [ref=e972]: "Subtotal Servicios (2):"
+                        - generic [ref=e973]: $34.900
+                      - generic [ref=e974]:
+                        - generic [ref=e975]: "Bonificación / Descuento:"
+                        - generic [ref=e976]: "-$2.235"
+                      - generic [ref=e977]:
+                        - generic [ref=e978]:
+                          - paragraph [ref=e979]: Inversión Total
+                          - paragraph [ref=e980]: $32.665
+                        - generic [ref=e981]:
+                          - paragraph [ref=e982]: Por Invitado
+                          - paragraph [ref=e983]: $272,21
+                    - generic [ref=e984]:
+                      - button "Guardar como Presupuesto Formal" [ref=e985] [cursor=pointer]:
+                        - img
+                        - generic [ref=e986]: Guardar como Presupuesto Formal
+                      - button "Mostrar la experiencia (Demo en vivo)" [ref=e987] [cursor=pointer]:
+                        - img
+                        - generic [ref=e988]: Mostrar la experiencia (Demo en vivo)
+    - navigation "Navegacion del modulo" [ref=e989]:
+      - button "Volver" [ref=e990] [cursor=pointer]:
+        - img
+      - button "Ir al panel principal" [ref=e991] [cursor=pointer]:
+        - img
+    - button "Abrir Asistente IA AK" [ref=e992] [cursor=pointer]:
+      - img [ref=e993]
+  - generic [ref=e997]:
+    - button "Mover el asistente" [ref=e998]:
+      - img [ref=e999]
+    - button "Bruno Responsable general de fiesta" [ref=e1006] [cursor=pointer]:
+      - img [ref=e1009]
+      - generic [ref=e1012]:
+        - generic [ref=e1013]: Bruno
+        - generic [ref=e1014]: Responsable general de fiesta
+    - link "Personalizar asistentes" [ref=e1015] [cursor=pointer]:
+      - /url: /settings/asistentes-contextuales
+      - img
+    - link "Ver sincronizaciones" [ref=e1016] [cursor=pointer]:
+      - /url: /settings/sincronizaciones
+      - img
+    - button "Minimizar el asistente" [ref=e1017] [cursor=pointer]:
+      - img
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e1018]
+```
+
+# Test source
+
+```ts
+  1  | import { expect, test, type Page } from '@playwright/test';
+  2  | import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+  3  | 
+  4  | test.skip(process.env.AK_ENTORNO_AISLADO !== 'true', 'Solo entorno aislado');
+  5  | 
+  6  | async function imagen(page: Page) {
+  7  |   return page.locator('canvas').first().evaluate((canvas: HTMLCanvasElement) => {
+  8  |     const sample = document.createElement('canvas');
+  9  |     sample.width = 96; sample.height = 96;
+  10 |     const reader = sample.getContext('2d');
+  11 |     if (!reader) throw new Error('No hay lector de pixeles');
+  12 |     reader.drawImage(canvas, 0, 0, 96, 96);
+  13 |     return Array.from(reader.getImageData(0, 0, 96, 96).data);
+  14 |   });
+  15 | }
+  16 | 
+  17 | function cambio(before: number[], after: number[]) {
+  18 |   let changed = 0;
+  19 |   for (let i = 0; i < before.length; i += 4) {
+  20 |     if ([0, 1, 2].some(channel => Math.abs(before[i + channel] - after[i + channel]) > 4)) changed++;
+  21 |   }
+  22 |   return changed / (before.length / 4);
+  23 | }
+  24 | 
+  25 | test.beforeEach(async ({ page, context, baseURL }) => {
+  26 |   test.setTimeout(120000);
+  27 |   await ponerSesionDelEquipo(context, baseURL);
+  28 |   await page.goto('/empresa/configurador-reunion', { waitUntil: 'domcontentloaded' });
+  29 |   const canvas = page.locator('canvas').first();
+  30 |   await expect(canvas).toBeVisible({ timeout: 60000 });
+  31 |   await canvas.scrollIntoViewIfNeeded();
+  32 |   await expect.poll(() => canvas.evaluate((node: HTMLCanvasElement) => node.width)).toBeGreaterThan(100);
+  33 |   await page.waitForTimeout(1500);
+  34 | });
+  35 | 
+  36 | test('la ayuda queda fuera del lienzo y la navegacion no esta tapada', async ({ page }, info) => {
+  37 |   const help = page.getByText(/Arrastr.*para rotar la c.mara 3D/);
+  38 |   await expect(help).toBeVisible();
+  39 |   const helpBox = await help.boundingBox();
+  40 |   const canvasBox = await page.locator('canvas').first().boundingBox();
+  41 |   if (!helpBox || !canvasBox) throw new Error('Ayuda/lienzo sin medidas');
+  42 |   await info.attach('ayuda-lienzo.json', { body: JSON.stringify({ helpBox, canvasBox }), contentType: 'application/json' });
+  43 |   await info.attach('ayuda-lienzo.png', { body: await page.screenshot(), contentType: 'image/png' });
+  44 |   expect(helpBox.y + helpBox.height, 'La ayuda no tapa la escena').toBeLessThanOrEqual(canvasBox.y + 1);
+  45 |   const nav = page.getByRole('navigation', { name: 'Navegacion del modulo' });
+  46 |   for (const button of await nav.getByRole('button').all()) {
+  47 |     await expect(button).toBeVisible();
+  48 |     expect(await button.evaluate(node => {
+  49 |       const box = node.getBoundingClientRect();
+  50 |       return node.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2));
+  51 |     }), 'El boton flotante recibe el toque').toBe(true);
+  52 |   }
+  53 | });
+  54 | 
+  55 | test('Recorrer mueve la escena sin arrastrar y se puede pausar', async ({ page }, info) => {
+  56 |   const button = page.getByRole('button', { name: 'Recorrer', exact: true });
+  57 |   await button.click();
+  58 |   await page.locator('canvas').first().scrollIntoViewIfNeeded();
+  59 |   await page.waitForTimeout(1200);
+  60 |   const before = await imagen(page);
+  61 |   await page.waitForTimeout(1600);
+  62 |   const moving = await imagen(page);
+  63 |   const rotating = cambio(before, moving);
+  64 |   await info.attach('recorrido-automatico.json', { body: JSON.stringify({ rotating }), contentType: 'application/json' });
+  65 |   expect(rotating, 'Recorrer debe mover la camara, no solo su icono').toBeGreaterThan(0.02);
+  66 |   const pause = page.getByRole('button', { name: 'Pausar recorrido', exact: true });
+  67 |   await expect(pause).toHaveAttribute('aria-pressed', 'true');
+  68 |   await pause.click();
+  69 |   await page.locator('canvas').first().scrollIntoViewIfNeeded();
+  70 |   await page.waitForTimeout(1800);
+  71 |   const stopped = await imagen(page);
+  72 |   await page.waitForTimeout(1000);
+  73 |   const paused = cambio(stopped, await imagen(page));
+  74 |   await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused }), contentType: 'application/json' });
+  75 |   // OrbitControls frena con amortiguacion: se tolera antialias, no un giro sostenido.
+> 76 |   expect(paused, 'Pausar detiene el giro automatico').toBeLessThan(0.01);
+     |                                                       ^ Error: Pausar detiene el giro automatico
+  77 |   expect(paused).toBeLessThan(rotating / 10);
+  78 |   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  79 | });
+  80 | 
+```

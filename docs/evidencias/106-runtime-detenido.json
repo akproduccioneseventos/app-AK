@@ -1,0 +1,8 @@
+{
+  "reason": "Own QA server intentionally stopped",
+  "sha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "server": 14348,
+  "launcher": 15136,
+  "port3300Listening": false,
+  "acceptance": "12 unique browser cases passed; own server stopped afterward"
+}

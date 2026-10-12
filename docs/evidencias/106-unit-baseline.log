@@ -1,0 +1,73 @@
+FAIL src/__tests__/dependencias-multipart-mapas-regresion.test.ts
+  ● multipart acepta headers llamados como propiedades del prototipo sin caerse
+
+    TypeError: this.header[h].push is not a function
+
+    [0m [90m 15 |[39m     parser[33m.[39mon([32m'error'[39m[33m,[39m reject)[33m;[39m
+     [90m 16 |[39m     parser[33m.[39mon([32m'finish'[39m[33m,[39m () [33m=>[39m resolve({ fields[33m,[39m files }))[33m;[39m
+    [31m[1m>[22m[39m[90m 17 |[39m     parser[33m.[39mend([32m`--ak106\r\nContent-Disposition: ${disposition}\r\n${extraHeader}\r\ncontenido\r\n--ak106--\r\n`[39m)[33m;[39m
+     [90m    |[39m            [31m[1m^[22m[39m
+     [90m 18 |[39m   })[33m;[39m
+     [90m 19 |[39m }
+     [90m 20 |[39m[0m
+
+      at HeaderParser._parseHeader (node_modules/@fastify/busboy/deps/dicer/lib/HeaderParser.js:95:20)
+      at HeaderParser._finish (node_modules/@fastify/busboy/deps/dicer/lib/HeaderParser.js:55:27)
+      at SBMH.<anonymous> (node_modules/@fastify/busboy/deps/dicer/lib/HeaderParser.js:37:25)
+      at SBMH._sbmh_feed (node_modules/@fastify/busboy/deps/streamsearch/sbmh.js:177:60)
+      at SBMH.push (node_modules/@fastify/busboy/deps/streamsearch/sbmh.js:85:68)
+      at HeaderParser.push (node_modules/@fastify/busboy/deps/dicer/lib/HeaderParser.js:43:21)
+      at Dicer._oninfo (node_modules/@fastify/busboy/deps/dicer/lib/Dicer.js:172:25)
+      at SBMH.<anonymous> (node_modules/@fastify/busboy/deps/dicer/lib/Dicer.js:108:10)
+      at SBMH._sbmh_feed (node_modules/@fastify/busboy/deps/streamsearch/sbmh.js:177:60)
+      at SBMH.push (node_modules/@fastify/busboy/deps/streamsearch/sbmh.js:85:68)
+      at Dicer._write (node_modules/@fastify/busboy/deps/dicer/lib/Dicer.js:93:17)
+      at Multipart.write (node_modules/@fastify/busboy/lib/types/multipart.js:268:25)
+      at Busboy._write (node_modules/@fastify/busboy/lib/main.js:78:16)
+      at end (src/__tests__/dependencias-multipart-mapas-regresion.test.ts:17:12)
+      at multipart (src/__tests__/dependencias-multipart-mapas-regresion.test.ts:6:10)
+      at Object.multipart (src/__tests__/dependencias-multipart-mapas-regresion.test.ts:22:24)
+
+  ● multipart rechaza CR/LF desnudos en archivos y conserva nombres normales
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "ak    falso.jpg",
+    + ]
+
+    [0m [90m 28 |[39m   [36mfor[39m ([36mconst[39m separator [36mof[39m [[32m'\r'[39m[33m,[39m [32m'\n'[39m]) {
+     [90m 29 |[39m     [36mconst[39m rejected [33m=[39m [36mawait[39m multipart([32m`form-data; name="foto"; filename="ak${separator}falso.jpg"`[39m[33m,[39m [32m'Content-Type: image/jpeg\r\n'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 30 |[39m     expect(rejected[33m.[39mfiles)[33m.[39mtoEqual([])[33m;[39m
+     [90m    |[39m                            [31m[1m^[22m[39m
+     [90m 31 |[39m     expect(rejected[33m.[39mfields)[33m.[39mtoEqual([])[33m;[39m
+     [90m 32 |[39m   }
+     [90m 33 |[39m   expect(([36mawait[39m multipart([32m'form-data; name="foto"; filename="ak.jpg"'[39m[33m,[39m [32m'Content-Type: image/jpeg\r\n'[39m))[33m.[39mfiles)[33m.[39mtoEqual([[32m'ak.jpg'[39m])[33m;[39m[0m
+
+      at Object.toEqual (src/__tests__/dependencias-multipart-mapas-regresion.test.ts:30:28)
+
+  ● mapas indexados rechazan offsets enormes sin procesar millones de lineas
+
+    expect(received).toThrow()
+
+    Received function did not throw
+
+    [0m [90m 36 |[39m test([32m'mapas indexados rechazan offsets enormes sin procesar millones de lineas'[39m[33m,[39m () [33m=>[39m {
+     [90m 37 |[39m   [36mconst[39m map [33m=[39m { version[33m:[39m [35m3[39m[33m,[39m sources[33m:[39m [[32m'ak.js'[39m][33m,[39m sourcesContent[33m:[39m [[32m'const ak = 1;'[39m][33m,[39m names[33m:[39m [][33m,[39m mappings[33m:[39m [32m'AAAA'[39m }[33m;[39m
+    [31m[1m>[22m[39m[90m 38 |[39m   expect(() [33m=>[39m [36mnew[39m [33mSourceMapConsumer[39m({ version[33m:[39m [35m3[39m[33m,[39m sections[33m:[39m [{ offset[33m:[39m { line[33m:[39m [35m10000001[39m[33m,[39m column[33m:[39m [35m0[39m }[33m,[39m map }] }))[33m.[39mtoThrow()[33m;[39m
+     [90m    |[39m                                                                                                                   [31m[1m^[22m[39m
+     [90m 39 |[39m   [36mconst[39m ordinary [33m=[39m [36mnew[39m [33mSourceMapConsumer[39m(map)[33m;[39m
+     [90m 40 |[39m   expect([33mSourceNode[39m[33m.[39mfromStringWithSourceMap([32m'const ak = 1;'[39m[33m,[39m ordinary)[33m.[39mtoString())[33m.[39mtoBe([32m'const ak = 1;'[39m)[33m;[39m
+     [90m 41 |[39m })[33m;[39m[0m
+
+      at Object.toThrow (src/__tests__/dependencias-multipart-mapas-regresion.test.ts:38:115)
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        1.748 s
+Test results written to: docs\evidencias\106-unit.json
