@@ -1,0 +1,217 @@
+{
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "expired-assigned-equipment-has-visible-alert",
+      "details": {
+        "equipment": "QA112 desktop 3c3b4e27 Laser",
+        "party": "qa112_desktop_fiesta",
+        "date": "2026-10-16T23:12:07.428Z",
+        "visible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "cancel-maintenance-does-not-write",
+      "details": {
+        "noHistory": true,
+        "noExpense": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "connection-failure-keeps-draft-and-does-not-write",
+      "details": {
+        "draftKept": true,
+        "noExpense": true,
+        "noHistory": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "retry-saves-one-maintenance-and-one-exact-expense",
+      "details": {
+        "history": [
+          {
+            "id": "mant_1791846732347_erexp",
+            "fecha": "2026-10-12",
+            "nota": "QA112 desktop 3c3b4e27 Lampara",
+            "costo": 123.45,
+            "gastoPendiente": false
+          }
+        ],
+        "expense": {
+          "id": "gasto_llave_6bda7e8e0023b82adba974523e2aad60",
+          "concepto": "Mantenimiento: QA112 desktop 3c3b4e27 Laser - QA112 desktop 3c3b4e27 Lampara",
+          "fecha": "2026-10-12",
+          "categoria": "Reparaciones y Mantenimiento",
+          "monto": 123.45,
+          "notas": "Registrado automáticamente desde Activos Fijos (qa112_desktop)",
+          "idempotencyKey": "mantenimiento:qa112_desktop:mant_1791846732347_erexp",
+          "_syncedAt": "2026-10-12T23:12:12.541Z"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "history-and-expense-are-visible-after-reload",
+      "details": {
+        "historyReloaded": true,
+        "accountingExpenseVisible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "current-maintenance-removes-only-its-preventive-alert",
+      "details": {
+        "expiredEquipmentAlertGone": true,
+        "historyPreserved": true,
+        "expenseCount": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "existing-pending-expense-retry-clears-flag",
+      "details": {
+        "fixture": "Existing pending history simulated directly; NOT an induced mid-server failure",
+        "expenseCount": 2,
+        "pendingCleared": true,
+        "historyCount": 2,
+        "retryRemovedAfterReload": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "expired-assigned-equipment-has-visible-alert",
+      "details": {
+        "equipment": "QA112 mobile 01ad286a Laser",
+        "party": "qa112_mobile_fiesta",
+        "date": "2026-10-16T23:12:34.069Z",
+        "visible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "cancel-maintenance-does-not-write",
+      "details": {
+        "noHistory": true,
+        "noExpense": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "connection-failure-keeps-draft-and-does-not-write",
+      "details": {
+        "draftKept": true,
+        "noExpense": true,
+        "noHistory": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "retry-saves-one-maintenance-and-one-exact-expense",
+      "details": {
+        "history": [
+          {
+            "id": "mant_1791846757260_3q0du",
+            "fecha": "2026-10-12",
+            "nota": "QA112 mobile 01ad286a Lampara",
+            "costo": 123.45,
+            "gastoPendiente": false
+          }
+        ],
+        "expense": {
+          "id": "gasto_llave_2bcd51ad567fb241851dcb0a8e8dd004",
+          "concepto": "Mantenimiento: QA112 mobile 01ad286a Laser - QA112 mobile 01ad286a Lampara",
+          "fecha": "2026-10-12",
+          "categoria": "Reparaciones y Mantenimiento",
+          "monto": 123.45,
+          "notas": "Registrado automáticamente desde Activos Fijos (qa112_mobile)",
+          "idempotencyKey": "mantenimiento:qa112_mobile:mant_1791846757260_3q0du",
+          "_syncedAt": "2026-10-12T23:12:37.314Z"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "history-and-expense-are-visible-after-reload",
+      "details": {
+        "historyReloaded": true,
+        "accountingExpenseVisible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "current-maintenance-removes-only-its-preventive-alert",
+      "details": {
+        "expiredEquipmentAlertGone": true,
+        "historyPreserved": true,
+        "expenseCount": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "existing-pending-expense-retry-clears-flag",
+      "details": {
+        "fixture": "Existing pending history simulated directly; NOT an induced mid-server failure",
+        "expenseCount": 2,
+        "pendingCleared": true,
+        "historyCount": 2,
+        "retryRemovedAfterReload": true
+      },
+      "status": "PASS"
+    }
+  ],
+  "cleanup": {
+    "deleted": 11,
+    "documentsRemaining": 0,
+    "restored": [
+      {
+        "file": "src\\data\\activos-fijos.json",
+        "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+        "qaSha256": "2ce33f0f17f0f7144dd2e77a347c93873f9dcf9b59b10b1c77865ff71a138e52"
+      },
+      {
+        "file": "src\\data\\gastos-generales.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "481f2980e4fd566fdee035e947a9ee0beac293b71fb20569c98a3945a82f32a5"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "8fa528cf033c1a0337e2d821919a00231340c6ae68af4c9ec267cc4fd632d5e0"
+      },
+      {
+        "file": "data\\activos-fijos.json",
+        "beforeSha256": null,
+        "qaSha256": "2ce33f0f17f0f7144dd2e77a347c93873f9dcf9b59b10b1c77865ff71a138e52"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "8fa528cf033c1a0337e2d821919a00231340c6ae68af4c9ec267cc4fd632d5e0"
+      },
+      {
+        "file": "data\\gastos-generales.json",
+        "beforeSha256": null,
+        "qaSha256": "481f2980e4fd566fdee035e947a9ee0beac293b71fb20569c98a3945a82f32a5"
+      }
+    ],
+    "bytesRestored": true
+  },
+  "scope": "Private emulator UI; no production data, real equipment or Hosting certification"
+}

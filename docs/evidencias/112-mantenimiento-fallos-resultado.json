@@ -1,0 +1,281 @@
+{
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "lost-confirmation-retry-must-not-double-charge",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "first": {
+          "history": [
+            {
+              "id": "mant_1791846785668_3t9xh",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_7e54ca3df915c5bee2dfe3cdfa9d4243",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop:mant_1791846785668_3t9xh",
+              "_syncedAt": "2026-10-12T23:13:05.751Z"
+            }
+          ]
+        },
+        "after": {
+          "history": [
+            {
+              "id": "mant_1791846787702_nzsfw",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            },
+            {
+              "id": "mant_1791846785668_3t9xh",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_435da172e9997ee9db74810f593b7739",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop:mant_1791846787702_nzsfw",
+              "_syncedAt": "2026-10-12T23:13:07.756Z"
+            },
+            {
+              "id": "gasto_llave_7e54ca3df915c5bee2dfe3cdfa9d4243",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop:mant_1791846785668_3t9xh",
+              "_syncedAt": "2026-10-12T23:13:05.751Z"
+            }
+          ]
+        },
+        "acceptance": "FAIL_DUPLICATE_AFTER_LOST_ACK"
+      },
+      "status": "FAIL_DUPLICATE_AFTER_LOST_ACK"
+    },
+    {
+      "viewport": "desktop",
+      "name": "two-operators-must-preserve-both-maintenance-records",
+      "details": {
+        "after": {
+          "history": [
+            {
+              "id": "mant_1791846795847_tmhqx",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Operador B",
+              "costo": 20.5,
+              "gastoPendiente": false
+            },
+            {
+              "id": "mant_1791846795553_dee11",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Operador A",
+              "costo": 10.25,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_add8f2e3405b65fe7102fde585a2b149",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Operador A",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 10.25,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop_concurrent)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop_concurrent:mant_1791846795553_dee11",
+              "_syncedAt": "2026-10-12T23:13:15.612Z"
+            },
+            {
+              "id": "gasto_llave_fe5ef93bb5a2b9a43417f51a77f906dc",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Operador B",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 20.5,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop_concurrent)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop_concurrent:mant_1791846795847_tmhqx",
+              "_syncedAt": "2026-10-12T23:13:15.893Z"
+            }
+          ]
+        },
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "lost-confirmation-retry-must-not-double-charge",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "first": {
+          "history": [
+            {
+              "id": "mant_1791846800333_58jng",
+              "fecha": "2026-10-12",
+              "nota": "QA112 mobile 86df50a3 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_4f24e8e3445e2b53f45cfd175283df7f",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile:mant_1791846800333_58jng",
+              "_syncedAt": "2026-10-12T23:13:20.412Z"
+            }
+          ]
+        },
+        "after": {
+          "history": [
+            {
+              "id": "mant_1791846803358_a8vlc",
+              "fecha": "2026-10-12",
+              "nota": "QA112 mobile 86df50a3 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            },
+            {
+              "id": "mant_1791846800333_58jng",
+              "fecha": "2026-10-12",
+              "nota": "QA112 mobile 86df50a3 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_4f24e8e3445e2b53f45cfd175283df7f",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile:mant_1791846800333_58jng",
+              "_syncedAt": "2026-10-12T23:13:20.412Z"
+            },
+            {
+              "id": "gasto_llave_8310064e587d6a6ebe2357f8e6ef79fc",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile:mant_1791846803358_a8vlc",
+              "_syncedAt": "2026-10-12T23:13:23.420Z"
+            }
+          ]
+        },
+        "acceptance": "FAIL_DUPLICATE_AFTER_LOST_ACK"
+      },
+      "status": "FAIL_DUPLICATE_AFTER_LOST_ACK"
+    },
+    {
+      "viewport": "mobile",
+      "name": "two-operators-must-preserve-both-maintenance-records",
+      "details": {
+        "after": {
+          "history": [
+            {
+              "id": "mant_1791846811060_wlyrk",
+              "fecha": "2026-10-12",
+              "nota": "QA112 mobile 86df50a3 Operador A",
+              "costo": 10.25,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_5bc3db1fbddbed7b69972cf53c85a36f",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Operador A",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 10.25,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile_concurrent)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile_concurrent:mant_1791846811060_wlyrk",
+              "_syncedAt": "2026-10-12T23:13:34.231Z"
+            },
+            {
+              "id": "gasto_llave_9774632e18f9d15e4866aedbfa9c7e09",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Operador B",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 20.5,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile_concurrent)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile_concurrent:mant_1791846811056_mrwv1",
+              "_syncedAt": "2026-10-12T23:13:33.125Z"
+            }
+          ]
+        },
+        "acceptance": "FAIL_LOST_CONCURRENT_MAINTENANCE"
+      },
+      "status": "FAIL_LOST_CONCURRENT_MAINTENANCE"
+    }
+  ],
+  "cleanup": {
+    "deleted": 15,
+    "documentsRemaining": 0,
+    "restored": [
+      {
+        "file": "src\\data\\activos-fijos.json",
+        "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+        "qaSha256": "507f1874da539ac475a4777aae8307b710b883ce806c4788ae1e1f7f8dd6e523"
+      },
+      {
+        "file": "src\\data\\gastos-generales.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "34b46cf68a0e6ce7275905c85286bc7b12021d641b94e7cb9115e1b13dfca28b"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "c5396ee7508300a1d4e7156712ee3a7c327efdd0bbc912c28afff6b238011485"
+      },
+      {
+        "file": "data\\activos-fijos.json",
+        "beforeSha256": null,
+        "qaSha256": "507f1874da539ac475a4777aae8307b710b883ce806c4788ae1e1f7f8dd6e523"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "c5396ee7508300a1d4e7156712ee3a7c327efdd0bbc912c28afff6b238011485"
+      },
+      {
+        "file": "data\\gastos-generales.json",
+        "beforeSha256": null,
+        "qaSha256": "34b46cf68a0e6ce7275905c85286bc7b12021d641b94e7cb9115e1b13dfca28b"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

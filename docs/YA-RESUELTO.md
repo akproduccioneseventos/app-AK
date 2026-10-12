@@ -12875,3 +12875,27 @@ procesos propios detenidos; notificaciones ajenas conservadas por hash.
 Un ayudante economico cerrado. Graphify puntual; build/Jest106 reutilizado solo
 por fuente inalterada. Sin cuentas/modelos/pagos/hardware reales, sin merge ni
 certificado0errores; mantenimiento/gastos y cobertura completa aun no aceptados.
+
+## Codex112 - 12/10/2026 - mantenimiento completo (solo punto1)
+
+HEAD ead1238e9a762b06b158f5a889649231294a76d4, fuente app8fa5b56a,
+PR1288 abierta. Mismos consumidores que main99faf4eb, NO tanda privada Claude.
+18criterios de navegador PC/Pixel7:15PASS/3FAIL, dos familias P1 nuevas159.
+Base14/14: registrar/cancelar/error antes de envio/reintentar/decimal123.45,
+historial y gastos tras recargar; equipo vencido asignado genera alerta,
+service vigente quita esa alerta; fila pendiente explicita reintenta45.67.
+
+P1 confirmacion perdida: servidor200 y SDK prueban un gasto antes de cortar
+respuesta; el reintento crea DOS123.45 por el mismo trabajo (PC y celular).
+P1 concurrencia celular: dos operadores reciben exito, hay dos gastos10.25/20.50
+pero solo una fila; gastoB queda sin su historial. PC paso en esta corrida,
+no cobertura determinista de todas las intercalaciones. Orden159 paraClaude.
+No reimplementar104: accion/alerta existen; revisar estos bordes nuevos.
+
+Iniciales del auditor conservados/excluidos: pedir nombre de equipo en alerta
+generica fue criterio equivocado, y colecciones vacias no son documentos vivos.
+Propuesta UX separada: identificar equipo y abrir su ficha desde aviso.
+112-resultado.json,112-mantenimiento.md y sondas conservan casos/SHA/hash.
+FixtureGuard restaura bytes, documentos ficticios retirados; procesos3301/8085
+propios cerrados; no tocar datos reales/notificaciones ajenas. Sin build/Jest
+nuevo, programacion productiva ni fusion. Pendientes159, no declarar0errores.

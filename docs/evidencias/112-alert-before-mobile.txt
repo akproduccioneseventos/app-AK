@@ -1,0 +1,114 @@
+Toggle Sidebar
+Centro de Alertas
+Abrir notificaciones
+Centro de Alertas
+
+Notificaciones automáticas de todas las fiestas activas
+
+Marcar todas leídas
+Actualizar
+Volver
+
+2
+
+URGENTES
+
+3
+
+ATENCIÓN
+
+6
+
+INFO / RECORDATORIO
+
+Todas las alertas
+Todas las fiestas
+Sólo sin leer
+QA112 desktop 3c3b4e27
+URGENTE
+5 avisos
+URGENTE
+12-oct., 08:12 p. m.
+
+Fiesta creada hace más de 48hs sin primer pago registrado
+
+Falta seña
+Marcar como leída
+ATENCIÓN
+12-oct., 08:12 p. m.
+
+A 7 días del evento no hay cronograma/programa cargado
+
+Cronograma vacío
+Marcar como leída
+RECORDATORIO
+12-oct., 08:12 p. m.
+
+A 15 días del evento no hay lista de canciones
+
+Esta fiesta no tiene teléfono del cliente
+Faltan canciones
+Marcar como leída
+RECORDATORIO
+12-oct., 08:12 p. m.
+
+A 10 días del evento las fotos del video de vida están incompletas
+
+Esta fiesta no tiene teléfono del cliente
+Faltan fotos para video de vida
+Marcar como leída
+RECORDATORIO
+12-oct., 08:12 p. m.
+
+A 20 días del evento no hay menú definido
+
+Esta fiesta no tiene teléfono del cliente
+Menú sin definir
+Marcar como leída
+QA112 mobile 01ad286a
+URGENTE
+6 avisos
+URGENTE
+12-oct., 08:12 p. m.
+
+Fiesta creada hace más de 48hs sin primer pago registrado
+
+Falta seña
+Marcar como leída
+ATENCIÓN
+12-oct., 08:12 p. m.
+
+A 7 días del evento no hay cronograma/programa cargado
+
+Cronograma vacío
+Marcar como leída
+ATENCIÓN
+12-oct., 08:12 p. m.
+
+Equipo con mantenimiento vencido asignado a una fiesta próxima
+
+Marcar como leída
+RECORDATORIO
+12-oct., 08:12 p. m.
+
+A 15 días del evento no hay lista de canciones
+
+Esta fiesta no tiene teléfono del cliente
+Faltan canciones
+Marcar como leída
+RECORDATORIO
+12-oct., 08:12 p. m.
+
+A 10 días del evento las fotos del video de vida están incompletas
+
+Esta fiesta no tiene teléfono del cliente
+Faltan fotos para video de vida
+Marcar como leída
+RECORDATORIO
+12-oct., 08:12 p. m.
+
+A 20 días del evento no hay menú definido
+
+Esta fiesta no tiene teléfono del cliente
+Menú sin definir
+Marcar como leída

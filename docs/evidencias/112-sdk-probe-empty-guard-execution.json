@@ -1,0 +1,16 @@
+{
+  "head": "ead1238e9a762b06b158f5a889649231294a76d4",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/112-mantenimiento-probe.mjs"
+  ],
+  "launcher": 21944,
+  "child": 3448,
+  "started": "2026-10-12T23:11:43.215Z",
+  "status": "finished",
+  "emulator": "127.0.0.1:8085",
+  "baseUrl": "http://127.0.0.1:3301",
+  "exitCode": 1,
+  "finished": "2026-10-12T23:11:46.912Z"
+}

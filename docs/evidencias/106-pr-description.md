@@ -126,3 +126,15 @@ Esta PR queda ABIERTA para revision y fusion del dueno.
 - Copias/fixtures restaurados. No cada boton/rol de421rutas certificado,
   ni integraciones reales,19presupuestos originales,Hosting mismoSHA o hardware.
 - Documento compartido actualizado. PR permanece abierta, sin fusion automatica.
+
+## Continuacion112: mantenimiento de equipos (solo punto1)
+
+-18criterios PC/Pixel7:15PASS/3FAIL, dos familias P1 nuevas paraClaude en159.
+-Base14/14: cancelar, error antes del envio, gasto123.45, historial reabierto,
+  gasto en contabilidad, alerta vencida y desaparicion tras service vigente.
+-Respuesta perdida trasHTTP200: reintento duplica el gasto en PC/celular.
+-Dos operadores celular: ambos exito/dos gastos, pero una fila del historial.
+  PC paso en esa corrida, no afirmar todas las carreras cubiertas.
+-Fuente8fa intacta, mismos consumidores main99fa; NO tanda privada Claude.
+-Fixtures/JSON restaurados, procesos propios detenidos; evidencia112 con hashes.
+-Sin programacion productiva, build repetido, merge ni certificado0errores.

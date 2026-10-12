@@ -1,0 +1,88 @@
+CENTRO DE CONTROL
+MI DÍA
+☀️
+Mi Día
+FIESTAS
+🎉
+Eventos Activos
+Calendario
+Muro Social
+Incidentes
+Guias de Armado
+Alergias y Dietas
+Portal de Proveedores
+Personal en dos fiestas
+LA EMPRESA
+🏢
+Gestión de Empresa
+VENDER
+Prospectos
+Presupuestos
+Clientes
+Simulador IA
+PLATA
+Pagos Rápidos
+Panel Contable
+Facturas
+Cambios a Aprobar
+Métricas del Negocio
+RECURSOS
+Comida / Menús
+Lista de Compras
+Salones
+Catálogo de Servicios
+Proveedores
+Empleados
+MARKETING
+Marketing y Difusión
+Redes Sociales
+WhatsApp del Día
+Rendimiento Anuncios
+Presentación LED
+CONFIGURACIÓN
+⚙️
+Ajustes Generales
+Tareas Automáticas
+Conexiones
+WhatsApp
+Cláusulas de Contrato
+Seguridad
+Promociones
+Asistente IA
+Mapa Tecnológico
+Laboratorio Experimental
+ALERTAS
+1
+AK Producciones
+Ingreso/Egreso Rápido
+Abrir notificaciones
+Gastos Generales
+Volver al Panel Contable
+Registrar Nuevo Gasto
+Añade aquí los gastos operativos de tu empresa que no están ligados a un evento específico.
+Escanear Recibo con IA
+Fecha*
+12 de octubre de 2026
+Monto (UYU)*
+Concepto*
+Categoría*
+Otro
+Compra de Equipo
+Reparaciones y Mantenimiento
+Marketing y Publicidad
+Impuestos y Tasas
+Servicios Públicos (Luz, Agua, etc.)
+Alquiler Oficina/Depósito
+Sueldos Administrativos
+Otro
+Notas
+Registrar Gasto
+Historial de Gastos
+Total de Gastos Generales: $ 123,45
+
+Mantenimiento: QA112 desktop 3c3b4e27 Laser - QA112 desktop 3c3b4e27 Lampara (Reparaciones y Mantenimiento)
+
+11 oct 2026 - $ 123,45
+
+Martin
+Contabilidad, pagos y contratos

@@ -1,18 +1,21 @@
-# Estado actual - 12/10/2026 (Codex111, app sin cambios)
+# Estado actual - 12/10/2026 (Codex112, app sin cambios)
 Rama codex/auditoria-97-ia-contexto-20261011; PR1288 ABIERTA, no fusionar.
-Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e; HEAD probado39704d5c.
+Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e; HEAD probadoead1238e.
 Main contrastado99faf4eb; NO tanda privada Claude, pedir SHA antes de programar.
-## Auditoria111 independiente
+## Auditoria112: mantenimiento, pedido punto1
+-18criterios15PASS/3FAIL; dos P1 nuevos159 paraClaude, pendientes.
+-Respuesta perdida tras guardar200: reintento duplica gasto123.45 PC/celular.
+-Dos operadores celular: dos gastos10.25/20.50, un historial; PC paso una vez.
+-Base14/14: cancelar/error antes de enviar/registrar/decimal/historial/gasto/alerta.
+-Fila pendiente fixture declarado, no fallo inducido a mitad del servidor.
+-112-mantenimiento.md y112-resultado.json; iniciales del auditor excluidos.
+-QA8085/3301 propio detenido, datos restaurados; no compile ni merge.
+## Auditoria111 previa: no repetir
 -28criterios:24PASS/4FAIL; dos P2 nuevos pendientes en ordenes157/158.
--Nueva Incidencia conserva caso YA guardado; no se envio otro duplicado.
--Nombres largos desbordan editores activo/insumo en celular132/191px, PC correcto.
--Incidentes conserva borrador/nota ante fallo; reintento guarda uno.
--Guias: cancelar/evento inexistente/fallo de aplicar sin escribir tareas/compras.
--Inventarios: guardar/reabrir/editar/error/reintento/reporte;2.5Kg si persiste.
--Imprimir observado con espia; NO impresora ni PDF real. Todo QA ficticio.
+-157 caso anterior en Nueva Incidencia;158 nombres largos desbordan132/191px.
+-Incidentes/guias/inventarios guardado/error/reintento;reporte con espia, no PDF.
 -Matriz111-resultado.json y111-recorridos-operativos.md; iniciales excluidos.
--SDK8085/3301 propio detenido, JSON restaurados; no tocar datos ajenos.
--Codex revisa, Claude datos/permisos/dinero; Gemini UI157/158; Claude compila.
+-Claude datos/permisos/dinero ycompila; Gemini UI157/158; Codex audita.
 -No build/Jest repetido: misma fuente que106. Graphify puntual, sin reconstruir.
 ## Pendiente en programacion: no repetir por rutina
 -152:barra flotante tapa Guardar3D; Claude trabaja segun usuario.
