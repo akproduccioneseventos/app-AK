@@ -1,5 +1,23 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/10/2026 - Codex107: Google, reintento pasa; estado pendiente
+
+- App8fa/PR1288HEAD08478, main99faf4eb: dos archivos Google iguales a main.
+- PC/Pixel7 con fixture empresa needs_reconnect y empleado error: la pantalla
+  anuncia empresa Conectada/check verde, sincronizacion habilitada y1/14/7%
+  del equipo conectado. P2 REAL de estado, orden153; no corregido por Codex.
+- NO reabrir invitaciones/envios ni recuperacion: sin cuenta avisa configuracion;
+  un corte dirigido al actionID real muestra error. Reintentar visible devuelve
+  pantalla PC/movil. Transporte restaurado, sin recarga externa ni envio de mail.
+- Primera sonda abortaba un POST cualquiera: descartada como evidencia de fallo
+  de dashboard. Firebase Installations con llave dummy no es fallo productivo.
+  Sonda final bloquea HTTPS y restaura archivos locales propios; no cuentas reales.
+- Inventario inicial del ayudante repetia comida/barra ya cerradas; descartado,
+  no nuevas ordenes para repetir92/93. Fuente app sin cambios ni nuevo build.
+- Orden153 requiere contraste con entrega privada de Claude, que no se conoce.
+ 152 sigue en trabajo segun usuario, no se da por cerrada. Informe107 conserva
+  raw/capturas/sondas. No certificado de conexiones reales ni0errores globales.
+
 ## 12/10/2026 - Codex106: salón y parches comprobados; NO cierre global
 
 - Base PR1288/48829bfd, main99faf4eb: no se repite la auditoría105 aprobada.

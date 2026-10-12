@@ -59,3 +59,15 @@ Ver docs/YA-RESUELTO.md, ESTADO-ACTUAL.md y docs/evidencias/106-validacion.json.
 Pendientes para Claude en docs/ordenes/152-claude-cierre-tanda106.md;
 la orden NO acredita que Claude la haya leido o ejecutado.
 Esta PR queda ABIERTA para revision y fusion del dueno.
+
+## Continuacion107: auditoria sin cambios de app
+
+- PC/Pixel7: cuenta Google needs_reconnect aparece Conectada/check verde;
+  empleado error se suma al contador de conectados. Un P2 de estado con dos efectos.
+- Sin cuenta avisa configuracion; tras cortar SOLO getGoogleWorkspaceDashboard,
+  el boton Reintentar recupera la pantalla ambos contextos. No reabrir ese flujo.
+- Orden153 para Claude; NO contrastada con su tanda privada desconocida:
+  verificar lo ya programado antes de implementar.152 esta en trabajo segun usuario.
+- Sonda/capturas/JSON en107, datos ficticios restaurados. No emails ni OAuth reales.
+- Misma fuente8fa, no cambios de app/dependencias ni repeticion de build/Jest.
+  Este hallazgo queda pendiente: una entrega documentada NO lo corrige.

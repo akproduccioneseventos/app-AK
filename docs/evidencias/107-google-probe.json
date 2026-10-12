@@ -1,0 +1,143 @@
+[
+  {
+    "name": "desktop",
+    "initial": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAK Producciones\nIngreso/Egreso Rápido\nAbrir notificaciones\nGoogle Workspace\nCalendario, Gmail, clientes, invitados y personal\n\nConecta la cuenta de AK para que fechas, reuniones, mails y recordatorios trabajen desde un solo lugar: empresa, equipo, clientes e invitados.\n\nConectar AK\nSincronizar fiestas\nAvisar equipo\nAvisar invitados\n\nFalta configurar Google antes de conectar.\n\nVariables pendientes: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXT_PUBLIC_APP_URL.\n\nURL que debe ir en Google Cloud como redirect: /api/google/oauth/callback.\n\nCuenta de AK\nPendiente\n\nConecta la cuenta que enviara mails y administrara el calendario general.\n\nPersonal conectado\n0/14\n0% del equipo tiene su calendario personal conectado.\nFiestas sincronizadas\n0\nPendientes con fecha: 0\nUltimo movimiento\nNunca\nLa sincronizacion masiva no reenvia mails para evitar ruido.\nFlujos que quedan conectados\nLa cuenta de AK es la salida central para Calendar y Gmail.\n\nFiestas y personal\n\nSincroniza la fiesta con el calendario general de AK y con el calendario personal del equipo asignado.\n\nReuniones con clientes\n\nCuando se crea o cambia una reunion con fecha, queda lista para Google Calendar y puede avisar por Gmail al cliente.\n\nPagos\n\nEl motor extendido prepara mails para pago informado, aprobado o rechazado, con aviso al cliente y a AK.\n\nContrato firmado\n\nAl confirmar contrato, el cliente puede recibir mail de evento confirmado con link para agregar la fecha a Calendar.\n\nInvitados\n\nLos invitados con email pueden recibir la fecha del evento y un link para agregarla a su calendario.\n\nRecordatorios\n\nLa estructura ya distingue reuniones, pagos, contratos, clientes, invitados y recordatorios para crecer sin mezclar todo.\n\nComo se usa en la diaria\nUna vez conectado, el trabajo normal de la app dispara Google automaticamente donde ya hay datos suficientes.\n\n1. Cambias una fecha\n\nLa fiesta se actualiza en el calendario general de AK.\n\n2. Asignas personal o reunion\n\nEl personal recibe su detalle y las reuniones quedan listas para mail y Calendar.\n\n3. Cliente e invitados\n\nPagos, contrato e invitados pueden usar Gmail y links de Google Calendar sin duplicar canales.\n\nVer empleados\nVer reuniones\nGuia Google Calendar\nPermisos Gmail\nSofia\nSecretaria, agenda y recordatorios",
+    "buttons": [
+      {
+        "text": "Ingreso/Egreso Rápido",
+        "disabled": false
+      },
+      {
+        "text": "Abrir notificaciones",
+        "disabled": false
+      },
+      {
+        "text": "",
+        "disabled": false
+      },
+      {
+        "text": "Sincronizar fiestas",
+        "disabled": true
+      },
+      {
+        "text": "Avisar equipo",
+        "disabled": true
+      },
+      {
+        "text": "Avisar invitados",
+        "disabled": true
+      },
+      {
+        "text": "",
+        "disabled": false
+      },
+      {
+        "text": "",
+        "disabled": false
+      },
+      {
+        "text": "",
+        "disabled": false
+      },
+      {
+        "text": ""
+      },
+      {
+        "text": "SofiaSecretaria, agenda y recordatorios",
+        "disabled": false
+      },
+      {
+        "text": "",
+        "disabled": false
+      }
+    ],
+    "injected": 7,
+    "failure": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAK Producciones\nIngreso/Egreso Rápido\nAbrir notificaciones\nGoogle Workspace\nCalendario, Gmail, clientes, invitados y personal\n\nConecta la cuenta de AK para que fechas, reuniones, mails y recordatorios trabajen desde un solo lugar: empresa, equipo, clientes e invitados.\n\nConectar AK\nSincronizar fiestas\nAvisar equipo\nAvisar invitados\n\nFalta configurar Google antes de conectar.\n\nVariables pendientes: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXT_PUBLIC_APP_URL.\n\nURL que debe ir en Google Cloud como redirect: /api/google/oauth/callback.\n\nCuenta de AK\nPendiente\n\nConecta la cuenta que enviara mails y administrara el calendario general.\n\nPersonal conectado\n0/14\n0% del equipo tiene su calendario personal conectado.\nFiestas sincronizadas\n0\nPendientes con fecha: 0\nUltimo movimiento\nNunca\nLa sincronizacion masiva no reenvia mails para evitar ruido.\nFlujos que quedan conectados\nLa cuenta de AK es la salida central para Calendar y Gmail.\n\nFiestas y personal\n\nSincroniza la fiesta con el calendario general de AK y con el calendario personal del equipo asignado.\n\nReuniones con clientes\n\nCuando se crea o cambia una reunion con fecha, queda lista para Google Calendar y puede avisar por Gmail al cliente.\n\nPagos\n\nEl motor extendido prepara mails para pago informado, aprobado o rechazado, con aviso al cliente y a AK.\n\nContrato firmado\n\nAl confirmar contrato, el cliente puede recibir mail de evento confirmado con link para agregar la fecha a Calendar.\n\nInvitados\n\nLos invitados con email pueden recibir la fecha del evento y un link para agregarla a su calendario.\n\nRecordatorios\n\nLa estructura ya distingue reuniones, pagos, contratos, clientes, invitados y recordatorios para crecer sin mezclar todo.\n\nComo se usa en la diaria\nUna vez conectado, el trabajo normal de la app dispara Google automaticamente donde ya hay datos suficientes.\n\n1. Cambias una fecha\n\nLa fiesta se actualiza en el calendario general de AK.\n\n2. Asignas personal o reunion\n\nEl personal recibe su detalle y las reuniones quedan listas para mail y Calendar.\n\n3. Cliente e invitados\n\nPagos, contrato e invitados pueden usar Gmail y links de Google Calendar sin duplicar canales.\n\nVer empleados\nVer reuniones\nGuia Google Calendar\nPermisos Gmail\nSofia\nSecretaria, agenda y recordatorios",
+    "recoveryButtons": [
+      "Ingreso/Egreso Rápido",
+      "Abrir notificaciones",
+      "",
+      "Sincronizar fiestas",
+      "Avisar equipo",
+      "Avisar invitados",
+      "",
+      "",
+      "",
+      "",
+      "SofiaSecretaria, agenda y recordatorios",
+      ""
+    ],
+    "recovered": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAK Producciones\nIngreso/Egreso Rápido\nAbrir notificaciones\nGoogle Workspace\nCalendario, Gmail, clientes, invitados y personal\n\nConecta la cuenta de AK para que fechas, reuniones, mails y recordatorios trabajen desde un solo lugar: empresa, equipo, clientes e invitados.\n\nConectar AK\nSincronizar fiestas\nAvisar equipo\nAvisar invitados\n\nFalta configurar Google antes de conectar.\n\nVariables pendientes: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXT_PUBLIC_APP_URL.\n\nURL que debe ir en Google Cloud como redirect: /api/google/oauth/callback.\n\nCuenta de AK\nPendiente\n\nConecta la cuenta que enviara mails y administrara el calendario general.\n\nPersonal conectado\n0/14\n0% del equipo tiene su calendario personal conectado.\nFiestas sincronizadas\n0\nPendientes con fecha: 0\nUltimo movimiento\nNunca\nLa sincronizacion masiva no reenvia mails para evitar ruido.\nFlujos que quedan conectados\nLa cuenta de AK es la salida central para Calendar y Gmail.\n\nFiestas y personal\n\nSincroniza la fiesta con el calendario general de AK y con el calendario personal del equipo asignado.\n\nReuniones con clientes\n\nCuando se crea o cambia una reunion con fecha, queda lista para Google Calendar y puede avisar por Gmail al cliente.\n\nPagos\n\nEl motor extendido prepara mails para pago informado, aprobado o rechazado, con aviso al cliente y a AK.\n\nContrato firmado\n\nAl confirmar contrato, el cliente puede recibir mail de evento confirmado con link para agregar la fecha a Calendar.\n\nInvitados\n\nLos invitados con email pueden recibir la fecha del evento y un link para agregarla a su calendario.\n\nRecordatorios\n\nLa estructura ya distingue reuniones, pagos, contratos, clientes, invitados y recordatorios para crecer sin mezclar todo.\n\nComo se usa en la diaria\nUna vez conectado, el trabajo normal de la app dispara Google automaticamente donde ya hay datos suficientes.\n\n1. Cambias una fecha\n\nLa fiesta se actualiza en el calendario general de AK.\n\n2. Asignas personal o reunion\n\nEl personal recibe su detalle y las reuniones quedan listas para mail y Calendar.\n\n3. Cliente e invitados\n\nPagos, contrato e invitados pueden usar Gmail y links de Google Calendar sin duplicar canales.\n\nVer empleados\nVer reuniones\nGuia Google Calendar\nPermisos Gmail\nSofia\nSecretaria, agenda y recordatorios",
+    "errors": [
+      "Installations: Create Installation request failed with error \"400 INVALID_ARGUMENT: API key not valid. Please pass a valid API key.\" (installations/request-failed).",
+      "Installations: Create Installation request failed with error \"400 INVALID_ARGUMENT: API key not valid. Please pass a valid API key.\" (installations/request-failed).",
+      "Installations: Create Installation request failed with error \"400 INVALID_ARGUMENT: API key not valid. Please pass a valid API key.\" (installations/request-failed)."
+    ]
+  },
+  {
+    "name": "mobile",
+    "initial": "Toggle Sidebar\nAK Producciones\nAbrir notificaciones\nGoogle Workspace\nCalendario, Gmail, clientes, invitados y personal\n\nConecta la cuenta de AK para que fechas, reuniones, mails y recordatorios trabajen desde un solo lugar: empresa, equipo, clientes e invitados.\n\nConectar AK\nSincronizar fiestas\nAvisar equipo\nAvisar invitados\n\nFalta configurar Google antes de conectar.\n\nVariables pendientes: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXT_PUBLIC_APP_URL.\n\nURL que debe ir en Google Cloud como redirect: /api/google/oauth/callback.\n\nCuenta de AK\nPendiente\n\nConecta la cuenta que enviara mails y administrara el calendario general.\n\nPersonal conectado\n0/14\n0% del equipo tiene su calendario personal conectado.\nFiestas sincronizadas\n0\nPendientes con fecha: 0\nUltimo movimiento\nNunca\nLa sincronizacion masiva no reenvia mails para evitar ruido.\nFlujos que quedan conectados\nLa cuenta de AK es la salida central para Calendar y Gmail.\n\nFiestas y personal\n\nSincroniza la fiesta con el calendario general de AK y con el calendario personal del equipo asignado.\n\nReuniones con clientes\n\nCuando se crea o cambia una reunion con fecha, queda lista para Google Calendar y puede avisar por Gmail al cliente.\n\nPagos\n\nEl motor extendido prepara mails para pago informado, aprobado o rechazado, con aviso al cliente y a AK.\n\nContrato firmado\n\nAl confirmar contrato, el cliente puede recibir mail de evento confirmado con link para agregar la fecha a Calendar.\n\nInvitados\n\nLos invitados con email pueden recibir la fecha del evento y un link para agregarla a su calendario.\n\nRecordatorios\n\nLa estructura ya distingue reuniones, pagos, contratos, clientes, invitados y recordatorios para crecer sin mezclar todo.\n\nComo se usa en la diaria\nUna vez conectado, el trabajo normal de la app dispara Google automaticamente donde ya hay datos suficientes.\n\n1. Cambias una fecha\n\nLa fiesta se actualiza en el calendario general de AK.\n\n2. Asignas personal o reunion\n\nEl personal recibe su detalle y las reuniones quedan listas para mail y Calendar.\n\n3. Cliente e invitados\n\nPagos, contrato e invitados pueden usar Gmail y links de Google Calendar sin duplicar canales.\n\nVer empleados\nVer reuniones\nGuia Google Calendar\nPermisos Gmail",
+    "buttons": [
+      {
+        "text": "Toggle Sidebar",
+        "disabled": false
+      },
+      {
+        "text": "",
+        "disabled": false
+      },
+      {
+        "text": "Abrir notificaciones",
+        "disabled": false
+      },
+      {
+        "text": "",
+        "disabled": false
+      },
+      {
+        "text": "Sincronizar fiestas",
+        "disabled": true
+      },
+      {
+        "text": "Avisar equipo",
+        "disabled": true
+      },
+      {
+        "text": "Avisar invitados",
+        "disabled": true
+      },
+      {
+        "text": "",
+        "disabled": false
+      },
+      {
+        "text": "",
+        "disabled": false
+      },
+      {
+        "text": "",
+        "disabled": false
+      }
+    ],
+    "injected": 6,
+    "failure": "Toggle Sidebar\nAK Producciones\nAbrir notificaciones\nGoogle Workspace\nCalendario, Gmail, clientes, invitados y personal\n\nConecta la cuenta de AK para que fechas, reuniones, mails y recordatorios trabajen desde un solo lugar: empresa, equipo, clientes e invitados.\n\nConectar AK\nSincronizar fiestas\nAvisar equipo\nAvisar invitados\n\nFalta configurar Google antes de conectar.\n\nVariables pendientes: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXT_PUBLIC_APP_URL.\n\nURL que debe ir en Google Cloud como redirect: /api/google/oauth/callback.\n\nCuenta de AK\nPendiente\n\nConecta la cuenta que enviara mails y administrara el calendario general.\n\nPersonal conectado\n0/14\n0% del equipo tiene su calendario personal conectado.\nFiestas sincronizadas\n0\nPendientes con fecha: 0\nUltimo movimiento\nNunca\nLa sincronizacion masiva no reenvia mails para evitar ruido.\nFlujos que quedan conectados\nLa cuenta de AK es la salida central para Calendar y Gmail.\n\nFiestas y personal\n\nSincroniza la fiesta con el calendario general de AK y con el calendario personal del equipo asignado.\n\nReuniones con clientes\n\nCuando se crea o cambia una reunion con fecha, queda lista para Google Calendar y puede avisar por Gmail al cliente.\n\nPagos\n\nEl motor extendido prepara mails para pago informado, aprobado o rechazado, con aviso al cliente y a AK.\n\nContrato firmado\n\nAl confirmar contrato, el cliente puede recibir mail de evento confirmado con link para agregar la fecha a Calendar.\n\nInvitados\n\nLos invitados con email pueden recibir la fecha del evento y un link para agregarla a su calendario.\n\nRecordatorios\n\nLa estructura ya distingue reuniones, pagos, contratos, clientes, invitados y recordatorios para crecer sin mezclar todo.\n\nComo se usa en la diaria\nUna vez conectado, el trabajo normal de la app dispara Google automaticamente donde ya hay datos suficientes.\n\n1. Cambias una fecha\n\nLa fiesta se actualiza en el calendario general de AK.\n\n2. Asignas personal o reunion\n\nEl personal recibe su detalle y las reuniones quedan listas para mail y Calendar.\n\n3. Cliente e invitados\n\nPagos, contrato e invitados pueden usar Gmail y links de Google Calendar sin duplicar canales.\n\nVer empleados\nVer reuniones\nGuia Google Calendar\nPermisos Gmail",
+    "recoveryButtons": [
+      "Toggle Sidebar",
+      "",
+      "Abrir notificaciones",
+      "",
+      "Sincronizar fiestas",
+      "Avisar equipo",
+      "Avisar invitados",
+      "",
+      "",
+      ""
+    ],
+    "recovered": "Toggle Sidebar\nAK Producciones\nAbrir notificaciones\nGoogle Workspace\nCalendario, Gmail, clientes, invitados y personal\n\nConecta la cuenta de AK para que fechas, reuniones, mails y recordatorios trabajen desde un solo lugar: empresa, equipo, clientes e invitados.\n\nConectar AK\nSincronizar fiestas\nAvisar equipo\nAvisar invitados\n\nFalta configurar Google antes de conectar.\n\nVariables pendientes: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXT_PUBLIC_APP_URL.\n\nURL que debe ir en Google Cloud como redirect: /api/google/oauth/callback.\n\nCuenta de AK\nPendiente\n\nConecta la cuenta que enviara mails y administrara el calendario general.\n\nPersonal conectado\n0/14\n0% del equipo tiene su calendario personal conectado.\nFiestas sincronizadas\n0\nPendientes con fecha: 0\nUltimo movimiento\nNunca\nLa sincronizacion masiva no reenvia mails para evitar ruido.\nFlujos que quedan conectados\nLa cuenta de AK es la salida central para Calendar y Gmail.\n\nFiestas y personal\n\nSincroniza la fiesta con el calendario general de AK y con el calendario personal del equipo asignado.\n\nReuniones con clientes\n\nCuando se crea o cambia una reunion con fecha, queda lista para Google Calendar y puede avisar por Gmail al cliente.\n\nPagos\n\nEl motor extendido prepara mails para pago informado, aprobado o rechazado, con aviso al cliente y a AK.\n\nContrato firmado\n\nAl confirmar contrato, el cliente puede recibir mail de evento confirmado con link para agregar la fecha a Calendar.\n\nInvitados\n\nLos invitados con email pueden recibir la fecha del evento y un link para agregarla a su calendario.\n\nRecordatorios\n\nLa estructura ya distingue reuniones, pagos, contratos, clientes, invitados y recordatorios para crecer sin mezclar todo.\n\nComo se usa en la diaria\nUna vez conectado, el trabajo normal de la app dispara Google automaticamente donde ya hay datos suficientes.\n\n1. Cambias una fecha\n\nLa fiesta se actualiza en el calendario general de AK.\n\n2. Asignas personal o reunion\n\nEl personal recibe su detalle y las reuniones quedan listas para mail y Calendar.\n\n3. Cliente e invitados\n\nPagos, contrato e invitados pueden usar Gmail y links de Google Calendar sin duplicar canales.\n\nVer empleados\nVer reuniones\nGuia Google Calendar\nPermisos Gmail",
+    "errors": [
+      "Installations: Create Installation request failed with error \"400 INVALID_ARGUMENT: API key not valid. Please pass a valid API key.\" (installations/request-failed).",
+      "Installations: Create Installation request failed with error \"400 INVALID_ARGUMENT: API key not valid. Please pass a valid API key.\" (installations/request-failed).",
+      "Installations: Create Installation request failed with error \"400 INVALID_ARGUMENT: API key not valid. Please pass a valid API key.\" (installations/request-failed)."
+    ]
+  }
+]

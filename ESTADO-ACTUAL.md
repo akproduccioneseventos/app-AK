@@ -1,8 +1,11 @@
-# Estado actual - 12/10/2026 (Codex106)
+# Estado actual - 12/10/2026 (Codex107, app sin cambios)
 Rama codex/auditoria-97-ia-contexto-20261011; PR1288 ABIERTA, no fusionar.
 Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e.
 Harness6c3d6971 cambia SOLO E2E/registro; app identica a la compilada.
 Base contrastada48829bfd, main99faf4eb; una sola propuesta.
+107 contrastadoHEAD08478e71/main99faf4eb; Google igual a main, tanda Claude desconocida.
+107 PC/movil: cuenta needs_reconnect verde/Conectada y empleado error contado: P2orden153.
+107 corte dashboard/Reintentar REAL pasa ambos; fixture retirado, servidor propio detenido.
 Dueno autoriza correccion directa y QA aislado. No datos reales ni cuentas pagas.
 ## Comprobado en106
 - Ayuda3D fuera del lienzo; Recorrer/Pausar controlan camara real, no sólo icono.
@@ -30,4 +33,4 @@ Dueno autoriza correccion directa y QA aislado. No datos reales ni cuentas pagas
 -No prueba de cada boton/variante ni certificado0errores de toda la app.
 -Notificaciones ajenas del checkout principal intactas:no subir ni revertir.
 -Servidor QA propio detenido; ninguna fusion automatica.
--Claude disponible:orden152 en docs/ordenes; guardar/triageGHSA pendientes, no iniciados.
+-Claude trabaja152 segun usuario; NO repetir. Orden153 nueva:estado Google, sin corregir.
