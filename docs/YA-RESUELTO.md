@@ -12,6 +12,19 @@
   Se conserva el fallo y la prueba no se afloja. Rueda sólo se indica en PC.
 - Dos parches compatibles lock-only: busboy3.2.2 y source-map-js1.2.2.
   3 pruebas fallan con bibliotecas anteriores; retest nuevo aún pendiente.
+- Retest b720: 4138 pruebas y 8 de navegador pasan, pero la inspección visual
+  descubre otro defecto: se anuncian12 mesas y se muestra un salón vacío.
+  La pantalla mandaba elements/primaryColor; SalonScene consume salonElements/
+  colorPalette. Se usan ahora los campos reales y un Pick estricto para evitar
+  repetir el desenganche. El título tenía contraste1.001:1; queda blanco localmente.
+  Los colores se mantienen circulares44px sin compresión y señalan selección.
+  Se rectifica cualquier interpretación de "salón vacío esperado": era un fallo.
+  El canvas no vacío y la cámara girando NO comprueban el mobiliario anunciado.
+- Prueba del consumidor real: viejo falla por salonElements undefined; corregido
+  entrega12 mesas/pista/DJ/barra, LEDazul y13 mesas al aumentar invitados.
+  Catálogo/renderer/precios se aíslan sólo en esta prueba; la escena se comprueba
+  aparte con WebGL real. Un mock inicial vacío y el aforo10 mal esperado se
+  corrigen en el harness, NO son errores nuevos de la app.4 focalizadas pasan.
 - NO aprobado todavía. Evidencia106 separada, se conserva105 para su SHA.
 
 ## 11/10/2026 - Codex105: 3D, QR y calendarios probados; NO cierre global

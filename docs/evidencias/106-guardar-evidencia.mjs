@@ -18,7 +18,7 @@ for (const name of ['types', 'acentos', 'unit', 'jest', 'build']) {
 }
 const bytes = fs.readFileSync(path.join(root, '106-jest.json'));
 const jest = JSON.parse(bytes);
-if (!jest.success || jest.numPassedTests !== 4138 || jest.numFailedTests !== 0 || jest.numPendingTests !== 0) throw new Error('Full Jest incomplete');
+if (!jest.success || jest.numPassedTests !== 4139 || jest.numFailedTests !== 0 || jest.numPendingTests !== 0) throw new Error('Full Jest incomplete');
 const archive = gzipSync(bytes);
 fs.writeFileSync(path.join(root, '106-jest.json.gz'), archive);
 const jestSummary = { sourceSha, suites: jest.numTotalTestSuites, tests: jest.numTotalTests, passed: jest.numPassedTests,
@@ -50,7 +50,7 @@ for (const name of ['3d-baseline', '3d']) {
     }
   }
   visit(raw.suites);
-  if (name === '3d' && (execution.applicationSourceSha !== sourceSha || execution.exitCode !== 0 || raw.stats.expected !== 8 || raw.stats.unexpected !== 0 || raw.stats.skipped !== 0 || raw.stats.flaky !== 0)) throw new Error('Browser incomplete');
+  if (name === '3d' && (execution.applicationSourceSha !== sourceSha || execution.exitCode !== 0 || raw.stats.expected !== 12 || raw.stats.unexpected !== 0 || raw.stats.skipped !== 0 || raw.stats.flaky !== 0)) throw new Error('Browser incomplete');
   browser[name] = { sourceSha: execution.applicationSourceSha, harnessSha: execution.sha, stats: raw.stats, results };
   fs.writeFileSync(path.join(root, `106-${name}-resumen.json`), JSON.stringify(browser[name], null, 2));
 }

@@ -395,14 +395,12 @@ export default function ConfiguradorReunionPage() {
     }
 
     return {
-      elements,
-      primaryColor: salonColor,
-      secondaryColor: '#ffffff',
-      ambience: 'glam',
+      salonElements: elements,
+      colorPalette: { primary: salonColor, secondary: '#ffffff', accent: '#a8c8ff' },
       pixelsPerMeter: 40,
       salonWidth: 16,
       salonHeight: 14,
-    };
+    } satisfies Pick<DecoracionData, 'salonElements' | 'colorPalette' | 'pixelsPerMeter' | 'salonWidth' | 'salonHeight'>;
   }, [salonColor, tableCount]);
 
   // Cálculo de Precios Unificado con calculateSimulatorPricing
@@ -616,9 +614,9 @@ export default function ConfiguradorReunionPage() {
           </div>
 
           <Card className="border-slate-200 shadow-lg overflow-hidden">
-            <CardHeader className="bg-slate-950 text-white p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <CardHeader className="bg-slate-950 text-white p-4 flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-3">
               <div>
-                <CardTitle className="text-base font-black flex items-center gap-2">
+                <CardTitle className="text-base font-black text-white flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-400" />
                   Salón Interactivo 3D
                 </CardTitle>
@@ -661,7 +659,7 @@ export default function ConfiguradorReunionPage() {
               </div>
 
               {/* Selector de color LED */}
-              <div className="flex items-center gap-2 pt-1 sm:pt-0">
+              <div className="flex shrink-0 items-center gap-2 pt-1 sm:pt-0">
                 <span className="text-xs text-slate-400 font-semibold">LED:</span>
                 {[
                   { name: 'Dorado', hex: '#d97706' },
@@ -674,12 +672,13 @@ export default function ConfiguradorReunionPage() {
                     key={col.hex}
                     type="button"
                     onClick={() => setSalonColor(col.hex)}
-                    className={`h-5 w-5 rounded-full border-2 transition-transform ${
-                      salonColor === col.hex ? 'scale-125 border-white shadow-md' : 'border-transparent opacity-70'
+                    className={`h-11 w-11 shrink-0 rounded-full border-2 transition-colors ${
+                      salonColor === col.hex ? 'border-white shadow-md' : 'border-transparent opacity-70'
                     }`}
                     style={{ backgroundColor: col.hex }}
                     title={col.name}
                     aria-label={`Color ${col.name}`}
+                    aria-pressed={salonColor === col.hex}
                   />
                 ))}
               </div>

@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 
 const root = path.resolve('docs/evidencias');
 const name = process.argv[2] || '104-jest';
-if (!/^(104-jest|105-jest(?:-(?:inicial|pre-seguridad|pre-calendario))?|106-jest(?:-pre-pausa)?)$/.test(name)) throw new Error('Own Jest evidence only');
+if (!/^(104-jest|105-jest(?:-(?:inicial|pre-seguridad|pre-calendario))?|106-jest(?:-pre-(?:pausa|layout))?)$/.test(name)) throw new Error('Own Jest evidence only');
 const sha = /^10[56]-/.test(name) ? process.argv[3] : 'a6d2086109e0e1a113307fde23674471f62bc377';
 if (!/^[a-f0-9]{40}$/.test(sha ?? '')) throw new Error('Exact source SHA required');
 execFileSync('git', ['cat-file', '-e', `${sha}^{commit}`], { stdio: 'pipe' });

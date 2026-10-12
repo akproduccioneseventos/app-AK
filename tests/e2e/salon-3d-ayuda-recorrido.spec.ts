@@ -77,3 +77,53 @@ test('Recorrer mueve la escena sin arrastrar y se puede pausar', async ({ page }
   expect(paused).toBeLessThan(rotating / 10);
   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');
 });
+
+test('titulo legible y colores LED circulares sin controles comprimidos', async ({ page }, info) => {
+  const title = page.getByText('Salón Interactivo 3D', { exact: true });
+  const colors = await title.evaluate(node => {
+    const foreground = getComputedStyle(node).color;
+    const background = getComputedStyle(node.parentElement!.parentElement!).backgroundColor;
+    const luminance = (color: string) => {
+      const channels = color.match(/[\d.]+/g)!.slice(0, 3).map(Number).map(v => {
+        const c = v / 255;
+        return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      });
+      return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+    };
+    const a = luminance(foreground), b = luminance(background);
+    return { foreground, background, contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) };
+  });
+  expect(colors.contrast).toBeGreaterThanOrEqual(4.5);
+  for (const name of ['Dorado', 'Fucsia', 'Azul', 'Violeta', 'Esmeralda']) {
+    const swatch = page.getByRole('button', { name: `Color ${name}`, exact: true });
+    const box = await swatch.boundingBox();
+    if (!box) throw new Error('Color sin medidas');
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect(Math.abs(box.width - box.height)).toBeLessThan(1);
+  }
+  await info.attach('titulo-colores.json', { body: JSON.stringify(colors), contentType: 'application/json' });
+  await info.attach('salon-con-mesas.png', { body: await page.screenshot(), contentType: 'image/png' });
+});
+
+test('LED y cantidad de invitados cambian la escena real', async ({ page }, info) => {
+  await expect(page.getByText('12 Mesas distribuidas · 120 Invitados', { exact: true })).toBeVisible();
+  const before = await imagen(page);
+  const blue = page.getByRole('button', { name: 'Color Azul', exact: true });
+  await blue.click();
+  await page.locator('canvas').first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1500);
+  const colored = await imagen(page);
+  const ledChanged = cambio(before, colored);
+  expect(ledChanged, 'El LED seleccionado cambia el lienzo, no solo el boton').toBeGreaterThan(0.02);
+  await expect(blue).toHaveAttribute('aria-pressed', 'true');
+  const adults = page.getByText('Adultos', { exact: true }).locator('..');
+  await adults.getByRole('button', { name: '+', exact: true }).click();
+  await expect(page.getByText('13 Mesas distribuidas · 125 Invitados', { exact: true })).toBeVisible();
+  await page.locator('canvas').first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1500);
+  const layoutChanged = cambio(colored, await imagen(page));
+  expect(layoutChanged, 'Cambiar invitados cambia las mesas dibujadas').toBeGreaterThan(0.02);
+  await info.attach('layout-led.json', { body: JSON.stringify({ ledChanged, layoutChanged }), contentType: 'application/json' });
+  await info.attach('salon-azul-13-mesas.png', { body: await page.screenshot(), contentType: 'image/png' });
+});

@@ -50,7 +50,7 @@ if (mode.startsWith('start')) {
   launch(['node_modules/@playwright/test/cli', 'test', '--config', 'playwright.106.config.ts', ...process.argv.slice(3)], { NODE_ENV: 'test' });
 } else if (mode === 'types') launch(['node_modules/typescript/bin/tsc', '--noEmit', '--pretty', 'false']);
 else if (mode === 'acentos') launch(['scripts/check-acentos.mjs']);
-else if (mode === 'jest' || mode === 'unit') launch(['node_modules/jest/bin/jest', '--runInBand', '--silent', '--json', `--outputFile=${path.join(evidence, `106-${mode}.json`)}`, ...(mode === 'unit' ? ['--runTestsByPath', 'src/__tests__/dependencias-multipart-mapas-regresion.test.ts'] : [])], { NODE_ENV: 'test' }, clean);
+else if (mode === 'jest' || mode === 'unit') launch(['node_modules/jest/bin/jest', '--runInBand', '--silent', '--json', `--outputFile=${path.join(evidence, `106-${mode}.json`)}`, ...(mode === 'unit' ? ['--runTestsByPath', 'src/__tests__/dependencias-multipart-mapas-regresion.test.ts', 'src/__tests__/configurador-reunion-layout-real.test.tsx'] : [])], { NODE_ENV: 'test' }, clean);
 else if (mode === 'build') {
   const sw = spawnSync(process.execPath, ['scripts/generate-firebase-messaging-sw.mjs'], { cwd, env, encoding: 'utf8' });
   for (const output of [sw.stdout, sw.stderr]) if (output) { log.write(output); process.stdout.write(output); }
