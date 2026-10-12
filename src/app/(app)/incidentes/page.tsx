@@ -219,6 +219,14 @@ function IncidentesContent() {
       }));
       if (result.success) {
         toast({ title: 'Incidente creado', description: 'El incidente fue registrado correctamente.' });
+        setForm(prev => ({
+          ...prev,
+          titulo: '',
+          descripcion: '',
+          planAccion: '',
+          seguimiento: '',
+          fiestaId: fiestaId ?? '',
+        }));
         setNuevaDialogOpen(false);
         load();
       } else {

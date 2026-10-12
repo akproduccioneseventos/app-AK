@@ -2,7 +2,7 @@
 'use server';
 
 import type { ServicioEmpresa } from '@/types/empresa';
-import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
+import { createDataItem, deleteDataItem, readData, mutateDataItem } from '@/lib/data-service';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
@@ -85,13 +85,29 @@ export async function saveActivoFijo(
   }
 
   if ('id' in itemData && itemData.id) {
-    const updated = await updateDataItem(
+    const updated = await mutateDataItem<ServicioEmpresa>(
       ACTIVOS_FIJOS_FILE,
       ACTIVOS_FIJOS_COLLECTION,
       itemId,
-      finalItemData,
+      (actual) => {
+        const mantenimiento = dataWithParsedNumbers.mantenimiento;
+        const historial = actual.mantenimiento?.historial;
+        const fechas = [mantenimiento?.ultimoAt, ...(historial || []).map(h => h.fecha)].filter(Boolean) as string[];
+        return {
+          ...actual,
+          ...dataWithParsedNumbers,
+          // El formulario no es el autor del historial: puede haberse abierto antes de otro servicio.
+          mantenimiento: mantenimiento || actual.mantenimiento ? {
+            ...actual.mantenimiento,
+            ...mantenimiento,
+            historial,
+            ultimoAt: fechas.sort().at(-1) || actual.mantenimiento?.ultimoAt,
+          } : undefined,
+        } as ServicioEmpresa;
+      },
     );
     if (!updated) return { success: false, error: `Activo con ID ${itemId} no encontrado.` };
+    finalItemData = updated;
   } else {
     await createDataItem(ACTIVOS_FIJOS_FILE, ACTIVOS_FIJOS_COLLECTION, itemId, finalItemData);
   }
@@ -134,18 +150,17 @@ export async function deleteActivoFijo(id: string): Promise<{ success: boolean; 
 export async function registrarMantenimientoDeEquipo(
   equipoId: string,
   datos: { fecha: string; nota: string; costo?: number; registroId?: string }
-): Promise<{ success: boolean; error?: string; gastoPendiente?: boolean; registroId?: string; servicio?: ServicioEmpresa }> {
-  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
-  const activo = await getActivoFijoById(equipoId);
-  if (!activo) return { success: false, error: `Activo con ID ${equipoId} no encontrado.` };
-
+): Promise<{ success: boolean; error?: string; sinCambios?: boolean; gastoPendiente?: boolean; registroId?: string; servicio?: ServicioEmpresa }> {
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   const registroId = datos.registroId || `mant_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  if (!/^[a-zA-Z0-9_-]{1,120}$/.test(registroId) || !datos.nota?.trim()
+      || !/^\d{4}-\d{2}-\d{2}$/.test(datos.fecha) || !Number.isFinite(Date.parse(datos.fecha))
+      || new Date(datos.fecha).toISOString().slice(0, 10) !== datos.fecha
+      || (datos.costo !== undefined && (!Number.isFinite(datos.costo) || datos.costo < 0))) {
+    return { success: false, sinCambios: true, error: 'Revisá la fecha, el detalle y el costo del mantenimiento.' };
+  }
   const costoNum = typeof datos.costo === 'number' && datos.costo > 0 ? datos.costo : undefined;
   const tieneCosto = costoNum !== undefined && costoNum > 0;
-
-  const historialPrevio = Array.isArray(activo.mantenimiento?.historial) ? [...activo.mantenimiento!.historial] : [];
-  const idxExistente = historialPrevio.findIndex(h => h.id === registroId);
-
   const registroMantenimiento = {
     id: registroId,
     fecha: datos.fecha,
@@ -154,33 +169,39 @@ export async function registrarMantenimientoDeEquipo(
     gastoPendiente: tieneCosto,
   };
 
-  if (idxExistente >= 0) {
-    historialPrevio[idxExistente] = { ...historialPrevio[idxExistente], ...registroMantenimiento };
-  } else {
-    historialPrevio.unshift(registroMantenimiento);
-  }
-
-  const activoConMantenimiento: ServicioEmpresa = {
-    ...activo,
-    mantenimiento: {
-      ...activo.mantenimiento,
-      ultimoAt: datos.fecha,
-      historial: historialPrevio,
+  const activoConMantenimiento = await mutateDataItem<ServicioEmpresa>(
+    ACTIVOS_FIJOS_FILE, ACTIVOS_FIJOS_COLLECTION, equipoId, actual => {
+      const historial = actual.mantenimiento?.historial || [];
+      const existente = historial.find(h => h.id === registroId);
+      if (existente) {
+        if (existente.fecha !== datos.fecha || existente.nota !== registroMantenimiento.nota
+            || (existente.costo || undefined) !== costoNum) {
+          throw new Error('Ese mantenimiento ya fue registrado con otros datos. Reintentá con los datos originales.');
+        }
+        return actual;
+      }
+      return {
+        ...actual,
+        mantenimiento: {
+          ...actual.mantenimiento,
+          ultimoAt: [actual.mantenimiento?.ultimoAt || '', datos.fecha].sort().at(-1),
+          historial: [registroMantenimiento, ...historial],
+        },
+      };
     },
-  };
-
-  const resSaveActivo = await saveActivoFijo(activoConMantenimiento);
-  if (!resSaveActivo.success) {
-    return { success: false, error: resSaveActivo.error || 'No se pudo guardar el mantenimiento del equipo.' };
+  );
+  if (!activoConMantenimiento) return { success: false, sinCambios: true, error: `Activo con ID ${equipoId} no encontrado.` };
+  const registro = activoConMantenimiento.mantenimiento?.historial?.find(h => h.id === registroId);
+  if (!tieneCosto || registro?.gastoPendiente === false) {
+    return { success: true, registroId, servicio: activoConMantenimiento };
   }
-
   if (tieneCosto) {
     const { saveGastoGeneral } = await import('./gastos');
     let gastoExitoso = false;
     let motivoDelGasto: string | undefined;
     try {
       const resGasto = await saveGastoGeneral({
-        concepto: `Mantenimiento: ${activo.nombre || 'Equipo'} - ${datos.nota.trim()}`,
+        concepto: `Mantenimiento: ${activoConMantenimiento.nombre || 'Equipo'} - ${datos.nota.trim()}`,
         fecha: datos.fecha,
         categoria: 'Reparaciones y Mantenimiento',
         monto: costoNum,
@@ -198,26 +219,27 @@ export async function registrarMantenimientoDeEquipo(
         success: false,
         gastoPendiente: true,
         registroId,
+        servicio: activoConMantenimiento,
         error: motivoDelGasto
           ? `Se anotó el mantenimiento pero no el gasto: ${motivoDelGasto}`
           : 'Se anotó el mantenimiento pero no el gasto: tocá Reintentar',
       };
     }
 
-    const histFinal = historialPrevio.map(h => h.id === registroId ? { ...h, gastoPendiente: false } : h);
-    const activoFinal: ServicioEmpresa = {
-      ...activoConMantenimiento,
-      mantenimiento: {
-        ...activoConMantenimiento.mantenimiento,
-        historial: histFinal,
-      },
-    };
-    const resGuardado = await saveActivoFijo(activoFinal);
-    if (!resGuardado.success) {
+    const activoFinal = await mutateDataItem<ServicioEmpresa>(
+      ACTIVOS_FIJOS_FILE, ACTIVOS_FIJOS_COLLECTION, equipoId, actual => ({
+        ...actual,
+        mantenimiento: {
+          ...actual.mantenimiento,
+          historial: (actual.mantenimiento?.historial || []).map(h => h.id === registroId ? { ...h, gastoPendiente: false } : h),
+        },
+      }),
+    );
+    if (!activoFinal) {
       return {
         success: false,
         registroId,
-        error: resGuardado.error || 'No se pudo guardar el activo con el mantenimiento',
+        error: 'No se pudo guardar el activo con el mantenimiento',
       };
     }
     return { success: true, registroId, servicio: activoFinal };

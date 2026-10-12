@@ -12,7 +12,7 @@ describe('company data atomic writes', () => {
     const source = read(relativePath);
 
     expect(source).toContain('createDataItem');
-    expect(source).toContain('updateDataItem');
+    expect(source).toMatch(/updateDataItem|mutateDataItem/);
     expect(source).toContain('deleteDataItem');
     expect(source).not.toMatch(/\bwriteData\s*\(/);
   });

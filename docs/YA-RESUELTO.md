@@ -12920,6 +12920,17 @@ tarjetas. No convertirlos en fallos de app ni repetir unidades66 como ausentes.
 FixtureSDK privado, JSON restaurado, cero documentos finales, servicios3301/8085
 propios detenidos. Build/Jest106 reutilizado por fuente intacta; Claude corrige
 ycompila160. Sin datos reales ni merge; no0errores. Orden159 no repetida113.
+
+## Codex114 - 12/10/2026 - autorizacion para corregir directamente
+El dueno autorizo Codex a programar con agentes economicos. Implementadas159/160:
+identidad de reintento, mantenimiento transaccional sin perder otro operador,
+gasto idempotente, recetas conservan gramos/ml, ajuste y recibo juntos en Firestore,
+menus protegidos frente a reintentos lentos. Implementadas157/158: nuevo incidente
+limpia textos solo tras exito; titulos inventario adaptables en celular.
+Luna6low UI/tests; director dinero/transacciones. Seis suites34tests focalizadas PASS
+en arbol de trabajo; no equivalen a SHA/build/navegador aceptados. Resultado final
+y limites en docs/evidencias/114-correcciones.md. NO tanda privada Claude contrastada.
+No merge ni datos reales ni0errores.
 Dueno pide continuidad al dormir: heartbeat del chat cada30min activo,
 continuar-auditoria-ak-sin-repetir. Lee este registro y contrasta SHA; una tarea
 acotada por corrida, se detiene ante limites imprescindibles sin gastar en bucle.

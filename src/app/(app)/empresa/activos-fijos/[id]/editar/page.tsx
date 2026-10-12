@@ -56,6 +56,11 @@ export default function EditarActivoFijoPage() {
   const [mantenimientoFecha, setMantenimientoFecha] = useState(() => new Date().toISOString().split('T')[0]);
   const [mantenimientoNota, setMantenimientoNota] = useState('');
   const [mantenimientoCosto, setMantenimientoCosto] = useState<number | ''>('');
+  const mantenimientoEnCursoRef = useRef(false);
+  const [mantenimientoEnCurso, setMantenimientoEnCurso] = useState(false);
+  const [reintentoMantenimientoEnCurso, setReintentoMantenimientoEnCurso] = useState<string | null>(null);
+  const operacionMantenimientoInciertaRef = useRef<{ registroId: string; fecha: string; nota: string; costo?: number } | null>(null);
+  const mantenimientoRestauradoRef = useRef<string | null>(null);
 
   const itemIdFromParams = params.id;
 
@@ -89,6 +94,33 @@ export default function EditarActivoFijoPage() {
       loadItem();
     }
   }, [itemIdFromParams, loadItem]);
+
+  useEffect(() => {
+    if (!item?.id || mantenimientoRestauradoRef.current === item.id) return;
+    const key = `ak:mantenimiento-pendiente:${item.id}`;
+    try {
+      const raw = window.sessionStorage.getItem(key);
+      mantenimientoRestauradoRef.current = item.id;
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (typeof saved?.registroId !== 'string' || !saved.registroId || typeof saved.fecha !== 'string' || typeof saved.nota !== 'string' || (saved.costo !== undefined && (typeof saved.costo !== 'number' || !Number.isFinite(saved.costo)))) {
+        window.sessionStorage.removeItem(key);
+        return;
+      }
+      operacionMantenimientoInciertaRef.current = saved;
+      setMantenimientoFecha(saved.fecha);
+      setMantenimientoNota(saved.nota);
+      setMantenimientoCosto(saved.costo ?? '');
+    } catch {
+      try {
+        const raw = window.sessionStorage.getItem(key);
+        if (raw) window.sessionStorage.removeItem(key);
+        mantenimientoRestauradoRef.current = item.id;
+      } catch {
+        mantenimientoRestauradoRef.current = null;
+      }
+    }
+  }, [item?.id]);
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
     const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'invitadosPorUnidad'].includes(field as string);
@@ -139,6 +171,7 @@ export default function EditarActivoFijoPage() {
 
   const handleAnotarMantenimiento = async (e: React.FormEvent, registroIdReintento?: string) => {
     e.preventDefault();
+    if (mantenimientoEnCursoRef.current) return;
     if (!item?.id) return;
 
     let nota = mantenimientoNota.trim();
@@ -157,14 +190,37 @@ export default function EditarActivoFijoPage() {
         toast({ title: 'Nota requerida', description: 'Por favor ingresá el detalle del mantenimiento.', variant: 'destructive' });
         return;
       }
+      const incierta = operacionMantenimientoInciertaRef.current;
+      if (incierta && (incierta.fecha !== fecha || incierta.nota !== nota || incierta.costo !== costoNum)) {
+        toast({ title: 'Mantenimiento anterior sin confirmar', description: 'Reintentá primero el mismo mantenimiento; no se enviará uno nuevo hasta confirmar el anterior.', variant: 'destructive' });
+        return;
+      }
     }
 
+    mantenimientoEnCursoRef.current = true;
+    setMantenimientoEnCurso(true);
+    setReintentoMantenimientoEnCurso(registroIdReintento ?? null);
+    let registroId = registroIdReintento;
+    let identidadNueva = false;
     try {
+      if (!registroIdReintento) {
+        const incierta = operacionMantenimientoInciertaRef.current;
+        registroId = incierta?.registroId ?? crypto.randomUUID();
+        const identidad = { registroId, fecha, nota, costo: costoNum };
+        try {
+          window.sessionStorage.setItem(`ak:mantenimiento-pendiente:${item.id}`, JSON.stringify(identidad));
+        } catch {
+          toast({ title: 'No se pudo guardar el reintento', description: 'El almacenamiento de esta pestaña no está disponible. No se envió el mantenimiento; habilitalo e intentá de nuevo.', variant: 'destructive' });
+          return;
+        }
+        operacionMantenimientoInciertaRef.current = identidad;
+        identidadNueva = true;
+      }
       const res = await registrarMantenimientoDeEquipo(item.id, {
         fecha,
         nota,
         costo: costoNum,
-        registroId: registroIdReintento,
+        registroId,
       });
 
       if (res.servicio) {
@@ -173,6 +229,10 @@ export default function EditarActivoFijoPage() {
       }
 
       if (res.success) {
+        if (!registroIdReintento || operacionMantenimientoInciertaRef.current?.registroId === registroIdReintento) {
+          operacionMantenimientoInciertaRef.current = null;
+          try { window.sessionStorage.removeItem(`ak:mantenimiento-pendiente:${item.id}`); } catch { /* Storage unavailable. */ }
+        }
         if (!registroIdReintento) {
           setMantenimientoNota('');
           setMantenimientoCosto('');
@@ -186,6 +246,10 @@ export default function EditarActivoFijoPage() {
           variant: 'destructive',
         });
       } else {
+        if (res.sinCambios === true && (identidadNueva || operacionMantenimientoInciertaRef.current?.registroId === registroId)) {
+          if (operacionMantenimientoInciertaRef.current?.registroId === registroId) operacionMantenimientoInciertaRef.current = null;
+          try { window.sessionStorage.removeItem(`ak:mantenimiento-pendiente:${item.id}`); } catch { /* Storage unavailable. */ }
+        }
         toast({
           title: 'Error',
           description: res.error || 'No se pudo registrar el mantenimiento.',
@@ -198,6 +262,10 @@ export default function EditarActivoFijoPage() {
         description: err.message || 'Ocurrió un error inesperado.',
         variant: 'destructive',
       });
+    } finally {
+      mantenimientoEnCursoRef.current = false;
+      setMantenimientoEnCurso(false);
+      setReintentoMantenimientoEnCurso(null);
     }
   };
 
@@ -263,14 +331,14 @@ export default function EditarActivoFijoPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
             <Edit3 className="w-8 h-8 text-primary"/>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
+          <h1 className="min-w-0 break-words text-3xl font-bold tracking-tight font-headline">
             Editando: <span className="text-primary">{item?.nombre}</span>
           </h1>
         </div>
-        <Button asChild variant="outline" disabled={isSaving}><Link href={backUrl}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
+        <Button asChild variant="outline" className="shrink-0" disabled={isSaving}><Link href={backUrl}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
 
       <Card className="shadow-lg">
@@ -424,8 +492,9 @@ export default function EditarActivoFijoPage() {
                       <Button type="button" variant="outline" onClick={() => setDialogMantenimientoAbierto(false)}>
                         Cancelar
                       </Button>
-                      <Button type="button" onClick={handleAnotarMantenimiento}>
-                        Anotar mantenimiento
+                      <Button type="button" onClick={(e) => handleAnotarMantenimiento(e)} disabled={mantenimientoEnCurso}>
+                        {mantenimientoEnCurso && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        {mantenimientoEnCurso ? 'Registrando...' : 'Anotar mantenimiento'}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -500,8 +569,10 @@ export default function EditarActivoFijoPage() {
                               variant="outline"
                               className="h-6 text-xs px-2 text-amber-800 border-amber-300 hover:bg-amber-50"
                               onClick={(e) => handleAnotarMantenimiento(e, reg.id)}
+                              disabled={mantenimientoEnCurso}
                             >
-                              Reintentar
+                              {reintentoMantenimientoEnCurso === reg.id && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                              {reintentoMantenimientoEnCurso === reg.id ? 'Reintentando...' : 'Reintentar'}
                             </Button>
                           )}
                         </div>
