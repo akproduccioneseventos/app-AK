@@ -71,3 +71,14 @@ Esta PR queda ABIERTA para revision y fusion del dueno.
 - Sonda/capturas/JSON en107, datos ficticios restaurados. No emails ni OAuth reales.
 - Misma fuente8fa, no cambios de app/dependencias ni repeticion de build/Jest.
   Este hallazgo queda pendiente: una entrega documentada NO lo corrige.
+
+## Continuacion108: Conexiones, redes y acceso
+
+- Tres P2 PC/Pixel7: Conexiones sin aviso al fallar lectura/refresco; redes queda
+  como vacia al cerrar el toast de error; Instagram en curso sin intento registrado.
+- Ocho recorridos sin sesion/vencida vuelven a login y seis controles RPC no entregan
+  datos privados a sesiones vencidas/anonimas; positivos verifican lectura real.
+- Orden154 para Claude, NO contrastada con su tanda privada. No repetir152/153.
+- Evidencias108 conservan fallos del harness, capturas y datos ficticios restaurados.
+  Fuente app8fa intacta; sin build/Jest nuevo, cuentas externas ni fusion automatica.
+- Pendientes de correccion; estos controles NO certifican toda la app sin errores.

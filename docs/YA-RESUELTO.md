@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12/10/2026 - Codex108: Conexiones, redes y acceso; tres P2 pendientes
+
+- Fuente8fa, PR1288HEAD3804674f, main99faf4eb. Consumidores contrastados con main;
+  entrega privada de Claude desconocida: orden154 exige comparar antes de programar.
+- PC/Pixel7: Conexiones convierte primer fallo de lectura en0plataformas sin aviso;
+  al fallar refresco conserva14 sin advertencia. Redes guarda error sin renderizarlo:
+  tras cerrar toast queda lista vacia falsa sin reintento. Instagram dice en curso
+  sin cuenta, archivo de historial ni intento. Tres P2 reproducidos, NO corregidos.
+- Ocho recorridos anonimos/sesion vencida vuelven a login. Seis controles RPC:
+  sesion valida lee14conexiones y post privado ficticio; vencida/anonima no entregan
+  datos privados. Expirada: conexiones500/Sesion no autorizada; redes200[];
+  anonima307/login. NO cambiar permisos por estos errores de presentacion.
+- Primeras sondas de menu y RPC/redireccion no fueron aprobaciones ni fallos de app;
+  se conservan raw y correccion del harness. Toast cerrado con control real.
+- Fixtures restaurados; sin publicaciones, mails ni cuentas externas. El servidor
+  puede consultar oEmbed publico de YouTube: no certificado de integracion externa.
+- docs/evidencias/108-resultado.json registra criterios y hashes; no build/Jest nuevo
+  ni codigo productivo cambiado.152/153 siguen pendientes hasta evidencia de correccion.
+
 ## 12/10/2026 - Codex107: Google, reintento pasa; estado pendiente
 
 - App8fa/PR1288HEAD08478, main99faf4eb: dos archivos Google iguales a main.

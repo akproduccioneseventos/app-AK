@@ -1,0 +1,169 @@
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+
+ ✓ Starting...
+ ✓ Ready in 4.9s
+Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.
+Firebase Admin SDK already initialized (1 app(s)).
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+`x-forwarded-host` header with value `localhost:3300` does not match `origin` header with value `127.0.0.1:3300` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '3736877243' }
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+`x-forwarded-host` header with value `localhost:3300` does not match `origin` header with value `127.0.0.1:3300` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '3736877243' }
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+`x-forwarded-host` header with value `localhost:3300` does not match `origin` header with value `127.0.0.1:3300` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '3736877243' }
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+`x-forwarded-host` header with value `localhost:3300` does not match `origin` header with value `127.0.0.1:3300` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '3736877243' }
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+`x-forwarded-host` header with value `localhost:3300` does not match `origin` header with value `127.0.0.1:3300` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '3736877243' }
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+`x-forwarded-host` header with value `localhost:3300` does not match `origin` header with value `127.0.0.1:3300` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '3736877243' }
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+`x-forwarded-host` header with value `localhost:3300` does not match `origin` header with value `127.0.0.1:3300` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '3736877243' }
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+`x-forwarded-host` header with value `localhost:3300` does not match `origin` header with value `127.0.0.1:3300` from a forwarded Server Actions request. Aborting the action.
+ ⨯ [Error: Invalid Server Actions request.] { digest: '3736877243' }
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ ⨯ Error: Sesion no autorizada.
+    at g (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:249:33801)
+    at async u (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\settings\sincronizaciones\page.js:2:30815)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\settings\sincronizaciones\page.js:1:10615)
+    at async o (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\settings\sincronizaciones\page.js:2:1862) {
+  digest: '3036932852'
+}
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ ⨯ Error: Sesion no autorizada.
+    at g (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:249:33801)
+    at async u (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\settings\sincronizaciones\page.js:2:30815)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\settings\sincronizaciones\page.js:1:10615)
+    at async o (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\settings\sincronizaciones\page.js:2:1862) {
+  digest: '3036932852'
+}
