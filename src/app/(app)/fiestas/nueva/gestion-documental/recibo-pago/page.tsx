@@ -237,8 +237,9 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
         throw new Error('Share API not supported');
       }
     } catch {
-      navigator.clipboard.writeText(shareData.url);
-      toast({ title: 'Enlace Copiado', description: 'El enlace fue copiado al portapapeles.' });
+      navigator.clipboard.writeText(shareData.url)
+        .then(() => toast({ title: 'Enlace Copiado', description: 'El enlace fue copiado al portapapeles.' }))
+        .catch(() => toast({ title: 'No se pudo copiar', description: shareData.url, variant: 'destructive' }));
     }
   };
 
