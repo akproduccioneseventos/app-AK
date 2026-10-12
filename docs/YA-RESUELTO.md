@@ -12899,3 +12899,28 @@ Propuesta UX separada: identificar equipo y abrir su ficha desde aviso.
 FixtureGuard restaura bytes, documentos ficticios retirados; procesos3301/8085
 propios cerrados; no tocar datos reales/notificaciones ajenas. Sin build/Jest
 nuevo, programacion productiva ni fusion. Pendientes159, no declarar0errores.
+
+## Codex113 - 12/10/2026 - ajuste global de costos hasta menu consumidor
+
+HEAD0122997c, fuente app8fa; PR1288 ABIERTA, main99fa consumidores iguales.
+NO CONTRASTADO CON LA TANDA PRIVADA CLAUDE.14criterios PC/celular10PASS/4FAIL.
+Dos P1 nuevos paraClaude160: actualizar insumo copia unidad de compra sobre
+unidad de cantidad de receta;250g pasan250kg, costo27.5 pasa27500 persistido.
+Editor real tambien muestra27500. Receta0.25kg, stock2, menu ajeno y precio50
+correctos. Confirmacion200 perdida tras ajustar: reintento PC110->116->122,
+celular134->141->148. Es otro aumento involuntario, no menu pendiente de66.
+
+Cancelacion/error antes del envio conservan datos; consumidores reabiertos
+en insumo y menu mediante enlace real. La matriz113-resultado.json reemplaza
+SOLO dos NOT_ACCEPTED de consumidores con sus dosPASS finales. No sumar rondas.
+Errores propios iniciales conservados: selector/Dialog equivocado, redondeo
+vigente omitido, espera de SPA corta y nombres buscados en inputs en lugar de
+tarjetas. No convertirlos en fallos de app ni repetir unidades66 como ausentes.
+
+FixtureSDK privado, JSON restaurado, cero documentos finales, servicios3301/8085
+propios detenidos. Build/Jest106 reutilizado por fuente intacta; Claude corrige
+ycompila160. Sin datos reales ni merge; no0errores. Orden159 no repetida113.
+Dueno pide continuidad al dormir: heartbeat del chat cada30min activo,
+continuar-auditoria-ak-sin-repetir. Lee este registro y contrasta SHA; una tarea
+acotada por corrida, se detiene ante limites imprescindibles sin gastar en bucle.
+No dependencia de app ni promesa de ejecucion ilimitada; depende de cuota.

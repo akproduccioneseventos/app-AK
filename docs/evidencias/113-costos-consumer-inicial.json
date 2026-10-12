@@ -1,0 +1,64 @@
+{
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false"
+    },
+    {
+      "viewport": "mobile",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false"
+    }
+  ],
+  "cleanup": {
+    "deleted": 7,
+    "documentsRemaining": 0,
+    "restored": [
+      {
+        "file": "src\\data\\insumos.json",
+        "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+        "qaSha256": "a8b0269c61231d25438684bf8214dac1c27dff48aface5335d1dd180539a6d35"
+      },
+      {
+        "file": "src\\data\\menus-catering.json",
+        "beforeSha256": "b2619502addbc82683c56f08e51a5731475713fb04e5c91199b791acdb3db111",
+        "qaSha256": "3f4e4cb8b07448e736b44bde8107cb28fc9c5b1830905436b2f06cba473d28d2"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "1bcf1da739c280b6e356014c1e011ae1b09d2fb26ac4ef4f58b89e8386089894"
+      },
+      {
+        "file": "src\\data\\insumos-ajuste-pendiente.json",
+        "beforeSha256": null,
+        "qaSha256": "378e9d9d5a5dc62b1b9f0423562edea3be3eb7bffc1c9cde8654a67222813625"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "1bcf1da739c280b6e356014c1e011ae1b09d2fb26ac4ef4f58b89e8386089894"
+      },
+      {
+        "file": "data\\insumos-ajuste-pendiente.json",
+        "beforeSha256": null,
+        "qaSha256": "378e9d9d5a5dc62b1b9f0423562edea3be3eb7bffc1c9cde8654a67222813625"
+      },
+      {
+        "file": "data\\insumos.json",
+        "beforeSha256": null,
+        "qaSha256": "a8b0269c61231d25438684bf8214dac1c27dff48aface5335d1dd180539a6d35"
+      },
+      {
+        "file": "data\\menus-catering.json",
+        "beforeSha256": null,
+        "qaSha256": "3f4e4cb8b07448e736b44bde8107cb28fc9c5b1830905436b2f06cba473d28d2"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

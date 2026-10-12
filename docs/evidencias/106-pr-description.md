@@ -138,3 +138,17 @@ Esta PR queda ABIERTA para revision y fusion del dueno.
 -Fuente8fa intacta, mismos consumidores main99fa; NO tanda privada Claude.
 -Fixtures/JSON restaurados, procesos propios detenidos; evidencia112 con hashes.
 -Sin programacion productiva, build repetido, merge ni certificado0errores.
+
+## Continuacion113: ajuste de costos y recetas
+
+-14criterios10PASS/4FAIL: dos P1 nuevos160, paraClaude comida/dinero.
+-250g de receta se convierten250kg al actualizar insumo: costo27.5->27500.
+  SDK y editor real coinciden. Receta kg, stock, menu ajeno y precio50 pasan.
+-HTTP200 perdido: reintento aplica porcentaje otra vez110->116->122 PC;
+ 134->141->148 celular. El arreglo previo66 de menus pendientes SI existe.
+-Dos consumidores inicialmente no aceptados se reemplazan por sus PASS finales;
+  sondas/iniciales conservadas, sin inflar conteo ni atribuir defectos del harness.
+-App8fa sin cambios/main99fa contrastado; NO tanda privada deClaude.
+-Fixturas restauradas, servicios propios cerrados. Continuidad nocturna del
+  chat programada cada30min, segun disponibilidad/cuota; no dependencia productiva.
+-Correcciones159/160 pendientes, PR abierta, no merge ni garantia0errores.
