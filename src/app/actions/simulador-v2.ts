@@ -114,8 +114,10 @@ export async function checkDateAvailability(fechaISO: string): Promise<SimV2Date
     }
 
     return { isOccupied: true, suggestions };
-  } catch {
-    return { isOccupied: false };
+  } catch (error) {
+    // Si no se pudo leer el calendario NO se dice "libre": el prospecto vería disponible una fecha
+    // que puede estar tomada. Se lanza y cada pantalla avisa que AK confirma la fecha (pregunta 50).
+    throw error;
   }
 }
 

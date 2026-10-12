@@ -349,8 +349,11 @@ export async function chatWithBudgetCopilot(
           output.action.type = 'none';
           output.action.changes = undefined;
         }
-      } catch (err) {
-        // Suppress check failure and return original response
+      } catch {
+        // No se pudo leer el calendario: no se dice ni "libre" ni "ocupada".
+        output.response = `No pude revisar el calendario ahora. Podés seguir armando tu presupuesto y AK te confirma la fecha del ${output.action.changes?.eventoFecha} antes de la reserva.`;
+        output.action.type = 'none';
+        output.action.changes = undefined;
       }
     }
 

@@ -165,3 +165,18 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 40. **¿Tu acción guarda algo general (ajustes, plantillas, conexiones, agentes)?** Pedí el permiso
     de quien lo maneja (`requirePermisoAlguno`), no sólo sesión: el personal también tiene sesión.
     La prueba entra como "personal" y comprueba que no se guardó.
+
+41. **¿Abrís algo después de un `await` (micrófono, cámara, conexión)?** Mirá si ya lo cortaron; si
+    llegó tarde, apagalo.
+
+42. **¿Tu lector atrapa el error?** No devuelvas vacío: "no pude leer" se muestra distinto y deja
+    reintentar.
+
+43. **¿Entregás algo que lee otra máquina (QR, archivo)?** Probalo con el lector real y con muchos
+    contenidos distintos, repitiendo la prueba.
+
+44. **¿Tocás un estilo general o algo flotante?** Medí la caja y lo pintado de las pantallas que lo
+    usan, y que no tape un botón (`elementFromPoint`).
+
+45. **¿Subís una biblioteca de versión mayor o excluís un módulo de la compilación?** Una prueba que
+    cuente lo dibujado en cada pantalla que la usa, y la primera llamada de un proceso nuevo.

@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+
+## 12 de octubre de 2026 — Revisión de lo que programó Codex (PR 1288) y el simulador que decía "libre"
+
+- **Revisado el código de Codex** antes de fusionar: cupones (permisos sin cambios; las fechas ahora
+  cuentan el último día entero en hora de Uruguay), la lectura de fiestas que ahora avisa cuando la base
+  falla en vez de mostrar datos viejos, el cambio a React 19, el lector de QR girado (no saltea la
+  validación del servidor) y el muro. Sin defectos graves.
+- **Arreglado:** el simulador público decía "fecha libre" si no podía leer el calendario. Ahora avisa
+  "No pudimos verificar la disponibilidad ahora… AK confirmará la fecha antes de la reserva" (en las dos
+  pantallas del simulador y en el asistente del simulador).
+- **Tres pantallas** tocadas sólo en el tipo de sus íconos por React 19 ganaron una prueba que cuenta
+  los íconos y lee los textos.
+- **Dependencias:** 89 avisos clasificados (`docs/evidencias/152-avisos-dependencias.md`): 76 son de
+  herramientas que no viajan a la web y 13 están en funciones que la app no usa. Ninguno es riesgo real
+  hoy. Los tres parches menores de producción quedaron sin aplicar: el instalador los dejaba mezclados
+  con la versión vieja, y no se sube un cambio de dependencias a ciegas.
+- **Método:** preguntas 49 a 56 en `docs/COMO-AUDITAR.md` y 41 a 45 en `ANTES-DE-ENTREGAR.md`.
+
+```comprobar
+prueba: src/__tests__/el-simulador-no-dice-libre-si-no-pudo-leer.test.ts
+prueba: tests/e2e/pantallas-con-iconos-react19.spec.ts
+archivo: docs/evidencias/152-avisos-dependencias.md
+```
+
 ## 12/10/2026 - Codex106: salón y parches comprobados; NO cierre global
 
 - Base PR1288/48829bfd, main99faf4eb: no se repite la auditoría105 aprobada.
