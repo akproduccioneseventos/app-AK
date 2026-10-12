@@ -40,18 +40,24 @@ test.beforeEach(async ({ page, context, baseURL }) => {
   // La pista sigue animada al pausar; sus pixeles no representan movimiento de camara.
   await page.addInitScript(() => {
     const locations = new WeakSet<WebGLUniformLocation>();
+    const framebuffers = new WeakMap<WebGLRenderingContext | WebGL2RenderingContext, WebGLFramebuffer | null>();
     for (const Constructor of [window.WebGLRenderingContext, window.WebGL2RenderingContext]) {
       if (!Constructor) continue;
       const proto = Constructor.prototype;
       const getLocation = proto.getUniformLocation;
       const sendMatrix = proto.uniformMatrix4fv;
+      const bindFramebuffer = proto.bindFramebuffer;
+      proto.bindFramebuffer = function (target: number, buffer: WebGLFramebuffer | null) {
+        if (target === this.FRAMEBUFFER || target === (this as WebGL2RenderingContext).DRAW_FRAMEBUFFER) framebuffers.set(this, buffer);
+        return bindFramebuffer.call(this, target, buffer);
+      };
       proto.getUniformLocation = function (program, name) {
         const location = getLocation.call(this, program, name);
         if (location && name === 'viewMatrix') locations.add(location);
         return location;
       };
       proto.uniformMatrix4fv = function (location: WebGLUniformLocation | null, transpose: boolean, value: Float32List, ...rest: number[]) {
-        if (location && locations.has(location) && this.getParameter(this.FRAMEBUFFER_BINDING) === null) {
+        if (location && locations.has(location) && (framebuffers.get(this) ?? null) === null) {
           (this.canvas as HTMLCanvasElement & { __akViewMatrix?: number[] }).__akViewMatrix = Array.from(value);
         }
         return Reflect.apply(sendMatrix, this, [location, transpose, value, ...rest]);
