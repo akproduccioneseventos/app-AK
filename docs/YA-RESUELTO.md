@@ -24,7 +24,7 @@
 -Logo original entregado por el dueno copiado byte exacto, sin redibujar:
  public/logo_ak_producciones.png; SHA2567f6249ff1cc7fa347dfd737f975bfd36e58ac4c2f2f57c7e472144e252220166.
 -Minimo Node20.9 por Sharp0.35.5 ya fijado en main; no se actualiza otra libreria.
--Prueba conjunta116 completada; pendiente entrega remota, no0errores globales.
+-Prueba conjunta116 y entrega remota comprobadas; no0errores globales.
 -PR1293 creada y subida, sin fusionar. Fuente1656ac2e; rama
  codex/116-respaldo-logo-main-20261013. No confundir subida con Hosting publicado.
  Archivo historico115 visible en codex/qa-115-fuente-20261013, sin PR para fusionar.
