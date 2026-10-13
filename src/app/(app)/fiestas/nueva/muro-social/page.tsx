@@ -40,6 +40,7 @@ import {
   getMuroParticipantesForSorteo,
 } from '@/app/actions/fiesta/screen-mode.actions';
 import { createPoll, closePoll, getActivePoll } from '@/app/actions/social-interactive';
+import { revelarRespuestaTrivia, terminarTrivia } from '@/app/actions/games.actions';
 import { getInvitados } from '@/app/actions/fiesta/invitados.actions';
 import type { SocialPoll } from '@/types/social-gallery';
 
@@ -226,6 +227,9 @@ function MuroSocialContent() {
   const [gameCustomTitle, setGameCustomTitle] = useState('');
   const [gameCustomSubtitle, setGameCustomSubtitle] = useState('');
   const [gameCustomOptions, setGameCustomOptions] = useState('');
+  // Trivia: número de fila (0, 1, 2…) de la opción correcta; el servidor la guarda y la oculta hasta revelarla.
+  const [gameCorrectIndex, setGameCorrectIndex] = useState<number | null>(null);
+  const [isTriviaAction, setIsTriviaAction] = useState(false);
   const [selectedGameTemplate, setSelectedGameTemplate] = useState<typeof GAME_TEMPLATES[number] | null>(null);
   const refreshIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -518,11 +522,17 @@ function MuroSocialContent() {
         toast({ title: 'Se necesitan al menos 2 opciones', description: 'Agregá las opciones de respuesta antes de lanzar el juego.', variant: 'destructive' });
         return;
       }
+      const correctOptionId = template.type === 'trivia' && gameCorrectIndex !== null ? `opt_${gameCorrectIndex}` : undefined;
+      if (template.type === 'trivia' && !(options || []).some((o) => o.id === correctOptionId)) {
+        toast({ title: 'Marcá la respuesta correcta', description: 'Tocá el círculo de la opción correcta antes de lanzar la trivia.', variant: 'destructive' });
+        return;
+      }
       const game: Omit<ActiveGameData, 'launchedAt'> = {
         type: template.type,
         title,
         ...(subtitle ? { subtitle } : {}),
         ...(options && options.length > 0 ? { options } : {}),
+        ...(correctOptionId ? { correctOptionId } : {}),
       };
       const result = await launchGame(fiestaId, game);
       if (result.success) {
@@ -531,6 +541,7 @@ function MuroSocialContent() {
         setGameCustomTitle('');
         setGameCustomSubtitle('');
         setGameCustomOptions('');
+        setGameCorrectIndex(null);
         await refreshStatus();
       } else {
         toast({ title: 'Error al lanzar juego', description: result.error, variant: 'destructive' });
@@ -539,6 +550,27 @@ function MuroSocialContent() {
       toast({ title: 'Error al lanzar juego', description: e.message || 'Error inesperado', variant: 'destructive' });
     } finally {
       setIsLaunchingGame(false);
+    }
+  };
+
+  const handleTriviaAction = async (accion: 'revelar' | 'terminar') => {
+    if (!fiestaId) return;
+    setIsTriviaAction(true);
+    try {
+      const result = accion === 'revelar' ? await revelarRespuestaTrivia(fiestaId) : await terminarTrivia(fiestaId);
+      if (result.success) {
+        toast({
+          title: accion === 'revelar' ? 'Respuesta mostrada' : 'Trivia terminada',
+          description: accion === 'revelar' ? 'La pregunta cerró y ya no suma puntos.' : 'El podio aparece en la pantalla gigante.',
+        });
+        await refreshStatus();
+      } else {
+        toast({ title: 'No se pudo', description: result.error, variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'No se pudo', description: e.message || 'Error inesperado', variant: 'destructive' });
+    } finally {
+      setIsTriviaAction(false);
     }
   };
 
@@ -2115,6 +2147,20 @@ function MuroSocialContent() {
                     {activeGame.type}
                   </Badge>
                 </div>
+                {activeGame.type === 'trivia' && (
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    {!activeGame.respuestaRevelada && !activeGame.isFinished && (
+                      <Button size="sm" variant="outline" disabled={isTriviaAction} onClick={() => handleTriviaAction('revelar')}>
+                        Mostrar respuesta
+                      </Button>
+                    )}
+                    {!activeGame.isFinished && (
+                      <Button size="sm" disabled={isTriviaAction} onClick={() => handleTriviaAction('terminar')}>
+                        Terminar trivia y mostrar podio
+                      </Button>
+                    )}
+                  </div>
+                )}
                 <Button
                   variant="destructive"
                   size="sm"
@@ -2190,6 +2236,16 @@ function MuroSocialContent() {
                           {rows.map((opt, idx) => (
                             <div key={idx} className="flex gap-2 items-center">
                               <span className="text-xs font-bold text-violet-600 w-5 shrink-0">{idx + 1}.</span>
+                              {selectedGameTemplate.type === 'trivia' && (
+                                <input
+                                  type="radio"
+                                  name="respuesta-correcta"
+                                  aria-label={`La opción ${idx + 1} es la respuesta correcta`}
+                                  checked={gameCorrectIndex === idx}
+                                  onChange={() => setGameCorrectIndex(idx)}
+                                  className="h-4 w-4 shrink-0 accent-emerald-600"
+                                />
+                              )}
                               <Input
                                 value={opt}
                                 onChange={(e) => {
@@ -2219,6 +2275,9 @@ function MuroSocialContent() {
                               )}
                             </div>
                           ))}
+                          {selectedGameTemplate.type === 'trivia' && (
+                            <p className="text-xs text-slate-500">Tocá el círculo de la respuesta correcta. Los invitados no la ven hasta que toques "Mostrar respuesta".</p>
+                          )}
                           {filledCount < 6 && (
                             <button
                               type="button"
@@ -2247,7 +2306,7 @@ function MuroSocialContent() {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => { setSelectedGameTemplate(null); setGameCustomTitle(''); setGameCustomSubtitle(''); setGameCustomOptions(''); }}
+                    onClick={() => { setSelectedGameTemplate(null); setGameCustomTitle(''); setGameCustomSubtitle(''); setGameCustomOptions(''); setGameCorrectIndex(null); }}
                   >
                     <X className="w-4 h-4" />
                   </Button>

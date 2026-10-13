@@ -46,6 +46,8 @@ import { verifyEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { isEntertainmentModuleId } from '@/lib/entertainment/station-config';
 import { resolveSocialUploadAccess } from '@/lib/social-fiesta/upload-access';
 import { verifyPortalSession } from '@/lib/security/portal-session';
+import { sumarMisionDeFoto } from '@/lib/games/misiones-fotos';
+import { idDeMisionDelTag } from '@/lib/games/juegos-en-vivo';
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 
 // Firestore collection names
@@ -324,6 +326,7 @@ export async function uploadSocialPost(
   const stationAccessToken = (formData.get('accessToken') as string) || undefined;
   const guestId = (formData.get('guestId') as string) || '';
   const guestAccessToken = (formData.get('guestAccessToken') as string) || '';
+  const dispositivoId = (formData.get('dispositivoId') as string) || undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos (ID de fiesta o archivo).' };
 
@@ -504,6 +507,16 @@ export async function uploadSocialPost(
     // Single-document write — zero write conflict even with 200 simultaneous uploads,
     // because every caller writes to its own unique postId document.
     await db.collection(GALLERY_COLLECTION).doc(postId).set(newPost);
+
+    // Misión de fotos: la foto ya quedó guardada (aprobada o esperando aprobación). Se suman los
+    // puntos una vez por jugador y misión; si esto falla, la foto no se pierde.
+    if (idDeMisionDelTag(momentTag)) {
+      try {
+        await sumarMisionDeFoto(fiestaId, momentTag, { guestId, guestAccessToken, dispositivoId, nombre: authorName });
+      } catch (misionError) {
+        logger.warn('[social-gallery] no se pudieron sumar los puntos de la misión:', misionError);
+      }
+    }
 
     return { success: true, post: newPost };
   } catch (error: any) {

@@ -58,6 +58,10 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
  * nadie logueado**. Marcar todo el archivo taparía las otras.
  */
 const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
+  'games.actions.ts:getMiProgresoDeJuegos':
+    'la llama el celular del invitado para ver SU puntaje de trivia y SUS misiones cumplidas. ' +
+    'Reconoce al jugador con `resolverJugador` (enlace personal comprobado o id de teléfono) y ' +
+    'sólo devuelve lo propio: sin jugador reconocido devuelve ceros.',
   'settings.ts:getAjustesLlegadaPersonal':
     'la consulta el personal desde su enlace de acceso para saber si la llegada requiere ubicación y a qué distancia.',
   'auth.ts:initializeAdminIfNeeded':

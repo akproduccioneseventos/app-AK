@@ -1,30 +1,34 @@
 'use client';
 
-import React, { useState } from 'react';
-import { PhotoMission, DEFAULT_PHOTO_MISSIONS, getSecretMissionForGuest } from '@/lib/games/game-engine';
+import React from 'react';
+import { PhotoMission, getSecretMissionForGuest } from '@/lib/games/game-engine';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Lock } from 'lucide-react';
 
 interface Props {
-  fiestaId: string;
   guestName: string;
+  /** Las misiones de la fiesta (o las de por defecto): las decide la social page, no esta pantalla. */
+  misiones: PhotoMission[];
+  /** Ids de las misiones que el servidor ya anotó como cumplidas para este jugador. */
+  cumplidas: string[];
+  /** Puntos que el servidor le tiene anotados por misiones. */
+  puntos: number;
+  /** Si puede subir fotos (enlace personal o teléfono reconocido) y las cargas están abiertas. */
+  puedeSubir: boolean;
+  /** Abre la MISMA subida de fotos del muro, marcada con `mision:<id>`. */
+  onCumplir: (mission: PhotoMission) => void;
 }
 
-export default function PhotoMissionScreen({ fiestaId, guestName }: Props) {
-  const [missions] = useState<PhotoMission[]>(DEFAULT_PHOTO_MISSIONS);
-  const [completedMissions, setCompletedMissions] = useState<Set<string>>(new Set());
-
-  const handleComplete = (id: string) => {
-    // Aquí se abriría la cámara en una implementación real
-    setCompletedMissions(prev => new Set(prev).add(id));
-  };
+export default function PhotoMissionScreen({ guestName, misiones, cumplidas, puntos, puedeSubir, onCumplir }: Props) {
+  const completedMissions = new Set(cumplidas);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-2 text-center">Misiones Fotográficas</h1>
-        <p className="text-slate-400 text-center mb-8">Completá las misiones para ganar puntos</p>
+        <p className="text-slate-400 text-center mb-2">Sacá la foto de cada misión y sumá sus puntos</p>
+        <p className="text-amber-400 font-bold text-center mb-8">Tus puntos: {puntos}</p>
 
         <div className="mb-8 p-1 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 animate-pulse">
           <Card className="bg-slate-900 border-none relative overflow-hidden h-full rounded-lg">
@@ -46,7 +50,7 @@ export default function PhotoMissionScreen({ fiestaId, guestName }: Props) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {missions.map(mission => {
+          {misiones.map(mission => {
             const isCompleted = completedMissions.has(mission.id);
 
             return (
@@ -67,11 +71,11 @@ export default function PhotoMissionScreen({ fiestaId, guestName }: Props) {
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-amber-400 font-bold">{mission.points} pts</span>
                     <Button
-                      onClick={() => handleComplete(mission.id)}
-                      disabled={isCompleted}
+                      onClick={() => onCumplir(mission)}
+                      disabled={isCompleted || !puedeSubir}
                       variant={isCompleted ? "secondary" : "default"}
                     >
-                      {isCompleted ? 'Completada' : 'Completar Misión'}
+                      {isCompleted ? 'Completada' : 'Sacar la foto'}
                     </Button>
                   </div>
                 </CardContent>

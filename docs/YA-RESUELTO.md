@@ -13377,3 +13377,52 @@ prueba: src/__tests__/insumo-receta-conserva-unidad.test.ts
 prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
 usa: * 100) / 100 en src/lib/insumos/ajuste-costos-idempotente.ts
 ```
+
+## Votos en el wifi del salón: uno por teléfono (13 de octubre de 2026)
+
+Las encuestas, las canciones y los juegos de la pantalla gigante tenían un tope por red: 30 votos por
+minuto por encuesta, y 40 por minuto para **toda la fiesta** en los juegos. En el salón todos los
+invitados salen por el mismo wifi, así que el voto 31 (o el 41) de ese minuto se rechazaba.
+
+Ahora funciona como en las apps de votación de eventos (Slido, Mentimeter). Cada teléfono tiene un
+identificador anónimo (`idDelTelefono`, guardado en el navegador) y el voto cuenta **una vez por
+teléfono**: si lo repite o reintenta, no suma de nuevo. El tope de la red subió a 600 por minuto,
+que sólo frena abusos. No se le pide ningún dato al invitado.
+
+```comprobar
+prueba: src/__tests__/un-voto-por-telefono-sin-trabar-el-wifi.test.ts
+usa: idDelTelefono en src/app/evento/social/[fiestaId]/page.tsx
+
+## Trivia en vivo y misiones de fotos con puntos de verdad (13 de octubre de 2026)
+
+Los dos juegos prometían puntos y no los cumplían: las misiones se tildaban en la memoria del celular y
+no guardaban nada, y la trivia mostraba cinco preguntas fijas aunque el operador hubiera lanzado otra.
+Ahora funcionan como Kahoot (trivia) y como las apps de búsqueda de fotos (misiones).
+
+- **Trivia**: el celular muestra LA pregunta que lanzó el operador (`/fiestas/nueva/muro-social`) y un
+  toque es una respuesta. El celular manda sólo la opción: los puntos los calcula el servidor (100 por
+  acertar, más hasta 50 por rapidez, lineal sobre 15 s), una respuesta por jugador y pregunta, y sólo
+  dentro de los 20 segundos desde que se lanzó. Juega el invitado con su enlace personal o, si no, el
+  teléfono (id anónimo). La acción que sumaba puntos a mano (`submitTriviaScore`) y las preguntas fijas
+  se borraron: ya no existe ninguna acción que reciba un puntaje.
+- **La respuesta correcta no viaja antes de tiempo**: el operador la marca al lanzar (círculo en cada
+  opción) y se guarda en el servidor, pero `ocultarRespuestaCorrecta` la saca de lo que reciben
+  celulares, pantalla gigante y portal del cliente hasta que el operador toca "Mostrar respuesta" o
+  termina la trivia. Revelada, la pregunta cierra y lo que llegue tarde no suma.
+- **Fin y podio**: "Terminar trivia y mostrar podio" (permiso de la noche) deja `isFinished`, el podio por
+  mesa y el top 5 individual con nombre corto; la pantalla gigante (`/evento/muro-en-vivo/[fiestaId]`)
+  muestra el de mesas si hay mesas y, si no, el top 5. En el celular (`/evento/social/[fiestaId]`,
+  Ranking) hay un bloque "Trivia" con el top 5 y "Tu puntaje".
+- **Misiones**: "Sacar la foto" abre la MISMA subida del muro con `momentTag` `mision:<id>`. Cuando la
+  foto queda guardada (aprobada o esperando aprobación) el servidor suma los puntos de esa misión una
+  vez por jugador y misión (`fiesta.misionesFotos`). Una misión que no está en la lista de la fiesta
+  (o en la de por defecto) no suma. El celular lee de acá lo cumplido y sus puntos; el Ranking tiene el
+  bloque "Cazadores de fotos".
+- **Por qué así**: un juego que promete puntos y no los guarda es una mentira al invitado; con el puntaje
+  calculado afuera del celular nadie puede inflarlo, y con la respuesta oculta nadie la lee en la red.
+
+```comprobar
+prueba: src/__tests__/trivia-en-vivo-y-misiones-con-puntos.test.ts
+prueba: src/__tests__/subir-foto-de-mision-suma-puntos.test.ts
+prueba: src/__tests__/la-trivia-lanzada-se-ve-en-el-celular.test.tsx
+```

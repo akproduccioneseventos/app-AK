@@ -1,4 +1,5 @@
 'use client';
+import { idDelTelefono } from '@/lib/social-fiesta/id-del-telefono';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
@@ -33,7 +34,10 @@ import {
   Trophy,
   Download,
 } from 'lucide-react';
-import TriviaGameScreen from '@/components/games/TriviaGameScreen';
+import TriviaEnVivo from '@/components/games/TriviaEnVivo';
+import { responderTrivia, getMiProgresoDeJuegos } from '@/app/actions/games.actions';
+import { type PhotoMission } from '@/lib/games/game-engine';
+import { misionesDeLaFiesta } from '@/lib/games/juegos-en-vivo';
 import PhotoMissionScreen from '@/components/games/PhotoMissionScreen';
 import {
   addChatMessage,
@@ -301,6 +305,11 @@ export default function SocialEventPage() {
   const [nameDraft, setNameDraft] = useState('');
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  // Misión de fotos que se está cumpliendo con la subida de arriba (la foto lleva `mision:<id>`).
+  const [misionEnCurso, setMisionEnCurso] = useState<PhotoMission | null>(null);
+  const [progresoJuegos, setProgresoJuegos] = useState<Awaited<ReturnType<typeof getMiProgresoDeJuegos>> | null>(null);
+  const [enviandoRespuesta, setEnviandoRespuesta] = useState(false);
+  const [mensajeTrivia, setMensajeTrivia] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadThumbnail, setUploadThumbnail] = useState<File | null>(null);
   // Lo que quedo sin subir por falta de señal. Vive en memoria, no en el disco
@@ -644,6 +653,11 @@ export default function SocialEventPage() {
     if (guestAccessToken) {
       formData.append('guestAccessToken', guestAccessToken);
     }
+    if (misionEnCurso) {
+      formData.append('momentTag', `mision:${misionEnCurso.id}`);
+      const telefono = idDelTelefono();
+      if (telefono) formData.append('dispositivoId', telefono);
+    }
     if (stationModuleId && stationAccessToken) {
       formData.append('moduleId', stationModuleId);
       formData.append('sourceModule', stationModuleId);
@@ -718,6 +732,11 @@ export default function SocialEventPage() {
         });
         clearUpload();
         setUploadOpen(false);
+        if (misionEnCurso) {
+          toast({ title: 'Misión cumplida', description: `Anotamos los puntos de "${misionEnCurso.title}".` });
+          setMisionEnCurso(null);
+          void cargarProgreso();
+        }
         await loadCore();
       } else {
         toast({ title: 'No se pudo publicar', description: result.error, variant: 'destructive' });
@@ -805,7 +824,7 @@ export default function SocialEventPage() {
 
     if (like) {
       setSongs((current) => current.map((s) => s.id === songId ? { ...s, votes: (s.votes || 0) + 1 } : s));
-      const result = await voteSongRequest(fiestaId, songId);
+      const result = await voteSongRequest(fiestaId, songId, idDelTelefono());
       if (!result.success) {
         toast({ title: 'No se pudo votar', description: result.error, variant: 'destructive' });
       }
@@ -902,9 +921,54 @@ export default function SocialEventPage() {
     }
   };
 
+  const quienJuega = useCallback(() => ({
+    guestId: guestId || undefined,
+    guestAccessToken: guestAccessToken || undefined,
+    dispositivoId: idDelTelefono(),
+    nombre: authorName || undefined,
+  }), [guestId, guestAccessToken, authorName]);
+
+  // Lo que el servidor tiene anotado de ESTE jugador (trivia y misiones): se lee de allá, no de memoria.
+  const cargarProgreso = useCallback(async () => {
+    const quien = quienJuega();
+    if (!quien.guestId && !quien.dispositivoId) return;
+    try {
+      setProgresoJuegos(await getMiProgresoDeJuegos(fiestaId, quien));
+    } catch {
+      // Sin señal: se queda con lo último que se supo.
+    }
+  }, [fiestaId, quienJuega]);
+
+  useEffect(() => {
+    if (section !== 'game' && section !== 'missions' && section !== 'ranking') return;
+    void cargarProgreso();
+    const timer = setInterval(() => {
+      if (document.visibilityState === 'visible') void cargarProgreso();
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [section, cargarProgreso]);
+
+  useEffect(() => { setMensajeTrivia(''); }, [activeGame?.launchedAt]);
+
+  const responderLaTrivia = async (optionId: string) => {
+    if (!activeGame || activeGame.type !== 'trivia' || enviandoRespuesta) return;
+    setEnviandoRespuesta(true);
+    setMensajeTrivia('');
+    try {
+      const r = await responderTrivia(fiestaId, optionId, quienJuega());
+      if (!r.success) setMensajeTrivia(r.error || 'No se pudo enviar tu respuesta. Probá de nuevo.');
+      else if (r.fueraDeTiempo) setMensajeTrivia('Se acabó el tiempo para esta pregunta.');
+      await cargarProgreso();
+    } catch {
+      setMensajeTrivia('No se pudo enviar tu respuesta. Probá de nuevo.');
+    } finally {
+      setEnviandoRespuesta(false);
+    }
+  };
+
   const submitPollVote = async (optionId: string) => {
     if (!poll || votedPollId === poll.id) return;
-    const result = await votePoll(fiestaId, poll.id, optionId);
+    const result = await votePoll(fiestaId, poll.id, optionId, idDelTelefono());
     if (result.success) {
       setVotedPollId(poll.id);
       localStorage.setItem(`votedPoll_${fiestaId}`, poll.id);
@@ -914,7 +978,7 @@ export default function SocialEventPage() {
 
   const submitGameVote = async (optionId: string) => {
     if (!activeGame || votedGameId === activeGame.launchedAt) return;
-    const result = await voteActiveGameOption(fiestaId, optionId);
+    const result = await voteActiveGameOption(fiestaId, optionId, idDelTelefono());
     if (result.success) {
       setVotedGameId(activeGame.launchedAt);
       localStorage.setItem(`votedGame_${fiestaId}`, activeGame.launchedAt);
@@ -1002,13 +1066,13 @@ export default function SocialEventPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={uploadOpen} onOpenChange={(open) => { setUploadOpen(open); if (!open) clearUpload(); }}>
+      <Dialog open={uploadOpen} onOpenChange={(open) => { setUploadOpen(open); if (!open) { clearUpload(); setMisionEnCurso(null); } }}>
         <DialogContent className="max-w-lg rounded-md border-0 bg-white p-0">
           <DialogHeader className="border-b px-5 py-4">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <DialogTitle>Crear publicación</DialogTitle>
-                <DialogDescription>Compartí una foto o un video del evento.</DialogDescription>
+                <DialogDescription>{misionEnCurso ? `Misión: ${misionEnCurso.title} (${misionEnCurso.points} puntos)` : 'Compartí una foto o un video del evento.'}</DialogDescription>
               </div>
               <VideoDeAyuda lugar="muro-subir-foto" />
             </div>
@@ -1215,12 +1279,15 @@ export default function SocialEventPage() {
           {section === 'poll' && <SectionShell key="poll" title={poll?.question || 'Encuesta'} text="Elegí una opción. Cada invitado puede votar una vez.">{poll ? <VoteOptions options={poll.options} voted={votedPollId === poll.id} accentColor={accentColor} onVote={submitPollVote} /> : <EmptyState icon={BarChart3} title="No hay encuesta activa" text="Cuando el equipo publique una, aparecerá acá." />}</SectionShell>}
 
           {section === 'game' && activeGame?.type === 'trivia' && (
-             <TriviaGameScreen
-               fiestaId={fiestaId}
-               guestName={authorName || 'Invitado'}
-               guestId={guestId}
-               guestAccessToken={guestAccessToken}
-             />
+            <TriviaEnVivo
+              game={activeGame}
+              respuesta={progresoJuegos?.trivia.lanzada === activeGame.launchedAt ? progresoJuegos.trivia.respuesta : undefined}
+              puntosTotales={progresoJuegos?.trivia.puntos ?? 0}
+              enviando={enviandoRespuesta}
+              mensaje={mensajeTrivia}
+              accentColor={accentColor}
+              onResponder={(optionId) => void responderLaTrivia(optionId)}
+            />
           )}
 
           {section === 'game' && activeGame?.type !== 'trivia' && (
@@ -1231,8 +1298,12 @@ export default function SocialEventPage() {
 
           {section === 'missions' && (
              <PhotoMissionScreen
-               fiestaId={fiestaId}
                guestName={authorName || 'Invitado'}
+               misiones={misionesDeLaFiesta({ photoMissions: event?.photoMissions })}
+               cumplidas={progresoJuegos?.misiones.cumplidas ?? []}
+               puntos={progresoJuegos?.misiones.puntos ?? 0}
+               puedeSubir={canUpload && settings.uploadsActive !== false}
+               onCumplir={(mision) => { setMisionEnCurso(mision); setUploadOpen(true); }}
              />
           )}
 
@@ -1263,6 +1334,38 @@ export default function SocialEventPage() {
           {section === 'ranking' && (
             <SectionShell key="ranking" title="Ranking de la Fiesta" text="Los momentos más destacados y los invitados más activos.">
               <div className="space-y-6">
+                {/* 0. Trivia y misiones de fotos: puntos que anota el servidor */}
+                {(event?.rankingJuegos?.trivia.length || activeGame?.type === 'trivia') ? (
+                  <div className="p-4 rounded-xl bg-violet-50 border border-violet-200 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-5 h-5 text-violet-600" />
+                      <h3 className="text-sm font-black uppercase text-slate-800">Trivia</h3>
+                    </div>
+                    {event?.rankingJuegos?.trivia.length ? (
+                      <ol className="space-y-1 text-sm">
+                        {event.rankingJuegos.trivia.map((j, i) => (
+                          <li key={`${j.nombre}-${i}`} className="flex justify-between font-semibold text-slate-800"><span>{i + 1}. {j.nombre}</span><span>{j.puntos} pts</span></li>
+                        ))}
+                      </ol>
+                    ) : <p className="text-xs text-slate-500">Todavía nadie sumó puntos.</p>}
+                    <p className="text-xs font-bold text-violet-700">Tu puntaje: {progresoJuegos?.trivia.puntos ?? 0}</p>
+                  </div>
+                ) : null}
+                {event?.rankingJuegos?.cazadores.length ? (
+                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Camera className="w-5 h-5 text-amber-600" />
+                      <h3 className="text-sm font-black uppercase text-slate-800">Cazadores de fotos</h3>
+                    </div>
+                    <ol className="space-y-1 text-sm">
+                      {event.rankingJuegos.cazadores.map((j, i) => (
+                        <li key={`${j.nombre}-${i}`} className="flex justify-between font-semibold text-slate-800"><span>{i + 1}. {j.nombre}</span><span>{j.puntos} pts</span></li>
+                      ))}
+                    </ol>
+                    <p className="text-xs font-bold text-amber-700">Tus puntos de misiones: {progresoJuegos?.misiones.puntos ?? 0}</p>
+                  </div>
+                ) : null}
+
                 {/* 1. Foto más querida */}
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                   <div className="flex items-center gap-2">

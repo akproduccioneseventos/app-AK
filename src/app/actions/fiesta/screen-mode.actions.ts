@@ -298,7 +298,19 @@ export async function launchGame(
   await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const activeGame: ActiveGameData = { ...game, launchedAt: new Date().toISOString() };
+    // Una trivia lleva SU respuesta correcta (la elige el operador al lanzar) y nace sin revelar:
+    // ese dato no sale hacia los celulares hasta que se revela (ver `ocultarRespuestaCorrecta`).
+    if (game.type === 'trivia' && !(game.options || []).some((o) => o.id === game.correctOptionId)) {
+      return { success: false, error: 'Elegí cuál es la respuesta correcta antes de lanzar la trivia.' };
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { isFinished: _f, respuestaRevelada: _r, topJugadores: _t, tableLeaderboard: _l, ...limpio } = game;
+    const activeGame: ActiveGameData = {
+      ...limpio,
+      // `saveFiesta` mezcla campos y nunca borra: se pisan a mano los de la trivia anterior.
+      ...(game.type === 'trivia' ? { respuestaRevelada: false, isFinished: false, topJugadores: [] } : {}),
+      launchedAt: new Date().toISOString(),
+    };
     const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
@@ -434,18 +446,35 @@ export async function transferSorteoToScreen(
   }
 }
 
-/** Registra un voto en una opción del juego activo */
+/**
+ * Registra un voto en una opción del juego activo.
+ *
+ * Como las encuestas (13/10/2026): antes el tope era 40 votos por minuto para TODA la fiesta desde
+ * la misma red, y en el wifi del salón el voto 41 se rechazaba. Ahora cuenta un voto por teléfono
+ * por juego lanzado (repetirlo no suma) y el tope de la red es alto.
+ */
 export async function voteActiveGameOption(
   fiestaId: string,
-  optionId: string
+  optionId: string,
+  dispositivoId?: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const dispositivo = typeof dispositivoId === 'string' && /^[a-zA-Z0-9-]{8,64}$/.test(dispositivoId) ? dispositivoId : null;
     await enforcePublicRateLimit({
       scope: 'social-active-game-vote',
       identity: fiestaId,
-      limit: 40,
+      limit: 600,
       windowMs: 60_000,
     });
+    if (dispositivo) {
+      await enforcePublicRateLimit({
+        scope: 'social-active-game-vote-telefono',
+        identity: `${fiestaId}:${dispositivo}`,
+        limit: 10,
+        windowMs: 60_000,
+        ignoreClientAddress: true,
+      });
+    }
     const { dbAdmin } = await import('@/lib/firebase/server');
     if (!dbAdmin) throw new Error('Base de datos no disponible.');
     const ref = dbAdmin.collection('fiestas').doc(fiestaId);
@@ -459,6 +488,12 @@ export async function voteActiveGameOption(
       if (!(activeGame.options ?? []).some((option) => option.id === optionId)) {
         throw new Error('Opción de juego no válida.');
       }
+      // Un voto por teléfono en cada juego lanzado: si ya votó (o reintenta), no suma otra vez.
+      const votoRef = dispositivo
+        ? dbAdmin.collection('social_game_votes').doc(`${fiestaId}__${activeGame.launchedAt.replace(/[^0-9a-zA-Z]/g, '')}__${dispositivo}`)
+        : null;
+      const votoPrevio = votoRef ? await transaction.get(votoRef) : null;
+      if (votoPrevio?.exists) return;
       const updatedOptions = (activeGame.options ?? []).map((option) =>
         option.id === optionId ? { ...option, votes: (option.votes ?? 0) + 1 } : option
       );
@@ -466,6 +501,7 @@ export async function voteActiveGameOption(
         'socialGallerySettings.activeGame': { ...activeGame, options: updatedOptions },
         _syncedAt: new Date().toISOString(),
       });
+      if (votoRef) transaction.set(votoRef, { fiestaId, launchedAt: activeGame.launchedAt, optionId, createdAt: new Date().toISOString() });
     });
     return { success: true };
   } catch (error: any) {
@@ -535,12 +571,12 @@ export async function trackSocialFollowClick(
     const existing = settings.sorteoParticipantesRedes ?? [];
     // Avoid duplicates: same name + platform combo
     const alreadyRegistered = existing.some(
-      p => p.nombre.toLowerCase() === authorName.toLowerCase() && (p as any).platform === platform
+      p => p.nombre.toLowerCase() === authorName.toLowerCase() && p.platform === platform
     );
     if (alreadyRegistered) return { success: true };
     const updated = [
       ...existing,
-      { nombre: authorName, timestamp: new Date().toISOString(), platform } as any,
+      { nombre: authorName, timestamp: new Date().toISOString(), platform },
     ];
     const guardado = await saveFiesta({
       ...fiesta,

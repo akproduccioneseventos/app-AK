@@ -2131,24 +2131,30 @@ function GameSlide({
     return () => clearInterval(interval);
   }, [game.type, game.launchedAt, game.isFinished]);
 
-  if (game.type === 'trivia' && game.tableLeaderboard && game.isFinished) {
+  if (game.type === 'trivia' && game.isFinished) {
+    // Con mesas, podio por mesa; sin mesas, el top 5 de jugadores (lo deja `terminarTrivia`).
+    const porMesa = (game.tableLeaderboard || []).length > 0;
+    const filas: { clave: string; nombre: string; puntos: number }[] = porMesa
+      ? (game.tableLeaderboard || []).slice(0, 5).map((t) => ({ clave: t.tableNumber, nombre: `Mesa ${t.tableNumber}`, puntos: t.score }))
+      : (game.topJugadores || []).slice(0, 5).map((j, i) => ({ clave: `${j.nombre}-${i}`, nombre: j.nombre, puntos: j.puntos }));
     return (
       <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${meta.bg}`}>
         <div className="w-full max-w-5xl px-12 text-center">
           <motion.h1 className="text-[6vw] font-black leading-tight text-white mb-12 drop-shadow-lg">
-            Podio por Mesa 🏆
+            {porMesa ? 'Podio por Mesa 🏆' : 'Los mejores de la trivia 🏆'}
           </motion.h1>
           <div className="flex flex-col gap-4 max-w-3xl mx-auto">
-            {game.tableLeaderboard.slice(0, 5).map((t, idx) => (
+            {filas.length === 0 && <p className="text-[3vw] font-black text-white/80">Nadie sumó puntos esta vez.</p>}
+            {filas.map((t, idx) => (
               <motion.div
-                key={t.tableNumber}
+                key={t.clave}
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.2 }}
                 className={`rounded-3xl border-2 flex items-center justify-between px-8 py-5 backdrop-blur-sm ${idx === 0 ? 'bg-amber-400/20 border-amber-400/50 shadow-[0_0_30px_rgba(251,191,36,0.3)]' : idx === 1 ? 'bg-slate-300/20 border-slate-300/50' : idx === 2 ? 'bg-amber-700/20 border-amber-700/50' : 'bg-white/5 border-white/20'}`}
               >
-                <span className="text-[3vw] font-black text-white drop-shadow-md">Mesa {t.tableNumber}</span>
-                <span className="text-[3vw] font-black text-yellow-300 drop-shadow-md">{t.score} pts</span>
+                <span className="text-[3vw] font-black text-white drop-shadow-md">{t.nombre}</span>
+                <span className="text-[3vw] font-black text-yellow-300 drop-shadow-md">{t.puntos} pts</span>
               </motion.div>
             ))}
           </div>
