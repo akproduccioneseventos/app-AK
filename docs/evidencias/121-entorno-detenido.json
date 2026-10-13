@@ -1,0 +1,38 @@
+{
+  "stopped": [
+    {
+      "file": "121-start-execution.json",
+      "processTree": [
+        {
+          "ProcessId": 59900,
+          "ParentProcessId": 55872,
+          "Name": "node.exe",
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3301"
+        }
+      ],
+      "stoppedAt": "2026-10-13T13:48:58.5125611Z",
+      "intentionalTermination": true
+    },
+    {
+      "file": "121-emulator-execution.json",
+      "processTree": [
+        {
+          "ProcessId": 54084,
+          "ParentProcessId": 59416,
+          "Name": "node.exe",
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.121-59416.generated.json --only firestore --project demo-ak-producciones"
+        },
+        {
+          "ProcessId": 56032,
+          "ParentProcessId": 54084,
+          "Name": "java.exe",
+          "CommandLine": "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\firestore.rules --single_project_mode true"
+        }
+      ],
+      "stoppedAt": "2026-10-13T13:49:03.7499973Z",
+      "intentionalTermination": true
+    }
+  ],
+  "listeners": [],
+  "appFailure": false
+}

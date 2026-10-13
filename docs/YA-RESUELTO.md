@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex121: ACK del chat reproducido, TODAVIA NO CORREGIDO
+
+-Fuente compilada3a3bc1c6, cabeza76d09612, main4c5ef2f9, PR1293 ABIERTA.
+ NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE. No repetir esta sonda.
+-Widget General real -> /api/multiagent/message -> Firestore SDK demo: se deja
+ guardar un presupuesto de1000, se corta SOLO la respuesta ya completada y se
+ repite el cuerpo HTTP IDENTICO. PC y Pixel7 pasan1->2 documentos; esperado1.
+ No es una nueva cotizacion deliberada. Modelo DOBLE LOCAL, sin API externa.
+-La UI muestra "No pude responder ahora. No marque nada como hecho" aunque el
+ presupuesto ya existe. Ambas observaciones estan en121-chat-ack-resultados.json.
+-No cambio codigo app. SDK0, servicios/agente cerrados, JSON restaurados y hash
+ marketing ajeno intacto. Falta corregir intento estable/guardado atomico y probar
+ concurrencia, recarga y nueva cotizacion legitima; no declarar ACK/IA cerrados.
+
 ## 13/10/2026 - Codex120 comprobada: Encargado no inventa operaciones completadas
 
 -Fuente3a3bc1c6. Confirmacion exige success+ID; fallos se propagan sin que el
