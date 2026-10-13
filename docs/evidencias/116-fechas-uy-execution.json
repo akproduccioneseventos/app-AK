@@ -1,0 +1,11 @@
+{
+  "source": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "zone": "America/Montevideo",
+  "started": "2026-10-13T07:08:51.165Z",
+  "finished": "2026-10-13T07:08:58.967Z",
+  "exitCode": 0,
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

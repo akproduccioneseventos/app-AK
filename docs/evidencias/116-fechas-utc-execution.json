@@ -1,0 +1,11 @@
+{
+  "source": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "zone": "UTC",
+  "started": "2026-10-13T07:08:42.497Z",
+  "finished": "2026-10-13T07:08:52.562Z",
+  "exitCode": 0,
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

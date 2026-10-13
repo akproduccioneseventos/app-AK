@@ -1,0 +1,21 @@
+{
+  "sha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "mode": "emulator",
+  "args": [
+    "node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:start",
+    "--config",
+    "firebase.116-46320.generated.json",
+    "--only",
+    "firestore",
+    "--project",
+    "demo-ak-producciones"
+  ],
+  "launcher": 46320,
+  "child": 32288,
+  "started": "2026-10-13T07:09:02.248Z",
+  "status": "finished",
+  "exitCode": 4294967295,
+  "finished": "2026-10-13T07:14:51.054Z"
+}

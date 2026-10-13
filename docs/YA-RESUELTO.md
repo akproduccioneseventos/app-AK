@@ -1,6 +1,6 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 13/10/2026 - Codex116: delta115 integrado sobre main4c5ef2f9, EN VALIDACION
+## 13/10/2026 - Codex116: delta115 sobre main4c5ef2f9 comprobado, aun no publicado
 
 -PR1288 fue integrada por Claude mientras corria115. La fuente81be9ac0 quedo
  comprobada (707suites4285tests y34criterios), pero no acredita este main nuevo.
@@ -24,7 +24,7 @@
 -Logo original entregado por el dueno copiado byte exacto, sin redibujar:
  public/logo_ak_producciones.png; SHA2567f6249ff1cc7fa347dfd737f975bfd36e58ac4c2f2f57c7e472144e252220166.
 -Minimo Node20.9 por Sharp0.35.5 ya fijado en main; no se actualiza otra libreria.
--Pendiente prueba conjunta116 antes de subir/crear la propuesta. No0errores.
+-Prueba conjunta116 completada; pendiente entrega remota, no0errores globales.
 -La primera verificacion amplia116 detecto un mock156 viejo (borrado por lista)
  y un fallo REAL preexistente de flujo de caja: fiesta/presupuesto de hoy
  con fecha sin hora quedaban fuera; ISO medianoche se asignaba al mes anterior.
@@ -35,6 +35,20 @@
  Seis casos nuevos antes del arreglo:3fallos/3PASS. El test156 mantiene exito,
  borrado de la edicion base y no tocar plantillas no guardadas; ahora exige
  borrar el ID transaccional y no reescribir toda la lista.
+-Cierre fuente1656ac2e:729suites4545tests PASS,0fallos/omitidos; build/tipos/lint
+ y acentos2840 PASS. Seis casos de calendario PASS en UTC y Uruguay.16criterios
+ nativos PC/Pixel7 PASS; caja muestra1500por cobrar/10000gastos/-8500saldo;
+ PNG/Sharp, borrados, ZIP+recibos y reintentos tambien comprobados.
+-El primer fixture nativo de factura uso invoices por error; el mapa real es
+ invoices.json->facturas. Se conserva14PASS/2fallos como fallo de preparacion,
+ no de app; se corrige el fixture sin bajar expectativas y16PASS despues.
+ Verificar siempre archivo->coleccion antes de sembrar SDK, no inferir del nombre.
+-SDK demo vacio despues de parar app; servicios propios apagados, bytes ajenos
+ intactos. Grafo165:14452nodos/43630relaciones/923comunidades,0tokens modelo.
+-115 queda archivada, no certifica116. No se reintroducen sus pantallas ni regla
+ de pesos enteros. No declarar toda la app o Hosting sin errores; no merge.
+-Observaciones UX separadas116-observaciones-ux.md: solapamiento vinculado a152,
+ etiquetas de proyeccion y politica de saldos pasados requieren seguimiento/decision.
 
 ## 12 de octubre de 2026 — Mantenimiento de equipos: ni se duplica el gasto ni se pierde una fila (orden 159)
 

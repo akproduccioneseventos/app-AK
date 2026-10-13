@@ -1,0 +1,24 @@
+{
+  "sha": "50bd4f6e625e8f9a26c8efbec3d282e137164f1e",
+  "applicationSourceSha": "50bd4f6e625e8f9a26c8efbec3d282e137164f1e",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/116-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/flujo-caja-dia-calendario-uruguay.test.ts"
+  ],
+  "launcher": 42076,
+  "child": 48440,
+  "started": "2026-10-13T06:46:40.760Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-13T06:46:49.640Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

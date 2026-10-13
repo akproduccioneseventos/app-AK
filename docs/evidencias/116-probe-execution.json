@@ -1,0 +1,14 @@
+{
+  "sha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/116-native-probe.mjs"
+  ],
+  "launcher": 45040,
+  "child": 47368,
+  "started": "2026-10-13T07:11:39.854Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T07:12:28.303Z"
+}
