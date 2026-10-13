@@ -25,6 +25,16 @@
  public/logo_ak_producciones.png; SHA2567f6249ff1cc7fa347dfd737f975bfd36e58ac4c2f2f57c7e472144e252220166.
 -Minimo Node20.9 por Sharp0.35.5 ya fijado en main; no se actualiza otra libreria.
 -Pendiente prueba conjunta116 antes de subir/crear la propuesta. No0errores.
+-La primera verificacion amplia116 detecto un mock156 viejo (borrado por lista)
+ y un fallo REAL preexistente de flujo de caja: fiesta/presupuesto de hoy
+ con fecha sin hora quedaban fuera; ISO medianoche se asignaba al mes anterior.
+ Cuatro fuentes iguales a main4c; el fallo no se atribuye a la integracion115.
+ Se reutilizan diaCalendario/parseUruguayDate/hoyEnUruguay SOLO en la proyeccion.
+ No se cambia permiso, redondeo ni formula de ganancia, ni otros reportes.
+ Se conservan convenios legacy medianocheUTC y facturas vencidas por cobrar.
+ Seis casos nuevos antes del arreglo:3fallos/3PASS. El test156 mantiene exito,
+ borrado de la edicion base y no tocar plantillas no guardadas; ahora exige
+ borrar el ID transaccional y no reescribir toda la lista.
 
 ## 12 de octubre de 2026 — Mantenimiento de equipos: ni se duplica el gasto ni se pierde una fila (orden 159)
 

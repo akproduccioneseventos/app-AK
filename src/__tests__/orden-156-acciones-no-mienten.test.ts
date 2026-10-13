@@ -14,9 +14,11 @@ jest.mock('@/lib/auth/require-session', () => ({
 // --- plantillas ---
 const mockReadData = jest.fn();
 const mockWriteData = jest.fn();
+const mockDeleteDataItem = jest.fn();
 jest.mock('@/lib/data-service', () => ({
   readData: (...a: unknown[]) => mockReadData(...a),
   writeData: (...a: unknown[]) => mockWriteData(...a),
+  deleteDataItem: (...a: unknown[]) => mockDeleteDataItem(...a),
 }));
 
 // --- control tower / preparacion / avisos ---
@@ -49,6 +51,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockGetAllFiestas.mockResolvedValue([]);
   mockGetPresupuestos.mockResolvedValue([]);
+  mockDeleteDataItem.mockResolvedValue(true);
 });
 
 describe('borrar plantilla de invitacion', () => {
@@ -60,6 +63,7 @@ describe('borrar plantilla de invitacion', () => {
     expect(r.success).toBe(false);
     expect(r.error).toMatch(/base/i);
     expect(mockWriteData).not.toHaveBeenCalled();
+    expect(mockDeleteDataItem).not.toHaveBeenCalled();
   });
 
   test('una plantilla propia guardada si se borra', async () => {
@@ -70,7 +74,8 @@ describe('borrar plantilla de invitacion', () => {
     mockReadData.mockResolvedValue([{ ...base }]);
     const r = await deleteInvitationTemplate(base.id);
     expect(r.success).toBe(true);
-    expect(mockWriteData).toHaveBeenCalledWith(expect.any(String), []);
+    expect(mockDeleteDataItem).toHaveBeenCalledWith('invitacion-digital-templates.json', 'invitacion_digital_templates', base.id);
+    expect(mockWriteData).not.toHaveBeenCalled();
   });
 });
 
