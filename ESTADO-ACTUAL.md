@@ -1,8 +1,8 @@
-# Estado actual - 13/10/2026 (Codex121 parche congelando, aceptacion pendiente)
+# Estado actual - 13/10/2026 (Codex121/162 comprobada; PR1293 ABIERTA)
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
 Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
-Fuente nueva congelar/verificar SHA;3a solo baseline, no valida parche121.
+Fuente87b74b7d; head de entrega comprobar en GitHub antes de subir.
 ## Delta116; mantener lo ya integrado por Claude
 -Libro de costos en backup/mapa, IDs legacy, restore sin recibos posteriores.
 -Backup interno despues de ajuste; fallo de lectura/ZIP incompleto no se certifica.
@@ -26,8 +26,8 @@ Fuente nueva congelar/verificar SHA;3a solo baseline, no valida parche121.
 -119 SDK0/servicios/agente cerrados/bytes restaurados; gate PASS_MANUAL_ACK_ONLY.
 -120 fuente3a:732suites4581tests/build tipos lint/acentos2854/6nativos PASS.
 -Encargado confirma resultados reales; modelo DOBLE LOCAL, no Gemini certificado.
--121 UUIDpendiente por contexto/ordinal al guardado atomico+actor;55 focales/tiposPASS.
--121 error honesto; resta build/amplia/nativos nuevoSHA; baseline3a1->2 conservado.
+-121 fuente87:734suites4600tests0fallos/omitidos/build tipos lint/acentos2860 PASS.
+-121 16nativosPCPixel7 ACK/recarga/replay/concurrencia/nueva cotizacion/docPASS.
 -Restan152/deps/109;19originales/OAuth/Hosting/hardware no certificados.
 ## Esperando decisión del dueño
 - Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
@@ -36,5 +36,5 @@ Fuente nueva congelar/verificar SHA;3a solo baseline, no valida parche121.
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos simultaneos desde otra pantalla pueden perderse; limite previo aceptado.
 -152: PC cubre2/3puntosGuardar; teclado/superior disponibles. Movil3/3libres.
--161/manual cerrados; siguiente ACEPTAR162/121, sin deduplicar telefono/nombre/fecha.
+-121 gatePASS_CHAT_BUDGET_ACK_ONLY; SDK0/servicios/agente cerrados/bytes restaurados.
 -No declarar0errores ni toda la app lista.

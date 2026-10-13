@@ -1,5 +1,11 @@
 # 162: no duplicar presupuesto del chat al perder la respuesta
 
+CUMPLIDA para el alcance financiero en fuente87b74b7d:734suites4600tests,
+build tipos/lint, acentos2860 y16recorridos nativos PC/Pixel7 PASS. Gate
+`docs/evidencias/121-aceptacion.json`:PASS_CHAT_BUDGET_ACK_ONLY. Proveedor IA
+doble local, no modelo externo ni otras acciones del chat certificados.
+La orden siguiente queda como criterio historico, no volver a programarla.
+
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE.
 
 Responsable de dinero/seguridad: principal Codex autorizado por el dueno, o
@@ -50,11 +56,11 @@ El proveedor de modelo es doble local; API y Firestore SDK son reales en demo.
   resultado observado en YA/ESTADO/evidencias, subir a propuesta abierta y
   comprobar contenido remoto. No fusionar ni declarar todaapp sin errores.
 
-El script indicado abajo existe y reprodujo el fallo, pero la aceptacion del
-arreglo y las variantes adicionales estan PENDIENTES de implementacion/ejecucion.
+El script indicado abajo existe y ejecuto la aceptacion del arreglo. El anterior
+`121-chat-ack-probe.mjs` conserva la reproduccion sobre3a, no certifica87.
 
 ```comprobar
 archivo: src/lib/multiagent/assistant-crm-actions.ts
 usa: confirmAndSaveAssistantBudget en src/lib/multiagent/encargado.ts
-prueba: docs/evidencias/121-chat-ack-probe.mjs
+prueba: docs/evidencias/121-chat-aceptacion-probe.mjs
 ```

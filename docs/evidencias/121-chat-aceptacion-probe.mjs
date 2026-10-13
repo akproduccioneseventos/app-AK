@@ -84,6 +84,23 @@ try{
       expect(await snapshot()).toEqual(docs);expect(JSON.parse(fs.readFileSync(planFile)).calls).toBe(calls);
       return {status:400,noModelCall:true,noWrite:true};
     });
+    await record(viewport,'two-concurrent-first-confirmations-create-only-one-new-budget',async()=>{
+      const prior=await snapshot(),body={...lostBody,requestId:crypto.randomUUID()};
+      const sends=[context.request.post(root+'/api/multiagent/message',{data:body,timeout:90000}),context.request.post(root+'/api/multiagent/message',{data:body,timeout:90000})];
+      for(const pending of sends){const response=await pending;expect(response.status()).toBe(200);expect((await response.json()).success).toBe(true);}
+      const docs=await snapshot();expect(docs).toHaveLength(4);
+      expect(docs.filter(b=>prior.some(p=>p.id===b.id))).toEqual(prior);
+      const created=docs.filter(b=>!prior.some(p=>p.id===b.id));expect(created).toHaveLength(1);expect(created[0].numero).toBe(4);expect(created[0].total).toBe(1000);
+      expect((await db.collection('commercial_counters').doc('presupuestos').get()).data().lastNumber).toBe(4);
+      return {countBefore:3,countAfter:4,concurrentFirstWrites:2,newBudgetId:created[0].id,numero:4,total:1000,priorDocumentsUnchanged:true};
+    });
+    await record(viewport,'saved-budget-document-visible-and-persistent-after-reload',async()=>{
+      const doc=(await snapshot())[0],docPage=await context.newPage();
+      await docPage.goto(root+'/presupuestos/'+doc.id+'/ver',{waitUntil:'networkidle',timeout:90000});
+      const name=docPage.locator('#budget-print-area-wrapper').getByText(doc.client,{exact:true}).first();
+      await expect(name).toBeVisible({timeout:60000});await docPage.reload({waitUntil:'networkidle',timeout:90000});await expect(name).toBeVisible({timeout:60000});
+      await docPage.close();return {budgetId:doc.id,documentVisible:true,persistentAfterReload:true};
+    });
     await context.close();for(const c of await db.listCollections())if(c.id!=='servicios')for(const d of(await c.get()).docs)await d.ref.delete();
   }
 }catch(error){results.push({status:'NOT_ACCEPTED',error:error.stack});process.exitCode=1;}

@@ -1,6 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 13/10/2026 - Codex121/orden162: parche escrito, aceptacion final PENDIENTE
+## 13/10/2026 - Codex121/orden162 CORREGIDA Y COMPROBADA, alcance presupuestos
+
+-Fuente87b74b7d. El intento financiero del chat pasa UUID desde widget a API/
+ actions/Encargado; ordinal por presupuesto y guardado atomico ligado al actor.
+ Error incierto conserva texto y clave tras recarga. Nueva cotizacion confirmada
+ conserva varios documentos aun con mismo nombre/telefono/fecha. No formulas,
+ precios, descuentos, permisos, datos originales ni funciones de Claude alterados.
+-734suites4600tests PASS,0fallos/omitidos; build con tipos/lint PASS; acentos2860.
+ 16recorridos nativos PC/Pixel7 PASS por widget/API/Firestore SDK demo, proveedor
+ DOBLE LOCAL de protocolo. Antes-envio0/retry1; ACK perdido tras guardar2/retry2
+ y recarga con IDs/numeros/importes/CRM iguales; nueva cotizacion3; dos primeras
+ confirmaciones simultaneas crean solo cuarta, no quinta. Documento /ver visible
+ y persistente tras recarga. Nonce invalido400 sin modelo ni escritura.
+-Baseline3a1->2 sigue conservado, no reescrito para ocultar el defecto. Gate121
+ PASS_CHAT_BUDGET_ACK_ONLY. SDK0/2servicios/agente cerrados y bytes restaurados.
+ Grafo14621/43864/931 sinLLM,25avisos parciales parser (no errores TypeScript).
+-Otros efectos del chat NO quedan idempotentes por este arreglo; modelo externo,
+ voz, rutas IA ajenas, catalogo/precios cambiantes o fecha inferida NO certificados.
+ Si cambia la carga calculada, se rechaza sin sobrescribir/crear otro. No0errores,
+ Hosting/OAuth/19originales/hardware/todaapp. PrivadoClaude NO CONTRASTADO.
+ No repetir la validacion si la fuenteapp87 no cambia; PR1293 no fusionar.
+
+## Historico - Codex121/orden162: parche escrito, aceptacion entonces PENDIENTE
 
 -El widget prepara UUID+huella antes del POST, conserva el intento incierto en
  sessionStorage por contexto sin datos personales; busyRef frena doble envio.
