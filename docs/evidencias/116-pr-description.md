@@ -53,3 +53,15 @@ equipos fisicos, atomicidad global del snapshot ni toda la aplicacion.
 152/otras155/cobertura109 y observaciones UX permanecen separadas.
 GitHub Actions por facturacion no sustituyen los resultados locales.
 Registro compartido: docs/YA-RESUELTO.md y ESTADO-ACTUAL.md.
+
+## Auditoria117 posterior: defecto nuevo, no corregido en esta propuesta
+
+Sobre la misma fuente1656: reintento del configurador tras perder la respuesta
+de un guardado ya realizado crea otro presupuesto. Repro PC y Pixel7: SDK2->3,
+esperado2. Orden161, evidencia117-contraste.json. No se oculta por4545Jest PASS.
+Control antes de llegar al servidor SI guarda uno y abre destino real.
+Friccion152 desktop sigue: indicador cubre parte de Guardar inferior; teclado y
+boton superior disponibles. Los51casos de permisos firmador/documentos/exports
+de Claude ya pasan en116; no volver a programarlos. Proveedor real no certificado.
+Esta ampliacion toca solo QA/registro, no app ni importes, ni ejecuta otro build.
+No fusionada; dueno decide. Orden escrita no inicia a otra IA ni acredita arreglo.

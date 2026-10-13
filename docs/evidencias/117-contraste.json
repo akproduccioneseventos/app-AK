@@ -1,0 +1,134 @@
+{
+  "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "evidenceHead": "479408f2b0674f2d83a498ad4a2010ac87c477d6",
+  "outcome": "NEW_DEFECT_NOT_CORRECTED",
+  "privateClaude": "NO_CONTRASTADO",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "save-control-pointer-and-keyboard-hitbox",
+      "status": "FRICTION_EXISTING_152",
+      "details": {
+        "hitbox": [
+          {
+            "x": 1021.775,
+            "y": 806,
+            "uncovered": true,
+            "top": "<button class=\"inline-flex items-center justify-center whitespace-nowrap ring-offset-background duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-o"
+          },
+          {
+            "x": 1181.875,
+            "y": 806,
+            "uncovered": false,
+            "top": "<div class=\"fixed z-30 hidden max-w-[250px] rounded-2xl border border-slate-200 bg-white/90 p-2 shadow-lg backdrop-blur print:hidden xl:block\" style=\"bottom: 160px; right: 16px;\"><div class=\"flex items-center gap-2\"><span class=\"cursor-grab touch-none text-sla"
+          },
+          {
+            "x": 1341.975,
+            "y": 806,
+            "uncovered": false,
+            "top": "<div class=\"flex items-center gap-2\"><span class=\"cursor-grab touch-none text-slate-300 hover:text-slate-500 active:cursor-grabbing\" title=\"Arrastrá para mover el asistente\" aria-label=\"Mover el asistente\" role=\"button\"><svg xmlns=\"http://www.w3.org/2000/svg\" "
+          }
+        ],
+        "fullyUncovered": false,
+        "keyboardFocus": true
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "failed-save-retry-one-budget-and-destination",
+      "status": "PASS",
+      "details": {
+        "saveRequests": 2,
+        "count": 1,
+        "destination": "/presupuestos/pres_1791887092101_a1h5y2o",
+        "afterSaveBottomButtonEnabled": true,
+        "total": 850
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "lost-ack-retry-does-not-create-second-budget",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 2\nReceived: 3"
+    },
+    {
+      "viewport": "mobile",
+      "name": "save-control-pointer-and-keyboard-hitbox",
+      "status": "PASS",
+      "details": {
+        "hitbox": [
+          {
+            "x": 71.6,
+            "y": 549,
+            "uncovered": true,
+            "top": "<button class=\"inline-flex items-center justify-center whitespace-nowrap ring-offset-background duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-o"
+          },
+          {
+            "x": 206,
+            "y": 549,
+            "uncovered": true,
+            "top": "<span>Guardar como Presupuesto Formal</span>"
+          },
+          {
+            "x": 340.40000000000003,
+            "y": 549,
+            "uncovered": true,
+            "top": "<button class=\"inline-flex items-center justify-center whitespace-nowrap ring-offset-background duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-o"
+          }
+        ],
+        "fullyUncovered": true,
+        "keyboardFocus": true
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "failed-save-retry-one-budget-and-destination",
+      "status": "PASS",
+      "details": {
+        "saveRequests": 2,
+        "count": 1,
+        "destination": "/presupuestos/pres_1791887155040_122n0d5",
+        "afterSaveBottomButtonEnabled": true,
+        "total": 850
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "lost-ack-retry-does-not-create-second-budget",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 2\nReceived: 3"
+    }
+  ],
+  "lostAck": [
+    {
+      "viewport": "desktop",
+      "before": 2,
+      "after": 3,
+      "expected": 2,
+      "saveRequests": 4
+    },
+    {
+      "viewport": "mobile",
+      "before": 2,
+      "after": 3,
+      "expected": 2,
+      "saveRequests": 4
+    }
+  ],
+  "reuse155": {
+    "source": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+    "suite": "src/__tests__/los-documentos-de-plata-piden-permiso.test.ts",
+    "passed": 51,
+    "providerMocked": true,
+    "realProviderCertified": false
+  },
+  "cleanup": {
+    "bytesRestored": true,
+    "ownSdkDocuments": 0,
+    "listeners": [],
+    "servicesStopped": 2
+  },
+  "rawResultSha256": "d137ee1f8bb5ce8a5baa4b31af703b951a09dbd0cf42a59510b11469c91e73f3",
+  "originalTimeoutPreserved": "docs/evidencias/117-configurador-inicial.json",
+  "noProductionChanges": true
+}

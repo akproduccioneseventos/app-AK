@@ -1,5 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex117: configurador probado; defecto ACK nuevo, NO corregido
+
+-Fuente1656ac2e, HEAD479408f2, PR1293 abierta; privado Claude NO CONTRASTADO.
+ No cambia app ni se repiten build/Jest116. Solo sonda/contraste/registro.
+-Cortar antes de enviar y reintentar: PC/Pixel7 guardan uno, total850, boton
+ Ver Presupuesto abre ID real. No fallo de guardado en ese caso.
+-P1 NUEVO PENDIENTE: perder respuesta despues del guardado y reintentar crea
+ otro presupuesto. SDK2->3 en ambas vistas, esperado2. Orden161 y117-contraste;
+ no deduplicar por telefono: el dueno requiere varias cotizaciones legitimas.
+-P2 existente152: indicador PC cubre2/3puntos del boton inferior; teclado y
+ boton superior disponibles. Movil3/3libres. No nuevo encargo de flotantes.
+-155 firmador/exports ya corregidos por Claude; suite51casos PASS reutilizada
+ de116 sobre1656, proveedor mock. NO certifica firma Storage ni token externo.
+ No repetir implementacion ni seguir diciendo que esos permisos faltan.
+-Falso positivo del ayudante barato descartado: backup/ZIP116 ya probado;
+ "no certifica" significa rechazar el incompleto, no ausencia de pruebas.
+-Primer timeout5s del harness conservado, reintento con60s confirma UI; no
+ ocultar ese incidente ni bajar el esperado2 del defecto ACK.6sondas finales:
+ 4recoleccionesPASS (PC hitbox clasificado FRICCION),2ACK NOT_ACCEPTED.
+-Datos ficticios, bytes restaurados, SDK0,2servicios propios apagados; agente
+ cerrado. Evidencia117-auditoria-configurador.md. No correccion/publicacion,
+ fusion ni certificado global0errores. Escribir orden no inicia Claude/Gemini.
+
 ## 13/10/2026 - Codex116: delta115 sobre main4c5ef2f9 comprobado; PR1293 abierta
 
 -PR1288 fue integrada por Claude mientras corria115. La fuente81be9ac0 quedo

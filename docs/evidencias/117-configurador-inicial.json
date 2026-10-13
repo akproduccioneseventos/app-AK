@@ -1,0 +1,346 @@
+{
+  "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "save-control-pointer-and-keyboard-hitbox",
+      "details": {
+        "hitbox": [
+          {
+            "x": 1021.775,
+            "y": 806,
+            "uncovered": true,
+            "top": "<button class=\"inline-flex items-center justify-center whitespace-nowrap ring-offset-background duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-o"
+          },
+          {
+            "x": 1181.875,
+            "y": 806,
+            "uncovered": false,
+            "top": "<div class=\"fixed z-30 hidden max-w-[250px] rounded-2xl border border-slate-200 bg-white/90 p-2 shadow-lg backdrop-blur print:hidden xl:block\" style=\"bottom: 160px; right: 16px;\"><div class=\"flex items-center gap-2\"><span class=\"cursor-grab touch-none text-sla"
+          },
+          {
+            "x": 1341.975,
+            "y": 806,
+            "uncovered": false,
+            "top": "<div class=\"flex items-center gap-2\"><span class=\"cursor-grab touch-none text-slate-300 hover:text-slate-500 active:cursor-grabbing\" title=\"Arrastrá para mover el asistente\" aria-label=\"Mover el asistente\" role=\"button\"><svg xmlns=\"http://www.w3.org/2000/svg\" "
+          }
+        ],
+        "fullyUncovered": false,
+        "keyboardFocus": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "failed-save-retry-one-budget-and-destination",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: /^Ver Presupuesto #/ })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByRole('button', { name: /^Ver Presupuesto #/ })\n"
+    },
+    {
+      "viewport": "mobile",
+      "name": "save-control-pointer-and-keyboard-hitbox",
+      "details": {
+        "hitbox": [
+          {
+            "x": 71.6,
+            "y": 549,
+            "uncovered": true,
+            "top": "<button class=\"inline-flex items-center justify-center whitespace-nowrap ring-offset-background duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-o"
+          },
+          {
+            "x": 206,
+            "y": 549,
+            "uncovered": true,
+            "top": "<span>Guardar como Presupuesto Formal</span>"
+          },
+          {
+            "x": 340.40000000000003,
+            "y": 549,
+            "uncovered": true,
+            "top": "<button class=\"inline-flex items-center justify-center whitespace-nowrap ring-offset-background duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-o"
+          }
+        ],
+        "fullyUncovered": true,
+        "keyboardFocus": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "failed-save-retry-one-budget-and-destination",
+      "details": {
+        "saveRequests": 2,
+        "count": 1,
+        "destination": "/presupuestos/pres_1791886991064_0dgow5h",
+        "afterSaveBottomButtonEnabled": true,
+        "total": 850
+      },
+      "status": "PASS"
+    }
+  ],
+  "cleanup": {
+    "restored": [
+      {
+        "file": "src\\data\\accesos-personal.json",
+        "beforeSha256": "239548c4ef8c6acad987ee084875001b65617431d1dd135d948e05b70ef1cdfa",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\activos-fijos.json",
+        "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\agentes-configuracion.json",
+        "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\agentes-historial.json",
+        "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\catalogo-fotos.json",
+        "beforeSha256": "cf0b83fbdfd107ada31cf99ffd597029f3a4955c89d7c154a7ea86e5adff12ae",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\crm-leads.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "8b1b6f9b01f7b288d3f6956ecb5d1f641cea7ff0e83b4702eafec4d936f79edc"
+      },
+      {
+        "file": "src\\data\\crm-stages.json",
+        "beforeSha256": "2fe6a7bd840ef6afc3a3bc5b9ffb72f7ea555fd92ca7695d59eacc4edf073e69",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\customers.json",
+        "beforeSha256": "b679e0779048652c89d7410f7de65b03aa5b7b2fa23f4a9c90e44aa84385cf06",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\empleados.json",
+        "beforeSha256": "ab851e1009393f4895de459ddcefb0497703d716fc835e55d7c412347f89039f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\feedback.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\fiestas-historicas.json",
+        "beforeSha256": "8e510a4703db2d8f26e49f59528e6404bc64cf97aba3c88593bbd1a72d921bd7",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\gastos-generales.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\historial-fiestas.json",
+        "beforeSha256": "d9163d874acf3f2987f4d52821f2dfb8c7a95473603f039c99e0b2102a306482",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\insumos.json",
+        "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\invitacion-digital-templates.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\itinerary-templates.json",
+        "beforeSha256": "5a5116a94d58fb3bcf26aa51658baca8d65a22d61b9d44c2bec4e98478d01be0",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\marketing-checklist.json",
+        "beforeSha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\menus-catering.json",
+        "beforeSha256": "b2619502addbc82683c56f08e51a5731475713fb04e5c91199b791acdb3db111",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\notifications.json",
+        "beforeSha256": "10e60b3cf4d3013dfafc452a2ebe87ed31baa0f2e1c102a122e4af1809ac75a6",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\personal-recibos.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\playbooks.json",
+        "beforeSha256": "16e999b6c36430f6ad8cb8df6caf966718559280a85e97be564878b15d7bf39e",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\presupuestos.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "101053409f8dcb840fa6b26c9c8c558d74a64d1b81b4c553fb6dae73ab855135"
+      },
+      {
+        "file": "src\\data\\proveedores.json",
+        "beforeSha256": "ef2d64435b1c91005eb553e96067d197b7c79766e8342c2255cf921f2d7bf620",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\roles.json",
+        "beforeSha256": "4e46773f300c7b1b9f2590e5f2745b2bc6a9d783291756598f4e2463702e59e5",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\salon-layout-templates.json",
+        "beforeSha256": "6713d48e3095223ab272956d4ee2fa823d2db82c30afb842bf6e3ee6b8585cbb",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\servicios-empresa.json",
+        "beforeSha256": "f7e2824329d05c70154fbc3a786979903478fe4ecddc57d9e0288e8058a04bd0",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-analytics-history.json",
+        "beforeSha256": "264f87ac196f218582387df601500b7ff6e87f88f33f49bda832889f3d2de0d3",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-chat\\fiesta_1759360164471.json",
+        "beforeSha256": "7781869625965e2d9c9a66523ee67ad7ce67ec92bd1d5c5ce4d26ae3898c6b4f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-chat\\fiesta_1761518911463_a2c0rmc.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-comments.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-gallery\\metadata.json",
+        "beforeSha256": "f2721399f92249ebc9105e0454ac0eed56d08c4c8909f727e5eb76ce37e35fd3",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2019.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2020.json",
+        "beforeSha256": "e4cee1b2df656954f47536c0d197cd40a4b48751fe4286b79fc65b5bebdd9bac",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2021.json",
+        "beforeSha256": "0f92184f53f2afc21b0f33aa4013932f6954ec45f072c8014adc30bc904b2608",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2022.json",
+        "beforeSha256": "9f0872df979ad6690a7c67ec04ccd43ba702173653701b4340a22343cba72b43",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2023.json",
+        "beforeSha256": "beee3d4b7f5790d95cd97fa0b9b67a4105a25bff73d5cebe13e7e6c426015f15",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2024.json",
+        "beforeSha256": "244ca23bbd9f0d43ebd65f663d31aa3345df3d446b3e8d98b8c802a562c54a6a",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2025.json",
+        "beforeSha256": "856bfeb1f700ccbec1ccd7112ea9cd52324170d210a6d13b4e38c7e97b851240",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2026.json",
+        "beforeSha256": "078591757570ed62a4afcc560128daf74783ed5bd19825a610f919b51448e9e8",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\undated.json",
+        "beforeSha256": "a780ce7d480b707efe044f17def45383ac9419533da25fa0791d3f3dfc3fdf8e",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-posts.json",
+        "beforeSha256": "d9163d874acf3f2987f4d52821f2dfb8c7a95473603f039c99e0b2102a306482",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\task-templates.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\testimonials.json",
+        "beforeSha256": "e61da7035ba8acbfe23d7e442637c649ca3b4fad3690acef02ebd1375d808f80",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\whatsapp-conversations.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "data\\agentes-configuracion.json",
+        "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "data\\agentes-historial.json",
+        "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "data\\social-analytics-history.json",
+        "beforeSha256": "264f87ac196f218582387df601500b7ff6e87f88f33f49bda832889f3d2de0d3",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "data\\social-comments.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "6271bee3b87bc84a2e4e2650127e27d30506b9e1fa1a5956dd9d11ce30f5e427"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "6271bee3b87bc84a2e4e2650127e27d30506b9e1fa1a5956dd9d11ce30f5e427"
+      },
+      {
+        "file": "data\\crm-leads.json",
+        "beforeSha256": null,
+        "qaSha256": "8b1b6f9b01f7b288d3f6956ecb5d1f641cea7ff0e83b4702eafec4d936f79edc"
+      },
+      {
+        "file": "data\\presupuestos.json",
+        "beforeSha256": null,
+        "qaSha256": "101053409f8dcb840fa6b26c9c8c558d74a64d1b81b4c553fb6dae73ab855135"
+      }
+    ],
+    "bytesRestored": true
+  }
+}
