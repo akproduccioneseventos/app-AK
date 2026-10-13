@@ -13694,3 +13694,36 @@ prueba: src/__tests__/trivia-en-vivo-y-misiones-con-puntos.test.ts
 prueba: src/__tests__/subir-foto-de-mision-suma-puntos.test.ts
 prueba: src/__tests__/la-trivia-lanzada-se-ve-en-el-celular.test.tsx
 ```
+
+## Pregunta 58 en la plata: un reintento no duplica cobros, gastos, facturas ni señas (13 de octubre de 2026)
+
+Si se cortaba la señal justo cuando el servidor ya había guardado, la persona veía un error, volvía a
+tocar "Guardar" y el cobro, el gasto o la factura quedaba dos veces. Ahora cada pantalla arma una
+identidad del intento (`obtenerIntento` de `src/lib/intento-de-guardado.ts`): la misma en cada reintento,
+aunque recargue, y nueva sólo cuando los datos cambian o el servidor confirmó. El servidor, al recibirla,
+si ya tiene ese registro contesta "listo" con el que existe y no crea otro.
+
+- **Gasto general** (`/empresa/contabilidad/gastos`): la pantalla manda `idempotencyKey`; el servidor ya
+  la entendía (número fijo sacado de la llave), sólo faltaba que la pantalla la mandara.
+- **Cobro a presupuesto** (`/pagos-rapidos`, `/presupuestos/[id]/ver`) y **aviso de pago del cliente**
+  (`addPagoClienteFromPortal`): la pantalla manda `pago.id = pago_<intento>`. El servidor controla que
+  el id tenga forma segura y, si ya está, no vuelve a mirar el saldo (antes el reintento podía fallar
+  por "supera el saldo" con el primer cobro ya contado) ni avisa de nuevo.
+- **Factura nueva** (`/invoices/new`): `saveInvoice` acepta `operationId` (UUID); el id de la factura sale
+  de él (`inv_op_…`) y un reintento devuelve la misma factura, sin chocar con su propio número.
+- **Pago de salón** (`/empresa/salones/club-uruguay`): `addSalonPago` acepta `pago.id` y no repite.
+- **Seña al firmar contrato** (`registerContractDeposit`): UNA por presupuesto, con número fijo
+  `pago_senia_contrato_<presupuesto>`; firmar de nuevo no agrega otro pago, no suma la seña dos veces ni
+  repite el pago en la factura.
+- **Revisados y sin cambio**: la seña de `registerBookingDeposit` (invoices.ts) ya corta por
+  `findExistingDepositReceipt`; los cobros espejo de la factura (~717, ~972) y `poner-al-dia.ts` usan una
+  referencia fija (`AK_SYNC:…`) que el presupuesto ya deduplica; `addPaymentToInvoice` ya tenía `operacionId`.
+  Fuera de esta tanda: el pago a proveedor de `/fiestas/nueva/gestion-costos-rentabilidad` (guarda la lista
+  entera, otro tipo de arreglo).
+- **Por qué así**: la identidad la pone la pantalla porque sólo ella sabe que dos toques son el mismo
+  intento; el servidor no puede adivinarlo mirando montos (dos cobros iguales del mismo día son legítimos).
+
+```comprobar
+prueba: src/__tests__/un-reintento-no-duplica-plata.test.ts
+prueba: src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts
+```

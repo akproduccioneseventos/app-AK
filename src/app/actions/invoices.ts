@@ -1,5 +1,6 @@
 'use server';
 
+import { createHash } from 'crypto';
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import type { Presupuesto } from '@/types/presupuesto';
 import { readData, writeData, mutateDataItem } from '@/lib/data-service';
@@ -155,10 +156,15 @@ export async function addPaymentToInvoice(
 
 async function saveInvoiceInner(
   invoiceDataInput: NewInvoiceInput | Invoice,
-  sourcePresupuestoId?: string
+  sourcePresupuestoId?: string,
+  /** Identidad del intento (pregunta 58): el mismo UUID en cada reintento de "Crear factura". */
+  operationId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string; aviso?: string }> {
   const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!permiso.ok) return { success: false, error: permiso.error };
+  if (operationId !== undefined && !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(operationId)) {
+    return { success: false, error: 'La identidad de la operación no es válida.' };
+  }
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!invoiceDataInput.items || invoiceDataInput.items.some(item => normalizeQuantity(item.quantity) <= 0)) {
@@ -172,6 +178,16 @@ async function saveInvoiceInner(
     let invoices = await leerFacturasSinGuardia();
     let finalInvoiceData: Invoice;
     let invoiceId: string;
+
+    // Reintento de una creación cuya respuesta se perdió: la factura ya está, se devuelve esa
+    // (sin numerar de nuevo ni chocar con su propio número).
+    const idDelIntento = operationId && !('id' in invoiceDataInput && invoiceDataInput.id)
+      ? `inv_op_${createHash('sha256').update(operationId).digest('hex').slice(0, 32)}`
+      : undefined;
+    if (idDelIntento) {
+      const yaCreada = invoices.find(inv => inv.id === idDelIntento);
+      if (yaCreada) return { success: true, id: yaCreada.id, invoice: yaCreada };
+    }
 
     // Dos facturas con el mismo numero rompen la busqueda y los reportes.
     // Los recibos de sena quedan afuera a proposito: comparten el numero por
@@ -292,7 +308,7 @@ async function saveInvoiceInner(
       };
       finalInvoiceData = invoices[index];
     } else {
-      invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      invoiceId = idDelIntento ?? `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       const currency = invoiceDataInput.currency || 'UYU';
       const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => {
         const quantity = normalizeQuantity(item.quantity);

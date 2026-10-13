@@ -241,21 +241,27 @@ export async function deleteSalonFoto(
  */
 export async function addSalonPago(
   salonId: string,
-  pago: Omit<SalonPago, 'id'>
+  pago: Omit<SalonPago, 'id'> & { id?: string }
 ): Promise<{ success: boolean; pago?: SalonPago; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
+  // Identidad del intento (pregunta 58): con forma segura, la misma en cada reintento.
+  if (pago.id !== undefined && !/^[a-zA-Z0-9_-]{8,80}$/.test(pago.id)) {
+    return { success: false, error: 'La identidad del pago no es válida.' };
+  }
   try {
     const newPago: SalonPago = {
       ...pago,
-      id: `pago_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      id: pago.id || `pago_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
     };
 
-    const cambiado = await cambiarUnSalon(salonId, (salon) => ({
-      ...salon,
-      pagos: [...(salon.pagos || []), newPago],
-    }));
+    let existente: SalonPago | undefined;
+    const cambiado = await cambiarUnSalon(salonId, (salon) => {
+      existente = pago.id ? (salon.pagos || []).find((p) => p.id === pago.id) : undefined;
+      if (existente) return salon;
+      return { ...salon, pagos: [...(salon.pagos || []), newPago] };
+    });
     if (!cambiado) return { success: false, error: 'Salón no encontrado.' };
-    return { success: true, pago: newPago };
+    return { success: true, pago: existente ?? newPago };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

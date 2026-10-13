@@ -766,6 +766,11 @@ export async function addPagoToPresupuesto(
   const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!auth.ok) return { success: false, error: auth.error };
 
+  // Un id que viene de afuera (identidad del intento, pregunta 58) tiene que tener forma segura.
+  if (pago.id !== undefined && !/^[a-zA-Z0-9_-]{8,80}$/.test(pago.id)) {
+    return { success: false, error: 'La identidad del cobro no es válida.' };
+  }
+
   const referencia = pago.referencia?.trim() || undefined;
   let clienteNombre = '';
   let entroUnCobroNuevo = false as boolean;
@@ -773,6 +778,10 @@ export async function addPagoToPresupuesto(
     clienteNombre = presupuesto.clienteNombre;
     entroUnCobroNuevo = false;
     const pagos = presupuesto.pagosCliente || [];
+
+    // Reintento del mismo intento (la respuesta se perdió): ya está, no se vuelve a validar el saldo
+    // contra un cobro que ya cuenta ni se agrega otro.
+    if (pago.id && pagos.some((p) => p.id === pago.id)) return { sinCambios: true };
 
     // Mismo cobro mandado dos veces: no se duplica y no se avisa de nuevo.
     if (shouldDedupePaymentReference(referencia)) {
@@ -1168,31 +1177,39 @@ export async function approvePresupuesto(
 
 export async function addPagoClienteFromPortal(
   presupuestoId: string,
-  pago: Omit<PagoCliente, 'id' | 'estadoPago'>,
+  pago: Omit<PagoCliente, 'id' | 'estadoPago'> & { id?: string },
   token?: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   // Lo carga el equipo en nombre del cliente: es un cobro, va con contabilidad (auditoría 70).
   const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!permiso.ok) return { success: false, error: permiso.error };
+  if (pago.id !== undefined && !/^[a-zA-Z0-9_-]{8,80}$/.test(pago.id)) {
+    return { success: false, error: 'La identidad del cobro no es válida.' };
+  }
   const presupuesto = await getPresupuestoById(presupuestoId, token);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
+  let entroUnCobroNuevo = false as boolean;
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (actual) => {
+    entroUnCobroNuevo = false;
+    // Reintento del mismo intento (pregunta 58): ya está, no se agrega otro ni se avisa de nuevo.
+    if (pago.id && (actual.pagosCliente || []).some((p) => p.id === pago.id)) return { sinCambios: true };
     const validation = validatePaymentAgainstBudget(actual, pago.monto, { includePendingForLimit: true });
     if (!validation.ok) return { error: validation.error || 'El cobro no entra en el presupuesto.' };
     const newPago: PagoCliente = {
       ...pago,
-      id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: pago.id || `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       monto: roundMoney(pago.monto),
       estadoPago: 'pendiente_confirmacion',
     };
+    entroUnCobroNuevo = true;
     return { pagos: [...(actual.pagosCliente || []), newPago] };
   });
   const result = cambio.success
     ? { success: true, presupuesto: cambio.presupuesto }
     : { success: false, error: cambio.error };
 
-  if (result.success) {
+  if (result.success && entroUnCobroNuevo) {
     const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
     createNotification({
       titulo: 'Pago Informado por Cliente',

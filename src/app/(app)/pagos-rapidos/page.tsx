@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -379,7 +380,11 @@ function PagosRapidosContent() {
     }
     setIsSaving(true);
     try {
+      // Pregunta 58: misma identidad en cada reintento de este cobro (ruta /pagos-rapidos).
+      const alcanceIntento = `cobro:${presupuestoId}`;
+      const intento = await obtenerIntento(alcanceIntento, { monto, metodoPago: newPagoMetodo, referencia: newPagoReferencia.trim() || null, comprobanteUrl: newPagoComprobante ?? null });
       const result = await addPagoToPresupuesto(presupuestoId, {
+        id: `pago_${intento}`,
         fecha: new Date().toISOString(),
         monto,
         metodoPago: newPagoMetodo,
@@ -388,6 +393,7 @@ function PagosRapidosContent() {
         comprobanteUrl: newPagoComprobante,
       });
       if (!result.success) throw new Error(result.error);
+      terminarIntento(alcanceIntento);
 
       const newPago = result.presupuesto!.pagosCliente!.at(-1)!;
       setShowRecibo({ pago: newPago, presupuesto: result.presupuesto! });
