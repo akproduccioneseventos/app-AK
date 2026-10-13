@@ -5,8 +5,22 @@ import { readData, writeData } from '@/lib/data-service';
 import { calcularHorariosDisponibles, type DayAvailableSlots } from '@/lib/agenda/horarios-disponibles';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { AsyncMutex } from '@/lib/mutex';
 
 const APPOINTMENTS_FILE = 'crm-appointments.json';
+// Las citas viven enteras en UN documento (no son una coleccion): se agregan con
+// `mutateGenericJsonArray`, que relee el documento adentro de la transaccion. Antes se leia la
+// lista, se le hacia push y se escribia toda: dos reservas a la vez perdian una.
+const citasMutex = new AsyncMutex();
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+
+function horarioLibre(citas: CrmAppointment[], fechaHora: string): boolean {
+  const pedido = new Date(fechaHora).getTime();
+  return calcularHorariosDisponibles(citas, 14).some((dia) =>
+    dia.slots.some((slot) => new Date(slot.datetimeIso).getTime() === pedido),
+  );
+}
 
 /**
  * Obtiene los días y horarios libres para que el cliente que armó su presupuesto
@@ -77,17 +91,7 @@ export async function bookAppointmentFromSimulator(data: {
     const appointments = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
 
     // Volver a verificar el horario contra calcularHorariosDisponibles() en el servidor
-    const days = calcularHorariosDisponibles(appointments, 14);
-    let slotIsValid = false;
-    for (const day of days) {
-      for (const slot of day.slots) {
-        if (new Date(slot.datetimeIso).getTime() === requestedDate.getTime()) {
-          slotIsValid = true;
-          break;
-        }
-      }
-      if (slotIsValid) break;
-    }
+    const slotIsValid = horarioLibre(appointments, data.fechaHora);
 
     if (!slotIsValid) {
       return {
@@ -124,8 +128,28 @@ export async function bookAppointmentFromSimulator(data: {
       creadoEn: new Date().toISOString(),
     };
 
-    appointments.push(newAppointment);
-    await writeData(APPOINTMENTS_FILE, appointments);
+    // Se vuelve a mirar el horario sobre la lista ACTUAL, adentro del turno: si otro prospecto
+    // lo reservo mientras tanto, no se agenda dos veces.
+    let ocupado = false;
+    const agregar = (lista: CrmAppointment[]): CrmAppointment[] | null => {
+      if (!horarioLibre(lista, data.fechaHora)) {
+        ocupado = true;
+        return null;
+      }
+      return [...lista, newAppointment];
+    };
+    if (!SIN_BASE()) {
+      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, agregar);
+    } else {
+      await citasMutex.runExclusive(async () => {
+        const actual = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
+        const nueva = agregar(Array.isArray(actual) ? actual : []);
+        if (nueva) await writeData(APPOINTMENTS_FILE, nueva);
+      });
+    }
+    if (ocupado) {
+      return { success: false, error: 'Ese horario ya no está disponible. Por favor elegí otro horario.' };
+    }
 
     // Registrar en el CRM si corresponde
     try {
@@ -148,8 +172,8 @@ export async function bookAppointmentFromSimulator(data: {
       `Entrevista para coordinar tu fiesta y revisar el presupuesto con el equipo de AK Producciones.`
     )}&location=${encodeURIComponent('Oficina AK Producciones, Salto, Uruguay')}`;
 
-    const fechaLegible = requestedDate.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
-    const horaLegible = requestedDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
+    const fechaLegible = requestedDate.toLocaleDateString('es-UY', { timeZone: 'America/Montevideo', weekday: 'long', day: 'numeric', month: 'long' });
+    const horaLegible = requestedDate.toLocaleTimeString('es-UY', { timeZone: 'America/Montevideo', hour: '2-digit', minute: '2-digit' });
     const whatsappMsg = `¡Hola AK Producciones! Agendé mi reunión para el ${fechaLegible} a las ${horaLegible} hs para conversar sobre mi fiesta. Mi nombre es ${nombre}.`;
     // Este numero estaba escrito fijo y era inventado: **todos** los que agendaban
     // una reunion recibian un numero muerto, no solo cuando fallaba una lectura.
