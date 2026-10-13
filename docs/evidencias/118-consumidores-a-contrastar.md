@@ -4,6 +4,12 @@ ACTUALIZACION119: manual SI reprodujo ACK1->2 en662 y ya esta corregido/probado
 en a638c850;119-aceptacion.json,6nativos PC/Pixel7. No repetir esa entrada.
 Las entradas IA de abajo siguen RIESGOS NO ejecutados, no fallos confirmados.
 
+ACTUALIZACION120: helper confirmAndSaveAssistantBudget usa Encargado/widget real,
+no el RPC antiguo confirmarPresupuestoAsistente. Se corrigieron confirmaciones
+falsas/vacios con evidencia120; ACK sigue sin ejecutar. sendAssistantMessage y
+executeCrearPresupuesto no tienen consumidor UI encontrado en468: no reencargar
+esa ruta como si fuera el chat actual. La ruta real es /api/multiagent/message.
+
 Agente gpt-6-luna low, lectura acotada y cerrado. Fuente06c64eb5.
 No repetir configurador, permisos, formulas ni recorridos con prueba vigente.
 Contrastar YA-RESUELTO y tanda privada antes de convertir riesgos en orden.

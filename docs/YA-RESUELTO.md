@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex120 comprobada: Encargado no inventa operaciones completadas
+
+-Fuente3a3bc1c6. Confirmacion exige success+ID; fallos se propagan sin que el
+ modelo declare guardado/cobrado/contrato. Pasos se arman con resultados reales,
+ no pensamientos/resumen del modelo. No se crea borrador sin servicios.
+ Lecturas fallidas no se anuncian como listas vacias; WhatsApp entrega texto,
+ sin afirmar que se envio/encolo. Nombres reales y limite3 siguen disponibles.
+-732suites4581tests PASS,0fallos/omitidos; build tipos/lint y acentos2854 PASS.
+ 6nativos widget real PC/Pixel7 -> API -> SDK demo PASS, con DOBLE LOCAL de
+ protocoloGemini: proveedor caido0presupuestos;1real por1000 sin resumen falso
+ de90000/contrato; servicio desconocido no agrega otro. Modelo real NO certificado.
+-5fallos iniciales y3lecturas de prototipo conservados; prueba vieja de vueltas
+ ya no aprueba terminar sin actuar. Selector propio label/short equivocado se
+ corrigio solo en QA; no era falloapp.120-nativo-selector-inicial conservado.
+-Gate120 PASS_ENCARGADO_TRUTHFUL_RESULTS_ONLY, SDK0/2servicios/agente cerrados,
+ bytes ajenos restaurados; grafo14581/43812/906 sinLLM,25avisosparser noTS.
+-Flujo assistant.ts antiguo sin consumidor UI encontrado: no duplicar auditoria
+ de ahi como chat actual. ACK financiero/chat sigue PENDIENTE DE CONTRASTE por
+ ruta REAL, no cerrado por estos6casos. Voz/otros roles/modelo real tampoco.
+ No todaapp/publicacion/0errores. PrivadoClaude NO CONTRASTADO, PR1293 no fusionar.
+
 ## 13/10/2026 - Codex120 en curso: Encargado confirma lo que realmente hizo
 
 -Referencias118 a sendAssistantMessage/executeCrearPresupuesto pertenecen al

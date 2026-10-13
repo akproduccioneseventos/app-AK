@@ -1,8 +1,8 @@
-# Estado actual - 13/10/2026 (Codex120 Encargado en validacion; PR1293 ABIERTA)
+# Estado actual - 13/10/2026 (Codex120 comprobada; PR1293 ABIERTA)
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
 Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
-Fuente final a638c850; head de entrega comprobar en GitHub antes de subir.
+Fuente final3a3bc1c6; head de entrega comprobar en GitHub antes de subir.
 ## Delta116; mantener lo ya integrado por Claude
 -Libro de costos en backup/mapa, IDs legacy, restore sin recibos posteriores.
 -Backup interno despues de ajuste; fallo de lectura/ZIP incompleto no se certifica.
@@ -21,20 +21,20 @@ Fuente final a638c850; head de entrega comprobar en GitHub antes de subir.
 -118:731suites4564tests/build(tipos/lint)/acentos PASS;6flujos PC/Pixel7 PASS.
 -PR1293 creada sin fusionar; continuar en ella SOLO si sigue ABIERTA.
 -161 cerrada: ACK2->2/recarga/CRMsinrepetir/nueva cotizacion/documento visible.
--118 SDK0,servicios/agentes cerrados,bytes restaurados; prototipo2FAIL conservados.
 -155 firmador/exports ya corregidos:51unidades116 PASS; proveedor real no probado.
 -119 fuente a638:731suites4566tests/build tipos lint/acentos2852/6nativos PASS.
 -Manual ACK+recarga2->2; CRMsinrepetir; otra cotizacion3, mismos datos permitidos.
 -119 SDK0/servicios/agente cerrados/bytes restaurados; gate PASS_MANUAL_ACK_ONLY.
--120 Encargado: errores falsamente exitosos/vacios reproducidos;23unidades PASS.
--120 falta congelar/build/broad/nativo; ACK financiero IA sigue NO certificado.
+-120 fuente3a:732suites4581tests/build tipos lint/acentos2854/6nativos PASS.
+-Encargado confirma resultados reales; modelo DOBLE LOCAL, no Gemini certificado.
+-120 SDK0/servicios/agente cerrados/bytes intactos; ACK financiero IA pendiente.
 -Restan152/deps/109;19originales/OAuth/Hosting/hardware no certificados.
 ## Esperando decisión del dueño
 - Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
 - Votos: tope de 30 por minuto por red y encuesta; en el wifi del salón puede frenar invitados.
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
-- Regalos: uno agregado a la vez desde otra pantalla puede perderse.
+- Regalos simultaneos desde otra pantalla pueden perderse; limite previo aceptado.
 -152: PC cubre2/3puntosGuardar; teclado/superior disponibles. Movil3/3libres.
 -161 y manual preservan varios presupuestos; IA sin operationId no certificada.
 -No declarar0errores ni toda la app lista.

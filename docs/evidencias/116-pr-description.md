@@ -1,5 +1,13 @@
 ## Descripcion del Cambio
 
+ACTUALIZACION120: Encargado CORREGIDO/PROBADO en3a3bc1c6.
+732suites4581tests0fallos/omitidos PASS; build tipos/lint y acentos2854 PASS.
+6nativos PC/Pixel7 widget/API/SDK real demo con proveedor DOBLE LOCAL: fallo
+no afirma guardado, presupuesto real por1000 no repite resumen falso del modelo,
+servicios desconocidos no crean vacio. Fallos originales conservados y pruebas
+viejas fortalecidas.120-aceptacion.json. No Gemini real/voz/ACK chat certificados.
+No fusion/publicacion/todaapp0errores. App final3a;119/118/116 abajo son historia.
+
 ACTUALIZACION119: manual tambien CORREGIDO/PROBADO en a638c850.
 731suites4566tests0fallos/omitidos PASS, build tipos/lint y acentos2852 PASS.
 6flujos nativos PC/Pixel7: corte antes-envio, ACK perdido+recarga sin duplicar,
