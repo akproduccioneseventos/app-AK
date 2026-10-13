@@ -180,3 +180,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 45. **¿Subís una biblioteca de versión mayor o excluís un módulo de la compilación?** Una prueba que
     cuente lo dibujado en cada pantalla que la usa, y la primera llamada de un proceso nuevo.
+
+46. **¿Tu botón CREA algo?** Cortá la respuesta (el servidor guarda, la pantalla no se entera) y tocá
+    de nuevo: tiene que quedar uno solo. La pantalla manda una identidad del intento que se repite en
+    cada reintento, y el servidor la reconoce. Un id armado en el servidor no alcanza.

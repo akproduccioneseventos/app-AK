@@ -1037,3 +1037,25 @@ El candado de la plata miraba las acciones del servidor, no las rutas que bajan 
 rutas servían contratos, presupuestos, comprobantes y contratos laborales a cualquiera con sesión, y
 el firmador genérico abría cualquier archivo guardado. **Barrido: toda ruta con `hasAppSession()` y
 sin `requirePermiso`**; si lo que entrega es plata o sueldos, es un hallazgo.
+
+## Pregunta 58 — la que sumó el 13 de octubre de 2026 (Codex, órdenes 159, 160, 161 y 162)
+
+### 58. Si la respuesta del servidor se pierde y la persona vuelve a tocar, ¿se guarda dos veces?
+
+Cuatro hallazgos seguidos con la misma forma: el mantenimiento con gasto, el ajuste de costos, el
+configurador y el presupuesto que arma el chat. El servidor **sí guardaba**, la respuesta no llegaba
+(se cortó la señal), la pantalla mostraba error y el segundo toque guardaba **otra vez**: dos gastos,
+dos aumentos, dos presupuestos. La pregunta 9 (doble toque) no lo agarraba: el botón ya estaba
+liberado porque la primera vuelta "falló".
+
+**Cómo se mira:** toda acción que CREA algo (un cobro, un gasto, un presupuesto, una factura, un
+recibo, una cuota, un invitado, una tarea) tiene que recibir de la pantalla **una identidad del
+intento** —generada una vez por borrador y repetida en cada reintento— y el servidor, adentro de la
+transacción, tiene que reconocerla y devolver lo ya creado en vez de crear otro. Un id armado en el
+servidor con `Date.now()` o `Math.random()` **no sirve**: cambia en cada reintento.
+
+**Barrido:** acciones en `src/app/actions/**` que crean con `Date.now()`, `randomUUID()` o
+`Math.random()` en el servidor y sin `operationId`/`idempotencyKey`/`registroId` que venga de la
+pantalla. Primero plata (cobros, gastos, facturas, recibos, señas, cuotas, sueldos, presupuestos);
+después lo demás. **La prueba corta la respuesta** (la acción corre, el resultado no llega) y reintenta:
+tiene que quedar uno solo.

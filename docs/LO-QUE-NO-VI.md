@@ -1161,3 +1161,14 @@ Mi candado de la plata miraba las acciones del servidor y no las rutas que entre
 ```comprobar
 prueba: src/__tests__/los-documentos-de-plata-piden-permiso.test.ts
 ```
+
+## 13 de octubre de 2026 — La respuesta perdida que duplica (Codex, órdenes 159 a 162)
+
+Cuatro veces la misma forma: mantenimiento, costos, configurador y chat guardaban dos veces cuando se
+perdía la respuesta y la persona reintentaba. Mi pregunta del doble toque no lo agarraba: el botón ya
+estaba liberado. Pregunta 58 de `COMO-AUDITAR.md` y 46 de `ANTES-DE-ENTREGAR.md`; barrido de toda la app.
+
+```comprobar
+prueba: src/__tests__/mantenimiento-reintentos-y-concurrencia.test.ts
+prueba: src/__tests__/ajuste-costos-recibo-atomico.test.ts
+```
