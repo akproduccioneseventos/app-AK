@@ -1040,6 +1040,15 @@ en celular falló 2, porque cada invitado tiene un código distinto y algunos di
 armado), se mide con muchos contenidos distintos y la prueba se repite (`--repeat-each`) antes de
 darlo por bueno. Así se eligió el arreglo final: 100 de 100 códigos leídos.
 
+### 37. Fusionar una prueba de navegador que nunca se había corrido
+
+**Pasó el 13 de octubre de 2026.** Un ayudante entregó la prueba del mantenimiento con la nota
+*"esto NO está corrido todavía"*. La prueba guardaba de verdad, y en el entorno de pruebas la
+escritura está apagada: no podía pasar nunca. La frenó la puerta, con una corrida perdida.
+
+**Qué se hace distinto:** una prueba de navegador nueva se corre sola antes de la puerta. Si
+necesita guardar, se prueba lo que la pantalla manda (cortando el pedido) y el guardado va en Jest.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y

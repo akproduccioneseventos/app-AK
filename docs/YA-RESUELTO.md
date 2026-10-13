@@ -13131,3 +13131,15 @@ archivo: src/lib/whatsapp/textos-avisos-al-cliente.ts
 usa: textos-avisos-al-cliente en src/app/(app)/alertas/page.tsx
 no-usa: whatsapp/avisos-al-cliente' en src/app/(app)/alertas/page.tsx
 ```
+
+## La prueba de navegador del mantenimiento mira lo que manda la pantalla (13 de octubre de 2026)
+
+La prueba de la orden 159 intentaba guardar de verdad, y en el entorno de pruebas la escritura está
+apagada: no podía pasar. Ahora corta el pedido y comprueba que el reintento del mismo borrador mande
+el mismo trabajo y que cambiar el trabajo mande otro. Que el servidor deje una sola fila y un solo
+gasto lo sigue probando la prueba de Jest de la orden.
+
+```comprobar
+prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
+prueba: src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
+```
