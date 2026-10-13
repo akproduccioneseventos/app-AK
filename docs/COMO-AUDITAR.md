@@ -1037,3 +1037,52 @@ El candado de la plata miraba las acciones del servidor, no las rutas que bajan 
 rutas servían contratos, presupuestos, comprobantes y contratos laborales a cualquiera con sesión, y
 el firmador genérico abría cualquier archivo guardado. **Barrido: toda ruta con `hasAppSession()` y
 sin `requirePermiso`**; si lo que entrega es plata o sueldos, es un hallazgo.
+
+## Pregunta 58 — la que sumó el 13 de octubre de 2026 (Codex, órdenes 159, 160, 161 y 162)
+
+### 58. Si la respuesta del servidor se pierde y la persona vuelve a tocar, ¿se guarda dos veces?
+
+Cuatro hallazgos seguidos con la misma forma: el mantenimiento con gasto, el ajuste de costos, el
+configurador y el presupuesto que arma el chat. El servidor **sí guardaba**, la respuesta no llegaba
+(se cortó la señal), la pantalla mostraba error y el segundo toque guardaba **otra vez**: dos gastos,
+dos aumentos, dos presupuestos. La pregunta 9 (doble toque) no lo agarraba: el botón ya estaba
+liberado porque la primera vuelta "falló".
+
+**Cómo se mira:** toda acción que CREA algo (un cobro, un gasto, un presupuesto, una factura, un
+recibo, una cuota, un invitado, una tarea) tiene que recibir de la pantalla **una identidad del
+intento** —generada una vez por borrador y repetida en cada reintento— y el servidor, adentro de la
+transacción, tiene que reconocerla y devolver lo ya creado en vez de crear otro. Un id armado en el
+servidor con `Date.now()` o `Math.random()` **no sirve**: cambia en cada reintento.
+
+**Barrido:** acciones en `src/app/actions/**` que crean con `Date.now()`, `randomUUID()` o
+`Math.random()` en el servidor y sin `operationId`/`idempotencyKey`/`registroId` que venga de la
+pantalla. Primero plata (cobros, gastos, facturas, recibos, señas, cuotas, sueldos, presupuestos);
+después lo demás. **La prueba corta la respuesta** (la acción corre, el resultado no llega) y reintenta:
+tiene que quedar uno solo.
+
+## Preguntas 59 y 60 — las que sumó el 13 de octubre de 2026 (Codex, órdenes 157 y 158)
+
+### 59. Un formulario que se abre de nuevo después de guardar, ¿arranca limpio? ¿Y conserva el borrador si falló?
+
+"Nueva incidencia" se abría con el texto del caso recién guardado: la persona cargaba el siguiente
+encima del anterior. **Al confirmar el guardado se limpia lo que era de ESE caso; si falló, se conserva
+para reintentar; lo que se elige siempre (fiesta, responsable) queda.** Barrido: diálogos de "Nuevo …"
+/ "Agregar …" (`setOpen(true)`, `DialogTrigger`) cuyo estado no se limpia en la rama de éxito.
+
+### 60. Con un nombre o título de 80 caracteres, ¿la pantalla del celular sigue entera?
+
+En las fichas de equipo e insumo un nombre largo empujaba "Guardar" y "Volver" fuera de la pantalla.
+**Se prueba con textos largos de verdad (sin espacios también) a 390 px**: los botones se ven y se
+pueden tocar. Barrido: encabezados `flex` con `h1`/`h2` que muestran un nombre cargado por el usuario
+sin `min-w-0` / `break-words`.
+
+## Pregunta 61 — la que sumó el 13 de octubre de 2026 (repaso de todo lo de Codex: devolución 76b)
+
+### 61. Una prueba que se saltea en el celular, ¿lo hace porque alcanza con uno, o esconde que en el celular no anda?
+
+La importación de invitados tenía `test.skip(project !== 'chromium-desktop')` y en el celular el botón
+de confirmar no se podía tocar: la orden figuraba hecha. **Si la pantalla la usa un invitado, un
+cliente o el personal en el celular, la prueba de su resultado corre también en `chromium-mobile`.**
+Saltear vale sólo cuando el resultado no depende del tamaño (un cálculo, un ajuste compartido, algo
+que se imprime desde la computadora) y el motivo lo dice. Barrido: `test.skip(testInfo.project.name`
+en `tests/e2e`, cruzado con las pantallas del invitado, del cliente y del personal.

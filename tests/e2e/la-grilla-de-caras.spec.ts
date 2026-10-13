@@ -158,7 +158,6 @@ test.afterAll(() => {
 test.describe('Orden 36: La grilla de caras', () => {
   test('con la fiesta sin preparar, el botón no aparece', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto(`/evento/galeria/${ID_SIN_PREPARAR}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
@@ -174,7 +173,6 @@ test.describe('Orden 36: La grilla de caras', () => {
 
   test('la grilla muestra caritas sin nombres y permite descargar las fotos de una persona', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto(`/evento/galeria/${ID_PREPARADA}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(4000);
@@ -207,7 +205,6 @@ test.describe('Orden 36: La grilla de caras', () => {
 
   test('con el interruptor apagado no se ve ni la grilla ni el botón', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto(`/evento/galeria/${ID_APAGADO}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
@@ -218,7 +215,6 @@ test.describe('Orden 36: La grilla de caras', () => {
 
   test('sin aceptar el permiso, la cámara no se prende y la galería sigue igual', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto(`/evento/galeria/${ID_PREPARADA}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
@@ -241,7 +237,6 @@ test.describe('Orden 36: La grilla de caras', () => {
 
   test('la selfie no sale del teléfono ni se manda a la red', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await enchufarCamara(page);
 

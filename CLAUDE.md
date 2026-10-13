@@ -1255,6 +1255,11 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Cada hallazgo de Codex corrige el método solo, sin que el dueño lo pida (13 de octubre de 2026).**
+  Palabras suyas: *"eso lo debés hacer automático sin que te tenga que decir"*. Al juntar una orden de
+  Codex: su línea "- Orden N → pregunta M" en `LO-QUE-NO-VI.md` (si no hay pregunta, se escribe), y se
+  barre la app con esa pregunta. Lo frena `cada-hallazgo-de-codex-tiene-su-pregunta.test.ts`.
+
 - **Todo lo programa Claude con ayudantes económicos; Gemini ya no (10 de octubre de 2026).**
   Palabras suyas: *"todo debes programar tú con agentes económicos, gemini no"*. Manda sobre el
   reparto de más arriba: las órdenes que Codex marca "para Gemini" las programa un ayudante barato
@@ -1656,6 +1661,7 @@ con otra cara.
 | Una transacción repetida por la base dejaba anotado el intento descartado: reels contados dos veces y "guardado" sin guardar | `src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts` y `src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts` |
 | El simulador ofrecía platos que el servidor rechazaba; el enlace del PDF no abría sin sesión; el portal contaba invitaciones y no personas; la fecha de la fiesta salía como cita | `src/__tests__/simulador-variantes-buffet-autorizadas.test.ts`, `src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts`, `src/__tests__/portal-cliente-contadores-personas.test.ts` y `src/__tests__/crm-fecha-evento-no-es-cita.test.ts` |
 | El entorno de pruebas no podía probar estaciones, mural ni fotos porque la base estaba apagada | `tests/firebase/estaciones-y-mural-con-emulador.test.ts` (corre en `npm run test:rules`) |
+| Codex encontraba la misma forma de error una y otra vez porque el método no sumaba la pregunta | `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` |
 
 ### Cómo se elige el matafuego
 
