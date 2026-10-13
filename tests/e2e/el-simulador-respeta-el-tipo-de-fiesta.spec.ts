@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta y no muestra $0 al arrancar', () => {
   test('abre con ?tipo=boda y queda seleccionada Boda', async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto('/simulador-de-presupuesto?tipo=boda', { waitUntil: 'domcontentloaded' });
 
@@ -19,7 +18,6 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
   });
 
   test('abre con ?tipo=XV%20años y queda seleccionada 15 años', async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto('/simulador-de-presupuesto?tipo=XV%20a%C3%B1os', { waitUntil: 'domcontentloaded' });
 
@@ -35,7 +33,6 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
   });
 
   test('abre sin parámetro y queda seleccionado Cumpleaños por defecto', async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
@@ -49,7 +46,6 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
   });
 
   test('en el paso 1 no aparece "$0" en el pie, y al seleccionar servicios sube a mayor que cero', async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
