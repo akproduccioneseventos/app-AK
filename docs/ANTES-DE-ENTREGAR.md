@@ -184,3 +184,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 46. **¿Tu botón CREA algo?** Cortá la respuesta (el servidor guarda, la pantalla no se entera) y tocá
     de nuevo: tiene que quedar uno solo. La pantalla manda una identidad del intento que se repite en
     cada reintento, y el servidor la reconoce. Un id armado en el servidor no alcanza.
+
+47. **¿Tu formulario se vuelve a abrir?** Guardá, abrilo de nuevo: tiene que arrancar limpio. Hacé
+    fallar el guardado: el borrador tiene que seguir ahí.
+48. **¿Mostrás un nombre que carga el usuario?** Probalo con 80 caracteres en el celular: los botones
+    siguen a la vista.

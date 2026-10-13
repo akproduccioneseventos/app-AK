@@ -1059,3 +1059,19 @@ servidor con `Date.now()` o `Math.random()` **no sirve**: cambia en cada reinten
 pantalla. Primero plata (cobros, gastos, facturas, recibos, señas, cuotas, sueldos, presupuestos);
 después lo demás. **La prueba corta la respuesta** (la acción corre, el resultado no llega) y reintenta:
 tiene que quedar uno solo.
+
+## Preguntas 59 y 60 — las que sumó el 13 de octubre de 2026 (Codex, órdenes 157 y 158)
+
+### 59. Un formulario que se abre de nuevo después de guardar, ¿arranca limpio? ¿Y conserva el borrador si falló?
+
+"Nueva incidencia" se abría con el texto del caso recién guardado: la persona cargaba el siguiente
+encima del anterior. **Al confirmar el guardado se limpia lo que era de ESE caso; si falló, se conserva
+para reintentar; lo que se elige siempre (fiesta, responsable) queda.** Barrido: diálogos de "Nuevo …"
+/ "Agregar …" (`setOpen(true)`, `DialogTrigger`) cuyo estado no se limpia en la rama de éxito.
+
+### 60. Con un nombre o título de 80 caracteres, ¿la pantalla del celular sigue entera?
+
+En las fichas de equipo e insumo un nombre largo empujaba "Guardar" y "Volver" fuera de la pantalla.
+**Se prueba con textos largos de verdad (sin espacios también) a 390 px**: los botones se ven y se
+pueden tocar. Barrido: encabezados `flex` con `h1`/`h2` que muestran un nombre cargado por el usuario
+sin `min-w-0` / `break-words`.

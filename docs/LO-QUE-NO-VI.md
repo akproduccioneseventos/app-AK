@@ -1172,3 +1172,29 @@ estaba liberado. Pregunta 58 de `COMO-AUDITAR.md` y 46 de `ANTES-DE-ENTREGAR.md`
 prueba: src/__tests__/mantenimiento-reintentos-y-concurrencia.test.ts
 prueba: src/__tests__/ajuste-costos-recibo-atomico.test.ts
 ```
+
+## Cada hallazgo de Codex, con la pregunta del método que lo agarra
+
+El control `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` exige una línea acá por
+cada orden de Codex desde la 149. **Si entra una orden nueva sin su línea, la puerta no deja publicar**:
+así el método se corrige solo, sin que el dueño lo tenga que pedir. Si ninguna pregunta la agarra, se
+escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
+
+- Orden 149 → pregunta 54
+- Orden 150 → pregunta 52
+- Orden 151 → pregunta 50
+- Orden 152 → propia de Claude
+- Orden 153 → pregunta 50
+- Orden 154 → pregunta 50
+- Orden 155 → pregunta 57
+- Orden 156 → pregunta 50
+- Orden 157 → pregunta 59
+- Orden 158 → pregunta 60
+- Orden 159 → pregunta 58
+- Orden 160 → pregunta 58
+- Orden 161 → pregunta 58
+- Orden 162 → pregunta 58
+
+```comprobar
+prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts
+```
