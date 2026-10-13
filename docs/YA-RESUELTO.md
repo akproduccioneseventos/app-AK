@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex122 en validacion: tarjeta del asistente apunta al boton real
+
+-Sobre app87: navegador PC, tarjeta Abrir asistente activo no abre el chat;
+ boton principal SI. DOM: nuevo lanzador1, selector antiguo0. Reproduccion con
+ SDKdemo y JSONvaciados en122-indicador-antes.json.gz. No repeticion de121.
+-Cambio UNICOapp: ContextualAssistantIndicator busca Abrir Asistente IA AK,
+ el nombre real del lanzador/lazy. No movimiento, minimizado, permisos ni dinero
+ modificados; friccion152 de posicion sigue separada. Test ReactDOM focal PASS.
+-Fallo inicial de herramienta QA ausente (@testing-library/react,0tests) guardado;
+ se uso ReactDOM existente sin instalar dependencias. Primera sonda no vacio
+ arrays JSON: se descarto para aceptar y se repitio con fixture limpio; guardas
+ restauraron bytes. No falsear esos problemas QA como defectos de app.
+-Faltan build/amplia/nativo del nuevoSHA. No extender prueba12187 a este cambio.
+
 ## 13/10/2026 - Codex121/orden162 CORREGIDA Y COMPROBADA, alcance presupuestos
 
 -Fuente87b74b7d. El intento financiero del chat pasa UUID desde widget a API/

@@ -51,7 +51,7 @@ function guardarPreferencia(p: PreferenciaTarjeta) {
 }
 
 function openAssistantWidget() {
-  const button = document.querySelector<HTMLButtonElement>('[aria-label="Abrir Asistente AK"]');
+  const button = document.querySelector<HTMLButtonElement>('[aria-label="Abrir Asistente IA AK"]');
   button?.click();
 }
 
