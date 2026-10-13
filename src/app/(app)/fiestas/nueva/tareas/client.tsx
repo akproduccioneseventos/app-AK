@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -307,9 +308,13 @@ function TareasEventoContent() {
     };
     
     setIsSaving(true);
-    const result = await addTareaToFiestaActual(fiestaId, newTaskData);
+    // Pregunta 58: mismo contenido = mismo intento; si la respuesta se pierde y reintenta, no se duplica.
+    const alcanceIntento = `tarea-nueva:${fiestaId}`;
+    const idIntento = await obtenerIntento(alcanceIntento, newTaskData);
+    const result = await addTareaToFiestaActual(fiestaId, newTaskData, { idIntento });
 
     if (result.success && result.tarea) {
+        terminarIntento(alcanceIntento);
         setTareas(prev => [result.tarea!, ...prev]);
         toast({ title: "Tarea Añadida" });
         setNewTaskText('');

@@ -1,6 +1,7 @@
 
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
 import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
@@ -50,7 +51,8 @@ export async function getEmpleadoById(id: string): Promise<Empleado | null> {
 }
 
 export async function saveEmpleado(
-  empleadoData: NuevoEmpleadoFormData | Empleado | FormData
+  empleadoData: NuevoEmpleadoFormData | Empleado | FormData,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
   // Cambiar la ficha de alguien (cedula, contrato) es del dueño, como borrarla.
   const permiso = await requirePermiso(PERMISOS.SUELDOS);
@@ -103,11 +105,15 @@ export async function saveEmpleado(
     };
     empleadoToSave = empleados[index];
   } else { // Create
+    // Pregunta 58: reintento de una respuesta perdida = exito con el empleado que ya esta, no "ya existe".
+    const idDeLaPantalla = idDelIntento('emp', opciones?.idIntento);
+    const yaGuardado = idDeLaPantalla ? empleados.find(e => e.id === idDeLaPantalla) : undefined;
+    if (yaGuardado) return { success: true, id: yaGuardado.id, empleado: yaGuardado };
     const isDuplicate = empleados.some(emp => emp.nombre && emp.nombre.trim().toLowerCase() === empleadoToSave.nombre!.trim().toLowerCase());
     if (isDuplicate) {
         return { success: false, error: `Ya existe un empleado con el nombre "${empleadoToSave.nombre!.trim()}".` };
     }
-    empleadoId = `emp_${randomUUID()}`;
+    empleadoId = idDeLaPantalla ?? `emp_${randomUUID()}`;
     empleadoToSave.id = empleadoId;
     empleados.push(empleadoToSave as Empleado);
     isNewEmployee = true;

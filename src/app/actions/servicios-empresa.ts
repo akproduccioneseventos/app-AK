@@ -1,6 +1,7 @@
 
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { ServicioEmpresa, TipoCosto } from '@/types/empresa';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
@@ -74,7 +75,8 @@ export async function getServicioEmpresaById(id: string): Promise<ServicioEmpres
 }
 
 export async function saveServicioEmpresa(
-  itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
+  itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
   cacheInvalidate('servicios-empresa-raw'); // nada de lista vieja de 15 s para decidir si existe o esta repetido
@@ -127,9 +129,13 @@ export async function saveServicioEmpresa(
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
+    // Pregunta 58: reintento de una respuesta perdida = exito con el servicio que ya esta, no "ya existe".
+    const idDeLaPantalla = idDelIntento('serv', opciones?.idIntento);
+    const yaGuardado = idDeLaPantalla ? inventario.find(s => s.id === idDeLaPantalla) : undefined;
+    if (yaGuardado) return { success: true, id: yaGuardado.id, servicio: yaGuardado };
     const existingItem = inventario.find(s => s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase() && s.categoria === dataWithParsedNumbers.categoria);
     if (existingItem) return { success: false, error: `Ya existe un servicio con el nombre "${dataWithParsedNumbers.nombre!.trim()}" en la categoría "${dataWithParsedNumbers.categoria}".` };
-    itemId = `serv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    itemId = idDeLaPantalla ?? `serv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId };
     inventario.push(finalItemData as ServicioEmpresa);
   }

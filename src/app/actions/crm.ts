@@ -2,6 +2,7 @@
 'use server';
 import { createHash } from 'crypto';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types/crm';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
@@ -207,7 +208,7 @@ export async function getCrmLeadOptions(): Promise<CrmLeadOption[]> {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
+export async function addCrmLead(leadData: NewCrmLeadData, opciones?: { idIntento?: string }): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
   const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   const nameCleaned = (leadData.name || '').trim().replace(/\s+/g, ' ');
@@ -241,6 +242,12 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
   const stages = await getCrmStages();
   const now = new Date().toISOString();
 
+  // Pregunta 58: si la respuesta se perdio y la persona reintenta, el prospecto ya esta con ese id.
+  // Sin esto, el reintento chocaba con SU PROPIO registro y decia "ya existe" despues de guardar.
+  const idDeLaPantalla = idDelIntento('lead', opciones?.idIntento);
+  const yaGuardado = idDeLaPantalla ? leads.find((l) => l.id === idDeLaPantalla) : undefined;
+  if (yaGuardado) return { success: true, lead: yaGuardado };
+
   // Duplicate detection by phone
   if (sanitizedData.phone) {
     const normalizedPhone = normalizePhone(sanitizedData.phone);
@@ -268,7 +275,7 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
 
   const newLead: CrmLead = {
     ...sanitizedData,
-    id: `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    id: idDeLaPantalla ?? `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     createdAt: now,
     updatedAt: now,
     currentStageId: sanitizedData.currentStageId || stages[0].id,

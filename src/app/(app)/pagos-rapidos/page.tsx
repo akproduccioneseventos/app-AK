@@ -766,14 +766,14 @@ function PagosRapidosContent() {
                 return (
                   <Card key={p.id} className="border-amber-100 shadow-md rounded-2xl overflow-hidden">
                     <CardHeader className="bg-amber-50/50 p-4 pb-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-sm font-black text-slate-800">{p.clienteNombre}</CardTitle>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <CardTitle className="text-sm font-black text-slate-800 break-words [overflow-wrap:anywhere]" data-testid="titulo-cliente-pago">{p.clienteNombre}</CardTitle>
                           <CardDescription className="text-[10px] font-medium uppercase tracking-tighter">
                             {p.eventoTipo} · Presupuesto #{p.numero}
                           </CardDescription>
                         </div>
-                        <Badge className="bg-amber-100 text-amber-700 text-[10px] font-bold">
+                        <Badge className="bg-amber-100 text-amber-700 text-[10px] font-bold shrink-0">
                           {pendingPagos.length} pendiente{pendingPagos.length > 1 ? 's' : ''}
                         </Badge>
                       </div>

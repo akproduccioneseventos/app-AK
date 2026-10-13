@@ -32,6 +32,8 @@ export interface FilaDePlanilla {
   contacto?: string;
   esRepetido?: boolean;
   error?: string;
+  /** Identidad del intento de guardar esta fila (pregunta 58): la arma la pantalla al leer. */
+  idIntento?: string;
 }
 
 export interface ResumenDePlanilla {

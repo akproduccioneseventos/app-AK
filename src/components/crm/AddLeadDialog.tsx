@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { useState, useCallback, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
@@ -84,12 +85,17 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
         eventDate: formData.eventDate ? new Date(formData.eventDate).toISOString() : undefined
       } as NewCrmLeadData;
 
-      const result = await addCrmLead({ 
+      const cargaLead = {
         ...dataToSave,
         currentStageId: defaultStageId || firstStageId,
-      });
+      };
+      // Pregunta 58: mismo contenido = mismo intento; si la respuesta se pierde y reintenta, no se
+      // duplica ni choca con su propio registro ("ya existe").
+      const idIntento = await obtenerIntento('prospecto-nuevo', cargaLead);
+      const result = await addCrmLead(cargaLead, { idIntento });
 
       if (result.success) {
+        terminarIntento('prospecto-nuevo');
         toast({ title: "Prospecto Añadido", description: `El prospecto "${formData.name}" ha sido añadido.` });
         resetForm();
         setIsOpen(false);

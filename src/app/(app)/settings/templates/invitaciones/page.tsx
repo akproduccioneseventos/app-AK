@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -89,8 +90,12 @@ export default function InvitationTemplatesPage() {
   const handleDuplicateTemplate = async (id: string, name: string) => {
     setProcessingId(id);
     try {
-      const result = await duplicateInvitationTemplate(id);
+      // Pregunta 58: reintento de una respuesta perdida = la misma copia, no dos.
+      const alcanceIntento = `plantilla-copia:${id}`;
+      const idIntento = await obtenerIntento(alcanceIntento, { id });
+      const result = await duplicateInvitationTemplate(id, { idIntento });
       if (result.success) {
+        terminarIntento(alcanceIntento);
         toast({ title: "Plantilla Duplicada", description: `Se creó una copia de "${name}".` });
         await fetchTemplates();
       } else {
