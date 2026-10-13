@@ -103,6 +103,7 @@ import { marcarLlegadaPersonal } from '@/app/actions/personal-fiestas';
 import { marcarHitoPrograma } from '@/app/actions/fiesta/itinerario.actions';
 import { addInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { saveSugerenciaMusical } from '@/app/actions/fiesta/musica.actions';
+import { updateGiftRegistry, claimGift } from '@/app/actions/fiesta/regalos.actions';
 import { guardarCierreDeBarra, createBarDrinkOrder } from '@/app/actions/fiesta/barra-tecnologica.actions';
 
 const ID = 'f_guardados';
@@ -126,6 +127,15 @@ function fiestaInicial() {
         { id: 'gin', nombre: 'Gin con Pomelo', recetaIngredientes: [], stockDisponible: 5 },
         { id: 'ron', nombre: 'Ron cola', recetaIngredientes: [{ insumoId: 'ron-botella', cantidad: 0.1 }], stockDisponible: 5 },
       ],
+    },
+    invitacionDigital: {
+      regalos: {
+        visible: true, titulo: { text: '' }, texto: { text: '' }, datosBancarios: '',
+        items: [
+          { id: 'g1', name: 'Licuadora', isClaimed: false },
+          { id: 'g2', name: 'Plancha', isClaimed: false },
+        ],
+      },
     },
     others: { barraTecnologica: { settings: { enabled: true, openingTime: '', closingTime: '' }, orders: [] } },
   };
@@ -209,5 +219,40 @@ describe('Dos guardados a la vez sobre la misma fiesta: no se pierde ninguno', (
     expect(almacen['insumos.json'][0].cantidadDisponible).toBe(8);
     expect(almacen[RUTA].others.barraTecnologica.cierre.depositoAjustado).toBe(true);
     expect(almacen[RUTA].others.barraTecnologica.cierre.ajustePendiente).toBeUndefined();
+  });
+
+  it('el equipo guarda una lista vieja de regalos despues de que un invitado reservo uno: la reserva sobrevive', async () => {
+    // La pantalla del equipo se abrio con g1 libre; el invitado lo reserva; el equipo guarda su lista.
+    const reserva = await claimGift(ID, 'g1', 'Lucia');
+    const guardado = await updateGiftRegistry(ID, [
+      { id: 'g1', name: 'Licuadora nueva', isClaimed: false },
+      { id: 'g2', name: 'Plancha', isClaimed: false },
+    ]);
+    expect(reserva.success).toBe(true);
+    expect(guardado.success).toBe(true);
+    const items = almacen[RUTA].invitacionDigital.regalos.items;
+    expect(items.find((i: any) => i.id === 'g1')).toMatchObject({ name: 'Licuadora nueva', isClaimed: true, claimedBy: 'Lucia' });
+  });
+
+  it('un regalo que el equipo borra, se borra', async () => {
+    await updateGiftRegistry(ID, [{ id: 'g1', name: 'Licuadora', isClaimed: false }]);
+    expect(almacen[RUTA].invitacionDigital.regalos.items.map((i: any) => i.id)).toEqual(['g1']);
+  });
+
+  it('dos invitados agregados en el mismo milisegundo son dos invitados', async () => {
+    const ahora = Date.now();
+    const spy = jest.spyOn(Date, 'now').mockReturnValue(ahora);
+    try {
+      const [a, b] = await Promise.all([
+        addInvitado(ID, { nombre: 'Uno', rsvp: 'Pendiente' } as any),
+        addInvitado(ID, { nombre: 'Dos', rsvp: 'Pendiente' } as any),
+      ]);
+      expect(a.success && b.success).toBe(true);
+    } finally {
+      spy.mockRestore();
+    }
+    const invitados = almacen[RUTA].invitados;
+    expect(invitados).toHaveLength(2);
+    expect(new Set(invitados.map((i: any) => i.id)).size).toBe(2);
   });
 });

@@ -30,7 +30,14 @@ export async function updateGiftRegistry(fiestaId: string, giftList: GiftItem[])
         const invitacionDigital = data.invitacionDigital || initialFiestaActualData.invitacionDigital!;
         const regalos = invitacionDigital.regalos || { visible: true, titulo: { text: '' }, texto: { text: '' }, datosBancarios: '', items: [] };
 
-        const updatedRegalos = { ...regalos, items: giftList };
+        // Lo que edita el equipo (nombre, foto, orden, borrados) viene de la pantalla; lo que marca
+        // el invitado (reservado, quien) se conserva de lo guardado en ESTE momento por id.
+        const actuales = new Map((regalos.items || []).map(item => [item.id, item]));
+        const items = giftList.map(item => {
+            const guardado = actuales.get(item.id);
+            return guardado ? { ...item, isClaimed: guardado.isClaimed, claimedBy: guardado.claimedBy } : item;
+        });
+        const updatedRegalos = { ...regalos, items };
 
         return {
             ...data,
