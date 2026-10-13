@@ -1,5 +1,6 @@
 
 import { notFound } from 'next/navigation';
+import { ocultarRespuestaCorrecta } from '@/lib/social-fiesta/public-event';
 import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
 import { getCompanyInfoPublica, getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -73,7 +74,7 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
     listaMusicaPortal: fiesta.listaMusicaPortal || {},
     socialGallerySettings: fiesta.socialGallerySettings ? {
       enabled: fiesta.socialGallerySettings.enabled,
-      activeGame: fiesta.socialGallerySettings.activeGame,
+      activeGame: ocultarRespuestaCorrecta(fiesta.socialGallerySettings.activeGame),
     } : {},
     timeline: fiesta.timeline || [],
     invitados: toPublicGuestStatsInput(fiesta.invitados),
