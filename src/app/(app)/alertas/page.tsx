@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas, descartarAlerta, getDatosFiestasParaAlertas } from '@/app/actions/alertas.actions';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
-import { armarTextoAviso } from '@/lib/whatsapp/avisos-al-cliente';
+import { armarTextoAviso } from '@/lib/whatsapp/textos-avisos-al-cliente';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';

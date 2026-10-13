@@ -13118,3 +13118,16 @@ Segundo ayudante: busqueda acotada de otros consumidores publicos directos del
 lector privado de empresa, sin otro fallo demostrado. Ambos ayudantes cerrados.
 Servidor de prueba detenido al acabar; copia compilada conservada SOLO para
 reproducir f790a002, no para aceptar una correccion posterior sin reconstruirla.
+
+## La pantalla de alertas no compilaba por arrastrar código del servidor (13 de octubre de 2026)
+
+La pantalla de alertas tomaba el texto del aviso al cliente de `avisos-al-cliente.ts`, que desde
+que guarda con `actualizarFiesta` arrastra `server-only`. El revisor de tipos y las pruebas pasaban;
+la compilación no. Los textos puros se movieron a `textos-avisos-al-cliente.ts` y la pantalla los
+toma de ahí. El control es la compilación de la puerta, que fue la que lo frenó.
+
+```comprobar
+archivo: src/lib/whatsapp/textos-avisos-al-cliente.ts
+usa: textos-avisos-al-cliente en src/app/(app)/alertas/page.tsx
+no-usa: whatsapp/avisos-al-cliente' en src/app/(app)/alertas/page.tsx
+```
