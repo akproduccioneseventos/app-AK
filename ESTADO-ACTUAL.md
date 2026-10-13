@@ -16,9 +16,12 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
 - Su lote 115 (pantallas de control, conexiones, respaldo de ajustes, plantillas, Google)
   estaba en su máquina sin subir: cuando aparezca en la PR 1288, se junta igual.
 
-## Esperando decisión del dueño
-- Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
-- Votos: tope de 30 por minuto por red y encuesta; en el wifi del salón puede frenar invitados.
+## Hecho el 13/10 por pedido del dueño ("mirá cómo lo hacen otras apps")
+- Votos: uno por teléfono (como Slido/Mentimeter) y tope de red alto; el wifi del salón no frena.
+- Trivia en vivo como Kahoot: el celular muestra la pregunta lanzada, el servidor suma puntos,
+  "Mostrar respuesta" y "Terminar trivia y mostrar podio" en el panel del operador.
+- Misiones de fotos: la foto sube a la galería y suma una vez; ranking "Cazadores de fotos".
+- Una trivia lanzada antes de este cambio no tiene respuesta correcta: hay que relanzarla.
 
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
