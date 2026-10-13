@@ -1,0 +1,38 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "meeting-master-save-reload",
+    "details": {
+      "stored": true,
+      "reload": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "meeting-master-consumer-dialog",
+    "details": {
+      "fiestaId": "qa110_meeting_desktop_ffd42356-d906-49a0-81e0-31292ecf1865",
+      "masterItemActuallyConsumed": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "meeting-master-save-reload",
+    "details": {
+      "stored": true,
+      "reload": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "meeting-master-consumer-dialog",
+    "details": {
+      "fiestaId": "qa110_meeting_mobile_6ba0df51-82ce-4217-ab38-d3cfc4ab3075",
+      "masterItemActuallyConsumed": true
+    },
+    "status": "PASS"
+  }
+]

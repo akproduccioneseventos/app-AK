@@ -1,0 +1,22 @@
+{
+  "url": "http://127.0.0.1:3301/empresa/menus/qa113_menu/editar",
+  "text": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nEditando Menú\nIngreso/Egreso Rápido\nAbrir notificaciones\nEditar Menú: QA113 Menu\nVolver a Menús\nInformación del Menú\nNombre del Menú\nDescripción\nURL Foto del Menú\nDestacar en simulador\nSus platos aparecen primero, antes del orden por precio.\nPlatos del Menú\n2 platos\nAñadir Plato\n✓ Guardado\n🍽️\n\nQA113 Plato gramos\n\nPLATO PRINCIPAL\n1 ingredientes\n\nCOSTO P/P\n\n$ 27.500\n\nPRECIO VENTA\n\n$ 50\n\n🍽️\n\nQA113 Plato kg\n\nPLATO PRINCIPAL\n1 ingredientes\n\nCOSTO P/P\n\n$ 27,5\n\nPRECIO VENTA\n\n$ 50\n\nGuardar Menú\nBruno\nResponsable general de fiesta",
+  "inputs": [
+    {
+      "id": "menu-name",
+      "value": "QA113 Menu"
+    },
+    {
+      "id": "menu-image",
+      "value": ""
+    },
+    {
+      "id": "",
+      "value": "on"
+    },
+    {
+      "id": "",
+      "value": ""
+    }
+  ]
+}

@@ -8,7 +8,7 @@ import { borrarActivoDePrueba, ponerSesionDelEquipo, sembrarActivoDePrueba } fro
  * (eso lo prueba `src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts` contra la
  * accion real: un reintento deja una sola fila y un solo gasto). Aca se prueba la otra mitad,
  * la que solo se ve en el navegador: que la pantalla REPITA el mismo id al reintentar el mismo
- * borrador, y mande uno NUEVO cuando la persona cambia el trabajo.
+ * borrador (tambien tras recargar), y que no mande otro trabajo mientras el anterior no se confirmo.
  *
  * En el entorno de pruebas la escritura esta apagada (`AK_USE_LOCAL_JSON_ONLY`), asi que la
  * accion se corta antes de llegar al servidor: se mira lo que la pantalla mando y el aviso de
@@ -24,7 +24,7 @@ const RUTA = `/empresa/activos-fijos/${ID}/editar`;
 test.beforeAll(() => sembrarActivoDePrueba({ id: ID, nombre: 'Parlante de prueba mantenimiento', cantidadDisponible: 1 }));
 test.afterAll(() => borrarActivoDePrueba(ID));
 
-test('reintentar el mismo borrador manda el mismo trabajo; otro trabajo manda otro', async ({ context, page }, testInfo) => {
+test('reintentar el mismo borrador manda el mismo trabajo, tambien despues de recargar', async ({ context, page }, testInfo) => {
   test.setTimeout(120_000);
   await ponerSesionDelEquipo(context, testInfo.project.use.baseURL as string | undefined);
 
@@ -33,7 +33,7 @@ test('reintentar el mismo borrador manda el mismo trabajo; otro trabajo manda ot
     const req = route.request();
     const cuerpo = req.method() === 'POST' ? req.postData() || '' : '';
     if (req.headers()['next-action'] && cuerpo.includes('registroId')) {
-      const id = cuerpo.match(/mant_[0-9a-f-]{36}/)?.[0];
+      const id = cuerpo.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)?.[0];
       enviados.push(id || 'sin-id');
       await route.abort('failed'); // se cae la senal: la respuesta nunca llega
       return;
@@ -51,15 +51,24 @@ test('reintentar el mismo borrador manda el mismo trabajo; otro trabajo manda ot
   // Mismo borrador, otro toque: el mismo trabajo.
   await page.getByRole('button', { name: /^Anotar mantenimiento$/i }).click();
   await expect.poll(() => enviados.length, { timeout: 20_000 }).toBe(2);
-  expect(enviados[0]).toMatch(/^mant_/);
+  expect(enviados[0]).toMatch(/^[0-9a-f-]{36}$/);
   expect(enviados[1]).toBe(enviados[0]);
   // El borrador sigue ahi para reintentar: no se lo da por anotado.
   await expect(page.locator('#maint-nota')).toHaveValue('Cambio de lampara');
 
-  // La persona cambia el trabajo: es otro, con otro id.
+  // La persona cambia el trabajo sin que el anterior este confirmado: la pantalla NO lo manda
+  // como uno nuevo (podria quedar duplicado) y le pide reintentar primero el anterior.
   await page.locator('#maint-nota').fill('Cambio de lampara y fusible');
   await page.getByRole('button', { name: /^Anotar mantenimiento$/i }).click();
+  await expect(page.getByText(/Mantenimiento anterior sin confirmar/i).first()).toBeVisible({ timeout: 20_000 });
+  expect(enviados).toHaveLength(2);
+
+  // Recargar no pierde la identidad del trabajo sin confirmar: el reintento manda el mismo id.
+  await page.reload();
+  await page.getByRole('button', { name: /Anotar un mantenimiento/i }).click();
+  await page.locator('#maint-nota').fill('Cambio de lampara');
+  await page.locator('#maint-costo').fill('123.45');
+  await page.getByRole('button', { name: /^Anotar mantenimiento$/i }).click();
   await expect.poll(() => enviados.length, { timeout: 20_000 }).toBe(3);
-  expect(enviados[2]).toMatch(/^mant_/);
-  expect(enviados[2]).not.toBe(enviados[0]);
+  expect(enviados[2]).toBe(enviados[0]);
 });

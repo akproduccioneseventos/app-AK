@@ -1,0 +1,72 @@
+{
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "details": {
+        "ingredientReloaded": true,
+        "actualMenuLinkUsed": "/empresa/menus/qa113_menu/editar",
+        "menuConsumerOpened": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "details": {
+        "ingredientReloaded": true,
+        "actualMenuLinkUsed": "/empresa/menus/qa113_menu/editar",
+        "menuConsumerOpened": true
+      },
+      "status": "PASS"
+    }
+  ],
+  "cleanup": {
+    "deleted": 7,
+    "documentsRemaining": 0,
+    "restored": [
+      {
+        "file": "src\\data\\insumos.json",
+        "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+        "qaSha256": "a8b0269c61231d25438684bf8214dac1c27dff48aface5335d1dd180539a6d35"
+      },
+      {
+        "file": "src\\data\\menus-catering.json",
+        "beforeSha256": "b2619502addbc82683c56f08e51a5731475713fb04e5c91199b791acdb3db111",
+        "qaSha256": "1dd0239c09dff38cebd2130b5deb969fdf467e3625ba6b8b577f8d842b22c651"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "9437d69827dc3cad77f532cc13e0840dde5ff011d59e7378007f5f62a24a7ecf"
+      },
+      {
+        "file": "src\\data\\insumos-ajuste-pendiente.json",
+        "beforeSha256": null,
+        "qaSha256": "26ea8255f9a60d02821a6410375e247d1bd36dce3d7eec66d1fb8dae12e49ebc"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "9437d69827dc3cad77f532cc13e0840dde5ff011d59e7378007f5f62a24a7ecf"
+      },
+      {
+        "file": "data\\insumos-ajuste-pendiente.json",
+        "beforeSha256": null,
+        "qaSha256": "26ea8255f9a60d02821a6410375e247d1bd36dce3d7eec66d1fb8dae12e49ebc"
+      },
+      {
+        "file": "data\\insumos.json",
+        "beforeSha256": null,
+        "qaSha256": "a8b0269c61231d25438684bf8214dac1c27dff48aface5335d1dd180539a6d35"
+      },
+      {
+        "file": "data\\menus-catering.json",
+        "beforeSha256": null,
+        "qaSha256": "1dd0239c09dff38cebd2130b5deb969fdf467e3625ba6b8b577f8d842b22c651"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

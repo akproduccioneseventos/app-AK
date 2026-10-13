@@ -72,10 +72,11 @@ export async function getInsumoById(id: string): Promise<ServicioEmpresa | null>
  */
 async function propagateInsumoChangesToMenus(
     updatedInsumo: ServicioEmpresa,
+    operationId?: string,
 ): Promise<{ success: boolean; error?: string }> {
     // Cada menú se cambia sobre su versión guardada en ese momento (pregunta 22): ver
     // `aplicarInsumoEnMenus` en menus-catering.ts.
-    return aplicarInsumoEnMenus(updatedInsumo);
+    return aplicarInsumoEnMenus(updatedInsumo, operationId);
 }
 
 
@@ -196,135 +197,64 @@ async function deleteInsumoInterno(id: string): Promise<{ success: boolean; erro
 }
 
 
-/**
- * `costosNuevos` guarda el costo FINAL de cada insumo (valor absoluto, no un porcentaje): el marcador
- * se escribe ANTES de tocar los insumos, y si el guardado se corta, el reintento pone esos mismos
- * valores sin volver a multiplicar. `insumosAplicados` dice si ya se escribieron. (12/10/2026)
- */
-type AjustePendiente = {
-  porcentaje: number;
-  fecha: string;
-  pendientes: string[];
-  costosNuevos?: Record<string, number>;
-  insumosAplicados?: boolean;
-};
+type AjustePendiente = { porcentaje: number; fecha: string; pendientes: string[] };
 const AJUSTE_PENDIENTE_FILE = 'insumos-ajuste-pendiente.json';
 
-/**
- * Pasa el costo nuevo de cada insumo pendiente a los menús. Lo que falla queda anotado como
- * pendiente, para que el reintento termine eso sin volver a aplicar el porcentaje.
- */
-async function terminarMenusPendientes(
-  inventario: ServicioEmpresa[],
-  ajuste: AjustePendiente,
-): Promise<{ success: boolean; error?: string }> {
-  const fallaron: ServicioEmpresa[] = [];
-  for (const id of ajuste.pendientes) {
-    const insumo = inventario.find((i) => i.id === id);
-    if (!insumo) continue;
-    const propRes = await propagateInsumoChangesToMenus(insumo);
-    if (!propRes.success) {
-      console.warn(`[insumos] no se pudieron propagar cambios a los menús para ${insumo.nombre}:`, propRes.error);
-      fallaron.push(insumo);
-    }
-  }
-  await writeData(AJUSTE_PENDIENTE_FILE, { ...ajuste, pendientes: fallaron.map((i) => i.id) });
-  if (fallaron.length > 0) {
-    const nombres = fallaron.map((i) => i.nombre);
-    const cuales = nombres.slice(0, 5).join(', ');
-    const resto = nombres.length > 5 ? ` y ${nombres.length - 5} mas` : '';
-    return {
-      success: false,
-      error: `Los costos de los insumos quedaron ajustados, pero NO se pudo actualizar el costo en los menus de: ${cuales}${resto}. Volvé a aplicar el mismo ${ajuste.porcentaje}%: no se vuelve a subir, sólo termina esos menús.`,
-    };
-  }
-  return { success: true };
-}
-
 async function adjustAllInsumoCostsInterno(
-  percentage: number
-): Promise<{ success: boolean; error?: string }> {
+  percentage: number,
+  operationId?: string,
+): Promise<{ success: boolean; error?: string; sinCambios?: boolean }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
-  if (isNaN(percentage) || percentage === 0) {
-    return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
+  if (!Number.isFinite(percentage) || percentage === 0 || !operationId || !/^[a-zA-Z0-9_-]{1,120}$/.test(operationId)) {
+    return { success: false, sinCambios: true, error: "El porcentaje debe ser un número distinto de cero y la operación debe ser válida." };
   }
   // Los mismos dos topes que ya tenian los servicios. Sin ellos, un -200 daba
   // vuelta el signo y todo el catalogo de insumos quedaba en negativo; y un 5000
   // mal tipeado (en vez de 50) multiplicaba los costos por cincuenta y uno.
   if (percentage <= -100) {
-    return { success: false, error: 'No se puede bajar los costos un 100% o más: quedarían en cero o en negativo.' };
+    return { success: false, sinCambios: true, error: 'No se puede bajar los costos un 100% o más: quedarían en cero o en negativo.' };
   }
   if (percentage > 1000) {
-    return { success: false, error: 'El ajuste no puede superar el 1000%. Revisá el número que pusiste.' };
+    return { success: false, sinCambios: true, error: 'El ajuste no puede superar el 1000%. Revisá el número que pusiste.' };
   }
 
 
   try {
     limpiarCacheInsumos();
-    const inventario = await leerInsumosCrudos();
-    if (inventario.length === 0) {
-      return { success: false, error: "No hay insumos en el catálogo para ajustar." };
-    }
-
     // Un ajuste anterior quedó a medias (Codex, auditoría 66): los insumos ya tienen el porcentaje
     // y faltan menús. Reintentar con el mismo porcentaje NO lo vuelve a aplicar: sólo termina los
     // menús que faltaban. Con otro porcentaje no se deja, porque se sumaría encima del anterior.
     const pendiente = await readData<AjustePendiente | null>(AJUSTE_PENDIENTE_FILE, null);
-    const ordenInsumos = (a: ServicioEmpresa, b: ServicioEmpresa) =>
-      (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || '');
-    if (pendiente?.pendientes?.length) {
-      if (pendiente.porcentaje !== percentage) {
-        return {
-          success: false,
-          error: `Hay un ajuste del ${pendiente.porcentaje}% que quedó a medias. Volvé a aplicar ese mismo ${pendiente.porcentaje}% para terminar los menús (no se vuelve a subir) y después hacé el nuevo.`,
-        };
+    {
+      if (SIN_BASE()) return { success: false, sinCambios: true, error: 'El ajuste seguro requiere la base de datos; no se cambiaron los costos.' };
+      const { comenzarAjusteCostos, terminarAjusteCostos, leerInsumosParaAjuste, AjusteNoIniciadoError } = await import('@/lib/insumos/ajuste-costos-idempotente');
+      if (pendiente?.pendientes?.length && pendiente.porcentaje !== percentage) {
+        return { success: false, sinCambios: true, error: `Hay un ajuste del ${pendiente.porcentaje}% pendiente. Termina ese ajuste primero.` };
       }
-      let inventarioActual = inventario;
-      if (pendiente.insumosAplicados === false && pendiente.costosNuevos) {
-        // El corte fue antes o durante el guardado de los insumos: se ponen los costos finales
-        // anotados (valores absolutos), así que repetirlo no vuelve a multiplicar.
-        const costos = pendiente.costosNuevos;
-        inventarioActual = inventario.map((i) => (i.id in costos ? { ...i, valorUnitarioEstimado: costos[i.id] } : i));
-        await writeData(INSUMOS_FILE, inventarioActual, ordenInsumos);
-        limpiarCacheInsumos();
+      let recibo;
+      try {
+        recibo = await comenzarAjusteCostos(percentage, operationId, pendiente?.pendientes?.length ? pendiente.pendientes : undefined);
+      } catch (error) {
+        if (error instanceof AjusteNoIniciadoError) return { success: false, sinCambios: true, error: error.message };
+        throw error;
       }
-      return await terminarMenusPendientes(inventarioActual, { ...pendiente, insumosAplicados: true });
+      if (recibo.terminado) return { success: true };
+      limpiarCacheInsumos();
+      const actualizados = await leerInsumosParaAjuste();
+      for (const id of recibo.ids) {
+        const insumo = actualizados.find(item => item.id === id);
+        if (!insumo) continue;
+        const resultado = await propagateInsumoChangesToMenus(insumo, operationId);
+        if (!resultado.success) return { success: false, error: resultado.error || 'El ajuste se guardo pero faltan menus. Reintenta el mismo ajuste: no se vuelve a aplicar.' };
+      }
+      if (pendiente?.pendientes?.length) await writeData(AJUSTE_PENDIENTE_FILE, { ...pendiente, pendientes: [] });
+      await terminarAjusteCostos(operationId);
+      return { success: true };
     }
 
-    const multiplier = 1 + percentage / 100;
-    const costosNuevos: Record<string, number> = {};
-
-    const updatedInventario = inventario.map(insumo => {
-      const newInsumo = { ...insumo };
-
-      if (newInsumo.valorUnitarioEstimado !== undefined) {
-        // Dos decimales: con enteros, un insumo de $6 con +5% quedaba en $6 y no subia nunca.
-        newInsumo.valorUnitarioEstimado = Math.round(newInsumo.valorUnitarioEstimado * multiplier * 100) / 100;
-        costosNuevos[newInsumo.id] = newInsumo.valorUnitarioEstimado;
-      }
-
-      return newInsumo;
-    });
-
-    const ajuste: AjustePendiente = {
-      porcentaje: percentage,
-      fecha: new Date().toISOString(),
-      pendientes: updatedInventario.map((i) => i.id),
-      costosNuevos,
-      insumosAplicados: false,
-    };
-    // El marcador va ANTES: si el servidor se corta despues de guardar los insumos, el reintento
-    // sabe que el porcentaje ya estaba pedido y no lo vuelve a sumar.
-    await writeData(AJUSTE_PENDIENTE_FILE, ajuste);
-    await writeData(INSUMOS_FILE, updatedInventario, ordenInsumos);
-    limpiarCacheInsumos();
-
-    // Antes esto se anotaba en un registro que no mira nadie y la pantalla decia "listo" igual:
-    // los platos seguian costando lo viejo y el presupuesto siguiente salia con precios de antes.
-    return await terminarMenusPendientes(updatedInventario, { ...ajuste, insumosAplicados: true });
   } catch (error: any) {
     console.error("Error adjusting insumo costs:", error);
-    return { success: false, error: "Ocurrió un error al intentar ajustar los costos de los insumos." };
+    return { success: false, error: `No se pudo terminar el ajuste de costos. Reintentá el mismo ajuste para confirmar sin volver a aplicarlo. ${error?.message || ''}`.trim() };
   }
 }
 

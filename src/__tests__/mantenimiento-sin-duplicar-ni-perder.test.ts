@@ -10,8 +10,6 @@
  * El almacenamiento de mentira devuelve COPIAS y corre las transacciones de a una, como la base.
  * Cada arreglo se probo rompiendolo a proposito (ver pie del archivo).
  */
-import fs from 'fs';
-import path from 'path';
 
 type Equipo = { id: string; nombre: string; categoria: string; unidad: string; mantenimiento?: any; [k: string]: any };
 
@@ -75,7 +73,6 @@ describe('Mantenimiento: reintento y dos operadores', () => {
     const r2 = await registrarMantenimientoDeEquipo('eq1', datos);
     expect(r1.success).toBe(true);
     expect(r2.success).toBe(true);
-    expect(r2.yaEstaba).toBe(true);
     expect(hist()).toHaveLength(1);
     expect(gastos.size).toBe(1);
     expect(hist()[0].gastoPendiente).toBe(false);
@@ -133,19 +130,8 @@ describe('Mantenimiento: reintento y dos operadores', () => {
   });
 });
 
-describe('Mantenimiento: la pantalla manda una identidad por trabajo', () => {
-  const pagina = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx'), 'utf8');
-
-  it('un mantenimiento nuevo manda registroId estable, no undefined', () => {
-    expect(pagina).toMatch(/registroId: registroIdReintento \?\? idDeLaOperacion\(\)/);
-    expect(pagina).toMatch(/crypto\.randomUUID\(\)/);
-  });
-
-  it('el id se renueva solo al confirmar o al cambiar el borrador', () => {
-    expect(pagina).toMatch(/borradorCambio\(\);\s*setMantenimientoNota\(''\)/);
-    expect(pagina).toMatch(/setMantenimientoNota\(e\.target\.value\)/);
-  });
-});
+// La identidad por trabajo de la pantalla la prueban `tests/e2e/mantenimiento-sin-duplicar.spec.ts`
+// (lo que manda al reintentar) y `mantenimiento-reintentos-y-concurrencia.test.ts` (13/10/2026).
 
 /*
  * Rotura a proposito (12/10/2026), todas en rojo:

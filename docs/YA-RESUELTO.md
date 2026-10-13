@@ -159,7 +159,7 @@ usa: calcularGananciaDeEvento en src/app/admin/finanzas/page.tsx
 usa: SERVICIOS_COLLECTION en src/app/actions/servicios-empresa.ts
 prueba: src/__tests__/portal-cancelar-y-cambiar-fecha-no-se-aplican-dos-veces.test.ts
 prueba: src/__tests__/ajuste-de-precios-no-queda-a-medias-ni-se-duplica.test.ts
-prueba: src/__tests__/insumos-ajuste-marcador-antes-y-decimales.test.ts
+prueba: src/__tests__/ajuste-costos-recibo-atomico.test.ts
 prueba: src/__tests__/servicios-empresa-guarda-de-a-uno.test.ts
 prueba: src/__tests__/los-saldos-usan-el-estado-de-cuenta-oficial.test.ts
 prueba: src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts
@@ -369,6 +369,70 @@ prueba: src/__tests__/el-simulador-no-dice-libre-si-no-pudo-leer.test.ts
 prueba: tests/e2e/pantallas-con-iconos-react19.spec.ts
 archivo: docs/evidencias/152-avisos-dependencias.md
 ```
+## 12/10/2026 - Codex109: seguridad27 y matriz; permisos de documentos pendientes
+
+- Fuente8fa/HEAD43620d4c/main99faf4eb. Cinco handlers de documentos iguales a main;
+  entrega privada de Claude desconocida, orden155 exige contrastar. Sin codigo app.
+- P1 nuevo: employee-contracts/contracts/payment-proofs/budgets/salon-contracts
+  sirvenPDF ajeno a operador/personal con sesion firmada.35lecturas con5PDF propios:
+  dueno200/bytes iguales,anonimo401;20negativos de cuatro perfiles filtran bytes.
+  Cliente/invitado son controles sinteticos, no afirmar que reciben sesion del equipo.
+  Secretaria se registra sin inventar que toda descarga suya este prohibida.
+- Backup403 para cinco perfiles restringidos demuestra que la sesion SI distingue
+  perfiles. Click real operadorPC/movil403, no backupfiltrado; UI ofrece accion no
+  permitida (friccion). NO cambiar HMAC por el primer error de cookie del auditor.
+-27GHSA evaluados con fuente oficial/rangos instalados/lock:3sharp runtime publico
+  comprobado con imagen normal,9tooling,4telemetria apagada y11condiciones no vistas.
+  NO27exploits demostrados ni24avisos eliminados. Ninguna dependencia modificada;
+  sharp0.34.5/libvips8.17.3 prioritario. Mantener27pendientes hasta parche verificado.
+- Inventario AST421rutas/4992declaraciones, no botones pulsados.106referenciasE2E;
+  imports de106Jest con hashes11directas/325dependencias/73sin referencia automatica.
+  Conjuntos solapados: NO porcentajes de aceptacion ni reencargar73modulos.
+- Se descartan rutas propuestas genericas inexistentes y matches de simbolos comunes
+  del ayudante. No se reabre comida/cobros/QR/mural por ausencia textual de URL.
+  Se conservan JSON iniciales, error expires/serializacion, timeout y ENOBUFS;
+  el segundo inventario no convierte coincidencias documentales en PASS.
+- Fixtures propios retirados, datos sin delta, servidor propio detenido. Artefactos
+  y limites109; no build/Jest nuevo, publicacion/fusion ni certificado0errores.
+ 152-154 siguen separados.155pendiente; completar cobertura funcional requiere casos,
+  no contar archivos/controles.19originales/cuentas/hardware/Hosting sin certificar.
+
+## 12/10/2026 - Codex108: Conexiones, redes y acceso; tres P2 pendientes
+
+- Fuente8fa, PR1288HEAD3804674f, main99faf4eb. Consumidores contrastados con main;
+  entrega privada de Claude desconocida: orden154 exige comparar antes de programar.
+- PC/Pixel7: Conexiones convierte primer fallo de lectura en0plataformas sin aviso;
+  al fallar refresco conserva14 sin advertencia. Redes guarda error sin renderizarlo:
+  tras cerrar toast queda lista vacia falsa sin reintento. Instagram dice en curso
+  sin cuenta, archivo de historial ni intento. Tres P2 reproducidos, NO corregidos.
+- Ocho recorridos anonimos/sesion vencida vuelven a login. Seis controles RPC:
+  sesion valida lee14conexiones y post privado ficticio; vencida/anonima no entregan
+  datos privados. Expirada: conexiones500/Sesion no autorizada; redes200[];
+  anonima307/login. NO cambiar permisos por estos errores de presentacion.
+- Primeras sondas de menu y RPC/redireccion no fueron aprobaciones ni fallos de app;
+  se conservan raw y correccion del harness. Toast cerrado con control real.
+- Fixtures restaurados; sin publicaciones, mails ni cuentas externas. El servidor
+  puede consultar oEmbed publico de YouTube: no certificado de integracion externa.
+- docs/evidencias/108-resultado.json registra criterios y hashes; no build/Jest nuevo
+  ni codigo productivo cambiado.152/153 siguen pendientes hasta evidencia de correccion.
+
+## 12/10/2026 - Codex107: Google, reintento pasa; estado pendiente
+
+- App8fa/PR1288HEAD08478, main99faf4eb: dos archivos Google iguales a main.
+- PC/Pixel7 con fixture empresa needs_reconnect y empleado error: la pantalla
+  anuncia empresa Conectada/check verde, sincronizacion habilitada y1/14/7%
+  del equipo conectado. P2 REAL de estado, orden153; no corregido por Codex.
+- NO reabrir invitaciones/envios ni recuperacion: sin cuenta avisa configuracion;
+  un corte dirigido al actionID real muestra error. Reintentar visible devuelve
+  pantalla PC/movil. Transporte restaurado, sin recarga externa ni envio de mail.
+- Primera sonda abortaba un POST cualquiera: descartada como evidencia de fallo
+  de dashboard. Firebase Installations con llave dummy no es fallo productivo.
+  Sonda final bloquea HTTPS y restaura archivos locales propios; no cuentas reales.
+- Inventario inicial del ayudante repetia comida/barra ya cerradas; descartado,
+  no nuevas ordenes para repetir92/93. Fuente app sin cambios ni nuevo build.
+- Orden153 requiere contraste con entrega privada de Claude, que no se conoce.
+ 152 sigue en trabajo segun usuario, no se da por cerrada. Informe107 conserva
+  raw/capturas/sondas. No certificado de conexiones reales ni0errores globales.
 
 ## 12/10/2026 - Codex106: salón y parches comprobados; NO cierre global
 
@@ -13142,4 +13206,174 @@ gasto lo sigue probando la prueba de Jest de la orden.
 ```comprobar
 prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
 prueba: src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
+```
+## 2026-10-12 - Codex110: lote independiente, NO correccion productiva
+
+PR1288, rama `codex/auditoria-97-ia-contexto-20261011`. HEAD probado2f6007be,
+fuente app8fa5b56a, main99faf4eb; archivos afectados sin diferencia con main.
+NO contrastado con la tanda privada de Claude. No repetir152-155 mientras se corrigen.
+
+**Pendientes nuevos, no resueltos:** nueve comportamientos de orden156: proveedor
+final resucita desde JSON despues de eliminarse en Firestore; plantilla base
+anuncia borrado falso; cuatro errores de acciones no informados; lectura fallida
+en torre/preparacion presentada como cero/vacio; contador cuenta avisos silenciados
+como nuevos aunque el delta real sea cero. Evidencia PC/movil y proveedor emulado.
+
+**Comprobado:** guardar/releer proveedor, duplicados y error de guardar; maestro
+de reuniones consumido por reunion; borrar invitacion propia; abrir fiesta desde
+preparacion; cierre persiste aprendizaje en tres perfiles; avisos reales no
+duplicados; plantilla/checklist/export marketing. Editores y consumidores anonimos:
+resultado final en110-editores.json; portada contempla su cache300segundos.
+`110-resultado.json` concilia unicamente criterios finales y sus hashes.
+
+**No reabrir falsas alarmas de las sondas:** guardia deliberada de escritura local,
+checklist buscado fuera de su solapa, expectativa inventada de texto de marketing,
+loader esbuild ausente, interceptacion demasiado amplia de POST, stream HTTP
+esperado indefinidamente, indicador Guardado oculto en movil. Initiales conservados,
+corregidos en QA sin tocar codigo app. Matriz distingue recopilacion de aceptacion.
+
+Claude corrige persistencia/avisos/permisos/dinero; Gemini pantallas no sensibles;
+Claude compila. Plantillas base requieren decision del dueno sobre proteger u ocultar.
+Solo datos QA y emulador, sin cuentas/pagos/mensajes reales. No areas completas
+limpias ni certificado0errores. El inventario109 mantiene cobertura pendiente.
+Mismo build/Jest106 reutilizado, no nuevas dependencias de produccion ni merge.
+
+## 2026-10-12 - Codex111: nuevos recorridos, NO corregidos aun
+
+PR1288, rama `codex/auditoria-97-ia-contexto-20261011`, HEAD probado39704d5c,
+fuente app8fa5b56a, main99faf4eb. Fuentes afectadas iguales a main. NO tanda
+privada de Claude; contrastar su HEAD antes de programar. No repetir152-156.
+
+**Dos P2 pendientes:**157, Nueva Incidencia conserva titulo/descripcion del caso
+ya guardado sin recargar;158, nombres largos desbordan editores de activo/insumo
+en Pixel7 (132/191px), dificultan alcanzar Guardar. PC no reproduce ese desborde.
+No se creo un segundo incidente duplicado para demostrar el primer defecto.
+
+**Comprobado, alcance acotado:** Incidentes conserva borrador/nota ante red
+fallida; reintentar persiste uno. Guias canceladas/evento inexistente/fallo de
+aplicar no escriben tareas/documentos/compras. Activos/insumos guardan, reabren,
+editan, recuperan fallo de red y entregan stock a reportes;2.5Kg SI persiste.
+Imprimir observado con espia, NO impresora ni PDF fisico. PC y celular.
+
+28criterios finales:24PASS/4FAIL, DOS defectos con dos reproducciones cada uno.
+`111-resultado.json` concilia rondas y hashes. No contar descubrimiento/reintentos
+ni confundir exit0 de la sonda con aceptacion de todo. Iniciales conservados.
+Sonda de titulos se corrigio por cache del fixture y selector h1 equivocado;
+nombres habituales pasan, largos comparados objetivamente si desbordan. No fue
+"todo culpa de la computadora", ni decimal rechazado, ni permiso roto inventado.
+
+Claude compila; Gemini UI de157/158. Pruebas propuestas PENDIENTES, no creadas
+ni aprobadas por escribir la orden. Datos QA restaurados, SDK emulado privado,
+procesos propios detenidos; notificaciones ajenas conservadas por hash.
+Un ayudante economico cerrado. Graphify puntual; build/Jest106 reutilizado solo
+por fuente inalterada. Sin cuentas/modelos/pagos/hardware reales, sin merge ni
+certificado0errores; mantenimiento/gastos y cobertura completa aun no aceptados.
+
+## Codex112 - 12/10/2026 - mantenimiento completo (solo punto1)
+
+HEAD ead1238e9a762b06b158f5a889649231294a76d4, fuente app8fa5b56a,
+PR1288 abierta. Mismos consumidores que main99faf4eb, NO tanda privada Claude.
+18criterios de navegador PC/Pixel7:15PASS/3FAIL, dos familias P1 nuevas159.
+Base14/14: registrar/cancelar/error antes de envio/reintentar/decimal123.45,
+historial y gastos tras recargar; equipo vencido asignado genera alerta,
+service vigente quita esa alerta; fila pendiente explicita reintenta45.67.
+
+P1 confirmacion perdida: servidor200 y SDK prueban un gasto antes de cortar
+respuesta; el reintento crea DOS123.45 por el mismo trabajo (PC y celular).
+P1 concurrencia celular: dos operadores reciben exito, hay dos gastos10.25/20.50
+pero solo una fila; gastoB queda sin su historial. PC paso en esta corrida,
+no cobertura determinista de todas las intercalaciones. Orden159 paraClaude.
+No reimplementar104: accion/alerta existen; revisar estos bordes nuevos.
+
+Iniciales del auditor conservados/excluidos: pedir nombre de equipo en alerta
+generica fue criterio equivocado, y colecciones vacias no son documentos vivos.
+Propuesta UX separada: identificar equipo y abrir su ficha desde aviso.
+112-resultado.json,112-mantenimiento.md y sondas conservan casos/SHA/hash.
+FixtureGuard restaura bytes, documentos ficticios retirados; procesos3301/8085
+propios cerrados; no tocar datos reales/notificaciones ajenas. Sin build/Jest
+nuevo, programacion productiva ni fusion. Pendientes159, no declarar0errores.
+
+## Codex113 - 12/10/2026 - ajuste global de costos hasta menu consumidor
+
+HEAD0122997c, fuente app8fa; PR1288 ABIERTA, main99fa consumidores iguales.
+NO CONTRASTADO CON LA TANDA PRIVADA CLAUDE.14criterios PC/celular10PASS/4FAIL.
+Dos P1 nuevos paraClaude160: actualizar insumo copia unidad de compra sobre
+unidad de cantidad de receta;250g pasan250kg, costo27.5 pasa27500 persistido.
+Editor real tambien muestra27500. Receta0.25kg, stock2, menu ajeno y precio50
+correctos. Confirmacion200 perdida tras ajustar: reintento PC110->116->122,
+celular134->141->148. Es otro aumento involuntario, no menu pendiente de66.
+
+Cancelacion/error antes del envio conservan datos; consumidores reabiertos
+en insumo y menu mediante enlace real. La matriz113-resultado.json reemplaza
+SOLO dos NOT_ACCEPTED de consumidores con sus dosPASS finales. No sumar rondas.
+Errores propios iniciales conservados: selector/Dialog equivocado, redondeo
+vigente omitido, espera de SPA corta y nombres buscados en inputs en lugar de
+tarjetas. No convertirlos en fallos de app ni repetir unidades66 como ausentes.
+
+FixtureSDK privado, JSON restaurado, cero documentos finales, servicios3301/8085
+propios detenidos. Build/Jest106 reutilizado por fuente intacta; Claude corrige
+ycompila160. Sin datos reales ni merge; no0errores. Orden159 no repetida113.
+
+## Codex114 - 12/10/2026 - autorizacion para corregir directamente
+El dueno autorizo Codex a programar con agentes economicos. Implementadas159/160:
+identidad de reintento, mantenimiento transaccional sin perder otro operador,
+gasto idempotente, recetas conservan gramos/ml, ajuste y recibo juntos en Firestore,
+menus protegidos frente a reintentos lentos. Implementadas157/158: nuevo incidente
+limpia textos solo tras exito; titulos inventario adaptables en celular.
+Luna6low UI/tests; director dinero/transacciones. Seis suites34tests focalizadas PASS
+en arbol de trabajo; no equivalen a SHA/build/navegador aceptados. Resultado final
+y limites en docs/evidencias/114-correcciones.md. NO tanda privada Claude contrastada.
+No merge ni datos reales ni0errores.
+
+Codex114 tambien corrige la parte documental155: seis handlers de PDFs locales
+(los cinco probados en109 y contracts/fiestas) requieren permiso CONTABILIDAD;
+contratos de empleados requieren SUELDOS, igual que la politica del modulo.
+Se conserva401 anonimo,403 perfil no permitido, traversal y enlaces publicos
+con token de otros handlers intactos. Test nuevo66casos pasa con politica real
+y archivos simulados; falta verificacion final del SHA/navegador. Dependencias
+sharp/GHSA de155 SIGUEN pendientes; no dar la orden completa por resuelta.
+Prueba de voz ahora simula dbAdmin:null para no depender del entorno Firestore.
+Dueno pide continuidad al dormir: heartbeat del chat cada30min activo,
+continuar-auditoria-ak-sin-repetir. Lee este registro y contrasta SHA; una tarea
+acotada por corrida, se detiene ante limites imprescindibles sin gastar en bucle.
+No dependencia de app ni promesa de ejecucion ilimitada; depende de cuota.
+
+### Cierre comprobado114 - fuente e5f22b53, 12/10/2026
+Sustituye PENDIENTES de validacion114 anteriores, no limites de toda app.
+Build con lint/tipos activos, tsc, lint, acentos2794 PASS.696suites4229tests PASS,
+cero fallidas/omitidas.90criterios:6mantenimiento/14costos/2incidentes/4titulos
+con8muestras y Guardar/Volver reales/64documentos por perfiles y enlaces reales.
+HTTP200 perdido no duplica gasto/ajuste; dos operadores no pierden historial;
+gramos conservados, costo correcto, stock/menu ajeno/precio explicito intactos.
+155 documental niega antes de leer, enlaces reales entregan PDF exacto al equipo
+permitido.155 completa NO cerrada: sharp y variantes siguen pendientes.
+Grafo local e5:14127nodos/42925relaciones/882comunidades, sin costo API.
+Datos ficticios retirados, copias restauradas byte a byte, servicios detenidos.
+Errores del harness conservados/excluidos: cookie sin expires y cuerpo del visor
+PDF no disponible por CDP; no defectos nuevos de app.114-aceptacion.json verifica.
+Nuevo limite: recibos ajustes_costos_insumos fuera del backup/mapa Firestore;
+round-trip NO certificado.159 conserva ID al recargar la misma pestaña, no cerrarla.
+152-154/156 pendientes; privado Claude NO contrastado; Hosting/integraciones/
+19presupuestos originales/hardware no certificados. PR abierta, dueno fusiona.
+
+## Mantenimiento y ajuste de costos: entra la versión de Codex (órdenes 159 y 160, 13 de octubre de 2026)
+
+Codex corrigió por su lado lo que encontró en las auditorías 112 y 113, con una base más vieja que la
+publicada. Al juntarlo:
+
+- **Mantenimiento**: queda la versión de Codex. La identidad del trabajo sobrevive a recargar la
+  pestaña, y mientras un trabajo no está confirmado no deja mandar otro distinto. La nuestra
+  sólo la guardaba en memoria.
+- **Ajuste de costos**: queda la de Codex, con un recibo por operación. Así un reintento después de
+  una respuesta perdida no aplica el aumento dos veces, cosa que nuestro marcador no cubría cuando el
+  ajuste ya había terminado. Y una receta en gramos ya no pasa a kilos.
+- **Redondeo**: la versión de Codex redondeaba a pesos enteros, lo que traía de vuelta el error del
+  insumo de $6 que con +5% no subía nunca. Se dejó en centavos, como ya estaba publicado.
+
+```comprobar
+prueba: src/__tests__/ajuste-costos-recibo-atomico.test.ts
+prueba: src/__tests__/mantenimiento-reintentos-y-concurrencia.test.ts
+prueba: src/__tests__/insumo-receta-conserva-unidad.test.ts
+prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
+usa: * 100) / 100 en src/lib/insumos/ajuste-costos-idempotente.ts
 ```

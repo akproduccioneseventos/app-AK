@@ -1,0 +1,68 @@
+[
+  {
+    "raw": "111-probe.log",
+    "archive": "111-probe.log.gz",
+    "bytes": 4517,
+    "sha256": "0e154a26fc9dc4c63a1ed803a843a37916383ca8e48227e0a5316f704868b5d8"
+  },
+  {
+    "raw": "111-recursos-inicial.log",
+    "archive": "111-recursos-inicial.log.gz",
+    "bytes": 34609,
+    "sha256": "ee06751db72cdbcc967f53fcad68a2cda8f419f76d570b8a5df3a64e57c66006"
+  },
+  {
+    "raw": "111-recursos-mobile-instant.log",
+    "archive": "111-recursos-mobile-instant.log.gz",
+    "bytes": 24322,
+    "sha256": "2ad9febb550824d5e15f33b7129661bd1a07dea6a3d06875ce17ef5913aa3e1f"
+  },
+  {
+    "raw": "111-recursos-mobile.log",
+    "archive": "111-recursos-mobile.log.gz",
+    "bytes": 586,
+    "sha256": "929c43847560c0c7149fd56914838d82a8c3264529b1868523afaa8b5614227b"
+  },
+  {
+    "raw": "111-recursos-segunda.log",
+    "archive": "111-recursos-segunda.log.gz",
+    "bytes": 30236,
+    "sha256": "34ab11faf56f197c98305dcbe28a4afceaabccfb8fd9cb87d8fbdf20fd4cb906"
+  },
+  {
+    "raw": "111-sdk-emulator.log",
+    "archive": "111-sdk-emulator.log.gz",
+    "bytes": 2502,
+    "sha256": "fe8059a885b01fd638b59cf01fe670493e13d332769dfa8983756cbea6a97fbd"
+  },
+  {
+    "raw": "111-sdk-probe.log",
+    "archive": "111-sdk-probe.log.gz",
+    "bytes": 708,
+    "sha256": "2ade4d1a6bec84adb0ea326ce10054bc42014d6fc8771d2bafbffd2eb5df00e5"
+  },
+  {
+    "raw": "111-sdk-start.log",
+    "archive": "111-sdk-start.log.gz",
+    "bytes": 40148,
+    "sha256": "27be0cc75a43c98cca196f15e39bcb66a85d12cd3c91248a8d1a654d091a4191"
+  },
+  {
+    "raw": "111-start.log",
+    "archive": "111-start.log.gz",
+    "bytes": 1290,
+    "sha256": "40be4a1859abd99491cca0f7a7f365ba378a12bab519b9a52c35ec5794ddec67"
+  },
+  {
+    "raw": "111-titulos-inicial.log",
+    "archive": "111-titulos-inicial.log.gz",
+    "bytes": 11519,
+    "sha256": "beca84ecd330a61d6967f8bd0ce44b238d1c38bea6f70b01c0780c9a2c748c25"
+  },
+  {
+    "raw": "111-titulos.log",
+    "archive": "111-titulos.log.gz",
+    "bytes": 708,
+    "sha256": "2ade4d1a6bec84adb0ea326ce10054bc42014d6fc8771d2bafbffd2eb5df00e5"
+  }
+]

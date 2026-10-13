@@ -1,0 +1,22 @@
+{
+  "url": "http://127.0.0.1:3301/empresa/menus/qa113_menu/editar",
+  "text": "Toggle Sidebar\nEditando Menú\nAbrir notificaciones\nEditar Menú: QA113 Menu\nVolver a Menús\nInformación del Menú\nNombre del Menú\nDescripción\nURL Foto del Menú\nDestacar en simulador\nSus platos aparecen primero, antes del orden por precio.\nPlatos del Menú\n2 platos\nAñadir Plato\n✓ Guardado\n🍽️\n\nQA113 Plato gramos\n\nPLATO PRINCIPAL\n1 ingredientes\n🍽️\n\nQA113 Plato kg\n\nPLATO PRINCIPAL\n1 ingredientes\nGuardar Menú",
+  "inputs": [
+    {
+      "id": "menu-name",
+      "value": "QA113 Menu"
+    },
+    {
+      "id": "menu-image",
+      "value": ""
+    },
+    {
+      "id": "",
+      "value": "on"
+    },
+    {
+      "id": "",
+      "value": ""
+    }
+  ]
+}

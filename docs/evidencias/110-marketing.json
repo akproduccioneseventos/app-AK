@@ -1,0 +1,64 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "marketing-template-save-and-apply-after-reload",
+    "details": {
+      "id": "mv5mv0k1pu1yc",
+      "generatedCopySavedExactly": true,
+      "igShortRestoredFromSavedTemplate": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "marketing-checklist-save-and-reload",
+    "details": {
+      "id": "mv5muzcdeve16",
+      "state": "hecho",
+      "by": "QA110_desktop_a8e9b0f1-8f1f-43ac-b08f-6fd895cac619",
+      "persisted": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "marketing-download-json",
+    "details": {
+      "filename": "marketing-backup-2026-10-12.json",
+      "templatePresent": true,
+      "checklistPresent": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-template-save-and-apply-after-reload",
+    "details": {
+      "id": "mv5mv7f2tixye",
+      "generatedCopySavedExactly": true,
+      "igShortRestoredFromSavedTemplate": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-checklist-save-and-reload",
+    "details": {
+      "id": "mv5muzcee04ha",
+      "state": "hecho",
+      "by": "QA110_mobile_4222a240-e422-4d92-9b42-c0da10fa1fad",
+      "persisted": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-download-json",
+    "details": {
+      "filename": "marketing-backup-2026-10-12.json",
+      "templatePresent": true,
+      "checklistPresent": true
+    },
+    "status": "PASS"
+  }
+]

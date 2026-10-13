@@ -1,0 +1,241 @@
+{
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "cancel-global-adjustment-preserves-inventory-and-menus",
+      "details": {
+        "noWrite": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "failed-send-keeps-percentage-without-writing",
+      "details": {
+        "noWrite": true,
+        "percentageKept": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "retry-adjusts-ingredient-and-linked-kg-recipe",
+      "details": {
+        "inventory": {
+          "id": "qa114_carne",
+          "nombre": "QA114 Carne",
+          "categoria": "Carnes",
+          "unidad": "kg",
+          "cantidadDisponible": 2,
+          "valorUnitarioEstimado": 110,
+          "_syncedAt": "2026-10-13T00:37:33.387Z"
+        },
+        "kgDish": {
+          "id": "qa114_kg",
+          "name": "QA114 Plato kg",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa114_kg_ing",
+              "origenId": "qa114_carne",
+              "name": "QA114 Carne",
+              "quantityPerPerson": "0.25",
+              "unit": "kg",
+              "costoUnitario": 110,
+              "costoTotalReceta": 27.5
+            }
+          ],
+          "totalDishCost": 27.5,
+          "profitMargin": 82,
+          "suggestedSellingPrice": 50
+        },
+        "stockUnchanged": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "grams-recipe-retains-quantity-unit-and-equivalent-cost",
+      "details": {
+        "grams": {
+          "id": "qa114_g",
+          "name": "QA114 Plato gramos",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa114_g_ing",
+              "origenId": "qa114_carne",
+              "name": "QA114 Carne",
+              "quantityPerPerson": "250",
+              "unit": "g",
+              "costoUnitario": 110,
+              "costoTotalReceta": 27.5
+            }
+          ],
+          "totalDishCost": 27.5,
+          "profitMargin": 82,
+          "suggestedSellingPrice": 50
+        },
+        "expectedCost": 27.5,
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "unrelated-menu-and-selling-price-are-not-overwritten",
+      "details": {
+        "unrelatedMenuUnchanged": true,
+        "explicitSellingPricePreserved": 50
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "details": {
+        "ingredientReloaded": true,
+        "actualMenuLinkUsed": "/empresa/menus/qa114_menu/editar",
+        "menuConsumerOpened": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "lost-success-response-retry-applies-percentage-only-once",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "costBefore": 110,
+        "costAfterFirst": 116,
+        "costAfterRetry": 116,
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "cancel-global-adjustment-preserves-inventory-and-menus",
+      "details": {
+        "noWrite": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "failed-send-keeps-percentage-without-writing",
+      "details": {
+        "noWrite": true,
+        "percentageKept": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "retry-adjusts-ingredient-and-linked-kg-recipe",
+      "details": {
+        "inventory": {
+          "id": "qa114_carne",
+          "nombre": "QA114 Carne",
+          "categoria": "Carnes",
+          "unidad": "kg",
+          "cantidadDisponible": 2,
+          "valorUnitarioEstimado": 128,
+          "_syncedAt": "2026-10-13T00:37:51.890Z"
+        },
+        "kgDish": {
+          "id": "qa114_kg",
+          "name": "QA114 Plato kg",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa114_kg_ing",
+              "origenId": "qa114_carne",
+              "name": "QA114 Carne",
+              "quantityPerPerson": "0.25",
+              "unit": "kg",
+              "costoUnitario": 128,
+              "costoTotalReceta": 32
+            }
+          ],
+          "totalDishCost": 32,
+          "profitMargin": 56,
+          "suggestedSellingPrice": 50
+        },
+        "stockUnchanged": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "grams-recipe-retains-quantity-unit-and-equivalent-cost",
+      "details": {
+        "grams": {
+          "id": "qa114_g",
+          "name": "QA114 Plato gramos",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa114_g_ing",
+              "origenId": "qa114_carne",
+              "name": "QA114 Carne",
+              "quantityPerPerson": "250",
+              "unit": "g",
+              "costoUnitario": 128,
+              "costoTotalReceta": 32
+            }
+          ],
+          "totalDishCost": 32,
+          "profitMargin": 56,
+          "suggestedSellingPrice": 50
+        },
+        "expectedCost": 32,
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "unrelated-menu-and-selling-price-are-not-overwritten",
+      "details": {
+        "unrelatedMenuUnchanged": true,
+        "explicitSellingPricePreserved": 50
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "details": {
+        "ingredientReloaded": true,
+        "actualMenuLinkUsed": "/empresa/menus/qa114_menu/editar",
+        "menuConsumerOpened": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "lost-success-response-retry-applies-percentage-only-once",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "costBefore": 128,
+        "costAfterFirst": 134,
+        "costAfterRetry": 134,
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    }
+  ],
+  "cleanup": {
+    "deleted": 7,
+    "documentsRemaining": 0,
+    "restored": [],
+    "bytesRestored": true
+  }
+}

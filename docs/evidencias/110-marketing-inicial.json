@@ -1,0 +1,43 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "marketing-template-save-and-apply-after-reload",
+    "status": "NOT_ACCEPTED",
+    "error": "locator.fill: Timeout 18000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('main input').first()\u001b[22m\n"
+  },
+  {
+    "viewport": "desktop",
+    "name": "marketing-checklist-save-and-reload",
+    "details": {
+      "id": "mv5mrp7rxr3m0",
+      "state": "hecho",
+      "by": "QA110_desktop_056bfeac-3173-48fe-94a4-2299d79334d3",
+      "persisted": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "marketing-download-json",
+    "status": "NOT_ACCEPTED",
+    "error": "Template save required"
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-template-save-and-apply-after-reload",
+    "status": "NOT_ACCEPTED",
+    "error": "locator.fill: Timeout 18000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('main input').first()\u001b[22m\n"
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-checklist-save-and-reload",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toContainText(expected) failed\n\nLocator: getByRole('button').filter({ hasText: 'Historia de XV' }).first()\nExpected substring: \"QA110_mobile_6b6887de-3fb3-490d-a6f3-cf337dadc340\"\nReceived string:    \"Historia de XVHistorias IG\"\nTimeout: 5000ms\n\nCall log:\n  - Expect \"to.have.text\" with timeout 5000ms\n  - waiting for getByRole('button').filter({ hasText: 'Historia de XV' }).first()\n    13 × locator resolved to <button class=\"w-full flex items-center gap-3 p-3 rounded-2xl border transition-all text-left bg-white border-slate-100 hover:border-slate-200\">…</button>\n       - unexpected value \"Historia de XVHistorias IG\"\n"
+  },
+  {
+    "viewport": "mobile",
+    "name": "marketing-download-json",
+    "status": "NOT_ACCEPTED",
+    "error": "Template save required"
+  }
+]

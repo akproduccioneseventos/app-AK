@@ -1,0 +1,5 @@
+{"viewport":"desktop","name":"commercial-read-network-failure","blocked":156,"probeError":"page.goto: Timeout 60000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/control-tower/comercial\", waiting until \"networkidle\"\u001b[22m\n"}
+{"viewport":"desktop","name":"postevent-read-network-failure","blocked":89,"probeError":"locator.innerText: Timeout 18000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('main').last()\u001b[22m\n"}
+{"viewport":"desktop","name":"automations-run-network-failure","blocked":1,"probeError":"locator.innerText: Timeout 18000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('main').last()\u001b[22m\n"}
+{"viewport":"desktop","name":"commercial-alert-network-failure","blocked":1,"probeError":"locator.innerText: Timeout 18000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('main').last()\u001b[22m\n"}
+{"viewport":"mobile","name":"commercial-read-network-failure","blocked":143,"probeError":"locator.innerText: Timeout 18000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('main').last()\u001b[22m\n"}

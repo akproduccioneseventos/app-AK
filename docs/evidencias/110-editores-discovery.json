@@ -1,0 +1,660 @@
+[
+  {
+    "route": "/empresa/landing-editor",
+    "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAK Producciones\nIngreso/Egreso Rápido\nAbrir notificaciones\nEDITOR DE LANDING PAGE\n\nEDITÁ TEXTOS, COLORES Y DATOS DE TU PÁGINA PÚBLICA\n\nVer Landing\nVolver\nGuardar Cambios\nHERO\nSERVICIOS\nESTADÍSTICAS\nCTA\nGALERÍA\nCOLORES\nSEO\n❓ FAQ\nSECCIÓN PRINCIPAL (HERO)\nEl primer bloque que ven los visitantes de tu página.\nNÚMERO DE WHATSAPP GLOBAL\n\nSe usa en todos los botones de WhatsApp de la página.\n\nTEXTO DEL BADGE\nTÍTULO PRINCIPAL (HEADLINE)\n\nUsá saltos de línea (\\n) para separar líneas. La segunda línea se resalta automáticamente.\n\nSUBTÍTULO (SUBHEADLINE)\nIMAGEN DE FONDO (URL O SUBIR ARCHIVO)\nTEXTO DEL BOTÓN CTA\nURL DEL BOTÓN CTA\nCAMBIOS SIN GUARDAR\nVer Landing\nGuardar Cambios\nBruno\nResponsable general de fiesta",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "59898355530",
+        "value": "59898355530"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Producción Integral de Eventos",
+        "value": "Producción Integral de Eventos"
+      },
+      {
+        "tag": "TEXTAREA",
+        "id": "",
+        "type": "textarea",
+        "placeholder": "Hacemos Realidad tu Celebración",
+        "value": "Organizá tu fiesta completa\nen Salto con AK Producciones"
+      },
+      {
+        "tag": "TEXTAREA",
+        "id": "",
+        "type": "textarea",
+        "placeholder": "",
+        "value": "Salón, comida, discoteca, decoración, fotografía, filmación, barra y coordinación en un solo lugar."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "https://...",
+        "value": "/media/catalogo-servicios/quinceanera_hero.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "hero-image-upload",
+        "type": "file",
+        "placeholder": "",
+        "value": ""
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Cotizá tu evento ahora",
+        "value": "Consultar fecha por WhatsApp"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "/simulador-de-presupuesto",
+        "value": "https://wa.me/59898355530"
+      }
+    ],
+    "buttons": [
+      "Ingreso/Egreso Rápido",
+      "Abrir notificaciones",
+      "",
+      "Guardar Cambios",
+      "Guardar Cambios",
+      "",
+      "",
+      "",
+      "",
+      "BrunoResponsable general de fiesta",
+      ""
+    ]
+  },
+  {
+    "route": "/settings/contenido-publico",
+    "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAK Producciones\nIngreso/Egreso Rápido\nAbrir notificaciones\nContenido Público\n\nEditá textos e imágenes de /presentacion-led y /catalogo/[tipo].\n\nSin guardar\nVolver\nVer preview LED\nVer preview catálogo\nPortal LED\nPortada, beneficios, salón y cierre.\nTítulo principal\nSubtítulo\nImagen de fondo URL\nColor de acento\nBeneficios (máx. 6)\nAgregar beneficio\nSlide Salón\nAgregar foto\nSlide del Equipo (\"Hay Equipo\")\nTítulo del Equipo\nCantidad de Personas\nFrase Principal\nFotos del Equipo (URLs)\nAgregar foto del equipo\nEmpresas Colaboradoras (Logos con Nombre)\n\nAgregá o editá las empresas reales que respaldan a AK Producciones.\n\nAgregar empresa\nTítulo cierre\nTexto botón CTA\nMensaje cierre\nAcción CTA\nGenerar presupuesto\nCatálogo por tipo\nElegí el tipo de fiesta y editá su contenido.\nTipo de catálogo\nbodas\nHero título\nHero subtítulo\nHero imagen de fondo URL\nColor\nTexto presentación\nTexto ¿Por qué elegirnos?\nTestimonios\nAgregar testimonio\nGalería\nAgregar foto\nBlog Corporativo\nSEO automatico: revisa Instagram cada 6 horas y crea articulos de valor semanalmente.\nActualizar ahora\nNuevo artículo\nMarketing automatico activo\n\nInstagram pendiente de conexion real y SEO pendiente de configuracion\n\nINSTAGRAM PROGRAMADO\nSEO PROGRAMADO\nVolver a escribirle al que no señó\n\nCuando alguien pide un presupuesto y a los dos días no señó, la aplicación le manda un mensaje de WhatsApp preguntándole si le quedó alguna duda. Se le escribe una sola vez en la vida, y sólo si dejó su permiso para recibir mensajes.\n\nNunca se le escribe a quien ya contrató, ni a quien vos marcaste como perdido. Si lo apagás, deja de mandar en el acto.\n\nAPAGADO\nGasto del mes en los efectos de las fotos\n\nEste mes todavía no se usó la inteligencia artificial de las fotos.\n\n0 FOTOS CON EFECTO\n$0 ESTIMADOS\nTope del mes, en pesos\nGuardar tope\n\nAl llegar al tope, la fotocabina y el espejo siguen andando: sacan la foto igual, con un efecto simple, sin gastar. Dejalo vacío si no querés tope.\n\nNo hay artículos de blog creados. Hacé clic en \"Nuevo artículo\" para comenzar.\nGuardar ahora\nCTO\nSistema, backup y sincronizaciones\nError\nInstagram no está conectado: Falta ingresar el Token de Meta y el Instagram Account ID en Ajustes > Redes Sociales. SEO automatico pendiente: falta una clave valida de Gemini.\nNotification ErrorInstagram no está conectado: Falta ingresar el Token de Meta y el Instagram Account ID en Ajustes > Redes Sociales. SEO automatico pendiente: falta una clave valida de Gemini.",
+    "inputs": [
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "AK Producciones"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Salón, comida, música, fotos y coordinación con un solo equipo."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": ""
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "from-indigo-500 to-emerald-500",
+        "value": "from-indigo-500 to-emerald-500"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "✨",
+        "value": "🛡️"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Un solo proveedor para coordinar todo el evento."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "✨",
+        "value": "⏱️"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Puntualidad en cada etapa."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "✨",
+        "value": "🎧"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Atención personalizada antes, durante y después."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "✨",
+        "value": "⭐"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Calidad premium en servicios y ejecución."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "✨",
+        "value": "⚡"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Resolución inmediata ante cualquier imprevisto."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "✨",
+        "value": "❤️"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Experiencia que emociona y se recuerda."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Título",
+        "value": "Nuestro Salón - Club Uruguay"
+      },
+      {
+        "tag": "TEXTAREA",
+        "id": "",
+        "type": "textarea",
+        "placeholder": "Descripción",
+        "value": "Un salón de primer nivel en pleno centro de Salto, con más de 120 años de historia."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Hay Equipo 🤝"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "number",
+        "placeholder": "",
+        "value": "11"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "El día de tu fiesta somos 11 personas trabajando para vos."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "Correo Uruguayo"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/correo-uruguayo.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "Salto Hotel & Casino"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/salto-hotel-casino.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "Plus Medical"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/plus-medical.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "A.S.DE.M. y A."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/asdemya.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "Woslen"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/woslen.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "APC Salto"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/apc-salto.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "INC"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/inc.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "Antel"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/antel.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "ABRA"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/abra.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "INAU"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/inau.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "Intendencia de Salto"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/intendencia-salto.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre Empresa",
+        "value": "Club Uruguay"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL del logo (/logos/... o https://...)",
+        "value": "/logos/club-uruguay.png"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Contratarnos"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Generar Presupuesto Manual"
+      },
+      {
+        "tag": "TEXTAREA",
+        "id": "",
+        "type": "textarea",
+        "placeholder": "",
+        "value": "Estamos listos para hacer de tu celebración un recuerdo imborrable."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Tu boda perfecta, hecha realidad"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Organizamos cada detalle para que el día más importante de tu vida sea exactamente como lo soñaste. Décor, catering, música, fotografía — todo en un solo lugar."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": ""
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "rose"
+      },
+      {
+        "tag": "TEXTAREA",
+        "id": "",
+        "type": "textarea",
+        "placeholder": "",
+        "value": "En AK Producciones somos especialistas en transformar momentos especiales en recuerdos eternos. Nos encargamos de todo: decoración, catering, sonido, fotografía y coordinación general."
+      },
+      {
+        "tag": "TEXTAREA",
+        "id": "",
+        "type": "textarea",
+        "placeholder": "",
+        "value": "Un solo equipo para coordinar todo, con experiencia, calidad y seguimiento personalizado."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "¡AK Producciones hizo nuestra boda un sueño! Cada detalle fue perfecto, desde las flores hasta la torta. Eternamente agradecidos. 💕"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "No puedo creer lo hermoso que quedó todo. El equipo estuvo presente en todo momento y nosotros solo tuvimos que disfrutar. ¡100% recomendados!"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "",
+        "value": "Llevamos años pensando en nuestra boda y AK superó todas nuestras expectativas. Profesionales, cálidos y creativos."
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL",
+        "value": "/images/events/bodas/ceremony.jpg"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Alt",
+        "value": "Ceremonia nupcial"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL",
+        "value": "/images/events/bodas/reception.jpg"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Alt",
+        "value": "Recepción decorada"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL",
+        "value": "/images/events/bodas/cake.jpg"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Alt",
+        "value": "Torta de bodas"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL",
+        "value": "/images/events/bodas/dance.jpg"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Alt",
+        "value": "Primer baile"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL",
+        "value": "/images/events/bodas/flowers.jpg"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Alt",
+        "value": "Arreglos florales"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "URL",
+        "value": "/images/events/bodas/couple.jpg"
+      },
+      {
+        "tag": "INPUT",
+        "id": "",
+        "type": "text",
+        "placeholder": "Alt",
+        "value": "Los novios"
+      },
+      {
+        "tag": "INPUT",
+        "id": "tope-ia",
+        "type": "text",
+        "placeholder": "Sin tope",
+        "value": ""
+      }
+    ],
+    "buttons": [
+      "Ingreso/Egreso Rápido",
+      "Abrir notificaciones",
+      "",
+      "Ver preview LED",
+      "Ver preview catálogo",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Agregar beneficio",
+      "Agregar foto",
+      "Agregar foto del equipo",
+      "Agregar empresa",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Agregar testimonio",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Agregar foto",
+      "Actualizar ahora",
+      "Nuevo artículo",
+      "Guardar tope",
+      "Guardar ahora",
+      "",
+      "",
+      "",
+      "",
+      "CTOSistema, backup y sincronizaciones",
+      "",
+      ""
+    ]
+  }
+]

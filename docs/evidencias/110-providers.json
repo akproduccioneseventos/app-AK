@@ -1,0 +1,104 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "provider-create-persist-read",
+    "details": {
+      "id": "prov_1791831916300_a4aazj8",
+      "phone": "099000110",
+      "storedAndReloaded": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-duplicate-refused",
+    "details": {
+      "rows": 1,
+      "errorVisible": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-edit-reload",
+    "details": {
+      "phone": "099000111"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-failed-save-keeps-record-and-form",
+    "details": {
+      "blocked": 1,
+      "errorVisible": true,
+      "formRetained": true,
+      "storedPhone": "099000111"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-delete-cancel-and-confirm",
+    "details": {
+      "cancelKept": true,
+      "localContainsDeleted": true,
+      "presentAfterReload": 1,
+      "documentExists": false,
+      "deletedId": "prov_1791831916300_a4aazj8",
+      "acceptance": "FAIL_DELETED_RECORD_REAPPEARS"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-create-persist-read",
+    "details": {
+      "id": "prov_1791831927614_a1jpqhh",
+      "phone": "099000110",
+      "storedAndReloaded": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-duplicate-refused",
+    "details": {
+      "rows": 1,
+      "errorVisible": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-edit-reload",
+    "details": {
+      "phone": "099000111"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-failed-save-keeps-record-and-form",
+    "details": {
+      "blocked": 1,
+      "errorVisible": true,
+      "formRetained": true,
+      "storedPhone": "099000111"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-delete-cancel-and-confirm",
+    "details": {
+      "cancelKept": true,
+      "localContainsDeleted": true,
+      "presentAfterReload": 1,
+      "documentExists": false,
+      "deletedId": "prov_1791831927614_a1jpqhh",
+      "acceptance": "FAIL_DELETED_RECORD_REAPPEARS"
+    },
+    "status": "FAIL"
+  }
+]

@@ -1,0 +1,210 @@
+[
+  {
+    "text": "",
+    "href": "/admin"
+  },
+  {
+    "text": "Centro de Control",
+    "href": "/admin"
+  },
+  {
+    "text": "Mi Día",
+    "href": "/mi-dia"
+  },
+  {
+    "text": "Eventos Activos",
+    "href": "/eventos"
+  },
+  {
+    "text": "Calendario",
+    "href": "/calendario"
+  },
+  {
+    "text": "Muro Social",
+    "href": "/empresa/red-social-eventos"
+  },
+  {
+    "text": "Incidentes",
+    "href": "/incidentes"
+  },
+  {
+    "text": "Guias de Armado",
+    "href": "/playbooks"
+  },
+  {
+    "text": "Alergias y Dietas",
+    "href": "/fiestas/nueva/alergias"
+  },
+  {
+    "text": "Portal de Proveedores",
+    "href": "/fiestas/nueva/proveedores-portal"
+  },
+  {
+    "text": "Personal en dos fiestas",
+    "href": "/recursos-multi-evento"
+  },
+  {
+    "text": "Gestión de Empresa",
+    "href": "/empresa"
+  },
+  {
+    "text": "Prospectos",
+    "href": "/contabilidad/crm"
+  },
+  {
+    "text": "Presupuestos",
+    "href": "/presupuestos/nuevo"
+  },
+  {
+    "text": "Clientes",
+    "href": "/customers"
+  },
+  {
+    "text": "Simulador IA",
+    "href": "/simulador-ak"
+  },
+  {
+    "text": "Pagos Rápidos",
+    "href": "/pagos-rapidos"
+  },
+  {
+    "text": "Panel Contable",
+    "href": "/empresa/contabilidad"
+  },
+  {
+    "text": "Facturas",
+    "href": "/invoices"
+  },
+  {
+    "text": "Cambios a Aprobar",
+    "href": "/aprobaciones"
+  },
+  {
+    "text": "Métricas del Negocio",
+    "href": "/empresa/dashboard"
+  },
+  {
+    "text": "Comida / Menús",
+    "href": "/empresa/menus"
+  },
+  {
+    "text": "Lista de Compras",
+    "href": "/compras"
+  },
+  {
+    "text": "Salones",
+    "href": "/empresa/salones"
+  },
+  {
+    "text": "Catálogo de Servicios",
+    "href": "/empresa/servicios"
+  },
+  {
+    "text": "Proveedores",
+    "href": "/proveedores"
+  },
+  {
+    "text": "Empleados",
+    "href": "/empleados"
+  },
+  {
+    "text": "Marketing y Difusión",
+    "href": "/empresa/marketing"
+  },
+  {
+    "text": "Redes Sociales",
+    "href": "/empresa/redes-sociales"
+  },
+  {
+    "text": "WhatsApp del Día",
+    "href": "/contabilidad/crm/outbox"
+  },
+  {
+    "text": "Rendimiento Anuncios",
+    "href": "/contabilidad/crm/marketing-ads"
+  },
+  {
+    "text": "Presentación LED",
+    "href": "/empresa/presentacion-led/configuracion"
+  },
+  {
+    "text": "Ajustes Generales",
+    "href": "/settings"
+  },
+  {
+    "text": "Tareas Automáticas",
+    "href": "/settings/tareas-automaticas"
+  },
+  {
+    "text": "Conexiones",
+    "href": "/settings/sincronizaciones"
+  },
+  {
+    "text": "WhatsApp",
+    "href": "/settings/whatsapp"
+  },
+  {
+    "text": "Cláusulas de Contrato",
+    "href": "/settings/contratos/clausulas"
+  },
+  {
+    "text": "Seguridad",
+    "href": "/settings/account"
+  },
+  {
+    "text": "Promociones",
+    "href": "/settings/promos"
+  },
+  {
+    "text": "Asistente IA",
+    "href": "/settings/ai-assistant"
+  },
+  {
+    "text": "Mapa Tecnológico",
+    "href": "/settings/mapa-tecnologico-ak"
+  },
+  {
+    "text": "Laboratorio Experimental",
+    "href": "/settings/feature-flags"
+  },
+  {
+    "text": "Alertas",
+    "href": "/alertas"
+  },
+  {
+    "text": "Ingreso/Egreso Rápido",
+    "href": "/pagos-rapidos"
+  },
+  {
+    "text": "",
+    "href": "/pagos-rapidos"
+  },
+  {
+    "text": "Conectar AK",
+    "href": "/api/google/oauth/start?kind=company"
+  },
+  {
+    "text": "Ver empleados",
+    "href": "/empleados"
+  },
+  {
+    "text": "Ver reuniones",
+    "href": "/fiestas/nueva/reuniones"
+  },
+  {
+    "text": "Guia Google Calendar",
+    "href": "https://developers.google.com/workspace/calendar/api/guides/create-events"
+  },
+  {
+    "text": "Permisos Gmail",
+    "href": "https://developers.google.com/workspace/gmail/api/auth/scopes"
+  },
+  {
+    "text": "",
+    "href": "/settings/asistentes-contextuales"
+  },
+  {
+    "text": "",
+    "href": "/settings/sincronizaciones"
+  }
+]

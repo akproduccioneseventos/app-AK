@@ -1,0 +1,1960 @@
+[
+  {
+    "viewport": "desktop",
+    "label": "Conexiones",
+    "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+    "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nConexiones Externas\nIngreso/Egreso Rápido\nAbrir notificaciones\n¿Qué está conectado?\n\nEstado real y transparente de las 13 integraciones y plataformas externas.\n\nActualizar\nTareas automáticas\nRevisar mi agenda de Google\nBusca eventos repetidos y fiestas que quedaron en una fecha vieja. Solo mira los que puso la app: tus eventos personales no se tocan.\nRevisar mi agenda\nTOTAL PLATAFORMAS\n14\nServicios soportados\nCONECTADAS\n3\nFuncionando activas\nFALTA CONFIGURAR\n7\nRequieren datos o cuenta\nNO SE USA\n4\nOpcionales desactivadas\nPlataformas e Integraciones Externas (14)\nLa pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.\nGoogle Analytics (GA4)\nMétricas web\nConectada\n\nEstado actual: Medición de visitas activada\n\nAdministrar\nFicha de Google (Perfil de Negocio)\nBúsqueda local\nFalta configurarla\n\nEstado actual: Falta enlace a tu perfil de Google\n\nQué se pierde: La gente que busca \"eventos en Salto\" no ve tu teléfono ni tus fotos en Google Maps, y perdés el 32% de los clientes locales.\n\nConfigurar\nGoogle Calendar y Workspace\nAgenda y correos\nFalta configurarla\n\nEstado actual: Falta conectar cuenta de Google Workspace\n\nQué se pierde: Las fiestas y reuniones agendadas en la app no se copian solas a tu celular ni al calendario de tu equipo.\n\nConfigurar\nWhatsApp\nMensajería directa\nFalta configurarla\n\nEstado actual: Sin número conectado\n\nQué se pierde: Los clientes no pueden pedir presupuestos ni confirmar asistencia tocando un botón para escribirte directo.\n\nConfigurar\nInstagram\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular cuenta de Instagram\n\nQué se pierde: No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.\n\nProbar conexión\nSincronizar historial\nConfigurar\nPublicaciones guardadas:\n0 publicaciones\nPublicación más antigua:\nSin publicaciones\nEstado del historial:\nSincronización en curso\n¿Cómo conectar Instagram paso a paso (sin saber programar)?\nFacebook\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular página de Facebook\n\nQué se pierde: No podés publicar posteos programados ni responder consultas de Facebook desde el panel.\n\nConfigurar\nYouTube\nVideo y música\nConectada\n\nEstado actual: Leer videos que mandan los clientes: anda\n\nAdministrar\nTikTok\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: Los videos cortos de 15 años y bodas no se enlazan desde el pie de la web.\n\nConfigurar\nThreads\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza el perfil de Threads desde la web.\n\nConfigurar\nX (Twitter)\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza la cuenta de X en el pie de página.\n\nConfigurar\nPinterest\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlazan los tableros de inspiración de eventos ni decoración.\n\nConfigurar\nSpotify\nMúsica y DJs\nFalta configurarla\n\nEstado actual: Buscar canciones y abrir listas: faltan las credenciales de Spotify\n\nQué se pierde: El DJ no puede ver las canciones de las listas que mandan los clientes.\n\nConfigurar\nMercado Pago\nCobros online\nFalta configurarla\n\nEstado actual: Faltan credenciales de cobro\n\nQué se pierde: Los clientes no pueden pagar señas ni cuotas con tarjeta de crédito desde el presupuesto digital.\n\nConfigurar\nMeta Ads (Publicidad)\nAnuncios\nConectada\n\nEstado actual: El pixel está midiendo las visitas que llegan de tus anuncios.\n\nAdministrar\nClara\nExperiencia del cliente",
+    "controls": [
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/admin",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Centro de Control",
+        "href": "/admin",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Mi Día",
+        "href": "/mi-dia",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Eventos Activos",
+        "href": "/eventos",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Calendario",
+        "href": "/calendario",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Muro Social",
+        "href": "/empresa/red-social-eventos",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Incidentes",
+        "href": "/incidentes",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Guias de Armado",
+        "href": "/playbooks",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Alergias y Dietas",
+        "href": "/fiestas/nueva/alergias",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Portal de Proveedores",
+        "href": "/fiestas/nueva/proveedores-portal",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Personal en dos fiestas",
+        "href": "/recursos-multi-evento",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Gestión de Empresa",
+        "href": "/empresa",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Prospectos",
+        "href": "/contabilidad/crm",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Presupuestos",
+        "href": "/presupuestos/nuevo",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Clientes",
+        "href": "/customers",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Simulador IA",
+        "href": "/simulador-ak",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Pagos Rápidos",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Panel Contable",
+        "href": "/empresa/contabilidad",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Facturas",
+        "href": "/invoices",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Cambios a Aprobar",
+        "href": "/aprobaciones",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Métricas del Negocio",
+        "href": "/empresa/dashboard",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Comida / Menús",
+        "href": "/empresa/menus",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Lista de Compras",
+        "href": "/compras",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Salones",
+        "href": "/empresa/salones",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Catálogo de Servicios",
+        "href": "/empresa/servicios",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Proveedores",
+        "href": "/proveedores",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Empleados",
+        "href": "/empleados",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Marketing y Difusión",
+        "href": "/empresa/marketing",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Redes Sociales",
+        "href": "/empresa/redes-sociales",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "WhatsApp del Día",
+        "href": "/contabilidad/crm/outbox",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Rendimiento Anuncios",
+        "href": "/contabilidad/crm/marketing-ads",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Presentación LED",
+        "href": "/empresa/presentacion-led/configuracion",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Ajustes Generales",
+        "href": "/settings",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Tareas Automáticas",
+        "href": "/settings/tareas-automaticas",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Conexiones",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "WhatsApp",
+        "href": "/settings/whatsapp",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Cláusulas de Contrato",
+        "href": "/settings/contratos/clausulas",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Seguridad",
+        "href": "/settings/account",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Promociones",
+        "href": "/settings/promos",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Asistente IA",
+        "href": "/settings/ai-assistant",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Mapa Tecnológico",
+        "href": "/settings/mapa-tecnologico-ak",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Laboratorio Experimental",
+        "href": "/settings/feature-flags",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Alertas",
+        "href": "/alertas",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Toggle Sidebar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Ingreso/Egreso Rápido",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Ingreso/Egreso Rápido",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Abrir notificaciones",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Actualizar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Tareas automáticas",
+        "href": "/settings/tareas-automaticas",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Tareas automáticas",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Revisar mi agenda",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Administrar",
+        "href": "/settings/company",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Administrar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/company",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/google-workspace",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/whatsapp",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Probar conexión",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sincronizar historial",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "¿Cómo conectar Instagram paso a paso (sin saber programar)?",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Administrar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Administrar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/company",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Administrar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Administrar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "ClaraExperiencia del cliente",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings/asistentes-contextuales",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      }
+    ],
+    "panelLinks": [
+      {
+        "text": "Ingreso/Egreso Rápido",
+        "href": "/pagos-rapidos"
+      },
+      {
+        "text": "",
+        "href": "/pagos-rapidos"
+      },
+      {
+        "text": "",
+        "href": "/settings"
+      },
+      {
+        "text": "Tareas automáticas",
+        "href": "/settings/tareas-automaticas"
+      },
+      {
+        "text": "Administrar",
+        "href": "/settings/company"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/company"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/google-workspace"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/whatsapp"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Administrar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/company"
+      },
+      {
+        "text": "Administrar",
+        "href": "/settings/sincronizaciones"
+      }
+    ],
+    "actionRequests": [
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "000d06ca956ec72059646dc70785c01266280a86c9"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "00be1d9b4a9139e3547df2d9de60cce3d15c21a184"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "0051f335e69a311e5dda97534264a9ff35e688867c"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      }
+    ],
+    "errors": [
+      "Failed to fetch"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "label": "Redes Sociales",
+    "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+    "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nPlanificador de Contenido\nIngreso/Egreso Rápido\nAbrir notificaciones\nPlanificador de Contenido\nGenerar desde fiesta\nCreador & Auditor de Anuncios\nCentro de Presencia Digital\nImportar historial\nCrear Publicación\nVolver a Empresa\nPublicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic.\nHistorial de Publicaciones en Redes\nControlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.\nActualizar ahora\nInstagram\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nYouTube\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nFacebook\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nLandings para publicidad\nLinks listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.\nVer Tecnologia AK\n\nTECNOLOGIA AK\n\nTecnologia AK para tu fiesta\n\nVender el diferencial tecnologico de AK antes del presupuesto.\n\nCopiar\nAbrir\n\nXV CON TECNOLOGIA\n\nXV anos con experiencia digital\n\nCaptar familias que buscan una fiesta de XV moderna y completa.\n\nCopiar\nAbrir\n\nFOTOCABINA 360\n\nFotocabina y 360 para tu evento\n\nVender tecnologia puntual como entrada rapida a nuevos clientes.\n\nCopiar\nAbrir\n\nMURO SOCIAL\n\nMuro social en vivo\n\nPromocionar pantalla, QR y experiencia participativa en fiestas.\n\nCopiar\nAbrir\nGestor de Contenido\nFiltrar por Evento\nFiltrar por Plataforma\nTodos (0)\nListos para copiar (0)\nCon error (0)\nCalendario\n\nNo hay publicaciones que coincidan con los filtros seleccionados.\n\nInstagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.\n\nMia\nMarketing, ventas y pantallas LED",
+    "controls": [
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/admin",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Centro de Control",
+        "href": "/admin",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Mi Día",
+        "href": "/mi-dia",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Eventos Activos",
+        "href": "/eventos",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Calendario",
+        "href": "/calendario",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Muro Social",
+        "href": "/empresa/red-social-eventos",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Incidentes",
+        "href": "/incidentes",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Guias de Armado",
+        "href": "/playbooks",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Alergias y Dietas",
+        "href": "/fiestas/nueva/alergias",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Portal de Proveedores",
+        "href": "/fiestas/nueva/proveedores-portal",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Personal en dos fiestas",
+        "href": "/recursos-multi-evento",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Gestión de Empresa",
+        "href": "/empresa",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Prospectos",
+        "href": "/contabilidad/crm",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Presupuestos",
+        "href": "/presupuestos/nuevo",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Clientes",
+        "href": "/customers",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Simulador IA",
+        "href": "/simulador-ak",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Pagos Rápidos",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Panel Contable",
+        "href": "/empresa/contabilidad",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Facturas",
+        "href": "/invoices",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Cambios a Aprobar",
+        "href": "/aprobaciones",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Métricas del Negocio",
+        "href": "/empresa/dashboard",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Comida / Menús",
+        "href": "/empresa/menus",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Lista de Compras",
+        "href": "/compras",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Salones",
+        "href": "/empresa/salones",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Catálogo de Servicios",
+        "href": "/empresa/servicios",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Proveedores",
+        "href": "/proveedores",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Empleados",
+        "href": "/empleados",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Marketing y Difusión",
+        "href": "/empresa/marketing",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Redes Sociales",
+        "href": "/empresa/redes-sociales",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "WhatsApp del Día",
+        "href": "/contabilidad/crm/outbox",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Rendimiento Anuncios",
+        "href": "/contabilidad/crm/marketing-ads",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Presentación LED",
+        "href": "/empresa/presentacion-led/configuracion",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Ajustes Generales",
+        "href": "/settings",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Tareas Automáticas",
+        "href": "/settings/tareas-automaticas",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Conexiones",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "WhatsApp",
+        "href": "/settings/whatsapp",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Cláusulas de Contrato",
+        "href": "/settings/contratos/clausulas",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Seguridad",
+        "href": "/settings/account",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Promociones",
+        "href": "/settings/promos",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Asistente IA",
+        "href": "/settings/ai-assistant",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Mapa Tecnológico",
+        "href": "/settings/mapa-tecnologico-ak",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Laboratorio Experimental",
+        "href": "/settings/feature-flags",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Alertas",
+        "href": "/alertas",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Toggle Sidebar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Ingreso/Egreso Rápido",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Ingreso/Egreso Rápido",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Abrir notificaciones",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Generar desde fiesta",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Creador & Auditor de Anuncios",
+        "href": "/empresa/creador-anuncios",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Centro de Presencia Digital",
+        "href": "/empresa/presencia-digital",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Importar historial",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Crear Publicación",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Volver a Empresa",
+        "href": "/empresa",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Actualizar ahora",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Ver Tecnologia AK",
+        "href": "/landing/tecnologia-ak",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copiar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Abrir",
+        "href": "/landing/tecnologia-ak",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copiar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Abrir",
+        "href": "/landing/xv-anos-tecnologia",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copiar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Abrir",
+        "href": "/landing/fotocabina-360",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copiar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Abrir",
+        "href": "/landing/muro-social-eventos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Filtrar por Evento",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Filtrar por Plataforma",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Todos (0)",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Listos para copiar (0)",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Con error (0)",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Calendario",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "MiaMarketing, ventas y pantallas LED",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings/asistentes-contextuales",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      }
+    ],
+    "panelLinks": [
+      {
+        "text": "Ingreso/Egreso Rápido",
+        "href": "/pagos-rapidos"
+      },
+      {
+        "text": "",
+        "href": "/pagos-rapidos"
+      },
+      {
+        "text": "Creador & Auditor de Anuncios",
+        "href": "/empresa/creador-anuncios"
+      },
+      {
+        "text": "Centro de Presencia Digital",
+        "href": "/empresa/presencia-digital"
+      },
+      {
+        "text": "Volver a Empresa",
+        "href": "/empresa"
+      },
+      {
+        "text": "Ver Tecnologia AK",
+        "href": "/landing/tecnologia-ak"
+      },
+      {
+        "text": "Abrir",
+        "href": "/landing/tecnologia-ak"
+      },
+      {
+        "text": "Abrir",
+        "href": "/landing/xv-anos-tecnologia"
+      },
+      {
+        "text": "Abrir",
+        "href": "/landing/fotocabina-360"
+      },
+      {
+        "text": "Abrir",
+        "href": "/landing/muro-social-eventos"
+      }
+    ],
+    "actionRequests": [
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "000d06ca956ec72059646dc70785c01266280a86c9"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "00be1d9b4a9139e3547df2d9de60cce3d15c21a184"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "003a8a3ae436ab5f689b117bf0eea5b6b1f07bf973"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "000e797b2efc3330251864f0db3c16dd61c563e8ee"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "00baa2c88a6b7b9e60bbb6c11b17744d19514a7014"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "003abf2a4cfdb2274700f792dbacffdcaef8f21b07"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      }
+    ],
+    "errors": [
+      "Failed to fetch",
+      "Failed to fetch"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "label": "Conexiones",
+    "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+    "body": "Toggle Sidebar\nConexiones Externas\nAbrir notificaciones\n¿Qué está conectado?\n\nEstado real y transparente de las 13 integraciones y plataformas externas.\n\nActualizar\nTareas automáticas\nRevisar mi agenda de Google\nBusca eventos repetidos y fiestas que quedaron en una fecha vieja. Solo mira los que puso la app: tus eventos personales no se tocan.\nRevisar mi agenda\nTOTAL PLATAFORMAS\n14\nServicios soportados\nCONECTADAS\n3\nFuncionando activas\nFALTA CONFIGURAR\n7\nRequieren datos o cuenta\nNO SE USA\n4\nOpcionales desactivadas\nPlataformas e Integraciones Externas (14)\nLa pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.\nGoogle Analytics (GA4)\nMétricas web\nConectada\n\nEstado actual: Medición de visitas activada\n\nAdministrar\nFicha de Google (Perfil de Negocio)\nBúsqueda local\nFalta configurarla\n\nEstado actual: Falta enlace a tu perfil de Google\n\nQué se pierde: La gente que busca \"eventos en Salto\" no ve tu teléfono ni tus fotos en Google Maps, y perdés el 32% de los clientes locales.\n\nConfigurar\nGoogle Calendar y Workspace\nAgenda y correos\nFalta configurarla\n\nEstado actual: Falta conectar cuenta de Google Workspace\n\nQué se pierde: Las fiestas y reuniones agendadas en la app no se copian solas a tu celular ni al calendario de tu equipo.\n\nConfigurar\nWhatsApp\nMensajería directa\nFalta configurarla\n\nEstado actual: Sin número conectado\n\nQué se pierde: Los clientes no pueden pedir presupuestos ni confirmar asistencia tocando un botón para escribirte directo.\n\nConfigurar\nInstagram\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular cuenta de Instagram\n\nQué se pierde: No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.\n\nProbar conexión\nSincronizar historial\nConfigurar\nPublicaciones guardadas:\n0 publicaciones\nPublicación más antigua:\nSin publicaciones\nEstado del historial:\nSincronización en curso\n¿Cómo conectar Instagram paso a paso (sin saber programar)?\nFacebook\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular página de Facebook\n\nQué se pierde: No podés publicar posteos programados ni responder consultas de Facebook desde el panel.\n\nConfigurar\nYouTube\nVideo y música\nConectada\n\nEstado actual: Leer videos que mandan los clientes: anda\n\nAdministrar\nTikTok\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: Los videos cortos de 15 años y bodas no se enlazan desde el pie de la web.\n\nConfigurar\nThreads\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza el perfil de Threads desde la web.\n\nConfigurar\nX (Twitter)\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza la cuenta de X en el pie de página.\n\nConfigurar\nPinterest\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlazan los tableros de inspiración de eventos ni decoración.\n\nConfigurar\nSpotify\nMúsica y DJs\nFalta configurarla\n\nEstado actual: Buscar canciones y abrir listas: faltan las credenciales de Spotify\n\nQué se pierde: El DJ no puede ver las canciones de las listas que mandan los clientes.\n\nConfigurar\nMercado Pago\nCobros online\nFalta configurarla\n\nEstado actual: Faltan credenciales de cobro\n\nQué se pierde: Los clientes no pueden pagar señas ni cuotas con tarjeta de crédito desde el presupuesto digital.\n\nConfigurar\nMeta Ads (Publicidad)\nAnuncios\nConectada\n\nEstado actual: El pixel está midiendo las visitas que llegan de tus anuncios.\n\nAdministrar",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "Toggle Sidebar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Ingreso/Egreso Rápido",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Ingreso/Egreso Rápido",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Abrir notificaciones",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Actualizar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Tareas automáticas",
+        "href": "/settings/tareas-automaticas",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Tareas automáticas",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Revisar mi agenda",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Administrar",
+        "href": "/settings/company",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Administrar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/company",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/google-workspace",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/whatsapp",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Probar conexión",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Sincronizar historial",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "¿Cómo conectar Instagram paso a paso (sin saber programar)?",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Administrar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Administrar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Configurar",
+        "href": "/settings/company",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Configurar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Administrar",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Administrar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "ClaraExperiencia del cliente",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings/asistentes-contextuales",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      }
+    ],
+    "panelLinks": [
+      {
+        "text": "Ingreso/Egreso Rápido",
+        "href": "/pagos-rapidos"
+      },
+      {
+        "text": "",
+        "href": "/pagos-rapidos"
+      },
+      {
+        "text": "",
+        "href": "/settings"
+      },
+      {
+        "text": "Tareas automáticas",
+        "href": "/settings/tareas-automaticas"
+      },
+      {
+        "text": "Administrar",
+        "href": "/settings/company"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/company"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/google-workspace"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/whatsapp"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Administrar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/sincronizaciones"
+      },
+      {
+        "text": "Configurar",
+        "href": "/settings/company"
+      },
+      {
+        "text": "Administrar",
+        "href": "/settings/sincronizaciones"
+      }
+    ],
+    "actionRequests": [
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "000d06ca956ec72059646dc70785c01266280a86c9"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "00be1d9b4a9139e3547df2d9de60cce3d15c21a184"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "0051f335e69a311e5dda97534264a9ff35e688867c"
+      },
+      {
+        "url": "http://127.0.0.1:3300/settings/sincronizaciones",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      }
+    ],
+    "errors": [
+      "Failed to fetch"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "label": "Redes Sociales",
+    "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+    "body": "Toggle Sidebar\nPlanificador de Contenido\nAbrir notificaciones\nPlanificador de Contenido\nGenerar desde fiesta\nCreador & Auditor de Anuncios\nCentro de Presencia Digital\nImportar historial\nCrear Publicación\nVolver a Empresa\nPublicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic.\nHistorial de Publicaciones en Redes\nControlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.\nActualizar ahora\nInstagram\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nYouTube\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nFacebook\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nLandings para publicidad\nLinks listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.\nVer Tecnologia AK\n\nTECNOLOGIA AK\n\nTecnologia AK para tu fiesta\n\nVender el diferencial tecnologico de AK antes del presupuesto.\n\nCopiar\nAbrir\n\nXV CON TECNOLOGIA\n\nXV anos con experiencia digital\n\nCaptar familias que buscan una fiesta de XV moderna y completa.\n\nCopiar\nAbrir\n\nFOTOCABINA 360\n\nFotocabina y 360 para tu evento\n\nVender tecnologia puntual como entrada rapida a nuevos clientes.\n\nCopiar\nAbrir\n\nMURO SOCIAL\n\nMuro social en vivo\n\nPromocionar pantalla, QR y experiencia participativa en fiestas.\n\nCopiar\nAbrir\nGestor de Contenido\nFiltrar por Evento\nFiltrar por Plataforma\nTodos (0)\nListos para copiar (0)\nCon error (0)\nCalendario\n\nNo hay publicaciones que coincidan con los filtros seleccionados.\n\nInstagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.",
+    "controls": [
+      {
+        "tag": "BUTTON",
+        "text": "Toggle Sidebar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Ingreso/Egreso Rápido",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Ingreso/Egreso Rápido",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/pagos-rapidos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Abrir notificaciones",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Generar desde fiesta",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Creador & Auditor de Anuncios",
+        "href": "/empresa/creador-anuncios",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Centro de Presencia Digital",
+        "href": "/empresa/presencia-digital",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Importar historial",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Crear Publicación",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Volver a Empresa",
+        "href": "/empresa",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Actualizar ahora",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Ver Tecnologia AK",
+        "href": "/landing/tecnologia-ak",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copiar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Abrir",
+        "href": "/landing/tecnologia-ak",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copiar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Abrir",
+        "href": "/landing/xv-anos-tecnologia",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copiar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Abrir",
+        "href": "/landing/fotocabina-360",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copiar",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "Abrir",
+        "href": "/landing/muro-social-eventos",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Filtrar por Evento",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Filtrar por Plataforma",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Todos (0)",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Listos para copiar (0)",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Con error (0)",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Calendario",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "MiaMarketing, ventas y pantallas LED",
+        "href": null,
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings/asistentes-contextuales",
+        "disabled": false
+      },
+      {
+        "tag": "A",
+        "text": "",
+        "href": "/settings/sincronizaciones",
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "text": "",
+        "href": null,
+        "disabled": false
+      }
+    ],
+    "panelLinks": [
+      {
+        "text": "Ingreso/Egreso Rápido",
+        "href": "/pagos-rapidos"
+      },
+      {
+        "text": "",
+        "href": "/pagos-rapidos"
+      },
+      {
+        "text": "Creador & Auditor de Anuncios",
+        "href": "/empresa/creador-anuncios"
+      },
+      {
+        "text": "Centro de Presencia Digital",
+        "href": "/empresa/presencia-digital"
+      },
+      {
+        "text": "Volver a Empresa",
+        "href": "/empresa"
+      },
+      {
+        "text": "Ver Tecnologia AK",
+        "href": "/landing/tecnologia-ak"
+      },
+      {
+        "text": "Abrir",
+        "href": "/landing/tecnologia-ak"
+      },
+      {
+        "text": "Abrir",
+        "href": "/landing/xv-anos-tecnologia"
+      },
+      {
+        "text": "Abrir",
+        "href": "/landing/fotocabina-360"
+      },
+      {
+        "text": "Abrir",
+        "href": "/landing/muro-social-eventos"
+      }
+    ],
+    "actionRequests": [
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "000d06ca956ec72059646dc70785c01266280a86c9"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "00be1d9b4a9139e3547df2d9de60cce3d15c21a184"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "003a8a3ae436ab5f689b117bf0eea5b6b1f07bf973"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "000e797b2efc3330251864f0db3c16dd61c563e8ee"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "00baa2c88a6b7b9e60bbb6c11b17744d19514a7014"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "003abf2a4cfdb2274700f792dbacffdcaef8f21b07"
+      },
+      {
+        "url": "http://127.0.0.1:3300/empresa/redes-sociales",
+        "action": "008d00d66ae6175b893fd47c04eb7bf2a5541d6255"
+      }
+    ],
+    "errors": [
+      "Failed to fetch",
+      "Failed to fetch"
+    ]
+  }
+]

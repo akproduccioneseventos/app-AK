@@ -60,14 +60,15 @@ PC/celular; scrollWidth no supera clientWidth salvo tolerancia de redondeo.
 Guardar/Volver accesibles por pulsacion normal, sin force ni dispatch artificial.
 Mantener unidades/decimales y los reintentos; no modificar calculos para pasar UX.
 
-Las dos pruebas propuestas abajo NO existen: PENDIENTE crear y ejecutar por Gemini;
-Claude registra fuente, entorno y resultado. Sonda111 ejecutada reproduce el fallo,
-no una correccion aprobada. No repetir152-157 por rutina ni fusionar esta orden.
+Actualizacion114: fuente e5f22b53,4criterios PASS con8muestras PC/Pixel7.
+Titulos contenidos, Guardar/Volver pulsados realmente; stock/unidad/nombre
+persistidos y reabiertos. Ver114-aceptacion.json. Sonda111 conserva el fallo;
+la inicial114 click-trial no se confunde con guardado real. No Hosting ni merge.
 
 ```comprobar
 archivo: src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
 usa: EditarActivoFijoPage en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
 archivo: src/app/(app)/empresa/insumos/[id]/editar/page.tsx
 usa: EditarInsumoPage en src/app/(app)/empresa/insumos/[id]/editar/page.tsx
-prueba: src/__tests__/inventario-titulos-largos-en-celular.test.tsx
+prueba: docs/evidencias/114-titulos-probe.mjs
 ```

@@ -1,0 +1,90 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "provider-create-persist-read",
+    "details": {
+      "id": "prov_1791831787255_if9cs12",
+      "phone": "099000110",
+      "storedAndReloaded": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-duplicate-refused",
+    "details": {
+      "rows": 1,
+      "errorVisible": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-edit-reload",
+    "details": {
+      "phone": "099000111"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-failed-save-keeps-record-and-form",
+    "details": {
+      "blocked": 1,
+      "errorVisible": true,
+      "formRetained": true,
+      "storedPhone": "099000111"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-delete-cancel-and-confirm",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: false\nReceived: true"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-create-persist-read",
+    "details": {
+      "id": "prov_1791831802305_rywsenv",
+      "phone": "099000110",
+      "storedAndReloaded": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-duplicate-refused",
+    "details": {
+      "rows": 1,
+      "errorVisible": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-edit-reload",
+    "details": {
+      "phone": "099000111"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-failed-save-keeps-record-and-form",
+    "details": {
+      "blocked": 1,
+      "errorVisible": true,
+      "formRetained": true,
+      "storedPhone": "099000111"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-delete-cancel-and-confirm",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: false\nReceived: true"
+  }
+]

@@ -1,0 +1,276 @@
+{
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "negative-cost-must-not-be-recorded-as-free-maintenance",
+      "details": {
+        "historyUnchanged": true,
+        "noExpense": true,
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "lost-confirmation-retry-must-not-double-charge",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "first": {
+          "history": [
+            {
+              "id": "9a127cdc-ccb6-4bd6-b66d-8350fbac1fa2",
+              "fecha": "2026-10-13",
+              "nota": "QA114 desktop a9575610 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_557119a14974a4a6301358263633c143",
+              "concepto": "Mantenimiento: QA114 desktop a9575610 Laser - QA114 desktop a9575610 Lampara",
+              "fecha": "2026-10-13",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa114_ack_desktop)",
+              "idempotencyKey": "mantenimiento:qa114_ack_desktop:9a127cdc-ccb6-4bd6-b66d-8350fbac1fa2",
+              "_syncedAt": "2026-10-13T00:36:41.140Z"
+            }
+          ]
+        },
+        "after": {
+          "history": [
+            {
+              "id": "9a127cdc-ccb6-4bd6-b66d-8350fbac1fa2",
+              "fecha": "2026-10-13",
+              "nota": "QA114 desktop a9575610 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_557119a14974a4a6301358263633c143",
+              "concepto": "Mantenimiento: QA114 desktop a9575610 Laser - QA114 desktop a9575610 Lampara",
+              "fecha": "2026-10-13",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa114_ack_desktop)",
+              "idempotencyKey": "mantenimiento:qa114_ack_desktop:9a127cdc-ccb6-4bd6-b66d-8350fbac1fa2",
+              "_syncedAt": "2026-10-13T00:36:41.140Z"
+            }
+          ]
+        },
+        "reloadedBeforeRetry": true,
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "two-operators-must-preserve-both-maintenance-records",
+      "details": {
+        "after": {
+          "history": [
+            {
+              "id": "f6ba7284-716d-4947-86a0-ef9bd9cde937",
+              "fecha": "2026-10-13",
+              "nota": "QA114 desktop a9575610 Operador B",
+              "costo": 20.5,
+              "gastoPendiente": false
+            },
+            {
+              "id": "3c7ce33d-49ce-4386-8bda-da84f3768766",
+              "fecha": "2026-10-13",
+              "nota": "QA114 desktop a9575610 Operador A",
+              "costo": 10.25,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_0395832d59684d9bfe2ad24afe2e768a",
+              "concepto": "Mantenimiento: QA114 desktop a9575610 Laser - QA114 desktop a9575610 Operador B",
+              "fecha": "2026-10-13",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 20.5,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa114_ack_desktop_concurrent)",
+              "idempotencyKey": "mantenimiento:qa114_ack_desktop_concurrent:f6ba7284-716d-4947-86a0-ef9bd9cde937",
+              "_syncedAt": "2026-10-13T00:36:54.434Z"
+            },
+            {
+              "id": "gasto_llave_86b68fe316435254d75b0b4a7de3fec3",
+              "concepto": "Mantenimiento: QA114 desktop a9575610 Laser - QA114 desktop a9575610 Operador A",
+              "fecha": "2026-10-13",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 10.25,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa114_ack_desktop_concurrent)",
+              "idempotencyKey": "mantenimiento:qa114_ack_desktop_concurrent:3c7ce33d-49ce-4386-8bda-da84f3768766",
+              "_syncedAt": "2026-10-13T00:36:54.184Z"
+            }
+          ]
+        },
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "negative-cost-must-not-be-recorded-as-free-maintenance",
+      "details": {
+        "historyUnchanged": true,
+        "noExpense": true,
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "lost-confirmation-retry-must-not-double-charge",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "first": {
+          "history": [
+            {
+              "id": "bc9468d1-facb-4945-a96c-34a69f91789f",
+              "fecha": "2026-10-13",
+              "nota": "QA114 mobile e92fac82 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_a8c28966b58e2a0aab6153c4280f8051",
+              "concepto": "Mantenimiento: QA114 mobile e92fac82 Laser - QA114 mobile e92fac82 Lampara",
+              "fecha": "2026-10-13",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa114_ack_mobile)",
+              "idempotencyKey": "mantenimiento:qa114_ack_mobile:bc9468d1-facb-4945-a96c-34a69f91789f",
+              "_syncedAt": "2026-10-13T00:37:01.255Z"
+            }
+          ]
+        },
+        "after": {
+          "history": [
+            {
+              "id": "bc9468d1-facb-4945-a96c-34a69f91789f",
+              "fecha": "2026-10-13",
+              "nota": "QA114 mobile e92fac82 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_a8c28966b58e2a0aab6153c4280f8051",
+              "concepto": "Mantenimiento: QA114 mobile e92fac82 Laser - QA114 mobile e92fac82 Lampara",
+              "fecha": "2026-10-13",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa114_ack_mobile)",
+              "idempotencyKey": "mantenimiento:qa114_ack_mobile:bc9468d1-facb-4945-a96c-34a69f91789f",
+              "_syncedAt": "2026-10-13T00:37:01.255Z"
+            }
+          ]
+        },
+        "reloadedBeforeRetry": true,
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "two-operators-must-preserve-both-maintenance-records",
+      "details": {
+        "after": {
+          "history": [
+            {
+              "id": "1faa036c-3718-457b-96be-a5c0de992782",
+              "fecha": "2026-10-13",
+              "nota": "QA114 mobile e92fac82 Operador B",
+              "costo": 20.5,
+              "gastoPendiente": false
+            },
+            {
+              "id": "a9b4f38e-d642-4b08-9b09-5dea521c726b",
+              "fecha": "2026-10-13",
+              "nota": "QA114 mobile e92fac82 Operador A",
+              "costo": 10.25,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_0642e3f1d7d8f6f010a1a4fb1f62b14e",
+              "concepto": "Mantenimiento: QA114 mobile e92fac82 Laser - QA114 mobile e92fac82 Operador B",
+              "fecha": "2026-10-13",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 20.5,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa114_ack_mobile_concurrent)",
+              "idempotencyKey": "mantenimiento:qa114_ack_mobile_concurrent:1faa036c-3718-457b-96be-a5c0de992782",
+              "_syncedAt": "2026-10-13T00:37:12.203Z"
+            },
+            {
+              "id": "gasto_llave_484180ae1bf0a3e47f91a90ab64590f1",
+              "concepto": "Mantenimiento: QA114 mobile e92fac82 Laser - QA114 mobile e92fac82 Operador A",
+              "fecha": "2026-10-13",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 10.25,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa114_ack_mobile_concurrent)",
+              "idempotencyKey": "mantenimiento:qa114_ack_mobile_concurrent:a9b4f38e-d642-4b08-9b09-5dea521c726b",
+              "_syncedAt": "2026-10-13T00:37:12.055Z"
+            }
+          ]
+        },
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    }
+  ],
+  "cleanup": {
+    "deleted": 13,
+    "documentsRemaining": 0,
+    "restored": [
+      {
+        "file": "src\\data\\activos-fijos.json",
+        "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+        "qaSha256": "506d621a67f77fdea1957b938071db3dde6082c42d82764bb08466657b26a8de"
+      },
+      {
+        "file": "src\\data\\gastos-generales.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "cdba532bf6fd34782344df5cc96feba87332e9bbefff0f12e616048f95810e7c"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "c52a9a3c8c10868ba7048aa8b0a11388eecc60fcb3871b5daabb75603560cd95"
+      },
+      {
+        "file": "data\\activos-fijos.json",
+        "beforeSha256": null,
+        "qaSha256": "506d621a67f77fdea1957b938071db3dde6082c42d82764bb08466657b26a8de"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "c52a9a3c8c10868ba7048aa8b0a11388eecc60fcb3871b5daabb75603560cd95"
+      },
+      {
+        "file": "data\\gastos-generales.json",
+        "beforeSha256": null,
+        "qaSha256": "cdba532bf6fd34782344df5cc96feba87332e9bbefff0f12e616048f95810e7c"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

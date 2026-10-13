@@ -1,0 +1,11 @@
+{
+  "sourceApp": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "fixture": {
+    "filename": "qa109-eb21604b-c8ab-412e-b359-bbf9645b89c9.pdf",
+    "marker": "QA109_DOCUMENTO_PRIVADO_FICTICIO",
+    "sha256": "204496a5dbd4bf59931bc8cdb5744811cd62465d395a10b79ee6be82df3b6662",
+    "bytes": 3184
+  },
+  "results": [],
+  "fixtureCleanup": true
+}

@@ -1,0 +1,35 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\meeting-checklist-template.json",
+      "beforeSha256": "d47eb610ed651001aabc1256390cdb29d0a7489417a1913becd88303f2f63689",
+      "qaSha256": "a87e6a5bfacdbae34e25b83af4b86a03f77b8313189a59b5bfb0445dfd5bb6c8"
+    },
+    {
+      "file": "src\\data\\fiestas\\qa110_meeting_desktop_ffd42356-d906-49a0-81e0-31292ecf1865.json",
+      "beforeSha256": null,
+      "qaSha256": "2731de97c1028c81310d86d21caa3cfed03087ed2e0441d4d38e5d68471706f4"
+    },
+    {
+      "file": "src\\data\\fiestas\\qa110_meeting_mobile_6ba0df51-82ce-4217-ab38-d3cfc4ab3075.json",
+      "beforeSha256": null,
+      "qaSha256": "221eba966af7515986f146d17caa5a6688c6d9d9f472f823b90c063657f36275"
+    },
+    {
+      "file": "data\\fiestas\\qa110_meeting_desktop_ffd42356-d906-49a0-81e0-31292ecf1865.json",
+      "beforeSha256": null,
+      "qaSha256": "2731de97c1028c81310d86d21caa3cfed03087ed2e0441d4d38e5d68471706f4"
+    },
+    {
+      "file": "data\\fiestas\\qa110_meeting_mobile_6ba0df51-82ce-4217-ab38-d3cfc4ab3075.json",
+      "beforeSha256": null,
+      "qaSha256": "221eba966af7515986f146d17caa5a6688c6d9d9f472f823b90c063657f36275"
+    },
+    {
+      "file": "data\\meeting-checklist-template.json",
+      "beforeSha256": null,
+      "qaSha256": "a87e6a5bfacdbae34e25b83af4b86a03f77b8313189a59b5bfb0445dfd5bb6c8"
+    }
+  ],
+  "bytesRestored": true
+}

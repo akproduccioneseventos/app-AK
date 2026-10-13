@@ -1,0 +1,21 @@
+{
+  "head": "0122997c0a7780e786fb1c818e912a5137b443fa",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "mode": "start",
+  "args": [
+    "node_modules/next/dist/bin/next",
+    "start",
+    "--hostname",
+    "127.0.0.1",
+    "--port",
+    "3301"
+  ],
+  "launcher": 17540,
+  "child": 27112,
+  "started": "2026-10-12T23:21:05.823Z",
+  "status": "finished",
+  "emulator": "127.0.0.1:8085",
+  "baseUrl": "http://127.0.0.1:3301",
+  "exitCode": 4294967295,
+  "finished": "2026-10-12T23:26:26.903Z"
+}

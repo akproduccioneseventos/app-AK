@@ -1,0 +1,13 @@
+{
+  "head": "39704d5c9f64c4914310be2b040c1a9b073c502f",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "args": [
+    "docs/evidencias/111-discovery.mjs"
+  ],
+  "launcher": 22324,
+  "child": 27760,
+  "started": "2026-10-12T20:02:21.961Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-12T20:02:27.563Z"
+}

@@ -18,13 +18,18 @@ const leerInsumosCrudos = jest.fn();
 // preguntas): la prueba usa los menús de verdad y mira lo que llega a cada uno.
 let fallaLaBase = false;
 const guardados = new Map<string, any>();
+const menusGuardados = new Map<string, any>();
 const mutateDataItem = jest.fn(async (_f: string, _c: string, id: string, cambiar: (a: any) => any) => {
   if (fallaLaBase) return null;
-  const actual = menus().find((m) => m.id === id);
+  const actual = menusGuardados.get(id) ?? menus().find((m) => m.id === id);
   const nuevo = cambiar(JSON.parse(JSON.stringify(actual)));
   guardados.set(id, nuevo);
+  menusGuardados.set(id, nuevo);
   return nuevo;
 });
+const recibos = new Map<string, { porcentaje: number; ids: string[]; terminado: boolean }>();
+let turnoPendiente: string | undefined;
+let catalogoActual: any[] = [];
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
@@ -42,6 +47,41 @@ jest.mock('@/lib/data-service', () => ({
 jest.mock('@/lib/insumos/leer-insumos', () => ({
   leerInsumosCrudos: (...a: unknown[]) => leerInsumosCrudos(...(a as [])),
   limpiarCacheInsumos: jest.fn(),
+}));
+jest.mock('@/lib/insumos/ajuste-costos-idempotente', () => ({
+  AjusteNoIniciadoError: class AjusteNoIniciadoError extends Error {},
+  comenzarAjusteCostos: jest.fn(async (porcentaje: number, operationId: string) => {
+    const anterior = recibos.get(operationId);
+    if (anterior) {
+      if (anterior.porcentaje !== porcentaje) throw new Error(`Ese ajuste ya se envio con otro porcentaje (${anterior.porcentaje}%).`);
+      return JSON.parse(JSON.stringify(anterior));
+    }
+    if (turnoPendiente) throw new Error('Hay un ajuste sin terminar.');
+    catalogoActual = JSON.parse(JSON.stringify(INSUMOS)).map((item: any) => ({
+      ...item,
+      valorUnitarioEstimado: Math.round(item.valorUnitarioEstimado * (1 + porcentaje / 100)),
+    }));
+    const recibo = { porcentaje, ids: INSUMOS.map((item) => item.id), terminado: false };
+    recibos.set(operationId, recibo);
+    turnoPendiente = operationId;
+    return JSON.parse(JSON.stringify(recibo));
+  }),
+  leerInsumosParaAjuste: jest.fn(async () => JSON.parse(JSON.stringify(catalogoActual))),
+  cambiarMenuDuranteAjuste: jest.fn(async (operationId: string, menuId: string, cambiar: (actual: any, catalogo: any[]) => any) => {
+    const recibo = recibos.get(operationId);
+    if (!recibo || recibo.terminado || turnoPendiente !== operationId) throw new Error('El ajuste ya no tiene el turno de los menus.');
+    if (fallaLaBase) throw new Error('La base no contesta.');
+    const actual = menusGuardados.get(menuId) ?? menus().find((menu) => menu.id === menuId);
+    if (!actual) return;
+    const nuevo = cambiar(JSON.parse(JSON.stringify(actual)), JSON.parse(JSON.stringify(catalogoActual)));
+    guardados.set(menuId, nuevo);
+    menusGuardados.set(menuId, nuevo);
+  }),
+  terminarAjusteCostos: jest.fn(async (operationId: string) => {
+    const recibo = recibos.get(operationId);
+    if (recibo) recibo.terminado = true;
+    if (turnoPendiente === operationId) turnoPendiente = undefined;
+  }),
 }));
 
 
@@ -72,13 +112,17 @@ describe('El ajuste de costos de insumos no miente', () => {
     readData.mockImplementation(async (f: string) => (f === 'menus-catering.json' ? menus() : INSUMOS));
     fallaLaBase = false;
     guardados.clear();
+    menusGuardados.clear();
+    recibos.clear();
+    turnoPendiente = undefined;
+    catalogoActual = JSON.parse(JSON.stringify(INSUMOS));
   });
 
   it('si un menu no se pudo actualizar, avisa y NO dice que salio bien', async () => {
     fallaLaBase = true;
     const { adjustAllInsumoCosts } = await import('@/app/actions/insumos');
 
-    const resultado = await adjustAllInsumoCosts(10);
+    const resultado = await adjustAllInsumoCosts(10, 'ajuste-menu-falla');
 
     expect(resultado.success).toBe(false);
     expect(resultado.error).toMatch(/precio viejo|no se pudo/i);
@@ -87,7 +131,7 @@ describe('El ajuste de costos de insumos no miente', () => {
   it('solo guarda los menus que usan el insumo que cambio', async () => {
     const { adjustAllInsumoCosts } = await import('@/app/actions/insumos');
 
-    const resultado = await adjustAllInsumoCosts(10);
+    const resultado = await adjustAllInsumoCosts(10, 'ajuste-menu-selectivo');
 
     expect(resultado.success).toBe(true);
     expect([...guardados.keys()]).toEqual(['menu_con_lomo']);
@@ -96,7 +140,7 @@ describe('El ajuste de costos de insumos no miente', () => {
   it('el costo nuevo llega al plato', async () => {
     const { adjustAllInsumoCosts } = await import('@/app/actions/insumos');
 
-    await adjustAllInsumoCosts(10);
+    await adjustAllInsumoCosts(10, 'ajuste-costo-plato');
 
     const guardado: any = guardados.get('menu_con_lomo');
     expect(guardado.items[0].ingredients[0].costoUnitario).toBe(110);

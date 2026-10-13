@@ -1,0 +1,31 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "landing-save-reload-anonymous-consumer",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText('QA110_desktop_2273dcd4-b237-4b93-b67b-9079eee7d41d Landing', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText('QA110_desktop_2273dcd4-b237-4b93-b67b-9079eee7d41d Landing', { exact: true })\n"
+  },
+  {
+    "viewport": "desktop",
+    "name": "led-catalog-save-reload-anonymous-consumers",
+    "details": {
+      "led": "QA110_desktop_2273dcd4-b237-4b93-b67b-9079eee7d41d LED",
+      "catalog": "QA110_desktop_2273dcd4-b237-4b93-b67b-9079eee7d41d Catalogo",
+      "editorReload": true,
+      "anonymousConsumers": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "landing-save-reload-anonymous-consumer",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText('QA110_mobile_af32c7c2-d76f-4d58-ade6-0d3577dd09f1 Landing', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText('QA110_mobile_af32c7c2-d76f-4d58-ade6-0d3577dd09f1 Landing', { exact: true })\n"
+  },
+  {
+    "viewport": "mobile",
+    "name": "led-catalog-save-reload-anonymous-consumers",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator:  getByText('Guardado', { exact: true })\nExpected: visible\nReceived: hidden\nTimeout:  5000ms\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText('Guardado', { exact: true })\n    11 × locator resolved to <span class=\"hidden sm:inline\">Guardado</span>\n       - unexpected value \"hidden\"\n"
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\activos-fijos.json",
+      "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+      "qaSha256": "50c8782d00b401a171168f7e5e5e39e9b534cc72021583953ce20dcb33d42424"
+    },
+    {
+      "file": "src\\data\\insumos.json",
+      "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+      "qaSha256": "27a4ed97c09ddff42c31749da0c05e14ffd9d291a3c02057a6241ac46b137db0"
+    },
+    {
+      "file": "src\\data\\backup-status.json",
+      "beforeSha256": null,
+      "qaSha256": "7c461f1581711207edf656aecc1a64f6b77a78a10c1dce4de0dc503cf589e728"
+    },
+    {
+      "file": "data\\activos-fijos.json",
+      "beforeSha256": null,
+      "qaSha256": "50c8782d00b401a171168f7e5e5e39e9b534cc72021583953ce20dcb33d42424"
+    },
+    {
+      "file": "data\\backup-status.json",
+      "beforeSha256": null,
+      "qaSha256": "7c461f1581711207edf656aecc1a64f6b77a78a10c1dce4de0dc503cf589e728"
+    },
+    {
+      "file": "data\\insumos.json",
+      "beforeSha256": null,
+      "qaSha256": "27a4ed97c09ddff42c31749da0c05e14ffd9d291a3c02057a6241ac46b137db0"
+    }
+  ],
+  "bytesRestored": true,
+  "initialDocuments": 0,
+  "removedEmulatorDocuments": [
+    "activos_fijos/QA114_titulo_desktop_asset_long",
+    "activos_fijos/QA114_titulo_desktop_asset_short",
+    "activos_fijos/QA114_titulo_mobile_asset_long",
+    "activos_fijos/QA114_titulo_mobile_asset_short",
+    "backup_snapshots_v2/backup-AUTO-2026-10-13T00_47_52_420Z",
+    "backup_system/auto_backup",
+    "insumos/QA114_titulo_desktop_ingredient_long",
+    "insumos/QA114_titulo_desktop_ingredient_short",
+    "insumos/QA114_titulo_mobile_ingredient_long",
+    "insumos/QA114_titulo_mobile_ingredient_short",
+    "insumos/insumo_1791852472127_kh0zo38",
+    "json_documents/backup-status.json"
+  ]
+}

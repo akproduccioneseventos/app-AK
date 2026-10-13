@@ -1,0 +1,16 @@
+{
+  "head": "0122997c0a7780e786fb1c818e912a5137b443fa",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/113-costos-consumer-probe.mjs"
+  ],
+  "launcher": 8740,
+  "child": 33500,
+  "started": "2026-10-12T23:30:17.868Z",
+  "status": "finished",
+  "emulator": "127.0.0.1:8085",
+  "baseUrl": "http://127.0.0.1:3301",
+  "exitCode": 0,
+  "finished": "2026-10-12T23:30:39.611Z"
+}

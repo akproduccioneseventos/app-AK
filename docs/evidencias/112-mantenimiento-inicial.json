@@ -1,0 +1,277 @@
+{
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "expired-assigned-equipment-has-visible-alert",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(received).toContain(expected) // indexOf\n\nExpected substring: \"QA112 desktop ce54d8a7 Laser\"\nReceived string:    \"CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nCentro de Alertas\nIngreso/Egreso Rápido\nAbrir notificaciones\nCentro de Alertas·\nNotificaciones automáticas de todas las fiestas activas·\nMarcar todas leídas\nActualizar\nVolver·\n1·\nURGENTES·\n2·\nATENCIÓN·\n3·\nINFO / RECORDATORIO·\nTodas las alertas\nTodas las fiestas\nSólo sin leer\nQA112 desktop ce54d8a7\nURGENTE\n6 avisos\nURGENTE\n12-oct., 08:10 p. m.·\nFiesta creada hace más de 48hs sin primer pago registrado·\nFalta seña\nMarcar como leída\nATENCIÓN\n12-oct., 08:10 p. m.·\nA 7 días del evento no hay cronograma/programa cargado·\nCronograma vacío\nMarcar como leída\nATENCIÓN\n12-oct., 08:10 p. m.·\nEquipo con mantenimiento vencido asignado a una fiesta próxima·\nMarcar como leída\nRECORDATORIO\n12-oct., 08:10 p. m.·\nA 15 días del evento no hay lista de canciones·\nEsta fiesta no tiene teléfono del cliente\nFaltan canciones\nMarcar como leída\nRECORDATORIO\n12-oct., 08:10 p. m.·\nA 10 días del evento las fotos del video de vida están incompletas·\nEsta fiesta no tiene teléfono del cliente\nFaltan fotos para video de vida\nMarcar como leída\nRECORDATORIO\n12-oct., 08:10 p. m.·\nA 20 días del evento no hay menú definido·\nEsta fiesta no tiene teléfono del cliente\nMenú sin definir\nMarcar como leída\nBruno\nResponsable general de fiesta\""
+    },
+    {
+      "viewport": "desktop",
+      "name": "cancel-maintenance-does-not-write",
+      "details": {
+        "noHistory": true,
+        "noExpense": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "connection-failure-keeps-draft-and-does-not-write",
+      "details": {
+        "draftKept": true,
+        "noExpense": true,
+        "noHistory": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "retry-saves-one-maintenance-and-one-exact-expense",
+      "details": {
+        "history": [
+          {
+            "id": "mant_1791846642279_48qxd",
+            "fecha": "2026-10-12",
+            "nota": "QA112 desktop ce54d8a7 Lampara",
+            "costo": 123.45,
+            "gastoPendiente": false
+          }
+        ],
+        "expense": {
+          "id": "gasto_llave_cac0e778763cb7d865c3aeb3f27d7ac8",
+          "concepto": "Mantenimiento: QA112 desktop ce54d8a7 Laser - QA112 desktop ce54d8a7 Lampara",
+          "fecha": "2026-10-12",
+          "categoria": "Reparaciones y Mantenimiento",
+          "monto": 123.45,
+          "notas": "Registrado automáticamente desde Activos Fijos (qa112_desktop)",
+          "idempotencyKey": "mantenimiento:qa112_desktop:mant_1791846642279_48qxd",
+          "_syncedAt": "2026-10-12T23:10:42.432Z"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "history-and-expense-are-visible-after-reload",
+      "details": {
+        "historyReloaded": true,
+        "accountingExpenseVisible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "current-maintenance-removes-only-its-preventive-alert",
+      "details": {
+        "expiredEquipmentAlertGone": true,
+        "historyPreserved": true,
+        "expenseCount": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "pending-expense-history-retry-is-idempotent",
+      "details": {
+        "fixture": "Existing pending history simulated directly; NOT an induced mid-server failure",
+        "expenseCount": 2,
+        "pendingCleared": true,
+        "historyCount": 2,
+        "retryRemovedAfterReload": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "expired-assigned-equipment-has-visible-alert",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(received).toContain(expected) // indexOf\n\nExpected substring: \"QA112 mobile 46f1430e Laser\"\nReceived string:    \"Toggle Sidebar\nCentro de Alertas\nAbrir notificaciones\nCentro de Alertas·\nNotificaciones automáticas de todas las fiestas activas·\nMarcar todas leídas\nActualizar\nVolver·\n2·\nURGENTES·\n3·\nATENCIÓN·\n6·\nINFO / RECORDATORIO·\nTodas las alertas\nTodas las fiestas\nSólo sin leer\nQA112 desktop ce54d8a7\nURGENTE\n5 avisos\nURGENTE\n12-oct., 08:11 p. m.·\nFiesta creada hace más de 48hs sin primer pago registrado·\nFalta seña\nMarcar como leída\nATENCIÓN\n12-oct., 08:11 p. m.·\nA 7 días del evento no hay cronograma/programa cargado·\nCronograma vacío\nMarcar como leída\nRECORDATORIO\n12-oct., 08:11 p. m.·\nA 15 días del evento no hay lista de canciones·\nEsta fiesta no tiene teléfono del cliente\nFaltan canciones\nMarcar como leída\nRECORDATORIO\n12-oct., 08:11 p. m.·\nA 10 días del evento las fotos del video de vida están incompletas·\nEsta fiesta no tiene teléfono del cliente\nFaltan fotos para video de vida\nMarcar como leída\nRECORDATORIO\n12-oct., 08:11 p. m.·\nA 20 días del evento no hay menú definido·\nEsta fiesta no tiene teléfono del cliente\nMenú sin definir\nMarcar como leída\nQA112 mobile 46f1430e\nURGENTE\n6 avisos\nURGENTE\n12-oct., 08:11 p. m.·\nFiesta creada hace más de 48hs sin primer pago registrado·\nFalta seña\nMarcar como leída\nATENCIÓN\n12-oct., 08:11 p. m.·\nA 7 días del evento no hay cronograma/programa cargado·\nCronograma vacío\nMarcar como leída\nATENCIÓN\n12-oct., 08:11 p. m.·\nEquipo con mantenimiento vencido asignado a una fiesta próxima·\nMarcar como leída\nRECORDATORIO\n12-oct., 08:11 p. m.·\nA 15 días del evento no hay lista de canciones·\nEsta fiesta no tiene teléfono del cliente\nFaltan canciones\nMarcar como leída\nRECORDATORIO\n12-oct., 08:11 p. m.·\nA 10 días del evento las fotos del video de vida están incompletas·\nEsta fiesta no tiene teléfono del cliente\nFaltan fotos para video de vida\nMarcar como leída\nRECORDATORIO\n12-oct., 08:11 p. m.·\nA 20 días del evento no hay menú definido·\nEsta fiesta no tiene teléfono del cliente\nMenú sin definir\nMarcar como leída\""
+    },
+    {
+      "viewport": "mobile",
+      "name": "cancel-maintenance-does-not-write",
+      "details": {
+        "noHistory": true,
+        "noExpense": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "connection-failure-keeps-draft-and-does-not-write",
+      "details": {
+        "draftKept": true,
+        "noExpense": true,
+        "noHistory": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "retry-saves-one-maintenance-and-one-exact-expense",
+      "details": {
+        "history": [
+          {
+            "id": "mant_1791846671311_5e8k9",
+            "fecha": "2026-10-12",
+            "nota": "QA112 mobile 46f1430e Lampara",
+            "costo": 123.45,
+            "gastoPendiente": false
+          }
+        ],
+        "expense": {
+          "id": "gasto_llave_eee4c855b41122f7bee1d00afb975fc2",
+          "concepto": "Mantenimiento: QA112 mobile 46f1430e Laser - QA112 mobile 46f1430e Lampara",
+          "fecha": "2026-10-12",
+          "categoria": "Reparaciones y Mantenimiento",
+          "monto": 123.45,
+          "notas": "Registrado automáticamente desde Activos Fijos (qa112_mobile)",
+          "idempotencyKey": "mantenimiento:qa112_mobile:mant_1791846671311_5e8k9",
+          "_syncedAt": "2026-10-12T23:11:11.380Z"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "history-and-expense-are-visible-after-reload",
+      "details": {
+        "historyReloaded": true,
+        "accountingExpenseVisible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "current-maintenance-removes-only-its-preventive-alert",
+      "details": {
+        "expiredEquipmentAlertGone": true,
+        "historyPreserved": true,
+        "expenseCount": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "pending-expense-history-retry-is-idempotent",
+      "details": {
+        "fixture": "Existing pending history simulated directly; NOT an induced mid-server failure",
+        "expenseCount": 2,
+        "pendingCleared": true,
+        "historyCount": 2,
+        "retryRemovedAfterReload": true
+      },
+      "status": "PASS"
+    }
+  ],
+  "cleanup": {
+    "deleted": 19,
+    "collectionsRemaining": 1,
+    "restored": [
+      {
+        "file": "src\\data\\activos-fijos.json",
+        "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+        "qaSha256": "e58004ce5ac074e78c09673f949cd9bf0db5cc1ebf7f53d485d3ef8e646a3fa3"
+      },
+      {
+        "file": "src\\data\\agentes-configuracion.json",
+        "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+        "qaSha256": "5257e82b996e7b8391804f307a3d924efa20e00a39f91d450f13e9ea6db6dab6"
+      },
+      {
+        "file": "src\\data\\agentes-historial.json",
+        "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+        "qaSha256": "1b6a57ca223d2e34f111d3083583a327d6a37aac0627243636b6e9eb90798762"
+      },
+      {
+        "file": "src\\data\\gastos-generales.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "c16eaeb9f9c3596cbfe145bd41cfa2da5aa79e7aefce02aec0a7ae2d47364124"
+      },
+      {
+        "file": "src\\data\\social-analytics-history.json",
+        "beforeSha256": "264f87ac196f218582387df601500b7ff6e87f88f33f49bda832889f3d2de0d3",
+        "qaSha256": "4422242d5534448deee8e92b80379446c80b4ab42dd381fd843e5109e7d24488"
+      },
+      {
+        "file": "src\\data\\social-comments-backfill-state.json",
+        "beforeSha256": "eb8f90986c21537377435b4abcead8a8e38de384da2f117341379025f444ff4d",
+        "qaSha256": "91c6931f16756ef59e1357c6e90ab83dd3717acfc5c8724bbd9d9aa4efad9575"
+      },
+      {
+        "file": "src\\data\\tareas-al-entrar-estado.json",
+        "beforeSha256": "be802cf80baa3fcfde7ce94ad620457ea98bd0fdcb8ce817139f87e8317cf68b",
+        "qaSha256": "d26d8a4cafee9ace69a17276bb01154022cb243688a91236df4559535634b22b"
+      },
+      {
+        "file": "src\\data\\tareas-automaticas.json",
+        "beforeSha256": "bff11b11e034de1406de0f391bd9e2129f8b61c17ffb3f759865a7f7fc4af83e",
+        "qaSha256": "ae2220068d6e851723398c333fd3ec1bfd37e329eb05a02aa5ba67ca15173947"
+      },
+      {
+        "file": "data\\agentes-configuracion.json",
+        "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+        "qaSha256": "5257e82b996e7b8391804f307a3d924efa20e00a39f91d450f13e9ea6db6dab6"
+      },
+      {
+        "file": "data\\agentes-historial.json",
+        "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+        "qaSha256": "1b6a57ca223d2e34f111d3083583a327d6a37aac0627243636b6e9eb90798762"
+      },
+      {
+        "file": "data\\social-analytics-history.json",
+        "beforeSha256": "264f87ac196f218582387df601500b7ff6e87f88f33f49bda832889f3d2de0d3",
+        "qaSha256": "4422242d5534448deee8e92b80379446c80b4ab42dd381fd843e5109e7d24488"
+      },
+      {
+        "file": "data\\social-comments-backfill-state.json",
+        "beforeSha256": "eb8f90986c21537377435b4abcead8a8e38de384da2f117341379025f444ff4d",
+        "qaSha256": "91c6931f16756ef59e1357c6e90ab83dd3717acfc5c8724bbd9d9aa4efad9575"
+      },
+      {
+        "file": "data\\tareas-al-entrar-estado.json",
+        "beforeSha256": "be802cf80baa3fcfde7ce94ad620457ea98bd0fdcb8ce817139f87e8317cf68b",
+        "qaSha256": "d26d8a4cafee9ace69a17276bb01154022cb243688a91236df4559535634b22b"
+      },
+      {
+        "file": "data\\tareas-automaticas.json",
+        "beforeSha256": "bff11b11e034de1406de0f391bd9e2129f8b61c17ffb3f759865a7f7fc4af83e",
+        "qaSha256": "ae2220068d6e851723398c333fd3ec1bfd37e329eb05a02aa5ba67ca15173947"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "36df322439030806f16402f9cd2792395d29f5ec17bc99bc067e39bd3cfa8b5c"
+      },
+      {
+        "file": "src\\data\\fiestas\\qa112_desktop_fiesta.json",
+        "beforeSha256": null,
+        "qaSha256": "b443124aee76a57407ee849ae56c8fe7c7de0af33d0dc3ad5921741eddc2d5a5"
+      },
+      {
+        "file": "data\\activos-fijos.json",
+        "beforeSha256": null,
+        "qaSha256": "e58004ce5ac074e78c09673f949cd9bf0db5cc1ebf7f53d485d3ef8e646a3fa3"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "36df322439030806f16402f9cd2792395d29f5ec17bc99bc067e39bd3cfa8b5c"
+      },
+      {
+        "file": "data\\fiestas\\qa112_desktop_fiesta.json",
+        "beforeSha256": null,
+        "qaSha256": "b443124aee76a57407ee849ae56c8fe7c7de0af33d0dc3ad5921741eddc2d5a5"
+      },
+      {
+        "file": "data\\gastos-generales.json",
+        "beforeSha256": null,
+        "qaSha256": "c16eaeb9f9c3596cbfe145bd41cfa2da5aa79e7aefce02aec0a7ae2d47364124"
+      }
+    ],
+    "bytesRestored": true
+  },
+  "scope": "Private emulator UI; no production data, real equipment or Hosting certification"
+}

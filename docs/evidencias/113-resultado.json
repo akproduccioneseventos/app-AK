@@ -1,0 +1,576 @@
+{
+  "headAudited": "0122997c0a7780e786fb1c818e912a5137b443fa",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "mainCompared": "99faf4eb061fa46341cfdde6f81b93b3bfb9c73c",
+  "privateClaudeBatch": "NOT_CONTRASTED",
+  "functionalAcceptance": "FAIL_TWO_P1_FAMILIES_PENDING_ORDER_160",
+  "counts": {
+    "criteria": 14,
+    "pass": 10,
+    "fail": 4
+  },
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "cancel-global-adjustment-preserves-inventory-and-menus",
+      "details": {
+        "noWrite": true
+      },
+      "status": "PASS",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "desktop",
+      "name": "failed-send-keeps-percentage-without-writing",
+      "details": {
+        "noWrite": true,
+        "percentageKept": true
+      },
+      "status": "PASS",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "desktop",
+      "name": "retry-adjusts-ingredient-and-linked-kg-recipe",
+      "details": {
+        "inventory": {
+          "id": "qa113_carne",
+          "nombre": "QA113 Carne",
+          "categoria": "Carnes",
+          "unidad": "kg",
+          "cantidadDisponible": 2,
+          "tipoItem": "Insumo/Ingrediente",
+          "valorUnitarioEstimado": 110,
+          "_syncedAt": "2026-10-12T23:27:13.637Z"
+        },
+        "kgDish": {
+          "id": "qa113_kg",
+          "name": "QA113 Plato kg",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa113_kg_ing",
+              "origenId": "qa113_carne",
+              "name": "QA113 Carne",
+              "quantityPerPerson": "0.25",
+              "unit": "kg",
+              "costoUnitario": 110,
+              "costoTotalReceta": 27.5
+            }
+          ],
+          "totalDishCost": 27.5,
+          "profitMargin": 82,
+          "suggestedSellingPrice": 50
+        },
+        "stockUnchanged": true
+      },
+      "status": "PASS",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "desktop",
+      "name": "grams-recipe-retains-quantity-unit-and-equivalent-cost",
+      "details": {
+        "grams": {
+          "id": "qa113_g",
+          "name": "QA113 Plato gramos",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa113_g_ing",
+              "origenId": "qa113_carne",
+              "name": "QA113 Carne",
+              "quantityPerPerson": "250",
+              "unit": "kg",
+              "costoUnitario": 110,
+              "costoTotalReceta": 27500
+            }
+          ],
+          "totalDishCost": 27500,
+          "profitMargin": -100,
+          "suggestedSellingPrice": 50
+        },
+        "expectedCost": 27.5,
+        "acceptance": "FAIL_RECIPE_UNIT_OR_COST_CHANGED"
+      },
+      "status": "FAIL",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "desktop",
+      "name": "unrelated-menu-and-selling-price-are-not-overwritten",
+      "details": {
+        "unrelatedMenuUnchanged": true,
+        "explicitSellingPricePreserved": 50
+      },
+      "status": "PASS",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "desktop",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "details": {
+        "ingredientReloaded": true,
+        "actualMenuLinkUsed": "/empresa/menus/qa113_menu/editar",
+        "menuConsumerOpened": true
+      },
+      "status": "PASS",
+      "evidence": "113-costos-consumer-resultado.json"
+    },
+    {
+      "viewport": "desktop",
+      "name": "lost-success-response-retry-applies-percentage-only-once",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "costBefore": 110,
+        "costAfterFirst": 116,
+        "costAfterRetry": 122,
+        "acceptance": "FAIL_PERCENTAGE_APPLIED_TWICE_AFTER_LOST_ACK"
+      },
+      "status": "FAIL",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "mobile",
+      "name": "cancel-global-adjustment-preserves-inventory-and-menus",
+      "details": {
+        "noWrite": true
+      },
+      "status": "PASS",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "mobile",
+      "name": "failed-send-keeps-percentage-without-writing",
+      "details": {
+        "noWrite": true,
+        "percentageKept": true
+      },
+      "status": "PASS",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "mobile",
+      "name": "retry-adjusts-ingredient-and-linked-kg-recipe",
+      "details": {
+        "inventory": {
+          "id": "qa113_carne",
+          "nombre": "QA113 Carne",
+          "categoria": "Carnes",
+          "unidad": "kg",
+          "cantidadDisponible": 2,
+          "tipoItem": "Insumo/Ingrediente",
+          "valorUnitarioEstimado": 134,
+          "_syncedAt": "2026-10-12T23:27:32.294Z"
+        },
+        "kgDish": {
+          "id": "qa113_kg",
+          "name": "QA113 Plato kg",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa113_kg_ing",
+              "origenId": "qa113_carne",
+              "name": "QA113 Carne",
+              "quantityPerPerson": "0.25",
+              "unit": "kg",
+              "costoUnitario": 134,
+              "costoTotalReceta": 33.5
+            }
+          ],
+          "totalDishCost": 33.5,
+          "profitMargin": 49,
+          "suggestedSellingPrice": 50
+        },
+        "stockUnchanged": true
+      },
+      "status": "PASS",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "mobile",
+      "name": "grams-recipe-retains-quantity-unit-and-equivalent-cost",
+      "details": {
+        "grams": {
+          "id": "qa113_g",
+          "name": "QA113 Plato gramos",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa113_g_ing",
+              "origenId": "qa113_carne",
+              "name": "QA113 Carne",
+              "quantityPerPerson": "250",
+              "unit": "kg",
+              "costoUnitario": 134,
+              "costoTotalReceta": 33500
+            }
+          ],
+          "totalDishCost": 33500,
+          "profitMargin": -100,
+          "suggestedSellingPrice": 50
+        },
+        "expectedCost": 33.5,
+        "acceptance": "FAIL_RECIPE_UNIT_OR_COST_CHANGED"
+      },
+      "status": "FAIL",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "mobile",
+      "name": "unrelated-menu-and-selling-price-are-not-overwritten",
+      "details": {
+        "unrelatedMenuUnchanged": true,
+        "explicitSellingPricePreserved": 50
+      },
+      "status": "PASS",
+      "evidence": "113-costos-resultado.json"
+    },
+    {
+      "viewport": "mobile",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "details": {
+        "ingredientReloaded": true,
+        "actualMenuLinkUsed": "/empresa/menus/qa113_menu/editar",
+        "menuConsumerOpened": true
+      },
+      "status": "PASS",
+      "evidence": "113-costos-consumer-resultado.json"
+    },
+    {
+      "viewport": "mobile",
+      "name": "lost-success-response-retry-applies-percentage-only-once",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "costBefore": 134,
+        "costAfterFirst": 141,
+        "costAfterRetry": 148,
+        "acceptance": "FAIL_PERCENTAGE_APPLIED_TWICE_AFTER_LOST_ACK"
+      },
+      "status": "FAIL",
+      "evidence": "113-costos-resultado.json"
+    }
+  ],
+  "excludedAttempts": [
+    "113-sdk-discovery-execution.json: wrong dialog role",
+    "113-costos-inicial.json: rounding/selector mistakes",
+    "113-costos-resultado.json: two consumer NOT_ACCEPTED replaced only by two final consumers",
+    "113-costos-consumer-inicial.json: names are card text, not input"
+  ],
+  "cleanup": {
+    "main": {
+      "deleted": 7,
+      "documentsRemaining": 0,
+      "restored": [
+        {
+          "file": "src\\data\\insumos.json",
+          "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+          "qaSha256": "4b314440e99e740ac6216225f92e3e2e4861cccedbc7a0a71385ec3444e19010"
+        },
+        {
+          "file": "src\\data\\menus-catering.json",
+          "beforeSha256": "b2619502addbc82683c56f08e51a5731475713fb04e5c91199b791acdb3db111",
+          "qaSha256": "13b1a945d97ed1762bf4bff659286acfc5bf0c7d61629d68a30ad644b3496248"
+        },
+        {
+          "file": "src\\data\\backup-status.json",
+          "beforeSha256": null,
+          "qaSha256": "49b989ff93d544dd1cf49ef06c825a2c1f407cb0993e0bf220628ef282e9de93"
+        },
+        {
+          "file": "src\\data\\insumos-ajuste-pendiente.json",
+          "beforeSha256": null,
+          "qaSha256": "0b00fe8eb0f21c2933aae63c2a68a067556f52410a9d5a3d52d98d4fea59a001"
+        },
+        {
+          "file": "data\\backup-status.json",
+          "beforeSha256": null,
+          "qaSha256": "49b989ff93d544dd1cf49ef06c825a2c1f407cb0993e0bf220628ef282e9de93"
+        },
+        {
+          "file": "data\\insumos-ajuste-pendiente.json",
+          "beforeSha256": null,
+          "qaSha256": "0b00fe8eb0f21c2933aae63c2a68a067556f52410a9d5a3d52d98d4fea59a001"
+        },
+        {
+          "file": "data\\insumos.json",
+          "beforeSha256": null,
+          "qaSha256": "4b314440e99e740ac6216225f92e3e2e4861cccedbc7a0a71385ec3444e19010"
+        },
+        {
+          "file": "data\\menus-catering.json",
+          "beforeSha256": null,
+          "qaSha256": "13b1a945d97ed1762bf4bff659286acfc5bf0c7d61629d68a30ad644b3496248"
+        }
+      ],
+      "bytesRestored": true
+    },
+    "consumer": {
+      "deleted": 7,
+      "documentsRemaining": 0,
+      "restored": [
+        {
+          "file": "src\\data\\insumos.json",
+          "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+          "qaSha256": "a8b0269c61231d25438684bf8214dac1c27dff48aface5335d1dd180539a6d35"
+        },
+        {
+          "file": "src\\data\\menus-catering.json",
+          "beforeSha256": "b2619502addbc82683c56f08e51a5731475713fb04e5c91199b791acdb3db111",
+          "qaSha256": "1dd0239c09dff38cebd2130b5deb969fdf467e3625ba6b8b577f8d842b22c651"
+        },
+        {
+          "file": "src\\data\\backup-status.json",
+          "beforeSha256": null,
+          "qaSha256": "9437d69827dc3cad77f532cc13e0840dde5ff011d59e7378007f5f62a24a7ecf"
+        },
+        {
+          "file": "src\\data\\insumos-ajuste-pendiente.json",
+          "beforeSha256": null,
+          "qaSha256": "26ea8255f9a60d02821a6410375e247d1bd36dce3d7eec66d1fb8dae12e49ebc"
+        },
+        {
+          "file": "data\\backup-status.json",
+          "beforeSha256": null,
+          "qaSha256": "9437d69827dc3cad77f532cc13e0840dde5ff011d59e7378007f5f62a24a7ecf"
+        },
+        {
+          "file": "data\\insumos-ajuste-pendiente.json",
+          "beforeSha256": null,
+          "qaSha256": "26ea8255f9a60d02821a6410375e247d1bd36dce3d7eec66d1fb8dae12e49ebc"
+        },
+        {
+          "file": "data\\insumos.json",
+          "beforeSha256": null,
+          "qaSha256": "a8b0269c61231d25438684bf8214dac1c27dff48aface5335d1dd180539a6d35"
+        },
+        {
+          "file": "data\\menus-catering.json",
+          "beforeSha256": null,
+          "qaSha256": "1dd0239c09dff38cebd2130b5deb969fdf467e3625ba6b8b577f8d842b22c651"
+        }
+      ],
+      "bytesRestored": true
+    },
+    "lifecycle": {
+      "stopped": [
+        {
+          "file": "113-sdk-start-execution.json",
+          "processTree": [
+            {
+              "ProcessId": 31976,
+              "ParentProcessId": 21304,
+              "Name": "node.exe",
+              "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3301"
+            }
+          ],
+          "stoppedAt": "2026-10-12T23:31:25.9306451Z",
+          "intentionalTermination": true
+        },
+        {
+          "file": "113-sdk-emulator-execution.json",
+          "processTree": [
+            {
+              "ProcessId": 19276,
+              "ParentProcessId": 25144,
+              "Name": "node.exe",
+              "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.113-25144.generated.json --only firestore --project demo-ak-producciones"
+            },
+            {
+              "ProcessId": 23708,
+              "ParentProcessId": 19276,
+              "Name": "java.exe",
+              "CommandLine": "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\firestore.rules --single_project_mode true"
+            }
+          ],
+          "stoppedAt": "2026-10-12T23:31:26.6414072Z",
+          "intentionalTermination": true
+        }
+      ],
+      "listeners": [],
+      "appFailure": false
+    }
+  },
+  "source": [
+    {
+      "file": "src/app/actions/insumos.ts",
+      "sha256": "b5d2197ffe7a71ca3de1e1607cdb2721941e3598a96e41f9c783168b490e57b6"
+    },
+    {
+      "file": "src/app/actions/menus-catering.ts",
+      "sha256": "7cda5cb5a8bb5ea02c8a458912e3abdc47b1f543bb765fa54d536272c575ebd8"
+    },
+    {
+      "file": "src/app/(app)/empresa/insumos/page.tsx",
+      "sha256": "9c576775e7c31f4cb20f58ff52347b12320f1b4d0930edd8ae995bc812dfa279"
+    },
+    {
+      "file": "src/components/catering/MenuForm.tsx",
+      "sha256": "9840ad823b775160a1bc9f60087b27f4274873edbcaa9ec11991c5696a60442c"
+    }
+  ],
+  "evidence": [
+    {
+      "file": "docs/evidencias/113-costos-consumer-inicial.json",
+      "sha256": "c89bd987d5bd78a7db7898673763a116f2b37e1a68dccc3ec48dcda2a778e9d8"
+    },
+    {
+      "file": "docs/evidencias/113-costos-consumer-probe.mjs",
+      "sha256": "b27312262d9c69864652b4806995cb4104effc6f8a31c3cee9b7ea1914f01f1f"
+    },
+    {
+      "file": "docs/evidencias/113-costos-consumer-resultado.json",
+      "sha256": "224175a2a92161a9123d7cd272a70168016faeca05747f2d56a73ce431ac96ae"
+    },
+    {
+      "file": "docs/evidencias/113-costos-inicial.json",
+      "sha256": "b20083b391d8526a965177e9f9dbb4dfd63dddf2d43cca1f093d136fcea6d8dc"
+    },
+    {
+      "file": "docs/evidencias/113-costos-probe.mjs",
+      "sha256": "1bd16c08f461fb0fd833670ad6794fdc65424c56be09af2f4d2a996bd7584248"
+    },
+    {
+      "file": "docs/evidencias/113-costos-resultado.json",
+      "sha256": "797c64c63ec8d90da0d5002238cab2b5a47dbd61db71e9ac570de9b3a3444452"
+    },
+    {
+      "file": "docs/evidencias/113-costos.md",
+      "sha256": "c936abc6b5339870a4e3c91f18432787b8087f4358a2ef37d12db4de3f8cb503"
+    },
+    {
+      "file": "docs/evidencias/113-descubrir-costos.mjs",
+      "sha256": "25a7ce6b16dde360f7d987d3f13caef76c3cb3fb824d072a3f60d0615db04549"
+    },
+    {
+      "file": "docs/evidencias/113-detener-entorno.ps1",
+      "sha256": "97039f547b826c3ae0835f69ccb208e35a24ba2a1ebd3de393d1cf0977a033cc"
+    },
+    {
+      "file": "docs/evidencias/113-discovery-restored.json",
+      "sha256": "3ff10086668e5d71391ba62991da865a9b191f0d6e325dec26cb4b9ce5f87488"
+    },
+    {
+      "file": "docs/evidencias/113-ejecutar-sdk.mjs",
+      "sha256": "59ad518a5320a51833ba231e2c78539bd8f7c94ec15b365a10141933cbe93a57"
+    },
+    {
+      "file": "docs/evidencias/113-entorno-detenido.json",
+      "sha256": "838d96b5665fbefbbbbebbd2754ba9248efaa0499f73fcb3ccf942248e06f8c8"
+    },
+    {
+      "file": "docs/evidencias/113-firestore-config.json",
+      "sha256": "8a1dffbda261c363c7cd9bb2c584428ddbcb4785c49cc074a27420b4dc0c792f"
+    },
+    {
+      "file": "docs/evidencias/113-inicial-entorno-detenido.json",
+      "sha256": "b111b313279928fc22ad56ded37d2cc95f04e6be511758cd24caccf70294b330"
+    },
+    {
+      "file": "docs/evidencias/113-inicial-sdk-emulator-execution.json",
+      "sha256": "a8733538ddb9040e9d5b2bcd47f627195c1b724227b6da314d4116750908632a"
+    },
+    {
+      "file": "docs/evidencias/113-inicial-sdk-emulator.log.gz",
+      "sha256": "7d2f1b221de4268cdf4c5c8a120beba1174a85c75ad595aec0b6513aac80238c"
+    },
+    {
+      "file": "docs/evidencias/113-inicial-sdk-probe-execution.json",
+      "sha256": "92fd220c7bf53a915be5058457220e39906a911930ca79adea1203d274746ff8"
+    },
+    {
+      "file": "docs/evidencias/113-inicial-sdk-probe.log.gz",
+      "sha256": "8c6231aebe5c9ea90cd23e66f65e863b363b5896dff8945acf1045af1a7d69d4"
+    },
+    {
+      "file": "docs/evidencias/113-inicial-sdk-start-execution.json",
+      "sha256": "7ace33fd5383a70cd1a1414cd7d3d5fc164c0344bb6fe1049976548320cd49d5"
+    },
+    {
+      "file": "docs/evidencias/113-inicial-sdk-start.log.gz",
+      "sha256": "86bc85ebc0f4d759ddbf043a3f236a575ebed6030b2565ab0c6d5e2584ed81ae"
+    },
+    {
+      "file": "docs/evidencias/113-menu-consumer-desktop.json",
+      "sha256": "355b0bcfb4d253850b84be4d96c9e0af0b66f09ef715e7d051bcecd57eddf27a"
+    },
+    {
+      "file": "docs/evidencias/113-menu-consumer-desktop.png",
+      "sha256": "116a3e37b2a51b79f41d89e1518c449e081af9b36b45d9d5c0472b1bc5f5c6c6"
+    },
+    {
+      "file": "docs/evidencias/113-menu-consumer-mobile.json",
+      "sha256": "e049ca32a890cb31113b4a06ae37f08d48713070e25067cae53836028829941d"
+    },
+    {
+      "file": "docs/evidencias/113-menu-consumer-mobile.png",
+      "sha256": "e0f6f3b8cbe507ef6dcbbbfa9e45bdbd97f63b084f0cfe6e028a3c8fbded5fba"
+    },
+    {
+      "file": "docs/evidencias/113-response-lost-desktop.png",
+      "sha256": "ad0b99515c3884b76c2f9c22bee2eb89ce719538c46066fdf77b598dc5ea48ca"
+    },
+    {
+      "file": "docs/evidencias/113-response-lost-mobile.png",
+      "sha256": "65cf0b624855242b81a9fee2f530e76e982761355d7b80129ecb876145adeca0"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-consumer-inicial-execution.json",
+      "sha256": "1967dd9e1f0834188705d37b1ebf51904be9a2d7fb8de1a08b0a435a92811941"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-consumer-inicial.log.gz",
+      "sha256": "77a961c83771c763a6a74c336e09a1199de1d03c88d6e237847cc5be0ca1e440"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-discovery-execution.json",
+      "sha256": "c3e6fc1eabc7422af9637014331d8fa3895d499b7896e2b0a4fc4978b997fbe0"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-discovery.log.gz",
+      "sha256": "d9733c62001355c1b9207c9df5a59a98d7fc3b395b7948afcf7068ea09b9e2e2"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-emulator-execution.json",
+      "sha256": "a3c7c12feb827c06c0992258f735a4dfb582df55a790104eb06d658694672352"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-emulator.log.gz",
+      "sha256": "ac965294e2b7aff220bd795f354ceaad01ac146a58aaa7d2790e79b8f82ffa25"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-principal-execution.json",
+      "sha256": "daf6e17c3f735f5cd572ab10a341ed4c608e70137157efadbe733d3d09a8a2a9"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-principal.log.gz",
+      "sha256": "da03c0325031b83e83ac2e2066345762a0ec93d98a98ac54c758dd2b3ce67995"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-probe-execution.json",
+      "sha256": "4451b4ac516c74c4382f325aafd64b2e4f84365e092d92078424afdd698e659f"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-probe.log.gz",
+      "sha256": "e4e7bed054bb40d7e42652a07b539cd5053840d09adf2165049e2d1e96e911a4"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-start-execution.json",
+      "sha256": "0506c14a3aba0e79a7f85b32206cb478dc5cbd48c8997bd8293a9d0fa65aaf11"
+    },
+    {
+      "file": "docs/evidencias/113-sdk-start.log.gz",
+      "sha256": "5a4e6c770925aaf626cddf3eec7e1a4e1dbe098b8cb394654f32a1d00f1a120f"
+    },
+    {
+      "file": "docs/evidencias/113-verificar-evidencia.mjs",
+      "sha256": "d2a85dfa76598faa5da766686751a507f0a5a388953b9cea6b94e280e6344db8"
+    }
+  ]
+}

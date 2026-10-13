@@ -147,10 +147,10 @@ export default function EditarInsumoPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 flex-1 basis-64 items-center gap-3">
-            <Edit3 className="w-8 h-8 shrink-0 text-primary"/>
-          <h1 className="min-w-0 break-words text-3xl font-bold tracking-tight font-headline [overflow-wrap:anywhere]">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+            <Edit3 className="w-8 h-8 text-primary"/>
+          <h1 className="min-w-0 break-words text-3xl font-bold tracking-tight font-headline">
             Editando: <span className="text-primary">{item?.nombre}</span>
           </h1>
         </div>

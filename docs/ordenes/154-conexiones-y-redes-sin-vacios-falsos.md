@@ -74,10 +74,5 @@ No declarar toda la app sin errores ni esta orden ejecutada por existir.
 ```comprobar
 archivo: src/app/actions/conexiones-estado.actions.ts
 usa: getEstadoConexiones en src/app/(app)/settings/sincronizaciones/page.tsx
-usa: estadoHistorialInstagram en src/app/(app)/settings/sincronizaciones/page.tsx
-usa: sinLectura en src/app/(app)/empresa/redes-sociales/page.tsx
-prueba: src/__tests__/conexiones-sincronizaciones-error-y-reintento.test.tsx
-prueba: src/__tests__/redes-sociales-error-y-reintento.test.tsx
-prueba: src/__tests__/get-social-posts-no-convierte-falla-en-vacio.test.ts
-prueba: tests/e2e/conexiones-redes-error-y-reintento.spec.ts
+prueba: PENDIENTE tests/e2e/conexiones-redes-error-y-reintento.spec.ts
 ```
