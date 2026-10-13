@@ -189,3 +189,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     fallar el guardado: el borrador tiene que seguir ahí.
 48. **¿Mostrás un nombre que carga el usuario?** Probalo con 80 caracteres en el celular: los botones
     siguen a la vista.
+49. **¿Tu prueba se saltea en el celular?** Si la pantalla la usa alguien con el celular, no: corre en
+    los dos.

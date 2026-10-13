@@ -1176,10 +1176,82 @@ prueba: src/__tests__/ajuste-costos-recibo-atomico.test.ts
 ## Cada hallazgo de Codex, con la pregunta del método que lo agarra
 
 El control `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` exige una línea acá por
-cada orden de Codex desde la 149. **Si entra una orden nueva sin su línea, la puerta no deja publicar**:
+cada orden de Codex (todas las que nombran a Codex, y todas desde la 149). **Si entra una orden nueva sin su línea, la puerta no deja publicar**:
 así el método se corrige solo, sin que el dueño lo tenga que pedir. Si ninguna pregunta la agarra, se
 escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 
+- Orden 45 → no es un defecto
+- Orden 46 → no es un defecto
+- Orden 47 → pregunta 42
+- Orden 48 → pregunta 9
+- Orden 49 → pregunta 44
+- Orden 50 → no es un defecto
+- Orden 51 → pregunta 22
+- Orden 52 → pregunta 5
+- Orden 53 → pregunta 50
+- Orden 54 → pregunta 8
+- Orden 55 → pregunta 4
+- Orden 58 → pregunta 22
+- Orden 59 → pregunta 9
+- Orden 60 → pregunta 28
+- Orden 61 → no es un defecto
+- Orden 63 → pregunta 28
+- Orden 64 → pregunta 11
+- Orden 65 → pregunta 3
+- Orden 66 → pregunta 7
+- Orden 67 → no es un defecto
+- Orden 68 → pregunta 13
+- Orden 69 → pregunta 4
+- Orden 70 → pregunta 50
+- Orden 71 → pregunta 58
+- Orden 72 → no es un defecto
+- Orden 73 → pregunta 8
+- Orden 76 → no es un defecto
+- Orden 81 → no es un defecto
+- Orden 85 → pregunta 49
+- Orden 87 → pregunta 50
+- Orden 89 → pregunta 41
+- Orden 90 → pregunta 27
+- Orden 91 → pregunta 27
+- Orden 92 → pregunta 6
+- Orden 93 → pregunta 28
+- Orden 96 → pregunta 29
+- Orden 98 → no es un defecto
+- Orden 100 → no es un defecto
+- Orden 104 → no es un defecto
+- Orden 109 → pregunta 31
+- Orden 112 → no es un defecto
+- Orden 113 → no es un defecto
+- Orden 114 → no es un defecto
+- Orden 116 → pregunta 35
+- Orden 118 → pregunta 35
+- Orden 119 → pregunta 29
+- Orden 120 → pregunta 36
+- Orden 122 → pregunta 30
+- Orden 123 → pregunta 42
+- Orden 124 → pregunta 7
+- Orden 125 → pregunta 8
+- Orden 126 → pregunta 14
+- Orden 127 → pregunta 4
+- Orden 128 → pregunta 6
+- Orden 130 → pregunta 14
+- Orden 131 → pregunta 58
+- Orden 133 → pregunta 44
+- Orden 134 → pregunta 46
+- Orden 135 → pregunta 49
+- Orden 136 → pregunta 5
+- Orden 137 → pregunta 9
+- Orden 138 → pregunta 56
+- Orden 139 → pregunta 42
+- Orden 140 → pregunta 5
+- Orden 141 → pregunta 50
+- Orden 142 → pregunta 42
+- Orden 143 → pregunta 14
+- Orden 144 → pregunta 28
+- Orden 145 → pregunta 5
+- Orden 146 → pregunta 58
+- Orden 147 → pregunta 51
+- Orden 148 → pregunta 50
 - Orden 149 → pregunta 54
 - Orden 150 → pregunta 52
 - Orden 151 → pregunta 50
@@ -1194,6 +1266,7 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 160 → pregunta 58
 - Orden 161 → pregunta 58
 - Orden 162 → pregunta 58
+- Devolución 76b (importación en el celular) → pregunta 61
 
 ```comprobar
 prueba: src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts

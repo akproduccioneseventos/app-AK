@@ -1075,3 +1075,14 @@ En las fichas de equipo e insumo un nombre largo empujaba "Guardar" y "Volver" f
 **Se prueba con textos largos de verdad (sin espacios también) a 390 px**: los botones se ven y se
 pueden tocar. Barrido: encabezados `flex` con `h1`/`h2` que muestran un nombre cargado por el usuario
 sin `min-w-0` / `break-words`.
+
+## Pregunta 61 — la que sumó el 13 de octubre de 2026 (repaso de todo lo de Codex: devolución 76b)
+
+### 61. Una prueba que se saltea en el celular, ¿lo hace porque alcanza con uno, o esconde que en el celular no anda?
+
+La importación de invitados tenía `test.skip(project !== 'chromium-desktop')` y en el celular el botón
+de confirmar no se podía tocar: la orden figuraba hecha. **Si la pantalla la usa un invitado, un
+cliente o el personal en el celular, la prueba de su resultado corre también en `chromium-mobile`.**
+Saltear vale sólo cuando el resultado no depende del tamaño (un cálculo, un ajuste compartido, algo
+que se imprime desde la computadora) y el motivo lo dice. Barrido: `test.skip(testInfo.project.name`
+en `tests/e2e`, cruzado con las pantallas del invitado, del cliente y del personal.
