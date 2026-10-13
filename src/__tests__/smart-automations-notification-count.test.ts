@@ -55,6 +55,7 @@ describe('runSmartAutomations notification creation count', () => {
     jest.clearAllMocks();
     await guardarPreferenciasUsuario('admin', preferences);
     (getAllDocuments as jest.Mock).mockResolvedValue({ success: true, data: [] });
+    require('@/lib/firebase/firestore').createDocument.mockResolvedValue({ success: true });
   });
 
   it('does not count a notification silenced by the real preference check', async () => {
@@ -85,12 +86,19 @@ describe('runSmartAutomations notification creation count', () => {
     getPresupuestos.mockResolvedValue([{
       id: 'budget-new', estado: 'Enviado', timestamp, clienteNombre: 'Test',
     }]);
+    require('@/lib/firebase/firestore').createDocument.mockImplementation(async (_collection: string, notification: unknown) => {
+      (getAllDocuments as jest.Mock).mockResolvedValue({ success: true, data: [notification] });
+      return { success: true };
+    });
 
     const created = await runSmartAutomations();
     expect(created.results[0].created).toBe(true);
     expect(created.created).toBe(1);
 
     expect(getAllDocuments).toHaveBeenCalled();
+    expect(require('@/lib/firebase/firestore').createDocument).toHaveBeenCalledTimes(1);
+    const duplicate = await runSmartAutomations();
+    expect(duplicate.created).toBe(0);
     expect(require('@/lib/firebase/firestore').createDocument).toHaveBeenCalledTimes(1);
   });
 

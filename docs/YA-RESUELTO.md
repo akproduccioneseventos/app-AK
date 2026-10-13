@@ -10,6 +10,7 @@
   al reintentar un recibo terminado; no expone el token interno como accion publica.
 - ZIP de respaldo rechaza lectura incompleta. readDataConDetalle propaga la falla
   original del SDK y no da por buena una copia local vieja tras ese fallo.
+  Tampoco declara actual una copia alternativa generic despues de ese rechazo.
 - Ultimo proveedor y ultima plantilla custom no reviven desde JSON viejo al
   eliminar; plantilla incorporada se rechaza sin falso exito. Borrado custom
   individual transaccional, no reescritura de una lista entera concurrente.

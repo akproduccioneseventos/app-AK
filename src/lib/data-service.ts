@@ -194,7 +194,7 @@ export async function readDataConDetalle<T>(
       if (genericData !== null && genericData !== undefined) {
         if (Array.isArray(defaultValue) && !Array.isArray(genericData))
           return { valor: defaultValue, huboFalla: true };
-        return { valor: genericData as T, huboFalla: false };
+        return { valor: genericData as T, huboFalla: true };
       }
     } catch {
       // Si el segundo intento tambien se cae, sigue siendo una falla de lectura.

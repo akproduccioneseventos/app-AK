@@ -376,7 +376,7 @@ export default function GoogleWorkspaceSettingsPage() {
                   <p className="text-xs text-muted-foreground">{account.status === 'connected' ? 'Conectado' : account.status === 'error' ? 'Error de conexión' : 'Necesita reconexión'}: {formatDate(account.connectedAt)}</p>
                   {account.lastError && <p className="text-sm text-red-700">{account.lastError}</p>}
                 </div>
-                <Badge variant={account.status === 'connected' ? 'default' : 'secondary'}>{account.status}</Badge>
+                <Badge variant={account.status === 'connected' ? 'default' : 'secondary'}>{account.status === 'connected' ? 'Conectado' : account.status === 'error' ? 'Error' : 'Reconectar'}</Badge>
               </div>
             ))}
           </CardContent>
