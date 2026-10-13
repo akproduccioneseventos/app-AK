@@ -1,5 +1,6 @@
 'use server';
 
+import { datosDeLaReunion } from '@/lib/reuniones/datos-de-la-reunion';
 import { readData, writeData } from '@/lib/data-service';
 import {
   createDocument,
@@ -335,9 +336,8 @@ export async function checkAndCreateReunionReminders(
         const diffMinutes = (meetingDate.getTime() - now.getTime()) / (1000 * 60);
         const daysUntilMeeting = differenceInDays(meetingDate, today);
 
-        const lugar = (reunion as any).lugar || fiesta.configuracion.nombreLugar || '';
+        const { lugar, contacto } = datosDeLaReunion(fiesta);
         const lugarStr = lugar ? ` en ${lugar}` : '';
-        const contacto = (reunion as any).conQuien || (fiesta.configuracion as any).nombreCliente || fiesta.configuracion.protagonista1Nombre || fiesta.configuracion.nombreEvento;
 
         // 1. Alerta prioritaria: En 1 hora (entre 0 y 75 minutos antes)
         if (diffMinutes > 0 && diffMinutes <= 75) {

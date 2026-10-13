@@ -18,6 +18,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CrmLeadCard } from '@/components/crm/CrmLeadCard';
+import { CrmLeadTimeline } from '@/components/crm/CrmLeadTimeline';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -124,6 +125,9 @@ export default function CrmPage() {
   // Search + Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStageFilter, setActiveStageFilter] = useState<string | null>(null);
+  // Enlaces "Ver en CRM" (agenda, bandeja de salida): llegan con ?leadId= y abren la ficha de ese prospecto.
+  const requestedLeadId = searchParams.get('leadId');
+  const [leadAbiertoId, setLeadAbiertoId] = useState<string | null>(requestedLeadId);
   const requestedView = searchParams.get('view');
   const initialQuickFilter: QuickFilter = requestedView === 'guest'
     ? 'guest'
@@ -348,8 +352,19 @@ export default function CrmPage() {
   ];
   const activeSecondaryFilter = secondaryFilters.find((filter) => filter.key === quickFilter);
 
+  const leadAbierto = leadAbiertoId ? leads.find((l) => l.id === leadAbiertoId) : undefined;
+  const leadPedidoNoExiste = !isLoading && Boolean(requestedLeadId) && leadAbiertoId === requestedLeadId && !leadAbierto;
+
   return (
       <div className="h-full flex flex-col space-y-4">
+        {leadAbierto && (
+          <CrmLeadTimeline lead={leadAbierto} isOpen onOpenChange={(abierto) => { if (!abierto) setLeadAbiertoId(null); }} />
+        )}
+        {leadPedidoNoExiste && (
+          <p role="alert" data-testid="crm-prospecto-no-encontrado" className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
+            No encontramos ese prospecto: puede que se haya borrado.
+          </p>
+        )}
         <div className="sticky top-0 z-20 -mx-2 flex flex-col items-start justify-between gap-4 rounded-2xl border bg-white/95 p-3 shadow-sm backdrop-blur sm:flex-row sm:items-center">
           <div>
             <p className="text-xs text-muted-foreground mb-1">

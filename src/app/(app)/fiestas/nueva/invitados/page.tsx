@@ -46,7 +46,8 @@ import { Suspense } from 'react';
 import { RsvpStatusBadge } from '@/components/presupuestos/rsvp-status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
-import { leerPlanillaDeInvitados } from '@/lib/invitados/leer-planilla';
+import { leerPlanillaDeInvitados, type ResumenDePlanilla } from '@/lib/invitados/leer-planilla';
+import { prepararReintentoDePlanilla } from '@/lib/invitados/reintento-de-planilla';
 import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 const DIETARY_OPTIONS: DietaryRestriction[] = [
@@ -92,22 +93,7 @@ function InvitadosEventoContent() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [planillaTexto, setPlanillaTexto] = useState('');
-  const [previewPlanilla, setPreviewPlanilla] = useState<{
-    filas: Array<{
-      filaNum: number;
-      nombre: string;
-      categoria: CategoriaInvitado;
-      tableNumber?: string;
-      companionNames?: string[];
-      dietaryRestriction?: DietaryRestriction;
-      contacto?: string;
-      esRepetido?: boolean;
-      error?: string;
-    }>;
-    filasSinNombre: number[];
-    repetidos: number;
-    validos: number;
-  } | null>(null);
+  const [previewPlanilla, setPreviewPlanilla] = useState<ResumenDePlanilla | null>(null);
 
   const procesarTextoPlanilla = (texto: string, listaActual: Invitado[]) => {
     // La lectura de la planilla vive en src/lib/invitados/leer-planilla.ts y tiene su
@@ -136,6 +122,7 @@ function InvitadosEventoContent() {
       const validos = previewPlanilla.filas.filter(f => !f.error && f.nombre);
       let guardados = 0;
       const fallidos: FilaErrorImportacion[] = [];
+      const filasFallidas = new Set<number>();
 
       for (const item of validos) {
         try {
@@ -153,12 +140,14 @@ function InvitadosEventoContent() {
           if (res.success) {
             guardados++;
           } else {
+            filasFallidas.add(item.filaNum);
             fallidos.push({
               nombre: item.nombre,
               motivo: res.error || 'Error al guardar en el servidor',
             });
           }
         } catch (err: any) {
+          filasFallidas.add(item.filaNum);
           fallidos.push({
             nombre: item.nombre,
             motivo: err?.message || 'Fallo de conexión o servidor',
@@ -190,14 +179,9 @@ function InvitadosEventoContent() {
           variant: 'destructive',
           duration: 8000,
         });
-        const nombresFallidos = new Set(fallidos.map(f => f.nombre));
-        const filasPendientes = previewPlanilla.filas.filter(f => nombresFallidos.has(f.nombre));
-        setPreviewPlanilla({
-          ...previewPlanilla,
-          filas: filasPendientes,
-          validos: filasPendientes.length,
-        });
-        setPlanillaTexto(filasPendientes.map(f => (f as any).lineaOriginal || f.nombre).join('\n'));
+        const reintento = prepararReintentoDePlanilla(previewPlanilla, filasFallidas);
+        setPreviewPlanilla(reintento.resumen);
+        setPlanillaTexto(reintento.texto);
       }
     } catch (err: any) {
       toast({

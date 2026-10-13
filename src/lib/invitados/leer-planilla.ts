@@ -18,6 +18,12 @@ import type { DietaryRestriction } from '@/types/fiesta';
  */
 export interface FilaDePlanilla {
   filaNum: number;
+  /**
+   * La linea tal cual venia en la planilla. Sirve para reintentar solo las filas que fallaron
+   * sin perder mesa, categoria, restriccion ni acompanantes (el reintento antes rearmaba la
+   * fila con el nombre solo).
+   */
+  lineaOriginal: string;
   nombre: string;
   categoria: CategoriaInvitado;
   tableNumber?: string;
@@ -29,6 +35,8 @@ export interface FilaDePlanilla {
 }
 
 export interface ResumenDePlanilla {
+  /** La linea de encabezado de la planilla, si la tenia: hace falta para releer las filas sueltas. */
+  encabezado?: string;
   filas: FilaDePlanilla[];
   /** Numeros de fila a los que les falta el nombre. */
   filasSinNombre: number[];
@@ -105,17 +113,7 @@ export function leerPlanillaDeInvitados(
       colCategoria = 2;
     }
 
-    const filas: Array<{
-      filaNum: number;
-      nombre: string;
-      categoria: CategoriaInvitado;
-      tableNumber?: string;
-      companionNames?: string[];
-      dietaryRestriction?: DietaryRestriction;
-      contacto?: string;
-      esRepetido?: boolean;
-      error?: string;
-    }> = [];
+    const filas: FilaDePlanilla[] = [];
 
     const filasSinNombre: number[] = [];
     let repetidosCount = 0;
@@ -175,6 +173,7 @@ export function leerPlanillaDeInvitados(
 
       filas.push({
         filaNum: numFila,
+        lineaOriginal: lineas[i],
         nombre,
         categoria,
         tableNumber: mesa,
@@ -187,6 +186,7 @@ export function leerPlanillaDeInvitados(
     }
 
     return {
+      encabezado: dataStartIndex === 1 ? primera : undefined,
       filas,
       filasSinNombre,
       repetidos: repetidosCount,

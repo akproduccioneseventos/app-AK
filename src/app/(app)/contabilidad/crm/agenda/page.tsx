@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarDays, Loader2, AlertTriangle, Clock, CalendarPlus, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { parseUruguayDate } from '@/lib/utils';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
 import { getCrmAgendaEntries, type CrmAgendaEntry } from '@/app/actions/crm';
 import { getWhatsAppSettings } from '@/app/actions/settings';
@@ -18,7 +20,11 @@ import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
 
 export default function CrmAgendaPage() {
   const [allMeetings, setAllMeetings] = useState<CrmAgendaEntry[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(startOfToday());
+  // Los avisos del panel llegan con ?date=AAAA-MM-DD: la agenda abre parada en ese dia.
+  const diaPedido = useSearchParams().get('date');
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(() =>
+    diaPedido && /^\d{4}-\d{2}-\d{2}$/.test(diaPedido) ? parseUruguayDate(diaPedido) : startOfToday(),
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

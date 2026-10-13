@@ -11,6 +11,8 @@ import type { Presupuesto, PresupuestoFormData, ItemPresupuestado } from '@/type
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { PaqueteArmadoRapido, MenuArmadoRapido, ArmadoRapidoConfig } from '@/types/armado-rapido';
 import { savePresupuesto, getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
+import { getFiestaById, updateFiestaPresupuestoId } from '@/app/actions/fiesta-actual';
+import { precargaDesdeFiesta, nombreDeLaFiesta } from '@/lib/presupuestos/precarga-desde-fiesta';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { Paso1DatosEvento } from '@/components/presupuestos/paso-1-datos-evento';
@@ -105,6 +107,8 @@ function CrearPresupuestoContent() {
     );
     
     const leadIdFromParams = searchParams.get('leadId');
+    // La fiesta para la que se arma el presupuesto (viene de la ficha de la fiesta).
+    const [fiestaDelPresupuesto, setFiestaDelPresupuesto] = useState<{ id: string; nombre: string; presupuestoId?: string } | null>(null);
 
     const mapServicioToSeleccion = useCallback((servicio: ServicioEmpresa, adultos: number, ninos: number) => ({
         cantidad: calculateSuggestedQuantity({
@@ -337,6 +341,33 @@ function CrearPresupuestoContent() {
                     } else if (leadName) {
                         setFormData(prev => ({ ...prev, clienteNombre: safeDecodeParam(leadName) }));
                     }
+
+                    // Viene de la ficha de una fiesta: se adelantan cliente, fecha e invitados que ya
+                    // estan cargados. Lo que mande el planificador (leadName, fecha, adultos...) manda.
+                    const fiestaIdParam = searchParams.get('fiestaId');
+                    if (fiestaIdParam) {
+                        try {
+                            const fiesta = await getFiestaById(fiestaIdParam);
+                            if (fiesta) {
+                                const precarga = precargaDesdeFiesta(fiesta);
+                                setFormData(prev => {
+                                    const siguiente: Record<string, unknown> = { ...prev };
+                                    for (const [clave, valor] of Object.entries(precarga)) {
+                                        const actual = (prev as unknown as Record<string, unknown>)[clave];
+                                        const inicial = (initialFormData as unknown as Record<string, unknown>)[clave];
+                                        if (actual === undefined || actual === '' || actual === inicial) siguiente[clave] = valor;
+                                    }
+                                    return siguiente as unknown as PresupuestoFormData;
+                                });
+                                setFiestaDelPresupuesto({ id: fiesta.id, nombre: nombreDeLaFiesta(fiesta), presupuestoId: fiesta.presupuestoId });
+                            } else {
+                                toast({ title: 'No encontramos la fiesta', description: 'El presupuesto se arma en blanco.', variant: 'destructive' });
+                            }
+                        } catch (fiestaError) {
+                            console.error('[crear presupuesto] no se pudo leer la fiesta:', fiestaError);
+                            toast({ title: 'No se pudo leer la fiesta', description: 'El presupuesto se arma en blanco.', variant: 'destructive' });
+                        }
+                    }
                 }
             } catch (error) {
                 toast({ title: "Error", description: "No se pudieron cargar datos iniciales.", variant: "destructive" });
@@ -468,6 +499,18 @@ function CrearPresupuestoContent() {
                 });
               }
             }
+            // Armado para una fiesta que todavia no tiene presupuesto: se enlaza al guardar.
+            if (!editingPresupuestoId && fiestaDelPresupuesto && !fiestaDelPresupuesto.presupuestoId) {
+              try {
+                const enlace = await updateFiestaPresupuestoId(fiestaDelPresupuesto.id, result.id);
+                if (!enlace?.success) {
+                  toast({ title: 'El presupuesto no quedó enlazado a la fiesta', description: enlace?.error || 'Enlazalo desde la ficha de la fiesta.', variant: 'destructive' });
+                }
+              } catch (enlaceError) {
+                console.warn('[crear presupuesto] no se pudo enlazar a la fiesta:', enlaceError);
+                toast({ title: 'El presupuesto no quedó enlazado a la fiesta', description: 'Enlazalo desde la ficha de la fiesta.', variant: 'destructive' });
+              }
+            }
             toast({ title: `Presupuesto ${editingPresupuestoId ? 'Actualizado' : 'Guardado'}` });
             if (result.avisoCrm) {
               toast({ title: 'Ojo con el seguimiento', description: result.avisoCrm, variant: 'destructive' });
@@ -488,6 +531,11 @@ function CrearPresupuestoContent() {
                 <h1 className="text-3xl font-bold tracking-tight font-headline">{editingPresupuestoId ? 'Modificar Presupuesto' : 'Crear Presupuesto'}</h1>
                 <Button asChild variant="outline" disabled={isSaving}><Link href="/presupuestos/nuevo"><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
             </div>
+            {fiestaDelPresupuesto && !editingPresupuestoId && (
+                <p data-testid="presupuesto-para-fiesta" className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-semibold">
+                    Presupuesto para la fiesta {fiestaDelPresupuesto.nombre}
+                </p>
+            )}
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl">Paso {paso} de 3: {['Datos del Evento', 'Selección de Servicios', 'Resumen y Descuentos'][paso-1]}</CardTitle>
