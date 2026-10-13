@@ -1,9 +1,8 @@
-# Estado actual - 13/10/2026 (Codex119 manual en validacion; PR1293 ABIERTA)
-
+# Estado actual - 13/10/2026 (Codex119 comprobada; PR1293 ABIERTA)
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
 Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
-Fuente final662f123d; head de entrega comprobar en GitHub antes de subir.
+Fuente final a638c850; head de entrega comprobar en GitHub antes de subir.
 ## Delta116; mantener lo ya integrado por Claude
 -Libro de costos en backup/mapa, IDs legacy, restore sin recibos posteriores.
 -Backup interno despues de ajuste; fallo de lectura/ZIP incompleto no se certifica.
@@ -15,7 +14,6 @@ Fuente final662f123d; head de entrega comprobar en GitHub antes de subir.
 -Acentos2840 PASS;16criterios nativos PC/Pixel7 PASS; calendarios6UTC/6Uy PASS.
 -Caja no pierde eventos de hoy; convencion ISO00 y formulas/permisos intactos.
 -115archivada81:707suites4285tests/34PASS no acredita116; no copiar rama entera.
-
 ## Continuidad
 -Candidato C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103.
 -Codex autorizado a corregir directo; principal conserva dinero/datos/seguridad.
@@ -25,11 +23,11 @@ Fuente final662f123d; head de entrega comprobar en GitHub antes de subir.
 -161 cerrada: ACK2->2/recarga/CRMsinrepetir/nueva cotizacion/documento visible.
 -118 SDK0,servicios/agentes cerrados,bytes restaurados; prototipo2FAIL conservados.
 -155 firmador/exports ya corregidos:51unidades116 PASS; proveedor real no probado.
--119 manual ACK perdido reprodujo1->2 en662; parche directo,21unidades/tipos PASS.
--119 falta congelar/build/retest/broad; no certificar nuevo codigo con build662.
+-119 fuente a638:731suites4566tests/build tipos lint/acentos2852/6nativos PASS.
+-Manual ACK+recarga2->2; CRMsinrepetir; otra cotizacion3, mismos datos permitidos.
+-119 SDK0/servicios/agente cerrados/bytes restaurados; gate PASS_MANUAL_ACK_ONLY.
 -AI sigue riesgo118-consumidores NO ejecutado; no confundir con manual confirmado.
 -Restan152/deps/109;19originales/OAuth/Hosting/hardware no certificados.
-
 ## Esperando decisión del dueño
 - Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
 - Votos: tope de 30 por minuto por red y encuesta; en el wifi del salón puede frenar invitados.
@@ -38,5 +36,5 @@ Fuente final662f123d; head de entrega comprobar en GitHub antes de subir.
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos: uno agregado a la vez desde otra pantalla puede perderse.
 -152: PC cubre2/3puntosGuardar; teclado/superior disponibles. Movil3/3libres.
--161 preserva varios presupuestos; legacy sin operationId no certificado en118.
+-161 y manual preservan varios presupuestos; IA sin operationId no certificada.
 -No declarar0errores ni toda la app lista.

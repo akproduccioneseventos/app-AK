@@ -1,5 +1,9 @@
 # Riesgos a probar despues de161; no fallos reproducidos
 
+ACTUALIZACION119: manual SI reprodujo ACK1->2 en662 y ya esta corregido/probado
+en a638c850;119-aceptacion.json,6nativos PC/Pixel7. No repetir esa entrada.
+Las entradas IA de abajo siguen RIESGOS NO ejecutados, no fallos confirmados.
+
 Agente gpt-6-luna low, lectura acotada y cerrado. Fuente06c64eb5.
 No repetir configurador, permisos, formulas ni recorridos con prueba vigente.
 Contrastar YA-RESUELTO y tanda privada antes de convertir riesgos en orden.
@@ -19,6 +23,6 @@ automaticamente a consumidores que no la envian. Existen estas llamadas:
 
 Lineas son de06c: verificar simbolo/consumidor nuevamente antes de programar.
 No nuevas pruebas ejecutadas, correcciones de esos consumidores ni PASS global.
-Prioridad siguiente: guardar manual con red interrumpida tras escritura, y solo
-si falla aplicar la misma distincion intento vs nueva cotizacion. No exigir otra
+Prioridad siguiente: herramienta IA/confirmacion, con la misma distincion intento
+vs nueva cotizacion, solo despues de reproducir. No exigir otra
 PR por variante; juntar correcciones de la tanda y validar fuente final una vez.

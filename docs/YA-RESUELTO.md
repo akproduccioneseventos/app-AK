@@ -1,5 +1,23 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex119 comprobada: manual ya no duplica tras perder ACK
+
+-Fuente a638c850. Repro anterior662: un guardado confirmado por SDK, respuesta
+ cortada y retry dejaban1->2 por900; evidencia antes-arreglo conservada.
+-Manual prepara operationId antes de enviar; UUID y huella sobreviven recarga,
+ separados del configurador. Ref bloquea doble entrada. Confirmado libera clave
+ para otra cotizacion legitima incluso mismos datos/telefono; editar no cambia.
+ Sin tocar importes, descuentos, fechas, cupones, enlace ni permisos.
+-731suites4566tests PASS,0fallos/omitidos; build con tipos/lint y acentos2852 PASS.
+ 6recorridos nativos PC/Pixel7 PASS: antes-envio/retry1, ACK+recarga2->2,
+ timelineCRM intacto y nueva cotizacion3 con2legitimas del mismo telefono.
+ Documento /ver realmente visible y persistente despues de recargar.
+-119-aceptacion.json PASS_MANUAL_ACK_ONLY. SDK0,2servicios y agente cerrados,
+ bytes ajenos restaurados. Grafo14542/43760/927 sinLLM;25warningsparser, noTS.
+-No repetir manual/configurador. AI sigue riesgo NO ejecutado (118-consumidores).
+ No todaapp/Hosting/OAuth/19originales/hardware certificados; privadoClaude
+ NO CONTRASTADO CON LA TANDA. PR1293 sin fusion; dueno decide.
+
 ## 13/10/2026 - Codex119 en curso: presupuesto manual con ACK perdido
 
 -Reproducido sobre fuente662f123d en navegador compilado y SDK demo: guardar

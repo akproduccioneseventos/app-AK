@@ -1,5 +1,12 @@
 ## Descripcion del Cambio
 
+ACTUALIZACION119: manual tambien CORREGIDO/PROBADO en a638c850.
+731suites4566tests0fallos/omitidos PASS, build tipos/lint y acentos2852 PASS.
+6flujos nativos PC/Pixel7: corte antes-envio, ACK perdido+recarga sin duplicar,
+CRM sin repetir, otra cotizacion identica permitida y documento /ver persistente.
+119-aceptacion.json PASS_MANUAL_ACK_ONLY. No extender a consumidores IA aun
+sin prueba. No fusionado/publicado. Evidencias116/118 conservadas como historia.
+
 Nueva propuesta desde main4c5ef2f9, porque PR1288 fue integrada por Claude mientras
 se validaba115. No copiar aquella rama entera ni fusionar esta automaticamente.
 

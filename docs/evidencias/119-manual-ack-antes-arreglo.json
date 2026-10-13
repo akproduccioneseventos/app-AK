@@ -1,0 +1,25 @@
+{
+  "before": [
+    {
+      "id": "pres_1791893399447_l81w92f",
+      "numero": 1,
+      "total": 900
+    }
+  ],
+  "after": [
+    {
+      "id": "pres_1791893399447_l81w92f",
+      "numero": 1,
+      "total": 900
+    },
+    {
+      "id": "pres_1791893401633_1kbguo7",
+      "numero": 2,
+      "total": 900
+    }
+  ],
+  "saveRequests": 2,
+  "expected": 1,
+  "documentVisible": true,
+  "url": "http://127.0.0.1:3301/presupuestos/pres_1791893401633_1kbguo7/ver"
+}

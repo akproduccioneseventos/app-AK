@@ -1,0 +1,11 @@
+{
+  "sourceSha": "a638c8508997fd9b55ed20962d9d4a7284d6cfc3",
+  "command": "graphify update .",
+  "nodes": 14542,
+  "edges": 43760,
+  "communities": 927,
+  "llmCalls": 0,
+  "partialAstWarnings": 25,
+  "graphSha256": "2b73ccb9a217173ae855de1a29900a4a5bc9be5cb1e8c1ed8fb04683e2e0a924",
+  "localIgnored": true
+}
