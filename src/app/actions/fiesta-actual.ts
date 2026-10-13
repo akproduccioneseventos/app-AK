@@ -84,6 +84,8 @@ export async function updateModulosContratadosFiestaActual(fiestaId: string, mod
 // --- GESTIÓN DE TAREAS ---
 export async function updateTareasFiestaActual(fiestaId: string, tareas: Tarea[]) { return await TareasModule.updateTareas(fiestaId, tareas); }
 export async function addTareaToFiestaActual(fiestaId: string, tareaData: Omit<Tarea, 'id' | 'completada'>) { return await TareasModule.addTarea(fiestaId, tareaData); }
+export async function addTareasToFiestaActual(fiestaId: string, nuevas: Tarea[]) { return await TareasModule.addTareas(fiestaId, nuevas); }
+export async function marcarTareaFiestaActual(fiestaId: string, tareaId: string, completada: boolean) { return await TareasModule.marcarTarea(fiestaId, tareaId, completada); }
 export async function deleteTareaFromFiestaActual(fiestaId: string, tareaId: string) { return await TareasModule.deleteTarea(fiestaId, tareaId); }
 
 // --- GESTIÓN DE INVITADOS ---
@@ -101,6 +103,7 @@ export async function registrarQueAbrioLaInvitacion(fiestaId: string, guestId: s
 export async function updateDecoracionFiestaActual(fiestaId: string, decoracion: any) { return await DecoracionModule.updateDecoracion(fiestaId, decoracion); }
 
 // --- CRONOGRAMA ---
+export async function marcarHitoProgramaFiestaActual(fiestaId: string, hitoId: string, completado: boolean) { return await ItinerarioModule.marcarHitoPrograma(fiestaId, hitoId, completado); }
 export async function updateProgramaFiestaActual(fiestaId: string, programa: any[]) { return await ItinerarioModule.updatePrograma(fiestaId, programa); }
 
 // --- PERSONAL Y PAGOS ---

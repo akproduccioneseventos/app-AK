@@ -20,6 +20,44 @@ usa: mutateDataItem en src/app/actions/activos-fijos.ts
 usa: registroId: registroIdReintento ?? idDeLaOperacion() en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
 prueba: src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
 prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
+
+## 13 de octubre de 2026 — Guardados de la fiesta por turno: dos personas a la vez ya no se pisan
+
+- **Qué pasaba:** tareas, reuniones, música, regalos, estado en vivo, lista de carga, llegada del personal, hitos del
+  programa, controles de la noche (votaciones, mensajes, canciones), sorteo y barra (apertura, cierre, ajustes) leían
+  la fiesta afuera del turno y guardaban la lista (o la fiesta) armada con esa lectura. Con dos personas a la vez la
+  segunda borraba lo de la primera y las dos pantallas decían "guardado".
+- **Ahora:** todas pasan por `actualizarFiesta`, que lee y escribe adentro del turno, y cada acción cambia SOLO lo
+  suyo por id sobre lo que hay en ese momento. Nuevas acciones angostas: `marcarTarea`, `addTareas`,
+  `marcarHitoPrograma` (el cronograma del staff y el "en vivo" ya no mandan el programa ni la fiesta enteros).
+  `updateTareas` y `updatePrograma` quedan sólo para reemplazar la lista entera, también por turno.
+- **Permisos sin cambios:** `actualizarFiesta` suma la opción `soloEquipo` para conservar lo que pedía
+  `updateFiestaPartial` (el cliente del portal no toca tareas, reuniones, programa ni la lista de carga).
+  `marcarLlegadaPersonal` sigue pidiendo sólo sesión.
+- **Reuniones:** el aviso al calendario sale con la reunión que quedó guardada.
+- **Cierre de barra:** guarda sólo `cierre` (no pisa pedidos nuevos) y el ajuste del depósito es idempotente: el cierre
+  se reserva con una huella de los movimientos antes de mover botellas; un doble toque con el mismo ajuste en 5
+  minutos devuelve el cierre ya reservado en vez de mover el depósito dos veces; si mover falla, el cierre reservado
+  se deshace. El respaldo de pedidos también guarda adentro de la transacción de la fiesta.
+- **Por qué así:** la pregunta 22 de COMO-AUDITAR.md; el turno cuida un servidor y la transacción cuida varios. Las
+  pruebas existentes cuyos mocks leían afuera se ajustaron para modelar el turno (nunca se aflojó una guarda).
+
+```comprobar
+archivo: src/lib/fiesta/actualizar-fiesta.ts
+usa: actualizarFiesta en src/app/actions/fiesta/tareas.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/reuniones.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/musica.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/regalos.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/live.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/itinerario.actions.ts
+usa: actualizarFiesta en src/app/actions/personal-fiestas.ts
+usa: actualizarFiesta en src/app/actions/evento-en-vivo.ts
+usa: actualizarFiesta en src/app/actions/social-interactive.ts
+usa: actualizarFiesta en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: marcarHitoPrograma en src/app/evento/staff/[fiestaId]/cronograma/page.tsx
+usa: marcarTareaFiestaActual en src/app/(app)/fiestas/nueva/tareas/client.tsx
+usa: ajusteClave en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/guardados-de-la-fiesta-no-se-pisan.test.ts
 ```
 
 ## 12 de octubre de 2026 — Barrido de plata: doble toque, ajustes a medias y saldos que ignoraban cobros

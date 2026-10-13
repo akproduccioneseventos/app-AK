@@ -17,7 +17,7 @@ import { format as formatDateFn, formatDistanceToNowStrict, subDays, startOfWeek
 import { es } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import type { Tarea } from '@/types/fiesta';
-import { getFiestaById, updateTareasFiestaActual, addTareaToFiestaActual, deleteTareaFromFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, addTareasToFiestaActual, marcarTareaFiestaActual, addTareaToFiestaActual, deleteTareaFromFiestaActual } from '@/app/actions/fiesta-actual';
 import { getTaskTemplates, saveTaskTemplate, deleteTaskTemplate, type TaskTemplate } from '@/app/actions/task-templates';
 import { checkAndCreateTaskReminders } from '@/app/actions/notifications';
 import {
@@ -160,9 +160,8 @@ function TareasEventoContent() {
       id: `task_${Date.now()}_${Math.random().toString(36).substring(2,9)}`,
       completada: false,
     }));
-    const updatedTareas = [...tareas, ...newTasksFromTemplate];
-    setTareas(updatedTareas);
-    await handleSaveChanges(updatedTareas);
+    setTareas([...tareas, ...newTasksFromTemplate]);
+    await handleSaveChanges(() => addTareasToFiestaActual(fiestaId, newTasksFromTemplate));
     toast({title: "Plantilla de Tareas Cargada", description: `Se añadieron ${newTasksFromTemplate.length} tareas.`});
     setIsLoadTemplateModalOpen(false);
   };
@@ -179,11 +178,13 @@ function TareasEventoContent() {
     setDeletingTemplateId(null);
   };
 
-  const handleSaveChanges = async (updatedTareas: Tarea[]) => {
+  // Cada cambio manda SOLO lo suyo (tareas nuevas, o una tarea por id) y vuelve con la lista
+  // que quedo guardada: dos personas a la vez no se pisan.
+  const handleSaveChanges = async (guardar: () => Promise<{ success: boolean; updatedData?: Tarea[]; error?: string }>) => {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
-      const result = await updateTareasFiestaActual(fiestaId, updatedTareas);
+      const result = await guardar();
       if (result.success && result.updatedData) {
         setTareas(result.updatedData);
       } else {
@@ -277,7 +278,8 @@ function TareasEventoContent() {
 
     if (addedCount > 0) {
         setTareas(currentTasks);
-        await handleSaveChanges(currentTasks);
+        const nuevasDelSistema = currentTasks.slice(tareas.length);
+        await handleSaveChanges(() => addTareasToFiestaActual(fiestaId, nuevasDelSistema));
         toast({ title: "Sincronización Exitosa", description: `Se han añadido ${addedCount} tareas operativas basadas en la fecha del evento.` });
     } else {
         toast({ title: "Al día", description: "Las tareas automáticas ya están en tu lista." });
@@ -324,11 +326,11 @@ function TareasEventoContent() {
   };
 
   const toggleTaskCompletion = async (taskId: string) => {
-    const updatedTareas = tareas.map(task =>
-      task.id === taskId ? { ...task, completada: !task.completada } : task
-    );
-    setTareas(updatedTareas);
-    await handleSaveChanges(updatedTareas);
+    const actual = tareas.find(task => task.id === taskId);
+    if (!actual || !fiestaId) return;
+    const completada = !actual.completada;
+    setTareas(tareas.map(task => task.id === taskId ? { ...task, completada } : task));
+    await handleSaveChanges(() => marcarTareaFiestaActual(fiestaId, taskId, completada));
   };
 
   const deleteTask = async (taskId: string) => {

@@ -1,12 +1,9 @@
 'use server';
 
-import path from 'path';
-import { updateDataPartial } from '@/lib/data-service';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { requireAppSession } from '@/lib/auth/require-session';
-import { getFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-
-const FIESTAS_DIR = 'fiestas';
 
 /**
  * Las fiestas en las que trabaja una persona del equipo.
@@ -29,7 +26,7 @@ export async function getFiestasByEmpleado(empleadoId: string): Promise<FiestaEn
 /**
  * Marca que una persona del equipo llego a la fiesta.
  *
- * Se guarda con `updateDataPartial`, igual que el resto de la app. Escribir el
+ * Se guarda por `actualizarFiesta` (lee y escribe adentro del turno). Escribir el
  * archivo a mano con `fs` no sirve: en produccion los datos viven en la base, no
  * en los archivos del proyecto, asi que el "llegue" no se guardaria en ningun
  * lado y la pantalla seguiria mostrando a la persona en rojo.
@@ -37,26 +34,23 @@ export async function getFiestasByEmpleado(empleadoId: string): Promise<FiestaEn
 export async function marcarLlegadaPersonal(fiestaId: string, empleadoId: string): Promise<boolean> {
   await requireAppSession();
 
-  const fiesta = await getFiestaById(fiestaId);
-  if (!fiesta?.personalAsignado?.length) return false;
-
-  const indice = fiesta.personalAsignado.findIndex(persona => persona.empleadoId === empleadoId);
-  if (indice === -1) return false;
-
-  // Ya estaba marcado: no se pisa la hora original.
-  if (fiesta.personalAsignado[indice].checkInTimestamp) return true;
-
-  const personalAsignado = fiesta.personalAsignado.map((persona, i) =>
-    i === indice ? { ...persona, checkInTimestamp: new Date().toISOString() } : persona
-  );
-
-  try {
-    await updateDataPartial<FiestaEnPlanificacion>(
-      path.join(FIESTAS_DIR, `${fiestaId}.json`),
-      { personalAsignado } as Partial<FiestaEnPlanificacion>
-    );
-    return true;
-  } catch {
-    return false;
-  }
+  // Marca SOLO el checkIn de ese empleado sobre la lista de personal de ESE momento, adentro del
+  // turno: dos personas marcando su llegada a la vez quedan las dos (antes se leia afuera y se
+  // guardaba la lista armada con esa lectura, y una de las marcas se perdia).
+  // `publicRsvp` aca significa "sin permiso de escritura sobre la fiesta": esta accion siempre
+  // pidio solo sesion, y la pantalla del personal la usa gente que no es "equipo" de la fiesta.
+  const r = await actualizarFiesta(fiestaId, (fiesta) => {
+    const personal = fiesta.personalAsignado || [];
+    const persona = personal.find(p => p.empleadoId === empleadoId);
+    if (!persona) throw new Error('NO_ASIGNADO');
+    // Ya estaba marcado: no se pisa la hora original.
+    if (persona.checkInTimestamp) return fiesta;
+    return {
+      ...fiesta,
+      personalAsignado: personal.map(p =>
+        p.empleadoId === empleadoId ? { ...p, checkInTimestamp: new Date().toISOString() } : p
+      ),
+    };
+  }, { publicRsvp: true });
+  return r.success;
 }

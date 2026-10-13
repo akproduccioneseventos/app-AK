@@ -20,6 +20,15 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(async (id: string) => (fiestas[id] ? copia(fiestas[id]) : null)),
   saveFiesta: jest.fn(async (f: any) => { fiestas[f.id] = copia(f); return { success: true }; }),
 }));
+// El guardado por turno (lee y escribe adentro): aca se modela contra el mismo almacen.
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (id: string, fn: (f: any) => any) => {
+    if (!fiestas[id]) return { success: false, error: `Fiesta con ID ${id} no encontrada.` };
+    const nueva = await fn(copia(fiestas[id]));
+    fiestas[id] = copia(nueva);
+    return { success: true, updatedFiesta: nueva };
+  }),
+}));
 jest.mock('@/lib/commercial/public-rate-limit', () => ({ enforcePublicRateLimit: jest.fn().mockResolvedValue(undefined) }));
 jest.mock('@/lib/crm/public-lead-persistence', () => ({ upsertPublicCommercialLead: jest.fn() }));
 jest.mock('@/app/actions/public-guest-portal', () => ({ getPublicGuestPortalData: jest.fn() }));

@@ -21,6 +21,7 @@ import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { mergeMasterTragosWithFiesta } from '@/lib/carta-tragos-master';
 import { leerCartaTragosMaster } from '@/lib/carta-tragos/leer-carta-master';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
@@ -458,17 +459,16 @@ async function getFirestoreOrders(fiestaId: string): Promise<BarDrinkOrder[] | n
  * Y la fiesta **se vuelve a leer adentro del turno**: guardar la que se leyo al principio
  * pisaba lo que el equipo hubiera cambiado mientras tanto. Solo se tocan los pedidos.
  */
-let colaDeRespaldo: Promise<unknown> = Promise.resolve();
-
 async function saveFallbackOrders(
   fiestaId: string,
   cambiar: (orders: BarDrinkOrder[]) => BarDrinkOrder[],
 ): Promise<{ success: boolean; error?: string }> {
-  const turno = colaDeRespaldo.then(async () => {
-    const fresca = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fresca) return { success: false, error: 'Fiesta no encontrada.' };
+  // `publicRsvp` aca significa "sin permiso de escritura sobre la fiesta" (ver arriba). Lee y
+  // escribe adentro de la transaccion de la fiesta (`actualizarFiesta`): un cierre o una
+  // apertura que se guardan al mismo tiempo no pisan el pedido, ni al reves.
+  const r = await actualizarFiesta(fiestaId, (fresca) => {
     const stored = getStoredBarData(fresca);
-    const actualizada: FiestaEnPlanificacion = {
+    return {
       ...fresca,
       others: {
         ...(fresca.others || {}),
@@ -479,11 +479,8 @@ async function saveFallbackOrders(
         },
       },
     };
-    await writeData(`fiestas/${fiestaId}.json`, await preserveFiestaSecrets(fiestaId, actualizada));
-    return { success: true };
-  });
-  colaDeRespaldo = turno.catch(() => undefined);
-  return turno;
+  }, { publicRsvp: true });
+  return r.success ? { success: true } : { success: false, error: r.error || 'Fiesta no encontrada.' };
 }
 
 const conElPedidoNuevo = (order: BarDrinkOrder) => (orders: BarDrinkOrder[]) =>
@@ -596,23 +593,18 @@ export async function saveBarraTecnologicaSettings(
 ): Promise<{ success: boolean; data?: BarTechnologySettings; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISO_DE_LA_BARRA);
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) throw new Error('Fiesta no encontrada.');
-
-    const stored = getStoredBarData(fiesta);
-    const nextSettings = normalizeSettings(settings, fiesta);
-    const nextData: BarTechnologyData = {
-      ...stored,
-      settings: nextSettings,
-      updatedAt: new Date().toISOString(),
-    };
-
-    const result = await saveFiesta({
-      ...fiesta,
-      others: {
-        ...(fiesta.others || {}),
-        barraTecnologica: nextData,
-      },
+    // Se mezcla sobre la fiesta de ESE momento: los pedidos que entraron no se pisan.
+    let nextSettings!: BarTechnologySettings;
+    const result = await actualizarFiesta(fiestaId, (fresca) => {
+      const stored = getStoredBarData(fresca);
+      nextSettings = normalizeSettings(settings, fresca);
+      return {
+        ...fresca,
+        others: {
+          ...(fresca.others || {}),
+          barraTecnologica: { ...stored, settings: nextSettings, updatedAt: new Date().toISOString() },
+        },
+      };
     });
 
     if (!result.success) throw new Error(result.error || 'No se pudo guardar la configuracion.');
@@ -1244,35 +1236,75 @@ export async function guardarCierreDeBarra(
       throw new Error('Anotá lo que contaste en al menos una botella.');
     }
 
-    if (ajustarDeposito) {
-      const ajustes = ajustesAlConteo(filas);
-      if (ajustes.length > 0) await moverStock(ajustes);
-    }
-
+    const ajustes = ajustarDeposito ? ajustesAlConteo(filas) : [];
+    // Huella de lo que se va a mover. Si el mismo ajuste ya se reservo hace un rato, es un doble
+    // toque (o un reintento): no se vuelve a mover el deposito.
+    const clave = JSON.stringify(ajustes.map((a) => [a.insumoId, a.ajuste]).sort());
     const cierre: CierreDeBarraGuardado = {
       at: new Date().toISOString(),
       filas: filas.map((fila) => ({ ...fila })),
       depositoAjustado: ajustarDeposito,
+      ...(ajustes.length > 0 ? { ajusteClave: clave, ajustePendiente: true } : {}),
     };
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) throw new Error('Fiesta no encontrada.');
-    const stored = getStoredBarData(fiesta);
-    const result = await saveFiesta({
-      ...fiesta,
-      others: { ...(fiesta.others || {}), barraTecnologica: { ...stored, cierre } },
+
+    // 1) Se reserva el cierre en la fiesta de ESE momento (solo cambia `cierre`, los pedidos
+    //    nuevos no se pisan). Si ya hay uno igual reservado, se devuelve ese.
+    let duplicado: CierreDeBarraGuardado | undefined;
+    let previo: CierreDeBarraGuardado | undefined;
+    const reserva = await actualizarFiesta(fiestaId, (fresca) => {
+      duplicado = undefined;
+      const stored = getStoredBarData(fresca);
+      const ultimo = stored.cierre;
+      if (
+        ajustes.length > 0 && ultimo?.depositoAjustado && ultimo.ajusteClave === clave &&
+        Date.now() - new Date(ultimo.at).getTime() < VENTANA_DOBLE_TOQUE_MS
+      ) {
+        duplicado = ultimo;
+        return fresca;
+      }
+      previo = ultimo;
+      return {
+        ...fresca,
+        others: { ...(fresca.others || {}), barraTecnologica: { ...stored, cierre } },
+      };
     });
-    if (!result.success) {
-      throw new Error(
-        ajustarDeposito
-          ? `El depósito ya quedó ajustado, pero no se pudo guardar el registro del cierre: ${result.error || 'error al guardar'}.`
-          : result.error || 'No se pudo guardar el cierre.',
-      );
+    if (!reserva.success) throw new Error(reserva.error || 'No se pudo guardar el cierre.');
+    if (duplicado) return { success: true, cierre: duplicado };
+
+    // 2) Recien ahora se mueve el deposito. Si falla, el cierre reservado se deshace.
+    if (ajustes.length > 0) {
+      try {
+        await moverStock(ajustes);
+      } catch (e) {
+        await actualizarFiesta(fiestaId, (fresca) => {
+          const stored = getStoredBarData(fresca);
+          const { cierre: _descartado, ...resto } = stored;
+          return {
+            ...fresca,
+            others: { ...(fresca.others || {}), barraTecnologica: previo ? { ...resto, cierre: previo } : resto },
+          };
+        }).catch(() => undefined);
+        throw e;
+      }
+      // 3) Se marca terminado.
+      const { ajustePendiente: _pendiente, ...cierreListo } = cierre;
+      const final = await actualizarFiesta(fiestaId, (fresca) => {
+        const stored = getStoredBarData(fresca);
+        if (stored.cierre?.at !== cierre.at) return fresca;
+        return { ...fresca, others: { ...(fresca.others || {}), barraTecnologica: { ...stored, cierre: cierreListo } } };
+      });
+      if (!final.success) {
+        throw new Error(`El depósito ya quedó ajustado, pero no se pudo guardar el registro del cierre: ${final.error || 'error al guardar'}.`);
+      }
+      return { success: true, cierre: cierreListo };
     }
     return { success: true, cierre };
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo guardar el cierre de barra.' };
   }
 }
+
+const VENTANA_DOBLE_TOQUE_MS = 5 * 60 * 1000;
 
 async function moverStock(ajustes: Array<{ insumoId: string; ajuste: number }>) {
   const db = await getDb();
@@ -1332,17 +1364,18 @@ export async function guardarAperturaDeBarraAction(
 ): Promise<{ success: boolean; apertura?: AperturaDeBarraGuardada; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISO_DE_LA_BARRA);
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) throw new Error('Fiesta no encontrada.');
-    const stored = getStoredBarData(fiesta);
     const apertura: AperturaDeBarraGuardada = {
       at: new Date().toISOString(),
       botellasRecibidas,
     };
-    const result = await saveFiesta({
-      ...fiesta,
-      others: { ...(fiesta.others || {}), barraTecnologica: { ...stored, apertura } },
-    });
+    // Solo cambia `apertura`, sobre lo que hay en ese momento (sin pisar pedidos nuevos).
+    const result = await actualizarFiesta(fiestaId, (fresca) => ({
+      ...fresca,
+      others: {
+        ...(fresca.others || {}),
+        barraTecnologica: { ...getStoredBarData(fresca), apertura },
+      },
+    }));
     if (!result.success) throw new Error(result.error || 'No se pudo guardar la apertura.');
     return { success: true, apertura };
   } catch (error: any) {

@@ -23,7 +23,16 @@ jest.mock('@/lib/carta-tragos/leer-carta-master', () => ({ leerCartaTragosMaster
 jest.mock('@/app/actions/carta-tragos-master.actions', () => ({ getCartaTragosMaster: jest.fn() }));
 jest.mock('@/app/actions/social-gallery', () => ({ createSocialMediaPostFromUrlForStation: jest.fn() }));
 jest.mock('@/lib/firebase/storage', () => ({ uploadToStorage: jest.fn() }));
-jest.mock('@/lib/generic-json-store', () => ({ mutateGenericJsonArray: jest.fn() }));
+jest.mock('@/lib/generic-json-store', () => ({
+  mutateGenericJsonArray: jest.fn(),
+  // El turno de la fiesta: lee, cambia y escribe contra el mismo almacen.
+  mutarDocumentoConTransaccion: jest.fn(async (archivo: string, vacio: any, cambiar: (a: any) => any) => {
+    const nuevo = await cambiar(almacen[archivo] === undefined ? vacio : copia(almacen[archivo]));
+    if (nuevo === null) return null;
+    almacen[archivo] = copia(nuevo);
+    return nuevo;
+  }),
+}));
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (archivo: string, porDefecto: any) => (almacen[archivo] === undefined ? porDefecto : copia(almacen[archivo]))),
   writeData: jest.fn(async (archivo: string, datos: any) => { almacen[archivo] = copia(datos); }),

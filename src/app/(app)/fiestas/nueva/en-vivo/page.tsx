@@ -13,7 +13,7 @@ import {
     PackageSearch, RotateCcw, Share2, Wallet, PlusCircle, Clock, TriangleAlert
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, marcarHitoProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { 
     toggleArrival, setStaffCheckIn, confirmProtagonistArrival, 
     resetArrivalRadar, addIncidente, resolveIncidente, toggleReturnItem 
@@ -123,8 +123,9 @@ function LiveEventDashboardContent() {
 
     const handleToggleItineraryItem = async (itemId: string) => {
         if (!fiesta || !fiestaId) return;
-        const updatedPrograma = (fiesta.programa || []).map(p => p.id === itemId ? { ...p, completado: !p.completado } : p);
-        const res = await updateProgramaFiestaActual(fiestaId, updatedPrograma);
+        const actual = (fiesta.programa || []).find(p => p.id === itemId);
+        if (!actual) return;
+        const res = await marcarHitoProgramaFiestaActual(fiestaId, itemId, !actual.completado);
         if (res.success) await loadData(false);
     };
 
