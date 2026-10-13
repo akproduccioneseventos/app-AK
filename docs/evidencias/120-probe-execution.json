@@ -1,0 +1,14 @@
+{
+  "sha": "3a3bc1c673476b75065e8063358c48797c071700",
+  "applicationSourceSha": "3a3bc1c673476b75065e8063358c48797c071700",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/120-encargado-probe.mjs"
+  ],
+  "launcher": 58648,
+  "child": 53296,
+  "started": "2026-10-13T13:23:56.726Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T13:24:25.466Z"
+}

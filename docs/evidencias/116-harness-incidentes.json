@@ -1,0 +1,9 @@
+{
+  "source": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "incident": "El fixture de factura nativa fue sembrado en invoices, pero invoices.json mapea a facturas.",
+  "evidence": "116-inicial-facturas-native-resultado.json:14PASS/2NOT_ACCEPTED, income1000 frente a1500 esperado",
+  "classification": "Fallo de preparacion de QA, no de la aplicacion",
+  "fix": "Sembrar la factura en facturas, como indica src/lib/firebase-sync.ts y leerFacturasSinGuardia",
+  "appChanged": false,
+  "acceptanceThresholdUnchanged": true
+}

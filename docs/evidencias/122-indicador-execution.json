@@ -1,0 +1,14 @@
+{
+  "sha": "5dc197e5c831d8dbd75dec268efa5806eca957d8",
+  "applicationSourceSha": "5dc197e5c831d8dbd75dec268efa5806eca957d8",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/122-indicador-probe.mjs"
+  ],
+  "launcher": 52968,
+  "child": 58432,
+  "started": "2026-10-13T16:42:45.050Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T16:42:55.400Z"
+}

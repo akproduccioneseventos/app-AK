@@ -1,0 +1,102 @@
+{
+  "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "evidenceHead": "b21d060d3951fe55a29ff236ffd545d36f7e79fd",
+  "status": "PASS_CURRENT_LOT_ONLY",
+  "checks": {
+    "build": {
+      "pass": true,
+      "started": "2026-10-13T06:58:02.726Z",
+      "finished": "2026-10-13T07:06:59.419Z"
+    },
+    "types": {
+      "pass": true,
+      "started": "2026-10-13T07:08:08.754Z",
+      "finished": "2026-10-13T07:08:48.045Z"
+    },
+    "lint": {
+      "pass": true,
+      "started": "2026-10-13T07:04:14.385Z",
+      "finished": "2026-10-13T07:04:32.112Z"
+    },
+    "acentos": {
+      "pass": true,
+      "started": "2026-10-13T07:04:07.936Z",
+      "finished": "2026-10-13T07:04:13.036Z"
+    },
+    "jest": {
+      "pass": true,
+      "started": "2026-10-13T07:15:14.178Z",
+      "finished": "2026-10-13T07:22:29.304Z",
+      "suites": 729,
+      "tests": 4545
+    }
+  },
+  "acceptedCriteria": 16,
+  "runtime": "127.0.0.1:3301; demo-ak-producciones Firestore",
+  "graphSource": "1656ac2e",
+  "evidenceHashes": {
+    "116-acentos-execution.json": "299343948d0c023507b6509ca6364e0076de6cdee6752d9807fc1f787ac195ee",
+    "116-acentos.log.gz": "ecd175e6b01eea190928b56888d4017742b33dfd5b012809dcdebf0636f54e05",
+    "116-action-ids.json": "437f198725409e54afc6e5da932d4c1258dee48871ea5ecdccb8eaa782697e3e",
+    "116-build-execution.json": "29e94f2f45665f4da411c4854943cdd29c3f5531397c2923e86a7be23ec14ad2",
+    "116-build.log.gz": "72608698ba2348f0ecca7c55816d385b49c720fad31ce14703470f2c216cc56d",
+    "116-detener-entorno.ps1": "a4e1470fd24137d2269fda5b8e933f1679e4934e5631de2f763e48ce3c8fc79a",
+    "116-ejecutar.mjs": "bc63bc18d38b71442cf5a67f600982ade335f2f95816319aefa0eb737bf653a0",
+    "116-emulator-execution.json": "8e0d082879c4d781aef43505af6991a0086d05802983f3e4f49234dcb87b830b",
+    "116-emulator.log.gz": "ac965294e2b7aff220bd795f354ceaad01ac146a58aaa7d2790e79b8f82ffa25",
+    "116-entorno-detenido.json": "9a53cffa52889037f1644865eb9663041dbe7819c8037f2edc79e6c380f21187",
+    "116-entorno.json": "92fd038f7a13506aa61951a3e1caa2f7123b5bea17fde32d04568a32e43cec1d",
+    "116-fechas-antes-jest.json.gz": "9cb6c54f8e249ae8a0245717c6771fe268fc730d49c3e3338f71f79a2039bbc6",
+    "116-fechas-antes-unit-execution.json": "53db8894d908e8b1ad37292b1ac30f988789c8ac2989dc47f651350b8fad93d7",
+    "116-fechas-antes-unit.log.gz": "b25fe42a3505c3b1d4fd7c8a37fa7f4cd13274bdfc13ae03f9faeec60935ff68",
+    "116-fechas-utc-execution.json": "3ea2c4095383d95828467f15d69b9df8ce9193c7106e0ecfdde6a4f97cb32009",
+    "116-fechas-utc.json": "1e675784dd021ff47663c3d372a4298ec2d7123b0558edad71f23cc7dc0b02e3",
+    "116-fechas-utc.log.gz": "b11c0a67286b6100806a6f1c262e2c84f70611d89a389abeb1ab72cb2a921b6d",
+    "116-fechas-uy-execution.json": "618c076e2788c9ed498f3be3c4faa538804bcecd574c70e02b817f361d94a705",
+    "116-fechas-uy.json": "f24f7e5760d7f59521242045feabbe5f8a3e013131d540f4da4d23edf018c458",
+    "116-fechas-uy.log.gz": "d7a6b0dd66885e6d7b1e64181693245c6aeb3d24ddac9c9470f0d347112479bf",
+    "116-fechas-zona.mjs": "6f07c421bf86c8c10db079bd31d3d86e8ba98ee8da58c243e4b7cb325bcf9ea2",
+    "116-flujo-caja-desktop.png": "9ead5e23b8bf22ef10aed4f6c132e6705febb03620edff9c94d1aa9defdc45cc",
+    "116-flujo-caja-mobile.png": "836195f72596a6210c35ed3c0f43c21302e956fc334d80ba1d84e9eb08578d35",
+    "116-harness-incidentes.json": "1fae4a8f96bab8e22d6f481a8fe2c7040ebb4eb9f2d9c18b9537ee6a26b364a7",
+    "116-health.json": "044398080ee456dba7b2f61420e039157988686e388a6cd49504ebfd9dfb0a29",
+    "116-inicial-facturas-native-resultado.json": "0601e8bc43124c054c42c49158939e4110298df88668a6c74c707cc0d2c89005",
+    "116-inicial-facturas-probe-execution.json": "4476cd35bb4a14b53da78dec1e5d051f096159877011272619dec2a0c356d93a",
+    "116-inicial-facturas-probe.log.gz": "35b10558856d90469183af5b0479e8d7c0aedf6f465d9be42a958ae64c166cfa",
+    "116-jest-execution.json": "e062052feec853539ab46e2cc0a0d5dc85910601620890512197c2f5e61ae8d4",
+    "116-jest.json.gz": "5c9e5c40fbb4247a2ebfc3d709e33557775cba070f77834fd325c8151e215293",
+    "116-jest.log.gz": "61461f0f8bdb7f613461ad31d8c245b1f19799558d5cad5d6ed1bfa93e5da762",
+    "116-limpieza-sdk.json": "c1bc8c2db5433654da1cda895d11da1def965570343efff990f2a2dbd7e7d61e",
+    "116-lint-execution.json": "7708ed2f8f3ca36d8f4ad3e2b77f20da8fe02526c515ff33655af27947219bf9",
+    "116-lint.log.gz": "acd0a0643ddf0d0ee2fb90bbf3c3505445069cffd72808d71f01e55aeae85ac2",
+    "116-logo-simulador-desktop.png": "ac05e2a871381a97560d5b389363c1d1991f366a03a4c5e95a1ba3b1796755ca",
+    "116-logo-simulador-mobile.png": "6e1853fe60837257a50af8fe41ac5325857c66dfd567c81838d34e85169492de",
+    "116-native-probe.mjs": "4ecc5f93ba23fa870e3b8eaa5e2feb6c2bef6cf0e3b9418486f9cb79cd45292c",
+    "116-native-resultado.json": "38355190654715055fce5e0bf9543d5087be09ebd72d9588c89cb7c94cedae4c",
+    "116-pre-fechas-build-execution.json": "5582260c91b41c1bd62c89791964e07551fcfcd2d653c227663bba696a27fc4b",
+    "116-pre-fechas-jest-execution.json": "9e3945361b0b47fa82be614b03047a1687323fdf748dc3cf9c956d0ad16b0450",
+    "116-pre-fechas-jest.json.gz": "a286c286f4503c7da6f4f964dbb7fdbf280ffb5e49f874dd0fcc8a541606fcc6",
+    "116-pre-fechas-jest.log.gz": "8ee3f2e331ac956cfa4cc23a06b0b193346f574a0adb5856bd5427716816b9c4",
+    "116-pre-fechas-native-resultado.json": "4fe0a22ff0304c54e24914ba0a63869f9c8b3e6ac3e637671ab6147eaaa9001e",
+    "116-probe-execution.json": "f21a97cb8bb63fd833ededc3733432a0c1ecef0373e5f9c47c86299277099319",
+    "116-probe.log.gz": "d6258ca0f727bf9c9a31c917227524c0923e9c50e5bd472749bdb7abdc63c717",
+    "116-start-execution.json": "0f011c5ac9d86e5b20dd5c6bf638b57dc183ae2b04e616ca8e4bd6f8824a9953",
+    "116-start.log.gz": "e725a03f843668241c400fafe11b8790e72404c34b2dfe051263e57ddf0105d9",
+    "116-types-execution.json": "1cce0da76b2932ef9ed7d28d4090aa258584923ab071b14548752c915f4a2eb3",
+    "116-types.log.gz": "9e72928e7a01615b4cf090daa617b4ca9d68531748f887f323f695eb4ca3ef63",
+    "116-unit-execution.json": "3810ce586d481d2c66a967b42a1d0af4efceb4b29acbefecc076f1cc8ec2563b",
+    "116-unit.log.gz": "5bf999a8103680a4d0291fceb1e44c33d74143fb7c6fcab283324765606da03e",
+    "116-validacion-final.mjs": "fe8f91ba8ac4593bb62287b410e6b07c2ae521b3a2ad779c7d095e8b8489e05a"
+  },
+  "hashTextNormalization": "LF json/mjs; binary unchanged",
+  "notCertified": [
+    "Entire application",
+    "Public Hosting/Linux deployment",
+    "External OAuth and credentials",
+    "Original19 manual budgets",
+    "Physical entertainment equipment",
+    "Atomic global snapshot across all collections",
+    "Remaining24 dependency advisories",
+    "Order152 floating bar/save3D and other155 Storage/export variants"
+  ]
+}

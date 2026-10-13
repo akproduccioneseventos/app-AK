@@ -9,8 +9,7 @@ import { readGenericJsonFile, syncGenericJsonFile, leerGenericJsonParaGuardarEnc
 import { isSafeTopLevelJsonFile } from "./backup/backup-registry";
 import * as logger from "./logger";
 import { sacarMarcas } from "./marca-de-lectura";
-
-const BACKUP_EXCLUDED_FILES = new Set(["_backup-snapshots.json"]);
+import { scheduleAutoBackupAfterWrite } from "./backup/schedule-after-write";
 
 export interface WriteDataOptions {
   skipAutoBackup?: boolean;
@@ -31,40 +30,6 @@ function shouldAllowLocalJsonWrites(): boolean {
     shouldUseLocalJsonOnly() &&
     process.env.AK_ALLOW_LOCAL_JSON_WRITES === "true"
   );
-}
-
-async function scheduleAutoBackupAfterWrite(
-  normalizedFilePath: string,
-  options?: WriteDataOptions,
-): Promise<void> {
-  if (options?.skipAutoBackup || BACKUP_EXCLUDED_FILES.has(normalizedFilePath))
-    return;
-
-  const backupTask = Promise.all([
-    import("@/app/actions/backup"),
-    import("./backup/internal-token"),
-  ])
-    .then(([{ triggerAutoBackup }, { AUTO_BACKUP_INTERNAL_TOKEN }]) =>
-      triggerAutoBackup(AUTO_BACKUP_INTERNAL_TOKEN),
-    )
-    .catch((err) =>
-      logger.warn("[data-service] Auto-backup trigger failed:", err),
-    );
-
-  try {
-    const nextServer = (await import("next/server")) as any;
-    if (typeof nextServer.after === "function") {
-      nextServer.after(backupTask);
-      return;
-    }
-  } catch (error) {
-    logger.warn(
-      "[data-service] Post-response context unavailable for auto-backup:",
-      error,
-    );
-  }
-
-  void backupTask;
 }
 
 async function readLocalJsonFallback<T>(
@@ -201,16 +166,16 @@ export async function readDataConDetalle<T>(
   }
 
   try {
-    const data = await conTopeDeLectura(readFromFirestore(normalizedFilePath, { conMarcas: true }), normalizedFilePath, vence);
+    const data = await conTopeDeLectura(readFromFirestore(normalizedFilePath, { conMarcas: true, propagarErrores: true }), normalizedFilePath, vence);
     if (data !== null && data !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(data))
-        return { valor: defaultValue, huboFalla: false };
+        return { valor: defaultValue, huboFalla: true };
       return { valor: data as T, huboFalla: false };
     }
     const genericData = await conTopeDeLectura(readGenericJsonFile(normalizedFilePath), normalizedFilePath, vence);
     if (genericData !== null && genericData !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(genericData))
-        return { valor: defaultValue, huboFalla: false };
+        return { valor: defaultValue, huboFalla: true };
       return { valor: genericData as T, huboFalla: false };
     }
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
@@ -229,7 +194,7 @@ export async function readDataConDetalle<T>(
       if (genericData !== null && genericData !== undefined) {
         if (Array.isArray(defaultValue) && !Array.isArray(genericData))
           return { valor: defaultValue, huboFalla: true };
-        return { valor: genericData as T, huboFalla: false };
+        return { valor: genericData as T, huboFalla: true };
       }
     } catch {
       // Si el segundo intento tambien se cae, sigue siendo una falla de lectura.

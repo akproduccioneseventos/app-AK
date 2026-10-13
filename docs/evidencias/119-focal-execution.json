@@ -1,0 +1,25 @@
+{
+  "sha": "f1b1447fa01b1d52bb75a3da782bf990f9f85697",
+  "applicationSourceSha": "f1b1447fa01b1d52bb75a3da782bf990f9f85697",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/119-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/configurador-intento-recarga.test.ts",
+    "src/__tests__/configurador-solicitud-atomica.test.ts"
+  ],
+  "launcher": 56184,
+  "child": 55508,
+  "started": "2026-10-13T12:12:12.319Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T12:12:21.007Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

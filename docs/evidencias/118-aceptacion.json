@@ -1,0 +1,70 @@
+{
+  "applicationSourceSha": "662f123d41c59f6e802384322b10049b913fb416",
+  "evidenceHead": "662f123d41c59f6e802384322b10049b913fb416",
+  "outcome": "PASS_ORDER_161_ONLY",
+  "jest": {
+    "suites": 731,
+    "tests": 4564,
+    "failed": 0,
+    "omitted": 0
+  },
+  "buildTypesLint": true,
+  "acentos": true,
+  "native": {
+    "workflowCases": 6,
+    "observations": 2,
+    "realDocumentAfterReload": true,
+    "crmTimelineNotRepeated": true,
+    "newQuotesRemainAvailable": true
+  },
+  "existingFriction152": [
+    {
+      "viewport": "desktop",
+      "hitbox": [
+        {
+          "x": 1021.775,
+          "y": 806,
+          "uncovered": true,
+          "top": "<button class=\"inline-flex items-center justify-center whitespace-nowrap ring-offset-background duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-o"
+        },
+        {
+          "x": 1181.875,
+          "y": 806,
+          "uncovered": false,
+          "top": "<div class=\"fixed z-30 hidden max-w-[250px] rounded-2xl border border-slate-200 bg-white/90 p-2 shadow-lg backdrop-blur print:hidden xl:block\" style=\"bottom: 160px; right: 16px;\"><div class=\"flex items-center gap-2\"><span class=\"cursor-grab touch-none text-sla"
+        },
+        {
+          "x": 1341.975,
+          "y": 806,
+          "uncovered": false,
+          "top": "<div class=\"flex items-center gap-2\"><span class=\"cursor-grab touch-none text-slate-300 hover:text-slate-500 active:cursor-grabbing\" title=\"Arrastrá para mover el asistente\" aria-label=\"Mover el asistente\" role=\"button\"><svg xmlns=\"http://www.w3.org/2000/svg\" "
+        }
+      ],
+      "keyboardFocus": true
+    }
+  ],
+  "cleanup": {
+    "sdkDocuments": 0,
+    "listeners": [],
+    "bytesRestored": true
+  },
+  "graph": {
+    "sourceSha": "662f123d41c59f6e802384322b10049b913fb416",
+    "command": "graphify update .",
+    "nodes": 14499,
+    "edges": 43709,
+    "communities": 915,
+    "llmCalls": 0,
+    "partialAstWarnings": 25,
+    "graphSha256": "c42f2a2052ad9b4547ae8567e41e2f83d5f5508a4d2be549e97e5ca2da7916e6",
+    "localIgnored": true
+  },
+  "privateClaude": "NO_CONTRASTADO",
+  "publishedCertified": false,
+  "allAppCertified": false,
+  "oldFailuresPreserved": [
+    "117-configurador-antes-arreglo.json",
+    "118-focal-prototipo-fallos.json",
+    "117-types-inicial-execution.json"
+  ]
+}

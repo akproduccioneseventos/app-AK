@@ -1,0 +1,54 @@
+{
+  "applicationSourceSha": "a638c8508997fd9b55ed20962d9d4a7284d6cfc3",
+  "evidenceHead": "a638c8508997fd9b55ed20962d9d4a7284d6cfc3",
+  "outcome": "PASS_MANUAL_ACK_ONLY",
+  "jest": {
+    "suites": 731,
+    "tests": 4566,
+    "failed": 0,
+    "omitted": 0
+  },
+  "buildTypesLint": true,
+  "acentos": true,
+  "native": {
+    "cases": 6,
+    "viewports": [
+      "desktop",
+      "Pixel7"
+    ],
+    "lostAckAfterReload": "2->2",
+    "crmTimelineNotRepeated": true,
+    "newQuotesSamePhone": true,
+    "documentVisibleAfterReload": true
+  },
+  "cleanup": {
+    "sdkDocuments": 0,
+    "listeners": [],
+    "bytesRestored": true,
+    "foreignHash": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5"
+  },
+  "graph": {
+    "sourceSha": "a638c8508997fd9b55ed20962d9d4a7284d6cfc3",
+    "command": "graphify update .",
+    "nodes": 14542,
+    "edges": 43760,
+    "communities": 927,
+    "llmCalls": 0,
+    "partialAstWarnings": 25,
+    "graphSha256": "2b73ccb9a217173ae855de1a29900a4a5bc9be5cb1e8c1ed8fb04683e2e0a924",
+    "localIgnored": true
+  },
+  "privateClaude": "NO_CONTRASTADO",
+  "publishedCertified": false,
+  "allAppCertified": false,
+  "notCovered": [
+    "AI tool retries",
+    "coupon real provider",
+    "event linking failure",
+    "Hosting",
+    "OAuth",
+    "19 originals",
+    "hardware"
+  ],
+  "historicalFailure": "119-manual-ack-antes-arreglo.json"
+}

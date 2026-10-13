@@ -55,7 +55,7 @@ export const BACKUP_READINESS_AREAS: BackupReadinessArea[] = [
     id: 'operacion-ak',
     title: 'Operacion AK',
     simpleGoal: 'Empleados, proveedores, insumos, alertas, aprobaciones e incidentes quedan respaldados.',
-    requiredFiles: ['empleados.json', 'proveedores.json', 'insumos.json', 'notifications.json', 'scheduled-messages.json', 'automatizaciones-alertas.json', 'aprobaciones.json', 'incidentes.json', 'audit-logs.json'],
+    requiredFiles: ['empleados.json', 'proveedores.json', 'insumos.json', 'ajustes-costos-insumos.json', 'notifications.json', 'scheduled-messages.json', 'automatizaciones-alertas.json', 'aprobaciones.json', 'incidentes.json', 'audit-logs.json'],
   },
 ];
 

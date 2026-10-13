@@ -1,0 +1,25 @@
+{
+  "sha": "d4c05d081bb0ef0d4b6f41fa3fa5139fe7f5d394",
+  "applicationSourceSha": "d4c05d081bb0ef0d4b6f41fa3fa5139fe7f5d394",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/115-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/google-workspace-dashboard-status.test.tsx",
+    "src/__tests__/control-tower-lecturas-ui.test.tsx"
+  ],
+  "launcher": 43852,
+  "child": 44136,
+  "started": "2026-10-13T04:30:56.518Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-13T04:31:04.378Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

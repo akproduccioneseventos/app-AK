@@ -1,0 +1,14 @@
+{
+  "sha": "5dc197e5c831d8dbd75dec268efa5806eca957d8",
+  "applicationSourceSha": "5dc197e5c831d8dbd75dec268efa5806eca957d8",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/122-chat-presupuestos-probe.mjs"
+  ],
+  "launcher": 44652,
+  "child": 54572,
+  "started": "2026-10-13T16:43:06.948Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T16:44:06.572Z"
+}

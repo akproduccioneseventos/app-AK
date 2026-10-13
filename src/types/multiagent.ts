@@ -64,6 +64,7 @@ export interface AkAgentChatSession {
 
 export interface AkMultiAgentInput {
   message: string;
+  requestId?: string;
   history: AkMultiAgentMessage[];
   pathname?: string;
   fiestaId?: string;

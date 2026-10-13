@@ -1,0 +1,15 @@
+{
+  "sourceSha": "81be9ac00485bc0ece0fb6db07bf7b5f4aa96669",
+  "ids": {
+    "registrarMantenimientoDeEquipo": "60d1fc7d1c0cd726b1d4f0ff53b270f6162d4d7cb0",
+    "adjustAllInsumoCosts": "7fbfcc131a7fb8bd4c8edc7a63c449b8b71a60d4c9",
+    "createIncidente": "7f9d417334e17babfbdf1ce278fdb8c1a62a7b2759",
+    "getGoogleWorkspaceDashboard": "00c21a19219b3114ed2f9927f257a1a06269ec4a3b",
+    "getControlTowerData": "009783d8b62df39ac5832c4744bb9bb04627665465",
+    "getAllFiestasPreparationScores": "000cca623cc0da2023aefa7a29a8f0efd603478dca",
+    "getCommercialFollowups": "0017fcfad3a7cb6b02f28412013b7697e5a2f6daec",
+    "getPostEventOpportunities": "00abbc95106351d9186b620bb367678bba84cab6ab",
+    "getEstadoConexiones": "0051f335e69a311e5dda97534264a9ff35e688867c",
+    "getSocialPosts": "000e797b2efc3330251864f0db3c16dd61c563e8ee"
+  }
+}

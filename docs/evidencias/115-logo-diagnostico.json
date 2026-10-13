@@ -1,0 +1,32 @@
+{
+  "sha": "612c2070898c426fc15fdf2bde16015a187fb6b1ba7032a8ccfd0a3ab8a39582",
+  "length": 9528,
+  "iend": -1,
+  "chunks": [
+    {
+      "type": "IHDR",
+      "len": 13,
+      "crcBad": false
+    },
+    {
+      "type": "gAMA",
+      "len": 4,
+      "crcBad": false
+    },
+    {
+      "type": "cHRM",
+      "len": 32,
+      "crcBad": false
+    },
+    {
+      "type": "pHYs",
+      "len": 9,
+      "crcBad": false
+    },
+    {
+      "type": "IDAT",
+      "declared": 24576,
+      "actual": -127
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "applicationSourceSha": "3a3bc1c673476b75065e8063358c48797c071700",
+  "evidenceHead": "3a3bc1c673476b75065e8063358c48797c071700",
+  "outcome": "PASS_ENCARGADO_TRUTHFUL_RESULTS_ONLY",
+  "jest": {
+    "suites": 732,
+    "tests": 4581,
+    "failed": 0,
+    "omitted": 0
+  },
+  "buildTypesLint": true,
+  "acentos": true,
+  "native": {
+    "cases": 6,
+    "viewports": [
+      "desktop",
+      "Pixel7"
+    ],
+    "realWidgetApiAndFirestore": true,
+    "provider": "LOCAL_PROTOCOL_DOUBLE",
+    "externalModelCertified": false
+  },
+  "cleanup": {
+    "sdkDocuments": 0,
+    "servicesStopped": 2,
+    "bytesRestored": true,
+    "foreignHash": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5"
+  },
+  "graph": {
+    "sourceSha": "3a3bc1c673476b75065e8063358c48797c071700",
+    "command": "graphify update .",
+    "nodes": 14581,
+    "edges": 43812,
+    "communities": 906,
+    "llmCalls": 0,
+    "partialAstWarnings": 25,
+    "graphSha256": "3aaf0552228dcff81c582d47b3619737ff612e51243613be96c8f76404aefea6",
+    "localIgnored": true
+  },
+  "privateClaude": "NO_CONTRASTADO",
+  "allAppCertified": false,
+  "publishedCertified": false,
+  "notCovered": [
+    "financial ACK retry in chat",
+    "other agent roles",
+    "real Gemini API",
+    "microphone and voice provider",
+    "19 original quotes",
+    "Hosting and OAuth",
+    "hardware"
+  ],
+  "oldFailuresPreserved": [
+    "120-antes-arreglo.json",
+    "120-prototipo-prueba-antigua.json",
+    "120-prototipo-lecturas-fallos.json"
+  ]
+}

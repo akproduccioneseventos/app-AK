@@ -1,0 +1,29 @@
+{
+  "sha": "50bd4f6e625e8f9a26c8efbec3d282e137164f1e",
+  "applicationSourceSha": "50bd4f6e625e8f9a26c8efbec3d282e137164f1e",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/116-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/flujo-caja-dia-calendario-uruguay.test.ts",
+    "src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts",
+    "src/__tests__/orden-156-acciones-no-mienten.test.ts",
+    "src/__tests__/el-flujo-de-caja-no-muestra-ceros-falsos.test.ts",
+    "src/__tests__/la-contabilidad-no-miente.test.ts",
+    "src/__tests__/revision-de-plata-quien-toca-que.test.ts"
+  ],
+  "launcher": 44224,
+  "child": 41476,
+  "started": "2026-10-13T06:51:48.852Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T06:51:57.903Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

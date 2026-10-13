@@ -17,6 +17,7 @@ export async function sendMultiAgentMessage(
   message: string,
   history: AkMultiAgentMessage[] = [],
   options?: {
+    requestId?: string;
     pathname?: string;
     fiestaId?: string;
     agentType?: AkAgentType;
@@ -40,6 +41,7 @@ export async function sendMultiAgentMessage(
       const { ejecutarEncargado } = await import('@/lib/multiagent/encargado');
       return await ejecutarEncargado({
         message,
+        requestId: options?.requestId,
         history,
         pathname: options?.pathname,
         fiestaId: options?.fiestaId,
@@ -83,6 +85,7 @@ function buildConversationLearning(input: {
 
 export async function sendPersistentMultiAgentMessage(input: {
   message: string;
+  requestId?: string;
   history?: AkMultiAgentMessage[];
   pathname?: string;
   fiestaId?: string;
@@ -105,6 +108,7 @@ export async function sendPersistentMultiAgentMessage(input: {
   }
 
   const result = await sendMultiAgentMessage(input.message, input.history ?? [], {
+    requestId: input.requestId,
     pathname: input.pathname,
     fiestaId: input.fiestaId,
     agentType: input.agentType,

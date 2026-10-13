@@ -1,0 +1,17 @@
+{
+  "sha": "f1b1447fa01b1d52bb75a3da782bf990f9f85697",
+  "applicationSourceSha": "f1b1447fa01b1d52bb75a3da782bf990f9f85697",
+  "mode": "types",
+  "args": [
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "launcher": 52588,
+  "child": 46636,
+  "started": "2026-10-13T12:12:22.086Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T12:12:58.363Z"
+}
