@@ -96,19 +96,19 @@ function InventarioInsumosContent() {
     ajusteRestauradoRef.current = true;
     const key = 'ak:ajuste-insumos-pendiente';
     try {
-      const raw = window.sessionStorage.getItem(key);
+      const raw = window.localStorage.getItem(key);
       if (!raw) return;
       const saved = JSON.parse(raw);
       if (typeof saved?.operationId !== 'string' || !saved.operationId || typeof saved.percentage !== 'number' || !Number.isFinite(saved.percentage)) {
-        window.sessionStorage.removeItem(key);
+        window.localStorage.removeItem(key);
         return;
       }
       ajusteInciertoRef.current = saved;
       setCostAdjustmentPercentage(saved.percentage);
     } catch {
       try {
-        const raw = window.sessionStorage.getItem(key);
-        if (raw) window.sessionStorage.removeItem(key);
+        const raw = window.localStorage.getItem(key);
+        if (raw) window.localStorage.removeItem(key);
         ajusteRestauradoRef.current = true;
       } catch {
         ajusteRestauradoRef.current = false;
@@ -159,7 +159,7 @@ function InventarioInsumosContent() {
       const operationId = incierto?.operationId ?? crypto.randomUUID();
       if (!incierto) {
         try {
-          window.sessionStorage.setItem('ak:ajuste-insumos-pendiente', JSON.stringify({ operationId, percentage }));
+          window.localStorage.setItem('ak:ajuste-insumos-pendiente', JSON.stringify({ operationId, percentage }));
         } catch {
           toast({ title: 'No se pudo guardar el reintento', description: 'El almacenamiento de esta pestaña no está disponible. No se envió el ajuste; habilitalo e intentá de nuevo.', variant: 'destructive' });
           return;
@@ -169,13 +169,13 @@ function InventarioInsumosContent() {
       const result = await adjustAllInsumoCosts(percentage, operationId);
       if (result.success) {
         ajusteInciertoRef.current = null;
-        try { window.sessionStorage.removeItem('ak:ajuste-insumos-pendiente'); } catch { /* Storage unavailable. */ }
+        try { window.localStorage.removeItem('ak:ajuste-insumos-pendiente'); } catch { /* Storage unavailable. */ }
         toast({ title: "Costos de Insumos Ajustados", description: `Todos los costos de insumos fueron ajustados en un ${percentage}%.` });
         await fetchItems(); // Refresh data
       } else {
         if ((result as typeof result & { sinCambios?: boolean }).sinCambios === true && ajusteInciertoRef.current?.operationId === operationId) {
           ajusteInciertoRef.current = null;
-          try { window.sessionStorage.removeItem('ak:ajuste-insumos-pendiente'); } catch { /* Storage unavailable. */ }
+          try { window.localStorage.removeItem('ak:ajuste-insumos-pendiente'); } catch { /* Storage unavailable. */ }
         }
         throw new Error(result.error);
       }

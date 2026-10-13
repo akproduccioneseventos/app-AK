@@ -29,5 +29,6 @@ Evidencias112/113 originales intactas como reproduccion del fallo.
 Ajuste seguro aborta sin cambios con mas de498 insumos, costos invalidos o fuera
 de precision segura; no divide silenciosamente la operacion.
 Operacion en curso requiere reintento de su iniciador con identidad conservada.
-Se conserva ante recarga de la misma pestaña; cerrar pestaña elimina sessionStorage.
+Mantenimiento conserva identidad ante recarga de la misma pestaña; cerrarla elimina
+sessionStorage. Ajustes de costos usan localStorage: cerrar y reabrir no pierde su ID.
 No certificar toda app, Hosting, servicios OAuth ni equipos fisicos.

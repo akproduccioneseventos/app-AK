@@ -38,7 +38,7 @@ if (mode === 'start' || mode === 'emulator') {
 const probe = process.argv[3];
 if (mode === 'probe' && !/^docs\/evidencias\/114-[a-z0-9-]+\.mjs$/.test(probe || '')) throw new Error('Owned evidence probe required');
 if (mode === 'probe') {
-  const wanted = new Map([['registrarMantenimientoDeEquipo', new Set()], ['adjustAllInsumoCosts', new Set()]]);
+  const wanted = new Map([['registrarMantenimientoDeEquipo', new Set()], ['adjustAllInsumoCosts', new Set()], ['createIncidente', new Set()]]);
   function scan(dir) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const file = dir + '/' + entry.name;
@@ -60,6 +60,7 @@ if (mode === 'probe') {
   }
   env.QA_MAINTENANCE_ACTION = ids.registrarMantenimientoDeEquipo;
   env.QA_COST_ACTION = ids.adjustAllInsumoCosts;
+  env.QA_INCIDENT_ACTION = ids.createIncidente;
   fs.writeFileSync('docs/evidencias/114-action-ids.json', JSON.stringify({ sourceSha: env.COMMIT_SHA, ids }, null, 2));
 }
 const config = `firebase.114-${process.pid}.generated.json`;
@@ -73,8 +74,12 @@ const args = mode === 'types' ? ['node_modules/typescript/bin/tsc', '--noEmit', 
   : mode === 'probe' ? [probe]
   : ['node_modules/jest/bin/jest', '--runInBand', '--silent', '--json', '--outputFile=docs/evidencias/114-jest.json', ...(mode === 'unit' ? ['--runTestsByPath', ...process.argv.slice(3)] : [])];
 if (mode === 'build') env.npm_lifecycle_event = 'build';
+process.env.AK_ENTORNO_AISLADO = 'true';
 const restore = ['build', 'jest', 'unit'].includes(mode) ? fixtureGuard() : null;
-const child = spawn(process.execPath, args, { env, stdio: ['ignore', 'pipe', 'pipe'] });
+const unitEnv = Object.fromEntries(keys.filter(k => process.env[k] !== undefined).map(k => [k, process.env[k]]));
+Object.assign(unitEnv, { NODE_ENV: 'test', NODE_OPTIONS: '--max-old-space-size=4096', GOOGLE_APPLICATION_CREDENTIALS: process.cwd() + '/qa114-no-real-credentials.json' });
+if (fs.existsSync(unitEnv.GOOGLE_APPLICATION_CREDENTIALS)) throw new Error('QA credentials sentinel must not exist');
+const child = spawn(process.execPath, args, { env: ['unit', 'jest'].includes(mode) ? unitEnv : env, stdio: ['ignore', 'pipe', 'pipe'] });
 const log = fs.createWriteStream(`docs/evidencias/114-${mode}.log`);
 const file = `docs/evidencias/114-${mode}-execution.json`;
 const record = { sha, applicationSourceSha: env.COMMIT_SHA, mode, args, launcher: process.pid, child: child.pid, started: new Date().toISOString(), status: 'running' };
