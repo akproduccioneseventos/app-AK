@@ -1,0 +1,27 @@
+{
+  "sha": "06c64eb5c51eeb7bf81575fe219edad0dafbc5c7",
+  "applicationSourceSha": "06c64eb5c51eeb7bf81575fe219edad0dafbc5c7",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/117-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/configurador-solicitud-atomica.test.ts",
+    "src/__tests__/configurador-intento-recarga.test.ts",
+    "src/__tests__/auditoria-71-presupuesto-nuevo-sin-plata.test.ts",
+    "src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts"
+  ],
+  "launcher": 42264,
+  "child": 48228,
+  "started": "2026-10-13T11:13:15.248Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-13T11:13:26.138Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

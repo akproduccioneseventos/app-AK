@@ -402,7 +402,7 @@ export async function savePresupuesto(
   // Notificación de negocio: nuevo presupuesto creado
   createNotification({
     titulo: 'Nuevo Presupuesto',
-    mensaje: `Nuevo presupuesto #${nuevoNumero} creado para ${nuevoPresupuesto.clienteNombre}.`,
+    mensaje: `Nuevo presupuesto #${nuevoPresupuesto.numero || nuevoNumero} creado para ${nuevoPresupuesto.clienteNombre}.`,
     href: `/presupuestos/${presupuestoId}/ver`,
     icono: 'ListChecks',
     tipo: 'info',
@@ -435,7 +435,9 @@ export async function savePresupuesto(
     link: `/presupuestos/${presupuestoId}/ver`,
   }).catch(err => console.warn('Error firing presupuesto_generado automation:', err));
 
-  return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId, avisoCrm };
+  return { success: true, id: presupuestoId,
+    presupuesto: solicitud && !puede(auth.user, PERMISOS.CONTABILIDAD) ? sinCobros(nuevoPresupuesto) : nuevoPresupuesto,
+    leadId: nuevoPresupuesto.leadId, avisoCrm };
   });
 }
 

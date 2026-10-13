@@ -138,3 +138,20 @@ it('fallo de CRM mantiene presupuesto y aviso, sin crear un segundo prospecto en
   expect(a.success).toBe(true); expect(a.avisoCrm).toBeTruthy(); expect(b.id).toBe(a.id); expect(b.avisoCrm).toBeTruthy();
   expect(findLeadByBudgetOrCreate).toHaveBeenCalledTimes(1);
 });
+it('respuesta del primer guardado tampoco expone un cobro agregado durante la confirmacion CRM', async () => {
+  mockPerfil='operador';
+  jest.mocked(findLeadByBudgetOrCreate).mockImplementationOnce(async () => {
+    const key=[...mockRecords.keys()].find(k=>k.startsWith('presupuestos/'))!;
+    mockRecords.get(key).pagosCliente=[{id:'p-concurrente',monto:80}];
+    return {lead:{id:'lead1'}} as any;
+  });
+  const result=await savePresupuesto(input,{operationId:randomUUID()});
+  expect(result.success).toBe(true); expect(result.presupuesto?.pagosCliente??[]).toEqual([]);
+  expect(mockRecords.get('presupuestos/'+result.id).pagosCliente).toEqual([{id:'p-concurrente',monto:80}]);
+});
+it('notificacion usa numero confirmado por transaccion, no maximo leido antes', async () => {
+  mockRecords.set('commercial_counters/presupuestos',{lastNumber:99});
+  const result=await savePresupuesto(input,{operationId:randomUUID()});
+  expect(result.presupuesto?.numero).toBe(100);
+  expect(createNotification).toHaveBeenCalledWith(expect.objectContaining({mensaje:expect.stringContaining('#100')}));
+});

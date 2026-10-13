@@ -1,4 +1,4 @@
-# Estado actual - 13/10/2026 (Codex117: defecto nuevo; PR1293 ABIERTA)
+# Estado actual - 13/10/2026 (Codex118 validando161; PR1293 ABIERTA)
 
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
@@ -21,10 +21,10 @@ Fuente app1656ac2e; head de entrega se comprueba en GitHub antes de subir.
 -Candidato C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103.
 -Codex autorizado a corregir directo; principal conserva dinero/datos/seguridad.
 -No tocar datos ajenos, forzar push ni abrir corrida si la anterior sigue activa.
--Servicios propios apagados; SDK demo0, bytes ajenos intactos. Agentes cerrados.
+-118 activa: comprobar117-*-execution y procesos antes de otra corrida.
 -PR1293 creada sin fusionar; continuar en ella SOLO si sigue ABIERTA.
--P1 orden161: respuesta perdida al guardar configurador duplica; PC/movil2->3.
--117 contraste: reintento antes de envio pasa; ACK perdido falla. NO corregido.
+-161 implementada, aun sin retest compilado:28focalizadas PASS. NO cerrada.
+-Prototipo06c detecto2fallos nuevos, corregidos; fuente final y amplia pendientes.
 -155 firmador/exports ya corregidos:51unidades116 PASS; proveedor real no probado.
 -Restan161/152/deps/cobertura109;19originales/OAuth/Hosting/hardware no certificados.
 

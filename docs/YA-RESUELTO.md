@@ -8,8 +8,12 @@
  crea documento y numero en transaccion Firestore, ligada al actor y carga;
  retry devuelve mismo ID sin repetir CRM, mensaje ni sobrescribir cobros.
 -Seguimiento CRM pendiente se avisa; confirmar solo actualiza su vinculo.
- Permisos e importes se mantienen.26focalizadas PASS; fuente por congelar y
- build/validacion amplia/navegador aun pendientes. No declarar161 cerrada.
+ Permisos e importes se mantienen.26focalizadas iniciales PASS; dos regresiones
+ nuevas detectaron fallos del prototipo06c: respuesta inicial al operador podia
+ incluir un cobro concurrente, y notificacion usaba numero anterior a transaccion.
+ Corregidos sin bajar criterios;118-focal-prototipo-fallos conserva2FAIL.
+ Build06c compilaba, pero NO acredita fuente final ni cierre161. Se valida
+ nuevamente SOLO porque esas dos correcciones cambian app; no por rutina.
 
 ## 13/10/2026 - Codex117: configurador probado; defecto ACK nuevo, NO corregido
 
