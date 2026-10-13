@@ -1,4 +1,4 @@
-# Estado actual - 13/10/2026 (Codex119 comprobada; PR1293 ABIERTA)
+# Estado actual - 13/10/2026 (Codex120 Encargado en validacion; PR1293 ABIERTA)
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
 Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
@@ -26,12 +26,12 @@ Fuente final a638c850; head de entrega comprobar en GitHub antes de subir.
 -119 fuente a638:731suites4566tests/build tipos lint/acentos2852/6nativos PASS.
 -Manual ACK+recarga2->2; CRMsinrepetir; otra cotizacion3, mismos datos permitidos.
 -119 SDK0/servicios/agente cerrados/bytes restaurados; gate PASS_MANUAL_ACK_ONLY.
--AI sigue riesgo118-consumidores NO ejecutado; no confundir con manual confirmado.
+-120 Encargado: errores falsamente exitosos/vacios reproducidos;23unidades PASS.
+-120 falta congelar/build/broad/nativo; ACK financiero IA sigue NO certificado.
 -Restan152/deps/109;19originales/OAuth/Hosting/hardware no certificados.
 ## Esperando decisión del dueño
 - Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
 - Votos: tope de 30 por minuto por red y encuesta; en el wifi del salón puede frenar invitados.
-
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos: uno agregado a la vez desde otra pantalla puede perderse.

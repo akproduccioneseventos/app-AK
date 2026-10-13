@@ -270,6 +270,9 @@ export async function confirmAndSaveAssistantBudget(presupuesto: Presupuesto): P
       ...presupuesto,
       estado: 'Borrador',
     });
+    if (!saved.success || !saved.id) {
+      return { success: false, error: saved.error || 'El servidor no confirmo el presupuesto guardado.' };
+    }
 
     return {
       success: true,

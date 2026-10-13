@@ -1,5 +1,23 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex120 en curso: Encargado confirma lo que realmente hizo
+
+-Referencias118 a sendAssistantMessage/executeCrearPresupuesto pertenecen al
+ flujo antiguo sin consumidor UI encontrado en468. No marcarlas como fallos
+ del chat actual. El helper confirmAndSaveAssistantBudget SI esta usado por
+ encargado -> sendMultiAgentMessage -> API/widget actual. Alias ingles del
+ inventario no es simbolo real; no emitir una ruta inventada para programarlo.
+-Inyeccion aislada con funciones reales y proveedores/backend doblados:5fallos
+ de7asserts antes del parche (120-antes-arreglo); tres lecturas fallidas adicionales
+ se ocultaban como listas vacias (prototipo conservado). No son pruebas externas.
+-Parche: guardado requiere success+ID; Encargado se detiene ante fallo, no acepta
+ resumen/pensamiento del modelo como pasos ejecutados, no guarda borrador sin
+ items; lecturas lanzadas conservan error. TextoWhatsApp no afirma bandeja/envio.
+ Consultas mantienen nombres reales y explicitan el limite existente de3.
+-23unidades focalizadas PASS antes de congelar. Falta build/broad/nativo; NO listo.
+ No se certifica ACK financiero del chat, modelo real, voz ni todaapp.
+ PrivadoClaude NO CONTRASTADO CON LA TANDA. PR1293 aun ABIERTA.
+
 ## 13/10/2026 - Codex119 comprobada: manual ya no duplica tras perder ACK
 
 -Fuente a638c850. Repro anterior662: un guardado confirmado por SDK, respuesta
