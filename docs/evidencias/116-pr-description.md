@@ -1,5 +1,18 @@
 ## Descripcion del Cambio
 
+ACTUALIZACION121/orden162: ACK financiero del chat CORREGIDO/PROBADO en87b74b7d.
+734suites4600tests0fallos/omitidos, build tipos/lint y acentos2860 PASS.
+16nativos PC/Pixel7 widget/API/SDK demo con proveedor DOBLE LOCAL: corte antes
+de envio0/retry1; ACK2/retry2 tras recarga con mismos IDs/numeros/importes/CRM;
+otra cotizacion identica3; dos primeras confirmaciones simultaneas agregan solo
+cuarta, no quinta. Documento /ver persistente; nonce invalido400 sin escritura.
+UUIDpor intento/ordinal/actor, no deduplicacion por telefono. Mensaje incierto
+ya no afirma que no hizo nada. Baseline3a1->2 conservado. Gate121 scopeACKsolo.
+SDK0/2servicios/agente cerrados/bytes ajenos restaurados; grafo14621/43864/931.
+No otras acciones idempotentes/modelo externo/voz/todaapp0errores certificados.
+NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE. No fusionar automaticamente.
+La evidencia120/119/118/116 siguiente es historica; fuente finalapp87.
+
 ACTUALIZACION120: Encargado CORREGIDO/PROBADO en3a3bc1c6.
 732suites4581tests0fallos/omitidos PASS; build tipos/lint y acentos2854 PASS.
 6nativos PC/Pixel7 widget/API/SDK real demo con proveedor DOBLE LOCAL: fallo
