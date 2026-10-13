@@ -1,20 +1,23 @@
-# Estado actual - 13/10/2026 (Claude)
+# Estado actual - 13/10/2026 (Claude, noche)
 
-Rama `claude/app-debug-stabilize-m70e6z`, igual a main (655de9fe6, PR 1291 fusionada).
-Puerta `publicar?` completa en verde (todas las pruebas de navegador) sobre bc71c72d5.
+Rama `claude/app-debug-stabilize-m70e6z`. main = 655de9fe6 (PR 1291 publicada).
+Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con la puerta en verde.
 
-## Qué entró en la 1291
-- PR 1288 de Codex (React 19, Next 15.5) y las órdenes 151 a 159.
-- Barrido de permisos (personal y operador fuera de plata), barrido de plata (doble toque,
-  dos personas a la vez, saldos con ajuste), barrido de errores viejos (hora de Uruguay,
-  guardados de la fiesta con turno, enlaces que perdían la fiesta, "copiado" sin esperar).
-- Preguntas 49-57 de COMO-AUDITAR y 41-45 de ANTES-DE-ENTREGAR.
-- Alertas: los textos del aviso al cliente viven en `textos-avisos-al-cliente.ts` (el otro
-  archivo arrastra código de servidor y rompía la compilación).
-- La prueba de navegador del mantenimiento ahora mira lo que manda la pantalla (error 37).
+## Qué trae esta tanda
+- Mantenimiento (159) y ajuste de costos (160): versión de Codex, con recibo por operación.
+  El redondeo quedó en centavos (Codex lo había vuelto a pesos enteros: error del insumo de $6).
+- Incidentes (157) y títulos largos (158): versión de Codex.
+- Documentos de plata (155): quedó la nuestra; es equivalente a la de Codex y usa sus pruebas.
+- Pruebas viejas del mantenimiento que miraban la forma del código: se sacaron; el
+  comportamiento lo miran la prueba de navegador y la de Codex.
+
+## Codex trabaja directo (autorización del dueño, 13/10)
+- Codex corrige con agentes y sube a la PR 1288; Claude junta, revisa plata y publica.
+- Su lote 115 (pantallas de control, conexiones, respaldo de ajustes, plantillas, Google)
+  estaba en su máquina sin subir: cuando aparezca en la PR 1288, se junta igual.
 
 ## Esperando decisión del dueño
-- Misiones de fotos y trivia: están a medias y prometen puntos. ¿Terminarlas o sacar la promesa?
+- Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
 - Votos: tope de 30 por minuto por red y encuesta; en el wifi del salón puede frenar invitados.
 
 ## Límites aceptados
