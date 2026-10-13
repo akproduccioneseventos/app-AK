@@ -24,7 +24,7 @@ Object.assign(env, {
 });
 if(mode==='start') env.NODE_OPTIONS+=' --import '+new URL('./121-proveedor-doble.mjs',import.meta.url).href;
 if (['start', 'emulator', 'probe'].includes(mode)) {
-  const build = JSON.parse(fs.readFileSync('docs/evidencias/120-build-execution.json'));
+  const build = JSON.parse(fs.readFileSync('docs/evidencias/121-build-execution.json'));
   const changed = execFileSync('git', ['diff', '--name-only', build.sha, 'HEAD'], { encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean);
   const dirty = execFileSync('git', ['diff', '--name-only', 'HEAD'], { encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean);
   const auxiliar = f => /^(docs\/|tests\/|src\/__tests__\/|graphify-out\/|ESTADO-ACTUAL\.md$)/.test(f);

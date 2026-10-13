@@ -16,6 +16,7 @@ import {
   crearRecordatorioDesdeMultiagente,
 } from '@/app/actions/multiagent';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { clavePresupuestoChat } from '@/lib/multiagent/intento-presupuesto';
 
 export const MAX_ESPECIALISTAS_POR_PEDIDO = 3;
 export const MAX_VUELTAS_POR_PEDIDO = 5;
@@ -70,7 +71,7 @@ export function seleccionarEspecialistas(mensaje: string, pathname?: string, fie
 async function ejecutarHerramienta(
   nombre: string,
   args: Record<string, any>,
-  contexto: { fiestaId?: string; pathname?: string }
+  contexto: { fiestaId?: string; pathname?: string; requestId?: string; presupuestoOrdinal?: number }
 ): Promise<{ exito: boolean; resultado: any; comprobacion?: string; error?: string }> {
   try {
     switch (nombre) {
@@ -111,6 +112,7 @@ async function ejecutarHerramienta(
       }
 
       case 'armar_presupuesto': {
+        const operationId = clavePresupuestoChat(contexto.requestId, contexto.presupuestoOrdinal || 1);
         const prop = await prepareAssistantBudgetProposal({
           clientName: args.nombreCliente,
           phone: args.telefono,
@@ -126,7 +128,7 @@ async function ejecutarHerramienta(
           return { exito: false, resultado: null, error: 'No encontre servicios del catalogo para calcular ese presupuesto. Indica que servicios queres incluir.' };
         }
 
-        const guardado = await confirmAndSaveAssistantBudget(prop.presupuesto as any);
+        const guardado = await confirmAndSaveAssistantBudget(prop.presupuesto as any, operationId);
         if (!guardado.success) return { exito: false, resultado: null, error: guardado.error || 'El presupuesto no quedo confirmado.' };
         // Comprobación leyendo presupuestos reales
         const presupuestos = await getPresupuestos().catch(() => []);
@@ -342,6 +344,7 @@ Instrucciones:
   let respuestaFinal = '';
   let preguntaAlDueno: string | undefined;
   let fallo = false;
+  let presupuestoOrdinal = 0;
 
   const HERRAMIENTAS_DOC = `
 Herramientas disponibles:
@@ -416,6 +419,8 @@ Decidí el SIGUIENTE paso. Respondé ÚNICAMENTE en este formato JSON exacto:
       const ejecucion = await ejecutarHerramienta(decision.accion, decision.argumentos || {}, {
         fiestaId: input.fiestaId,
         pathname: input.pathname,
+        requestId: input.requestId,
+        presupuestoOrdinal: decision.accion === 'armar_presupuesto' ? ++presupuestoOrdinal : undefined,
       });
       if (!ejecucion.exito) {
         fallo = true;

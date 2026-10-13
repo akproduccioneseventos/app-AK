@@ -34,9 +34,11 @@ import type { AkAgentType, AkMultiAgentMessage, AkPersistentMultiAgentOutput } f
 import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
 import { type EstadoVozEnVivo } from '@/lib/asistente/sesion-voz-en-vivo';
 import { crearControlVozEnVivo, type ControlVozEnVivo } from '@/lib/asistente/control-voz-en-vivo';
+import { obtenerIntentoChat, terminarIntentoChat } from '@/lib/budget/intento-configurador';
 
 async function sendPersistentMultiAgentMessage(input: {
   message: string;
+  requestId: string;
   history: AkMultiAgentMessage[];
   pathname?: string;
   fiestaId?: string;
@@ -283,6 +285,7 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
   const isSpeakingRef = useRef(isSpeaking);
   const startListeningRef = useRef<() => void>(() => {});
   const handleSendRef = useRef<(override?: string) => Promise<void>>(async () => {});
+  const sendBusyRef = useRef(false);
   const accumulatedSpeechRef = useRef('');
 
   useEffect(() => {
@@ -628,7 +631,8 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
 
   async function handleSend(override?: string) {
     const text = (override ?? input).trim();
-    if (!text || isSending) return;
+    if (!text || isSending || sendBusyRef.current) return;
+    sendBusyRef.current = true;
 
     stopListening();
     accumulatedSpeechRef.current = '';
@@ -652,14 +656,18 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
     setIsSending(true);
 
     try {
+      const requestId = await obtenerIntentoChat({ message: text, pathname, fiestaId, agentType: activeAgent }, currentSessionKey);
       const result = await sendPersistentMultiAgentMessage({
         message: text,
+        requestId,
         history: historyForServer,
         pathname,
         fiestaId,
         agentType: activeAgent,
         sessionId: sessionIds[currentSessionKey],
       });
+
+      if (result.success) terminarIntentoChat(currentSessionKey);
 
       if (result.sessionId) {
         setSessionIds(prev => ({ ...prev, [currentSessionKey]: result.sessionId! }));
@@ -706,7 +714,8 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         },
       ]);
     } catch {
-      const errorResponse = 'No pude responder ahora. No marqué nada como hecho.';
+      const errorResponse = 'No llego la confirmacion. El pedido puede haberse guardado. Si era un presupuesto, reenvia el mismo mensaje para comprobarlo; para otras acciones, revisa su estado antes de repetir.';
+      setInput(text);
       speakText(errorResponse, () => {
         if (isHandsFreeRef.current) {
           startListeningRef.current();
@@ -725,6 +734,7 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         },
       ]);
     } finally {
+      sendBusyRef.current = false;
       setIsSending(false);
     }
   }

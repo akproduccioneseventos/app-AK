@@ -1,8 +1,8 @@
-# Estado actual - 13/10/2026 (Codex121 ACK chat reproducido; PR1293 ABIERTA)
+# Estado actual - 13/10/2026 (Codex121 parche congelando, aceptacion pendiente)
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
 Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
-Fuente final3a3bc1c6; head de entrega comprobar en GitHub antes de subir.
+Fuente nueva congelar/verificar SHA;3a solo baseline, no valida parche121.
 ## Delta116; mantener lo ya integrado por Claude
 -Libro de costos en backup/mapa, IDs legacy, restore sin recibos posteriores.
 -Backup interno despues de ajuste; fallo de lectura/ZIP incompleto no se certifica.
@@ -26,8 +26,8 @@ Fuente final3a3bc1c6; head de entrega comprobar en GitHub antes de subir.
 -119 SDK0/servicios/agente cerrados/bytes restaurados; gate PASS_MANUAL_ACK_ONLY.
 -120 fuente3a:732suites4581tests/build tipos lint/acentos2854/6nativos PASS.
 -Encargado confirma resultados reales; modelo DOBLE LOCAL, no Gemini certificado.
--121 fuente3a: ACK chat PC/Pixel71->2 al repetir HTTPidentico; esperado1, sin arreglo.
--121 UI dice no hizo nada tras guardar; SDK0/servicios/agente cerrados/bytes intactos.
+-121 UUIDpendiente por contexto/ordinal al guardado atomico+actor;55 focales/tiposPASS.
+-121 error honesto; resta build/amplia/nativos nuevoSHA; baseline3a1->2 conservado.
 -Restan152/deps/109;19originales/OAuth/Hosting/hardware no certificados.
 ## Esperando decisión del dueño
 - Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
@@ -36,5 +36,5 @@ Fuente final3a3bc1c6; head de entrega comprobar en GitHub antes de subir.
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos simultaneos desde otra pantalla pueden perderse; limite previo aceptado.
 -152: PC cubre2/3puntosGuardar; teclado/superior disponibles. Movil3/3libres.
--161/manual cerrados; siguiente162 CORREGIR121, sin deduplicar telefono/nombre/fecha.
+-161/manual cerrados; siguiente ACEPTAR162/121, sin deduplicar telefono/nombre/fecha.
 -No declarar0errores ni toda la app lista.

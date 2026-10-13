@@ -260,7 +260,7 @@ export async function prepareAssistantBudgetProposal(input: AssistantParsedBudge
 /**
  * Guarda el borrador del presupuesto tras confirmación explícita.
  */
-export async function confirmAndSaveAssistantBudget(presupuesto: Presupuesto): Promise<{
+export async function confirmAndSaveAssistantBudget(presupuesto: Presupuesto, operationId?: string): Promise<{
   success: boolean;
   presupuestoId?: string;
   error?: string;
@@ -269,7 +269,7 @@ export async function confirmAndSaveAssistantBudget(presupuesto: Presupuesto): P
     const saved = await savePresupuesto({
       ...presupuesto,
       estado: 'Borrador',
-    });
+    }, operationId ? { operationId } : undefined);
     if (!saved.success || !saved.id) {
       return { success: false, error: saved.error || 'El servidor no confirmo el presupuesto guardado.' };
     }

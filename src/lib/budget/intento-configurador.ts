@@ -31,3 +31,11 @@ export function obtenerIntentoPresupuestoManual(carga: Record<string, unknown>):
 export function terminarIntentoPresupuestoManual(): void {
   sessionStorage.removeItem(MANUAL_STORAGE_KEY);
 }
+
+export function obtenerIntentoChat(carga: Record<string, unknown>, scope: string): Promise<string> {
+  return obtenerIntento(carga, `ak-multiagent-solicitud-v1:${scope}`);
+}
+
+export function terminarIntentoChat(scope: string): void {
+  sessionStorage.removeItem(`ak-multiagent-solicitud-v1:${scope}`);
+}

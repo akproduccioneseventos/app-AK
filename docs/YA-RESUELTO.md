@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex121/orden162: parche escrito, aceptacion final PENDIENTE
+
+-El widget prepara UUID+huella antes del POST, conserva el intento incierto en
+ sessionStorage por contexto sin datos personales; busyRef frena doble envio.
+ RequestId pasa por API/actions/Encargado; cada presupuesto usa clave derivada
+ por ordinal y el guardado atomico existente ligado al actor verificado. Sin
+ identidad no se guarda desde Encargado. Otra cotizacion confirmada usa otra
+ clave incluso con mismos datos. No se cambiaron formulas/precios/permisos.
+-Error de transporte reconoce incertidumbre y conserva texto; no asegura que
+ no se hizo nada. Otras acciones requieren revisar estado antes de repetir.
+-55 pruebas focalizadas PASS (49 principal+6 cliente), tipos PASS. Faltan build,
+ matriz amplia y navegador sobre nuevo SHA; no marcar arreglado por estos tests.
+ Fuente anterior3a/baseline121 se conserva; no acredita este parche nuevo.
+
 ## 13/10/2026 - Codex121: ACK del chat reproducido, TODAVIA NO CORREGIDO
 
 -Fuente compilada3a3bc1c6, cabeza76d09612, main4c5ef2f9, PR1293 ABIERTA.

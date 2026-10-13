@@ -17,7 +17,7 @@ jest.mock('@/app/actions/multiagent',()=>({crearTareaDesdeMultiagente:jest.fn(),
 const model=generateWithGeminiFallback as jest.Mock, save=savePresupuesto as jest.Mock;
 const budget={id:'qa120-budget',clienteNombre:'QA120',itemsPresupuestados:[],estado:'Borrador'} as unknown as Presupuesto;
 const decision=(accion:string,argumentos:Record<string,unknown>,pensamiento?:string)=>({text:JSON.stringify({accion,argumentos,pensamiento})});
-const input={message:'Armá un presupuesto para QA120',history:[]};
+const input={message:'Armá un presupuesto para QA120',history:[],requestId:'01234567-89ab-4cde-8f01-23456789abcd'};
 beforeEach(()=>{jest.clearAllMocks(); model.mockReset();save.mockReset();(getPresupuestos as jest.Mock).mockResolvedValue([]);(getCrmLeads as jest.Mock).mockResolvedValue([]);(getFiestas as jest.Mock).mockResolvedValue([]);});
 
 it('confirmacion propaga fracaso del guardado sin inventar ID ni exito',async()=>{
@@ -103,4 +103,31 @@ it('fallo del modelo tras un guardado conserva la confirmacion pero no dice todo
   model.mockResolvedValueOnce(decision('armar_presupuesto',{nombreCliente:'QA120',servicios:['DJ QA120']})).mockRejectedValueOnce(new Error('Modelo QA120 fallo despues'));
   const result=await ejecutarEncargado(input);
   expect(result.success).toBe(false);expect(result.response).toContain('No pude completar la coordinacion');expect(result.response).toContain('presupuesto guardado');expect(save).toHaveBeenCalledTimes(1);
+});
+
+it('identidad del pedido llega al guardado atomico y otra cotizacion tiene otra clave',async()=>{
+  save.mockResolvedValue({success:true,id:'qa121-budget'});
+  const run=async(requestId:string)=>{
+    model.mockResolvedValueOnce(decision('armar_presupuesto',{nombreCliente:'QA120',servicios:['DJ QA120']}));
+    model.mockResolvedValueOnce(decision('terminar',{resumen:'Fin'}));
+    expect((await ejecutarEncargado({...input,requestId})).success).toBe(true);
+  };
+  await run(input.requestId);await run(input.requestId);
+  const first=save.mock.calls[0][1].operationId;
+  expect(save.mock.calls[1][1].operationId).toBe(first);
+  await run('01234567-89ab-4cde-8f01-23456789abce');
+  expect(save.mock.calls[2][1].operationId).not.toBe(first);
+});
+it('sin identidad estable no guarda un presupuesto del chat',async()=>{
+  model.mockResolvedValueOnce(decision('armar_presupuesto',{nombreCliente:'QA120',servicios:['DJ QA120']}));
+  const result=await ejecutarEncargado({...input,requestId:undefined});
+  expect(result.success).toBe(false);expect(result.response).toContain('identificar');expect(save).not.toHaveBeenCalled();
+});
+it('dos presupuestos dentro de un pedido conservan identidades separadas',async()=>{
+  save.mockResolvedValue({success:true,id:'qa121-budget'});
+  model.mockResolvedValueOnce(decision('armar_presupuesto',{nombreCliente:'QA120',servicios:['DJ QA120']}));
+  model.mockResolvedValueOnce(decision('armar_presupuesto',{nombreCliente:'QA120',servicios:['DJ QA120']}));
+  model.mockResolvedValueOnce(decision('terminar',{resumen:'Fin'}));
+  expect((await ejecutarEncargado(input)).success).toBe(true);
+  expect(save.mock.calls[0][1].operationId).not.toBe(save.mock.calls[1][1].operationId);
 });
