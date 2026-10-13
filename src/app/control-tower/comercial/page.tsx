@@ -21,12 +21,20 @@ export default function CommercialFollowupsPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [items, setItems] = useState<CommercialFollowupItem[]>([]);
   const [status, setStatus] = useState('');
+  const [loadError, setLoadError] = useState('');
 
   async function load() {
     setLoading(true);
+    setLoadError('');
     try {
       const result = await getCommercialFollowups();
-      setItems(result.data || []);
+      if (result.success === false) {
+        setLoadError('No se pudieron confirmar todos los seguimientos. Reintenta.');
+      } else {
+        setItems(result.data || []);
+      }
+    } catch {
+      setLoadError('No se pudieron cargar los seguimientos. Reintenta.');
     } finally {
       setLoading(false);
     }
@@ -45,7 +53,13 @@ export default function CommercialFollowupsPage() {
     setStatus('');
     try {
       const result = await createCommercialFollowupAlerts();
-      setStatus(`Avisos creados: ${result.created}. Seguimientos detectados: ${result.total}.`);
+      if (result.success === false) {
+        setStatus('No se pudieron confirmar todos los avisos. Reintenta.');
+      } else {
+        setStatus(`Avisos creados: ${result.created}. Seguimientos detectados: ${result.total}.`);
+      }
+    } catch {
+      setStatus('No se pudieron crear los avisos. Reintenta.');
     } finally {
       setCreating(false);
     }
@@ -101,11 +115,12 @@ export default function CommercialFollowupsPage() {
         </CardContent>
       </Card>
 
-      {status && <div className="flex items-center gap-2 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-800"><CheckCircle2 className="h-5 w-5" /> {status}</div>}
+      {status && <div role="status" className={`flex items-center gap-2 rounded-2xl border p-4 text-sm font-bold ${/no se pudo|no se pudieron|reintenta/i.test(status) ? 'border-red-200 bg-red-50 text-red-800' : 'border-green-200 bg-green-50 text-green-800'}`}>{!/no se pudo|no se pudieron|reintenta/i.test(status) && <CheckCircle2 className="h-5 w-5" />} {status}</div>}
 
       {loading && <Card className="rounded-2xl"><CardContent className="flex items-center gap-2 p-5 text-slate-500"><Loader2 className="h-4 w-4 animate-spin" /> Cargando seguimientos...</CardContent></Card>}
 
-      {!loading && items.length === 0 && <Card className="rounded-2xl border-green-100 bg-green-50"><CardContent className="p-5 text-sm font-bold text-green-800">Todo tranquilo. No hay seguimientos comerciales importantes detectados.</CardContent></Card>}
+      {loadError && <div role="alert" className="flex items-center justify-between gap-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800"><span>{loadError}</span><Button variant="outline" onClick={load} disabled={loading}>Reintentar</Button></div>}
+      {!loading && !loadError && items.length === 0 && <Card className="rounded-2xl border-green-100 bg-green-50"><CardContent className="p-5 text-sm font-bold text-green-800">Todo tranquilo. No hay seguimientos comerciales importantes detectados.</CardContent></Card>}
 
       <div className="grid gap-4 lg:grid-cols-2">
         {items.map(item => (

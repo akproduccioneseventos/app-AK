@@ -1,6 +1,7 @@
-export const dynamic = 'force-dynamic';
+'use client';
 
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import { AlertCircle, BellRing, CalendarCheck, CheckCircle2, ClipboardCheck, ClipboardList, DollarSign, PhoneCall, PartyPopper, Sparkles, Users, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,9 +22,30 @@ const priorityStyles = {
   normal: 'border-slate-200 bg-slate-50 text-slate-600',
 } as const;
 
-export default async function ControlTowerPage() {
-  const result = await getControlTowerData();
-  const data = result.success ? result.data : null;
+export default function ControlTowerPage() {
+  const [data, setData] = useState<Extract<Awaited<ReturnType<typeof getControlTowerData>>, { success: true }>['data'] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await getControlTowerData();
+      if (!result.success) {
+        setError(result.error || 'No se pudieron cargar las prioridades. Reintentá.');
+        return;
+      }
+      setData(result.data);
+      setError(null);
+    } catch {
+      setError('No se pudieron cargar las prioridades. Reintentá.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadData(); }, [loadData]);
+
   const items = data?.items || [];
   const kpis = data?.kpis;
 
@@ -39,6 +61,7 @@ export default async function ControlTowerPage() {
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
+            <Button type="button" variant="outline" className="rounded-2xl font-bold" onClick={() => void loadData()} disabled={loading}>Actualizar</Button>
             <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower/post-fiesta">
                 <PartyPopper className="mr-2 h-4 w-4" /> Post-fiesta
               </Link></Button>
@@ -58,15 +81,21 @@ export default async function ControlTowerPage() {
         </div>
       </section>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
+        <p>{error}</p>
+        <Button type="button" variant="outline" className="mt-3" onClick={() => void loadData()} disabled={loading}>Reintentar</Button>
+      </div>}
+      {loading && !data && <p role="status" className="text-sm text-slate-600">Cargando prioridades…</p>}
+
+      {data && <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><CalendarCheck className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Fiestas próximas</p><p className="text-2xl font-black text-slate-950">{kpis?.fiestasFuturas ?? 0}</p></CardContent></Card>
         <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><Users className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Prospectos activos</p><p className="text-2xl font-black text-slate-950">{kpis?.prospectosActivos ?? 0}</p></CardContent></Card>
         <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><ClipboardList className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Presupuestos enviados</p><p className="text-2xl font-black text-slate-950">{kpis?.presupuestosPendientes ?? 0}</p></CardContent></Card>
         <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><DollarSign className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Saldo a revisar</p><p className="text-xl font-black text-slate-950">{kpis?.totalPendiente ?? 'UYU 0'}</p></CardContent></Card>
         <Card className="rounded-2xl border-red-100 bg-white shadow-sm"><CardContent className="p-4"><BellRing className="mb-3 h-5 w-5 text-red-600" /><p className="text-xs font-bold uppercase text-slate-400">Notificaciones</p><p className="text-2xl font-black text-slate-950">{kpis?.notificacionesNoLeidas ?? 0}</p></CardContent></Card>
-      </div>
+      </div>}
 
-      {kpis?.proximoEvento && (
+      {data && kpis?.proximoEvento && (
         <Card className="rounded-3xl border-red-100 bg-white shadow-sm">
           <CardContent className="flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between">
             <div>
@@ -86,7 +115,7 @@ export default async function ControlTowerPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {items.length === 0 && (
+          {data && items.length === 0 && !error && (
             <div className="rounded-2xl border border-green-100 bg-green-50 p-5 text-sm font-bold text-green-800">
               Todo tranquilo por ahora. No hay pendientes importantes detectados.
             </div>

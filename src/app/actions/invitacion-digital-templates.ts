@@ -1,7 +1,7 @@
 
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { deleteDataItem, readData, writeData } from '@/lib/data-service';
 import type { InvitacionDigitalData } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -168,16 +168,17 @@ export async function saveInvitationTemplate(
 
 export async function deleteInvitationTemplate(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  const allTemplates = await getInvitationTemplates();
-  const exists = allTemplates.some(t => t.id === id);
-  if (!exists) {
+  if (builtInTemplates.some(template => template.id === id)) {
+    return { success: false, error: "Las plantillas incorporadas no se pueden eliminar." };
+  }
+  const savedTemplates = await readSavedTemplates();
+  const savedTemplate = savedTemplates.find(t => t.id === id);
+  if (!savedTemplate) {
     return { success: false, error: "Plantilla no encontrada para eliminar." };
   }
 
-  // Only remove from the saved list; built-ins simply won't appear in savedTemplates
-  const savedTemplates = await readSavedTemplates();
-  const filtered = savedTemplates.filter(t => t.id !== id);
-  await writeData(TEMPLATES_FILE, filtered);
+  const deleted = await deleteDataItem(TEMPLATES_FILE, 'invitacion_digital_templates', id);
+  if (!deleted) return { success: false, error: "La plantilla ya no existe. Recarga la lista." };
   return { success: true };
 }
 

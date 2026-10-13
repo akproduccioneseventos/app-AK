@@ -17,12 +17,20 @@ export default function PostEventPage() {
   const [items, setItems] = useState<PostEventItem[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [status, setStatus] = useState('');
+  const [loadError, setLoadError] = useState('');
 
   async function load() {
     setLoading(true);
+    setLoadError('');
     try {
       const result = await getPostEventOpportunities();
-      setItems(result.data || []);
+      if (result.success === false) {
+        setLoadError('No se pudieron confirmar todas las fiestas. Reintenta.');
+      } else {
+        setItems(result.data || []);
+      }
+    } catch {
+      setLoadError('No se pudieron cargar las fiestas finalizadas. Reintenta.');
     } finally {
       setLoading(false);
     }
@@ -96,7 +104,8 @@ export default function PostEventPage() {
 
       {status && <div className="flex items-center gap-2 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-800"><CheckCircle2 className="h-5 w-5" /> {status}</div>}
       {loading && <Card className="rounded-2xl"><CardContent className="flex items-center gap-2 p-5 text-slate-500"><Loader2 className="h-4 w-4 animate-spin" /> Cargando fiestas finalizadas...</CardContent></Card>}
-      {!loading && items.length === 0 && <Card className="rounded-2xl border-green-100 bg-green-50"><CardContent className="p-5 text-sm font-bold text-green-800">No hay fiestas recientes para cierre post-fiesta.</CardContent></Card>}
+      {loadError && <div role="alert" className="flex items-center justify-between gap-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800"><span>{loadError}</span><Button variant="outline" onClick={load} disabled={loading}>Reintentar</Button></div>}
+      {!loading && !loadError && items.length === 0 && <Card className="rounded-2xl border-green-100 bg-green-50"><CardContent className="p-5 text-sm font-bold text-green-800">No hay fiestas recientes para cierre post-fiesta.</CardContent></Card>}
 
       <div className="grid gap-4 xl:grid-cols-2">
         {items.map(item => (

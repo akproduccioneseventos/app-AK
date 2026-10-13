@@ -71,17 +71,25 @@ export default function GoogleWorkspaceSettingsPage() {
   const [dashboard, setDashboard] = useState<GoogleWorkspaceDashboard | null>(null);
   const [message, setMessage] = useState<string>('');
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [dashboardError, setDashboardError] = useState('');
   const [isPending, startTransition] = useTransition();
+  const connectedEmployeeCount = dashboard?.connectedEmployees.filter(account => account.status === 'connected').length ?? 0;
 
   const employeeCoverage = useMemo(() => {
     if (!dashboard?.employeeCount) return 0;
-    return Math.round((dashboard.connectedEmployees.length / dashboard.employeeCount) * 100);
-  }, [dashboard]);
+    return Math.round((connectedEmployeeCount / dashboard.employeeCount) * 100);
+  }, [dashboard, connectedEmployeeCount]);
+  const companyConnected = !dashboardError && dashboard?.companyAccount?.status === 'connected';
 
   const loadDashboard = () => {
     startTransition(async () => {
-      const data = await getGoogleWorkspaceDashboard();
-      setDashboard(data);
+      try {
+        const data = await getGoogleWorkspaceDashboard();
+        setDashboard(data);
+        setDashboardError('');
+      } catch (error) {
+        setDashboardError(error instanceof Error ? error.message : 'No se pudo consultar el estado de Google.');
+      }
     });
   };
 
@@ -167,15 +175,15 @@ export default function GoogleWorkspaceSettingsPage() {
                 Conectar AK
               </Link>
             </Button>
-            <Button variant="outline" onClick={handleSyncAll} disabled={isPending || !dashboard?.companyAccount}>
+            <Button variant="outline" onClick={handleSyncAll} disabled={isPending || !companyConnected}>
               <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
               Sincronizar fiestas
             </Button>
-            <Button variant="outline" onClick={handleSyncCurrentFiesta} disabled={isPending || !dashboard?.companyAccount || !fiestaId}>
+            <Button variant="outline" onClick={handleSyncCurrentFiesta} disabled={isPending || !companyConnected || !fiestaId}>
               <Users className="mr-2 h-4 w-4" />
               Avisar equipo
             </Button>
-            <Button variant="outline" onClick={handleNotifyGuests} disabled={isPending || !dashboard?.companyAccount || !fiestaId}>
+            <Button variant="outline" onClick={handleNotifyGuests} disabled={isPending || !companyConnected || !fiestaId}>
               <Mail className="mr-2 h-4 w-4" />
               Avisar invitados
             </Button>
@@ -183,7 +191,15 @@ export default function GoogleWorkspaceSettingsPage() {
         </div>
       </div>
 
-      {dashboard && !dashboard.configured && (
+      {dashboardError && (
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+          <p className="font-semibold">No se pudo consultar el estado de Google.</p>
+          <p>{dashboardError}</p>
+          <Button className="mt-3" variant="outline" onClick={loadDashboard} disabled={isPending}>Reintentar</Button>
+        </div>
+      )}
+
+      {dashboard && !dashboard.configured && !dashboard.companyAccount && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
@@ -218,12 +234,13 @@ export default function GoogleWorkspaceSettingsPage() {
           <CardHeader className="pb-2">
             <CardDescription>Cuenta de AK</CardDescription>
             <CardTitle className="flex items-center gap-2 text-lg">
-              {dashboard?.companyAccount ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertTriangle className="h-5 w-5 text-amber-600" />}
-              {dashboard?.companyAccount ? 'Conectada' : 'Pendiente'}
+              {companyConnected ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <AlertTriangle className="h-5 w-5 text-amber-600" />}
+              {dashboardError ? 'Estado no disponible' : companyConnected ? 'Conectada' : dashboard?.companyAccount?.status === 'error' ? 'Error' : dashboard?.companyAccount ? 'Necesita reconexión' : 'Pendiente'}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             <p>{dashboard?.companyAccount?.email || 'Conecta la cuenta que enviara mails y administrara el calendario general.'}</p>
+            {dashboard?.companyAccount?.lastError && <p className="mt-2 text-red-700">{dashboard.companyAccount.lastError}</p>}
             {dashboard?.companyAccount && (
               <p className={`mt-2 font-medium ${dashboard.contactsEnabled ? 'text-emerald-700' : 'text-amber-700'}`}>
                 {dashboard.contactsEnabled
@@ -239,7 +256,7 @@ export default function GoogleWorkspaceSettingsPage() {
             <CardDescription>Personal conectado</CardDescription>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Users className="h-5 w-5 text-red-700" />
-              {dashboard ? `${dashboard.connectedEmployees.length}/${dashboard.employeeCount}` : '...'}
+              {dashboard ? `${connectedEmployeeCount}/${dashboard.employeeCount}` : '...'}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
@@ -348,15 +365,16 @@ export default function GoogleWorkspaceSettingsPage() {
       {dashboard?.connectedEmployees.length ? (
         <Card>
           <CardHeader>
-            <CardTitle>Personal ya conectado</CardTitle>
-            <CardDescription>Cuentas que ya pueden recibir eventos directamente en su Google Calendar.</CardDescription>
+            <CardTitle>Estado de Google del personal</CardTitle>
+            <CardDescription>Se muestran también las cuentas que necesitan atención.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {dashboard.connectedEmployees.map((account) => (
               <div key={account.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
                 <div>
                   <p className="font-medium">{account.email || 'Cuenta sin email visible'}</p>
-                  <p className="text-xs text-muted-foreground">Conectado: {formatDate(account.connectedAt)}</p>
+                  <p className="text-xs text-muted-foreground">{account.status === 'connected' ? 'Conectado' : account.status === 'error' ? 'Error de conexión' : 'Necesita reconexión'}: {formatDate(account.connectedAt)}</p>
+                  {account.lastError && <p className="text-sm text-red-700">{account.lastError}</p>}
                 </div>
                 <Badge variant={account.status === 'connected' ? 'default' : 'secondary'}>{account.status}</Badge>
               </div>

@@ -112,7 +112,7 @@ async function notifyOnce(input: {
   icono?: string;
   tipo?: 'info' | 'aviso' | 'urgente' | 'exito';
 }) {
-  const existing = await getNotifications().catch(() => []);
+  const existing = await getNotifications();
   if (isRecentDuplicate(existing, input)) return false;
 
   const result = await createNotification({
@@ -124,7 +124,7 @@ async function notifyOnce(input: {
     entidadRelacionadaId: input.id,
     rolDestino: 'admin',
   });
-  return result.success;
+  return result.success && Boolean(result.notification) && !result.isDuplicate;
 }
 
 export async function runSmartAutomations(): Promise<{ success: boolean; results: SmartAutomationResult[]; created: number }> {

@@ -26,6 +26,7 @@ const FILE_TO_COLLECTION: Record<string, string> = {
   'activos-fijos.json': 'activos_fijos',
   'notifications.json': 'notificaciones',
   'insumos.json': 'insumos',
+  'ajustes-costos-insumos.json': 'ajustes_costos_insumos',
   'crm-stages.json': 'crm_stages',
   'fiestas-historicas.json': 'fiestas_historicas',
   'menus-catering.json': 'menus_catering',
@@ -119,6 +120,7 @@ const ALLOW_EMPTY_ARRAY_RESET_FILES = new Set([
   // Lo encontro Codex el 22 de setiembre de 2026.
   'catalogo-fotos.json',
   'salones.json',
+  'ajustes-costos-insumos.json',
 ]);
 
 function sanitizeForFirestore(value: unknown): unknown {
@@ -419,16 +421,20 @@ export async function syncToFirestore(
  * Read data from Firestore for a given file path.
  * Returns null if no data is found or Firebase is unavailable.
  */
-export async function readFromFirestore(filePath: string, opciones: { conMarcas?: boolean } = {}): Promise<any> {
+export async function readFromFirestore(filePath: string, opciones: { conMarcas?: boolean; propagarErrores?: boolean } = {}): Promise<any> {
   if (logger.shouldSkipFirestoreDuringBuild()) return null;
 
   let db: Firestore;
 
   try {
     const { dbAdmin } = await import('./firebase/server');
-    if (!dbAdmin) return null;
+    if (!dbAdmin) {
+      if (opciones.propagarErrores) throw new Error('Firestore no esta disponible para leer los datos.');
+      return null;
+    }
     db = dbAdmin as Firestore;
-  } catch {
+  } catch (error) {
+    if (opciones.propagarErrores) throw error;
     return null; // Firebase not available
   }
 
@@ -451,11 +457,14 @@ export async function readFromFirestore(filePath: string, opciones: { conMarcas?
     const collectionName = FILE_TO_COLLECTION[normalizedPath];
     if (collectionName) {
       const snapshot = await queryWithTimeout(db.collection(collectionName).get());
-      if (snapshot.empty) return ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath) ? [] : null;
+      // Una baja individual puede dejar proveedores vacio; no revivir la copia JSON vieja.
+      // Esto no habilita el borrado masivo mediante syncToFirestore([]).
+      if (snapshot.empty) return ['proveedores.json', 'invitacion-digital-templates.json'].includes(normalizedPath) || ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath) ? [] : null;
       if (opciones.conMarcas) {
         // Cada renglon sale con su marca de lectura, para que al guardar no se pise lo de otro.
         return marcarLectura(snapshot.docs.map((doc: QueryDocumentSnapshot) => {
           const data = doc.data();
+          if (normalizedPath === 'ajustes-costos-insumos.json') data.id = doc.id;
           const version = String(data._syncedAt ?? '');
           delete data._syncedAt;
           return { datos: sacarMarcas(data), version };
@@ -463,6 +472,7 @@ export async function readFromFirestore(filePath: string, opciones: { conMarcas?
       }
       return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
         const data = doc.data();
+        if (normalizedPath === 'ajustes-costos-insumos.json') data.id = doc.id;
         delete data._syncedAt;
         return data;
       });
@@ -491,6 +501,7 @@ export async function readFromFirestore(filePath: string, opciones: { conMarcas?
     if (!logger.isBuildTime() || !logger.isDefaultCredentialError(error)) {
       logger.warn(`Firestore read failed for ${filePath}:`, logger.compactError(error));
     }
+    if (opciones.propagarErrores) throw error;
     return null;
   }
 }

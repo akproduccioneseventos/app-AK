@@ -216,6 +216,7 @@ export async function getGoogleWorkspaceDashboard(): Promise<GoogleWorkspaceDash
     };
   }
   const connectedEmployees = accounts.filter((account) => account.kind === 'employee');
+  const activeEmployees = connectedEmployees.filter((account) => account.status === 'connected');
   const datedFiestas = fiestas.filter((fiesta) => Boolean(fiesta.configuracion?.fechaEvento));
   const syncedIds = new Set(records.filter((record) => Boolean(record.lastSyncedAt)).map((record) => record.fiestaId));
   const sortedSyncDates = records
@@ -230,12 +231,13 @@ export async function getGoogleWorkspaceDashboard(): Promise<GoogleWorkspaceDash
     redirectUri: getGoogleRedirectUri(process.env.NEXT_PUBLIC_APP_URL),
     companyAccount: company ? toPublicAccount(company) : undefined,
     connectedEmployees: connectedEmployees.map(toPublicAccount),
+    connectedEmployeeCount: activeEmployees.length,
     employeeCount: empleados.length,
     employeesWithEmail: empleados.filter((empleado) => Boolean(getEmployeeEmail(empleado))).length,
     syncedFiestas: syncedIds.size,
     pendingFiestas: datedFiestas.filter((fiesta) => !syncedIds.has(fiesta.id)).length,
     lastSyncedAt,
-    contactsEnabled: hasGoogleContactsScope(company),
+    contactsEnabled: company?.status === 'connected' && hasGoogleContactsScope(company),
   };
 }
 

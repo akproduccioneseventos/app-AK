@@ -22,7 +22,12 @@ export async function getFiestaPreparationScore(fiestaId: string) {
 
 export async function getAllFiestasPreparationScores() {
   await requireAppSession();
-  const fiestas = await getAllFiestas().catch(() => []);
+  let fiestas;
+  try {
+    fiestas = await getAllFiestas();
+  } catch {
+    return { success: false as const, error: 'No se pudieron cargar las fiestas para revisar. Reintentá.' };
+  }
   const data = fiestas.map((fiesta: any) => ({
     fiestaId: fiesta.id,
     nombreEvento: fiesta.configuracion?.nombreEvento || 'Fiesta sin nombre',
@@ -31,7 +36,7 @@ export async function getAllFiestasPreparationScores() {
   }));
 
   return {
-    success: true,
+    success: true as const,
     data: data.sort((a, b) => a.score.score - b.score.score),
   };
 }

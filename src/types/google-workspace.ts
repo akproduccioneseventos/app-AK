@@ -49,6 +49,7 @@ export interface GoogleWorkspaceDashboard {
   redirectUri: string;
   companyAccount?: PublicGoogleWorkspaceAccount;
   connectedEmployees: PublicGoogleWorkspaceAccount[];
+  connectedEmployeeCount?: number;
   employeeCount: number;
   employeesWithEmail: number;
   syncedFiestas: number;

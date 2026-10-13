@@ -34,6 +34,7 @@ jest.mock('@/lib/auth/session-token', () => ({
 }));
 
 import { readData, writeData } from '@/lib/data-service';
+import JSZip from 'jszip';
 
 const mockReadData = readData as jest.MockedFunction<typeof readData>;
 const mockWriteData = writeData as jest.MockedFunction<typeof writeData>;
@@ -79,6 +80,39 @@ describe('backup upload route', () => {
     jest.clearAllMocks();
     mockReadData.mockResolvedValue([]);
     mockWriteData.mockResolvedValue(undefined);
+  });
+
+  it('restaura costos y recibos sin generar respaldos intermedios ni perder IDs', async () => {
+    const zip = new JSZip();
+    const libro = [{ id: 'hash', porcentaje: 10, ids: ['i1'], terminado: true }];
+    zip.file('insumos.json', JSON.stringify([{ id: 'i1', valorUnitarioEstimado: 110 }]));
+    zip.file('ajustes-costos-insumos.json', JSON.stringify(libro));
+    const { POST } = await import('@/app/api/backup/upload/route');
+    const body = await (await POST(makeRequest(makeFile('costos.zip', 'application/zip', await zip.generateAsync({ type: 'nodebuffer' }))))).json();
+    expect(body.success).toBe(true);
+    expect(mockWriteData).toHaveBeenCalledWith('ajustes-costos-insumos.json', libro, undefined, { skipAutoBackup: true, esRestauracion: true });
+  });
+
+  it('un ZIP viejo de insumos descarta el libro posterior, pero un ZIP de clientes no', async () => {
+    const { POST } = await import('@/app/api/backup/upload/route');
+    for (const file of ['customers.json', 'insumos.json']) {
+      mockWriteData.mockClear();
+      const zip = new JSZip();
+      zip.file(file, JSON.stringify([{ id: 'i1' }]));
+      expect((await (await POST(makeRequest(makeFile('legacy.zip', 'application/zip', await zip.generateAsync({ type: 'nodebuffer' }))))).json()).success).toBe(true);
+      const clears = mockWriteData.mock.calls.filter(call => call[0] === 'ajustes-costos-insumos.json');
+      expect(clears).toHaveLength(file === 'insumos.json' ? 1 : 0);
+    }
+  });
+
+  it('si el libro no se puede restaurar, el ZIP no se anuncia completo', async () => {
+    const zip = new JSZip();
+    zip.file('insumos.json', '[{"id":"i1"}]');
+    mockWriteData.mockImplementation(async (file) => { if (file === 'ajustes-costos-insumos.json') throw new Error('offline'); });
+    const { POST } = await import('@/app/api/backup/upload/route');
+    const body = await (await POST(makeRequest(makeFile('legacy.zip', 'application/zip', await zip.generateAsync({ type: 'nodebuffer' }))))).json();
+    expect(body.completo).toBe(false);
+    expect(body.errors).toContain('ajustes-costos-insumos.json');
   });
 
   it('imports confirmed events JSON without replacing the services catalog', async () => {

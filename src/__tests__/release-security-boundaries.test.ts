@@ -216,9 +216,12 @@ describe('release security boundaries', () => {
   it('keeps automatic backups internal without exposing restore privileges', () => {
     const backup = readSource('src/app/actions/backup.ts');
     const dataService = readSource('src/lib/data-service.ts');
+    const scheduler = readSource('src/lib/backup/schedule-after-write.ts');
     expect(backup).toContain('internalToken !== AUTO_BACKUP_INTERNAL_TOKEN');
     expect(backup).toContain('createRestorePointInternal(true)');
-    expect(dataService).toContain('triggerAutoBackup(AUTO_BACKUP_INTERNAL_TOKEN)');
+    expect(dataService).toContain('import { scheduleAutoBackupAfterWrite }');
+    expect(scheduler).not.toMatch(/^["']use server["']/m);
+    expect(scheduler).toContain('triggerAutoBackup(AUTO_BACKUP_INTERNAL_TOKEN)');
   });
 
   it('allows notification creation only through a session or the internal wrapper', () => {

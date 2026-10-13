@@ -57,6 +57,7 @@ jest.mock('next/server', () => {
 
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(),
+  readDataConDetalle: jest.fn(),
   writeData: jest.fn(),
 }));
 
@@ -76,7 +77,7 @@ jest.mock('@/lib/auth/session-token', () => ({
 }));
 
 import JSZip from 'jszip';
-import { readData } from '@/lib/data-service';
+import { readData, readDataConDetalle } from '@/lib/data-service';
 
 const mockReadData = readData as jest.MockedFunction<typeof readData>;
 
@@ -84,6 +85,7 @@ describe('Backup download route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockReadData.mockResolvedValue([]);
+    (readDataConDetalle as jest.Mock).mockImplementation(async (file, defaultVal) => ({ valor: await mockReadData(file, defaultVal), huboFalla: false }));
   });
 
   it('generates a ZIP with metadata', async () => {
@@ -134,5 +136,14 @@ describe('Backup download route', () => {
     expect(files).toContain('_backup-metadata.json');
     expect(files).toContain('presupuestos.json');
     expect(files).toContain('customers.json');
+    expect(files).toContain('ajustes-costos-insumos.json');
+  });
+
+  it('refuses an incomplete ZIP when a collection cannot be read', async () => {
+    (readDataConDetalle as jest.Mock).mockImplementation(async (file, defaultVal) => ({ valor: defaultVal, huboFalla: file === 'insumos.json' }));
+    const { GET } = await import('@/app/api/backup/download/route');
+    const response = await GET();
+    expect(response.status).toBe(500);
+    expect(response.headers.get('Content-Type')).not.toBe('application/zip');
   });
 });

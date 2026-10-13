@@ -2,19 +2,10 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
-import { readData } from '@/lib/data-service';
+import { readDataConDetalle } from '@/lib/data-service';
 import { BACKUP_COLLECTIONS } from '@/lib/backup/backup-registry';
 import { buildBackupReadinessReport } from '@/lib/backup/backup-health';
 import * as logger from '@/lib/logger';
-
-async function readFromFirestoreDirect(filePath: string): Promise<any | null> {
-  try {
-    const { readFromFirestore } = await import('@/lib/firebase-sync');
-    return await readFromFirestore(filePath);
-  } catch {
-    return null;
-  }
-}
 
 export async function GET() {
   try {
@@ -28,26 +19,17 @@ export async function GET() {
     }
 
     const zip = new JSZip();
-    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-    let source: 'firestore' | 'local' = 'local';
+    const source = 'data-service';
     const appVersion = process.env.npm_package_version || '0.1.0';
 
     let exportedCount = 0;
     const exportedFiles: string[] = [];
     for (const collection of BACKUP_COLLECTIONS) {
-      try {
-        let data: any = null;
-        if (isProduction) {
-          data = await readFromFirestoreDirect(collection.file);
-          if (data !== null) source = 'firestore';
-        }
-        if (data === null) data = await readData(collection.file, collection.defaultValue);
-        zip.file(collection.file, JSON.stringify(data, null, 2));
-        exportedFiles.push(collection.file);
-        exportedCount++;
-      } catch (err) {
-        logger.warn(`[Backup] Could not export ${collection.file}:`, err);
-      }
+      const detail = await readDataConDetalle(collection.file, collection.defaultValue);
+      if (detail.huboFalla) throw new Error(`No se pudo leer ${collection.file}. No se descargo una copia incompleta.`);
+      zip.file(collection.file, JSON.stringify(detail.valor, null, 2));
+      exportedFiles.push(collection.file);
+      exportedCount++;
     }
 
     const readiness = buildBackupReadinessReport();

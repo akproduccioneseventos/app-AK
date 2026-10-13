@@ -1,5 +1,31 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex115: correcciones directas EN VALIDACION, no publicadas
+
+- Base d4c05d08/PR1288 abierta/main99faf4eb. NO CONTRASTADO con tanda privada Claude.
+- Libro ajustes_costos_insumos registrado en respaldo/mapa; IDs reales de recibos
+  legacy rehidratados. Restaurar insumos de una copia anterior sin libro descarta
+  recibos posteriores, tanto por punto como por ZIP; otro modulo no los borra.
+- Ajuste nativo de costos solicita respaldo interno despues de terminar, tambien
+  al reintentar un recibo terminado; no expone el token interno como accion publica.
+- ZIP de respaldo rechaza lectura incompleta. readDataConDetalle propaga la falla
+  original del SDK y no da por buena una copia local vieja tras ese fallo.
+- Ultimo proveedor y ultima plantilla custom no reviven desde JSON viejo al
+  eliminar; plantilla incorporada se rechaza sin falso exito. Borrado custom
+  individual transaccional, no reescritura de una lista entera concurrente.
+- Torre, preparacion, comercial, post-fiesta, automatizaciones, conexiones y
+  redes muestran errores y reintento sin reemplazar una lectura fallida por calma.
+- Notificacion silenciada/duplicada no cuenta como creada. Google retirado/error
+  no cuenta conectado; empleados con problemas siguen visibles. No prueba OAuth.
+- Sharp fijado0.35.5 compatible Next15.5.27; minimo Node20.9; SDK y otros paquetes
+  sin cambio mayor. Todavia no equivale a resolver todos los avisos de seguridad.
+- Pruebas focalizadas de acciones/render PASS en copia aislada dirty; hubo errores
+  de tipos de agente (campos inexistentes) corregidos. Build/full suite/runtime
+  del SHA congelado PENDIENTES. No usar114 para certificar115.
+- Una prueba del agente escribio preferencias demo; ambas restauradas. Ahora
+  usa almacen en memoria, sin archivos compartidos. Agentes cerrados al alcanzar
+  limite de uso, sin afirmar que terminaron su subparte.
+
 ## 12/10/2026 - Codex109: seguridad27 y matriz; permisos de documentos pendientes
 
 - Fuente8fa/HEAD43620d4c/main99faf4eb. Cinco handlers de documentos iguales a main;

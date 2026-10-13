@@ -51,8 +51,8 @@ export async function comenzarAjusteCostos(percentage: number, operationId: stri
         _syncedAt: fecha,
       });
     }
-    transaction.create(recibo, { ...datos, fecha });
-    transaction.set(turno, { operacion: id, porcentaje: percentage, fecha });
+    transaction.create(recibo, { ...datos, id, fecha });
+    transaction.set(turno, { id: '_turno', operacion: id, porcentaje: percentage, fecha });
     return datos;
   });
 }

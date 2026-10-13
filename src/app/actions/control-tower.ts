@@ -41,15 +41,29 @@ import { requireAppSession } from '@/lib/auth/require-session';
 
 export async function getControlTowerData() {
   await requireAppSession();
-  const [dashboardResult, fiestas, presupuestos, leads, notifications] = await Promise.all([
-    getDashboardKpiData(),
-    getAllFiestas().catch(() => []),
-    getPresupuestos().catch(() => []),
-    getCrmLeads().catch(() => []),
-    getNotifications().catch(() => []),
-  ]);
+  let dashboardResult: Awaited<ReturnType<typeof getDashboardKpiData>>;
+  let fiestas: Awaited<ReturnType<typeof getAllFiestas>>;
+  let presupuestos: Awaited<ReturnType<typeof getPresupuestos>>;
+  let leads: Awaited<ReturnType<typeof getCrmLeads>>;
+  let notifications: Awaited<ReturnType<typeof getNotifications>>;
 
-  const dashboard = (dashboardResult as any)?.success ? (dashboardResult as any).data : null;
+  try {
+    [dashboardResult, fiestas, presupuestos, leads, notifications] = await Promise.all([
+      getDashboardKpiData(),
+      getAllFiestas(),
+      getPresupuestos(),
+      getCrmLeads(),
+      getNotifications(),
+    ]);
+  } catch {
+    return { success: false as const, error: 'No se pudieron cargar las prioridades. Reintentá.' };
+  }
+
+  if (!dashboardResult?.success) {
+    return { success: false as const, error: 'No se pudieron cargar los indicadores. Reintentá.' };
+  }
+
+  const dashboard = dashboardResult.data;
   const items: ControlTowerItem[] = [];
 
   for (const fiesta of fiestas as any[]) {
@@ -139,7 +153,7 @@ export async function getControlTowerData() {
   });
 
   return {
-    success: true,
+    success: true as const,
     data: {
       kpis: {
         fiestasFuturas: dashboard?.fiestasFuturas ?? 0,

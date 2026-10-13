@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, CheckCircle2, ClipboardCheck, PartyPopper, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,20 +9,35 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { getAllFiestasPreparationScores } from '@/app/actions/preparation-score';
 
-// Se arma en el momento, no al publicar. Es una pantalla del equipo con datos que
-// cambian todos los dias: armada al publicar mostraria la foto del dia del
-// despliegue, y ademas ahora pide cuenta, que al publicar no existe.
-export const dynamic = 'force-dynamic';
-
 const levelStyles = {
   alta: 'border-green-200 bg-green-50 text-green-700',
   media: 'border-amber-200 bg-amber-50 text-amber-700',
   inicial: 'border-red-200 bg-red-50 text-red-700',
 } as const;
 
-export default async function PreparationScoresPage() {
-  const result = await getAllFiestasPreparationScores();
-  const fiestas = result.success ? result.data || [] : [];
+export default function PreparationScoresPage() {
+  const [fiestas, setFiestas] = useState<Extract<Awaited<ReturnType<typeof getAllFiestasPreparationScores>>, { success: true }>['data'] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const loadScores = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await getAllFiestasPreparationScores();
+      if (!result.success) {
+        setError(result.error || 'No se pudieron cargar las fiestas para revisar. Reintentá.');
+        return;
+      }
+      setFiestas(result.data || []);
+      setError(null);
+    } catch {
+      setError('No se pudieron cargar las fiestas para revisar. Reintentá.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadScores(); }, [loadScores]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-24">
@@ -32,19 +50,28 @@ export default async function PreparationScoresPage() {
               Vista general para saber qué fiestas están más encaminadas y cuáles tienen pendientes importantes para revisar.
             </p>
           </div>
-          <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link></Button>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" className="rounded-2xl font-bold" onClick={() => void loadScores()} disabled={loading}>Actualizar</Button>
+            <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/control-tower"><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link></Button>
+          </div>
         </div>
       </section>
 
+      {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
+        <p>{error}</p>
+        <Button type="button" variant="outline" className="mt-3" onClick={() => void loadScores()} disabled={loading}>Reintentar</Button>
+      </div>}
+      {loading && fiestas === null && <p role="status" className="text-sm text-slate-600">Cargando preparación…</p>}
+
       <div className="grid gap-4 lg:grid-cols-2">
-        {fiestas.length === 0 && (
+        {fiestas?.length === 0 && !error && (
           <Card className="rounded-2xl border-green-100 bg-green-50">
             <CardContent className="flex items-center gap-2 p-5 text-sm font-bold text-green-800">
               <CheckCircle2 className="h-5 w-5" /> No hay fiestas para revisar en este momento.
             </CardContent>
           </Card>
         )}
-        {fiestas.map(item => (
+        {fiestas?.map(item => (
           <Card key={item.fiestaId} className="rounded-3xl border-red-100 bg-white shadow-sm">
             <CardHeader>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

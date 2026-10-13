@@ -35,6 +35,7 @@ import { sincronizarHistorialRedesAction } from '@/app/actions/social-history';
 export default function SincronizacionesPage() {
   const [conexiones, setConexiones] = useState<ResumenConexion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const [filtro, setFiltro] = useState<'todas' | 'conectada' | 'falta-configurarla' | 'no-se-usa'>('todas');
   const [probandoInstagram, setProbandoInstagram] = useState(false);
   const [sincronizandoHistorial, setSincronizandoHistorial] = useState(false);
@@ -111,8 +112,10 @@ export default function SincronizacionesPage() {
       setLoading(true);
       const data = await getEstadoConexiones();
       setConexiones(data);
+      setErrorCarga(null);
     } catch (err) {
       console.error('Error al cargar conexiones:', err);
+      setErrorCarga('No se pudieron actualizar las conexiones. Los datos anteriores, si los hay, se conservan.');
     } finally {
       setLoading(false);
     }
@@ -256,6 +259,18 @@ export default function SincronizacionesPage() {
         </CardHeader>
 
         <CardContent className="p-0 divide-y divide-slate-100">
+          {errorCarga && (
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 border-b border-red-200 bg-red-50 p-4 text-sm text-red-900">
+              <span>{errorCarga}</span>
+              <Button size="sm" variant="outline" onClick={cargarDatos} disabled={loading} className="gap-2 border-red-300 text-red-800">
+                <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+                {loading ? 'Actualizando...' : 'Reintentar'}
+              </Button>
+            </div>
+          )}
+          {loading && conexiones.length === 0 && !errorCarga && (
+            <p role="status" className="p-6 text-sm text-slate-600">Cargando conexiones...</p>
+          )}
           {filtradas.map((c) => {
             const esConectada = c.estado === 'conectada';
             const esFaltante = c.estado === 'falta-configurarla';
@@ -374,15 +389,24 @@ export default function SincronizacionesPage() {
                     </div>
                     <div>
                       <span className="text-slate-500 block">Estado del historial:</span>
-                      {c.historial?.completo ? (
+                      {c.historial?.error ? (
+                        <span className="inline-flex items-center gap-1 font-semibold text-red-700" title={c.historial.error}>
+                          <AlertCircle className="h-3.5 w-3.5 text-red-600" />
+                          Último intento fallido
+                        </span>
+                      ) : c.historial?.completo ? (
                         <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
                           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                           Historial completo
                         </span>
-                      ) : (
+                      ) : c.historial?.ultimaSincronizacion ? (
                         <span className="inline-flex items-center gap-1 font-semibold text-amber-700">
                           <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
-                          Sincronización en curso
+                          Historial parcial
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 font-medium text-slate-600">
+                          Sin intento registrado
                         </span>
                       )}
                     </div>

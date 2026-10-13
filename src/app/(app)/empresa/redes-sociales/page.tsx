@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2, Bot, Copy, ExternalLink, MessageSquare, Camera } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2, Bot, Copy, ExternalLink, MessageSquare, Camera, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { getSocialPosts, deleteSocialPost, generateDraftPostsFromPartyPhotos } from '@/app/actions/social-media';
@@ -72,7 +72,7 @@ function SocialMediaPageContent() {
             setAllEvents(all);
         } catch (err: any) {
             setError("No se pudieron cargar los datos.");
-            toast({ title: "Error", description: err.message, variant: "destructive" });
+            toast({ title: "Error", description: err?.message || "Verificá tu conexión e intentá nuevamente.", variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -259,6 +259,16 @@ function SocialMediaPageContent() {
             </div>
 
             <SocialHistoryPanel onSyncCompleted={fetchData} />
+
+            {error && (
+                <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+                    <span>{error} Los datos anteriores se conservan si estaban disponibles.</span>
+                    <Button size="sm" variant="outline" onClick={fetchData} disabled={isLoading} className="gap-2 border-red-300 text-red-800">
+                        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        {isLoading ? 'Actualizando...' : 'Reintentar lectura'}
+                    </Button>
+                </div>
+            )}
 
             <Card className="border-emerald-100 bg-emerald-50/40 shadow-sm">
                 <CardHeader>
