@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { useState, type FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -87,8 +88,11 @@ export default function NuevoEmpleadoPage() {
     };
 
     try {
-      const result = await saveEmpleado(empleadoData);
+      // Pregunta 58: reintento de una respuesta perdida = el mismo empleado, no "ya existe".
+      const idIntento = await obtenerIntento('empleado-nuevo', empleadoData);
+      const result = await saveEmpleado(empleadoData, { idIntento });
       if (result.success && result.id) {
+        terminarIntento('empleado-nuevo');
         toast({ title: "¡Empleado Guardado!", description: `El empleado "${empleadoData.nombre}" ha sido guardado.` });
         router.push('/empleados');
       } else {

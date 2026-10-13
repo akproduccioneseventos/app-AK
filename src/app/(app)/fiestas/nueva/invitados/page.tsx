@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, type FormEvent, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, type FormEvent, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -48,6 +48,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
 import { leerPlanillaDeInvitados, type ResumenDePlanilla } from '@/lib/invitados/leer-planilla';
 import { prepararReintentoDePlanilla } from '@/lib/invitados/reintento-de-planilla';
+import { ponerIdsDeIntentoAFilas } from '@/lib/invitados/ids-de-planilla';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 const DIETARY_OPTIONS: DietaryRestriction[] = [
@@ -95,12 +97,21 @@ function InvitadosEventoContent() {
   const [planillaTexto, setPlanillaTexto] = useState('');
   const [previewPlanilla, setPreviewPlanilla] = useState<ResumenDePlanilla | null>(null);
 
+  // Pregunta 58: id de intento por fila de planilla, estable aunque se relea el mismo texto.
+  const idsDePlanilla = useRef<Map<string, string>>(new Map());
+
   const procesarTextoPlanilla = (texto: string, listaActual: Invitado[]) => {
     // La lectura de la planilla vive en src/lib/invitados/leer-planilla.ts y tiene su
     // propia prueba. Estaba escrita aca adentro y no la comprobaba nadie: la unica
     // prueba que la miraba necesitaba abrir una pantalla interna, que en el entorno
     // de pruebas no ve las fiestas de prueba, asi que nunca comprobo nada.
-    setPreviewPlanilla(leerPlanillaDeInvitados(texto, listaActual.map((i) => i.nombre)));
+    setPreviewPlanilla(
+      ponerIdsDeIntentoAFilas(
+        leerPlanillaDeInvitados(texto, listaActual.map((i) => i.nombre)),
+        idsDePlanilla.current,
+        () => crypto.randomUUID(),
+      ),
+    );
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +147,7 @@ function InvitadosEventoContent() {
             rsvp: 'Confirmado',
             partySize: 1 + (item.companionNames?.length || 0),
             isCeliac: item.dietaryRestriction === 'Celiaco',
-          });
+          }, { idIntento: item.idIntento });
           if (res.success) {
             guardados++;
           } else {
@@ -168,6 +179,7 @@ function InvitadosEventoContent() {
           title: informe.titulo,
           description: informe.detalle,
         });
+        idsDePlanilla.current.clear();
         setIsImportModalOpen(false);
         setPlanillaTexto('');
         setPreviewPlanilla(null);
@@ -241,16 +253,21 @@ function InvitadosEventoContent() {
     e.preventDefault();
     if (!nuevoNombre.trim() || !fiestaId) return;
     setIsSaving(true);
-    const result = await addInvitadoFiestaActual(fiestaId, {
+    const carga = {
       nombre: nuevoNombre.trim(),
       categoria: nuevaCategoria,
-      rsvp: 'Confirmado',
+      rsvp: 'Confirmado' as const,
       partySize: 1,
       isCeliac: nuevoCeliaco,
       tag: nuevoTag || undefined,
       perfil: nuevoPerfil,
-    });
+    };
+    // Pregunta 58: mismo contenido = mismo intento; si la respuesta se pierde y reintenta, no se duplica.
+    const alcanceIntento = `invitado-nuevo:${fiestaId}`;
+    const idIntento = await obtenerIntento(alcanceIntento, carga);
+    const result = await addInvitadoFiestaActual(fiestaId, carga, { idIntento });
     if (result.success) {
+      terminarIntento(alcanceIntento);
       setNuevoNombre(''); setNuevoTag(''); setNuevoCeliaco(false); setNuevoPerfil('General');
       await fetchInvitados();
       toast({ title: "Invitado Añadido" });

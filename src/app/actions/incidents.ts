@@ -4,6 +4,7 @@ import type { Incidente, IncidenteActualizacion } from '@/types/incident';
 import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { AsyncMutex } from '@/lib/mutex';
+import { idDelIntento, esIdYaExistente, type OpcionesDeIntento } from '@/lib/intento-en-servidor';
 
 const INCIDENTES_FILE = 'incidentes.json';
 
@@ -43,18 +44,31 @@ async function cambiarUnIncidente(
 }
 
 async function createIncidenteInterno(
-  data: Omit<Incidente, 'id' | 'registradoEn' | 'actualizaciones'>
+  data: Omit<Incidente, 'id' | 'registradoEn' | 'actualizaciones'>,
+  opciones?: OpcionesDeIntento,
 ): Promise<{ success: boolean; incidente?: Incidente; error?: string }> {
   await requireAppSession();
   try {
+    // Pregunta 58: reintento de una respuesta perdida = el mismo incidente, no otro.
+    const idDeLaPantalla = idDelIntento('inc', opciones?.idIntento);
+    if (idDeLaPantalla) {
+      const existentes = await readData<Incidente[]>(INCIDENTES_FILE, []);
+      const yaGuardado = existentes.find(i => i.id === idDeLaPantalla);
+      if (yaGuardado) return { success: true, incidente: yaGuardado };
+    }
     const newIncidente: Incidente = {
       ...data,
-      id: idNuevo('inc'),
+      id: idDeLaPantalla ?? idNuevo('inc'),
       registradoEn: new Date().toISOString(),
       actualizaciones: [],
     };
     if (!SIN_BASE()) {
-      await createDataItem(INCIDENTES_FILE, INCIDENTES_COLLECTION, newIncidente.id, newIncidente);
+      try {
+        await createDataItem(INCIDENTES_FILE, INCIDENTES_COLLECTION, newIncidente.id, newIncidente);
+      } catch (e) {
+        // Dos intentos casi a la vez (servidores distintos): el segundo ve el registro del primero.
+        if (!idDeLaPantalla || !esIdYaExistente(e)) throw e;
+      }
     } else {
       const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
       all.push(newIncidente);

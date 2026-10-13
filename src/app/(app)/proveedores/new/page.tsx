@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -59,8 +60,11 @@ export default function NewProveedorPage() {
     };
 
     try {
-      const result = await saveProveedor(proveedorData); 
+      // Pregunta 58: reintento de una respuesta perdida = el mismo proveedor, no "ya existe".
+      const idIntento = await obtenerIntento('proveedor-nuevo', proveedorData);
+      const result = await saveProveedor(proveedorData, { idIntento });
       if (result.success && result.id) {
+        terminarIntento('proveedor-nuevo');
         toast({ title: "¡Registro Guardado!", description: `El registro "${proveedorData.nombreEmpresa}" ha sido guardado.` });
         router.push('/proveedores');
       } else {

@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -110,6 +111,10 @@ export default function AlertasPage() {
       const nombreCliente = info?.nombreCliente || alerta.fiestaName || 'Cliente';
       const texto = armarTextoAviso(reglaId, nombreCliente);
 
+      // Pregunta 58: el mismo aviso reintentado tras una respuesta perdida no se programa dos veces.
+      const alcanceIntento = `aviso-alerta:${alerta.id}`;
+      const cargaAviso = { fiestaId: alerta.fiestaId, reglaId, texto };
+      const idIntento = await obtenerIntento(alcanceIntento, cargaAviso);
       const res = await saveScheduledMessage({
         targetType: 'cliente',
         targetId: alerta.fiestaId,
@@ -122,9 +127,10 @@ export default function AlertasPage() {
         sendingMode: 'manual_click',
         fiestaId: alerta.fiestaId,
         automationRuleId: reglaId,
-      });
+      }, undefined, { idEstable: `msg_${idIntento}` });
 
       if (res.success) {
+        terminarIntento(alcanceIntento);
         toast({
           title: 'WhatsApp preparado',
           description: 'El mensaje quedó en la bandeja de salida (CRM Outbox) listo para enviar.',

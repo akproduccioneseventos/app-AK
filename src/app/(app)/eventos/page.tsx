@@ -222,7 +222,8 @@ export default function GestorFiestasPage() {
 
   const selectedCustomer = customers.find(customer => customer.id === selectedCustomerId);
 
-  const handleReset = async (clienteId?: string, clienteNombre?: string) => {
+  // Devuelve true si el evento se creo: el dialogo y el cliente elegido solo se sueltan en ese caso.
+  const handleReset = async (clienteId?: string, clienteNombre?: string): Promise<boolean> => {
     setIsProcessing('reset-fiesta');
 
     try {
@@ -237,7 +238,7 @@ export default function GestorFiestasPage() {
         });
 
         router.push(`/fiestas/nueva?fiestaId=${result.newFiestaId}`);
-        return;
+        return true;
       }
 
       throw new Error(result.error || "No se pudo crear el nuevo evento.");
@@ -247,6 +248,7 @@ export default function GestorFiestasPage() {
         description: error.message,
         variant: "destructive"
       });
+      return false;
     } finally {
       setIsProcessing(null);
     }
@@ -390,9 +392,11 @@ export default function GestorFiestasPage() {
                 <Button
                   variant="secondary"
                   onClick={async () => {
-                    setIsCreateDialogOpen(false);
-                    await handleReset();
-                    setSelectedCustomerId(null);
+                    const salioBien = await handleReset();
+                    if (salioBien) {
+                      setIsCreateDialogOpen(false);
+                      setSelectedCustomerId(null);
+                    }
                   }}
                   disabled={isProcessing === 'reset-fiesta'}
                 >
@@ -400,9 +404,11 @@ export default function GestorFiestasPage() {
                 </Button>
                 <Button
                   onClick={async () => {
-                    setIsCreateDialogOpen(false);
-                    await handleReset(selectedCustomer?.id, selectedCustomer?.name);
-                    setSelectedCustomerId(null);
+                    const salioBien = await handleReset(selectedCustomer?.id, selectedCustomer?.name);
+                    if (salioBien) {
+                      setIsCreateDialogOpen(false);
+                      setSelectedCustomerId(null);
+                    }
                   }}
                   disabled={isProcessing === 'reset-fiesta'}
                 >

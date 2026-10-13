@@ -304,7 +304,9 @@ export default function CatalogoServiciosPage() {
                         <Card key={item.id} className="border border-slate-100 shadow-sm hover:shadow-md hover:border-primary/20 transition-all rounded-2xl overflow-hidden bg-white group/item">
                           <CardHeader className="pb-3 pt-4 px-4 bg-slate-50/50">
                             <div className="flex justify-between items-start gap-2">
-                              <CardTitle className="text-sm font-black text-slate-800 uppercase tracking-tight flex-grow" title={item.nombre}>{item.nombre}</CardTitle>
+                              <div className="min-w-0 flex-grow">
+                                <CardTitle className="text-sm font-black text-slate-800 uppercase tracking-tight break-words [overflow-wrap:anywhere]" title={item.nombre} data-testid="titulo-servicio">{item.nombre}</CardTitle>
+                              </div>
                               <div className="flex gap-1 shrink-0">
                                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} title="Duplicar">
                                       {duplicatingId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Copy className="w-3.5 h-3.5"/>}

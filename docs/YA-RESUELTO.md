@@ -13694,3 +13694,38 @@ prueba: src/__tests__/trivia-en-vivo-y-misiones-con-puntos.test.ts
 prueba: src/__tests__/subir-foto-de-mision-suma-puntos.test.ts
 prueba: src/__tests__/la-trivia-lanzada-se-ve-en-el-celular.test.tsx
 ```
+
+## Preguntas 58, 59 y 60 en el resto de la app (13 de octubre de 2026)
+
+Las tres preguntas nuevas del método se pasaron por las pantallas que faltaban.
+
+- **Pregunta 58, "la respuesta se pierde y la persona reintenta"**: si se cortaba la señal justo después
+  de guardar, quien volvía a tocar "Guardar" creaba el registro dos veces. Ahora la pantalla arma UN
+  número de intento por borrador (`obtenerIntento`, `src/lib/intento-de-guardado.ts`), lo manda con el
+  pedido y lo suelta sólo cuando el guardado se confirmó. El servidor (`src/lib/intento-en-servidor.ts`)
+  usa ese número como id del registro y, si ya existe uno con ese id, devuelve el que está en vez de
+  crear otro. Cubre invitado nuevo y filas de la planilla (cada fila lleva su número desde que se lee,
+  así reintentar las "fallidas" que en realidad se guardaron no duplica), incidente, cita de la agenda,
+  salón nuevo (sólo el alta, no los pagos), tarea, aviso programado de `/alertas` y copia de plantilla de
+  invitación. Sin número, cada acción sigue como antes.
+- **Error falso después de guardar**: prospecto, proveedor, empleado y servicio del catálogo le decían
+  "ya existe" a quien reintentaba, chocando con su propio registro. Con el número de intento, si el que
+  está tiene ESE id es éxito; el chequeo por nombre o teléfono sigue para personas distintas.
+- **Pregunta 59, formulario que se reabre sucio**: `/aprobaciones` vuelve a abrir la solicitud en blanco
+  después de guardar (conserva sólo el evento) y, si falla, conserva lo escrito. `/eventos` ya no cierra
+  el diálogo ni suelta al cliente elegido si la creación falla.
+- **Pregunta 60, nombres largos en el celular**: el título se parte en cualquier lado (sin puntos
+  suspensivos ni letra más chica) y los botones quedan a la vista, en `/empresa/salones`,
+  `/empresa/servicios`, `/aprobaciones` y el encabezado de las tarjetas de `/pagos-rapidos`.
+- **Por qué así**: el número de intento sale del contenido (mismo contenido = mismo número), así que
+  editar el formulario después de un error arma un registro nuevo de verdad y no uno viejo. Sin
+  `crypto.subtle` (página sin https) la huella cae a una simple y nunca rompe el guardado.
+
+```comprobar
+prueba: src/__tests__/pregunta-58-altas-reintento-no-duplica.test.ts
+prueba: src/__tests__/pregunta-58-invitados-y-tareas-reintento-no-duplica.test.ts
+prueba: src/__tests__/pregunta-58-pantallas-mandan-la-identidad.test.ts
+prueba: src/__tests__/preguntas-59-y-60-aprobaciones-y-nombres-largos.test.tsx
+usa: idDelIntento en src/app/actions/fiesta/invitados.actions.ts
+usa: obtenerIntento en src/app/(app)/incidentes/page.tsx
+```

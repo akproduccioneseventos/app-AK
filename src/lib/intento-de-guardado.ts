@@ -12,13 +12,30 @@
  * Es la misma idea que `src/lib/budget/intento-configurador.ts`, para cualquier pantalla.
  */
 async function huella(carga: unknown): Promise<string> {
-  const bytes = new TextEncoder().encode(JSON.stringify(carga ?? null));
+  const texto = JSON.stringify(carga ?? null);
+  // Sin `crypto.subtle` (pagina sin https, navegador viejo, prueba en jsdom) se usa una huella simple:
+  // alcanza para distinguir "mismo contenido" de "contenido distinto". Nunca se rompe el guardado.
+  if (typeof crypto === 'undefined' || !crypto.subtle) {
+    let h1 = 5381;
+    let h2 = 52711;
+    for (let i = 0; i < texto.length; i++) {
+      h1 = (h1 * 33) ^ texto.charCodeAt(i);
+      h2 = (h2 * 31 + texto.charCodeAt(i)) | 0;
+    }
+    return `s${texto.length}-${(h1 >>> 0).toString(16)}-${(h2 >>> 0).toString(16)}`;
+  }
+  const bytes = new TextEncoder().encode(texto);
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)))
     .map((n) => n.toString(16).padStart(2, '0'))
     .join('');
 }
 
 const clave = (alcance: string) => `ak-intento-v1:${alcance}`;
+
+function nuevoId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  return `i${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+}
 
 export async function obtenerIntento(alcance: string, carga: unknown): Promise<string> {
   const fingerprint = await huella(carga);
@@ -30,7 +47,7 @@ export async function obtenerIntento(alcance: string, carga: unknown): Promise<s
     previo = null;
   }
   if (previo?.fingerprint === fingerprint && typeof previo.id === 'string') return previo.id;
-  const id = crypto.randomUUID();
+  const id = nuevoId();
   try {
     window.sessionStorage.setItem(clave(alcance), JSON.stringify({ id, fingerprint }));
   } catch {

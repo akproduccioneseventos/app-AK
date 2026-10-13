@@ -83,14 +83,14 @@ export async function updateModulosContratadosFiestaActual(fiestaId: string, mod
 
 // --- GESTIÓN DE TAREAS ---
 export async function updateTareasFiestaActual(fiestaId: string, tareas: Tarea[]) { return await TareasModule.updateTareas(fiestaId, tareas); }
-export async function addTareaToFiestaActual(fiestaId: string, tareaData: Omit<Tarea, 'id' | 'completada'>) { return await TareasModule.addTarea(fiestaId, tareaData); }
+export async function addTareaToFiestaActual(fiestaId: string, tareaData: Omit<Tarea, 'id' | 'completada'>, opciones?: { idIntento?: string }) { return await TareasModule.addTarea(fiestaId, tareaData, opciones); }
 export async function addTareasToFiestaActual(fiestaId: string, nuevas: Tarea[]) { return await TareasModule.addTareas(fiestaId, nuevas); }
 export async function marcarTareaFiestaActual(fiestaId: string, tareaId: string, completada: boolean) { return await TareasModule.marcarTarea(fiestaId, tareaId, completada); }
 export async function deleteTareaFromFiestaActual(fiestaId: string, tareaId: string) { return await TareasModule.deleteTarea(fiestaId, tareaId); }
 
 // --- GESTIÓN DE INVITADOS ---
 export async function getInvitadosFiestaActual(fiestaId: string) { return await InvitadosModule.getInvitados(fiestaId); }
-export async function addInvitadoFiestaActual(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) { return await InvitadosModule.addInvitado(fiestaId, nuevoInvitadoData); }
+export async function addInvitadoFiestaActual(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>, opciones?: { idIntento?: string }) { return await InvitadosModule.addInvitado(fiestaId, nuevoInvitadoData, opciones); }
 export async function updateInvitadoFiestaActual(fiestaId: string, invitadoActualizado: Invitado) { return await InvitadosModule.updateInvitado(fiestaId, invitadoActualizado); }
 export async function handleRsvpSubmissionFiestaActual(fiestaId: string, submission: any) { return await InvitadosModule.handleRsvpSubmission(fiestaId, submission); }
 export async function checkInGuestFiestaActual(fiestaId: string, guestId: string, qr?: { token: string | null }) { return await InvitadosModule.checkInGuest(fiestaId, guestId, qr); }
