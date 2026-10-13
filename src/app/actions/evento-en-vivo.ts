@@ -52,6 +52,27 @@ async function agregarAlEnVivo(
   return r.success ? { success: true } : { success: false, error: r.error };
 }
 
+/**
+ * Cambia SOLO la parte en vivo sobre la fiesta de ESE momento, adentro del turno.
+ *
+ * Antes cada accion del organizador leia la fiesta entera, cambiaba lo suyo y guardaba la
+ * fiesta entera con `saveFiesta`: dos toques a la vez (destacar un mensaje mientras un
+ * invitado manda una cancion) se pisaban y las dos pantallas decian "listo".
+ */
+async function cambiarEnVivo(
+  fiestaId: string,
+  cambiar: (data: EventoEnVivoData) => void,
+  falla: string,
+): Promise<{ success: boolean; error?: string }> {
+  const r = await actualizarFiesta(fiestaId, (fresca) => {
+    const data = getOrInitData(fresca);
+    cambiar(data);
+    return { ...fresca, eventoEnVivo: data };
+  });
+  if (r.success) return { success: true };
+  return { success: false, error: /no encontrada/i.test(r.error || '') ? 'Evento no encontrado.' : falla };
+}
+
 function randomId() {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
@@ -254,13 +275,11 @@ export async function marcarCancionReproducida(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    const data = getOrInitData(fiesta);
-    data.solicitudesCanciones = data.solicitudesCanciones.map(s =>
-      s.id === solicitudId ? { ...s, reproducida: !s.reproducida } : s
-    );
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
+    return await cambiarEnVivo(fiestaId, (data) => {
+      data.solicitudesCanciones = data.solicitudesCanciones.map(s =>
+        s.id === solicitudId ? { ...s, reproducida: !s.reproducida } : s
+      );
+    }, 'No se pudo actualizar la solicitud.');
   } catch {
     return { success: false, error: 'No se pudo actualizar la solicitud.' };
   }
@@ -304,13 +323,11 @@ export async function toggleMensajeDestacado(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    const data = getOrInitData(fiesta);
-    data.mensajes = data.mensajes.map(m =>
-      m.id === mensajeId ? { ...m, destacado: !m.destacado } : m
-    );
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
+    return await cambiarEnVivo(fiestaId, (data) => {
+      data.mensajes = data.mensajes.map(m =>
+        m.id === mensajeId ? { ...m, destacado: !m.destacado } : m
+      );
+    }, 'No se pudo actualizar el mensaje.');
   } catch {
     return { success: false, error: 'No se pudo actualizar el mensaje.' };
   }
@@ -328,16 +345,14 @@ export async function createVotacion(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    const data = getOrInitData(fiesta);
-    data.votaciones.push({
-      ...votacion,
-      id: randomId(),
-      timestamp: new Date().toISOString(),
-      activa: true,
-    });
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
+    return await cambiarEnVivo(fiestaId, (data) => {
+      data.votaciones = [...data.votaciones, {
+        ...votacion,
+        id: randomId(),
+        timestamp: new Date().toISOString(),
+        activa: true,
+      }];
+    }, 'No se pudo crear la votación.');
   } catch {
     return { success: false, error: 'No se pudo crear la votación.' };
   }
@@ -430,13 +445,11 @@ export async function toggleVotacionActiva(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    const data = getOrInitData(fiesta);
-    data.votaciones = data.votaciones.map(v =>
-      v.id === votacionId ? { ...v, activa: !v.activa } : v
-    );
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
+    return await cambiarEnVivo(fiestaId, (data) => {
+      data.votaciones = data.votaciones.map(v =>
+        v.id === votacionId ? { ...v, activa: !v.activa } : v
+      );
+    }, 'No se pudo actualizar la votación.');
   } catch {
     return { success: false, error: 'No se pudo actualizar la votación.' };
   }
@@ -449,24 +462,22 @@ export async function deleteContenidoEnVivo(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    const data = getOrInitData(fiesta);
-    switch (tipo) {
-      case 'foto':
-        data.fotos = data.fotos.filter(f => f.id !== id);
-        break;
-      case 'cancion':
-        data.solicitudesCanciones = data.solicitudesCanciones.filter(s => s.id !== id);
-        break;
-      case 'mensaje':
-        data.mensajes = data.mensajes.filter(m => m.id !== id);
-        break;
-      case 'votacion':
-        data.votaciones = data.votaciones.filter(v => v.id !== id);
-        break;
-    }
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
+    return await cambiarEnVivo(fiestaId, (data) => {
+      switch (tipo) {
+        case 'foto':
+          data.fotos = data.fotos.filter(f => f.id !== id);
+          break;
+        case 'cancion':
+          data.solicitudesCanciones = data.solicitudesCanciones.filter(s => s.id !== id);
+          break;
+        case 'mensaje':
+          data.mensajes = data.mensajes.filter(m => m.id !== id);
+          break;
+        case 'votacion':
+          data.votaciones = data.votaciones.filter(v => v.id !== id);
+          break;
+      }
+    }, 'No se pudo eliminar el contenido.');
   } catch {
     return { success: false, error: 'No se pudo eliminar el contenido.' };
   }

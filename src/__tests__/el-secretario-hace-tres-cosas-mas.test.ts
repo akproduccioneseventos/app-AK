@@ -2,7 +2,7 @@
  * MATAFUEGO — El secretario hace tres cosas más (orden 74 bloque 5, orden 88 bloque 2).
  *
  * Con la IA simulada que devuelve cada acción, se llama de verdad a:
- *  - updateTareas (marcando la tarea hecha y preservando todas las demás)
+ *  - marcarTarea (marca SOLO esa tarea por id; las demás las conserva el servidor)
  *  - addInvitado (con los datos dados)
  *  - createIncidente (con los datos y gravedad mapeada a prioridad)
  *
@@ -13,7 +13,7 @@
 import { sendPersistentMultiAgentMessage } from '@/app/actions/multiagent';
 import { runMultiAgent } from '@/ai/flows/multiagent-flow';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { updateTareas } from '@/app/actions/fiesta/tareas.actions';
+import { marcarTarea } from '@/app/actions/fiesta/tareas.actions';
 import { addInvitado } from '@/app/actions/fiesta/invitados.actions';
 import { createIncidente } from '@/app/actions/incidents';
 
@@ -35,7 +35,7 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
 }));
 
 jest.mock('@/app/actions/fiesta/tareas.actions', () => ({
-  updateTareas: jest.fn().mockResolvedValue({ success: true }),
+  marcarTarea: jest.fn().mockResolvedValue({ success: true }),
 }));
 
 jest.mock('@/app/actions/fiesta/invitados.actions', () => ({
@@ -94,16 +94,9 @@ describe('El secretario hace tres cosas más', () => {
     });
 
     expect(res.success).toBe(true);
-    expect(updateTareas).toHaveBeenCalledTimes(1);
-
-    const [fiestaIdLlamado, tareasActualizadas] = (updateTareas as jest.Mock).mock.calls[0];
-    expect(fiestaIdLlamado).toBe('fiesta_123');
-
-    // Comprobar que no se borraron las otras tareas
-    expect(tareasActualizadas).toHaveLength(3);
-    expect(tareasActualizadas.find((t: any) => t.id === 't1')?.completada).toBe(true);
-    expect(tareasActualizadas.find((t: any) => t.id === 't2')?.completada).toBe(false);
-    expect(tareasActualizadas.find((t: any) => t.id === 't3')?.completada).toBe(true);
+    expect(marcarTarea).toHaveBeenCalledTimes(1);
+    // Manda el id de la tarea y nada más: no reescribe la lista entera con una lectura vieja.
+    expect((marcarTarea as jest.Mock).mock.calls[0]).toEqual(['fiesta_123', 't1', true]);
   });
 
   it('complete_task sin decir cuál tarea no marca ninguna (no adivina la primera)', async () => {
@@ -119,7 +112,7 @@ describe('El secretario hace tres cosas más', () => {
       action: { type: 'complete_task', data: { fiestaId: 'fiesta_123' } },
     });
     const res = await sendPersistentMultiAgentMessage({ message: 'Ya está', fiestaId: 'fiesta_123', agentType: 'fiesta' });
-    expect(updateTareas).not.toHaveBeenCalled();
+    expect(marcarTarea).not.toHaveBeenCalled();
     expect(res.response).toMatch(/No encontré la tarea/);
   });
 

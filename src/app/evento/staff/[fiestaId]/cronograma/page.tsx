@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import { Clock, CheckCircle2, Circle, AlertCircle, Sparkles, RefreshCw, UserCheck, Shield, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { marcarHitoPrograma } from '@/app/actions/fiesta/itinerario.actions';
 import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
 import { useToast } from '@/hooks/use-toast';
 
@@ -79,22 +80,27 @@ export default function StaffCronogramaPage() {
   const handleToggleComplete = async (item: ProgramaEventoItem) => {
     if (!fiesta) return;
     setUpdatingId(item.id);
-    const updatedPrograma = programa.map((p) =>
-      p.id === item.id ? { ...p, completado: !p.completado } : p
-    );
-
-    const updatedFiesta: FiestaEnPlanificacion = {
+    const completado = !item.completado;
+    // Solo viaja el hito y su estado; la fiesta que se guarda es la de ese momento, no la copia
+    // vieja del navegador (un RSVP guardado en el medio ya no se pisa).
+    setFiesta({
       ...fiesta,
-      programa: updatedPrograma,
-    };
-
-    setFiesta(updatedFiesta);
+      programa: programa.map((p) => (p.id === item.id ? { ...p, completado } : p)),
+    });
     try {
-      const res = await saveFiesta(updatedFiesta);
+      const res = await marcarHitoPrograma(fiestaId, item.id, completado);
       if (res.success) {
+        if (res.updatedData) setFiesta((previa) => (previa ? { ...previa, programa: res.updatedData! } : previa));
         toast({
           title: item.completado ? 'Hito reabierto' : '¡Hito completado!',
           description: item.titulo,
+        });
+      } else {
+        await loadData();
+        toast({
+          title: 'No se pudo guardar',
+          description: res.error || 'No se pudo sincronizar el estado.',
+          variant: 'destructive',
         });
       }
     } catch {

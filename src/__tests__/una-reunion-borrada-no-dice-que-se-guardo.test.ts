@@ -10,17 +10,24 @@
  * podia llegar el aviso de **una reunion que ya no existe**.
  */
 
-const getFiestaById = jest.fn();
-const updateFiestaPartial = jest.fn(async () => ({ success: true }));
+let fiestaGuardada: any = null;
+const actualizarFiesta = jest.fn(async (_id: string, fn: (f: any) => any) => {
+  try {
+    const nueva = await fn(JSON.parse(JSON.stringify(fiestaGuardada)));
+    fiestaGuardada = nueva;
+    return { success: true, updatedFiesta: nueva };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+});
 const syncReunionToGoogleWorkspace = jest.fn(async () => ({ success: true }));
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
 }));
 
-jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
-  getFiestaById: (...a: unknown[]) => getFiestaById(...(a as [])),
-  updateFiestaPartial: (...a: unknown[]) => updateFiestaPartial(...(a as [])),
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: (...a: unknown[]) => actualizarFiesta(...(a as [string, (f: any) => any])),
 }));
 
 jest.mock('@/app/actions/google-workspace-extended', () => ({
@@ -32,12 +39,11 @@ const REUNION = { id: 'r1', fiestaId: 'f1', titulo: 'Reunion de cierre', fecha: 
 describe('Una reunion borrada no dice que se guardo', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    updateFiestaPartial.mockResolvedValue({ success: true } as any);
   });
 
   it('si otro la borro mientras la editaban, avisa y NO le manda nada al calendario', async () => {
     // La fiesta ya no tiene esa reunion: la borraron hace un minuto desde otra pantalla.
-    getFiestaById.mockResolvedValue({ id: 'f1', reuniones: [] });
+    fiestaGuardada = { id: 'f1', reuniones: [] };
     const { updateReunion } = await import('@/app/actions/fiesta/reuniones.actions');
 
     const resultado = await updateReunion({ ...REUNION, titulo: 'Titulo editado' });
@@ -48,12 +54,13 @@ describe('Una reunion borrada no dice que se guardo', () => {
   });
 
   it('si la reunion esta, se guarda y se sincroniza como siempre', async () => {
-    getFiestaById.mockResolvedValue({ id: 'f1', reuniones: [REUNION] });
+    fiestaGuardada = { id: 'f1', reuniones: [REUNION] };
     const { updateReunion } = await import('@/app/actions/fiesta/reuniones.actions');
 
     const resultado = await updateReunion({ ...REUNION, titulo: 'Titulo editado' });
 
     expect(resultado.success).toBe(true);
-    expect(updateFiestaPartial).toHaveBeenCalled();
+    expect(fiestaGuardada.reuniones[0].titulo).toBe('Titulo editado');
+    expect(syncReunionToGoogleWorkspace).toHaveBeenCalledTimes(1);
   });
 });

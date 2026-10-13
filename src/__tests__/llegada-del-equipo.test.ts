@@ -27,7 +27,7 @@ describe('la llegada del equipo se guarda y se protege como el resto', () => {
 
     expect(fuente).not.toContain('fs.writeFile');
     expect(fuente).not.toContain("from 'fs/promises'");
-    expect(fuente).toContain('updateDataPartial');
+    expect(fuente).toContain('actualizarFiesta');
   });
 
   it('todas las acciones piden sesion', () => {
@@ -50,6 +50,6 @@ describe('la llegada del equipo se guarda y se protege como el resto', () => {
 
     // Marcar dos veces no puede cambiar la hora original: sirve para saber si
     // alguien llego tarde.
-    expect(fuente).toContain('if (fiesta.personalAsignado[indice].checkInTimestamp) return true;');
+    expect(fuente).toContain('if (persona.checkInTimestamp) return fiesta;');
   });
 });

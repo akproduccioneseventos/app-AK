@@ -3,7 +3,6 @@
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, GiftItem } from '@/types/fiesta';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
@@ -13,12 +12,8 @@ async function updateFiestaData(
     updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const currentData = await getFiestaById(fiestaId);
-     if (!currentData) {
-        throw new Error("Fiesta no encontrada para actualizar regalos.");
-    }
-    const updatedData = updateFn(currentData);
-    const guardado = await saveFiesta(updatedData);
+    // Lee y guarda adentro del turno: un regalo reservado por un invitado en el medio no se pisa.
+    const guardado = await actualizarFiesta(fiestaId, updateFn);
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo guardar la lista de regalos.' };
     }
@@ -53,7 +48,7 @@ export async function addGiftToRegistry(fiestaId: string, newGiftData: Omit<Gift
     return updateFiestaData(fiestaId, data => {
         const newGift: GiftItem = {
             ...newGiftData,
-            id: `gift_user_${Date.now()}`,
+            id: `gift_user_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
             isClaimed: false,
         };
 
