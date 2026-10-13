@@ -434,18 +434,35 @@ export async function transferSorteoToScreen(
   }
 }
 
-/** Registra un voto en una opción del juego activo */
+/**
+ * Registra un voto en una opción del juego activo.
+ *
+ * Como las encuestas (13/10/2026): antes el tope era 40 votos por minuto para TODA la fiesta desde
+ * la misma red, y en el wifi del salón el voto 41 se rechazaba. Ahora cuenta un voto por teléfono
+ * por juego lanzado (repetirlo no suma) y el tope de la red es alto.
+ */
 export async function voteActiveGameOption(
   fiestaId: string,
-  optionId: string
+  optionId: string,
+  dispositivoId?: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const dispositivo = typeof dispositivoId === 'string' && /^[a-zA-Z0-9-]{8,64}$/.test(dispositivoId) ? dispositivoId : null;
     await enforcePublicRateLimit({
       scope: 'social-active-game-vote',
       identity: fiestaId,
-      limit: 40,
+      limit: 600,
       windowMs: 60_000,
     });
+    if (dispositivo) {
+      await enforcePublicRateLimit({
+        scope: 'social-active-game-vote-telefono',
+        identity: `${fiestaId}:${dispositivo}`,
+        limit: 10,
+        windowMs: 60_000,
+        ignoreClientAddress: true,
+      });
+    }
     const { dbAdmin } = await import('@/lib/firebase/server');
     if (!dbAdmin) throw new Error('Base de datos no disponible.');
     const ref = dbAdmin.collection('fiestas').doc(fiestaId);
@@ -459,6 +476,12 @@ export async function voteActiveGameOption(
       if (!(activeGame.options ?? []).some((option) => option.id === optionId)) {
         throw new Error('Opción de juego no válida.');
       }
+      // Un voto por teléfono en cada juego lanzado: si ya votó (o reintenta), no suma otra vez.
+      const votoRef = dispositivo
+        ? dbAdmin.collection('social_game_votes').doc(`${fiestaId}__${activeGame.launchedAt.replace(/[^0-9a-zA-Z]/g, '')}__${dispositivo}`)
+        : null;
+      const votoPrevio = votoRef ? await transaction.get(votoRef) : null;
+      if (votoPrevio?.exists) return;
       const updatedOptions = (activeGame.options ?? []).map((option) =>
         option.id === optionId ? { ...option, votes: (option.votes ?? 0) + 1 } : option
       );
@@ -466,6 +489,7 @@ export async function voteActiveGameOption(
         'socialGallerySettings.activeGame': { ...activeGame, options: updatedOptions },
         _syncedAt: new Date().toISOString(),
       });
+      if (votoRef) transaction.set(votoRef, { fiestaId, launchedAt: activeGame.launchedAt, optionId, createdAt: new Date().toISOString() });
     });
     return { success: true };
   } catch (error: any) {

@@ -915,7 +915,7 @@ export default function SocialEventPage() {
 
   const submitGameVote = async (optionId: string) => {
     if (!activeGame || votedGameId === activeGame.launchedAt) return;
-    const result = await voteActiveGameOption(fiestaId, optionId);
+    const result = await voteActiveGameOption(fiestaId, optionId, idDelTelefono());
     if (result.success) {
       setVotedGameId(activeGame.launchedAt);
       localStorage.setItem(`votedGame_${fiestaId}`, activeGame.launchedAt);

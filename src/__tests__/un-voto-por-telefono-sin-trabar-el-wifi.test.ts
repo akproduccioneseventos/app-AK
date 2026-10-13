@@ -25,7 +25,12 @@ jest.mock('@/lib/firebase/server', () => ({
           const actual = (store[r.col] ||= {})[r.id] || {};
           const nuevo = { ...actual };
           for (const [k, v] of Object.entries(data)) {
-            nuevo[k] = v && typeof v === 'object' && 'operand' in (v as any) ? (actual[k] || 0) + (v as any).operand : v;
+            // Como Firestore: "a.b" escribe el campo b adentro de a.
+            const partes = k.split('.');
+            let destino = nuevo;
+            for (const p of partes.slice(0, -1)) destino = destino[p] = { ...(destino[p] || {}) };
+            const ultimo = partes[partes.length - 1];
+            destino[ultimo] = v && typeof v === 'object' && 'operand' in (v as any) ? (destino[ultimo] || 0) + (v as any).operand : v;
           }
           store[r.col][r.id] = nuevo;
         }),
@@ -92,4 +97,29 @@ it('un id de teléfono inválido no se usa como identidad (sólo aplica el tope 
   expect(r.success).toBe(true);
   expect(topes.map((t) => t.scope)).toEqual(['social-poll-vote']);
   expect(store.social_poll_votes).toBeUndefined();
+});
+
+describe('juegos de la pantalla gigante (sí o no, verdad o desafío)', () => {
+  beforeEach(() => {
+    store.fiestas = {
+      f1: { id: 'f1', socialGallerySettings: { enabled: true, activeGame: { type: 'siONo', title: '¿Bailan?', launchedAt: '2026-10-13T23:00:00.000Z', options: [{ id: 'si', text: 'Sí', votes: 0 }, { id: 'no', text: 'No', votes: 0 }] } } },
+    };
+  });
+
+  it('cien teléfonos en el mismo wifi votan y cuentan los cien (antes se cortaba en 40)', async () => {
+    const { voteActiveGameOption } = await import('@/app/actions/fiesta/screen-mode.actions');
+    for (let i = 0; i < 100; i++) {
+      const r = await voteActiveGameOption('f1', 'si', `telefono-${String(i).padStart(4, '0')}`);
+      expect(r.success).toBe(true);
+    }
+    expect(store.fiestas.f1.socialGallerySettings.activeGame.options[0].votes).toBe(100);
+    expect(topes.find((t) => t.scope === 'social-active-game-vote')!.limit).toBeGreaterThanOrEqual(300);
+  });
+
+  it('el mismo teléfono votando dos veces el mismo juego suma uno', async () => {
+    const { voteActiveGameOption } = await import('@/app/actions/fiesta/screen-mode.actions');
+    await voteActiveGameOption('f1', 'si', 'telefono-0001');
+    await voteActiveGameOption('f1', 'no', 'telefono-0001');
+    expect(store.fiestas.f1.socialGallerySettings.activeGame.options.map((o: any) => o.votes)).toEqual([1, 0]);
+  });
 });
