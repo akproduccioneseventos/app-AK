@@ -54,7 +54,15 @@ equipos fisicos, atomicidad global del snapshot ni toda la aplicacion.
 GitHub Actions por facturacion no sustituyen los resultados locales.
 Registro compartido: docs/YA-RESUELTO.md y ESTADO-ACTUAL.md.
 
-## Auditoria117 posterior: defecto nuevo, no corregido en esta propuesta
+## Auditoria117 historica y cierre118 de la correccion
+
+ACTUALIZACION118: defecto161 CORREGIDO y contrastado en662f123d.
+731suites4564tests0fallos/omitidos PASS; build con tipos/lint y acentos PASS.
+6flujos nativos PC/Pixel7 PASS: ACK2->2, recarga, timelineCRM sin repetir,
+cotizacion nueva distinta mismo telefono y documento real visible tras recarga.
+118-aceptacion.json; no se certifica todo el producto ni los consumidores legacy
+que no envian operationId.152 sigue como friccion, no se fusiono ni publico.
+Texto117 de abajo conservado como HISTORIA anterior a la correccion.
 
 Sobre la misma fuente1656: reintento del configurador tras perder la respuesta
 de un guardado ya realizado crea otro presupuesto. Repro PC y Pixel7: SDK2->3,

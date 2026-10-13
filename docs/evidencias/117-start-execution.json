@@ -1,6 +1,6 @@
 {
-  "sha": "479408f2b0674f2d83a498ad4a2010ac87c477d6",
-  "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "sha": "662f123d41c59f6e802384322b10049b913fb416",
+  "applicationSourceSha": "662f123d41c59f6e802384322b10049b913fb416",
   "mode": "start",
   "args": [
     "node_modules/next/dist/bin/next",
@@ -10,10 +10,10 @@
     "--port",
     "3301"
   ],
-  "launcher": 54796,
-  "child": 48024,
-  "started": "2026-10-13T10:21:27.817Z",
+  "launcher": 56296,
+  "child": 53568,
+  "started": "2026-10-13T11:36:53.858Z",
   "status": "finished",
   "exitCode": 4294967295,
-  "finished": "2026-10-13T10:27:54.782Z"
+  "finished": "2026-10-13T11:50:20.453Z"
 }

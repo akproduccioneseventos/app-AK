@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex118:161 contrastada; no repetir configurador/ACK
+
+-Fuente final662f123d. Clave por intento+actor/carga, creacion y numero en
+ transaccion; retry devuelve mismo ID sin repetir CRM/aviso ni pisar cobros.
+ Nueva cotizacion legitima mismo telefono/datos conserva otro documento.
+-731suites4564tests0fallos/omitidos PASS, build incluyendo tipos/lint PASS,
+ acentos2851.6flujos nativos PC/Pixel7 PASS,2observaciones separadas de hitbox.
+ ACK2->2 antes/despues, incluso recargaPixel7; timeline CRM no se repite;
+ mismo prospecto conserva2cotizaciones y documento real visible tras recarga.
+-Friccion152 PC sigue2/3puntos cubiertos; no se disfraza de PASS estetico.
+ Respuesta inicial al operador y aviso del numero real fueron corregidos tras
+ dos regresiones del prototipo06c (fallos conservados); build06c no valida662.
+-URLs solas no acreditan destino: sonda ampliada espera /ver y presupuesto
+ visible/persistente; evidencia inicial conserva alcance mas chico. No app nueva.
+-SDK0,2servicios apagados, bytes ajenos restaurados, agente barato cerrado.
+ Grafo local14499/43709/915 sinLLM,25warningsparser parciales registrados.
+-Gate118-aceptacion.json PASS_ORDER_161_ONLY. No fusion/publicacion/0errores.
+ Otros consumidores sin operationId: riesgos reales a probar, no defectos
+ ejecutados;118-consumidores-a-contrastar. No extender161 por mera referencia.
+ Privado Claude NO CONTRASTADO; Hosting/OAuth/19originales/hardware no acreditados.
+
 ## 13/10/2026 - Codex118 en curso: orden161 implementada, aun sin retest nativo
 
 -Clave UUID por intento en sessionStorage, sin guardar PII; timestamp nuevo no

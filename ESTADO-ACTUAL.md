@@ -1,10 +1,9 @@
-# Estado actual - 13/10/2026 (Codex118 validando161; PR1293 ABIERTA)
+# Estado actual - 13/10/2026 (Codex118 comprobada; PR1293 ABIERTA)
 
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
 Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
-Fuente app1656ac2e; head de entrega se comprueba en GitHub antes de subir.
-
+Fuente final662f123d; head de entrega comprobar en GitHub antes de subir.
 ## Delta116; mantener lo ya integrado por Claude
 -Libro de costos en backup/mapa, IDs legacy, restore sin recibos posteriores.
 -Backup interno despues de ajuste; fallo de lectura/ZIP incompleto no se certifica.
@@ -21,12 +20,13 @@ Fuente app1656ac2e; head de entrega se comprueba en GitHub antes de subir.
 -Candidato C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103.
 -Codex autorizado a corregir directo; principal conserva dinero/datos/seguridad.
 -No tocar datos ajenos, forzar push ni abrir corrida si la anterior sigue activa.
--118 activa: comprobar117-*-execution y procesos antes de otra corrida.
+-118:731suites4564tests/build(tipos/lint)/acentos PASS;6flujos PC/Pixel7 PASS.
 -PR1293 creada sin fusionar; continuar en ella SOLO si sigue ABIERTA.
--161 implementada, aun sin retest compilado:28focalizadas PASS. NO cerrada.
--Prototipo06c detecto2fallos nuevos, corregidos; fuente final y amplia pendientes.
+-161 cerrada: ACK2->2/recarga/CRMsinrepetir/nueva cotizacion/documento visible.
+-118 SDK0,servicios/agentes cerrados,bytes restaurados; prototipo2FAIL conservados.
 -155 firmador/exports ya corregidos:51unidades116 PASS; proveedor real no probado.
--Restan161/152/deps/cobertura109;19originales/OAuth/Hosting/hardware no certificados.
+-Siguiente guardado manual/AI: riesgos118-consumidores, reproducir antes de ordenar.
+-Restan152/deps/109;19originales/OAuth/Hosting/hardware no certificados.
 
 ## Esperando decisión del dueño
 - Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
@@ -36,5 +36,5 @@ Fuente app1656ac2e; head de entrega se comprueba en GitHub antes de subir.
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos: uno agregado a la vez desde otra pantalla puede perderse.
 -152: PC cubre2/3puntosGuardar; teclado/superior disponibles. Movil3/3libres.
--161: no deduplicar por telefono; varios presupuestos legitimos deben seguir.
+-161 preserva varios presupuestos; legacy sin operationId no certificado en118.
 -No declarar0errores ni toda la app lista.

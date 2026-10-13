@@ -29,6 +29,7 @@ try {
   clearArrays('src/data'); clearArrays('data');
   await db.collection('servicios').doc('qa117-dj').set({ id: 'qa117-dj', nombre: 'DJ QA117', categoria: 'Discoteca', precioBase: 1000, calculationMethod: 'fijo', activo: true });
   for (const viewport of ['desktop', 'mobile']) {
+    clearArrays('src/data'); clearArrays('data');
     const context = await browser.newContext(viewport === 'mobile' ? devices['Pixel 7'] : { viewport: { width: 1440, height: 1000 } });
     await context.route(/^https:\/\//, route => route.abort('blockedbyclient'));
     await context.addInitScript(() => { localStorage.setItem('ak_session', 'true'); sessionStorage.setItem('ak_session', 'true'); });
@@ -68,9 +69,15 @@ try {
       await expect(destination).toBeVisible({ timeout: 60000 });
       const saved = await db.collection('presupuestos').get(); expect(saved.size).toBe(1);
       const budget = saved.docs[0]; expect(budget.data().clienteNombre).toBe('QA117 Familia ' + viewport);
+      expect(budget.data().leadId).toBeTruthy();
+      expect((await db.collection('prospectos').doc(budget.data().leadId).get()).exists).toBe(true);
       const afterSaveEnabled = await save.isEnabled();
-      await destination.click(); await expect(page).toHaveURL(new RegExp('/presupuestos/' + budget.id));
-      return { saveRequests, count: saved.size, destination: new URL(page.url()).pathname, afterSaveBottomButtonEnabled: afterSaveEnabled, total: budget.data().totalConDescuento };
+      await destination.click(); await expect(page).toHaveURL(new RegExp('/presupuestos/' + budget.id + '/ver$'), {timeout:60000});
+      const rendered=page.locator('#budget-print-area-wrapper').getByText('QA117 Familia '+viewport,{exact:true}).first();
+      await expect(rendered).toBeVisible({timeout:60000});
+      await page.reload({waitUntil:'networkidle',timeout:90000});
+      await expect(rendered).toBeVisible({timeout:60000});
+      return { saveRequests, count: saved.size, destination: new URL(page.url()).pathname, documentVisibleAfterReload:true, afterSaveBottomButtonEnabled: afterSaveEnabled, total: budget.data().totalConDescuento };
     });
     await record(viewport, 'lost-ack-retry-does-not-create-second-budget', async () => {
       await page.goto(root + '/empresa/configurador-reunion', { waitUntil: 'networkidle', timeout: 90000 });
@@ -81,6 +88,7 @@ try {
       await expect(page.getByText('Error inesperado', { exact: true })).toBeVisible({ timeout: 60000 });
       const before = (await db.collection('presupuestos').get()).size;
       expect(before).toBe(2);
+      const leadsBefore=(await db.collection('prospectos').get()).docs.map(d=>({id:d.id,timeline:JSON.stringify(d.data().timeline||[])}));
       if (viewport === 'mobile') {
         await page.reload({ waitUntil: 'networkidle', timeout: 90000 });
         await page.getByPlaceholder('Ej. Familia Rodr\u00edguez').fill('QA117 Familia ACK ' + viewport);
@@ -89,7 +97,9 @@ try {
       await page.getByRole('button', { name: 'Generar Presupuesto Formal', exact: true }).click();
       await expect(page.getByRole('button', { name: /^Ver Presupuesto #/ })).toBeVisible({ timeout: 60000 });
       const after = (await db.collection('presupuestos').get()).size;
-      fs.writeFileSync(`docs/evidencias/117-ack-${viewport}.json`, JSON.stringify({ before, after, expected: 2, saveRequests }, null, 2));
+      const leadsAfter=(await db.collection('prospectos').get()).docs.map(d=>({id:d.id,timeline:JSON.stringify(d.data().timeline||[])}));
+      expect(leadsAfter).toEqual(leadsBefore);
+      fs.writeFileSync(`docs/evidencias/117-ack-${viewport}.json`, JSON.stringify({ before, after, expected: 2, saveRequests, noRepeatedCrmTimeline:true }, null, 2));
       expect(after).toBe(2);
       return { before, after, saveRequests, reloadedBeforeRetry: viewport === 'mobile' };
     });
@@ -104,8 +114,9 @@ try {
       const numbers=records.docs.map(d=>d.data().numero); expect(new Set(numbers).size).toBe(3);
       const matching=records.docs.filter(d=>d.data().clienteNombre==='QA117 Familia ACK '+viewport);
       expect(matching).toHaveLength(2); expect(new Set(matching.map(d=>d.id)).size).toBe(2);
-      await destination.click(); await expect(page).toHaveURL(/\/presupuestos\/pres_request_/);
-      return { count:records.size, numbers, legitimateQuotesSamePhone:2, destination:new URL(page.url()).pathname };
+      await destination.click(); await expect(page).toHaveURL(/\/presupuestos\/pres_request_[a-f0-9]+\/ver$/, {timeout:60000});
+      await expect(page.locator('#budget-print-area-wrapper').getByText('QA117 Familia ACK '+viewport,{exact:true}).first()).toBeVisible({timeout:60000});
+      return { count:records.size, numbers, legitimateQuotesSamePhone:2, documentVisible:true, destination:new URL(page.url()).pathname };
     });
     await context.close();
     for (const col of await db.listCollections()) if (col.id !== 'servicios') for (const doc of (await col.get()).docs) await doc.ref.delete();

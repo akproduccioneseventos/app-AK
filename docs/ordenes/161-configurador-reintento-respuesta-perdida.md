@@ -1,5 +1,11 @@
 # 161 - El reintento del configurador no debe duplicar presupuesto
 
+Actualizacion118: IMPLEMENTADA Y PROBADA en fuente662f123d. Gate118-aceptacion:
+731suites4564tests/build/tipos/lint PASS,6flujos nativos PC/Pixel7 PASS. Solo161;
+152/friccion y otros consumidores legacy NO cerrados. Ver118-correcciones.md.
+El informe117 de abajo es HISTORICO; los2->3 originales se conservan en
+117-configurador-antes-arreglo.json y117-ack-antes-arreglo-*.json.
+
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE.
 Destinatario: Claude (presupuestos/datos), o Codex principal bajo la autorizacion
 del 13/10. No encargar la decision de persistencia a un agente economico.

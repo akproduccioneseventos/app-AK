@@ -1,6 +1,7 @@
 {
   "before": 2,
-  "after": 3,
+  "after": 2,
   "expected": 2,
-  "saveRequests": 4
+  "saveRequests": 4,
+  "noRepeatedCrmTimeline": true
 }

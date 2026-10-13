@@ -1,5 +1,5 @@
 {
-  "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "applicationSourceSha": "662f123d41c59f6e802384322b10049b913fb416",
   "results": [
     {
       "viewport": "desktop",
@@ -36,7 +36,8 @@
       "details": {
         "saveRequests": 2,
         "count": 1,
-        "destination": "/presupuestos/pres_1791887092101_a1h5y2o",
+        "destination": "/presupuestos/pres_request_b21619fd8b14525dc133e512e0ff5edc2c502c36a1f91c648dcb98544c665c67/ver",
+        "documentVisibleAfterReload": true,
         "afterSaveBottomButtonEnabled": true,
         "total": 850
       },
@@ -45,8 +46,29 @@
     {
       "viewport": "desktop",
       "name": "lost-ack-retry-does-not-create-second-budget",
-      "status": "NOT_ACCEPTED",
-      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 2\nReceived: 3"
+      "details": {
+        "before": 2,
+        "after": 2,
+        "saveRequests": 4,
+        "reloadedBeforeRetry": false
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "new-quote-same-phone-keeps-distinct-budget",
+      "details": {
+        "count": 3,
+        "numbers": [
+          3,
+          2,
+          1
+        ],
+        "legitimateQuotesSamePhone": 2,
+        "documentVisible": true,
+        "destination": "/presupuestos/pres_request_922bfc1c03f2f87dc1d06af08d3118e81561a3b5a006ff503c24ce10ee77caa3/ver"
+      },
+      "status": "PASS"
     },
     {
       "viewport": "mobile",
@@ -83,7 +105,8 @@
       "details": {
         "saveRequests": 2,
         "count": 1,
-        "destination": "/presupuestos/pres_1791887155040_122n0d5",
+        "destination": "/presupuestos/pres_request_c4e14aaa0c9eaea230852f90fa8cc6ec7a9c41d396fbbadd31216accf49e7d83/ver",
+        "documentVisibleAfterReload": true,
         "afterSaveBottomButtonEnabled": true,
         "total": 850
       },
@@ -92,8 +115,29 @@
     {
       "viewport": "mobile",
       "name": "lost-ack-retry-does-not-create-second-budget",
-      "status": "NOT_ACCEPTED",
-      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 2\nReceived: 3"
+      "details": {
+        "before": 2,
+        "after": 2,
+        "saveRequests": 4,
+        "reloadedBeforeRetry": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "new-quote-same-phone-keeps-distinct-budget",
+      "details": {
+        "count": 3,
+        "numbers": [
+          3,
+          2,
+          1
+        ],
+        "legitimateQuotesSamePhone": 2,
+        "documentVisible": true,
+        "destination": "/presupuestos/pres_request_5e3d9bbf2a16a2ba6ce2e1aa469239a5e090ffe5a2bf4f2a9052896e1c5e6955/ver"
+      },
+      "status": "PASS"
     }
   ],
   "cleanup": {
@@ -126,7 +170,7 @@
       {
         "file": "src\\data\\crm-leads.json",
         "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
-        "qaSha256": "f4463a9ebadc9b7e3fea563b17a0a324226334f47d8e35d23f434603a4b3d708"
+        "qaSha256": "02c99759881af16d06fad06973243844d28383fdd2138dcb720d99fd18df75c1"
       },
       {
         "file": "src\\data\\crm-stages.json",
@@ -206,7 +250,7 @@
       {
         "file": "src\\data\\presupuestos.json",
         "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
-        "qaSha256": "a33a06f35a5d7a092a7175c5c61eb094026b03730e2096f79581557309c7b1b2"
+        "qaSha256": "899e9c30c220ea913140c49d5645cc165346c2e3ef8fd449f774ae4fc3ce9315"
       },
       {
         "file": "src\\data\\proveedores.json",
@@ -341,22 +385,22 @@
       {
         "file": "src\\data\\backup-status.json",
         "beforeSha256": null,
-        "qaSha256": "640a2ae2b41fc1bebc65dc3adc3967412d691d9ef34e1bbb4146afd515041ab2"
+        "qaSha256": "878135d31fd6e707cce75b3f5e76881b35d43adc6260a41019dea50b239a5b8d"
       },
       {
         "file": "data\\backup-status.json",
         "beforeSha256": null,
-        "qaSha256": "640a2ae2b41fc1bebc65dc3adc3967412d691d9ef34e1bbb4146afd515041ab2"
+        "qaSha256": "878135d31fd6e707cce75b3f5e76881b35d43adc6260a41019dea50b239a5b8d"
       },
       {
         "file": "data\\crm-leads.json",
         "beforeSha256": null,
-        "qaSha256": "f4463a9ebadc9b7e3fea563b17a0a324226334f47d8e35d23f434603a4b3d708"
+        "qaSha256": "02c99759881af16d06fad06973243844d28383fdd2138dcb720d99fd18df75c1"
       },
       {
         "file": "data\\presupuestos.json",
         "beforeSha256": null,
-        "qaSha256": "a33a06f35a5d7a092a7175c5c61eb094026b03730e2096f79581557309c7b1b2"
+        "qaSha256": "899e9c30c220ea913140c49d5645cc165346c2e3ef8fd449f774ae4fc3ce9315"
       }
     ],
     "bytesRestored": true
