@@ -2,7 +2,7 @@ import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import { evaluarReglasParaFiesta } from '@/lib/automatizaciones-engine';
-import { readData } from '@/lib/data-service';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -129,7 +129,9 @@ export async function correrTareaAvisosAlCliente(): Promise<{
   totalFiestas: number;
   mensajesGenerados: number;
 }> {
-  const fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
+  // `leerFiestasCrudas` TIRA si la base no contesta. Antes `readData(..., [])` devolvia una lista
+  // vacia, la tarea recorria cero fiestas y se marcaba "corrida" sin haber mirado nada.
+  const fiestas: FiestaEnPlanificacion[] = await leerFiestasCrudas(false);
   let mensajesGenerados = 0;
 
   let fallas = 0;

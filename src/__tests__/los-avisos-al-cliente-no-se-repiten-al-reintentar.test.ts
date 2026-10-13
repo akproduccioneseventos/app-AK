@@ -10,7 +10,7 @@ jest.mock('@/lib/automatizaciones-engine', () => ({
   evaluarReglasParaFiesta: (f: any) => [{ id: `musica_${f.id}`, tipo: 'recordatorio' }],
 }));
 let fiestaGuardada: any;
-jest.mock('@/lib/data-service', () => ({ readData: jest.fn(async () => [{ id: 'f1' }]) }));
+jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: jest.fn(async () => [{ id: 'f1' }]) }));
 jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
   // La base repite la transacción: corre el cambio dos veces sobre copias frescas.
   actualizarFiesta: jest.fn(async (_id: string, cambiar: (f: any) => Promise<any>) => {
