@@ -134,3 +134,28 @@ describe('comentarios de redes', () => {
     expect(base['social-comments.json'].map((x: any) => x.id).sort()).toEqual(['1', 'llegado-despues']);
   });
 });
+
+describe('publicar un comentario como testimonio', () => {
+  it('marca sólo ese comentario sobre la lista actual y no borra uno que entró en el medio', async () => {
+    jest.resetModules();
+    jest.doMock('@/lib/auth/require-session', () => ({
+      requireAppSession: jest.fn(async () => undefined),
+      requirePermisoAlguno: jest.fn(async () => undefined),
+      requirePermiso: jest.fn(async () => ({ ok: true, user: { perfil: 'dueno' } })),
+    }));
+    jest.doMock('@/app/actions/feedback', () => ({
+      saveTestimonial: jest.fn(async () => {
+        // Mientras se guarda el testimonio, la sincronización trae un comentario nuevo.
+        base['social-comments.json'] = [...copia(base['social-comments.json']), { id: 'nuevo', text: 'hola', network: 'instagram' }];
+        return { success: true };
+      }),
+    }));
+    base['social-comments.json'] = [{ id: 'c1', text: 'Excelente', authorName: 'Ana', network: 'instagram' }];
+    const { publishCommentAsTestimonialAction } = await import('@/app/actions/comentarios-redes');
+    const r = await publishCommentAsTestimonialAction('c1');
+    expect(r.success).toBe(true);
+    const lista = base['social-comments.json'] as any[];
+    expect(lista.map((c) => c.id).sort()).toEqual(['c1', 'nuevo']);
+    expect(lista.find((c) => c.id === 'c1').isTestimonialApproved).toBe(true);
+  });
+});
