@@ -1,6 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 13/10/2026 - Codex122 en validacion: tarjeta del asistente apunta al boton real
+## 13/10/2026 - Codex122 CORREGIDA Y COMPROBADA: tarjeta abre el chat real
+
+-Fuente5dc197e5. La tarjeta busca el lanzador real Abrir Asistente IA AK tanto
+ en widget como lazy. Antes en87 no hacia nada; ahora abre. Solo ese selector
+ app se cambio despues de121: movimiento/minimizado/permisos/dinero intactos.
+-735suites4601tests PASS,0fallos/omitidos; build tipos/lint, acentos2862 PASS.
+ 18nativos sobre5dc: tarjeta/principal abren y16regresiones del presupuesto ACK
+ PC/Pixel7; PC entra POR tarjeta, no salta el nuevo enlace. Guarda/retry/recarga
+ conservanIDs/numeros/importes/CRM; cotizaciones legitimas y primera doble
+ confirmacion atomica permitidas. Modelo DOBLE LOCAL, no servicio IA externo.
+-Gate122 PASS_INDICATOR_AND_CHAT_BUDGET_ACK_ONLY; SDK0/dos servicios/agentes
+ cerrados/bytes restaurados. Grafo14652/43895/922 sinLLM,25avisos parser noTS.
+-Baselines3a y87 conservados, problemas propiosQA separados; no declarar app
+ defectuosa por herramienta ausente ni HEADdocs distinto de fuente app. Comparar
+ diff de produccion antes de invalidar una evidencia por commit documental.
+-Inventario109 no demuestra ausencia de pruebas: regalos/post-evento/QR ya
+ tienen tests historicos en tests/e2e, y la sonda no los ejecuto en122. No emitir
+ orden duplicada solo por no encontrarlos en103-121. Fuenteapp87..5dc difiere
+ solo en selector; codigo pendiente/deps/19originales/OAuth/Hosting/hardware no
+ certificados. Friccion152 de posicion sigue aparte; mover/minimizar disponible.
+ No0errores ni toda app lista. PrivadoClaude NO CONTRASTADO. No repetir5dc.
+
+## Historico - Codex122 en validacion: tarjeta apunta al boton real
 
 -Sobre app87: navegador PC, tarjeta Abrir asistente activo no abre el chat;
  boton principal SI. DOM: nuevo lanzador1, selector antiguo0. Reproduccion con

@@ -1,5 +1,14 @@
 ## Descripcion del Cambio
 
+ACTUALIZACION122: fuente final5dc197e5, tarjeta conecta con lanzador real.
+735suites4601tests0fallos/omitidos/build tipos lint/acentos2862 PASS.
+18nativos mismo5dc: tarjeta/principal abren+16regresiones ACK PC/Pixel7;
+PC usa la tarjeta. Gate122 PASS_INDICATOR_AND_CHAT_BUDGET_ACK_ONLY.
+SDK0/2servicios/agentes cerrados/bytes ajenos intactos; grafo14652/43895/922.
+Friccion152 posicion/deps/109 y externos siguen aparte; no0errores/todaapp.
+Modelo DOBLE LOCAL, no proveedor externo. No fusionar automaticamente.
+Todo lo siguiente es evidencia historica de su SHA, no un certificado nuevo.
+
 ACTUALIZACION121/orden162: ACK financiero del chat CORREGIDO/PROBADO en87b74b7d.
 734suites4600tests0fallos/omitidos, build tipos/lint y acentos2860 PASS.
 16nativos PC/Pixel7 widget/API/SDK demo con proveedor DOBLE LOCAL: corte antes
@@ -11,7 +20,7 @@ ya no afirma que no hizo nada. Baseline3a1->2 conservado. Gate121 scopeACKsolo.
 SDK0/2servicios/agente cerrados/bytes ajenos restaurados; grafo14621/43864/931.
 No otras acciones idempotentes/modelo externo/voz/todaapp0errores certificados.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE. No fusionar automaticamente.
-La evidencia120/119/118/116 siguiente es historica; fuente finalapp87.
+La evidencia120/119/118/116 siguiente es historica; fuente121app87, final1225dc.
 
 ACTUALIZACION120: Encargado CORREGIDO/PROBADO en3a3bc1c6.
 732suites4581tests0fallos/omitidos PASS; build tipos/lint y acentos2854 PASS.

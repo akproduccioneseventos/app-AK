@@ -1,8 +1,8 @@
-# Estado actual - 13/10/2026 (Codex122 en validacion;121/162 comprobada)
+# Estado actual - 13/10/2026 (Codex122 y121/162 comprobadas; PR1293 ABIERTA)
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
 Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
-Fuente nueva congelar122; fuente87 solo valida121, no selector122.
+Fuente final5dc197e5; head de entrega comprobar en GitHub antes de subir.
 ## Delta116; mantener lo ya integrado por Claude
 -Libro de costos en backup/mapa, IDs legacy, restore sin recibos posteriores.
 -Backup interno despues de ajuste; fallo de lectura/ZIP incompleto no se certifica.
@@ -36,5 +36,5 @@ Fuente nueva congelar122; fuente87 solo valida121, no selector122.
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos simultaneos desde otra pantalla pueden perderse; limite previo aceptado.
 -152: PC cubre2/3puntosGuardar; teclado/superior disponibles. Movil3/3libres.
--122 selector real corregido;ReactDOM focalPASS,resta build/amplia/nativo nuevoSHA.
+-122 fuente5dc:735suites4601tests/build tipos lint/acentos2862/18nativos PASS.
 -No declarar0errores ni toda la app lista.
