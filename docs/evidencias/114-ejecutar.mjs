@@ -4,7 +4,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import { fixtureGuard } from './110-fixture-guard.mjs';
 
 const mode = process.argv[2];
-if (!['types', 'unit', 'jest', 'acentos', 'build', 'emulator', 'start', 'probe'].includes(mode)) throw new Error('Invalid QA mode');
+if (!['types', 'lint', 'unit', 'jest', 'acentos', 'build', 'emulator', 'start', 'probe'].includes(mode)) throw new Error('Invalid QA mode');
 if (fs.lstatSync('node_modules').isSymbolicLink() || fs.readdirSync('.').some(n => /^\.env(?:\.(?:local|production|development|test)(?:\.local)?)?$/.test(n))) throw new Error('Private credentials-free checkout required');
 const sha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const keys = ['PATH', 'HOME', 'LANG', 'TEMP', 'TMP', 'SYSTEMROOT', 'USERPROFILE', 'WINDIR', 'APPDATA', 'LOCALAPPDATA', 'PROGRAMDATA', 'PROGRAMFILES', 'COMSPEC', 'PATHEXT'];
@@ -67,6 +67,7 @@ const config = `firebase.114-${process.pid}.generated.json`;
 const configBytes = fs.readFileSync('docs/evidencias/113-firestore-config.json');
 if (mode === 'emulator') { if (fs.existsSync(config)) throw new Error('QA config already exists'); fs.writeFileSync(config, configBytes); }
 const args = mode === 'types' ? ['node_modules/typescript/bin/tsc', '--noEmit', '--pretty', 'false']
+  : mode === 'lint' ? ['node_modules/next/dist/bin/next', 'lint']
   : mode === 'acentos' ? ['scripts/check-acentos.mjs']
   : mode === 'build' ? ['scripts/build-next-with-memory.mjs']
   : mode === 'emulator' ? ['node_modules/firebase-tools/lib/bin/firebase.js', 'emulators:start', '--config', config, '--only', 'firestore', '--project', 'demo-ak-producciones']

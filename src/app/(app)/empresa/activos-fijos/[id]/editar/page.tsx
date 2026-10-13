@@ -190,6 +190,10 @@ export default function EditarActivoFijoPage() {
         toast({ title: 'Nota requerida', description: 'Por favor ingresá el detalle del mantenimiento.', variant: 'destructive' });
         return;
       }
+      if (typeof mantenimientoCosto === 'number' && (!Number.isFinite(mantenimientoCosto) || mantenimientoCosto < 0)) {
+        toast({ title: 'Costo inválido', description: 'El costo debe ser un número mayor o igual a cero.', variant: 'destructive' });
+        return;
+      }
       const incierta = operacionMantenimientoInciertaRef.current;
       if (incierta && (incierta.fecha !== fecha || incierta.nota !== nota || incierta.costo !== costoNum)) {
         toast({ title: 'Mantenimiento anterior sin confirmar', description: 'Reintentá primero el mismo mantenimiento; no se enviará uno nuevo hasta confirmar el anterior.', variant: 'destructive' });
