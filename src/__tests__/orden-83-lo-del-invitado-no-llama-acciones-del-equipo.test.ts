@@ -52,6 +52,7 @@ jest.mock('@/lib/data-service', () => ({
 describe('Orden 83 — Lo que atiende al invitado no llama a acciones del equipo', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true'; // las citas se guardan por readData/writeData (la base real no esta)
     for (const k in almacen) delete almacen[k];
   });
 

@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,18 @@ type DashboardSortMode = 'smart' | BudgetSortMode;
 
 function PresupuestoDashboardContent() {
     const router = useRouter();
+    // Enlaces que llegan con la fiesta o el prospecto para el que se arma el presupuesto: se
+    // llevan hasta el formulario (antes se perdian aca, en la lista).
+    const searchParams = useSearchParams();
+    const fiestaIdParam = searchParams.get('fiestaId');
+    const leadIdParam = searchParams.get('leadId');
+    const crearHref = (() => {
+        const q = new URLSearchParams();
+        if (fiestaIdParam) q.set('fiestaId', fiestaIdParam);
+        if (leadIdParam) q.set('leadId', leadIdParam);
+        const texto = q.toString();
+        return texto ? `/presupuestos/nuevo/crear?${texto}` : '/presupuestos/nuevo/crear';
+    })();
     const { toast } = useToast();
     const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
     const [totalPresupuestosCount, setTotalPresupuestosCount] = useState(0);
@@ -160,6 +172,12 @@ function PresupuestoDashboardContent() {
 
     return (
         <div className="space-y-6">
+             {fiestaIdParam && (
+                <div data-testid="aviso-presupuesto-para-fiesta" className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm">
+                  <span className="font-semibold">Estás armando un presupuesto para una fiesta ya cargada.</span>
+                  <Button asChild size="sm"><Link href={crearHref}>Crear el presupuesto de esa fiesta</Link></Button>
+                </div>
+             )}
              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <h1 className="text-3xl font-bold tracking-tight font-headline flex items-center gap-2">
                   <ListChecks className="w-8 h-8 text-primary"/> Central de Presupuestos
@@ -171,7 +189,7 @@ function PresupuestoDashboardContent() {
                   <Button asChild variant="secondary"><Link href="/empresa/configurador-reunion">Configurador para la reunión</Link></Button>
                   <Button asChild variant="secondary"><Link href="/presupuestos/reporte">Reporte</Link></Button>
                   <Button asChild variant="outline" data-testid="btn-importar-presupuesto"><Link href="/presupuestos/importar"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Link></Button>
-                  <Button asChild><Link href="/presupuestos/nuevo/crear"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Link></Button>
+                  <Button asChild><Link href={crearHref} data-testid="btn-nuevo-presupuesto"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Link></Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                       <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" disabled={isResettingPresupuestos || totalPresupuestosCount === 0}>

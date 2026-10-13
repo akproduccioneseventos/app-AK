@@ -1,0 +1,112 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: salon-3d-real.spec.ts >> reunion: escena real dibujada e interactiva, no foto de respaldo
+- Location: tests\e2e\salon-3d-real.spec.ts:35:7
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: locator('canvas').first()
+Expected: visible
+Timeout: 60000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 60000ms
+  - waiting for locator('canvas').first()
+
+```
+
+```yaml
+- img
+- region "Notifications (F8)":
+  - list
+```
+
+# Test source
+
+```ts
+  1  | import { expect, test, type Page } from '@playwright/test';
+  2  | import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+  3  | 
+  4  | test.skip(process.env.AK_ENTORNO_AISLADO !== 'true', 'Solo datos ficticios en el entorno aislado');
+  5  | const id = `e2e_105_salon_${Date.now()}`;
+  6  | 
+  7  | test.beforeAll(() => {
+  8  |   const fiesta = crearFiestaDeEstaNoche({ id });
+  9  |   fiesta.decoracion = {
+  10 |     ...fiesta.decoracion, salonWidth: 20, salonHeight: 15, pixelsPerMeter: 40,
+  11 |     salonElements: [
+  12 |       { id: 'mesa105', type: 'element', category: 'mesa', name: 'Mesa', x: 200, y: 200, width: 80, height: 80, rotation: 0 },
+  13 |       { id: 'pista105', type: 'area', category: 'pista', name: 'Pista', x: 400, y: 300, width: 150, height: 150, rotation: 0 },
+  14 |     ],
+  15 |   };
+  16 |   guardarFiesta(fiesta);
+  17 | });
+  18 | test.afterAll(() => borrarFiesta(id));
+  19 | 
+  20 | async function pixels(page: Page) {
+  21 |   return page.locator('canvas').first().evaluate((canvas: HTMLCanvasElement) => {
+  22 |     const copy = document.createElement('canvas');
+  23 |     copy.width = canvas.width; copy.height = canvas.height;
+  24 |     const ctx = copy.getContext('2d');
+  25 |     if (!ctx) throw new Error('No hay lector de pixeles');
+  26 |     ctx.drawImage(canvas, 0, 0);
+  27 |     const data = ctx.getImageData(0, 0, copy.width, copy.height).data;
+  28 |     const colors = new Set<string>();
+  29 |     for (let i = 0; i < data.length; i += 64) colors.add(`${data[i]},${data[i + 1]},${data[i + 2]}`);
+  30 |     return { colors: colors.size, image: canvas.toDataURL(), width: canvas.width, height: canvas.height };
+  31 |   });
+  32 | }
+  33 | 
+  34 | for (const route of ['reunion', 'cliente'] as const) {
+  35 |   test(`${route}: escena real dibujada e interactiva, no foto de respaldo`, async ({ page, context, baseURL, isMobile }, info) => {
+  36 |     test.setTimeout(240000);
+  37 |     await ponerSesionDelEquipo(context, baseURL);
+  38 |     const errors: string[] = [];
+  39 |     page.on('pageerror', e => errors.push(e.message));
+  40 |     const response = await page.goto(route === 'reunion' ? '/empresa/configurador-reunion' : `/portal/${id}/decoracion`, { waitUntil: 'domcontentloaded' });
+  41 |     expect(response?.status()).toBe(200);
+  42 |     expect(await page.evaluate(() => {
+  43 |       const probe = document.createElement('canvas');
+  44 |       return Boolean(probe.getContext('webgl2') || probe.getContext('webgl'));
+  45 |     }), 'El navegador de prueba debe ofrecer WebGL').toBe(true);
+  46 |     const canvas = page.locator('canvas').first();
+> 47 |     await expect(canvas).toBeVisible({ timeout: 60000 });
+     |                          ^ Error: expect(locator).toBeVisible() failed
+  48 |     await canvas.scrollIntoViewIfNeeded();
+  49 |     await expect.poll(async () => (await pixels(page)).colors).toBeGreaterThan(20);
+  50 |     const before = await pixels(page);
+  51 |     expect(before.width).toBeGreaterThan(100); expect(before.height).toBeGreaterThan(100);
+  52 |     const box = await canvas.boundingBox();
+  53 |     if (!box) throw new Error('Canvas sin area visible');
+  54 |     const x = box.x + box.width / 2, y = box.y + box.height / 2;
+  55 |     if (isMobile) {
+  56 |       const cdp = await context.newCDPSession(page);
+  57 |       await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  58 |       for (let i = 1; i <= 12; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + i * 5, y: y + i }] });
+  59 |       await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  60 |       await cdp.detach();
+  61 |     } else {
+  62 |       await page.mouse.move(x, y); await page.mouse.down();
+  63 |       await page.mouse.move(x + 60, y + 20, { steps: 12 }); await page.mouse.up();
+  64 |     }
+  65 |     await page.waitForTimeout(600);
+  66 |     const after = await pixels(page);
+  67 |     expect(after.image).not.toBe(before.image);
+  68 |     expect(after.colors).toBeGreaterThan(20);
+  69 |     expect(errors.filter(e => /ReactCurrentBatchConfig|ReactCurrentOwner|Invalid hook call|Minified React error/.test(e))).toEqual([]);
+  70 |     await info.attach('salon-real.json', { body: JSON.stringify({ route, isMobile, before: { ...before, image: undefined }, after: { ...after, image: undefined }, errors }), contentType: 'application/json' });
+  71 |     await info.attach('salon-real.png', { body: await canvas.screenshot(), contentType: 'image/png' });
+  72 |   });
+  73 | }
+  74 | 
+```

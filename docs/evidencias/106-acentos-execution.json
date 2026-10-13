@@ -1,0 +1,15 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "mode": "acentos",
+  "args": [
+    "scripts/check-acentos.mjs"
+  ],
+  "launcher": 14904,
+  "child": 3204,
+  "started": "2026-10-12T13:56:12.421Z",
+  "status": "finished",
+  "finished": "2026-10-12T13:56:14.275Z",
+  "exitCode": 0
+}

@@ -1,4 +1,5 @@
 'use server';
+import { diasHastaEnUruguay } from '@/lib/utils';
 
 import { getCrmLeads } from '@/app/actions/crm';
 import { getPresupuestos } from '@/app/actions/presupuestos';
@@ -35,11 +36,7 @@ function toDate(value?: string | Date | null): Date | null {
 }
 
 function daysUntil(date: Date) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(date);
-  target.setHours(0, 0, 0, 0);
-  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return diasHastaEnUruguay(date);
 }
 
 function daysSince(date: Date) {
@@ -169,9 +166,13 @@ export async function createCommercialFollowupAlerts() {
       entidadRelacionadaId: item.id,
       rolDestino: 'admin',
     }).catch(() => null);
-    if (response?.success) {
+    // success tambien llega con el aviso silenciado (sin notification) o repetido (isDuplicate):
+    // solo se cuenta como creado un aviso nuevo de verdad.
+    if (response?.success && response.notification && !response.isDuplicate) {
       created++;
-      if (response.notification) existing.unshift(response.notification);
+      existing.unshift(response.notification);
+    } else if (response?.success && response.isDuplicate) {
+      skipped++;
     }
   }
 

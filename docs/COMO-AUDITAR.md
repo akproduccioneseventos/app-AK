@@ -971,3 +971,69 @@ pantalla: si un paso de adentro falló, `success: true` es mentira.
 Y la hermana, de la foto negra: **al arreglar una forma en una estación, se busca la misma forma en
 todas** (`drawImage(video` en `src/app` y `src/components`); lo recorre
 `las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts`.
+
+## Preguntas 49 a 56 — las que sumó el 12 de octubre de 2026 (Codex, órdenes 146 a 152)
+
+Todas salieron de cosas que Codex encontró y yo no. Cada una lleva su búsqueda para barrer la app.
+
+### 49. Lo que arranca después de un `await` y se puede cortar, ¿mira si ya lo cortaron?
+
+La voz en vivo abría el micrófono aunque la persona ya hubiera tocado "Cortar", y diez pantallas
+dejaban la cámara prendida si se salía mientras se pedía el permiso. **Después de cada `await` que
+abre algo (`getUserMedia`, `new WebSocket`, un escáner), se mira una señal de cancelado; si llegó
+tarde, se apaga lo que se abrió.** Barrido: `getUserMedia`, `new WebSocket`, `Ref.current = await`.
+
+### 50. Un lector que atrapa el error, ¿distingue "no hay nada" de "no pude leer"?
+
+Video de Vida, la galería, el muro, el portal del cliente y las fechas ocupadas del presupuesto
+decían "no hay nada" cuando la base no contestaba. El defecto vivía en lectores compartidos
+(`listCollectionFromFirestore`, `getSocialPosts`). **Se buscan `catch` que devuelven `[]`, `null` o
+`{}` en `src/app/actions` y `src/lib`, y se sigue hasta la pantalla**: "vacío" y "falló" se muestran
+distinto, y el que falló ofrece reintentar.
+
+### 51. Lo que la app entrega para que lo lea otra máquina (un QR, un archivo), ¿lo leyó el lector real con muchos contenidos distintos?
+
+El QR descargado pasó una prueba por caso y fallaba en 2 de 12 en celular. **Se prueba con el lector
+de verdad y con cien contenidos distintos**, no con uno. Barrido: `QRCode`, `toDataURL`, `download=`.
+
+### 52. Una regla de estilo general, ¿le cambia el lugar o el tamaño a una pantalla que la usa?
+
+El muro a pantalla completa medía 0 px porque una regla de marca (`> * { position: relative }`)
+le ganaba a `fixed`. Pasaba `toBeVisible`. **La prueba mide la caja y lo pintado
+(`elementFromPoint`)**, y toda regla `> *` o de alcance general se cruza con sus consumidores que
+usan `fixed`, `absolute` o `sticky`.
+
+### 53. Lo que se saca de la compilación (`alias: false`, `externals`), ¿se probó con la primera llamada de un proceso nuevo?
+
+La IA caía en la primera consulta de cada servidor porque un paquete anulado era un constructor que
+otra biblioteca usaba. **Por cada exclusión de `next.config.js`, se busca quién usa ese módulo y qué
+le pide**; si alguien lo construye, va un reemplazo inofensivo, no `false`.
+
+### 54. En el camino de respaldo (cuando la IA o un servicio no contesta), ¿se filtra por fiesta y se sacan repetidos ANTES de cortar?
+
+El resumen automático del agente de una fiesta mostraba pendientes de otra, y el mismo seis veces.
+Barrido: `.slice(0, n)` en `src/ai` y `src/lib/agents` sobre listas que mezclan fiestas.
+
+### 55. Al subir la versión mayor de una biblioteca de pantalla, ¿cada pantalla que la usa tiene una prueba que haga clic y cuente lo dibujado?
+
+React 19, el calendario y el 3D cambiaron juntos; el 3D mostraba la escena sin mesas porque la
+pantalla mandaba los datos con otro nombre. **"Hay un canvas" no alcanza: se cuentan las mesas, los
+días, los íconos.** Barrido: el diff de `package.json` y quién importa cada biblioteca cambiada.
+
+### 56. Un elemento flotante (barra, botón, asistente), ¿tapa un botón de acción?
+
+La barra flotante tapaba parte de "Guardar como Presupuesto Formal". **Se comprueba con
+`elementFromPoint` en el centro de cada botón principal**, en computadora y celular. Barrido:
+`fixed bottom`, `sticky bottom` cruzado con los botones de guardar.
+
+Y la ampliación de la 13 (la hora): **también las vigencias de cupones y las pantallas de ajustes**
+(`new Date(`, `setHours`, `toISOString().slice` en `src/lib/cupones` y `src/app/(app)/settings`).
+
+## Pregunta 57 — la que sumó el 12 de octubre de 2026 (Codex, orden 155)
+
+### 57. Una ruta que entrega un ARCHIVO (`src/app/api/**/route.ts`), ¿pide el permiso del área o sólo sesión?
+
+El candado de la plata miraba las acciones del servidor, no las rutas que bajan archivos. Cinco
+rutas servían contratos, presupuestos, comprobantes y contratos laborales a cualquiera con sesión, y
+el firmador genérico abría cualquier archivo guardado. **Barrido: toda ruta con `hasAppSession()` y
+sin `requirePermiso`**; si lo que entrega es plata o sueldos, es un hallazgo.

@@ -1,4 +1,5 @@
 'use server';
+import { diasHastaEnUruguay } from '@/lib/utils';
 
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
@@ -25,11 +26,7 @@ function toDate(value?: string | Date | null): Date | null {
 }
 
 function daysUntil(date: Date) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(date);
-  target.setHours(0, 0, 0, 0);
-  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return diasHastaEnUruguay(date);
 }
 
 function daysSince(date: Date) {
@@ -124,7 +121,9 @@ async function notifyOnce(input: {
     entidadRelacionadaId: input.id,
     rolDestino: 'admin',
   });
-  return result.success;
+  // success tambien llega cuando el aviso se silencio (sin notification) o ya existia (isDuplicate):
+  // solo cuenta como creado un aviso nuevo de verdad.
+  return Boolean(result.success && result.notification && !result.isDuplicate);
 }
 
 export async function runSmartAutomations(): Promise<{ success: boolean; results: SmartAutomationResult[]; created: number }> {

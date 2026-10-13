@@ -2,7 +2,7 @@
 'use server';
 
 import type { LiveEventState, CargaOperativaItem } from '@/types/fiesta';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 const initialLiveState: LiveEventState = {
@@ -27,13 +27,12 @@ export async function updateLiveState(fiestaId: string, updateFn: (state: LiveEv
 /** Sin comprobar sesion: uso interno. Igual el guardado de abajo pide permiso. */
 async function aplicarEstadoEnVivo(fiestaId: string, updateFn: (state: LiveEventState) => LiveEventState): Promise<{ success: boolean; error?: string }> {
     try {
-        const fiesta = await getFiestaById(fiestaId);
-        if (!fiesta) throw new Error("Fiesta no encontrada");
-
-        const currentState = fiesta.liveState || initialLiveState;
-        const newState = updateFn(currentState);
-
-        const guardado = await saveFiesta({ ...fiesta, liveState: newState });
+        // El cambio se aplica sobre el estado en vivo de ESE momento, adentro del turno: dos
+        // operadores marcando cosas a la vez (una entrega y una llegada) se guardan las dos.
+        const guardado = await actualizarFiesta(fiestaId, (fiesta) => ({
+            ...fiesta,
+            liveState: updateFn(fiesta.liveState || initialLiveState),
+        }));
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'No se pudo guardar el estado en vivo.' };
         }
@@ -124,23 +123,24 @@ export async function resolveIncidente(fiestaId: string, incidenteId: string): P
 export async function toggleReturnItem(fiestaId: string, categoryId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
     try {
-        const fiesta = await getFiestaById(fiestaId);
-        if (!fiesta || !fiesta.listaDeCargaOperativa) throw new Error("Datos logísticos no encontrados.");
-
-        const updatedCategorias = fiesta.listaDeCargaOperativa.categorias.map(cat => {
-            if (cat.id === categoryId) {
-                return {
-                    ...cat,
-                    items: cat.items.map(item => 
-                        item.id === itemId ? { ...item, retornado: !item.retornado } : item
-                    )
-                };
-            }
-            return cat;
-        });
-
-        fiesta.listaDeCargaOperativa.categorias = updatedCategorias;
-        const guardado = await saveFiesta(fiesta);
+        // Cambia SOLO el item de la lista de carga que hay en ese momento (por id), adentro del turno.
+        const guardado = await actualizarFiesta(fiestaId, (fiesta) => {
+            if (!fiesta.listaDeCargaOperativa) throw new Error("Datos logísticos no encontrados.");
+            return {
+                ...fiesta,
+                listaDeCargaOperativa: {
+                    ...fiesta.listaDeCargaOperativa,
+                    categorias: fiesta.listaDeCargaOperativa.categorias.map(cat =>
+                        cat.id !== categoryId ? cat : {
+                            ...cat,
+                            items: cat.items.map(item =>
+                                item.id === itemId ? { ...item, retornado: !item.retornado } : item
+                            ),
+                        }
+                    ),
+                },
+            };
+        }, { soloEquipo: true });
         if (!guardado.success) {
             return { success: false, error: guardado.error || 'No se pudo guardar la lista de carga operativa.' };
         }

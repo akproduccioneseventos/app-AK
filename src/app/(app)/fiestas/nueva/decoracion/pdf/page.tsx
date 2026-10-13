@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Printer as PrinterIcon, Palette, CakeSlice, MapPin, StickyNote, Image as ImageIconLucide, Building, PartyPopper, Gift, Camera, Sparkles as SparklesIcon, Share2, AlertTriangle, Info, LayoutDashboard } from 'lucide-react';
 import type { FiestaEnPlanificacion, DecoracionData, ZonaContratada, LayoutElement, Invitado, DecorationItem } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaActual, getFiestaById } from '@/app/actions/fiesta-actual';
 import { getCustomerById } from '@/app/actions/customers';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +28,10 @@ function DecorationPdfPageContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const showLayout = searchParams.get('layout') === 'true';
+  // La fiesta sale de la dirección: los enlaces de Decoración y del plano la mandan. Antes se
+  // ignoraba y se mostraba la "fiesta actual", que puede ser otra: el PDF salía con la decoración
+  // de otro cliente. Sin fiestaId (el enlace del personal) queda como estaba.
+  const fiestaIdPedida = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
@@ -36,7 +40,8 @@ function DecorationPdfPageContent() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const fiestaData = await getFiestaActual();
+      const fiestaData = fiestaIdPedida ? await getFiestaById(fiestaIdPedida) : await getFiestaActual();
+      if (!fiestaData) throw new Error('No se encontró la fiesta pedida.');
       setFiesta(fiestaData);
       if (fiestaData.configuracion.clienteId) {
         const clienteData = await getCustomerById(fiestaData.configuracion.clienteId);
@@ -48,7 +53,7 @@ function DecorationPdfPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, fiestaIdPedida]);
 
   useEffect(() => { loadData(); }, [loadData]);
   
@@ -65,13 +70,14 @@ function DecorationPdfPageContent() {
       if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); } 
       else { throw new Error('Share API not supported'); }
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." });
+      navigator.clipboard.writeText(shareData.url)
+        .then(() => toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." }))
+        .catch(() => toast({ title: "No se pudo copiar", description: shareData.url, variant: "destructive" }));
     }
   };
 
-  const getZonaIcon = (zonaId: ZonaContratada['id']): React.ElementType => {
-    const iconMap: Record<ZonaContratada['id'], React.ElementType> = {
+  const getZonaIcon = (zonaId: ZonaContratada['id']): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
+    const iconMap: Record<ZonaContratada['id'], React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
         'atras_torta': CakeSlice, 'frente_salon': Building, 'zona_regalos': Gift,
         'zona_fotografia': Camera, 'centro_salon': SparklesIcon
     };

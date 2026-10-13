@@ -117,7 +117,8 @@ export default function MuroEnVivoPage() {
   const [showCameraFlash, setShowCameraFlash] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
   const prevPostsCountRef = useRef(0);
-  const pollingRef = useRef(false);
+  const requestsInFlightRef = useRef(false);
+  const fetchDataRef = useRef<((allowHidden?: boolean) => Promise<void>) | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -180,6 +181,8 @@ export default function MuroEnVivoPage() {
   }, [settings.brand]);
 
   const postsRef = useRef<SocialGalleryPost[]>([]);
+  const mountedRef = useRef(false);
+  const fetchGenerationRef = useRef(0);
   // Track whether we already triggered the spin angle for the current sorteoSpinActive session
   const sorteoSpinTriggeredRef = useRef(false);
   // Track the spin timestamp we last processed to avoid re-triggering
@@ -204,31 +207,41 @@ export default function MuroEnVivoPage() {
   }, [sorteoSpinActive]);
 
   const fetchData = useCallback(async (allowHidden = false) => {
-    if (!fiestaId || pollingRef.current || (!allowHidden && document.visibilityState !== 'visible')) return;
-    pollingRef.current = true;
-    const requestTask = Promise.all([
+    if (!fiestaId || requestsInFlightRef.current || (!allowHidden && document.visibilityState !== 'visible')) return;
+    requestsInFlightRef.current = true;
+    const generation = ++fetchGenerationRef.current;
+    const postsTask = getPublicSocialPosts(fiestaId);
+    const eventTask = getPublicSocialEvent(fiestaId);
+    const pollTask = getActivePoll(fiestaId);
+    const dedicationsTask = getDedications(fiestaId).catch(() => null);
+    const chatTask = getChatMessages(fiestaId).catch(() => null);
+    const songTask = getSongRequests(fiestaId).catch(() => null);
+    const requestTask = Promise.allSettled([
       // Sin tragarse la falla (revisión de la orden 94, 28/09/2026): si se corta la señal,
       // la pantalla tiene que quedarse con las fotos que ya tenía y mostrar que se reconecta.
       // Con un `.catch(() => [])` acá la lista llegaba vacía y el muro quedaba en blanco.
-      getPublicSocialPosts(fiestaId),
-      getPublicSocialEvent(fiestaId),
-      getActivePoll(fiestaId),
+      postsTask,
+      eventTask,
+      pollTask,
       // Dedicatorias, chat y canciones son secundarias: si una falla no frena las fotos.
       // `null` quiere decir "no se pudo leer": se conserva lo que ya estaba en pantalla
       // (no se confunde con "no hay ninguna").
-      getDedications(fiestaId).catch(() => null), // no pasa nada si falla: queda lo anterior
-      getChatMessages(fiestaId).catch(() => null), // no pasa nada si falla: queda lo anterior
-      getSongRequests(fiestaId).catch(() => null), // no pasa nada si falla: queda lo anterior
+      dedicationsTask, // no pasa nada si falla: queda lo anterior
+      chatTask, // no pasa nada si falla: queda lo anterior
+      songTask, // no pasa nada si falla: queda lo anterior
     ]);
 
     // El timeout visual no cancela las Server Actions que ya salieron. La traba se
     // libera cuando la solicitud real termina para no saturar la pantalla ni Firebase.
     void requestTask.finally(() => {
-      pollingRef.current = false;
+      requestsInFlightRef.current = false;
     }).catch(() => undefined);
 
+    const primaryTask = Promise.all([postsTask, eventTask, pollTask]);
+
     try {
-      const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await withPublicRequestTimeout(requestTask);
+      const [fetchedPosts, fiestaData, pollData] = await withPublicRequestTimeout(primaryTask);
+      if (!mountedRef.current || generation !== fetchGenerationRef.current) return;
 
       setIsReconnecting(false);
 
@@ -290,34 +303,25 @@ export default function MuroEnVivoPage() {
           setTimeout(() => setSorteoSpinActive(false), 6800);
         }
       }
+
       if (pollData) {
         setActivePoll({ id: pollData.id, question: pollData.question, options: pollData.options });
       } else {
         setActivePoll(null);
       }
-      // Update recent chat messages: keep only the last 3 for display on screen
-      if (chatData === null) {
-        // no se pudo leer: queda lo anterior
-      } else if (chatData.length > 0) {
-        const recent = [...chatData]
-          .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-          .slice(-3);
-        setRecentChatMessages(recent);
-      } else {
-        setRecentChatMessages([]);
-      }
-      // Show the 3 most recent song requests on screen
-      if (songData === null) {
-        // no se pudo leer: queda lo anterior
-      } else if (songData.length > 0) {
-        const recentSongs = [...songData]
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-          .slice(0, 3);
-        setRecentSongRequests(recentSongs);
-      } else {
-        setRecentSongRequests([]);
-      }
-      if (dedicationsData !== null) setHighlightedDedications(dedicationsData.filter(d => d.highlighted));
+      const vigente = () => mountedRef.current && generation === fetchGenerationRef.current;
+      // Cada lectura secundaria actualiza solo su bloque, sin retrasar fotos ni borrar datos al fallar.
+      void chatTask.then(data => {
+        if (vigente() && data !== null) setRecentChatMessages([...data]
+          .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).slice(-3));
+      });
+      void songTask.then(data => {
+        if (vigente() && data !== null) setRecentSongRequests([...data]
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 3));
+      });
+      void dedicationsTask.then(data => {
+        if (vigente() && data !== null) setHighlightedDedications(data.filter(d => d.highlighted));
+      });
       // Extract comments for the live wall: prefer operator-highlighted comments; fall back
       // to the 3 most recent comments across all posts so that comments are visible by default.
       const hComments: { postId: string; comment: SocialComment }[] = [];
@@ -389,31 +393,40 @@ export default function MuroEnVivoPage() {
       const globalFallbacks = connections.filter(c => c.isConnected && !coveredPlatforms.has(c.platform));
       setSocialConnections([...brandConnections, ...globalFallbacks]);
     } catch (_) {
-      setIsReconnecting(true);
+      if (mountedRef.current && generation === fetchGenerationRef.current) setIsReconnecting(true);
     } finally {
-      if (!isLoaded) setIsLoaded(true);
+      if (mountedRef.current && generation === fetchGenerationRef.current && !isLoaded) setIsLoaded(true);
     }
   }, [fiestaId, eventName, isLoaded, staticBranding]);
+  fetchDataRef.current = fetchData;
 
   // Initial load and polling
   useEffect(() => {
+    mountedRef.current = true;
+    let active = true;
     // Enriquecer el muro con publicaciones públicas vía getPublicInstagramFeed
     getPublicInstagramFeed().catch(() => null);
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') void fetchData();
+      if (document.visibilityState === 'visible') void fetchDataRef.current?.();
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    void waitForInitialPublicLoad(fetchData(true)).then(() => {
+    void waitForInitialPublicLoad(fetchDataRef.current?.(true) ?? Promise.resolve()).then(() => {
+      if (!active) return;
       setIsLoaded(true);
     });
-    const interval = setInterval(fetchData, REFRESH_INTERVAL_MS);
+    const interval = setInterval(() => {
+      if (active) void fetchDataRef.current?.();
+    }, REFRESH_INTERVAL_MS);
     return () => {
+      active = false;
+      mountedRef.current = false;
+      fetchGenerationRef.current += 1;
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [fetchData]);
+  }, [fiestaId]);
 
   // Playlist is only active when screenMode.enabled is explicitly true.
   // Using `!== false` is intentional: when enabled is undefined (legacy events that never set it),

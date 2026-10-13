@@ -1,0 +1,38 @@
+{
+  "cwd": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-97",
+  "deletedDocs": [],
+  "deletedFiles": [],
+  "deletedLocal": [],
+  "preservedCollections": [
+    {
+      "name": "asistente",
+      "count": 1,
+      "ids": [
+        "voz-uso"
+      ]
+    },
+    {
+      "name": "json_documents",
+      "count": 1,
+      "ids": [
+        "ai-consumo.json"
+      ]
+    },
+    {
+      "name": "multiagent",
+      "count": 2,
+      "ids": [
+        "chats",
+        "memory"
+      ]
+    },
+    {
+      "name": "public_rate_limits",
+      "count": 1,
+      "ids": [
+        "071663540ec0f1807c4b7f3b376d185fc8fbb8b9a0f2666c306ce351c5dfce63"
+      ]
+    }
+  ],
+  "finished": "2026-10-11T03:27:30.034Z"
+}

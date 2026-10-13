@@ -1129,3 +1129,35 @@ prueba: src/__tests__/compras-suman-en-la-misma-unidad.test.ts
 prueba: src/__tests__/el-qr-viejo-no-entra.test.ts
 prueba: tests/e2e/la-ubicacion-del-personal-no-esta-bloqueada.spec.ts
 ```
+
+## 12 de octubre de 2026 — Lo que encontró Codex entre las órdenes 146 y 152
+
+- **Voz y cámaras que no se cortaban** (146): no preguntaba qué pasa si cancelan durante un `await`. Pregunta 49.
+- **Errores mostrados como "vacío"** (148, 151): la pregunta existía pero la apliqué a plata y a un
+  archivo; el defecto estaba en los lectores compartidos. Pregunta 50.
+- **QR que no leía el lector** (147): lo di por bueno con una prueba por caso. Pregunta 51 (y error 36 de CLAUDE.md).
+- **Mural de 0 px** (150): las pruebas miraban `toBeVisible`, no la caja. Pregunta 52.
+- **IA que caía en la primera consulta y mezclaba fiestas** (149): no cruzaba las exclusiones de la
+  compilación ni el camino de respaldo. Preguntas 53 y 54.
+- **Cupones con la hora del servidor**: la pregunta de la hora no había llegado a los cupones. Ampliación de la 13.
+- **3D sin mesas y calendario con React 19**: pruebas que miraban "hay canvas". Pregunta 55.
+- **Barra flotante sobre "Guardar"**: nunca cruzaba lo flotante con los botones. Pregunta 56.
+
+```comprobar
+prueba: src/__tests__/la-voz-en-vivo-cancela-y-reintenta.test.ts
+prueba: src/__tests__/una-lectura-que-falla-no-se-muestra-como-vacio.test.ts
+prueba: tests/e2e/qr-descargado-lector-real.spec.ts
+prueba: tests/e2e/mural-geometria-visible.spec.ts
+prueba: src/__tests__/la-ia-arranca-sin-telemetria.test.ts
+prueba: src/__tests__/el-respaldo-de-la-ia-respeta-la-fiesta.test.ts
+prueba: tests/e2e/pantallas-con-iconos-react19.spec.ts
+```
+
+## 12 de octubre de 2026 — Documentos de plata que bajaba cualquiera con sesión (Codex, orden 155)
+
+Mi candado de la plata miraba las acciones del servidor y no las rutas que entregan archivos. Pregunta
+57 de `COMO-AUDITAR.md`; el barrido encontró además la exportación de presupuestos y el firmador genérico.
+
+```comprobar
+prueba: src/__tests__/los-documentos-de-plata-piden-permiso.test.ts
+```

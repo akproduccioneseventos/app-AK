@@ -1,0 +1,218 @@
+[
+  {
+    "id": "e2e_97_18524_1791675390792_a",
+    "status": 200,
+    "result": {
+      "success": true,
+      "response": "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.\n\nLo más importante ahora:\n1. [ALTA] Fiesta de esta noche: cierre post-fiesta: Ya pasó hace 1 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n2. [ALTA] Fiesta de esta noche: cierre post-fiesta: Ya pasó hace 1 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n3. [ALTA] Fiesta de esta noche: oportunidad post-fiesta: Pasaron 1 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n4. [ALTA] Fiesta de esta noche: oportunidad post-fiesta: Pasaron 1 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n5. [MEDIA] Fiesta de esta noche: falta Tareas internas: 3 pendiente(s) de 5.\n6. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.\n\n→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta.",
+      "agentType": "fiesta",
+      "agentName": "Agente \"Fiesta de esta noche\"",
+      "action": {
+        "type": "none"
+      },
+      "modoRespaldo": true,
+      "error": "Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA97 controlled provider outage; no outbound request",
+      "sessionId": "chat_1791675416604_xd22k0",
+      "savedChat": true
+    },
+    "beforeTasks": [
+      {
+        "id": "demo_task_1",
+        "texto": "Revisar portal cliente con el cliente",
+        "completada": true,
+        "asignadaA": "Organizador"
+      },
+      {
+        "id": "demo_task_2",
+        "texto": "Probar pantalla LED en modo gigante",
+        "completada": false,
+        "asignadaA": "Organizador"
+      },
+      {
+        "id": "demo_task_3",
+        "texto": "Confirmar lista final de invitados",
+        "completada": false,
+        "asignadaA": "Cliente"
+      },
+      {
+        "id": "demo_task_4",
+        "texto": "Cargar fotos finales para invitacion y muro",
+        "completada": true,
+        "asignadaA": "Cliente"
+      },
+      {
+        "id": "demo_task_5",
+        "texto": "Asignar responsable de barra y social wall",
+        "completada": false,
+        "asignadaA": "Organizador"
+      }
+    ],
+    "afterTasks": [
+      {
+        "id": "demo_task_1",
+        "texto": "Revisar portal cliente con el cliente",
+        "completada": true,
+        "asignadaA": "Organizador"
+      },
+      {
+        "id": "demo_task_2",
+        "texto": "Probar pantalla LED en modo gigante",
+        "completada": false,
+        "asignadaA": "Organizador"
+      },
+      {
+        "id": "demo_task_3",
+        "texto": "Confirmar lista final de invitados",
+        "completada": false,
+        "asignadaA": "Cliente"
+      },
+      {
+        "id": "demo_task_4",
+        "texto": "Cargar fotos finales para invitacion y muro",
+        "completada": true,
+        "asignadaA": "Cliente"
+      },
+      {
+        "id": "demo_task_5",
+        "texto": "Asignar responsable de barra y social wall",
+        "completada": false,
+        "asignadaA": "Organizador"
+      }
+    ],
+    "session": {
+      "id": "chat_1791675416604_xd22k0",
+      "agentType": "fiesta",
+      "agentName": "Agente \"Fiesta de esta noche\"",
+      "title": "Creá una tarea para confirmar menú, sonda IA97_A e2e_97_18524_17916...",
+      "pathname": "/fiestas/nueva/tareas",
+      "fiestaId": "e2e_97_18524_1791675390792_a",
+      "messages": [
+        {
+          "id": "user_1791675416604_wikyxu",
+          "role": "user",
+          "content": "Creá una tarea para confirmar menú, sonda IA97_A e2e_97_18524_1791675390792_a",
+          "agentType": "fiesta",
+          "createdAt": "2026-10-10T23:36:56.604Z"
+        },
+        {
+          "id": "assistant_1791675416604_j1sr5t",
+          "role": "assistant",
+          "content": "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.\n\nLo más importante ahora:\n1. [ALTA] Fiesta de esta noche: cierre post-fiesta: Ya pasó hace 1 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n2. [ALTA] Fiesta de esta noche: cierre post-fiesta: Ya pasó hace 1 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n3. [ALTA] Fiesta de esta noche: oportunidad post-fiesta: Pasaron 1 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n4. [ALTA] Fiesta de esta noche: oportunidad post-fiesta: Pasaron 1 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n5. [MEDIA] Fiesta de esta noche: falta Tareas internas: 3 pendiente(s) de 5.\n6. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.\n\n→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta.",
+          "agentType": "fiesta",
+          "agentName": "Agente \"Fiesta de esta noche\"",
+          "createdAt": "2026-10-10T23:36:56.604Z"
+        }
+      ],
+      "createdAt": "2026-10-10T23:36:56.604Z",
+      "updatedAt": "2026-10-10T23:36:56.604Z"
+    }
+  },
+  {
+    "id": "e2e_97_18524_1791675390792_b",
+    "status": 200,
+    "result": {
+      "success": true,
+      "response": "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.\n\nLo más importante ahora:\n1. [ALTA] Fiesta de esta noche: cierre post-fiesta: Ya pasó hace 1 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n2. [ALTA] Fiesta de esta noche: cierre post-fiesta: Ya pasó hace 1 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n3. [ALTA] Fiesta de esta noche: oportunidad post-fiesta: Pasaron 1 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n4. [ALTA] Fiesta de esta noche: oportunidad post-fiesta: Pasaron 1 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n5. [MEDIA] Fiesta de esta noche: falta Tareas internas: 3 pendiente(s) de 5.\n6. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.\n\n→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta.",
+      "agentType": "fiesta",
+      "agentName": "Agente \"Fiesta de esta noche\"",
+      "action": {
+        "type": "none"
+      },
+      "modoRespaldo": true,
+      "error": "Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA97 controlled provider outage; no outbound request",
+      "sessionId": "chat_1791675476186_m9sw9u",
+      "savedChat": true
+    },
+    "beforeTasks": [
+      {
+        "id": "demo_task_1",
+        "texto": "Revisar portal cliente con el cliente",
+        "completada": true,
+        "asignadaA": "Organizador"
+      },
+      {
+        "id": "demo_task_2",
+        "texto": "Probar pantalla LED en modo gigante",
+        "completada": false,
+        "asignadaA": "Organizador"
+      },
+      {
+        "id": "demo_task_3",
+        "texto": "Confirmar lista final de invitados",
+        "completada": false,
+        "asignadaA": "Cliente"
+      },
+      {
+        "id": "demo_task_4",
+        "texto": "Cargar fotos finales para invitacion y muro",
+        "completada": true,
+        "asignadaA": "Cliente"
+      },
+      {
+        "id": "demo_task_5",
+        "texto": "Asignar responsable de barra y social wall",
+        "completada": false,
+        "asignadaA": "Organizador"
+      }
+    ],
+    "afterTasks": [
+      {
+        "id": "demo_task_1",
+        "texto": "Revisar portal cliente con el cliente",
+        "completada": true,
+        "asignadaA": "Organizador"
+      },
+      {
+        "id": "demo_task_2",
+        "texto": "Probar pantalla LED en modo gigante",
+        "completada": false,
+        "asignadaA": "Organizador"
+      },
+      {
+        "id": "demo_task_3",
+        "texto": "Confirmar lista final de invitados",
+        "completada": false,
+        "asignadaA": "Cliente"
+      },
+      {
+        "id": "demo_task_4",
+        "texto": "Cargar fotos finales para invitacion y muro",
+        "completada": true,
+        "asignadaA": "Cliente"
+      },
+      {
+        "id": "demo_task_5",
+        "texto": "Asignar responsable de barra y social wall",
+        "completada": false,
+        "asignadaA": "Organizador"
+      }
+    ],
+    "session": {
+      "id": "chat_1791675476186_m9sw9u",
+      "agentType": "fiesta",
+      "agentName": "Agente \"Fiesta de esta noche\"",
+      "title": "Creá una tarea para confirmar menú, sonda IA97_B e2e_97_18524_17916...",
+      "pathname": "/fiestas/nueva/tareas",
+      "fiestaId": "e2e_97_18524_1791675390792_b",
+      "messages": [
+        {
+          "id": "user_1791675476187_s69zco",
+          "role": "user",
+          "content": "Creá una tarea para confirmar menú, sonda IA97_B e2e_97_18524_1791675390792_b",
+          "agentType": "fiesta",
+          "createdAt": "2026-10-10T23:37:56.186Z"
+        },
+        {
+          "id": "assistant_1791675476187_e8cjcq",
+          "role": "assistant",
+          "content": "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.\n\nLo más importante ahora:\n1. [ALTA] Fiesta de esta noche: cierre post-fiesta: Ya pasó hace 1 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n2. [ALTA] Fiesta de esta noche: cierre post-fiesta: Ya pasó hace 1 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n3. [ALTA] Fiesta de esta noche: oportunidad post-fiesta: Pasaron 1 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n4. [ALTA] Fiesta de esta noche: oportunidad post-fiesta: Pasaron 1 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n5. [MEDIA] Fiesta de esta noche: falta Tareas internas: 3 pendiente(s) de 5.\n6. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.\n\n→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta.",
+          "agentType": "fiesta",
+          "agentName": "Agente \"Fiesta de esta noche\"",
+          "createdAt": "2026-10-10T23:37:56.186Z"
+        }
+      ],
+      "createdAt": "2026-10-10T23:37:56.186Z",
+      "updatedAt": "2026-10-10T23:37:56.186Z"
+    }
+  }
+]

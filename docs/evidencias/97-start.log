@@ -1,0 +1,365 @@
+[31m[1m!!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-ak-producciones", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[33m[1m!  emulators:[22m[39m It seems that you are running multiple instances of the emulator suite for project demo-ak-producciones. This may result in unexpected behavior.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m! [22m[39m Unexpected rules runtime error: Picked up JAVA_TOOL_OPTIONS: -Xmx512m
+
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌───────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator  [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore [90m│[39m 127.0.0.1:8085 [90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage   [90m│[39m 127.0.0.1:9195 [90m│[39m
+[90m└───────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+
+[33m[1m!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 11.2s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1280ms (161 modules)
+ ○ Compiling /fiestas/nueva/tareas ...
+ ✓ Compiled /fiestas/nueva/tareas in 37.8s (5102 modules)
+ ✓ Compiled in 2.8s (1809 modules)
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 40937ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 2193ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 2395ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 1642ms
+ ○ Compiling /api/multiagent/message ...
+ ✓ Compiled /api/multiagent/message in 48.1s (6326 modules)
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 52422ms
+[Multiagent] La IA no respondió, se usa el respaldo: TypeError: import_sdk_node.NodeSDK is not a constructor
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 1163ms
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /api/multiagent/message 200 in 57229ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 1094ms
+ ○ Compiling /api/asistente/voz-parte ...
+ ✓ Compiled /api/asistente/voz-parte in 10.1s (6332 modules)
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /api/asistente/voz-parte 200 in 14272ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 14039ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 14310ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 495ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 605ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 3783ms
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 4099ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 632ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 716ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 1519ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 2781ms
+[QA97] Provider unavailable locally: generativelanguage.googleapis.com
+Error: QA97 controlled provider outage; no outbound request
+    at globalThis.fetch (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-97\qa97-provider.cjs:8:11)
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[Multiagent] La IA no respondió, se usa el respaldo: Error: Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA97 controlled provider outage; no outbound request
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error; {
+  traceId: '00000000000000000000000000000000',
+  ignoreFailedSpan: true
+}
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 1040ms
+ POST /api/multiagent/message 200 in 5494ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 1798ms
+ POST /api/asistente/voz-parte 503 in 1736ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 1902ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 3692ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 563ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 622ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_b 200 in 1100ms
+[Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException: [Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException:  [Error: aborted] { code: 'ECONNRESET' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 2910ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 7805ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 623ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 781ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_1752_1791675212294_a 200 in 566ms
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 622ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 548ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 3940ms
+[AK] Firestore read failed for fiestas/e2e_97_18524_1791675390792_a.json: {
+  name: 'Error',
+  message: 'Timeout de consulta a base de datos superado (3500ms)'
+}
+[AK] [readData] FALLBACK JSON usado para "fiestas/e2e_97_18524_1791675390792_a.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[QA97] Provider unavailable locally: generativelanguage.googleapis.com
+Error: QA97 controlled provider outage; no outbound request
+    at globalThis.fetch (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-97\qa97-provider.cjs:8:11)
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[Multiagent] La IA no respondió, se usa el respaldo: Error: Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA97 controlled provider outage; no outbound request
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error; {
+  traceId: '00000000000000000000000000000000',
+  ignoreFailedSpan: true
+}
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 16945ms
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 6666ms
+ POST /api/multiagent/message 200 in 41081ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 4009ms
+ POST /api/asistente/voz-parte 503 in 4571ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 7640ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 648ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 2082ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 8129ms
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 8028ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 1019ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 3615ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[QA97] Provider unavailable locally: generativelanguage.googleapis.com
+Error: QA97 controlled provider outage; no outbound request
+    at globalThis.fetch (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-97\qa97-provider.cjs:8:11)
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[Multiagent] La IA no respondió, se usa el respaldo: Error: Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA97 controlled provider outage; no outbound request
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error; {
+  traceId: '00000000000000000000000000000000',
+  ignoreFailedSpan: true
+}
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 3423ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 1377ms
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+ POST /api/multiagent/message 200 in 9126ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 5112ms
+ POST /api/asistente/voz-parte 503 in 2770ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 2472ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 4318ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 1943ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 1372ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_b 200 in 2825ms
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 2928ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 356ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 922ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 825ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 1357ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_18524_1791675390792_a 200 in 778ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_scope_4424_1791689157851_a 200 in 2097ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_4424_1791689157851_a 200 in 490ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_4424_1791689157851_a 200 in 664ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_4424_1791689157851_a 200 in 1031ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_4424_1791689157851_a 200 in 1435ms
+[QA97] Provider unavailable locally: generativelanguage.googleapis.com
+Error: QA97 controlled provider outage; no outbound request
+    at globalThis.fetch (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-97\qa97-provider.cjs:8:11)
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[Multiagent] La IA no respondió, se usa el respaldo: Error: Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA97 controlled provider outage; no outbound request
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error; {
+  traceId: '00000000000000000000000000000000',
+  ignoreFailedSpan: true
+}
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_4424_1791689157851_a 200 in 1257ms
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+ POST /api/multiagent/message 200 in 7276ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /api/asistente/voz-parte 200 in 1627ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_4424_1791689157851_a 200 in 2102ms
+ GET /fiestas/nueva/tareas?fiestaId=e2e_97_scope_17456_1791689179040_a 200 in 1673ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_17456_1791689179040_a 200 in 535ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_17456_1791689179040_a 200 in 1152ms
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[QA97] Provider unavailable locally: generativelanguage.googleapis.com
+Error: QA97 controlled provider outage; no outbound request
+    at globalThis.fetch (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-97\qa97-provider.cjs:8:11)
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error;
+[Multiagent] La IA no respondió, se usa el respaldo: Error: Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA97 controlled provider outage; no outbound request
+    at async generateWithGeminiFallback (src\ai\genkit.ts:159:14)
+    at async runMultiAgent (src\ai\flows\multiagent-flow.ts:560:22)
+    at async sendMultiAgentMessage (src\app\actions\multiagent.ts:52:12)
+    at async sendPersistentMultiAgentMessage (src\app\actions\multiagent.ts:107:18)
+    at async POST (src\app\api\multiagent\message\route.ts:81:18)
+  157 |   for (const model of candidates) {
+  158 |     try {
+> 159 |       return await ai.generate({ ...pedido, model });
+      |              ^
+  160 |     } catch (error) {
+  161 |       lastError = error;
+  162 |       if (!isRecoverableGeminiModelError(error)) throw error; {
+  traceId: '00000000000000000000000000000000',
+  ignoreFailedSpan: true
+}
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_17456_1791689179040_a 200 in 2932ms
+[AK] ✅ [Firebase Sync] "ai-consumo.json" sincronizado correctamente.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_17456_1791689179040_a 200 in 1108ms
+ POST /api/multiagent/message 200 in 4341ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_17456_1791689179040_a 200 in 3113ms
+ POST /api/asistente/voz-parte 503 in 3066ms
+ POST /fiestas/nueva/tareas?fiestaId=e2e_97_scope_17456_1791689179040_a 200 in 1980ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.

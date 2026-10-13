@@ -1,0 +1,7 @@
+PASS src/__tests__/calendarios-con-react19.test.tsx
+
+Test Suites: 1 passed, 1 total
+Tests:       4 passed, 4 total
+Snapshots:   0 total
+Time:        6.51 s
+Test results written to: ..\..\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009\docs\evidencias\105-unit.json

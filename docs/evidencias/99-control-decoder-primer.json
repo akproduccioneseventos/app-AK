@@ -1,0 +1,253 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "playwright.99-control.config.ts",
+      "--project",
+      "chromium-mobile"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\playwright.99-control.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-99/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-99/qa99-control-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-99/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/99-qr-persistidos.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-99/qa99-control-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-99/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/99-qr-persistidos.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-verificacion-81-20261009\\docs\\evidencias\\99-control.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "99-qr-persistidos.spec.ts",
+      "file": "99-qr-persistidos.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Same downloaded file mobile failure and width control: 3",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2573,
+                  "error": {
+                    "message": "NotFoundException: Dimensions could be not found.",
+                    "stack": "NotFoundException: Dimensions could be not found.\n    at Detector$2.computeDimension (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15640:27)\n    at Detector$2.processFinderPatternInfo (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15558:42)\n    at Detector$2.detect (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15548:25)\n    at QRCodeReader.decode (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15855:79)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts:23:44",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts",
+                      "column": 44,
+                      "line": 23
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     \u001b[36mreturn\u001b[39m { width\u001b[33m:\u001b[39mc\u001b[33m.\u001b[39mwidth\u001b[33m,\u001b[39mheight\u001b[33m:\u001b[39mc\u001b[33m.\u001b[39mheight\u001b[33m,\u001b[39mgray }\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m   }\u001b[33m,\u001b[39m bytes\u001b[33m.\u001b[39mtoString(\u001b[32m'base64'\u001b[39m))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m   \u001b[36mconst\u001b[39m decoded \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m zxing\u001b[33m.\u001b[39m\u001b[33mQRCodeReader\u001b[39m()\u001b[33m.\u001b[39mdecode(\u001b[36mnew\u001b[39m zxing\u001b[33m.\u001b[39m\u001b[33mBinaryBitmap\u001b[39m(\u001b[36mnew\u001b[39m zxing\u001b[33m.\u001b[39m\u001b[33mHybridBinarizer\u001b[39m(\u001b[36mnew\u001b[39m zxing\u001b[33m.\u001b[39m\u001b[33mRGBLuminanceSource\u001b[39m(\u001b[33mUint8ClampedArray\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(pixels\u001b[33m.\u001b[39mgray)\u001b[33m,\u001b[39mpixels\u001b[33m.\u001b[39mwidth\u001b[33m,\u001b[39mpixels\u001b[33m.\u001b[39mheight))))\u001b[33m.\u001b[39mgetText()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m   \u001b[36mconst\u001b[39m url \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mURL\u001b[39m(decoded)\u001b[33m,\u001b[39m parts \u001b[33m=\u001b[39m url\u001b[33m.\u001b[39mpathname\u001b[33m.\u001b[39msplit(\u001b[32m'/'\u001b[39m)\u001b[33m,\u001b[39m id \u001b[33m=\u001b[39m parts[\u001b[35m2\u001b[39m]\u001b[33m,\u001b[39m gid \u001b[33m=\u001b[39m parts[\u001b[35m4\u001b[39m]\u001b[33m,\u001b[39m token \u001b[33m=\u001b[39m url\u001b[33m.\u001b[39msearchParams\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'token'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m   expect(id\u001b[33m.\u001b[39mstartsWith(\u001b[32m'e2e_99_'\u001b[39m))\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m expect(gid)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m expect(token)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m   \u001b[36mconst\u001b[39m fiesta \u001b[33m=\u001b[39m crearFiestaDeEstaNoche({ id })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts",
+                        "column": 44,
+                        "line": 23
+                      },
+                      "message": "NotFoundException: Dimensions could be not found.\n\n  21 |     return { width:c.width,height:c.height,gray };\n  22 |   }, bytes.toString('base64'));\n> 23 |   const decoded = new zxing.QRCodeReader().decode(new zxing.BinaryBitmap(new zxing.HybridBinarizer(new zxing.RGBLuminanceSource(Uint8ClampedArray.from(pixels.gray),pixels.width,pixels.height)))).getText();\n     |                                            ^\n  24 |   const url = new URL(decoded), parts = url.pathname.split('/'), id = parts[2], gid = parts[4], token = url.searchParams.get('token');\n  25 |   expect(id.startsWith('e2e_99_')).toBe(true); expect(gid).toBeTruthy(); expect(token).toBeTruthy();\n  26 |   const fiesta = crearFiestaDeEstaNoche({ id });\n    at Detector$2.computeDimension (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15640:27)\n    at Detector$2.processFinderPatternInfo (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15558:42)\n    at Detector$2.detect (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15548:25)\n    at QRCodeReader.decode (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15855:79)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts:23:44"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T05:18:28.255Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\qa99-control-artifacts\\99-qr-persistidos-Same-dow-12a51-failure-and-width-control-3-chromium-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\qa99-control-artifacts\\99-qr-persistidos-Same-dow-12a51-failure-and-width-control-3-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\qa99-control-artifacts\\99-qr-persistidos-Same-dow-12a51-failure-and-width-control-3-chromium-mobile\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts",
+                    "column": 44,
+                    "line": 23
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7feb487c519aa43bdff2-8eae2c34d32c3ca903df",
+          "file": "99-qr-persistidos.spec.ts",
+          "line": 13,
+          "column": 29
+        },
+        {
+          "title": "Same downloaded file mobile failure and width control: 4",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2460,
+                  "error": {
+                    "message": "FormatException: undefined",
+                    "stack": "FormatException: undefined\n    at BitMatrixParser$1.readVersion (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:13646:19)\n    at Decoder$2.decodeBitMatrixParser (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:14430:36)\n    at Decoder$2.decodeBitMatrix (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:14394:29)\n    at QRCodeReader.decode (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15856:46)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts:23:44",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts",
+                      "column": 44,
+                      "line": 23
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 21 |\u001b[39m     \u001b[36mreturn\u001b[39m { width\u001b[33m:\u001b[39mc\u001b[33m.\u001b[39mwidth\u001b[33m,\u001b[39mheight\u001b[33m:\u001b[39mc\u001b[33m.\u001b[39mheight\u001b[33m,\u001b[39mgray }\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m   }\u001b[33m,\u001b[39m bytes\u001b[33m.\u001b[39mtoString(\u001b[32m'base64'\u001b[39m))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m   \u001b[36mconst\u001b[39m decoded \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m zxing\u001b[33m.\u001b[39m\u001b[33mQRCodeReader\u001b[39m()\u001b[33m.\u001b[39mdecode(\u001b[36mnew\u001b[39m zxing\u001b[33m.\u001b[39m\u001b[33mBinaryBitmap\u001b[39m(\u001b[36mnew\u001b[39m zxing\u001b[33m.\u001b[39m\u001b[33mHybridBinarizer\u001b[39m(\u001b[36mnew\u001b[39m zxing\u001b[33m.\u001b[39m\u001b[33mRGBLuminanceSource\u001b[39m(\u001b[33mUint8ClampedArray\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(pixels\u001b[33m.\u001b[39mgray)\u001b[33m,\u001b[39mpixels\u001b[33m.\u001b[39mwidth\u001b[33m,\u001b[39mpixels\u001b[33m.\u001b[39mheight))))\u001b[33m.\u001b[39mgetText()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m   \u001b[36mconst\u001b[39m url \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mURL\u001b[39m(decoded)\u001b[33m,\u001b[39m parts \u001b[33m=\u001b[39m url\u001b[33m.\u001b[39mpathname\u001b[33m.\u001b[39msplit(\u001b[32m'/'\u001b[39m)\u001b[33m,\u001b[39m id \u001b[33m=\u001b[39m parts[\u001b[35m2\u001b[39m]\u001b[33m,\u001b[39m gid \u001b[33m=\u001b[39m parts[\u001b[35m4\u001b[39m]\u001b[33m,\u001b[39m token \u001b[33m=\u001b[39m url\u001b[33m.\u001b[39msearchParams\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m'token'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m   expect(id\u001b[33m.\u001b[39mstartsWith(\u001b[32m'e2e_99_'\u001b[39m))\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m expect(gid)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m expect(token)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m   \u001b[36mconst\u001b[39m fiesta \u001b[33m=\u001b[39m crearFiestaDeEstaNoche({ id })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts",
+                        "column": 44,
+                        "line": 23
+                      },
+                      "message": "FormatException: undefined\n\n  21 |     return { width:c.width,height:c.height,gray };\n  22 |   }, bytes.toString('base64'));\n> 23 |   const decoded = new zxing.QRCodeReader().decode(new zxing.BinaryBitmap(new zxing.HybridBinarizer(new zxing.RGBLuminanceSource(Uint8ClampedArray.from(pixels.gray),pixels.width,pixels.height)))).getText();\n     |                                            ^\n  24 |   const url = new URL(decoded), parts = url.pathname.split('/'), id = parts[2], gid = parts[4], token = url.searchParams.get('token');\n  25 |   expect(id.startsWith('e2e_99_')).toBe(true); expect(gid).toBeTruthy(); expect(token).toBeTruthy();\n  26 |   const fiesta = crearFiestaDeEstaNoche({ id });\n    at BitMatrixParser$1.readVersion (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:13646:19)\n    at Decoder$2.decodeBitMatrixParser (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:14430:36)\n    at Decoder$2.decodeBitMatrix (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:14394:29)\n    at QRCodeReader.decode (C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\html5-qrcode\\third_party\\zxing-js.umd.js:15856:46)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts:23:44"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T05:18:32.605Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\qa99-control-artifacts\\99-qr-persistidos-Same-dow-b011b-failure-and-width-control-4-chromium-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\qa99-control-artifacts\\99-qr-persistidos-Same-dow-b011b-failure-and-width-control-4-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\qa99-control-artifacts\\99-qr-persistidos-Same-dow-b011b-failure-and-width-control-4-chromium-mobile\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-99\\tests\\e2e\\99-qr-persistidos.spec.ts",
+                    "column": 44,
+                    "line": 23
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7feb487c519aa43bdff2-05cf94841ce5b11d764d",
+          "file": "99-qr-persistidos.spec.ts",
+          "line": 13,
+          "column": 29
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T05:18:26.682Z",
+    "duration": 9513.318,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

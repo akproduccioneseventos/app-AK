@@ -1,0 +1,96 @@
+[
+  {
+    "title": "Empty mural paints its message after settling, not just DOM presence",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 17632,
+    "errors": [
+      "Error: main visible region has space\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m200\u001b[39m\nReceived:   \u001b[31m80\u001b[39m\n\n  49 |     expect(control.section.height,'control restoring only fixed position has room').toBeGreaterThan(200);\n  50 |     expect(control.titleReceivesPoint,'same page, same data; one positioning override').toBe(true);\n> 51 |     expect(later.section.height,'main visible region has space').toBeGreaterThan(200);\n     |                                                                  ^\n  52 |     expect(later.titleReceivesPoint,'message is painted in front, not clipped by an ancestor').toBe(true);\n  53 |   } finally { await db.collection('fiestas').doc(id).delete(); borrarFiesta(id); }\n  54 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-98\\tests\\e2e\\98-mural-visual.spec.ts:51:66"
+    ],
+    "attachments": [
+      {
+        "name": "wall-settled.json",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-0.json"
+      },
+      {
+        "name": "wall-settled.png",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-1.png"
+      },
+      {
+        "name": "wall-later.json",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-2.json"
+      },
+      {
+        "name": "wall-later.png",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-3.png"
+      },
+      {
+        "name": "wall-position-control.json",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-4.json"
+      },
+      {
+        "name": "wall-position-control.png",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-5.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-6.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-7.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-00-8.txt"
+      }
+    ]
+  },
+  {
+    "title": "Empty mural paints its message after settling, not just DOM presence",
+    "project": "chromium-mobile",
+    "status": "failed",
+    "duration": 17509,
+    "errors": [
+      "Error: main visible region has space\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m200\u001b[39m\nReceived:   \u001b[31m80\u001b[39m\n\n  49 |     expect(control.section.height,'control restoring only fixed position has room').toBeGreaterThan(200);\n  50 |     expect(control.titleReceivesPoint,'same page, same data; one positioning override').toBe(true);\n> 51 |     expect(later.section.height,'main visible region has space').toBeGreaterThan(200);\n     |                                                                  ^\n  52 |     expect(later.titleReceivesPoint,'message is painted in front, not clipped by an ancestor').toBe(true);\n  53 |   } finally { await db.collection('fiestas').doc(id).delete(); borrarFiesta(id); }\n  54 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-98\\tests\\e2e\\98-mural-visual.spec.ts:51:66"
+    ],
+    "attachments": [
+      {
+        "name": "wall-settled.json",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-0.json"
+      },
+      {
+        "name": "wall-settled.png",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-1.png"
+      },
+      {
+        "name": "wall-later.json",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-2.json"
+      },
+      {
+        "name": "wall-later.png",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-3.png"
+      },
+      {
+        "name": "wall-position-control.json",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-4.json"
+      },
+      {
+        "name": "wall-position-control.png",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-5.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-6.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-7.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/98-artifactos/98-visual-control-01-8.txt"
+      }
+    ]
+  }
+]

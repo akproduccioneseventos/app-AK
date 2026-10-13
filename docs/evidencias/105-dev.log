@@ -1,0 +1,15 @@
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 8.6s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1601ms (161 modules)
+ ○ Compiling /empresa/configurador-reunion ...
+ ✓ Compiled /empresa/configurador-reunion in 64.5s (5652 modules)
+ GET /empresa/configurador-reunion 200 in 69434ms
+ ✓ Compiled in 5.3s (2082 modules)

@@ -37,6 +37,12 @@ jest.mock('@/lib/auth/require-session', () => ({
     }
     return { userId: 'admin', email: 'admin@ak.test', role: 'admin' };
   }),
+  // Sesión del dueño: pasa la guarda por permiso; sin sesión, tira igual que la real.
+  requirePermisoAlguno: jest.fn(async () => {
+    if (!tieneSesion) {
+      throw new Error('No autorizado');
+    }
+  }),
 }));
 
 let transaccionCola = Promise.resolve();

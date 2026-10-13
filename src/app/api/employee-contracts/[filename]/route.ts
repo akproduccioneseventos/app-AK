@@ -3,10 +3,14 @@ import { isFileNotFoundError } from '@/lib/error-utils';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { hasAppSession } from '@/lib/auth/require-session';
+import { hasAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 export async function GET(request: NextRequest, props: { params: Promise<{ filename: string }> }) {
   if (!(await hasAppSession())) return new NextResponse('Unauthorized', { status: 401 });
+  // Orden 155 (Codex): con sesión no alcanza. Un contrato laboral muestra el sueldo: sólo quien
+  // maneja sueldos. El operador y el personal tienen sesión y no deben bajarlo.
+  if (!(await requirePermiso(PERMISOS.SUELDOS)).ok) return new NextResponse('Forbidden', { status: 403 });
   const params = await props.params;
   const filename = params.filename;
 

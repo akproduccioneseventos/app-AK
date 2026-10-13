@@ -1,0 +1,114 @@
+{
+  "stats": {
+    "startTime": "2026-10-11T18:05:29.856Z",
+    "duration": 145345.745,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "A genuinely missing portal still says not found",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 6087,
+      "errors": [],
+      "files": [
+        {
+          "name": "missing-portal.png",
+          "path": "103-artifactos/103-portal-inicial-000.png"
+        }
+      ]
+    },
+    {
+      "title": "Existing client portal distinguishes a read outage and recovers without losing data",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 65794,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\tests\\e2e\\103-portal-reader.spec.ts",
+            "column": 85,
+            "line": 52
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Personalizar portada', exact: true })\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Personalizar portada', exact: true })\u001b[22m\n\n\n  50 |     if(outage.retry) await page.getByRole('button',{name:'Reintentar',exact:true}).click();\n  51 |     else await page.reload({waitUntil:'domcontentloaded'});\n> 52 |     await expect(page.getByRole('button',{name:'Personalizar portada',exact:true})).toBeVisible({timeout:60000});\n     |                                                                                     ^\n  53 |     const after = (await ref.get()).data(); expect(after).toEqual(before);\n  54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});\n  55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\tests\\e2e\\103-portal-reader.spec.ts:52:85"
+        }
+      ],
+      "files": [
+        {
+          "name": "actual-read-outage.json",
+          "path": "103-artifactos/103-portal-inicial-001.json"
+        },
+        {
+          "name": "actual-read-outage.png",
+          "path": "103-artifactos/103-portal-inicial-002.png"
+        },
+        {
+          "name": "screenshot",
+          "path": "103-artifactos/103-portal-inicial-003.png"
+        },
+        {
+          "name": "error-context",
+          "path": "103-artifactos/103-portal-inicial-004.bin"
+        },
+        {
+          "name": "error-context",
+          "path": "103-artifactos/103-portal-inicial-005.bin"
+        }
+      ]
+    },
+    {
+      "title": "A genuinely missing portal still says not found",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 2147,
+      "errors": [],
+      "files": [
+        {
+          "name": "missing-portal.png",
+          "path": "103-artifactos/103-portal-inicial-006.png"
+        }
+      ]
+    },
+    {
+      "title": "Existing client portal distinguishes a read outage and recovers without losing data",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 64652,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\tests\\e2e\\103-portal-reader.spec.ts",
+            "column": 85,
+            "line": 52
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Personalizar portada', exact: true })\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Personalizar portada', exact: true })\u001b[22m\n\n\n  50 |     if(outage.retry) await page.getByRole('button',{name:'Reintentar',exact:true}).click();\n  51 |     else await page.reload({waitUntil:'domcontentloaded'});\n> 52 |     await expect(page.getByRole('button',{name:'Personalizar portada',exact:true})).toBeVisible({timeout:60000});\n     |                                                                                     ^\n  53 |     const after = (await ref.get()).data(); expect(after).toEqual(before);\n  54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});\n  55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\tests\\e2e\\103-portal-reader.spec.ts:52:85"
+        }
+      ],
+      "files": [
+        {
+          "name": "actual-read-outage.json",
+          "path": "103-artifactos/103-portal-inicial-007.json"
+        },
+        {
+          "name": "actual-read-outage.png",
+          "path": "103-artifactos/103-portal-inicial-008.png"
+        },
+        {
+          "name": "screenshot",
+          "path": "103-artifactos/103-portal-inicial-009.png"
+        },
+        {
+          "name": "error-context",
+          "path": "103-artifactos/103-portal-inicial-010.bin"
+        },
+        {
+          "name": "error-context",
+          "path": "103-artifactos/103-portal-inicial-011.bin"
+        }
+      ]
+    }
+  ]
+}

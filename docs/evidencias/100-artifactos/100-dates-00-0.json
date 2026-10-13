@@ -1,0 +1,64 @@
+{
+  "id": "e2e_100_dates_21380_1791696861228",
+  "date": "2027-08-08",
+  "warning": 0,
+  "body": "Crear Presupuesto\nVolver\nPaso 1 de 3: Datos del Evento\nNombre del Cliente*\nNº de Contacto\nSalón de Fiestas\nTipo de Evento\nSeleccioná un tipo\nProtagonista(s) del Evento (Opcional)\nFecha del Evento\nSelecciona una fecha\nHora de Inicio\nNº Adultos\nNº Niños y Adolescentes\nAnterior\nSiguiente",
+  "faultText": "{\"time\":\"2026-10-11T05:35:04.532Z\",\"pid\":12212,\"collection\":\"fiestas\",\"filters\":0}\n{\"time\":\"2026-10-11T05:35:13.093Z\",\"pid\":12212,\"collection\":\"fiestas\",\"filters\":0}\n{\"time\":\"2026-10-11T05:35:19.666Z\",\"pid\":12212,\"collection\":\"fiestas\",\"filters\":0}\n",
+  "responses": [
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ":N1791696902039.043\n0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"development\"}\n1:true\n"
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ":N1791696904652.9263\n0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"development\"}\n1:[]\n"
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ":N1791696917131.0596\n0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"development\"}\n1:{\"showClientData\":true,\"showEventTypeAndDate\":true,\"showPaymentMethodNotes\":true,\"showCompanyLogo\":true,\"showPriceBreakdown\":true,\"showIndividualPrices\":true,\"annualAdjustmentPercentage\":15,\"promotionalDiscounts\":[],\"successMessage\":\"Ahora podÃ©s coordinar una reuniÃ³n con el organizador para revisar todos los detalles, despejar dudas y asegurar tu fecha.\",\"bookingTerms\":\"Para confirmar la promociÃ³n y reservar todos los servicios, se requiere una seÃ±a de $5.000. El presupuesto es vÃ¡lido por 30 dÃ­as.\",\"bookingDepositAmount\":5000,\"whatsappMessageTemplate\":\"Hola, ya generÃ© un presupuesto para mi evento y me gustarÃ­a coordinar una reuniÃ³n para revisar detalles, despejar dudas y confirmar disponibilidad.\",\"assistantWelcomeMessage\":\"Â¡Hola! Soy el Asistente AK ðŸ‘‹\",\"assistantFinalMessage\":\"Â¿Hablamos? En una sola reuniÃ³n resolvÃ©s todo y tu fiesta queda lista ðŸš€\",\"virtualAssistantEnabled\":false,\"valuePropositions\":[\"Equipamiento profesional de alta gama\",\"Personal capacitado y con amplia experiencia\",\"Flexibilidad en la planificaciÃ³n\",\"Compromiso de puntualidad y dedicaciÃ³n\"],\"simulatorWelcomeTitle\":\"IngresÃ¡ tus datos de contacto\",\"simulatorWelcomeSubtitle\":\"Guardamos tu avance para que el equipo pueda ayudarte si no terminÃ¡s la simulaciÃ³n.\"}\n"
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ""
+    },
+    {
+      "url": "http://127.0.0.1:3300/presupuestos/nuevo/crear",
+      "status": 200,
+      "body": ""
+    }
+  ]
+}

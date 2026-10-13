@@ -9,6 +9,8 @@ import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
 import { readData, writeData } from '@/lib/data-service';
 import { clasificarComentario } from '@/lib/social-media/clasificador-comentarios';
 
+process.env.AK_USE_LOCAL_JSON_ONLY = 'true'; // el guardado por parches usa readData/writeData (sin la base real)
+
 jest.mock('@/lib/data-service', () => ({ readData: jest.fn(), writeData: jest.fn() }));
 jest.mock('@/lib/social-media/clasificador-comentarios', () => ({ clasificarComentario: jest.fn() }));
 

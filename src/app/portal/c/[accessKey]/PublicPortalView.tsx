@@ -209,7 +209,7 @@ function resolveBebidasItems(settings: FiestaEnPlanificacion['clientPortalSettin
 const MAX_GUEST_DELTA = 200;
 
 /** Pick a representative Lucide icon based on itinerary item title keywords */
-function getItineraryIcon(titulo: string): React.ElementType {
+function getItineraryIcon(titulo: string): React.ComponentType<React.SVGProps<SVGSVGElement>> {
   const t = titulo.toLowerCase();
   if (t.includes('música') || t.includes('musica') || t.includes('baile') || t.includes('vals') || t.includes('dj') || t.includes('show'))
     return Music;

@@ -196,7 +196,18 @@ async function deleteInsumoInterno(id: string): Promise<{ success: boolean; erro
 }
 
 
-type AjustePendiente = { porcentaje: number; fecha: string; pendientes: string[] };
+/**
+ * `costosNuevos` guarda el costo FINAL de cada insumo (valor absoluto, no un porcentaje): el marcador
+ * se escribe ANTES de tocar los insumos, y si el guardado se corta, el reintento pone esos mismos
+ * valores sin volver a multiplicar. `insumosAplicados` dice si ya se escribieron. (12/10/2026)
+ */
+type AjustePendiente = {
+  porcentaje: number;
+  fecha: string;
+  pendientes: string[];
+  costosNuevos?: Record<string, number>;
+  insumosAplicados?: boolean;
+};
 const AJUSTE_PENDIENTE_FILE = 'insumos-ajuste-pendiente.json';
 
 /**
@@ -259,6 +270,8 @@ async function adjustAllInsumoCostsInterno(
     // y faltan menús. Reintentar con el mismo porcentaje NO lo vuelve a aplicar: sólo termina los
     // menús que faltaban. Con otro porcentaje no se deja, porque se sumaría encima del anterior.
     const pendiente = await readData<AjustePendiente | null>(AJUSTE_PENDIENTE_FILE, null);
+    const ordenInsumos = (a: ServicioEmpresa, b: ServicioEmpresa) =>
+      (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || '');
     if (pendiente?.pendientes?.length) {
       if (pendiente.porcentaje !== percentage) {
         return {
@@ -266,31 +279,49 @@ async function adjustAllInsumoCostsInterno(
           error: `Hay un ajuste del ${pendiente.porcentaje}% que quedó a medias. Volvé a aplicar ese mismo ${pendiente.porcentaje}% para terminar los menús (no se vuelve a subir) y después hacé el nuevo.`,
         };
       }
-      return terminarMenusPendientes(inventario, pendiente);
+      let inventarioActual = inventario;
+      if (pendiente.insumosAplicados === false && pendiente.costosNuevos) {
+        // El corte fue antes o durante el guardado de los insumos: se ponen los costos finales
+        // anotados (valores absolutos), así que repetirlo no vuelve a multiplicar.
+        const costos = pendiente.costosNuevos;
+        inventarioActual = inventario.map((i) => (i.id in costos ? { ...i, valorUnitarioEstimado: costos[i.id] } : i));
+        await writeData(INSUMOS_FILE, inventarioActual, ordenInsumos);
+        limpiarCacheInsumos();
+      }
+      return await terminarMenusPendientes(inventarioActual, { ...pendiente, insumosAplicados: true });
     }
 
     const multiplier = 1 + percentage / 100;
+    const costosNuevos: Record<string, number> = {};
 
     const updatedInventario = inventario.map(insumo => {
       const newInsumo = { ...insumo };
 
       if (newInsumo.valorUnitarioEstimado !== undefined) {
-        newInsumo.valorUnitarioEstimado = Math.round((newInsumo.valorUnitarioEstimado * multiplier));
+        // Dos decimales: con enteros, un insumo de $6 con +5% quedaba en $6 y no subia nunca.
+        newInsumo.valorUnitarioEstimado = Math.round(newInsumo.valorUnitarioEstimado * multiplier * 100) / 100;
+        costosNuevos[newInsumo.id] = newInsumo.valorUnitarioEstimado;
       }
-      
+
       return newInsumo;
     });
 
-    await writeData(INSUMOS_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+    const ajuste: AjustePendiente = {
+      porcentaje: percentage,
+      fecha: new Date().toISOString(),
+      pendientes: updatedInventario.map((i) => i.id),
+      costosNuevos,
+      insumosAplicados: false,
+    };
+    // El marcador va ANTES: si el servidor se corta despues de guardar los insumos, el reintento
+    // sabe que el porcentaje ya estaba pedido y no lo vuelve a sumar.
+    await writeData(AJUSTE_PENDIENTE_FILE, ajuste);
+    await writeData(INSUMOS_FILE, updatedInventario, ordenInsumos);
     limpiarCacheInsumos();
 
     // Antes esto se anotaba en un registro que no mira nadie y la pantalla decia "listo" igual:
     // los platos seguian costando lo viejo y el presupuesto siguiente salia con precios de antes.
-    return terminarMenusPendientes(updatedInventario, {
-      porcentaje: percentage,
-      fecha: new Date().toISOString(),
-      pendientes: updatedInventario.map((i) => i.id),
-    });
+    return await terminarMenusPendientes(updatedInventario, { ...ajuste, insumosAplicados: true });
   } catch (error: any) {
     console.error("Error adjusting insumo costs:", error);
     return { success: false, error: "Ocurrió un error al intentar ajustar los costos de los insumos." };

@@ -144,7 +144,7 @@ describe('release security boundaries', () => {
       const nextExport = source.indexOf('export async function ', start + 1);
       const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
       expect(start).toBeGreaterThanOrEqual(0);
-      expect(functionSource).toMatch(/await require(?:AppSession|Permiso\w*)\(/);
+      expect(functionSource).toMatch(/await require(?:AppSession|AdminSession|Permiso\w*)\(/);
     }
   });
 
@@ -300,7 +300,8 @@ describe('release security boundaries', () => {
     const rsvp = readSource('src/app/invitacion/[fiestaId]/rsvp/page.tsx');
     const accessControl = readSource('src/app/evento/accesos/[fiestaId]/page.tsx');
     expect(rsvp).toContain('&token=${encodeURIComponent(confirmedGuest.guestAccessToken');
-    expect(rsvp).toContain('renderAs="canvas"');
+    expect(rsvp).toContain("import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react'");
+    expect(rsvp).toContain('<QRCodeStylized');
     expect(accessControl).toContain('El token del QR no es válido para este invitado.');
     expect(accessControl).not.toContain('Possible QR tampering');
   });

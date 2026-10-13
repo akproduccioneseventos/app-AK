@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 interface MarketingSection {
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   color: string;
   href: string;
   badge?: string;

@@ -1,7 +1,7 @@
 'use client';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
-import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ComponentType, type ReactNode, type SVGProps } from 'react';
 import {
   AlertTriangle,
   Calendar,
@@ -70,7 +70,7 @@ type PublicPortalClientExperienceProps = {
   ajusteAnualPorcentaje?: number;
 };
 
-type DisplayIcon = ElementType<{ className?: string }>;
+type DisplayIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 type CatalogService = {
   id: string;
@@ -786,7 +786,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     }
   };
 
+  const accionEnCurso = useRef(false);
+
   const handleConfirmCancellation = async () => {
+    if (accionEnCurso.current) return; // doble toque: la segunda llamada no sale
+    accionEnCurso.current = true;
     setPinError('');
     setActionProcessing(true);
     try {
@@ -807,11 +811,14 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     } catch (e: any) {
       setPinError('Error de conexión.');
     } finally {
+      accionEnCurso.current = false;
       setActionProcessing(false);
     }
   };
 
   const handleConfirmDateChange = async () => {
+    if (accionEnCurso.current) return; // doble toque: la segunda llamada no sale
+    accionEnCurso.current = true;
     setPinError('');
     setActionProcessing(true);
     try {
@@ -831,6 +838,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     } catch (e: any) {
       setPinError('Error de conexión.');
     } finally {
+      accionEnCurso.current = false;
       setActionProcessing(false);
     }
   };
@@ -2139,7 +2147,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <div>
                     <p className="font-black text-xl text-slate-800">¡Acción Autorizada con Éxito!</p>
                     <p className="text-xs text-slate-500 mt-1">
-                      El presupuesto se actualizó y se generó el contrato en PDF/Texto para firmar.
+                      {actionSuccessData.fileName
+                        ? 'El presupuesto se actualizó y se generó el contrato en PDF/Texto para firmar.'
+                        : 'Este trámite ya estaba registrado: no se volvió a cobrar ningún recargo.'}
                     </p>
                   </div>
 
@@ -2157,11 +2167,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   </div>
 
                   <div className="flex flex-col gap-2 w-full mt-2">
-                    <Button className="w-full h-12 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2" asChild>
+                    {actionSuccessData.fileName && (<Button className="w-full h-12 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2" asChild>
                       <a href={documentHref(fiesta.id, actionSuccessData.fileName)} download target="_blank" rel="noopener noreferrer">
                         <Download className="h-5 w-5" /> Descargar Contrato (.txt)
                       </a>
-                    </Button>
+                    </Button>)}
                     <Button variant="ghost" className="w-full rounded-xl text-slate-500 animate-none" onClick={() => { setPinVerificationOpen(false); window.location.reload(); }}>
                       Cerrar y Recargar Portal
                     </Button>

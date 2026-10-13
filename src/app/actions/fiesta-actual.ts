@@ -3,6 +3,7 @@
  * @fileOverview Central de Acciones de Servidor para la Planificación de Fiestas.
  */
 'use server';
+import { hoyEnUruguay } from '@/lib/utils';
 
 import * as FiestaModule from './fiesta/fiesta.actions';
 import * as ConfigModule from './fiesta/configuracion.actions';
@@ -25,7 +26,8 @@ import * as CateringModule from './fiesta/catering.actions';
 import * as VideoModule from './fiesta/video-vida.actions';
 import * as RegalosModule from './fiesta/regalos.actions';
 import * as ZonaDigitalModule from './fiesta/zona-digital.actions';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import type { 
   FiestaEnPlanificacion, 
   ModulosContratados, 
@@ -82,6 +84,8 @@ export async function updateModulosContratadosFiestaActual(fiestaId: string, mod
 // --- GESTIÓN DE TAREAS ---
 export async function updateTareasFiestaActual(fiestaId: string, tareas: Tarea[]) { return await TareasModule.updateTareas(fiestaId, tareas); }
 export async function addTareaToFiestaActual(fiestaId: string, tareaData: Omit<Tarea, 'id' | 'completada'>) { return await TareasModule.addTarea(fiestaId, tareaData); }
+export async function addTareasToFiestaActual(fiestaId: string, nuevas: Tarea[]) { return await TareasModule.addTareas(fiestaId, nuevas); }
+export async function marcarTareaFiestaActual(fiestaId: string, tareaId: string, completada: boolean) { return await TareasModule.marcarTarea(fiestaId, tareaId, completada); }
 export async function deleteTareaFromFiestaActual(fiestaId: string, tareaId: string) { return await TareasModule.deleteTarea(fiestaId, tareaId); }
 
 // --- GESTIÓN DE INVITADOS ---
@@ -99,6 +103,7 @@ export async function registrarQueAbrioLaInvitacion(fiestaId: string, guestId: s
 export async function updateDecoracionFiestaActual(fiestaId: string, decoracion: any) { return await DecoracionModule.updateDecoracion(fiestaId, decoracion); }
 
 // --- CRONOGRAMA ---
+export async function marcarHitoProgramaFiestaActual(fiestaId: string, hitoId: string, completado: boolean) { return await ItinerarioModule.marcarHitoPrograma(fiestaId, hitoId, completado); }
 export async function updateProgramaFiestaActual(fiestaId: string, programa: any[]) { return await ItinerarioModule.updatePrograma(fiestaId, programa); }
 
 // --- PERSONAL Y PAGOS ---
@@ -148,7 +153,9 @@ export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) {
 export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData) { return await FiestaModule.updateNumerosMesa(fiestaId, data); }
 export async function updateGuestPortalSettings(fiestaId: string, settings: GuestPortalSettings) { return await FiestaModule.updateGuestPortalSettings(fiestaId, settings); }
 export async function updateContratoFiestaActual(fiestaId: string, text: string, tipo: string = 'servicios', plantillaId: string = 'default-servicios') {
-  await requireAppSession();
+  // El contrato lleva senia, saldo y plan de pagos: lo cambia contabilidad.
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) return { success: false, error: permiso.error };
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (fiesta?.contratoFirmaInfo?.isSigned) {
       return { success: false, error: 'No se puede modificar el contrato una vez firmado.' };
@@ -170,7 +177,8 @@ export async function savePlanPagosContrato(
   fiestaId: string,
   planPagos: import('@/types/fiesta').PlanPagos,
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');
@@ -192,10 +200,7 @@ export async function getFiestaActivaDeHoy(): Promise<{ success: boolean; fiesta
   // pleno evento.
   try {
     const fiestas = await FiestaModule.getFiestas(false);
-    const today = new Date();
-    const offset = today.getTimezoneOffset();
-    const localToday = new Date(today.getTime() - (offset * 60 * 1000));
-    const todayStr = localToday.toISOString().split('T')[0];
+    const todayStr = hoyEnUruguay();
 
     const activeFiesta = fiestas.find(f => f.configuracion?.fechaEvento === todayStr);
 

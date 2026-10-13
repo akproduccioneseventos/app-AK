@@ -1,0 +1,142 @@
+[31m[1m!!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-ak-producciones", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[33m[1m!  emulators:[22m[39m It seems that you are running multiple instances of the emulator suite for project demo-ak-producciones. This may result in unexpected behavior.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m! [22m[39m Unexpected rules runtime error: Picked up JAVA_TOOL_OPTIONS: -Xmx512m
+
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌───────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator  [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore [90m│[39m 127.0.0.1:8085 [90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage   [90m│[39m 127.0.0.1:9195 [90m│[39m
+[90m└───────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+
+[33m[1m!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 24.3s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 2.9s (161 modules)
+ ○ Compiling /portal/c/[accessKey] ...
+ ✓ Compiled /portal/c/[accessKey] in 162s (4175 modules)
+ ○ Compiling /presupuestos/nuevo/crear ...
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] Firestore read failed for company-info.json: {
+  name: 'Error',
+  message: 'Timeout de consulta a base de datos superado (3500ms)'
+}
+[AK] Firestore read failed for budget-display-settings.json: {
+  name: 'Error',
+  message: 'Timeout de consulta a base de datos superado (3500ms)'
+}
+[AK] Firestore read failed for company-info.json: {
+  name: 'Error',
+  message: 'Timeout de consulta a base de datos superado (3500ms)'
+}
+[AK] Firestore read failed for budget-display-settings.json: {
+  name: 'Error',
+  message: 'Timeout de consulta a base de datos superado (3500ms)'
+}
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_102_portal_31080_1791738408283_key 200 in 30748ms
+ ✓ Compiled /presupuestos/nuevo/crear in 210.5s (6410 modules)
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_102_missing_28396_1791738609263 200 in 47859ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+ GET /portal/c/e2e_102_portal_28396_1791738662858_key 200 in 2261ms
+[QA102] Controlled unavailable fiestas query {
+  time: '2026-10-11T17:11:11.036Z',
+  pid: 19224,
+  collection: 'fiestas',
+  filters: 2
+}
+[QA102] Controlled unavailable fiestas query {
+  time: '2026-10-11T17:11:11.162Z',
+  pid: 19224,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA102 isolated read unavailable' }
+[portal] getFiestaByAccessKey: falló la lectura Error: QA102 isolated read unavailable
+    at Query.get (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-102\qa102-provider.cjs:13:19)
+    at listCollectionFromFirestore (src\lib\firebase-sync.ts:562:80)
+    at async leerColeccion (src\lib\fiesta\leer-fiestas.ts:58:15)
+    at async leerFiestasCrudas (src\lib\fiesta\leer-fiestas.ts:78:19)
+    at async getFiestaByAccessKey (src\app\actions\fiesta\portal.actions.ts:238:21)
+    at async PublicPortalPage (src\app\portal\c\[accessKey]\page.tsx:165:49)
+  560 |     const { dbAdmin } = await import('./firebase/server');
+  561 |     if (!dbAdmin) return [];
+> 562 |     const snapshot = await queryWithTimeout(dbAdmin.collection(collectionName).get());
+      |                                                                                ^
+  563 |     if (snapshot.empty) return [];
+  564 |     return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
+  565 |       const data = doc.data(); {
+  code: 14
+}
+ ⨯ Error: QA102 isolated read unavailable
+    at Query.get (C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-102\qa102-provider.cjs:13:19)
+    at listCollectionFromFirestore (src\lib\firebase-sync.ts:562:80)
+    at async leerColeccion (src\lib\fiesta\leer-fiestas.ts:58:15)
+    at async leerFiestasCrudas (src\lib\fiesta\leer-fiestas.ts:78:19)
+    at async getFiestaByAccessKey (src\app\actions\fiesta\portal.actions.ts:238:21)
+    at async PublicPortalPage (src\app\portal\c\[accessKey]\page.tsx:165:49)
+  560 |     const { dbAdmin } = await import('./firebase/server');
+  561 |     if (!dbAdmin) return [];
+> 562 |     const snapshot = await queryWithTimeout(dbAdmin.collection(collectionName).get());
+      |                                                                                ^
+  563 |     if (snapshot.empty) return [];
+  564 |     return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
+  565 |       const data = doc.data(); {
+  code: 14,
+  digest: '1941079252'
+}
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+ GET /portal/c/e2e_102_portal_28396_1791738662858_key 200 in 2712ms
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.

@@ -32,14 +32,15 @@ jest.mock('@/lib/data-service', () => ({
     const norm = archivo.replace(/\\/g, '/');
     almacen[norm] = JSON.parse(JSON.stringify(datos));
   }),
+  // Un guardado parcial en la base de verdad convive con las transacciones del mismo documento
+  // (la base detecta el choque y reintenta). Aca se modela pasando por el mismo turno.
   updateDataPartial: jest.fn(async (archivo: string, partialData: any) => {
     await new Promise((resolve) => setTimeout(resolve, 20));
-    const norm = archivo.replace(/\\/g, '/');
-    const existing = almacen[norm] || {};
-    almacen[norm] = {
+    const { mutarDocumentoConTransaccion } = jest.requireActual('@/lib/generic-json-store');
+    await mutarDocumentoConTransaccion(archivo, {}, (existing: any) => ({
       ...existing,
       ...JSON.parse(JSON.stringify(partialData)),
-    };
+    }));
   }),
 }));
 

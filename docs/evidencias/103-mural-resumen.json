@@ -1,0 +1,80 @@
+{
+  "stats": {
+    "startTime": "2026-10-11T18:16:58.877Z",
+    "duration": 40619.537,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "Mural painted without CSS override: genuine empty",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 7664,
+      "errors": [],
+      "files": [
+        {
+          "name": "mural-measured.json",
+          "path": "103-artifactos/103-mural-000.json"
+        },
+        {
+          "name": "mural-painted.png",
+          "path": "103-artifactos/103-mural-001.png"
+        }
+      ]
+    },
+    {
+      "title": "Mural painted without CSS override: approved photo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 7864,
+      "errors": [],
+      "files": [
+        {
+          "name": "mural-measured.json",
+          "path": "103-artifactos/103-mural-002.json"
+        },
+        {
+          "name": "mural-painted.png",
+          "path": "103-artifactos/103-mural-003.png"
+        }
+      ]
+    },
+    {
+      "title": "Mural painted without CSS override: genuine empty",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 9063,
+      "errors": [],
+      "files": [
+        {
+          "name": "mural-measured.json",
+          "path": "103-artifactos/103-mural-004.json"
+        },
+        {
+          "name": "mural-painted.png",
+          "path": "103-artifactos/103-mural-005.png"
+        }
+      ]
+    },
+    {
+      "title": "Mural painted without CSS override: approved photo",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 11354,
+      "errors": [],
+      "files": [
+        {
+          "name": "mural-measured.json",
+          "path": "103-artifactos/103-mural-006.json"
+        },
+        {
+          "name": "mural-painted.png",
+          "path": "103-artifactos/103-mural-007.png"
+        }
+      ]
+    }
+  ]
+}

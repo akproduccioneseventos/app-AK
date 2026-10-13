@@ -1,4 +1,7 @@
 import type { CrmAppointment } from '@/types/crm';
+import { getUruguayParts, hoyEnUruguay } from '@/lib/utils';
+
+const dosDigitos = (n: number) => String(n).padStart(2, '0');
 
 export interface TimeSlot {
   time: string; // "10:00", "11:00", etc.
@@ -47,11 +50,13 @@ export function calcularHorariosDisponibles(
   for (const cita of citasExistentes) {
     if (cita.estado !== 'Cancelada' && cita.fechaHora) {
       try {
-        const d = new Date(cita.fechaHora);
+        // Una hora escrita SIN zona (ej. de un campo de fecha del formulario) es hora de Uruguay.
+        const sinZona = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(cita.fechaHora.trim());
+        const d = new Date(sinZona ? `${cita.fechaHora.trim()}-03:00` : cita.fechaHora);
         if (!isNaN(d.getTime())) {
-          // Guardamos en formato YYYY-MM-DDTHH:mm
-          const isoKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-          slotsOcupados.add(isoKey);
+          // Se guarda en hora de Uruguay (YYYY-MM-DDTHH:mm): el servidor corre en hora de Greenwich.
+          const p = getUruguayParts(d);
+          slotsOcupados.add(`${p.year}-${dosDigitos(p.month)}-${dosDigitos(p.day)}T${dosDigitos(p.hour % 24)}:${dosDigitos(p.minute)}`);
         }
       } catch {
         // Ignorar citas con fecha corrupta
@@ -61,27 +66,30 @@ export function calcularHorariosDisponibles(
 
   const ahora = fechaBase.getTime();
 
-  for (let i = 0; i <= diasHaciaAdelante; i++) {
-    const diaCursor = new Date(fechaBase);
-    diaCursor.setDate(fechaBase.getDate() + i);
+  // El "hoy" y el día de la semana son los de Uruguay, no los del servidor.
+  const [anioHoy, mesHoy, diaHoy] = hoyEnUruguay(fechaBase).split('-').map(Number);
 
-    const diaSemana = diaCursor.getDay();
+  for (let i = 0; i <= diasHaciaAdelante; i++) {
+    const diaCursor = new Date(Date.UTC(anioHoy, mesHoy - 1, diaHoy + i));
+
+    const diaSemana = diaCursor.getUTCDay();
     const franjas = HORARIOS_POR_DIA[diaSemana];
 
     if (!franjas || franjas.length === 0) {
       continue; // Domingo o Lunes
     }
 
-    const anio = diaCursor.getFullYear();
-    const mes = diaCursor.getMonth();
-    const diaMes = diaCursor.getDate();
-    const dateStr = `${anio}-${String(mes + 1).padStart(2, '0')}-${String(diaMes).padStart(2, '0')}`;
+    const anio = diaCursor.getUTCFullYear();
+    const mes = diaCursor.getUTCMonth();
+    const diaMes = diaCursor.getUTCDate();
+    const dateStr = `${anio}-${dosDigitos(mes + 1)}-${dosDigitos(diaMes)}`;
 
     const slotsDelDia: TimeSlot[] = [];
 
     for (const horaStr of franjas) {
       const [hh, mm] = horaStr.split(':').map(Number);
-      const slotDate = new Date(anio, mes, diaMes, hh, mm, 0, 0);
+      // Uruguay es UTC-3 todo el año (sin horario de verano): 10:00 de Uruguay son las 13:00 UTC.
+      const slotDate = new Date(`${dateStr}T${dosDigitos(hh)}:${dosDigitos(mm)}:00-03:00`);
 
       // Si el slot ya pasó, no se ofrece
       if (slotDate.getTime() <= ahora) {

@@ -12,7 +12,8 @@ import {
   guardarResumenMientrasNoEstabas,
   type AsistentePropuesta,
 } from '@/lib/asistente/propuestas-service';
-import { readData } from '@/lib/data-service';
+import { readDataConDetalle } from '@/lib/data-service';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Salon } from '@/types/salon';
@@ -41,12 +42,23 @@ export async function GET(request: Request) {
   let presupuestos: Presupuesto[] = [];
   let salones: Salon[] = [];
 
+  // Si no se puede leer la base, la tarea NO corre ni se marca como corrida: con listas vacias
+  // por defecto "no encontraba nada" y quedaba anotada como hecha (se reintenta en la proxima).
   try {
-    fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
-    presupuestos = await readData<Presupuesto[]>('presupuestos.json', []);
-    salones = await readData<Salon[]>('salones.json', []);
+    fiestas = await leerFiestasCrudas(false);
+    const pres = await readDataConDetalle<Presupuesto[]>('presupuestos.json', []);
+    const sals = await readDataConDetalle<Salon[]>('salones.json', []);
+    if (pres.huboFalla || sals.huboFalla) {
+      throw new Error('la base no contestó al leer presupuestos o salones');
+    }
+    presupuestos = pres.valor;
+    salones = sals.valor;
   } catch (err: any) {
-    fallos.push(`Error leyendo datos base: ${err.message}`);
+    console.error('[AsistenteProactivo] No se pudieron leer los datos base:', err);
+    return NextResponse.json(
+      { ok: false, error: `No se pudieron leer los datos base: ${err?.message || 'error desconocido'}. Se reintenta en la próxima corrida.` },
+      { status: 500 },
+    );
   }
 
   // 1. EJECUTAR AGENTES AUTÓNOMOS (Ventas, Cobros, Fiestas, etc.)

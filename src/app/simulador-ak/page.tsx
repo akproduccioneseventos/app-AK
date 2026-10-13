@@ -402,12 +402,17 @@ function SimuladorAKContent() {
       setDateSuggestions([]);
       return;
     }
-    const availability = await checkDateAvailability(date.toISOString());
-    if (availability.isOccupied) {
-      setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
-      setDateSuggestions(availability.suggestions || []);
-    } else {
-      setDateWarning('');
+    try {
+      const availability = await checkDateAvailability(date.toISOString());
+      if (availability.isOccupied) {
+        setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+        setDateSuggestions(availability.suggestions || []);
+      } else {
+        setDateWarning('');
+        setDateSuggestions([]);
+      }
+    } catch {
+      setDateWarning('No pudimos verificar la disponibilidad ahora. Podés continuar y AK confirmará la fecha antes de la reserva.');
       setDateSuggestions([]);
     }
   }, []);

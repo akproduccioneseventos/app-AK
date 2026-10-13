@@ -1,5 +1,6 @@
 'use server';
 
+import { datosDeLaReunion } from '@/lib/reuniones/datos-de-la-reunion';
 import { readData, writeData } from '@/lib/data-service';
 import {
   createDocument,
@@ -14,7 +15,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestas } from './fiesta/fiesta.actions';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
-import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { hasAppSession, requireAdminSession, requireAppSession } from '@/lib/auth/require-session';
 import { NOTIFICATION_INTERNAL_TOKEN } from '@/lib/notifications/internal-token';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
@@ -335,9 +336,8 @@ export async function checkAndCreateReunionReminders(
         const diffMinutes = (meetingDate.getTime() - now.getTime()) / (1000 * 60);
         const daysUntilMeeting = differenceInDays(meetingDate, today);
 
-        const lugar = (reunion as any).lugar || fiesta.configuracion.nombreLugar || '';
+        const { lugar, contacto } = datosDeLaReunion(fiesta);
         const lugarStr = lugar ? ` en ${lugar}` : '';
-        const contacto = (reunion as any).conQuien || (fiesta.configuracion as any).nombreCliente || fiesta.configuracion.protagonista1Nombre || fiesta.configuracion.nombreEvento;
 
         // 1. Alerta prioritaria: En 1 hora (entre 0 y 75 minutos antes)
         if (diffMinutes > 0 && diffMinutes <= 75) {
@@ -533,7 +533,8 @@ export async function generateAllSmartNotifications(): Promise<{ success: boolea
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetAllNotifications(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
-  await requireAppSession();
+  const admin = await requireAdminSession();
+  if (!admin.ok) return { success: false, error: admin.error };
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     let deletedCount = 0;

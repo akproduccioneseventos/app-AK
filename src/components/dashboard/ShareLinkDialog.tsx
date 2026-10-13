@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ClipboardCopy, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import QRCodeStylized from 'qrcode.react';
+import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 
 interface ShareLinkDialogProps {
   children: ReactNode;
@@ -39,8 +39,9 @@ export function ShareLinkDialog({ children, relativePath, title, description }: 
 
   const handleCopyToClipboard = () => {
     if (!fullLink) return;
-    navigator.clipboard.writeText(fullLink);
-    toast({ title: "Enlace Copiado", description: "El enlace se ha copiado al portapapeles." });
+    navigator.clipboard.writeText(fullLink)
+      .then(() => toast({ title: "Enlace Copiado", description: "El enlace se ha copiado al portapapeles." }))
+      .catch(() => toast({ title: "No se pudo copiar", description: fullLink, variant: "destructive" }));
   };
 
   const handleWhatsAppSend = () => {

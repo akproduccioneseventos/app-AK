@@ -1,0 +1,180 @@
+{
+  "stats": {
+    "startTime": "2026-10-11T18:13:54.374Z",
+    "duration": 127581.69399999999,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "Downloaded QR actual reader and SDK persistence: original94",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 16754,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-downloaded-qr.png",
+          "path": "103-artifactos/103-qr-000.png"
+        },
+        {
+          "name": "reader-first.png",
+          "path": "103-artifactos/103-qr-001.png"
+        },
+        {
+          "name": "sdk-after-second.json",
+          "path": "103-artifactos/103-qr-002.json"
+        }
+      ]
+    },
+    {
+      "title": "Downloaded QR actual reader and SDK persistence: short",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 14404,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-downloaded-qr.png",
+          "path": "103-artifactos/103-qr-003.png"
+        },
+        {
+          "name": "reader-first.png",
+          "path": "103-artifactos/103-qr-004.png"
+        },
+        {
+          "name": "sdk-after-second.json",
+          "path": "103-artifactos/103-qr-005.json"
+        }
+      ]
+    },
+    {
+      "title": "Downloaded QR actual reader and SDK persistence: uuid",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 15492,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-downloaded-qr.png",
+          "path": "103-artifactos/103-qr-006.png"
+        },
+        {
+          "name": "reader-first.png",
+          "path": "103-artifactos/103-qr-007.png"
+        },
+        {
+          "name": "sdk-after-second.json",
+          "path": "103-artifactos/103-qr-008.json"
+        }
+      ]
+    },
+    {
+      "title": "Downloaded QR actual reader and SDK persistence: production-shaped",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 15571,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-downloaded-qr.png",
+          "path": "103-artifactos/103-qr-009.png"
+        },
+        {
+          "name": "reader-first.png",
+          "path": "103-artifactos/103-qr-010.png"
+        },
+        {
+          "name": "sdk-after-second.json",
+          "path": "103-artifactos/103-qr-011.json"
+        }
+      ]
+    },
+    {
+      "title": "Downloaded QR actual reader and SDK persistence: original94",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 15683,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-downloaded-qr.png",
+          "path": "103-artifactos/103-qr-012.png"
+        },
+        {
+          "name": "reader-first.png",
+          "path": "103-artifactos/103-qr-013.png"
+        },
+        {
+          "name": "sdk-after-second.json",
+          "path": "103-artifactos/103-qr-014.json"
+        }
+      ]
+    },
+    {
+      "title": "Downloaded QR actual reader and SDK persistence: short",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 14845,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-downloaded-qr.png",
+          "path": "103-artifactos/103-qr-015.png"
+        },
+        {
+          "name": "reader-first.png",
+          "path": "103-artifactos/103-qr-016.png"
+        },
+        {
+          "name": "sdk-after-second.json",
+          "path": "103-artifactos/103-qr-017.json"
+        }
+      ]
+    },
+    {
+      "title": "Downloaded QR actual reader and SDK persistence: uuid",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 15288,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-downloaded-qr.png",
+          "path": "103-artifactos/103-qr-018.png"
+        },
+        {
+          "name": "reader-first.png",
+          "path": "103-artifactos/103-qr-019.png"
+        },
+        {
+          "name": "sdk-after-second.json",
+          "path": "103-artifactos/103-qr-020.json"
+        }
+      ]
+    },
+    {
+      "title": "Downloaded QR actual reader and SDK persistence: production-shaped",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 14835,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-downloaded-qr.png",
+          "path": "103-artifactos/103-qr-021.png"
+        },
+        {
+          "name": "reader-first.png",
+          "path": "103-artifactos/103-qr-022.png"
+        },
+        {
+          "name": "sdk-after-second.json",
+          "path": "103-artifactos/103-qr-023.json"
+        }
+      ]
+    }
+  ]
+}

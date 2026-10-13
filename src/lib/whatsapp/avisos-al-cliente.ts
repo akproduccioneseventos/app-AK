@@ -1,29 +1,13 @@
-import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import { evaluarReglasParaFiesta } from '@/lib/automatizaciones-engine';
-import { readData } from '@/lib/data-service';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
-export const PLANTILLAS_AVISOS_CLIENTE: Record<string, string> = {
-  'faltan-canciones':
-    '¡Hola {{NOMBRE}}! ¿Cómo estás? Te escribimos de AK Producciones. Cuando tengas un tiempito pasanos la lista de canciones o los temas especiales para la fiesta, así el DJ va preparando todo.',
-  'faltan-fotos-video-vida':
-    '¡Hola {{NOMBRE}}! ¿Todo bien? Te mandamos este mensajito para recordarte las fotos del video de vida. Si nos las pasás estos días ya lo vamos editando con tiempo.',
-  'menu-sin-definir':
-    '¡Hola {{NOMBRE}}! ¿Cómo andás? Te escribimos de AK Producciones para coordinar la elección del menú de la fiesta. Avisanos cuando puedas y lo dejamos definido.',
-  'invitados-sin-confirmar':
-    '¡Hola {{NOMBRE}}! ¿Cómo van los preparativos? Te recordamos revisar las confirmaciones de los invitados para ir cerrando la cantidad con el catering y el salón.',
-};
-
-export function armarTextoAviso(reglaId: string, nombreCliente: string): string {
-  const plantilla =
-    PLANTILLAS_AVISOS_CLIENTE[reglaId] ||
-    '¡Hola {{NOMBRE}}! Te escribimos de AK Producciones para coordinar detalles de tu fiesta.';
-  return rellenarPlantilla(plantilla, { NOMBRE: nombreCliente });
-}
+export { PLANTILLAS_AVISOS_CLIENTE, armarTextoAviso } from '@/lib/whatsapp/textos-avisos-al-cliente';
+import { armarTextoAviso } from '@/lib/whatsapp/textos-avisos-al-cliente';
 
 export interface ResultadoProcesamientoAviso {
   reglaId: string;
@@ -129,7 +113,9 @@ export async function correrTareaAvisosAlCliente(): Promise<{
   totalFiestas: number;
   mensajesGenerados: number;
 }> {
-  const fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
+  // `leerFiestasCrudas` TIRA si la base no contesta. Antes `readData(..., [])` devolvia una lista
+  // vacia, la tarea recorria cero fiestas y se marcaba "corrida" sin haber mirado nada.
+  const fiestas: FiestaEnPlanificacion[] = await leerFiestasCrudas(false);
   let mensajesGenerados = 0;
 
   let fallas = 0;

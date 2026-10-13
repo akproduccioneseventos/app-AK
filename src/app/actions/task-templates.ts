@@ -3,7 +3,8 @@
 
 import type { Tarea } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 
 export interface TaskTemplate {
   id: string;
@@ -19,7 +20,7 @@ export async function getTaskTemplates(): Promise<TaskTemplate[]> {
 }
 
 export async function saveTaskTemplate(name: string, tasks: Omit<Tarea, 'id' | 'completada'>[]): Promise<{ success: boolean; template?: TaskTemplate; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   if (!name.trim()) {
     return { success: false, error: "El nombre de la plantilla es obligatorio." };
   }
@@ -48,7 +49,7 @@ export async function saveTaskTemplate(name: string, tasks: Omit<Tarea, 'id' | '
 }
 
 export async function deleteTaskTemplate(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   let templates = await getTaskTemplates();
   const initialLength = templates.length;
   templates = templates.filter(t => t.id !== id);

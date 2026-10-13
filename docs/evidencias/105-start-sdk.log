@@ -1,0 +1,312 @@
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+
+ ✓ Starting...
+ ✓ Ready in 4.3s
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore connection check failed: Error: Timeout de consulta a base de datos superado (2000ms)
+    at Timeout.<anonymous> (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\45495.js:1:141398)
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "insumos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "menus-catering.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:35:35.265Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA105 isolated read unavailable' }
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:35:35.766Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA105 isolated read unavailable' }
+Error fetching occupied dates: Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:156:38886)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:241:15795)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:241:16075)
+    at async U (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:59309)
+    at async p (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\calendario\page.js:1:3248) {
+  code: 14
+}
+ ⨯ Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:156:38886)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:241:15795)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:241:16075)
+    at async U (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:59309)
+    at async p (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\calendario\page.js:1:3248) {
+  code: 14,
+  digest: '976819737'
+}
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "fiestas/e2e_105_mural_4276_1791758143007.json"; Firestore vacio o no disponible.
+ ⨯ Error: Sesion no autorizada.
+    at g (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:249:33801)
+    at async T (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:59152)
+    at async _ (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:63309)
+    at async G (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\69141.js:1:4415)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\evento\muro-en-vivo\[fiestaId]\page.js:13:60246) {
+  digest: '3744342980'
+}
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "galeria-publica.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "galeria-publica.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "testimonials.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "tareas-al-entrar-estado.json"; Firestore vacio o no disponible.
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:05.287Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 2
+}
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:05.317Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA105 isolated read unavailable' }
+[portal] getFiestaByAccessKey: falló la lectura Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\33311.js:1:36726)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:2879)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:3159)
+    at async K (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\86494.js:75:6560)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\portal\c\[accessKey]\page.js:2:14070) {
+  code: 14
+}
+ ⨯ Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\33311.js:1:36726)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:2879)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:3159)
+    at async K (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\86494.js:75:6560)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\portal\c\[accessKey]\page.js:2:14070) {
+  code: 14,
+  digest: '2005820472'
+}
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:05.633Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 2
+}
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:05.655Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA105 isolated read unavailable' }
+[portal] getFiestaByAccessKey: falló la lectura Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\33311.js:1:36726)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:2879)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:3159)
+    at async K (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\86494.js:75:6560)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\portal\c\[accessKey]\page.js:2:14070) {
+  code: 14
+}
+ ⨯ Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\33311.js:1:36726)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:2879)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:3159)
+    at async K (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\86494.js:75:6560)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\portal\c\[accessKey]\page.js:2:14070) {
+  code: 14,
+  digest: '2005820472'
+}
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:15.102Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA105 isolated read unavailable' }
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:15.265Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA105 isolated read unavailable' }
+Error fetching occupied dates: Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:156:38886)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:241:15795)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:241:16075)
+    at async U (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:59309)
+    at async p (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\calendario\page.js:1:3248) {
+  code: 14
+}
+ ⨯ Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:156:38886)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:241:15795)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:241:16075)
+    at async U (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:59309)
+    at async p (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\(app)\calendario\page.js:1:3248) {
+  code: 14,
+  digest: '976819737'
+}
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ ⨯ Error: Sesion no autorizada.
+    at g (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:249:33801)
+    at async T (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:59152)
+    at async _ (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:63309)
+    at async Q (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\29069.js:1:6896)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\evento\muro-en-vivo\[fiestaId]\page.js:13:60246) {
+  digest: '2953228754'
+}
+ ⨯ Error: Sesion no autorizada.
+    at g (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:249:33801)
+    at async T (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:59152)
+    at async _ (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\31153.js:230:63309)
+    at async G (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\69141.js:1:4415)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\evento\muro-en-vivo\[fiestaId]\page.js:13:60246) {
+  digest: '3744342980'
+}
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:43.429Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 2
+}
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:43.433Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA105 isolated read unavailable' }
+[portal] getFiestaByAccessKey: falló la lectura Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\33311.js:1:36726)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:2879)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:3159)
+    at async K (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\86494.js:75:6560)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\portal\c\[accessKey]\page.js:2:14070) {
+  code: 14
+}
+ ⨯ Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\33311.js:1:36726)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:2879)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:3159)
+    at async K (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\86494.js:75:6560)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\portal\c\[accessKey]\page.js:2:14070) {
+  code: 14,
+  digest: '2005820472'
+}
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:43.599Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 2
+}
+[QA105] Controlled unavailable fiestas query {
+  time: '2026-10-11T22:36:43.602Z',
+  pid: 8536,
+  collection: 'fiestas',
+  filters: 0
+}
+[AK] Firestore listCollection failed for "fiestas": { name: 'Error', message: 'QA105 isolated read unavailable' }
+[portal] getFiestaByAccessKey: falló la lectura Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\33311.js:1:36726)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:2879)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:3159)
+    at async K (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\86494.js:75:6560)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\portal\c\[accessKey]\page.js:2:14070) {
+  code: 14
+}
+ ⨯ Error: QA105 isolated read unavailable
+    at Query.get (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\qa105-provider.cjs:13:19)
+    at v (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\33311.js:1:36726)
+    at async j (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:2879)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\80740.js:26:3159)
+    at async K (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\chunks\86494.js:75:6560)
+    at async l (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\.next\server\app\portal\c\[accessKey]\page.js:2:14070) {
+  code: 14,
+  digest: '2005820472'
+}
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.

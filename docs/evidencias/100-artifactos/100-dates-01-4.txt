@@ -1,0 +1,67 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: 100-calendario-reader.spec.ts >> Budget wizard warns instead of silently assuming no occupied dates
+- Location: tests\e2e\100-calendario-reader.spec.ts:13:5
+
+# Error details
+
+```
+Error: reader failure must reach the existing warning in the wizard
+
+expect(received).toBe(expected) // Object.is equality
+
+Expected: 1
+Received: 0
+```
+
+# Test source
+
+```ts
+  1  | // @ts-nocheck -- real budget wizard, no budgets saved and no money moved.
+  2  | import fs from 'node:fs';
+  3  | import os from 'node:os';
+  4  | import path from 'node:path';
+  5  | import admin from 'firebase-admin';
+  6  | import { test, expect } from '@playwright/test';
+  7  | import { crearFiestaDeEstaNoche, borrarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+  8  | if(process.env.AK_ENTORNO_AISLADO!=='true'||path.basename(process.cwd())!=='ak-entorno-aislado-100'||process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('Demo100 only');
+  9  | const app=admin.initializeApp({projectId:'demo-ak-producciones'},'dates100-'+process.pid),db=app.firestore();
+  10 | db.settings({ignoreUndefinedProperties:true});test.afterAll(async()=>app.delete());
+  11 | const flag=path.join(process.cwd(),'.qa100-fail-fiesta-reads'),log=path.join(process.cwd(),'qa100-read-faults.jsonl');
+  12 | const clear=()=>{if(fs.existsSync(flag))fs.unlinkSync(flag);};
+  13 | test('Budget wizard warns instead of silently assuming no occupied dates',async({page,context,baseURL},info)=>{
+  14 |   test.setTimeout(240000);clear();
+  15 |   const id='e2e_100_dates_'+process.pid+'_'+Date.now(),fiesta=crearFiestaDeEstaNoche({id,fechaEvento:'2027-08-08'});borrarFiesta(id);
+  16 |   const ref=db.collection('fiestas').doc(id);expect((await ref.get()).exists).toBe(false);await ref.set(JSON.parse(JSON.stringify(fiesta)));
+  17 |   const responses=[];page.on('response',async r=>{if(r.request().method()==='POST'&&r.request().headers()['next-action'])responses.push({url:r.url(),status:r.status(),body:(await r.text().catch(()=>''))});});
+  18 |   try{
+  19 |     await ponerSesionDelEquipo(context,baseURL);
+  20 |     await page.goto('/presupuestos/nuevo/crear',{waitUntil:'domcontentloaded'});
+  21 |     const wizard=page.getByTestId('presupuesto-wizard');
+  22 |     await expect(wizard.locator('input').first()).toBeVisible({timeout:120000});
+  23 |     await expect(wizard.getByText(/No pudimos leer las fechas ocupadas/)).toHaveCount(0);
+  24 |     const offset=fs.existsSync(log)?fs.readFileSync(log,'utf8').length:0,startResponses=responses.length;
+  25 |     fs.writeFileSync(flag,'isolated dates read outage');await page.reload({waitUntil:'domcontentloaded'});
+  26 |     await expect(wizard.locator('input').first()).toBeVisible({timeout:120000});
+  27 |     await page.waitForTimeout(2000);
+  28 |     const faultText=fs.existsSync(log)?fs.readFileSync(log,'utf8').slice(offset):'';
+  29 |     const warning=await wizard.getByText(/No pudimos leer las fechas ocupadas/).count();
+  30 |     const before=(await ref.get()).data();
+  31 |     await info.attach('dates-outage.json',{body:JSON.stringify({id,date:before.configuracion.fechaEvento,warning,body:await wizard.innerText(),faultText,responses:responses.slice(startResponses)},null,2),contentType:'application/json'});
+  32 |     await info.attach('dates-outage.png',{body:await page.screenshot(),contentType:'image/png'});
+  33 |     expect(faultText).toContain('"filters":0');
+  34 |     clear();await page.reload({waitUntil:'domcontentloaded'});await expect(wizard.locator('input').first()).toBeVisible({timeout:60000});
+  35 |     expect((await ref.get()).data()).toEqual(before);
+  36 |     await info.attach('dates-recovered.png',{body:await page.screenshot(),contentType:'image/png'});
+> 37 |     expect(warning,'reader failure must reach the existing warning in the wizard').toBe(1);
+     |                                                                                    ^ Error: reader failure must reach the existing warning in the wizard
+  38 |   }finally{clear();await ref.delete();borrarFiesta(id);}
+  39 | });
+  40 |
+```

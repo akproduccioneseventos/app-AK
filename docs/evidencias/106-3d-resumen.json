@@ -1,0 +1,52 @@
+{
+  "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "harnessSha": "6c3d69717f4aff83a389ff28fd169a99e0297e3e",
+  "stats": {
+    "startTime": "2026-10-12T14:50:03.978Z",
+    "duration": 139306.621,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 49255,
+      "errors": [],
+      "files": [
+        {
+          "name": "recorrido-automatico.json",
+          "file": "106-artifactos/106-3d-000.json",
+          "sha256": "f489c866475544b2d7f65eaaa8dce3006dbbc066050a8ebbb85959afd5b36a22"
+        },
+        {
+          "name": "recorrido-pausado.json",
+          "file": "106-artifactos/106-3d-001.json",
+          "sha256": "5a9ec7b91d3eb060661f58a4bfce5970726129937235d8f32b9aaefd21f047ca"
+        }
+      ]
+    },
+    {
+      "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 86238,
+      "errors": [],
+      "files": [
+        {
+          "name": "recorrido-automatico.json",
+          "file": "106-artifactos/106-3d-002.json",
+          "sha256": "bd74778037425997a8a36623b8685b4925c9f87fe7657567b43b1dd053acb8f5"
+        },
+        {
+          "name": "recorrido-pausado.json",
+          "file": "106-artifactos/106-3d-003.json",
+          "sha256": "1f1c343e43e3fa9267dc54bb31dc35bdf29ae6c2f959cee3e6a9b900ffe80b33"
+        }
+      ]
+    }
+  ]
+}

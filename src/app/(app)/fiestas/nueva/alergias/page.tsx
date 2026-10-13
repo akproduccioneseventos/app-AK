@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Invitado, DietaryRestriction } from '@/types/fiesta';
 
-const DIET_CONFIG: Record<DietaryRestriction, { label: string; icon: React.ElementType; color: string; bg: string }> = {
+const DIET_CONFIG: Record<DietaryRestriction, { label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string; bg: string }> = {
   'Ninguna': { label: 'Sin restricciones', icon: Utensils, color: 'text-slate-500', bg: 'bg-slate-100' },
   'Celiaco': { label: 'Celíaco (Sin TACC)', icon: Wheat, color: 'text-amber-700', bg: 'bg-amber-100' },
   'Vegetariano': { label: 'Vegetariano', icon: Leaf, color: 'text-green-700', bg: 'bg-green-100' },

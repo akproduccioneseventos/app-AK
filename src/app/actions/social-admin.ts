@@ -153,7 +153,7 @@ export async function getSocialFeedsAdmin(): Promise<AdminSocialFeedInfo[]> {
 
 export async function toggleFeedOverrideAdmin(fiestaId: string, enabled: boolean): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.CRM);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) {
       return { success: false, error: 'Evento no encontrado.' };

@@ -1,0 +1,199 @@
+{
+  "sourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "stats": {
+    "startTime": "2026-10-11T22:35:17.513Z",
+    "duration": 92047.992,
+    "expected": 10,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "Budget wizard warns instead of silently assuming no occupied dates",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 20648,
+      "errors": [],
+      "files": [
+        {
+          "name": "dates-outage.json",
+          "path": "105-artifactos/105-sdk-000.json"
+        },
+        {
+          "name": "dates-outage.png",
+          "path": "105-artifactos/105-sdk-001.png"
+        },
+        {
+          "name": "dates-recovered.png",
+          "path": "105-artifactos/105-sdk-002.png"
+        }
+      ]
+    },
+    {
+      "title": "Budget wizard warns instead of silently assuming no occupied dates",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 9758,
+      "errors": [],
+      "files": [
+        {
+          "name": "dates-outage.json",
+          "path": "105-artifactos/105-sdk-003.json"
+        },
+        {
+          "name": "dates-outage.png",
+          "path": "105-artifactos/105-sdk-004.png"
+        },
+        {
+          "name": "dates-recovered.png",
+          "path": "105-artifactos/105-sdk-005.png"
+        }
+      ]
+    },
+    {
+      "title": "Mural painted without CSS override: genuine empty",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 8829,
+      "errors": [],
+      "files": [
+        {
+          "name": "mural-measured.json",
+          "path": "105-artifactos/105-sdk-006.json"
+        },
+        {
+          "name": "mural-painted.png",
+          "path": "105-artifactos/105-sdk-007.png"
+        }
+      ]
+    },
+    {
+      "title": "Mural painted without CSS override: approved photo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 8757,
+      "errors": [],
+      "files": [
+        {
+          "name": "mural-measured.json",
+          "path": "105-artifactos/105-sdk-008.json"
+        },
+        {
+          "name": "mural-painted.png",
+          "path": "105-artifactos/105-sdk-009.png"
+        }
+      ]
+    },
+    {
+      "title": "Mural painted without CSS override: genuine empty",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 8235,
+      "errors": [],
+      "files": [
+        {
+          "name": "mural-measured.json",
+          "path": "105-artifactos/105-sdk-010.json"
+        },
+        {
+          "name": "mural-painted.png",
+          "path": "105-artifactos/105-sdk-011.png"
+        }
+      ]
+    },
+    {
+      "title": "Mural painted without CSS override: approved photo",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 10437,
+      "errors": [],
+      "files": [
+        {
+          "name": "mural-measured.json",
+          "path": "105-artifactos/105-sdk-012.json"
+        },
+        {
+          "name": "mural-painted.png",
+          "path": "105-artifactos/105-sdk-013.png"
+        }
+      ]
+    },
+    {
+      "title": "A genuinely missing portal still says not found",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 1943,
+      "errors": [],
+      "files": [
+        {
+          "name": "missing-portal.png",
+          "path": "105-artifactos/105-sdk-014.png"
+        }
+      ]
+    },
+    {
+      "title": "Existing client portal distinguishes a read outage and recovers without losing data",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 6769,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-read-outage.json",
+          "path": "105-artifactos/105-sdk-015.json"
+        },
+        {
+          "name": "actual-read-outage.png",
+          "path": "105-artifactos/105-sdk-016.png"
+        },
+        {
+          "name": "after-recovery.json",
+          "path": "105-artifactos/105-sdk-017.json"
+        },
+        {
+          "name": "after-recovery.png",
+          "path": "105-artifactos/105-sdk-018.png"
+        }
+      ]
+    },
+    {
+      "title": "A genuinely missing portal still says not found",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 2067,
+      "errors": [],
+      "files": [
+        {
+          "name": "missing-portal.png",
+          "path": "105-artifactos/105-sdk-019.png"
+        }
+      ]
+    },
+    {
+      "title": "Existing client portal distinguishes a read outage and recovers without losing data",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 7077,
+      "errors": [],
+      "files": [
+        {
+          "name": "actual-read-outage.json",
+          "path": "105-artifactos/105-sdk-020.json"
+        },
+        {
+          "name": "actual-read-outage.png",
+          "path": "105-artifactos/105-sdk-021.png"
+        },
+        {
+          "name": "after-recovery.json",
+          "path": "105-artifactos/105-sdk-022.json"
+        },
+        {
+          "name": "after-recovery.png",
+          "path": "105-artifactos/105-sdk-023.png"
+        }
+      ]
+    }
+  ]
+}

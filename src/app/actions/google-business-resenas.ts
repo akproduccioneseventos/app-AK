@@ -1,6 +1,7 @@
 'use server';
 
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { readData } from '@/lib/data-service';
 import type { SocialConnection } from '@/types/settings';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
@@ -40,7 +41,8 @@ async function obtenerCredencialesGoogleBusiness(): Promise<{
 }
 
 export async function cargarResenasGoogleAction(): Promise<GoogleReviewsResult> {
-  await requireAppSession();
+  // Usa el acceso de Google de la empresa: de quien atiende clientes (barrido 12/10/2026).
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
 
   const { accessToken, accountLocationId } = await obtenerCredencialesGoogleBusiness();
   if (!accessToken || !accountLocationId) {
@@ -59,7 +61,9 @@ export async function publicarRespuestaResenaAction(
   reviewId: string,
   comment: string,
 ): Promise<PublishReplyResult> {
-  await requireAppSession();
+  // Publica en nombre de la empresa en Google: es de quien atiende clientes.
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error, errorCriollo: permiso.error };
 
   const { accessToken, accountLocationId } = await obtenerCredencialesGoogleBusiness();
   if (!accessToken || !accountLocationId) {

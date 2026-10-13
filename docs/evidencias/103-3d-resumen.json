@@ -1,0 +1,80 @@
+{
+  "stats": {
+    "startTime": "2026-10-11T18:19:09.015Z",
+    "duration": 24468.971,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "la reunion muestra una escena WebGL real, no solo su reemplazo",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 9872,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\tests\\e2e\\103-3d.spec.ts",
+            "column": 84,
+            "line": 26
+          },
+          "message": "Error: una foto o mensaje alternativo no aprueba el salon 3D\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  24 |   expect(result.text).not.toMatch(/Algo sali[oó] mal/i);\n  25 |   expect(webglAvailable, 'el navegador de QA debe ofrecer WebGL antes de juzgar la escena').toBe(true);\n> 26 |   expect(result.canvases, 'una foto o mensaje alternativo no aprueba el salon 3D').toBeGreaterThan(0);\n     |                                                                                    ^\n  27 |   const canvas = page.locator('canvas').first();\n  28 |   const size = await canvas.evaluate(c => ({ width: c.width, height: c.height, rect: c.getBoundingClientRect().toJSON() }));\n  29 |   expect(size.width).toBeGreaterThan(100); expect(size.height).toBeGreaterThan(100);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\tests\\e2e\\103-3d.spec.ts:26:84"
+        }
+      ],
+      "files": [
+        {
+          "name": "3d-real.json",
+          "path": "103-artifactos/103-3d-000.json"
+        },
+        {
+          "name": "3d-real.png",
+          "path": "103-artifactos/103-3d-001.png"
+        },
+        {
+          "name": "screenshot",
+          "path": "103-artifactos/103-3d-002.png"
+        },
+        {
+          "name": "error-context",
+          "path": "103-artifactos/103-3d-003.bin"
+        }
+      ]
+    },
+    {
+      "title": "la reunion muestra una escena WebGL real, no solo su reemplazo",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 10515,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\tests\\e2e\\103-3d.spec.ts",
+            "column": 84,
+            "line": 26
+          },
+          "message": "Error: una foto o mensaje alternativo no aprueba el salon 3D\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  24 |   expect(result.text).not.toMatch(/Algo sali[oó] mal/i);\n  25 |   expect(webglAvailable, 'el navegador de QA debe ofrecer WebGL antes de juzgar la escena').toBe(true);\n> 26 |   expect(result.canvases, 'una foto o mensaje alternativo no aprueba el salon 3D').toBeGreaterThan(0);\n     |                                                                                    ^\n  27 |   const canvas = page.locator('canvas').first();\n  28 |   const size = await canvas.evaluate(c => ({ width: c.width, height: c.height, rect: c.getBoundingClientRect().toJSON() }));\n  29 |   expect(size.width).toBeGreaterThan(100); expect(size.height).toBeGreaterThan(100);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\tests\\e2e\\103-3d.spec.ts:26:84"
+        }
+      ],
+      "files": [
+        {
+          "name": "3d-real.json",
+          "path": "103-artifactos/103-3d-004.json"
+        },
+        {
+          "name": "3d-real.png",
+          "path": "103-artifactos/103-3d-005.png"
+        },
+        {
+          "name": "screenshot",
+          "path": "103-artifactos/103-3d-006.png"
+        },
+        {
+          "name": "error-context",
+          "path": "103-artifactos/103-3d-007.bin"
+        }
+      ]
+    }
+  ]
+}

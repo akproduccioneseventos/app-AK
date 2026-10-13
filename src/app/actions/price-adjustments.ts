@@ -18,6 +18,19 @@ export interface PriceAdjustmentRecord {
   aplicadoPor: string;
   revertido?: boolean;
   revertidoEn?: string;
+  /**
+   * Marcadores de operacion a medias (12/10/2026). El ajuste "ambos" mueve precios Y costos en dos
+   * pasos: si el segundo falla o se corta el servidor, antes quedaba el primero aplicado y, al
+   * reintentar, se aplicaba otra vez. Ahora el registro se anota ANTES de tocar nada y cada parte
+   * hecha se marca; el reintento termina solo lo que falta.
+   */
+  estado?: 'aplicando' | 'revirtiendo' | 'listo';
+  partesHechas?: Array<'precios' | 'costos'>;
+  reversionPartesHechas?: Array<'precios' | 'costos'>;
+}
+
+function partesDe(type: PriceAdjustmentRecord['type']): Array<'precios' | 'costos'> {
+  return type === 'ambos' ? ['precios', 'costos'] : [type];
 }
 
 export interface PreviewItem {
@@ -107,27 +120,46 @@ async function applyPriceAdjustmentInterno(
       return { success: false, error: 'No hay servicios en el catálogo para ajustar.' };
     }
 
-    if (type === 'precios' || type === 'ambos') {
-      const result = await adjustAllServicePrices(percentage);
-      if (!result.success) return result;
-    }
-
-    if (type === 'costos' || type === 'ambos') {
-      const result = await adjustAllServiceCosts(percentage);
-      if (!result.success) return result;
-    }
-
-    const record: PriceAdjustmentRecord = {
-      id: `adj_${Date.now()}`,
-      date: new Date().toISOString(),
-      percentage,
-      type,
-      serviciosAfectados: serviciosCount,
-      aplicadoPor: 'Admin',
-    };
-
     const history = await getPriceAdjustmentHistory();
-    history.unshift(record);
+
+    const revirtiendo = history.find((a) => a.estado === 'revirtiendo');
+    if (revirtiendo) {
+      return { success: false, error: `Hay una reversión del ajuste del ${revirtiendo.percentage}% que quedó a medias. Volvé a revertir ese mismo ajuste para terminarla antes de hacer otro.` };
+    }
+    let record = history.find((a) => a.estado === 'aplicando');
+    if (record) {
+      // Un ajuste anterior quedo a medias: el mismo porcentaje y tipo lo TERMINA (solo la parte que
+      // falta); otro distinto se rechaza, porque se sumaria encima del anterior.
+      if (record.percentage !== percentage || record.type !== type) {
+        return { success: false, error: `Hay un ajuste del ${record.percentage}% (${record.type}) que quedó a medias. Volvé a aplicar ese mismo ajuste para terminarlo (no se vuelve a subir lo que ya se aplicó) y después hacé el nuevo.` };
+      }
+    } else {
+      record = {
+        id: `adj_${Date.now()}`,
+        date: new Date().toISOString(),
+        percentage,
+        type,
+        serviciosAfectados: serviciosCount,
+        aplicadoPor: 'Admin',
+        estado: 'aplicando',
+        partesHechas: [],
+      };
+      // El marcador se anota ANTES de tocar un solo precio.
+      history.unshift(record);
+      await writeData(ADJUSTMENTS_FILE, history);
+    }
+
+    for (const parte of partesDe(type)) {
+      if (record.partesHechas?.includes(parte)) continue;
+      const result = parte === 'precios' ? await adjustAllServicePrices(percentage) : await adjustAllServiceCosts(percentage);
+      if (!result.success) {
+        return { success: false, error: `${result.error || 'No se pudo aplicar el ajuste.'} Volvé a aplicar el mismo ajuste: sólo se termina lo que falta, no se vuelve a subir lo ya aplicado.` };
+      }
+      record.partesHechas = [...(record.partesHechas || []), parte];
+      await writeData(ADJUSTMENTS_FILE, history);
+    }
+
+    record.estado = 'listo';
     await writeData(ADJUSTMENTS_FILE, history);
 
     return { success: true, record };
@@ -147,9 +179,24 @@ async function revertPriceAdjustmentInterno(
 
     if (!adjustment) return { success: false, error: 'Ajuste no encontrado.' };
     if (adjustment.revertido) return { success: false, error: 'Este ajuste ya fue revertido.' };
+    if (adjustment.estado === 'aplicando') {
+      return { success: false, error: 'Este ajuste quedó a medias: volvé a aplicarlo para terminarlo antes de revertirlo.' };
+    }
+    const otraReversion = history.find((a) => a.estado === 'revirtiendo' && a.id !== adjustmentId);
+    if (otraReversion) {
+      return { success: false, error: `Hay una reversión del ajuste del ${otraReversion.percentage}% que quedó a medias. Terminala primero.` };
+    }
 
     // Revert by applying the inverse percentage
     const revertPercentage = -adjustment.percentage / (1 + adjustment.percentage / 100) * 100;
+
+    // El marcador va antes de tocar un precio; cada parte hecha se marca, y un reintento termina
+    // solo lo que falta (antes, revertir "ambos" con un corte en el medio deshacia los precios dos veces).
+    if (adjustment.estado !== 'revirtiendo') {
+      adjustment.estado = 'revirtiendo';
+      adjustment.reversionPartesHechas = [];
+      await writeData(ADJUSTMENTS_FILE, history);
+    }
 
     /**
      * REVERTIR UN AJUSTE MUEVE TODOS LOS PRECIOS DE LA EMPRESA.
@@ -158,19 +205,20 @@ async function revertPriceAdjustmentInterno(
      * siguen movidos: el catalogo entero queda con el numero equivocado y nadie se
      * entera hasta que se cotiza mal.
      */
-    if (adjustment.type === 'precios' || adjustment.type === 'ambos') {
-      const r = await adjustAllServicePrices(revertPercentage);
-      if (!r?.success) return { success: false, error: r?.error || 'No se pudieron revertir los precios.' };
-    }
-    if (adjustment.type === 'costos' || adjustment.type === 'ambos') {
-      const r = await adjustAllServiceCosts(revertPercentage);
-      if (!r?.success) return { success: false, error: r?.error || 'No se pudieron revertir los costos.' };
+    for (const parte of partesDe(adjustment.type)) {
+      if (adjustment.reversionPartesHechas?.includes(parte)) continue;
+      const r = parte === 'precios' ? await adjustAllServicePrices(revertPercentage) : await adjustAllServiceCosts(revertPercentage);
+      if (!r?.success) {
+        return { success: false, error: `${r?.error || (parte === 'precios' ? 'No se pudieron revertir los precios.' : 'No se pudieron revertir los costos.')} Volvé a revertir: sólo se termina lo que falta.` };
+      }
+      adjustment.reversionPartesHechas = [...(adjustment.reversionPartesHechas || []), parte];
+      await writeData(ADJUSTMENTS_FILE, history);
     }
 
     // Mark as reverted
-    const idx = history.findIndex(a => a.id === adjustmentId);
-    history[idx].revertido = true;
-    history[idx].revertidoEn = new Date().toISOString();
+    adjustment.revertido = true;
+    adjustment.revertidoEn = new Date().toISOString();
+    adjustment.estado = 'listo';
     await writeData(ADJUSTMENTS_FILE, history);
 
     return { success: true };

@@ -1,0 +1,159 @@
+[31m[1m!!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-ak-producciones", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[33m[1m!  emulators:[22m[39m It seems that you are running multiple instances of the emulator suite for project demo-ak-producciones. This may result in unexpected behavior.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m! [22m[39m Unexpected rules runtime error: Picked up JAVA_TOOL_OPTIONS: -Xmx512m
+
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌───────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator  [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore [90m│[39m 127.0.0.1:8085 [90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage   [90m│[39m 127.0.0.1:9195 [90m│[39m
+[90m└───────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+
+[33m[1m!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 10.4s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1306ms (161 modules)
+ ○ Compiling /invitacion/[fiestaId]/invitado/[guestId] ...
+ ✓ Compiled /invitacion/[fiestaId]/invitado/[guestId] in 32s (2897 modules)
+ ✓ Compiled in 1744ms (806 modules)
+ GET /invitacion/e2e_99_qr_corto_1791695355549/invitado/g99?token=qa99corto 200 in 40264ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /invitacion/e2e_99_qr_corto_1791695355549/invitado/g99?token=qa99corto 200 in 4099ms
+ POST /invitacion/e2e_99_qr_corto_1791695355549/invitado/g99?token=qa99corto 200 in 947ms
+ POST /invitacion/e2e_99_qr_corto_1791695355549/invitado/g99?token=qa99corto 200 in 886ms
+ POST /invitacion/e2e_99_qr_corto_1791695355549/invitado/g99?token=qa99corto 200 in 644ms
+ POST /invitacion/e2e_99_qr_corto_1791695355549/invitado/g99?token=qa99corto 200 in 624ms
+ ○ Compiling /evento/accesos/[fiestaId] ...
+ ✓ Compiled /evento/accesos/[fiestaId] in 24.7s (2827 modules)
+ GET /evento/accesos/e2e_99_qr_corto_1791695355549 200 in 27339ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+ POST /evento/accesos/e2e_99_qr_corto_1791695355549 200 in 1319ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695355549 200 in 487ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695355549 200 in 491ms
+ GET /invitacion/e2e_99_qr_uuid_1791695454500/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 970ms
+ POST /invitacion/e2e_99_qr_uuid_1791695454500/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 677ms
+ POST /invitacion/e2e_99_qr_uuid_1791695454500/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 772ms
+ POST /invitacion/e2e_99_qr_uuid_1791695454500/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 398ms
+ POST /invitacion/e2e_99_qr_uuid_1791695454500/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 577ms
+ POST /invitacion/e2e_99_qr_uuid_1791695454500/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 355ms
+ GET /evento/accesos/e2e_99_qr_uuid_1791695454500 200 in 654ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695454500 200 in 388ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695454500 200 in 528ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695454500 200 in 466ms
+ GET /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 933ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 653ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 429ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 529ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 374ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 1013ms
+ GET /evento/accesos/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426 200 in 1487ms
+ POST /evento/accesos/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426 200 in 1805ms
+ POST /evento/accesos/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426 200 in 1576ms
+ POST /evento/accesos/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695475426 200 in 11532ms
+ GET /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 1173ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 652ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 754ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 750ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 701ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 811ms
+ GET /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 1620ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 419ms
+ GET /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 1569ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 742ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 458ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 396ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 1096ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 445ms
+ GET /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 926ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 331ms
+ GET /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 511ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 1804ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 595ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 385ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 404ms
+ POST /invitacion/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987/invitado/invitado_11111111-2222-4333-8444-555555555555?token=aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee 200 in 612ms
+ GET /evento/accesos/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987 200 in 681ms
+ POST /evento/accesos/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987 200 in 273ms
+ POST /evento/accesos/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987 200 in 371ms
+ POST /evento/accesos/e2e_99_qr_verified_fiesta_ficticia_2026_10_11_1791695645987 200 in 463ms
+ GET /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 860ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 735ms
+ GET /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 493ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 590ms
+ GET /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 542ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 1051ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 854ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 471ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 429ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 1033ms
+ GET /evento/accesos/q92rmv2yk9b9 200 in 847ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 297ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 566ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 376ms
+ GET /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 537ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 358ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 293ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 308ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 330ms
+ POST /invitacion/q92rmv2yk9b9/invitado/gq92rmv2yk9b9?token=qa92tokenmv2yk9b9 200 in 405ms
+ GET /evento/accesos/q92rmv2yk9b9 200 in 1470ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 589ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 346ms
+ POST /evento/accesos/q92rmv2yk9b9 200 in 541ms
+ GET /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 634ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 331ms
+ GET /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 474ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 437ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 373ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 426ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 389ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 408ms
+ POST /evento/accesos/e2e_99_qr_corto_1791695521018 200 in 540ms
+ GET /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 1023ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 373ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 332ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 332ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 546ms
+ POST /invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto 200 in 660ms
+ GET /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 641ms
+ POST /evento/accesos/e2e_99_qr_uuid_1791695586308 200 in 438ms
+ GET /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 626ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 998ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 276ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 293ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 531ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 399ms
+ GET /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 986ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 589ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 355ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 525ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 405ms
+ POST /invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555 200 in 432ms

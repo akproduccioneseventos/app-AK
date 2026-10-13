@@ -1,0 +1,36 @@
+[
+  {
+    "title": "IA caida no inventa tarea; historial por fiesta persiste en UI y SDK",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 176609,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "ia-final.png",
+        "file": "docs/evidencias/97-artifactos/97-browser-00-0.png"
+      },
+      {
+        "name": "ia-servidor-sdk.json",
+        "file": "docs/evidencias/97-artifactos/97-browser-00-1.json"
+      }
+    ]
+  },
+  {
+    "title": "IA caida no inventa tarea; historial por fiesta persiste en UI y SDK",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 112934,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "ia-final.png",
+        "file": "docs/evidencias/97-artifactos/97-browser-01-0.png"
+      },
+      {
+        "name": "ia-servidor-sdk.json",
+        "file": "docs/evidencias/97-artifactos/97-browser-01-1.json"
+      }
+    ]
+  }
+]

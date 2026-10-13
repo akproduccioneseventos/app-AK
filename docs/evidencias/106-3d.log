@@ -1,0 +1,6 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:94:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+[2/2] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:94:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+  2 passed (2.3m)

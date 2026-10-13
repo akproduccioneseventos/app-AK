@@ -1,0 +1,12 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium-desktop] › tests\e2e\calendarios-react19.spec.ts:19:5 › agenda: elegir dia y navegar meses sin tapar los controles
+[2/8] [chromium-desktop] › tests\e2e\calendarios-react19.spec.ts:49:5 › redes: calendario visible y navegacion mensual
+[3/8] [chromium-desktop] › tests\e2e\qr-descargado-lector-real.spec.ts:25:7 › el QR descargado con token corto entra por el lector real
+[4/8] [chromium-desktop] › tests\e2e\qr-descargado-lector-real.spec.ts:25:7 › el QR descargado con token largo entra por el lector real
+[5/8] [chromium-mobile] › tests\e2e\calendarios-react19.spec.ts:19:5 › agenda: elegir dia y navegar meses sin tapar los controles
+[6/8] [chromium-mobile] › tests\e2e\calendarios-react19.spec.ts:49:5 › redes: calendario visible y navegacion mensual
+[7/8] [chromium-mobile] › tests\e2e\qr-descargado-lector-real.spec.ts:25:7 › el QR descargado con token corto entra por el lector real
+[8/8] [chromium-mobile] › tests\e2e\qr-descargado-lector-real.spec.ts:25:7 › el QR descargado con token largo entra por el lector real
+  8 passed (1.8m)

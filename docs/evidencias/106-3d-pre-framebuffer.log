@@ -1,0 +1,41 @@
+
+Running 12 tests using 1 worker
+
+[1/12] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:69:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+[2/12] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:88:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+[3/12] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:118:5 › titulo legible y colores LED circulares sin controles comprimidos
+[4/12] [chromium-desktop] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:146:5 › LED y cantidad de invitados cambian la escena real
+[5/12] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[6/12] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+[7/12] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:69:5 › la ayuda queda fuera del lienzo y la navegacion no esta tapada
+[8/12] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:88:5 › Recorrer mueve la escena sin arrastrar y se puede pausar
+  1) [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:88:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.evaluate: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('canvas').first()
+        - locator resolved to visible <canvas width="756" height="760" data-engine="three.js r169"></canvas>
+
+
+      24 |
+      25 | async function camara(page: Page) {
+    > 26 |   return page.locator('canvas').first().evaluate((node: HTMLCanvasElement & { __akViewMatrix?: number[] }) => node.__akViewMatrix || []);
+         |                                         ^
+      27 | }
+      28 |
+      29 | function movimientoCamara(before: number[], after: number[]) {
+        at camara (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:26:41)
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-ayuda-recorrido.spec.ts:109:31
+
+    Error Context: qa106-3d-artifacts\salon-3d-ayuda-recorrido-R-8b9f8-arrastrar-y-se-puede-pausar-chromium-mobile\error-context.md
+
+
+[9/12] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:118:5 › titulo legible y colores LED circulares sin controles comprimidos
+[10/12] [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:146:5 › LED y cantidad de invitados cambian la escena real
+[11/12] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+[12/12] [chromium-mobile] › tests\e2e\salon-3d-real.spec.ts:35:7 › cliente: escena real dibujada e interactiva, no foto de respaldo
+  1 failed
+    [chromium-mobile] › tests\e2e\salon-3d-ayuda-recorrido.spec.ts:88:5 › Recorrer mueve la escena sin arrastrar y se puede pausar 
+  11 passed (11.7m)

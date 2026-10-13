@@ -1,0 +1,20 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103",
+  "deleted": [],
+  "preserved": [
+    "automatico/candado-marketing-automatico",
+    "automatico/tareas-lock",
+    "backup_snapshots_v2/backup-AUTO-2026-10-11T19_39_56_423Z",
+    "backup_system/auto_backup",
+    "json_documents/agentes-configuracion.json",
+    "json_documents/agentes-historial.json",
+    "json_documents/backup-status.json",
+    "json_documents/social-analytics-history.json",
+    "json_documents/social-comments-backfill-state.json",
+    "json_documents/social-comments.json",
+    "json_documents/tareas-al-entrar-estado.json",
+    "json_documents/tareas-automaticas.json"
+  ],
+  "localDeleted": [],
+  "finished": "2026-10-11T19:41:09.168Z"
+}

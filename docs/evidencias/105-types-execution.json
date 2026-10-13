@@ -1,0 +1,17 @@
+{
+  "cwd": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103",
+  "sha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "mode": "types",
+  "args": [
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "launcher": 6424,
+  "child": 2732,
+  "started": "2026-10-11T22:13:01.011Z",
+  "status": "finished",
+  "finished": "2026-10-11T22:14:01.567Z",
+  "exitCode": 0
+}

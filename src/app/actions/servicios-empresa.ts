@@ -2,12 +2,22 @@
 'use server';
 
 import type { ServicioEmpresa, TipoCosto } from '@/types/empresa';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { cachedFetch, cacheInvalidate } from '@/lib/server-cache';
 
 const SERVICIOS_EMPRESA_FILE = 'servicios-empresa.json';
+const SERVICIOS_COLLECTION = 'servicios';
+/**
+ * Con base, un servicio se guarda y se borra SOLO, no la lista entera (12 de octubre de 2026).
+ * Antes cada guardado leia la lista de un cache de 15 segundos y la escribia entera: una lista
+ * vieja le volvia el precio anterior al servicio que otro acababa de cambiar, o borraba el que
+ * otro acababa de crear. Igual que insumos y menus. El ajuste masivo sigue guardando la lista
+ * (cambia todos a proposito) pero leyendola fresca y con sus marcas de lectura.
+ */
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+const ORDEN_SERVICIOS = (a: ServicioEmpresa, b: ServicioEmpresa) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || '');
 
 export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
     // Cada servicio guarda lo que le CUESTA a la empresa y quien es el proveedor.
@@ -67,6 +77,7 @@ export async function saveServicioEmpresa(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
+  cacheInvalidate('servicios-empresa-raw'); // nada de lista vieja de 15 s para decidir si existe o esta repetido
   let inventario = await leerServiciosEmpresa();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
@@ -123,13 +134,26 @@ export async function saveServicioEmpresa(
     inventario.push(finalItemData as ServicioEmpresa);
   }
   
-  await writeData(SERVICIOS_EMPRESA_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+  if (SIN_BASE()) {
+    await writeData(SERVICIOS_EMPRESA_FILE, inventario, ORDEN_SERVICIOS);
+  } else if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
+    const cambios = dataWithParsedNumbers;
+    const guardado = await mutateDataItem<ServicioEmpresa>(SERVICIOS_EMPRESA_FILE, SERVICIOS_COLLECTION, itemId, (actual) => ({ ...actual, ...cambios } as ServicioEmpresa));
+    if (!guardado) {
+      cacheInvalidate('servicios-empresa-raw');
+      return { success: false, error: 'Ese servicio ya no existe: lo borró otra persona.' };
+    }
+    finalItemData = guardado;
+  } else {
+    await createDataItem(SERVICIOS_EMPRESA_FILE, SERVICIOS_COLLECTION, itemId, finalItemData as ServicioEmpresa);
+  }
   cacheInvalidate('servicios-empresa-raw');
   return { success: true, id: itemId, servicio: finalItemData as ServicioEmpresa };
 }
 
 export async function deleteServicioEmpresa(id: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
+  cacheInvalidate('servicios-empresa-raw');
   let inventario = await leerServiciosEmpresa();
   const targetServicio = inventario.find(s => s.id === id);
 
@@ -147,6 +171,11 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
     };
   }
 
+  if (!SIN_BASE()) {
+    const borrado = await deleteDataItem(SERVICIOS_EMPRESA_FILE, SERVICIOS_COLLECTION, id);
+    cacheInvalidate('servicios-empresa-raw');
+    return borrado ? { success: true } : { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };
+  }
   const initialLength = inventario.length;
   inventario = inventario.filter(s => s.id !== id);
   if (inventario.length === initialLength) return { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };
@@ -176,6 +205,24 @@ export async function duplicateServicioEmpresa(
   return saveServicioEmpresa(newServicioData);
 }
 
+/**
+ * Para el ajuste masivo: la lista FRESCA (no la de 15 s) y con las marcas de lectura de la base.
+ * Con las marcas, guardar la lista no pisa un servicio que otra persona edito en el medio
+ * (avisa del choque) ni borra uno que otra persona creo.
+ */
+async function leerServiciosParaAjustar(): Promise<ServicioEmpresa[]> {
+  cacheInvalidate('servicios-empresa-raw');
+  const crudos = await readData<any[]>(SERVICIOS_EMPRESA_FILE, []);
+  const num = (v: unknown) => (v === undefined || v === null || isNaN(Number(v)) ? undefined : Number(v));
+  return (Array.isArray(crudos) ? crudos : []).map((item) => ({
+    ...item,
+    valorUnitarioEstimado: num(item.valorUnitarioEstimado) ?? 0,
+    precioVenta: num(item.precioVenta),
+    precioBase: num(item.precioBase),
+    precioPorPersona: num(item.precioPorPersona),
+  })) as ServicioEmpresa[];
+}
+
 export async function adjustAllServicePrices(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
@@ -185,7 +232,7 @@ export async function adjustAllServicePrices(
   }
   
   try {
-    const inventario = await leerServiciosEmpresa();
+    const inventario = await leerServiciosParaAjustar();
     if (inventario.length === 0) {
       return { success: false, error: "No hay servicios en el catálogo para ajustar." };
     }
@@ -214,7 +261,8 @@ export async function adjustAllServicePrices(
       return newServicio;
     });
 
-    await writeData(SERVICIOS_EMPRESA_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+    await writeData(SERVICIOS_EMPRESA_FILE, updatedInventario, ORDEN_SERVICIOS);
+    cacheInvalidate('servicios-empresa-raw');
 
     return { success: true };
   } catch (error: any) {
@@ -232,7 +280,7 @@ export async function adjustAllServiceCosts(
   }
   
   try {
-    const inventario = await leerServiciosEmpresa();
+    const inventario = await leerServiciosParaAjustar();
     if (inventario.length === 0) {
       return { success: false, error: "No hay servicios en el catálogo para ajustar." };
     }
@@ -249,7 +297,8 @@ export async function adjustAllServiceCosts(
       return newServicio;
     });
 
-    await writeData(SERVICIOS_EMPRESA_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+    await writeData(SERVICIOS_EMPRESA_FILE, updatedInventario, ORDEN_SERVICIOS);
+    cacheInvalidate('servicios-empresa-raw');
 
     return { success: true };
   } catch (error: any) {

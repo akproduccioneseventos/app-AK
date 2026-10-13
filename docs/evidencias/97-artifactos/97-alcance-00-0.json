@@ -1,0 +1,33 @@
+{
+  "ids": [
+    "e2e_97_scope_4424_1791689157851_a",
+    "e2e_97_scope_4424_1791689157851_b"
+  ],
+  "actual": "QA97_ACTUAL_e2e_97_scope_4424_1791689157851",
+  "ajena": "QA97_AJENA_e2e_97_scope_4424_1791689157851",
+  "request": {
+    "message": "Qué le falta a ESTA fiesta, sonda alcance e2e_97_scope_4424_1791689157851",
+    "history": [
+      {
+        "role": "user",
+        "content": "Qué le falta a ESTA fiesta, sonda alcance e2e_97_scope_4424_1791689157851"
+      }
+    ],
+    "pathname": "/fiestas/nueva/tareas",
+    "fiestaId": "e2e_97_scope_4424_1791689157851_a",
+    "agentType": "fiesta"
+  },
+  "result": {
+    "success": true,
+    "response": "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.\n\nLo más importante ahora:\n1. [ALTA] QA97_AJENA_e2e_97_scope_4424_1791689157851: cierre post-fiesta: Ya pasó hace 3 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\n2. [ALTA] QA97_AJENA_e2e_97_scope_4424_1791689157851: oportunidad post-fiesta: Pasaron 3 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\n3. [MEDIA] QA97_ACTUAL_e2e_97_scope_4424_1791689157851: falta Tareas internas: 3 pendiente(s) de 5.\n4. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.\n\n→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta.",
+    "agentType": "fiesta",
+    "agentName": "Agente \"QA97_ACTUAL_e2e_97_scope_4424_1791689157851\"",
+    "action": {
+      "type": "none"
+    },
+    "modoRespaldo": true,
+    "error": "Failed to fetch from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: QA97 controlled provider outage; no outbound request",
+    "sessionId": "chat_1791689172471_6u9jri",
+    "savedChat": true
+  }
+}

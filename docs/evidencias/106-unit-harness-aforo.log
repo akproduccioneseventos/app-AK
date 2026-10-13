@@ -1,0 +1,26 @@
+FAIL src/__tests__/configurador-reunion-layout-real.test.tsx
+  ● layout real del configurador de reunión › entrega al renderer el layout y los cambios de color/aforo
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 13
+    Received length: 15
+    Received array:  [{"category": "pista", "height": 160, "id": "pista-central", "name": "Pista LED Central", "rotation": 0, "type": "element", "width": 160, "x": 300, "y": 250}, {"category": "escenario", "height": 80, "id": "escenario-dj", "name": "Cabina DJ & Escenario", "rotation": 0, "type": "element", "width": 220, "x": 300, "y": 50}, {"backgroundColor": "#1e293b", "category": "decoracion", "height": 140, "id": "barra-tragos", "name": "Barra de Tragos", "rotation": 0, "type": "element", "width": 80, "x": 60, "y": 250}, {"category": "mesa", "height": 50, "id": "mesa-1", "name": "Mesa 1", "rotation": 0, "seats": 10, "type": "element", "width": 50, "x": 520, "y": 270}, {"category": "mesa", "height": 50, "id": "mesa-2", "name": "Mesa 2", "rotation": 0, "seats": 10, "type": "element", "width": 50, "x": 491, "y": 364}, {"category": "mesa", "height": 50, "id": "mesa-3", "name": "Mesa 3", "rotation": 0, "seats": 10, "type": "element", "width": 50, "x": 410, "y": 432}, {"category": "mesa", "height": 50, "id": "mesa-4", "name": "Mesa 4", "rotation": 0, "seats": 10, "type": "element", "width": 50, "x": 300, "y": 457}, {"category": "mesa", "height": 50, "id": "mesa-5", "name": "Mesa 5", "rotation": 0, "seats": 10, "type": "element", "width": 50, "x": 190, "y": 432}, {"category": "mesa", "height": 50, "id": "mesa-6", "name": "Mesa 6", "rotation": 0, "seats": 10, "type": "element", "width": 50, "x": 109, "y": 364}, {"category": "mesa", "height": 50, "id": "mesa-7", "name": "Mesa 7", "rotation": 0, "seats": 10, "type": "element", "width": 50, "x": 80, "y": 270}, …]
+
+    [0m [90m 57 |[39m
+     [90m 58 |[39m       [36mconst[39m decoracionInicial [33m=[39m mockRenderScene[33m.[39mmock[33m.[39mcalls[33m.[39mat([33m-[39m[35m1[39m)[33m?[39m[33m.[39m[[35m0[39m][33m?[39m[33m.[39mdecoracion [36mas[39m any[33m;[39m
+    [31m[1m>[22m[39m[90m 59 |[39m       expect(decoracionInicial[33m.[39msalonElements)[33m.[39mtoHaveLength([35m13[39m)[33m;[39m
+     [90m    |[39m                                               [31m[1m^[22m[39m
+     [90m 60 |[39m       expect(decoracionInicial[33m.[39msalonElements[33m.[39mfilter((element[33m:[39m any) [33m=>[39m element[33m.[39mname[33m?[39m[33m.[39mstartsWith([32m'Mesa '[39m)))[33m.[39mtoHaveLength([35m10[39m)[33m;[39m
+     [90m 61 |[39m       expect(decoracionInicial[33m.[39msalonElements[33m.[39mmap((element[33m:[39m any) [33m=>[39m element[33m.[39mid))[33m.[39mtoEqual(
+     [90m 62 |[39m         expect[33m.[39marrayContaining([[32m'pista-central'[39m[33m,[39m [32m'escenario-dj'[39m[33m,[39m [32m'barra-tragos'[39m])[0m
+
+      at Object.toHaveLength (src/__tests__/configurador-reunion-layout-real.test.tsx:59:47)
+
+PASS src/__tests__/dependencias-multipart-mapas-regresion.test.ts
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 3 passed, 4 total
+Snapshots:   0 total
+Time:        3.608 s
+Test results written to: docs\evidencias\106-unit.json

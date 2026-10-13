@@ -1,0 +1,44 @@
+﻿{
+    "remainingListeners":  [
+
+                           ],
+    "owned":  [
+                  {
+                      "ProcessId":  21644,
+                      "ParentProcessId":  10664,
+                      "CreationDate":  "\/Date(1791675151574)\/",
+                      "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" docs/evidencias/97-ejecutar-aislado.mjs start"
+                  },
+                  {
+                      "ProcessId":  13928,
+                      "ParentProcessId":  21644,
+                      "CreationDate":  "\/Date(1791675161435)\/",
+                      "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.entorno.json --only firestore,storage --project demo-ak-producciones"
+                  },
+                  {
+                      "ProcessId":  11164,
+                      "ParentProcessId":  21644,
+                      "CreationDate":  "\/Date(1791675177622)\/",
+                      "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3300"
+                  },
+                  {
+                      "ProcessId":  18576,
+                      "ParentProcessId":  13928,
+                      "CreationDate":  "\/Date(1791675171809)\/",
+                      "CommandLine":  "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-97\\firestore.rules --single_project_mode true"
+                  },
+                  {
+                      "ProcessId":  24240,
+                      "ParentProcessId":  13928,
+                      "CreationDate":  "\/Date(1791675175054)\/",
+                      "CommandLine":  "java -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-storage-rules-runtime-v1.1.3.jar serve"
+                  },
+                  {
+                      "ProcessId":  9192,
+                      "ParentProcessId":  11164,
+                      "CreationDate":  "\/Date(1791675181650)\/",
+                      "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\next\\dist\\server\\lib\\start-server.js"
+                  }
+              ],
+    "stoppedAt":  "2026-10-11T03:27:37.0990453Z"
+}

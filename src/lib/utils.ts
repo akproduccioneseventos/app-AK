@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { diaCalendario } from "@/lib/reportes/rango-de-dias"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -35,6 +36,19 @@ export function getUruguayParts(date: Date = new Date()) {
 export function hoyEnUruguay(fecha: Date = new Date()): string {
   const { year, month, day } = getUruguayParts(fecha);
   return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+/**
+ * Días de calendario de Uruguay entre hoy y `fecha` (negativo si ya pasó, 0 si es hoy).
+ * Los `daysUntil` viejos usaban la hora del servidor (Greenwich): desde las 21:00 de Uruguay
+ * ya era mañana y todo se corría un día.
+ */
+export function diasHastaEnUruguay(fecha: string | Date, ahora: Date = new Date()): number {
+  const dia = diaCalendario(fecha);
+  if (!dia) return NaN;
+  const hoy = parseUruguayDate(hoyEnUruguay(ahora));
+  const objetivo = parseUruguayDate(dia);
+  return Math.round((objetivo.getTime() - hoy.getTime()) / 86_400_000);
 }
 
 export function parseUruguayDate(dateStr: string): Date {

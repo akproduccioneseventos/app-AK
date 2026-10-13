@@ -1,3 +1,4 @@
+import { diasHastaEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 export interface ActiveWindowInfo {
@@ -15,27 +16,18 @@ export function isEventInActiveWindow(fechaEvento?: string): ActiveWindowInfo {
     return { isActive: true, daysDifference: 0, phase: 'during' };
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Dias de calendario de Uruguay (positivo si el evento ya paso).
+  const diffDays = 0 - diasHastaEnUruguay(fechaEvento);
+  if (Number.isNaN(diffDays)) {
+    return { isActive: true, daysDifference: 0, phase: 'during' };
+  }
 
-  const eventDate = new Date(fechaEvento);
-  eventDate.setHours(0, 0, 0, 0);
-
-  // Difference in milliseconds
-  const diffTime = today.getTime() - eventDate.getTime();
-  // Difference in days
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
-  const startWindow = new Date(eventDate.getTime() - thirtyDaysInMs);
-  const endWindow = new Date(eventDate.getTime() + thirtyDaysInMs);
-
-  const isActive = today >= startWindow && today <= endWindow;
+  const isActive = diffDays >= -30 && diffDays <= 30;
 
   let phase: 'before' | 'during' | 'after' = 'during';
-  if (today < startWindow) {
+  if (diffDays < -30) {
     phase = 'before';
-  } else if (today > endWindow) {
+  } else if (diffDays > 30) {
     phase = 'after';
   }
 

@@ -62,6 +62,10 @@ export interface CierreDeBarraGuardado {
     diferencia?: number;
   }>;
   depositoAjustado: boolean;
+  /** Huella de los movimientos de deposito de este cierre: un doble toque no ajusta dos veces. */
+  ajusteClave?: string;
+  /** Verdadero entre que se reservo el cierre y que el deposito termino de moverse. */
+  ajustePendiente?: boolean;
 }
 
 export interface AperturaDeBarraGuardada {

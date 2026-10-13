@@ -32,8 +32,28 @@ import {
 } from '@/app/actions/conexiones-estado.actions';
 import { sincronizarHistorialRedesAction } from '@/app/actions/social-history';
 
+type Historial = NonNullable<ResumenConexion['historial']>;
+
+/**
+ * Estado del historial de Instagram, sacado de lo que el servidor guarda (intento, error, completo).
+ * "En curso" no existe: el servidor no expone ninguna operacion activa, asi que no se inventa.
+ */
+function estadoHistorialInstagram(h?: Historial): {
+  tipo: 'completo' | 'fallo' | 'parcial' | 'no-iniciado';
+  texto: string;
+  detalle?: string;
+} {
+  if (h?.completo) return { tipo: 'completo', texto: 'Historial completo' };
+  if (h?.error) return { tipo: 'fallo', texto: 'La última sincronización falló', detalle: h.error };
+  if (h?.ultimaSincronizacion) {
+    return { tipo: 'parcial', texto: `Historial parcial: ${h.totalPublicaciones || 0} publicaciones traídas` };
+  }
+  return { tipo: 'no-iniciado', texto: 'Todavía no se sincronizó el historial' };
+}
+
 export default function SincronizacionesPage() {
-  const [conexiones, setConexiones] = useState<ResumenConexion[]>([]);
+  const [conexiones, setConexiones] = useState<ResumenConexion[] | null>(null);
+  const [errorLectura, setErrorLectura] = useState(false);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<'todas' | 'conectada' | 'falta-configurarla' | 'no-se-usa'>('todas');
   const [probandoInstagram, setProbandoInstagram] = useState(false);
@@ -111,8 +131,10 @@ export default function SincronizacionesPage() {
       setLoading(true);
       const data = await getEstadoConexiones();
       setConexiones(data);
+      setErrorLectura(false);
     } catch (err) {
       console.error('Error al cargar conexiones:', err);
+      setErrorLectura(true);
     } finally {
       setLoading(false);
     }
@@ -122,12 +144,14 @@ export default function SincronizacionesPage() {
     cargarDatos();
   }, []);
 
-  const total = conexiones.length;
-  const conectadas = conexiones.filter((c) => c.estado === 'conectada').length;
-  const faltantes = conexiones.filter((c) => c.estado === 'falta-configurarla').length;
-  const noUsa = conexiones.filter((c) => c.estado === 'no-se-usa').length;
+  const sinDatos = conexiones === null;
+  const lista = conexiones ?? [];
+  const total = lista.length;
+  const conectadas = lista.filter((c) => c.estado === 'conectada').length;
+  const faltantes = lista.filter((c) => c.estado === 'falta-configurarla').length;
+  const noUsa = lista.filter((c) => c.estado === 'no-se-usa').length;
 
-  const filtradas = conexiones.filter((c) => {
+  const filtradas = lista.filter((c) => {
     if (filtro === 'todas') return true;
     return c.estado === filtro;
   });
@@ -173,7 +197,30 @@ export default function SincronizacionesPage() {
         </div>
       </div>
 
+      {sinDatos && loading && !errorLectura && (
+        <p className="text-sm text-slate-500" role="status">Leyendo el estado de las conexiones...</p>
+      )}
+      {errorLectura && sinDatos && !loading && (
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-red-900">No pudimos leer el estado de las conexiones.</p>
+          <Button size="sm" variant="outline" onClick={cargarDatos} className="gap-2 border-red-300 text-red-800 hover:bg-red-100">
+            <RefreshCw className="h-4 w-4" />
+            Reintentar
+          </Button>
+        </div>
+      )}
+      {errorLectura && !sinDatos && (
+        <div role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-amber-900">No se pudo actualizar; lo que ves puede estar desactualizado.</p>
+          <Button size="sm" variant="outline" onClick={cargarDatos} disabled={loading} className="gap-2 border-amber-400 text-amber-900 hover:bg-amber-100">
+            <RefreshCw className="h-4 w-4" />
+            Reintentar
+          </Button>
+        </div>
+      )}
+
       {/* Resumen de contadores */}
+      {!sinDatos && (
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="col-span-full mb-4">
           <LimpiarAgenda />
@@ -240,7 +287,10 @@ export default function SincronizacionesPage() {
         </Card>
       </div>
 
+      )}
+
       {/* Lista de Conexiones */}
+      {!sinDatos && (
       <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
         <CardHeader className="bg-slate-50/70 border-b border-slate-200 py-4 px-6">
           <div className="flex items-center justify-between">
@@ -374,17 +424,26 @@ export default function SincronizacionesPage() {
                     </div>
                     <div>
                       <span className="text-slate-500 block">Estado del historial:</span>
-                      {c.historial?.completo ? (
-                        <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                          Historial completo
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 font-semibold text-amber-700">
-                          <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
-                          Sincronización en curso
-                        </span>
-                      )}
+                      {(() => {
+                        const est = estadoHistorialInstagram(c.historial);
+                        if (est.tipo === 'completo') {
+                          return (
+                            <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                              {est.texto}
+                            </span>
+                          );
+                        }
+                        return (
+                          <span className={`inline-flex flex-col font-semibold ${est.tipo === 'fallo' ? 'text-red-700' : est.tipo === 'parcial' ? 'text-amber-700' : 'text-slate-600'}`}>
+                            <span className="inline-flex items-center gap-1">
+                              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                              {est.texto}
+                            </span>
+                            {est.detalle && <span className="text-xs font-normal opacity-90">Motivo: {est.detalle}</span>}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
 
@@ -448,6 +507,7 @@ export default function SincronizacionesPage() {
         })}
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }

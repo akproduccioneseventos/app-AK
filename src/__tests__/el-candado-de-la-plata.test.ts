@@ -19,7 +19,13 @@ import path from 'path';
 const RAIZ = path.join(process.cwd(), 'src/app/actions');
 
 /** Qué cuenta como "toca plata": los archivos y los campos donde vive la plata. */
-const TOCA_PLATA = /['"`](presupuestos\.json|invoices\.json|facturas|gastos-generales\.json|gastos_generales|servicios-empresa\.json|cupones\.json|recibos[\w-]*\.json|price-adjustments[\w-]*\.json)['"`]|\b(pagosCliente|planDePagos|pagosProveedores|gestionCostos|clientPaymentNotifications|precioVenta|precioPorPersona|montoPagado|eventSalary|leerFacturasSinGuardia)\b/;
+const TOCA_PLATA = /['"`](presupuestos\.json|invoices\.json|facturas|gastos-generales\.json|gastos_generales|servicios-empresa\.json|salones\.json|cupones\.json|recibos[\w-]*\.json|price-adjustments[\w-]*\.json)['"`]|\b(pagosCliente|planDePagos|pagosProveedores|gestionCostos|clientPaymentNotifications|precioVenta|precioPorPersona|montoPagado|eventSalary|leerFacturasSinGuardia|contratoDatos|planPagos)\b|\.pagos\b|\bpagos\s*:\s*\[/;
+
+/**
+ * Claves y tokens de conexiones (WhatsApp, redes, Google): una acción que los devuelve con sólo
+ * sesión se los entrega al personal y al operador (barrido de permisos, 12/10/2026).
+ */
+const SECRETOS = /['"`](social-connections\.json|whatsapp-config\.json)['"`]|\breturn\b[^;\n]*\b(apiKey|appSecret|accessToken|refreshToken|pageAccessToken)\b/;
 
 /** Qué cuenta como "pide el perfil": un permiso concreto, no la sesión sola. */
 const PIDE_PERFIL = /requirePermiso\w*\(|requireEventPermission\(|verifySessionConPermiso\(|sesionConPermiso\(|\bpuede\(|permisoDeGastos\(|nivelDePresupuestos\(|requireAdminSession\(|role !== ['"]admin['"]|requireEquipo\(|esEquipoParaFiesta\(|verifyPortalSession\(/;
@@ -32,6 +38,8 @@ const A_PROPOSITO: Record<string, string> = {
   'assistant.ts:sendAssistantMessage': 'no toca la plata directo: lo hace por acciones que tienen su propio candado',
   'fiesta/carga-operativa.actions.ts:updateListaDeCargaOperativa': '"precioVenta" ahí es una cantidad de equipos, no plata',
   'fiesta/carga-operativa.actions.ts:generateCargaFromActivos': '"precioVenta" ahí es una cantidad de equipos, no plata',
+  'salones.ts:getSalonesPublicos': 'es la versión pública: devuelve los salones SIN los pagos ni el gerente',
+  'accesos-personal-view.ts:registrarLlegadaPersonal': 'el empleado entra por su enlace firmado; lee el salón sólo para comparar la ubicación y no devuelve pagos',
 };
 
 function archivos(dir: string): string[] {
@@ -55,17 +63,17 @@ function funciones(texto: string): Map<string, string> {
   return salida;
 }
 
-function accionesDePlataSinCandado(raiz = RAIZ): string[] {
+function accionesDePlataSinCandado(raiz = RAIZ, tocaBase: RegExp = TOCA_PLATA, aProposito: Record<string, string> = A_PROPOSITO): string[] {
   const faltan: string[] = [];
   for (const archivo of archivos(raiz)) {
     const texto = fs.readFileSync(archivo, 'utf-8');
-    if (!/^\s*['"]use server['"]/.test(texto)) continue;
+    if (!/^\s*['"]use server['"]/m.test(texto)) continue;
     // El archivo de plata suele ir en una constante (`const PRESUPUESTOS_FILE = 'presupuestos.json'`):
     // usar la constante también es tocar plata. Sin esto el control no veía `approvePresupuesto`.
     const constantes = [...texto.matchAll(/^const\s+(\w+)\s*=\s*(['"`][^'"`]+['"`])/gm)]
-      .filter((m) => TOCA_PLATA.test(m[2]))
+      .filter((m) => tocaBase.test(m[2]))
       .map((m) => m[1]);
-    const marca = constantes.length ? new RegExp(`${TOCA_PLATA.source}|\\b(${constantes.join('|')})\\b`) : TOCA_PLATA;
+    const marca = constantes.length ? new RegExp(`${tocaBase.source}|\\b(${constantes.join('|')})\\b`) : tocaBase;
     const todas = funciones(texto);
     const tocaDirecto = (cuerpo: string) => marca.test(cuerpo);
     // También toca plata si llama a una función del mismo archivo que la toca (un paso).
@@ -75,7 +83,7 @@ function accionesDePlataSinCandado(raiz = RAIZ): string[] {
       if (!new RegExp(`export\\s+(async\\s+)?function\\s+${nombre}\\b`).test(texto)) continue;
       if (!tocaPlata(nombre, cuerpo)) continue;
       const clave = `${path.relative(raiz, archivo).replace(/\\/g, '/')}:${nombre}`;
-      if (A_PROPOSITO[clave]) continue;
+      if (aProposito[clave]) continue;
       if (PIDE_PERFIL.test(cuerpo)) continue;
       // Si delega en una función del mismo archivo que sí pide el perfil, vale.
       const delega = [...todas].some(([otra, suCuerpo]) => otra !== nombre && new RegExp(`\\b${otra}\\(`).test(cuerpo) && PIDE_PERFIL.test(suCuerpo));
@@ -103,6 +111,28 @@ describe('El candado de la plata', () => {
       const [archivo, nombre] = clave.split(':');
       const texto = fs.readFileSync(path.join(RAIZ, archivo), 'utf-8');
       expect(texto).toMatch(new RegExp(`export async function ${nombre}\\b`));
+    }
+  });
+});
+
+/** Acciones que manejan claves o tokens a propósito sin pedir un perfil. Cada una con su motivo. */
+const SECRETOS_A_PROPOSITO: Record<string, string> = {
+  'social-connections.ts:getSocialConnectionsPublicas': 'es la versión pública: saca los tokens antes de devolver',
+  'whatsapp.ts:getPublicWhatsAppNumber': 'devuelve sólo el número visible, no la clave',
+  'espejo-magico-ai.ts:isEspejoIaDisponible': 'devuelve sólo si hay clave (verdadero o falso), no la clave',
+  'conexiones-estado.actions.ts:getEstadoConexiones': 'devuelve el estado de cada conexión en palabras, sin claves ni tokens',
+};
+
+describe('El candado de las claves', () => {
+  it('ninguna acción que maneja claves o tokens de conexiones pide sólo sesión', () => {
+    const faltan = accionesDePlataSinCandado(RAIZ, SECRETOS, SECRETOS_A_PROPOSITO);
+    if (faltan.length) {
+      throw new Error(
+        'Estas acciones manejan claves o tokens y piden sólo sesión (el personal también tiene una):\n' +
+        faltan.map((f) => `  - ${f}`).join('\n') +
+        '\n\nPedí el permiso del perfil (requirePermisoAlguno(PERMISOS.ADMINISTRACION)). ' +
+        'Si es interna o pública a propósito, anotala en SECRETOS_A_PROPOSITO con el motivo.',
+      );
     }
   });
 });

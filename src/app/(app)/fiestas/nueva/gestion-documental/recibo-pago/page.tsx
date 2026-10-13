@@ -237,8 +237,9 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
         throw new Error('Share API not supported');
       }
     } catch {
-      navigator.clipboard.writeText(shareData.url);
-      toast({ title: 'Enlace Copiado', description: 'El enlace fue copiado al portapapeles.' });
+      navigator.clipboard.writeText(shareData.url)
+        .then(() => toast({ title: 'Enlace Copiado', description: 'El enlace fue copiado al portapapeles.' }))
+        .catch(() => toast({ title: 'No se pudo copiar', description: shareData.url, variant: 'destructive' }));
     }
   };
 
@@ -290,8 +291,13 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
   // queda clavado en 15% y vuelve a mostrar un saldo distinto al de la pantalla.
   const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto, ajusteAnualPorcentaje);
   const costoTotal = estadoDeCuenta.total;
-  const totalPagado = allPayments.reduce((sum, p) => sum + p.amount, 0);
-  const saldoPendiente = costoTotal - totalPagado;
+  // Lo cobrado y el saldo salen del estado de cuenta oficial (cobros confirmados del presupuesto,
+  // con el ajuste anual): sumar solo los pagos de las facturas ignoraba los cobros anotados en el
+  // presupuesto y el recibo mostraba un saldo distinto al de la pantalla. Sin presupuesto cargado
+  // no hay cuenta oficial, y se usa lo que traen las facturas.
+  const totalPagadoFacturas = allPayments.reduce((sum, p) => sum + p.amount, 0);
+  const totalPagado = presupuesto ? estadoDeCuenta.pagado : totalPagadoFacturas;
+  const saldoPendiente = presupuesto ? estadoDeCuenta.saldo : costoTotal - totalPagadoFacturas;
   const lastPayment = allPayments.length > 0 ? allPayments[allPayments.length - 1] : null;
 
   const receiptNumber = invoices[0]?.invoiceNumber

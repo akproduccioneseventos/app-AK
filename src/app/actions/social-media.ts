@@ -2,7 +2,7 @@
 'use server';
 
 import type { SocialPost } from '@/types/social-media';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
 import { mutarDocumento } from '@/lib/generic-json-store';
 import fs from 'fs/promises';
 import path from 'path';
@@ -82,7 +82,10 @@ ensureDataDirectoriesExist();
 export async function getSocialPosts(): Promise<SocialPost[]> {
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return [];
-  return readData<SocialPost[]>(POSTS_FILE, []);
+  // Una lectura que falla NO es "no hay publicaciones": se avisa para que la pantalla lo distinga.
+  const { valor, huboFalla } = await readDataConDetalle<SocialPost[]>(POSTS_FILE, []);
+  if (huboFalla) throw new Error('No se pudieron leer las publicaciones guardadas.');
+  return valor;
 }
 
 export async function saveSocialPost(

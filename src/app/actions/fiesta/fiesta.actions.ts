@@ -133,6 +133,9 @@ const CAMPOS_DE_PLATA_Y_CONTRATO = [
   'planDePagos',
   'pagosProveedores',
   'clientPaymentNotifications',
+  // Senia, saldo, ajuste y plan de pagos del contrato, y el texto del contrato (barrido 12/10/2026).
+  'contratoDatos',
+  'contratoServicioTexto',
 ] as const;
 
 /** Lo de pagar en cada compra al proveedor: plata, aunque la compra sea de organización. */
@@ -1392,7 +1395,20 @@ export async function suspenderFiestaAction(fiestaId: string, motivo: string, fe
 
   const { suspenderFiesta, calcularLiquidacionSuspension } = await import('@/lib/fiesta/revisar-fiestas');
   const suspendida = suspenderFiesta(f, motivo, fecha);
-  const liquidacion = calcularLiquidacionSuspension(suspendida);
+  // Total vigente (con ajuste anual) y lo cobrado confirmado, del estado de cuenta oficial del presupuesto.
+  let totalVigente: number | undefined;
+  let cobrado: number | undefined;
+  if (f.presupuestoId) {
+    const { getPresupuestoById } = await import('../presupuestos');
+    const { calcularEstadoDeCuenta } = await import('@/lib/budget/saldo-con-ajuste');
+    const presupuesto = await getPresupuestoById(f.presupuestoId);
+    if (presupuesto) {
+      const cuenta = calcularEstadoDeCuenta(presupuesto);
+      totalVigente = cuenta.total;
+      cobrado = cuenta.pagado;
+    }
+  }
+  const liquidacion = calcularLiquidacionSuspension(suspendida, totalVigente, cobrado);
   const guardado = await saveFiesta(suspendida);
 
   return { success: guardado.success, fiesta: suspendida, liquidacion };

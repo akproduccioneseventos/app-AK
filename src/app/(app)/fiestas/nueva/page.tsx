@@ -22,6 +22,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
 import { suspenderFiestaAction, reactivarFiestaAction } from '@/app/actions/fiesta/fiesta.actions';
 import { esFiestaSuspendida, calcularLiquidacionSuspension } from '@/lib/fiesta/revisar-fiestas';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import type { FiestaEnPlanificacion, ModulosContratados } from '@/types/fiesta';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -52,7 +54,7 @@ interface ModuleDefinition {
   id: string;
   title: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   description: string;
   category: string;
   color: string;
@@ -141,7 +143,7 @@ const moduleCategories = [
   'EVENTO EN VIVO / CENTRO DE OPERACIONES',
 ];
 
-const categoryMeta: Record<string, { icon: React.ElementType; color: string; description: string }> = {
+const categoryMeta: Record<string, { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string; description: string }> = {
   'CENTRO DE PRODUCCIÓN':              { icon: Settings2,       color: 'text-slate-700 bg-slate-100',   description: 'Configuración, tareas, reuniones, documentos y finanzas.' },
   'OPERATIVA Y LOGÍSTICA':             { icon: Truck,           color: 'text-amber-700 bg-amber-100',   description: 'Lista de carga, logística, proveedores y personal.' },
   'EXPERIENCIA DEL CLIENTE VIP':       { icon: KeyRound,        color: 'text-amber-600 bg-amber-50',    description: 'Portal VIP, itinerario, música, video de vida e invitados.' },
@@ -201,7 +203,7 @@ const MOMENTOS_FIESTA = [
 
 type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
 
-const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color: string; moduleIds: string[] }[] = [
+const quickModes: { id: QuickMode; label: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; color: string; moduleIds: string[] }[] = [
   { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'centroFiesta', 'itinerario', 'checkin', 'cargaOperativa', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'] },
   { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'plannerCostoFiesta', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
@@ -364,7 +366,26 @@ function PlannerDashboardContent() {
   const [isProcessingSuspension, setIsProcessingSuspension] = useState(false);
 
   const estaSuspendida = useMemo(() => esFiestaSuspendida(fiesta), [fiesta]);
-  const liquidacion = useMemo(() => fiesta ? calcularLiquidacionSuspension(fiesta) : null, [fiesta]);
+  // Total vigente y cobrado del estado de cuenta oficial del presupuesto (la liquidacion solo se muestra suspendida).
+  const [cuentaPresupuesto, setCuentaPresupuesto] = useState<{ total: number; pagado: number } | null>(null);
+  const presupuestoIdDeLaFiesta = fiesta?.presupuestoId;
+  useEffect(() => {
+    if (!estaSuspendida || !presupuestoIdDeLaFiesta) { setCuentaPresupuesto(null); return; }
+    let vigente = true;
+    getPresupuestoById(presupuestoIdDeLaFiesta)
+      .then((p) => {
+        if (!vigente) return;
+        if (!p) { setCuentaPresupuesto(null); return; }
+        const cuenta = calcularEstadoDeCuenta(p);
+        setCuentaPresupuesto({ total: cuenta.total, pagado: cuenta.pagado });
+      })
+      .catch(() => { if (vigente) setCuentaPresupuesto(null); });
+    return () => { vigente = false; };
+  }, [estaSuspendida, presupuestoIdDeLaFiesta]);
+  const liquidacion = useMemo(
+    () => fiesta ? calcularLiquidacionSuspension(fiesta, cuentaPresupuesto?.total, cuentaPresupuesto?.pagado) : null,
+    [fiesta, cuentaPresupuesto],
+  );
 
   const handleSuspender = async () => {
     if (!fiestaId || !motivoSuspension.trim()) {

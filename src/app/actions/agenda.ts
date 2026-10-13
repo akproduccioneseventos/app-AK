@@ -1,5 +1,6 @@
 'use server';
 
+import { datosDeLaReunion } from '@/lib/reuniones/datos-de-la-reunion';
 import { getFiestas, getHistorialFiestas, saveFiesta } from './fiesta/fiesta.actions';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import { syncFiestaToGoogleWorkspace } from './google-workspace';
@@ -115,8 +116,9 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
               const dateTime = r.fecha;
               const date = diaCivilEnUruguay(dateTime);
               if (!date) continue;
-              const lugar = (r as any).lugar || fiesta.configuracion.nombreLugar || '';
-              const contacto = (r as any).conQuien || (fiesta.configuracion as any).nombreCliente || fiesta.configuracion.protagonista1Nombre || '';
+              const { lugar } = datosDeLaReunion(fiesta);
+              // En el calendario el contacto va solo si es una persona (no el nombre del evento).
+              const contacto = (fiesta.configuracion.clienteNombre || fiesta.configuracion.protagonista1Nombre || '').trim();
               reunionEvents.push({
                 id: `reunion_${fiesta.id}_${r.id || Math.random().toString(36).substring(2, 7)}`,
                 fiestaId: fiesta.id,

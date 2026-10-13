@@ -137,6 +137,19 @@ export default function EditarActivoFijoPage() {
     }
   };
 
+  // Identidad del trabajo que se esta anotando. Se arma una vez por borrador y se repite en cada
+  // reintento o doble toque, para que el servidor reconozca "es el mismo trabajo" aunque la
+  // respuesta se haya perdido. Se renueva cuando el servidor confirma o cuando la persona
+  // cambia el contenido del borrador (ahi es otro trabajo). Orden 159, 12 de octubre de 2026.
+  const operacionMantenimientoRef = useRef<string | null>(null);
+  const idDeLaOperacion = () => {
+    if (!operacionMantenimientoRef.current) {
+      operacionMantenimientoRef.current = `mant_${crypto.randomUUID()}`;
+    }
+    return operacionMantenimientoRef.current;
+  };
+  const borradorCambio = () => { operacionMantenimientoRef.current = null; };
+
   const handleAnotarMantenimiento = async (e: React.FormEvent, registroIdReintento?: string) => {
     e.preventDefault();
     if (!item?.id) return;
@@ -164,7 +177,7 @@ export default function EditarActivoFijoPage() {
         fecha,
         nota,
         costo: costoNum,
-        registroId: registroIdReintento,
+        registroId: registroIdReintento ?? idDeLaOperacion(),
       });
 
       if (res.servicio) {
@@ -174,6 +187,7 @@ export default function EditarActivoFijoPage() {
 
       if (res.success) {
         if (!registroIdReintento) {
+          borradorCambio();
           setMantenimientoNota('');
           setMantenimientoCosto('');
           setDialogMantenimientoAbierto(false);
@@ -263,14 +277,14 @@ export default function EditarActivoFijoPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-            <Edit3 className="w-8 h-8 text-primary"/>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 basis-64 items-center gap-3">
+            <Edit3 className="w-8 h-8 shrink-0 text-primary"/>
+          <h1 className="min-w-0 break-words text-3xl font-bold tracking-tight font-headline [overflow-wrap:anywhere]">
             Editando: <span className="text-primary">{item?.nombre}</span>
           </h1>
         </div>
-        <Button asChild variant="outline" disabled={isSaving}><Link href={backUrl}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
+        <Button asChild variant="outline" className="shrink-0" disabled={isSaving}><Link href={backUrl}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
 
       <Card className="shadow-lg">
@@ -395,7 +409,7 @@ export default function EditarActivoFijoPage() {
                           id="maint-fecha"
                           type="date"
                           value={mantenimientoFecha}
-                          onChange={(e) => setMantenimientoFecha(e.target.value)}
+                          onChange={(e) => { borradorCambio(); setMantenimientoFecha(e.target.value); }}
                         />
                       </div>
                       <div className="space-y-2">
@@ -404,7 +418,7 @@ export default function EditarActivoFijoPage() {
                           id="maint-nota"
                           placeholder="Ej. Cambio de lámpara, lubricación, ajuste..."
                           value={mantenimientoNota}
-                          onChange={(e) => setMantenimientoNota(e.target.value)}
+                          onChange={(e) => { borradorCambio(); setMantenimientoNota(e.target.value); }}
                         />
                       </div>
                       <div className="space-y-2">
@@ -415,7 +429,7 @@ export default function EditarActivoFijoPage() {
                           min="0"
                           placeholder="0"
                           value={mantenimientoCosto}
-                          onChange={(e) => setMantenimientoCosto(e.target.value === '' ? '' : Number(e.target.value))}
+                          onChange={(e) => { borradorCambio(); setMantenimientoCosto(e.target.value === '' ? '' : Number(e.target.value)); }}
                         />
                         <p className="text-xs text-muted-foreground">Si tiene costo, se guarda en "Reparaciones y Mantenimiento".</p>
                       </div>

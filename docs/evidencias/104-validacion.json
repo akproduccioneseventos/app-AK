@@ -1,0 +1,17 @@
+{
+  "applicationSourceSha": "a6d2086109e0e1a113307fde23674471f62bc377",
+  "baseMainSha": "99faf4eb061fa46341cfdde6f81b93b3bfb9c73c",
+  "laterChange": "Only documentation, evidence and graphify:update --code-only; no production dependencies or app code changes",
+  "build": { "exitCode": 0, "log": "104-build.log", "lintAndTypesSkipped": false },
+  "jest": { "exitCode": 0, "suites": 688, "passedTests": 4129, "failedTests": 0, "pendingTests": 0, "evidence": "104-jest-resumen.json" },
+  "portalBrowser": { "passed": 4, "failed": 0, "sourceSha": "a6d2086109e0e1a113307fde23674471f62bc377", "evidence": "104-portal-resumen.json" },
+  "priorUnchangedConsumers": {
+    "sourceSha": "4c4656d3fb497f00297725059fda5227e979779b",
+    "qrBrowserPassed": 8, "dateBrowserPassed": 2, "muralBrowserPassed": 4,
+    "evidence": ["103-qr-resumen.json", "103-dates-resumen.json", "103-mural-resumen.json"]
+  },
+  "graphify": { "command": "npm run graphify:update", "exitCode": 0, "mode": "code-only AST", "nodes": 13603, "edges": 42342, "communities": 838, "parserWarnings": 25, "llmCalls": 0, "localArtifactNotPublished": true },
+  "guards": { "acentosExitCode": 0, "acentosFiles": 2756, "formasExitCode": 0, "trinqueteExitCode": 0 },
+  "runtime": { "isolated": true, "realBusinessWrites": 0, "stopped": true, "cleanup": "104-limpieza.json" },
+  "notCertified": ["Real salon3D canvas (2 failed browser tests)", "All buttons and variants of every screen", "19 original manual budgets", "Live provider accounts and paid AI", "Same-SHA production deployment", "Physical event hardware"]
+}

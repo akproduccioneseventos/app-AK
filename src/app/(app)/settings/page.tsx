@@ -42,7 +42,7 @@ interface SettingItem {
   title: string;
   description: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 interface SettingSection {

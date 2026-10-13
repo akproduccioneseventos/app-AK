@@ -1,5 +1,78 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion102-104: correcciones directas comprobadas
+
+Autorizacion del dueno, base99faf4eb y fuente correctiva a6d20861 en PR1288.
+Lector151 no traga fallo de base; QR147 reintenta orientaciones sin cambiar
+el contenido; mural pinta primarias sin esperar chat; cupones usan dia de
+Uruguay en reglas/selector/etiquetas/Nuevo; portal Reintentar pide lectura nueva.
+Navegador103 fuente4c: QR8pass, fechas2pass, mural4pass PC/movil con SDK/medidas.
+Portal4c recuperacion2fail historicos ->104 fuentea6:4pass, SDK intacto al
+recuperar. Build104 completo exit0, tipos/lint SIN omitir; Jest104 a6:
+688suites/4129pruebas pasan. No reabrir147/151/
+muralPC por notas anteriores. Registro detallado:102-recuento-correcciones-directas.
+Salon3D103 sigue WebGLtrue/canvas0; candidato de actualizacion NO paso tipos/
+lock, no integrado. Hardware/cuentas/modelos reales/Hosting/19 originales no
+certificados. La tabla inferior es HISTORICA; aplicar estas actualizaciones y
+88-101 antes de decidir que queda pendiente. No afirmar cada boton ni0errores.
+
+## Actualizacion101: entrega1290, sin reabrir lo ya aprobado
+
+Fuente99faf4eb:149 SDKaliasactual/nativo/control SI y respaldoFiestaA SOLO A
+PCmovil2pass.150vacio fixed/panel590-659/tituloPCmovilSI;foto principal movil
+natural602/opacidad1SI. FotoPCvista inicialmente, medicion final inconclusa:
+vacio/Reconectando, causa NO confirmada, NO orden de bug sin contrasteSDK.
+147corto2pass/reentrada sin duplicar;UUID276identico PCmovil2fail, exacto99.
+PNG conservado falla/SDKsin cambios/checkedInfalse:2diagnosticos NO cierreQR.
+Orden147 ampliada;151 sin delta/no corrida duplicada. Informe101 manda para
+7parespositivos/2negativos/1par parcial;los errores propios de sonda no son
+fallosapp. Runtime cerrado/fixturespropios cero/agregadosdemo preservados.
+Aceptar criterios acotados149, NO14areaslimpias/modelosdePago/Hosting/0errores.
+
+## Actualizacion100: cadena de lectura real, dos efectos nuevos
+
+Main ca5b714d, sin delta149/150/147residuo. Corte SDK Query.getfiestas:
+portal valido falso expirado y presupuesto[]sin aviso PCmovil4negativos.
+Clave realmente ausente2pass;recuperacion/datosSDKintactos comprobados.
+Ord151Claude:fallo tragado en lector intermedio,NOreescribirtexto ni mockear
+leerFiestasCrudas. Build/modolocal/contratos se conservan;NOglobalthrow ciego.
+Dos fallos de preparacion QA documentados NOson erroresapp. Informe100/raw/
+capturas/HTTP/SDK/limpieza. Runtime/agente cerrados,solo datosdemo. Conservar
+aceptaciones88-99 acotadas;no14areaslimpias/0errores/cuentasreales/hardware.
+
+## Actualizacion99: cierre QR parcial, no duplicar147
+
+Main ca5b714d/1289 ejecutado.8recorridos:6pass/2fail;historico94 PCmovil
+PASA. Dos PNGmoviles616 siguen sin leer; mismo archivo reintentado deja
+checkedInfalse. ControlanchoNO;DPR1solo cortoSI/UUIDNO,NOtamano universal.
+Informe99/raw/capturas/SDK manda;147ampliada NOreimplementada.149/150
+sin delta,NOsondas duplicadas. Mantener todas las aceptaciones88-98 acotadas.
+Runtime99cerrado/puertoslibres/fixturelimpio. No cuentasreales/buildHosting/
+hardware/19originales/14areaslimpias/0errores por esta corrida.
+
+## Actualizacion98: retests recibidos, no ordenes duplicadas
+
+Fuente755f0707 ejecutada:18pass/16pares PCmovil.146cancelacion/reintento,
+148lector/error/vacioreal,145contenido captura/descarga/reload/nocuadro,
+144UNpending/aviso/muralPUBLICOcargado que excluye/recarga sin duplicar
+PASAN. Dos espejos repetidos con criterio mural mas fuerte, no casosnuevos.
+Informe98 manda para estos criterios;NO reabrir144-146/148 por historia.
+NUEVO150P1muralrecortado:PCmovil4fail/UNAcausa CSSpositionrelative ganandofixed;
+control SOLOpositionfixedrestaura540/659px y titulo pintado. No app corregida.
+149dosP2 siguen,147retirado NOcerrado;3D/19/integraciones/release/hardware
+requieren evidencias especificas. No14areaslimpias/no0errores. Runtime98
+detenido y10sesionespropias demo retiradas,sin datosreales/codigoapp/build.
+
+## Actualizacion97: IA real y tanda nueva contrastada
+
+Ejecutado9a/contrastado755. Dos P2orden149:nativoSDKSI/aliasfalseNO/controlSI
+y respaldoFiestaA incluyeBprimero (PCmovil2fail). Chat/API/SDKhistorialA-B y
+NOtarea ficticia pasanPCmovil2pass. No modelos de pago/audio fisico probados.
+1286/1287fusionadas otraIA:nueva ramaQA97.144/145/146/148 codigo correctivo
+presente, NOreencargar;147retirado por fallo movil sigueabierto. Informes/raw97
+y limites95 vigentes. No equivaler componente/codigoconectado a Hosting o
+area completa aceptada. Fixturepropio retirado/runtime97detenido.
+
 ## Actualizacion96: lector final, nuevo criterio de fallo probado
 
 Main9a/PR1286QA;NO contrastado con tanda local. VID96-LECTOR P2:fallo

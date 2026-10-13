@@ -1,5 +1,631 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12 de octubre de 2026 — Mantenimiento de equipos: ni se duplica el gasto ni se pierde una fila (orden 159)
+
+- **Antes:** si se perdía la respuesta al anotar un mantenimiento con costo y la persona tocaba de nuevo, quedaban dos
+  filas y dos gastos del mismo trabajo. Y con dos operadores a la vez, la acción leía el historial entero, le sumaba su
+  fila y lo escribía: una fila desaparecía y su gasto quedaba sin dueño. Guardar la ficha con el formulario viejo
+  también borraba lo que otro había anotado.
+- **Ahora:** la pantalla arma un identificador por trabajo y lo repite en cada reintento o doble toque; se renueva al
+  confirmar o si la persona cambia fecha, detalle o costo (ahí es otro trabajo). El servidor lo recibe como `registroId`:
+  si el registro ya está completo devuelve "ya estaba" sin crear nada; si estaba pendiente, termina sólo el gasto con la
+  misma llave. Los dos guardados (agregar la fila y bajar el aviso de pendiente) son transacciones sobre el equipo de
+  ese momento y tocan SÓLO su fila. Guardar la ficha ya no pisa el historial: manda el del servidor.
+- **Por qué así:** en plata, el identificador nace antes del primer envío; si naciera en el servidor, un reintento no
+  podría reconocerse. Dos trabajos distintos con el mismo texto, fecha y costo NO se agrupan (son dos gastos reales).
+
+```comprobar
+archivo: src/app/actions/activos-fijos.ts
+usa: mutateDataItem en src/app/actions/activos-fijos.ts
+usa: registroId: registroIdReintento ?? idDeLaOperacion() en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
+prueba: src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
+prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
+
+## 13 de octubre de 2026 — Guardados de la fiesta por turno: dos personas a la vez ya no se pisan
+
+- **Qué pasaba:** tareas, reuniones, música, regalos, estado en vivo, lista de carga, llegada del personal, hitos del
+  programa, controles de la noche (votaciones, mensajes, canciones), sorteo y barra (apertura, cierre, ajustes) leían
+  la fiesta afuera del turno y guardaban la lista (o la fiesta) armada con esa lectura. Con dos personas a la vez la
+  segunda borraba lo de la primera y las dos pantallas decían "guardado".
+- **Ahora:** todas pasan por `actualizarFiesta`, que lee y escribe adentro del turno, y cada acción cambia SOLO lo
+  suyo por id sobre lo que hay en ese momento. Nuevas acciones angostas: `marcarTarea`, `addTareas`,
+  `marcarHitoPrograma` (el cronograma del staff y el "en vivo" ya no mandan el programa ni la fiesta enteros).
+  `updateTareas` y `updatePrograma` quedan sólo para reemplazar la lista entera, también por turno.
+- **Permisos sin cambios:** `actualizarFiesta` suma la opción `soloEquipo` para conservar lo que pedía
+  `updateFiestaPartial` (el cliente del portal no toca tareas, reuniones, programa ni la lista de carga).
+  `marcarLlegadaPersonal` sigue pidiendo sólo sesión.
+- **Reuniones:** el aviso al calendario sale con la reunión que quedó guardada.
+- **Cierre de barra:** guarda sólo `cierre` (no pisa pedidos nuevos) y el ajuste del depósito es idempotente: el cierre
+  se reserva con una huella de los movimientos antes de mover botellas; un doble toque con el mismo ajuste en 5
+  minutos devuelve el cierre ya reservado en vez de mover el depósito dos veces; si mover falla, el cierre reservado
+  se deshace. El respaldo de pedidos también guarda adentro de la transacción de la fiesta.
+- **Por qué así:** la pregunta 22 de COMO-AUDITAR.md; el turno cuida un servidor y la transacción cuida varios. Las
+  pruebas existentes cuyos mocks leían afuera se ajustaron para modelar el turno (nunca se aflojó una guarda).
+
+```comprobar
+archivo: src/lib/fiesta/actualizar-fiesta.ts
+usa: actualizarFiesta en src/app/actions/fiesta/tareas.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/reuniones.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/musica.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/regalos.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/live.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/itinerario.actions.ts
+usa: actualizarFiesta en src/app/actions/personal-fiestas.ts
+usa: actualizarFiesta en src/app/actions/evento-en-vivo.ts
+usa: actualizarFiesta en src/app/actions/social-interactive.ts
+usa: actualizarFiesta en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: marcarHitoPrograma en src/app/evento/staff/[fiestaId]/cronograma/page.tsx
+usa: marcarTareaFiestaActual en src/app/(app)/fiestas/nueva/tareas/client.tsx
+usa: ajusteClave en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/guardados-de-la-fiesta-no-se-pisan.test.ts
+
+## 13 de octubre de 2026 — Hora de Uruguay, tareas con la base caída, enlaces que no llevaban el dato y guardados que pisaban
+
+- **Reunión del simulador:** el prospecto elegía 10:00 y en la agenda quedaba 07:00 (el servidor corre en hora de
+  Greenwich). Ahora el horario se arma como `AAAA-MM-DDT10:00:00-03:00` (Uruguay no tiene horario de verano), el
+  día de la semana y el "ya pasó" son los de Uruguay, y las citas ya agendadas ocupan el horario por hora de
+  Uruguay. El mensaje y el calendario muestran la hora con zona de Montevideo.
+- **Días que faltan:** el recordatorio a los invitados, las reglas automáticas, el semáforo de la fiesta y la
+  ventana posterior al evento contaban con el "hoy" del servidor; desde las 21:00 de Uruguay todo se corría un
+  día. Ahora usan `diasHastaEnUruguay`. El enlace del aviso del panel a la agenda usa el día de Uruguay.
+- **Tareas "corridas" sin leer nada:** `avisos-al-cliente` y `asistente-proactivo` leían con lista vacía por
+  defecto: con la base caída recorrían cero fiestas y se anotaban hechas. Ahora la lectura tira (o devuelve error
+  500 en el asistente) y NO se marca corrida; se reintenta en la próxima.
+- **Enlaces:** post-evento, "ver reporte" y el control de entretenimiento mandaban `?id=` a pantallas que leen
+  `?fiestaId=`. La central de presupuestos lleva `fiestaId` y `leadId` hasta el formulario; el formulario
+  adelanta cliente, tipo, fecha, lugar e invitados de la fiesta, muestra "Presupuesto para la fiesta X" y, si la
+  fiesta no tenía presupuesto, lo enlaza al guardar (si el enlace falla, avisa; el presupuesto ya está guardado).
+  El CRM abre la ficha del prospecto de `?leadId=` (o avisa que no existe) y la agenda se para en el día de
+  `?date=`. Falso positivo: `empresa/presencia-digital` ya leía `?tab=`.
+- **Importar invitados:** el reintento tras una falla parcial perdía mesa, categoría y restricción (leía un campo
+  `lineaOriginal` que no existía) y filtraba los fallidos por nombre (duplicaba homónimos). Ahora cada fila guarda su
+  línea original, la planilla guarda su encabezado y los fallidos se identifican por número de fila.
+- **Campos que no existían:** "Menú sin definir" leía `seleccionPrincipalId` (el campo es `principal`); los avisos
+  y el calendario de reuniones leían `lugar`, `conQuien` y `nombreCliente`. Ahora salen del lugar y el cliente de la
+  fiesta (`datosDeLaReunion`).
+- **Guardados que pisaban:** las citas del simulador se agregan con `mutateGenericJsonArray` (y se vuelve a mirar el
+  horario adentro del turno: el mismo horario no se reserva dos veces). Los comentarios de redes se guardan como
+  parches por id sobre la lista actual (`guardar-comentarios.ts`): la sincronización ya no borra aprobaciones como
+  testimonio, ocultamientos ni respuestas automáticas hechas mientras tardaba; ocultar, restaurar y aprobar un
+  comentario cambian solo ese comentario.
+- **Por qué así:** el parche por id conserva lo que otro hizo; si otro ya revisó el comentario no se pisa su
+  revisión. Pendiente que NO se tocó acá (es de otro ayudante): `votePoll` no mira `active` y tiene un tope de 30 por
+  IP+encuesta (`social-interactive.ts`).
+
+```comprobar
+archivo: src/lib/social-media/guardar-comentarios.ts
+usa: :00-03:00 en src/lib/agenda/horarios-disponibles.ts
+usa: diasHastaEnUruguay en src/lib/fiesta-progress.ts
+usa: diasHastaEnUruguay en src/lib/automatizaciones-engine.ts
+usa: diasHastaEnUruguay en src/lib/experience-ak/post-event-utils.ts
+usa: diasHastaEnUruguay en src/app/api/cron/recordatorio-a-los-invitados/route.ts
+usa: leerFiestasCrudas en src/lib/whatsapp/avisos-al-cliente.ts
+usa: readDataConDetalle en src/app/api/cron/asistente-proactivo/route.ts
+usa: precargaDesdeFiesta en src/app/(app)/presupuestos/nuevo/crear/page.tsx
+usa: updateFiestaPresupuestoId en src/app/(app)/presupuestos/nuevo/crear/page.tsx
+usa: crearHref en src/app/(app)/presupuestos/nuevo/page.tsx
+usa: CrmLeadTimeline en src/app/(app)/contabilidad/crm/page.tsx
+usa: parseUruguayDate en src/app/(app)/contabilidad/crm/agenda/page.tsx
+usa: prepararReintentoDePlanilla en src/app/(app)/fiestas/nueva/invitados/page.tsx
+usa: datosDeLaReunion en src/app/actions/notifications.ts
+usa: datosDeLaReunion en src/app/actions/agenda.ts
+usa: mutateGenericJsonArray en src/app/actions/simulator-agenda.ts
+usa: mutarComentarios en src/lib/social-media/comments-backfill.ts
+usa: mutarComentarios en src/app/actions/comentarios-redes.ts
+prueba: src/__tests__/la-hora-de-uruguay-en-agenda-y-recordatorios.test.ts
+prueba: src/__tests__/tareas-no-corren-con-la-base-caida.test.ts
+prueba: src/__tests__/enlaces-y-planillas-leen-lo-que-reciben.test.ts
+prueba: src/__tests__/citas-y-comentarios-fusionan-sobre-lo-actual.test.ts
+```
+
+## 12 de octubre de 2026 — Barrido de plata: doble toque, ajustes a medias y saldos que ignoraban cobros
+
+- **Cancelar servicios / cambiar la fecha desde el portal:** un doble toque sumaba dos multas o dos recargos del 10%
+  (la segunda sobre el total ya ajustado). Ahora el cálculo corre adentro de la transacción del presupuesto, sobre el
+  dato recién leído; si ya estaba cancelado o la fecha ya era la pedida, devuelve "ya estaba" sin cobrar de nuevo, y
+  queda una marca (`ajustesAplicados`). Orden elegido: primero el presupuesto, después el documento y la fiesta; si
+  eso falla se **revierte el presupuesto** (más simple y seguro que guardar la fiesta primero: una fiesta cambiada sin
+  multa es plata perdida). El botón del portal además no deja salir una segunda llamada.
+- **Ajuste de precios "ambos" y revertir:** el registro se anota antes de tocar nada y cada parte hecha se marca; el
+  reintento termina sólo lo que falta (antes subía los precios dos veces).
+- **Insumos:** el marcador de ajuste pendiente se escribe ANTES de guardar los costos (con los costos finales
+  anotados, así repetir no multiplica); y el costo se redondea a 2 decimales, porque con enteros un insumo de $6
+  con +5% no subía. Un error al llevar el costo a los menús se devuelve como error (antes escapaba sin marcador).
+- **Servicios de la empresa:** guardar, borrar y ajustar ya no escriben la lista entera de un cache de 15 s: cada
+  servicio se guarda o borra solo; el ajuste masivo lee fresco y con marcas de lectura; `servicios` entra en las
+  colecciones que no se borran por omisión.
+- **Saldos:** el recibo de pago, "Saldo por cobrar hoy" del panel en vivo y la liquidación de una fiesta suspendida
+  usan el estado de cuenta oficial (cobros confirmados del presupuesto, con el ajuste anual).
+- **Doble toque en presupuestos:** crear la fiesta de un presupuesto no puede duplicarse (chequeo y creación bajo
+  un turno); "enviar" no baja a Enviado un presupuesto Aceptado/Facturado, firmado o con cobros.
+- **Aprobar pago informado:** el mail sale sólo si esa llamada hizo el cambio (la fiesta se actualiza en transacción),
+  y sin presupuesto no se marca aprobado.
+- **Ganancia:** Finanzas, Analíticas y Flujo de caja usan `calcularGananciaDeEvento` (el flujo toma "lo que falta
+  gastar"); el mismo mes ya no da números distintos.
+- **Por qué así:** una operación de plata se decide sobre el dato leído adentro de la transacción, y todo lo que
+  mueve varias partes anota primero qué va a hacer. Límite conocido: el turno de creación de fiestas vive en un
+  servidor; con dos servidores a la vez el chequeo previo es lo que protege.
+
+```comprobar
+archivo: src/lib/budget/mutar-presupuesto.ts
+usa: mutarPresupuesto en src/app/actions/fiesta/portal.actions.ts
+usa: mutarPresupuesto en src/app/actions/presupuestos.ts
+usa: ajustesAplicados en src/app/actions/fiesta/portal.actions.ts
+usa: estadoDeCuenta.pagado en src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx
+usa: calcularEstadoDeCuenta en src/app/(app)/fiestas/nueva/en-vivo/page.tsx
+usa: calcularGananciaDeEvento en src/app/actions/analytics.ts
+usa: calcularGananciaDeEvento en src/app/actions/dashboard.ts
+usa: calcularGananciaDeEvento en src/app/admin/finanzas/page.tsx
+usa: SERVICIOS_COLLECTION en src/app/actions/servicios-empresa.ts
+prueba: src/__tests__/portal-cancelar-y-cambiar-fecha-no-se-aplican-dos-veces.test.ts
+prueba: src/__tests__/ajuste-de-precios-no-queda-a-medias-ni-se-duplica.test.ts
+prueba: src/__tests__/insumos-ajuste-marcador-antes-y-decimales.test.ts
+prueba: src/__tests__/servicios-empresa-guarda-de-a-uno.test.ts
+prueba: src/__tests__/los-saldos-usan-el-estado-de-cuenta-oficial.test.ts
+prueba: src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts
+prueba: src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts
+prueba: src/__tests__/ajustar-margenes-guarda-todos-los-menus-sin-colgarse.test.ts
+```
+
+
+## 12 de octubre de 2026 — Órdenes 156, 157 y 158: sin falsos éxitos, formulario nuevo vacío, títulos largos en celular
+
+- **156 (1) Último proveedor borrado reaparecía:** al borrar el último documento de una colección, la copia local no se
+  vaciaba (la lectura devuelve "nada" tanto si está vacía como si falló). Ahora se vacía sólo si una lectura directa
+  confirma que no queda nada; si esa lectura falla, no se toca la copia.
+- **156 (2) Plantilla base "eliminada" que volvía:** borrar una plantilla base (nunca editada) ya no anuncia éxito:
+  avisa que es una plantilla base. Si las bases se podrán ocultar o no lo decide el dueño; no se impuso esa política.
+- **156 (3 a 6) Sin estado de error:** Seguimientos comerciales, Post-fiesta y Automatizaciones muestran un aviso que
+  queda en pantalla cuando la lectura o la acción falla (nunca "Todo tranquilo", "No hay fiestas recientes" ni
+  "Revisión completa"), conservan lo que ya había y ofrecen Reintentar; "Crear avisos" avisa si falló.
+- **156 (7 y 8) Fiestas no leídas = cero fiestas:** Control Tower marca `fiestasNoSeLeyeron`, muestra alerta con
+  Reintentar, "—" en Fiestas próximas y no dice "Todo tranquilo"; Preparación devuelve error (no éxito vacío) y la
+  pantalla avisa en vez de "No hay fiestas para revisar". Un cero real sigue siendo cero.
+- **156 (9) Avisos silenciados contados como creados:** sólo cuenta como creado un aviso con `notification` y sin
+  `isDuplicate`; lo silenciado figura "Detectado". Mismo contrato corregido en "Crear avisos" comerciales.
+- **157 Nueva incidencia heredaba el caso anterior:** al guardar bien, se vacían título, descripción, plan y
+  seguimiento (responsable, categoría, prioridad y evento quedan como estaban). Si falla el guardado, el borrador se conserva.
+- **158 Títulos largos desbordaban en celular:** en los editores de activo fijo e insumo la fila del título envuelve
+  (`flex-wrap`), el título puede achicarse y partir palabras (`min-w-0`, `break-words`) y Volver no se achica. Guardar
+  Cambios ya estaba en su propia fila (el pie). No se tocó nada de cálculos.
+- **Por qué así:** un cero o un "listo" falso se confunde con uno real; el aviso tiene que decir qué no se pudo saber.
+
+```comprobar
+archivo: src/lib/data-service.ts
+prueba: src/__tests__/collection-fallback-empty-after-delete.test.ts
+usa: fiestasNoSeLeyeron en src/app/control-tower/page.tsx
+usa: loadError en src/app/control-tower/comercial/page.tsx
+usa: loadError en src/app/control-tower/post-fiesta/page.tsx
+usa: setError en src/app/control-tower/automatizaciones/page.tsx
+prueba: src/__tests__/orden-156-acciones-no-mienten.test.ts
+prueba: src/__tests__/orden-156-paginas-del-centro-fallan-con-aviso.test.tsx
+prueba: src/__tests__/incidentes-dialogo-nuevo-sin-caso-anterior.test.tsx
+prueba: src/__tests__/inventario-titulos-largos-en-celular.test.tsx
+```
+
+
+## 12 de octubre de 2026 — La noche de la fiesta sigue siendo "hoy", y los enlaces con fiestaId abren esa fiesta
+
+- **Qué pasaba:** el servidor cuenta en hora de Greenwich, y desde las 21:00 de Uruguay ya era "mañana".
+  Los tótems y la Plataforma 360 dejaban de encontrar la fiesta de esa misma noche; "ya pasó" marcaba como
+  pasada la fiesta de hoy; los días que faltan (torre de control, automatismos, inteligencia comercial y
+  posevento) salían corridos un día; los mensajes de mañana aparecían como "para hoy"; y el tope diario de
+  búsquedas del asistente se reiniciaba a las 21:00.
+- **Cómo quedó:** todo cuenta el día de Uruguay (`hoyEnUruguay`, y `diasHastaEnUruguay` en `src/lib/utils.ts`,
+  una sola función que usan las cuatro pantallas). El mismo día nunca cuenta como pasado.
+- **Enlaces con `?fiestaId=`:** la tienda de servicios contratados, el Centro y los atajos Centro total y
+  Mission Control ignoraban el parámetro y mostraban la "fiesta actual", que puede ser otra. Ahora abren la
+  fiesta pedida (y si no existe, no muestran otra). Video de Vida no recibe `fiestaId` de ningún enlace: se deja.
+- **Por qué así:** una fiesta equivocada en pantalla es plata o logística de otro cliente.
+
+```comprobar
+archivo: src/lib/utils.ts
+usa: diasHastaEnUruguay en src/app/actions/control-tower.ts
+usa: diasHastaEnUruguay en src/app/actions/smart-automations.ts
+usa: diasHastaEnUruguay en src/app/actions/commercial-intelligence.ts
+usa: diasHastaEnUruguay en src/app/actions/post-event-intelligence.ts
+usa: hoyEnUruguay en src/app/actions/fiesta-actual.ts
+usa: hoyEnUruguay en src/app/actions/scheduled-messages.ts
+usa: hoyEnUruguay en src/app/actions/multiagent.ts
+usa: hoyEnUruguay en src/lib/commercial-flow/puesta-al-dia.ts
+usa: getFiestaById en src/app/(app)/fiestas/nueva/servicios-contratados/page.tsx
+usa: getFiestaById en src/app/(app)/fiestas/nueva/centro/page.tsx
+prueba: src/__tests__/la-noche-de-la-fiesta-sigue-siendo-hoy.test.ts
+```
+
+## 12 de octubre de 2026 — Barrido de permisos: lo que sólo pedía sesión ahora pide el perfil
+
+- **Qué pasaba:** muchas acciones pedían sólo "tener sesión", y el personal y el operador también la tienen.
+  Entre otras: la clave de WhatsApp y los tokens de las redes se podían leer, y la bandeja de WhatsApp, los pagos al
+  salón, el plan de pagos del contrato, los clientes, los proveedores, el borrado masivo y las plantillas.
+- **Ahora, por grupo:** WhatsApp y redes con claves, sólo administración (el webhook sigue entrando con su llave
+  interna, y las pantallas del equipo que sólo muestran qué está conectado usan la versión pública sin tokens);
+  bandeja de WhatsApp, mail del outbox, respuesta a reseñas y marketing, CRM; pagos al salón y plan/texto del contrato,
+  contabilidad (y `contratoDatos`/`contratoServicioTexto` se suman a lo que el guardado general de la fiesta no cambia
+  sin contabilidad); `getSalones` saca los pagos a quien no es contabilidad y el gerente a quien no es CRM/organización;
+  cambiar un presupuesto y aprobar pedidos del cliente, contabilidad o CRM; clientes, CRM o contabilidad (verlos suma
+  organización); proveedores, insumos o contabilidad; borrados y reseteos masivos, sólo administrador; plantillas,
+  administración u organización. Las lecturas de plantillas que usan todas las pantallas siguen con sesión.
+- **Por qué se dejó `savePresupuesto` con organización:** el configurador de la reunión de organización lo usa, y ya nace
+  sin cobros ni firma y como propuesta (auditoría 71). Lo que no se puede es cambiar uno hecho (`updatePresupuesto`).
+- **Candado:** `el-candado-de-la-plata` ahora ve `salones.json`, `pagos`, `contratoDatos`/`planPagos`, también los
+  archivos que empiezan con comentario antes de `'use server'` (se los saltaba), y frena toda acción que devuelva claves
+  o tokens de conexiones con sólo sesión.
+
+```comprobar
+usa: ADMINISTRACION en src/app/actions/whatsapp.ts
+usa: ADMINISTRACION en src/app/actions/social-connections.ts
+usa: CONTABILIDAD en src/app/actions/salones.ts
+usa: CONTABILIDAD en src/app/actions/fiesta-actual.ts
+usa: contratoDatos en src/app/actions/fiesta/fiesta.actions.ts
+usa: requireAdminSession en src/app/actions/fiestas-historicas.ts
+usa: requirePermisoAlguno en src/app/actions/customers.ts
+usa: requirePermisoAlguno en src/app/actions/proveedores.ts
+prueba: src/__tests__/barrido-de-permisos-personal-y-operador.test.ts
+prueba: src/__tests__/el-candado-de-la-plata.test.ts
+```
+
+## 12 de octubre de 2026 — Orden 155: los documentos de plata y sueldos piden permiso, y el procesador de imágenes al día
+
+- **Qué pasaba:** contratos de clientes y del salón, presupuestos, comprobantes de pago y contratos
+  laborales se bajaban con cualquier sesión: el operador y el personal también. Lo mismo el firmador
+  genérico de archivos (abre cualquier archivo guardado) y la exportación de presupuestos al tablero.
+- **Ahora:** contratos, presupuestos, comprobantes, el firmador y la exportación piden CONTABILIDAD
+  (dueño y secretaria); el contrato laboral pide SUELDOS (sólo el dueño: la secretaria factura pero no
+  ve sueldos, como ya decía el reparto de perfiles). Sin sesión, 401; sin permiso, 403, antes de leer.
+- **Barrido:** se miraron todas las rutas de `src/app/api` que pedían sólo sesión. Las descargas de
+  fotos, buzón y recuerdos de la fiesta quedan con sesión (las usa el operador la noche del evento);
+  la conexión de Google queda igual (cada empleado conecta la suya).
+- **Imágenes:** el procesador de imágenes de la web (sharp) pasó de 0.34.5 a 0.35.5, que Next admite
+  y cierra los tres avisos de memoria. Se fija con un override y quedó una sola versión.
+
+```comprobar
+usa: requirePermiso en src/app/api/employee-contracts/[filename]/route.ts
+usa: requirePermiso en src/app/api/contracts/[filename]/route.ts
+usa: requirePermiso en src/app/api/payment-proofs/[filename]/route.ts
+usa: requirePermiso en src/app/api/salon-contracts/[filename]/route.ts
+usa: requirePermiso en src/app/api/analytics/looker-export/route.ts
+prueba: src/__tests__/los-documentos-de-plata-piden-permiso.test.ts
+```
+
+## 12 de octubre de 2026 — Orden 154: conexiones y redes dicen cuando no pudieron leer
+
+- **Qué estaba mal:** si fallaba la lectura, "¿Qué está conectado?" decía "0 plataformas / 0 conectadas" y
+  Redes sociales, al cerrarse el cartel de error, quedaba en "No hay publicaciones / Todos (0)". Y el historial de
+  Instagram decía "Sincronización en curso" siempre que no estuviera completo, aunque nunca se hubiera intentado.
+- **Cómo quedó:** si nunca cargó, aviso "No pudimos leer…" con Reintentar y sin contadores; si ya había datos, se
+  conservan con el aviso "puede estar desactualizado". Instagram dice: "Todavía no se sincronizó", "La última
+  sincronización falló" (con motivo), "Historial parcial: N publicaciones traídas" o "Historial completo". "En curso"
+  no se muestra porque el servidor no guarda ninguna operación activa. En Redes, `getSocialPosts` ahora lanza si
+  la lectura falló (antes devolvía lista vacía) y el Reintentar sólo vuelve a leer, no llama a proveedores.
+- **Por qué así:** un cero falso se confunde con un cero real. La autorización no cambió (sin permiso sigue
+  devolviendo vacío). El centro de Presencia Digital, que también lee esa lista, sigue mostrando vacío si falla
+  (`.catch`) para no romperse; no era parte de la orden.
+
+```comprobar
+archivo: src/app/actions/social-media.ts
+usa: readDataConDetalle en src/app/actions/social-media.ts
+usa: estadoHistorialInstagram en src/app/(app)/settings/sincronizaciones/page.tsx
+usa: sinLectura en src/app/(app)/empresa/redes-sociales/page.tsx
+prueba: src/__tests__/conexiones-sincronizaciones-error-y-reintento.test.tsx
+prueba: src/__tests__/redes-sociales-error-y-reintento.test.tsx
+prueba: src/__tests__/get-social-posts-no-convierte-falla-en-vacio.test.ts
+prueba: tests/e2e/conexiones-redes-error-y-reintento.spec.ts
+```
+
+
+## 12 de octubre de 2026 — Tres pruebas de navegador que fallaban tras React 19 y el selector de fechas 9 (la app andaba bien)
+
+- **Simulador, avanzar de mes y elegir fecha (`simulator-budget-journey`):** causa medida: la prueba buscaba
+  `button[name="next-month"]` y `button[name="day"]` del selector de fechas 8; el 9 usa otro HTML. La persona
+  avanza de mes y elige fecha igual (computadora y celular). Prueba corregida con nombres accesibles
+  ("next month" y el día 15 dentro de la grilla). Los rótulos del botón son en inglés ahora y antes: no hubo cambio.
+- **Simulador, "no tiene cómo cerrar" (`prospecto-simulador`):** causa medida: la prueba buscaba una celda
+  llamada "15"; en la 9 el nombre lo lleva el botón del día, así que nunca elegía fecha y se quedaba en el paso 2
+  ("Seleccioná la fecha"). No era `checkDateAvailability`: elegida la fecha el recorrido llega al cierre.
+- **Muro en vivo (`public-experience-matrix`):** causa medida (probando la pantalla anterior y la actual): la
+  prueba esperaba el cartel "Muro social en vivo" (muro vacío), que sólo se veía unos 200 ms mientras cargaba el
+  programa; el estado estable de esta fiesta (con programa y sin fotos) es "Qué viene ahora en la fiesta", antes y
+  ahora. La pantalla no cambió de comportamiento; la prueba ahora mira el estado estable.
+
+## 12 de octubre de 2026 — Orden 153: Google dice el estado real de la cuenta
+
+- **Qué estaba mal:** en Ajustes > Google Workspace, una cuenta de AK que Google ya no aceptaba
+  (hay que volver a conectarla) figuraba "Conectada" con tilde verde y dejaba tocar "Sincronizar
+  fiestas". Y un empleado con error contaba como conectado en el contador y en el porcentaje.
+- **Cómo quedó:** la pantalla mira el estado real. "Hay que volver a conectar" o "Con error" (con el
+  motivo si lo hay), el botón de conectar sigue visible y las sincronizaciones quedan deshabilitadas.
+  El contador y el porcentaje cuentan sólo empleados conectados; los que tienen problema siguen en la
+  lista con su aviso (campo nuevo `employeesNeedingAttention`, sin cambiar el significado de los otros).
+  La cuenta de servicio válida sigue andando sin pedir el ingreso con Google.
+- **Por qué así:** "existe el registro" no es "anda". No se promete un chequeo remoto que no se hace.
+
+```comprobar
+archivo: src/app/actions/google-workspace.ts
+usa: employeesNeedingAttention en src/app/(app)/settings/google-workspace/page.tsx
+prueba: src/__tests__/google-workspace-estado-real.test.tsx
+prueba: tests/e2e/google-workspace-estado-conexion.spec.ts
+```
+
+## 12 de octubre de 2026 — Revisión de lo que programó Codex (PR 1288) y el simulador que decía "libre"
+
+- **Revisado el código de Codex** antes de fusionar: cupones (permisos sin cambios; las fechas ahora
+  cuentan el último día entero en hora de Uruguay), la lectura de fiestas que ahora avisa cuando la base
+  falla en vez de mostrar datos viejos, el cambio a React 19, el lector de QR girado (no saltea la
+  validación del servidor) y el muro. Sin defectos graves.
+- **Arreglado:** el simulador público decía "fecha libre" si no podía leer el calendario. Ahora avisa
+  "No pudimos verificar la disponibilidad ahora… AK confirmará la fecha antes de la reserva" (en las dos
+  pantallas del simulador y en el asistente del simulador).
+- **Tres pantallas** tocadas sólo en el tipo de sus íconos por React 19 ganaron una prueba que cuenta
+  los íconos y lee los textos.
+- **Dependencias:** 89 avisos clasificados (`docs/evidencias/152-avisos-dependencias.md`): 76 son de
+  herramientas que no viajan a la web y 13 están en funciones que la app no usa. Ninguno es riesgo real
+  hoy. Los tres parches menores de producción quedaron sin aplicar: el instalador los dejaba mezclados
+  con la versión vieja, y no se sube un cambio de dependencias a ciegas.
+- **Método:** preguntas 49 a 56 en `docs/COMO-AUDITAR.md` y 41 a 45 en `ANTES-DE-ENTREGAR.md`.
+
+```comprobar
+prueba: src/__tests__/el-simulador-no-dice-libre-si-no-pudo-leer.test.ts
+prueba: tests/e2e/pantallas-con-iconos-react19.spec.ts
+archivo: docs/evidencias/152-avisos-dependencias.md
+```
+
+## 12/10/2026 - Codex106: salón y parches comprobados; NO cierre global
+
+- Base PR1288/48829bfd, main99faf4eb: no se repite la auditoría105 aprobada.
+- 4 fallos de navegador PC/celular contra appa33: ayuda dentro del lienzo y
+  Recorrer sin movimiento real. El estado sólo movía el icono y el aviso.
+- Corrección: ayuda encima del lienzo, autoRotate enganchado a OrbitControls,
+  Pausar recorrido y aviso sin prometer pantalla completa. No cambia geometría.
+- Primer retest:6pass/2fail. La pausa retenía inercia; se desactiva damping
+  sólo durante el giro automático, conservándolo al mover la cámara a mano.
+  Se conserva el fallo y la prueba no se afloja. Rueda sólo se indica en PC.
+- Dos parches compatibles lock-only: busboy3.2.2 y source-map-js1.2.2.
+  3 pruebas fallan con bibliotecas anteriores y pasan con las parcheadas.
+- Retest b720: 4138 pruebas y 8 de navegador pasan, pero la inspección visual
+  descubre otro defecto: se anuncian12 mesas y se muestra un salón vacío.
+  La pantalla mandaba elements/primaryColor; SalonScene consume salonElements/
+  colorPalette. Se usan ahora los campos reales y un Pick estricto para evitar
+  repetir el desenganche. El título tenía contraste1.001:1; queda blanco localmente.
+  Los colores se mantienen circulares44px sin compresión y señalan selección.
+  Se rectifica cualquier interpretación de "salón vacío esperado": era un fallo.
+  El canvas no vacío y la cámara girando NO comprueban el mobiliario anunciado.
+- Prueba del consumidor real: viejo falla por salonElements undefined; corregido
+  entrega12 mesas/pista/DJ/barra, LEDazul y13 mesas al aumentar invitados.
+  Catálogo/renderer/precios se aíslan sólo en esta prueba; la escena se comprueba
+  aparte con WebGL real. Un mock inicial vacío y el aforo10 mal esperado se
+  corrigen en el harness, NO son errores nuevos de la app.4 focalizadas pasan.
+- Al dibujar la pista real, sus luces animadas cambian los píxeles aunque la
+  cámara esté quieta. La vieja prueba de pausa da rojo3.6%-3.8%; aún no acredita
+  cámara en movimiento. La sonda nueva observa viewMatrix del WebGL real sólo
+  en el navegador de prueba; NO se añade telemetría ni puerta de prueba a la app.
+  Giro debe cambiar matriz y píxeles; pausa debe conservar la matriz(1e-6).
+  Retest final: matriz gira(PC0.0394, móvil0.0684) y pausa0 en ambos.
+  Sonda inicial getParameter agotó120s en móvil; se observa bindFramebuffer sin
+  consulta GPU por frame. Se conserva el timeout y el mismo límite120s.
+  TSC auxiliar2GB agotó memoria;4GB aprobó. No se modifica la app para aprobar.
+- Fuente app8fa5b56a2833938541a657dcd15ef88130d24b0e:4focalizadas, tipos,
+  acentos2771archivos,692suites/4139Jest y build canónico exit0, lint/tipos/PWA activos.
+  Navegador12casos únicos aprobados:11de ronda general +2cámaras repetidas;
+  se reemplaza el resultado anterior de cada cámara, NO se inventa una corrida12/12.
+  Harness6c3d6971 difiere de8fa sólo en E2E/documentación, app idéntica.
+- Audit:27GHSA únicos pendientes,4menos y ninguno nuevo;0critical NO significa
+  seguridad total. Standalone apagado sólo en QA local; no certificado Firebase.
+- Fricción observada aparte: barra flotante tapa parte de Guardar en capturaPC.
+  No se probó el guardado ni se rediseñó el asistente en esta tanda. No darlo cerrado.
+- Evidencia106 separada, se conserva105 para su SHA. No todos los botones,
+  cuentas reales,19originales manuales ni hardware físico acreditados.
+- Graphify actualizado localmente:13713nodos/42463relaciones/838comunidades;
+  log106 conservado. Salida ignorada por Git, no se afirma entrega remota del grafo.
+  Orden152 deja a Claude el contraste del guardado/solapamiento y triageGHSA;
+  no acredita que haya comenzado ni repite las correcciones106.
+
+## 11/10/2026 - Codex105: 3D, QR y calendarios probados; NO cierre global
+
+- Fuente app a33a54d91bf704f52fe11d1afbc956ebd8e819a5. Harness e7f5e7fc
+  SOLO corrige el selector E2E de Cola de Mensajes (enlace, no boton).
+  La guarda del corredor rechaza cualquier diferencia de app frente al build.
+- 3D reunion/vista cliente PC/movil:4pass, canvas real y movimiento mouse/tactil.
+  React19/Fiber9/Drei10 dibujan; foto fallback NO acredita 3D. Geometria intacta.
+- DayPicker9 tenia2defectos moviles: caption sobre flecha en agenda e interceptaba
+  clicks en redes. Nav sobre caption, eventos solo en botones, padding reservado;
+  accesos agenda envuelven. Retest calendarios4pass y QR real4pass, sin forceclick.
+- Tras React, SDK demo: mural4pass, aviso de fechas2pass, portal4pass (inexistente,
+  caida real de Query.get y Reintentar conserva datos). No cuentas ni datos reales.
+- Tipos/build canonico exit0, lint/tipos/PWA activos;690suites/4135tests0fail/0skip.
+  Standalone desactivado SOLO en QA local: empaquetado Firebase no certificado.
+  Capturas/hashes/JSON comprimidos en105; se conservan fallos anteriores.
+- Pendiente aparte: ayuda3D movil solapada con controles flotantes. No todos los
+  controles, permisos,19 originales, cuentas ni hardware certificados.
+- Audit0critical pero31GHSA unicos pendientes: NO seguridad total.
+- Antecedentes siguientes son etapas anteriores, NO estado final105.
+
+- Segunda congelacion4aed259f53f20fb010a27c270edcec634f1937e7: el audit
+  encontro handlebars4.7.9 y proxy-addr2.0.7 ya presentes en d0. Se parcha
+  SOLO a4.7.10/2.0.8, compatibles con sus consumidores Genkit/Express.
+  Regresion con librerias reales:2fallos contra versiones anteriores y2pass
+  con las nuevas; no se afirma explotacion en una ruta publicada.
+- Audit productivo ahora0criticos, pero27high/65moderate/2low pendientes
+  de clasificar; NO certificacion de seguridad. JSON antes/despues conservado.
+- Corrida33ad:689suites/4132tests pasan,0omitidos. Tipos4aed exit0.
+  Se interrumpio build33ad antes de instalar el parche; nuevo build pendiente.
+
+- Fuente congelada33adb2843b8dd5fa0260659e9365fdd677c993a8; PR1288 sigue
+  abierta. React19/Fiber9/Drei10 reemplazan la mezcla de renderizadores y el
+  parche de internals. No cambia geometria, cobros, permisos ni servicios.
+- Se adaptan QR a QRCodeCanvas y calendarios a DayPicker9; iconos: solo tipos
+  SVG. React19.2.8/Next15.5.27; lock acotado, sin actualizar todo el arbol.
+- Instalacion privada limpia: npm ci --ignore-scripts --no-audit --no-fund
+  exit0, sin force/legacy-peer-deps. Omite prepare porque .git es archivo en
+  worktree; NO prueba el hook. Tipos33ad exit0; acentos2764 archivos exit0.
+- Jest inicial:4131pass/1fail, exigia renderAs de la API antigua. Se conserva
+  fallo y se exige import+consumo QRCodeCanvas, sin quitar pruebas del token.
+  Corrida final completa en curso; compilacion/navegador pendientes.
+- Preflight dev: la pagina quedo cargando, WebGLtrue pero no hubo canvas.
+  NO acredita 3D arreglado ni identifica por si solo la causa. Resultado,
+  captura y SHA en 105-3d-dev-inicial; no ocultarlo ni darlo por aprobado.
+- Las aceptaciones102-104 se conservan como historicas de sus SHAs. El cambio
+  de dependencias requiere validar sus consumidores, no trasladar verdes.
+
+## 11/10/2026 - Codex102: autorizacion de correccion directa y lector151
+
+- Graphify: npm run graphify:update ahora usa --code-only para actualizar
+  AST/relaciones sin llaveLLM ni gastos de API. El comando anterior se freno
+  por dos documentos sin llave; NO era un error de la app ni una corrida verde.
+  No cambia dependencias/build de produccion. Los documentos se conservan
+  como registro compartido; no afirmar extraccion semantica de esos documentos.
+- Cierre103/104: QR147 pantalla real+SDK8pass (cuatro PNG por PC/movil,
+  llegada y reentrada sin duplicar); mural4pass (vacio/foto en PC/movil,
+  geometria y foto sin CSS forzado). Fechas2pass. Portal104 sobrea6d20861:
+  inexistente y fallo real se distinguen, Reintentar recupera y conserva SDK;
+  4pass. No reabrir esos criterios como pendientes por las notas anteriores.
+  Build104 a6 completo exit0, incluidos tipos/lint; no se omiten controles.
+  CompletaJest104 sobrea6:688suites/4129tests pasan, cero fallidos/omitidos.
+  Resumen104 y JSON completo comprimido con hash permiten reutilizar evidencia
+  sin leer miles de resultados por chat. No convertirlos en0errores de toda app.
+- Salon3D103: WebGLtrue/canvas0 PC/movil, errorReactCurrentBatchConfig real.
+  El candidato React19/Fiber9/Drei10 en copia privada NO paso tipos ni lock;
+  no se integra ni se fuerza npm. Geometria4tests/foto de respaldo no acreditan
+  escena. Sigue pendiente; no confundir esta propuesta con una app sin errores.
+- Retest compilado103: lector151 ya muestra el aviso correcto, pero Reintentar
+  solo reseteaba el cliente sin pedir otra lectura del servidor (PC/movil2fail).
+  El boton recarga el MISMO enlace, que es lo que permite recuperar la lectura;
+  no redirige al administrador ni modifica los datos. Retest104 verde arriba.
+- Cupones, consumidores finales: selector de regalos y etiquetas de ajustes
+  todavia comparaban fechas aparte y vencian antes. Usan la misma regla temporal;
+  fechas se muestran en Uruguay y se preserva el dia de ISO historico medianoche.
+  No cambia quienes tienen permiso, los usos ni los regalos ofrecidos.
+  Nuevo recalcula hoy en Uruguay al abrir, no en UTC al cargar el archivo;
+  conserva90dias/10porciento de defaults. Uso registrado es instante, no dia
+  elegido: su fecha se muestra en Uruguay sin convertir medianoche en otra fecha.
+- Cupones: el ultimo dia se calculaba en la zona del servidor, que podia
+  vencerlos antes de terminar el dia del negocio. Limites del dia en Uruguay;
+  se conserva una hora de inicio explicita y se rechazan fechas imposibles.
+  No cambia importe, usos ni descuento. Regresion probada tambien con TZ=UTC.
+- La corrida general inicial encontro tres fallos: cupon real; test de permiso
+  que consultaba Firestore sin fixture; contrato estatico del mural con nombres
+  anteriores. Los dos tests se ajustan a su frontera y al componente ya probado,
+  sin debilitar permisos ni sustituir la prueba de comportamiento del mural.
+  Sus 15 comprobaciones focalizadas pasan. Completa4c:686suites/4122tests pasan.
+- El dueno autoriza ahora a Codex corregir directamente con agentes economicos.
+  Se conserva PR1288 abierta, sin fusionar ni tocar datos reales.
+- Lector151: listCollectionFromFirestore ofrece throwOnError optativo; la
+  lectura de fiestas lo exige y no reemplaza una consulta fallida por JSON local.
+  Se mantienen vacio real, modo local, ausencia de SDK y omision durante build.
+- Nueva regresion recorre Query.get -> lectores REALES -> portal y fechas,
+  sin mockear leerFiestasCrudas/getFiestas. 16 pruebas de dos suites pasan.
+  Prueba de navegador del reintento104 pasa; no certificar app entera por Jest.
+- QR147: el PNG exacto101 falla sin giro y decodifica a90/270 grados con
+  el decoder existente. Se reintenta el archivo a90/180/270 SOLO si falla,
+  sin modificar token/PNG original ni escaneo de camara ni checkInGuest.
+  La instalacion es idempotente. Prueba de archivo real PC/movil2pass;
+  entrada persistida/reentrada en pantalla103 pasa, ocho casos reales.
+- Mural: el componente REAL con chat pendiente no pintaba la foto aprobada;
+  sonda falla en source main99 y pasa corregida. Primarias pintan sin esperar
+  secundarias; cada secundaria conserva datos si falla. allSettled mantiene
+  el bloqueo hasta acabar todas, incluso si falla una primaria. Guardas de
+  montaje/generacion descartan respuestas viejas. 19 tests/4suites pasan.
+  Corregido el borrador del agente (destructuring errado/dos refs); NO se
+  publico ese borrador. Geometria/WebGL/Hosting no quedan aprobados por Jest.
+- Graphify AST local final:13603nodos/42342relaciones/838comunidades,
+  sin API/LLM ni dependencias de produccion. 25 advertencias del parser no
+  prueban errores TypeScript; no confundir extraccion con compilacion.
+  Actualizacion npm completa exit0,2515 archivos; no semantica de documentos
+  ni etiquetasLLM ni HTML gigante, no afirmar grafo local ignorado como remoto.
+- Recuento economico revisado: el agente interpreto mal el criterio149:
+  que A NO incluya B es el resultado correcto, aceptado101; NO reabrirlo.
+  QR147 y muralPC cerrados acotados arriba; 3D sigue pendiente real.
+  Hardware, cuentas externas, 19 originales y Hosting no quedan certificados.
+
+## 11/10/2026 - Codex101: entrega1290, aceptaciones acotadas y QR residual
+
+- Ejecutado main99faf4eb.149: miniwebpack real construye SDK con alias,
+  nativo y control; widget de FiestaA ante proveedor caido responde SOLO A,
+  PC/movil2pass. No repetir historia97 ni pagar modelos para este criterio.
+-150: mural vacio fixed y titulo pintado PC/movil2pass (panel590/659).
+  Foto principal movil decodificada natural602/opacity1/panel614 pasa.
+  FotoPC vista en capturas, geometria principal final NO aceptada: ultimo
+  intento muestra vacio/Reconectando, sin snapshotSDK individual al timeout.
+  Causa NO confirmada; NO nueva orden de bug por ese intento incompleto.
+-147: corto PC/movil2pass/reentrada no duplica; UUID exacto de99 PC/movil
+  2fail con nuevo PNG276x276 identico en ambos. Archivo conservado vuelve
+  a fallar,SDKintacto/checkedInfalse. Dos controles diagnosticos no aprueban
+  QR.147 ampliada, NO otra orden ni aumentar margen/DPR a ciegas.
+-151lector sin delta, NO sondas repetidas. Conservar aceptaciones88-100.
+-Errores/limites propios QA: PCfrio120s timeout, repetido SOLO PC pasa;
+  foto no debe recibir clicks bajo caption; intermedio midio fondo borroso.
+  Raw intermedios conservados; no contar esos intentos como defectos app.
+  Informe101 manda:7parespositivos/2negativos/1par parcial, NO app limpia.
+-Runtime101detenido/puertoslibres/fixturespropios cero. Agregadosdemochat/
+  memoria/consumo/rate-limit preservados hasta parada; no datosreales/build.
+  Sin dependencias de produccion ni programacion de app por Codex; PR1288
+  abierta. Claude registra compilacion/Hosting; no Actionsrojos/0errores.
+
+## 11/10/2026 - Codex100: lector real, dos avisos no reciben el fallo
+
+- Ejecutado main ca5b714d:portal valido ante corte controlado dice invalido/
+  expirado;presupuesto devuelve[]sin aviso de fechas. PCmovil4negativos;
+  documentos SDKintactos y recuperacion al quitar corte. Una causa/dos efectos.
+- NOsimular leerFiestasCrudas/getFiestas:Query.getfiestas falla en limite SDK,
+  cadena real listCollectionFromFirestore traga y devuelve[]. Los catches/
+  textos superiores existen pero no llegan a activarse;ord151Claude.
+- Clave realmente ausente PASA PCmovil. NOtoken caducado ni dato perdido.
+  No repetir148video ni144-146;147residuo/149/150sin delta conservados.
+- Error propio preparacion:helper crea JSON;dos corridas pararon ANTES de
+  auditar. Corregida sonda,retirados2docs/4archivos propios;NOdefectos de app.
+- Informe100/SDK/HTTP/PNG/raw/ord151/matriz juntos;agente economico solo
+  inventario de contratos, cerrado. No throwglobal ciego/buildlocal roto.
+- Runtime100detenido/puertoslibres/demo limpio. Nocodigoapp/build/mergePR;
+  no0errores/14limpias/cuentasreales/hardware/19originales certificados.
+
+## 11/10/2026 - Codex99: QR recibido, no cerrar por cuatro ejemplos
+
+- Ejecutado main ca5b714d/1289:8recorridos,6pass/2fail. Caso historico94
+  PCmovil PASA; dos patrones moviles nuevos NOleen. No volver al codigo viejo.
+- PNGexactos preservados; misma imagen reintentada confirma checkedInfalse.
+  Cambiar ancho NOarregla;DPR1solo resuelve corto,UUIDno. No tamano universal.
+- Informe99/raw/SDK/capturas amplian147;NOorden duplicada.149/150sin delta
+  de causas,no repetir.144-146/148 aceptados98 siguen conservados.
+- Conflictos de registros resueltos conservando notasClaude yCodex; producto
+  identico a main,NOprogramacion app/mergePR por Codex.
+- Runtime99detenido/puertoslibres,datosdemo/locales propios retirados.
+  Helperlimpieza tenia ruta localTEMP98:esa parte NOusada;control TEMP99
+  separado en99-limpieza-verificada.json. No ocultar fallo de la propia QA.
+- No build/cuentasreales/Hosting/hardware/19originales;no0errores/14limpias.
+
+## 11/10/2026 - Codex98: cuatro arreglos recibidos, retest aprobado
+
+- Fuente755f0707 exacta:18 ejecuciones pass/16pares distintos PCmovil.
+- 146:Cortar antes de ficha NOabre micro/socket/panel;503 reintenta un clic.
+- 148:fallo de lectura avisa,conserva archivo y bloquea sobrescritura;reintenta.
+  Galeria genuinamente vacia permite subir;URLfirmadareal NOcertificada.
+- 145:Touchpix tiene imagen nativa/color,descarga bytes/segunda captura con
+  imagen;sin cuadro avisa/reintenta y NOcrea foto. Nohardware/transformacionIA.
+- 144:Visiondummy caido generaUNpending,avisa aprobacion;no en muralPUBLICO
+  cargado;recarga no duplica. No afirmar reenvio concurrente probado.
+- Informe98/raw/capturas/limpieza:10sesionespropias demo retiradas,runtime
+  detenido/puertoslibres. Sin cambios app/build/merge;no0errores/app completa.
+- No reprogramar144/145/146/148 por negativos historicos.149dosP2,147QR,3D,
+  19originales/cuentasintegraciones/releasehardware conservan limites separados.
+- NUEVO150P1:captura mural parecia vacia;sonda PCmovil confirma padres0px,
+  texto recortado auntras8s/toBeVisiblePASA;CSSlive>*positionrelative ganafixed.
+  Control SOLOpositionfixed da540/659px y texto pintado.4fail/UNAcausa,
+  NOapp corregida. Se agrega a1288;no reabrir moderacion144 por este fallo.
+
+## 11/10/2026 - Codex97: IA contextual; conservar lo aprobado
+
+- Ejecutado9a/contrastado755: DOS defectos nuevos, orden149Gemini/Claude.
+- Primer ai.generate falla NodeSDKantesGoogle; alias sdk-node:false sigue.
+  NativoSI/webpackconfigactualNO/control quitandoesealiasSI. Hosting no probado.
+- Respaldo agenteFiestaA pone pendientesB primero:PCmovil2fail, SDK/UI real.
+  buildFallback usa itemsglobales, no byAgent/fiesta. No fuga entre cuentas.
+- Chat/APIpersistenciaA-B y NOtarea ficticia pasanPCmovil2pass. No chat-store
+  roto ni reauditoria voz146. Sin modelo real/voz fisica/autonomia certificada.
+- 1286/1287 fusionadas por otraIA; nueva rama QA97desde755. NO repetir144/145/
+  146/148:codigo correctivo presente, retest separado.147retirado sigue abierto.
+- Runtime97 detenido/fixtures propios retirados; cinco agregadosSOLOdemo
+  preservados. Ningun dato real/envio/cobro/buildapp/merge por Codex.
+- Informe97/raw/capturas/minisonda/orden149/matriz84/ESTADO juntos. No0errores.
 ## 11 de octubre de 2026 — Orden 149: la IA arranca a la primera y el respaldo no mezcla fiestas
 
 - **Qué pasaba:** (1) la primera pregunta a la asistente después de arrancar el servidor fallaba con "NodeSDK is not a
@@ -12492,3 +13118,28 @@ Segundo ayudante: busqueda acotada de otros consumidores publicos directos del
 lector privado de empresa, sin otro fallo demostrado. Ambos ayudantes cerrados.
 Servidor de prueba detenido al acabar; copia compilada conservada SOLO para
 reproducir f790a002, no para aceptar una correccion posterior sin reconstruirla.
+
+## La pantalla de alertas no compilaba por arrastrar código del servidor (13 de octubre de 2026)
+
+La pantalla de alertas tomaba el texto del aviso al cliente de `avisos-al-cliente.ts`, que desde
+que guarda con `actualizarFiesta` arrastra `server-only`. El revisor de tipos y las pruebas pasaban;
+la compilación no. Los textos puros se movieron a `textos-avisos-al-cliente.ts` y la pantalla los
+toma de ahí. El control es la compilación de la puerta, que fue la que lo frenó.
+
+```comprobar
+archivo: src/lib/whatsapp/textos-avisos-al-cliente.ts
+usa: textos-avisos-al-cliente en src/app/(app)/alertas/page.tsx
+no-usa: whatsapp/avisos-al-cliente' en src/app/(app)/alertas/page.tsx
+```
+
+## La prueba de navegador del mantenimiento mira lo que manda la pantalla (13 de octubre de 2026)
+
+La prueba de la orden 159 intentaba guardar de verdad, y en el entorno de pruebas la escritura está
+apagada: no podía pasar. Ahora corta el pedido y comprueba que el reintento del mismo borrador mande
+el mismo trabajo y que cambiar el trabajo mande otro. Que el servidor deje una sola fila y un solo
+gasto lo sigue probando la prueba de Jest de la orden.
+
+```comprobar
+prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
+prueba: src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
+```

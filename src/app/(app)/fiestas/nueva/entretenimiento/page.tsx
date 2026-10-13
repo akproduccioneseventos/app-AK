@@ -235,7 +235,7 @@ const STATION_IDS: StationId[] = [
   'capsulaTiempo',
 ];
 
-const STATION_META: Record<StationId, { shortLabel: string; description: string; caption: string; icon: React.ElementType }> = {
+const STATION_META: Record<StationId, { shortLabel: string; description: string; caption: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }> = {
   fotocabina: {
     shortLabel: 'Fotocabina Social',
     description: 'Cabina clásica o tótem fotográfico para fotos con marco de la fiesta, impresión 10x15, QR y WhatsApp.',

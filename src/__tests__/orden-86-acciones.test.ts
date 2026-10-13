@@ -4,7 +4,12 @@
  * Se probo rompiendolo: sacando `requireAppSession` de cualquiera de las tres, su primera
  * comprobación se pone en rojo; y si "Proponer equipo" deja de conservar lo asignado, la segunda.
  */
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn(async () => undefined) }));
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn(async () => undefined),
+  // Sesión del dueño: pasa la guarda por permiso.
+  requirePermiso: jest.fn(async () => ({ ok: true, user: {} })),
+  requirePermisoAlguno: jest.fn(async () => undefined),
+}));
 
 const conexiones: any[] = [];
 jest.mock('@/lib/data-service', () => ({
@@ -28,7 +33,7 @@ jest.mock('@/app/actions/empleados', () => ({ getEmpleados: jest.fn(async () => 
 jest.mock('@/app/actions/roles', () => ({ getRoles: jest.fn(async () => [{ id: 'mozo', sueldoPorEvento: 1000 }]) }));
 jest.mock('@/lib/staff-agenda-data', () => ({ readActiveFiestasForStaffAgenda: jest.fn(async (leer: () => any) => leer()) }));
 
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { obtenerPropuestaEquipoAction } from '@/app/actions/fiesta/proponer-equipo.actions';
 import { cargarResenasGoogleAction, publicarRespuestaResenaAction } from '@/app/actions/google-business-resenas';
 import { getGoogleBusinessReviews, replyToGoogleBusinessReview } from '@/lib/social-media/google-business-resenas';
@@ -56,8 +61,8 @@ describe('Proponer equipo', () => {
 });
 
 describe('Reseñas de Google', () => {
-  it('sin sesión no le pregunta nada a Google', async () => {
-    sinSesion();
+  it('sin permiso no le pregunta nada a Google', async () => {
+    (requirePermisoAlguno as jest.Mock).mockRejectedValueOnce(new Error('Tu perfil no tiene acceso a esta parte.'));
     await expect(cargarResenasGoogleAction()).rejects.toThrow();
     expect(getGoogleBusinessReviews).not.toHaveBeenCalled();
   });
@@ -71,8 +76,10 @@ describe('Reseñas de Google', () => {
 
   it('publicar una respuesta llama a Google una sola vez, y sin sesión ninguna', async () => {
     conexiones.push({ platform: 'Google', isConnected: true, accessToken: 'tok', locationId: 'accounts/1/locations/2' });
-    sinSesion();
-    await expect(publicarRespuestaResenaAction('r1', 'Gracias!')).rejects.toThrow();
+    (requirePermiso as jest.Mock).mockResolvedValueOnce({ ok: false, error: 'Tu perfil (Personal) no tiene acceso a esta parte.' });
+    const rechazada = await publicarRespuestaResenaAction('r1', 'Gracias!');
+    expect(rechazada.success).toBe(false);
+    expect(rechazada.error).toMatch(/perfil/);
     expect(replyToGoogleBusinessReview).not.toHaveBeenCalled();
     const r = await publicarRespuestaResenaAction('r1', 'Gracias!');
     expect(r.success).toBe(true);

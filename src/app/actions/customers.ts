@@ -9,6 +9,20 @@ import { createNotification } from '@/lib/notifications/create-notification';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import * as logger from '@/lib/logger';
 import { verifySession } from '@/lib/auth/session-token';
+import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+
+/** Quien puede VER fichas de clientes (teléfono, documento, dirección). */
+const VER_CLIENTES = [PERMISOS.CRM, PERMISOS.CONTABILIDAD, PERMISOS.ORGANIZACION] as const;
+
+/** Quien puede crear, cambiar o borrar clientes: nunca el personal ni el operador. */
+async function requirePermisoParaTocarClientes(): Promise<{ ok: true } | { ok: false; error: string }> {
+  for (const permiso of [PERMISOS.CRM, PERMISOS.CONTABILIDAD]) {
+    if ((await requirePermiso(permiso)).ok) return { ok: true };
+  }
+  const r = await requirePermiso(PERMISOS.CRM);
+  return { ok: false, error: r.ok ? 'Tu perfil no tiene acceso a esta parte.' : r.error };
+}
 import { AsyncMutex } from '@/lib/mutex';
 
 const CUSTOMERS_FILE = 'customers.json';
@@ -23,14 +37,12 @@ const STORAGE_SALON_CONTRACTS_PATH = 'salon-contracts';
 
 
 export async function getCustomers(): Promise<Customer[]> {
-  const auth = await verifySession();
-  if (!auth.success) throw new Error('No autorizado');
+  await requirePermisoAlguno(...VER_CLIENTES);
   return readData<Customer[]>(CUSTOMERS_FILE, []);
 }
 
 export async function getCustomerById(id: string): Promise<Customer | null> {
-  const auth = await verifySession();
-  if (!auth.success) throw new Error('No autorizado');
+  await requirePermisoAlguno(...VER_CLIENTES);
   const customers = await getCustomers();
   return customers.find(c => c.id === id) || null;
 }
@@ -39,8 +51,8 @@ export async function saveCustomer(
   customerData: Omit<Customer, 'id'> | Customer | FormData,
   options?: { skipFiestaCreation?: boolean }
 ): Promise<{ success: boolean; id?: string; customer?: Customer; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  const auth = await requirePermisoParaTocarClientes();
+  if (!auth.ok) return { success: false, error: auth.error };
   let customers = await getCustomers();
   let customerId: string;
   let customerToSave: Partial<Customer> = {};
@@ -240,8 +252,8 @@ export async function saveCustomer(
 
 
 export async function deleteCustomer(id: string): Promise<{ success: boolean; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  const auth = await requirePermisoParaTocarClientes();
+  if (!auth.ok) return { success: false, error: auth.error };
   let customers = await getCustomers();
   const customerToDelete = customers.find(c => c.id === id);
   const initialLength = customers.length;
@@ -401,8 +413,8 @@ export async function addDocumentReferenceToCustomer(
   documentType: 'contract' | 'budget' | 'salonContract',
   filename: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  const auth = await requirePermisoParaTocarClientes();
+  if (!auth.ok) return { success: false, error: auth.error };
 
   if (!SIN_BASE()) {
     const actualizado = await mutateDataItem<Customer>(CUSTOMERS_FILE, CUSTOMERS_COLLECTION, customerId, (actual) => {

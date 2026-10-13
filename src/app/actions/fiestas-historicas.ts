@@ -9,19 +9,20 @@ import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { createNotification } from '@/lib/notifications/create-notification';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAdminSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const FIESTAS_HISTORICAS_FILE = 'fiestas-historicas.json';
 
 export async function getFiestasHistoricas(): Promise<FiestaHistorica[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // precios históricos: plata (barrido 12/10/2026)
   return readData<FiestaHistorica[]>(FIESTAS_HISTORICAS_FILE, []);
 }
 
 export async function saveFiestaHistorica(
   data: Omit<FiestaHistorica, 'id' | 'fechaCreacion'> | FiestaHistorica
 ): Promise<{ success: boolean; id?: string; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // precios históricos: plata (barrido 12/10/2026)
   try {
     const historicos = await getFiestasHistoricas();
     let id: string;
@@ -45,7 +46,7 @@ export async function saveFiestaHistorica(
 }
 
 export async function deleteFiestaHistorica(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // precios históricos: plata (barrido 12/10/2026)
   try {
     let historicos = await getFiestasHistoricas();
     historicos = historicos.filter(h => h.id !== id);
@@ -61,7 +62,7 @@ export async function calcularAjusteHistorico(
   anioOriginal: number,
   anioNuevo: number
 ): Promise<ProyeccionHistorica> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // precios históricos: plata (barrido 12/10/2026)
   const años = Math.max(0, anioNuevo - anioOriginal);
   const factor = Math.pow(1.15, años);
   const montoAjustado = Math.round((montoOriginal * factor) * 100) / 100;
@@ -78,7 +79,7 @@ export async function generarDesdeHistorico(
   historicoId: string,
   anioNuevo: number
 ): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // precios históricos: plata (barrido 12/10/2026)
   try {
     const historicos = await getFiestasHistoricas();
     const source = historicos.find(h => h.id === historicoId);
@@ -153,7 +154,8 @@ export async function generarDesdeHistorico(
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetAllFiestasHistoricas(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
-  await requireAppSession();
+  const admin = await requireAdminSession();
+  if (!admin.ok) return { success: false, error: admin.error };
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     let deletedCount = 0;

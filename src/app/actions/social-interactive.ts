@@ -23,6 +23,7 @@ import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-adm
 import admin from 'firebase-admin';
 import { randomUUID } from 'crypto';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import * as logger from '@/lib/logger';
 import { sinBaseDisponible } from '@/lib/firebase/modo-local';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
@@ -157,6 +158,8 @@ export async function votePoll(
       if (!snap.exists) throw new Error('Encuesta no encontrada.');
       const data = snap.data() as SocialPoll;
       if (data.fiestaId !== fiestaId) throw new Error('Encuesta no pertenece a este evento.');
+      // Una encuesta cerrada no suma votos (la de la pantalla en vivo ya lo controlaba).
+      if (data.active === false) throw new Error('Esta encuesta ya está cerrada.');
       const optIdx = data.options.findIndex(o => o.id === optionId);
       if (optIdx === -1) throw new Error('Opción no encontrada.');
       const updatedOptions = data.options.map(o =>
@@ -409,15 +412,24 @@ export async function addSorteoParticipanteRedes(
     const review = reviewSocialContent({ type: 'text', text: nombre, authorName: nombre, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const safeName = sanitizeSocialText(nombre);
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
-    const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);
-    const existing = settings.sorteoParticipantesRedes ?? [];
-    const alreadyExists = existing.some(p => p.nombre.toLowerCase() === safeName.toLowerCase());
-    if (alreadyExists) return { success: false, error: 'Ya estás registrado en el sorteo.' };
-    const updated: typeof existing = [...existing, { nombre: safeName, timestamp: new Date().toISOString() }];
-    const saveRes = await saveFiesta({ ...fiesta, socialGallerySettings: { ...settings, sorteoParticipantesRedes: updated } });
-    if (!saveRes.success) return { success: false, error: saveRes.error || 'No se pudo registrar en el sorteo.' };
+    // El anotado se suma a la lista de ESE momento, adentro del turno: dos invitados anotandose a
+    // la vez quedan los dos, y el repetido se detecta contra la lista actual.
+    let repetido = false;
+    const saveRes = await actualizarFiesta(fiestaId, (fiesta) => {
+      repetido = false;
+      const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);
+      const existing = settings.sorteoParticipantesRedes ?? [];
+      if (existing.some(p => p.nombre.toLowerCase() === safeName.toLowerCase())) {
+        repetido = true;
+        return fiesta;
+      }
+      const updated: typeof existing = [...existing, { nombre: safeName, timestamp: new Date().toISOString() }];
+      return { ...fiesta, socialGallerySettings: { ...settings, sorteoParticipantesRedes: updated } };
+    });
+    if (!saveRes.success) {
+      return { success: false, error: /no encontrada/i.test(saveRes.error || '') ? 'Fiesta no encontrada.' : saveRes.error || 'No se pudo registrar en el sorteo.' };
+    }
+    if (repetido) return { success: false, error: 'Ya estás registrado en el sorteo.' };
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -432,12 +444,15 @@ export async function addSorteoGanador(
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const review = reviewSocialContent({ type: 'text', text: nombre, authorName: nombre, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
-    const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);
-    const ganadores = [...(settings.sorteoGanadores ?? []), sanitizeSocialText(nombre)];
-    const saveRes = await saveFiesta({ ...fiesta, socialGallerySettings: { ...settings, sorteoGanadores: ganadores } });
-    if (!saveRes.success) return { success: false, error: saveRes.error || 'No se pudo guardar el ganador.' };
+    const nombreLimpio = sanitizeSocialText(nombre);
+    const saveRes = await actualizarFiesta(fiestaId, (fiesta) => {
+      const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);
+      const ganadores = [...(settings.sorteoGanadores ?? []), nombreLimpio];
+      return { ...fiesta, socialGallerySettings: { ...settings, sorteoGanadores: ganadores } };
+    });
+    if (!saveRes.success) {
+      return { success: false, error: /no encontrada/i.test(saveRes.error || '') ? 'Fiesta no encontrada.' : saveRes.error || 'No se pudo guardar el ganador.' };
+    }
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };

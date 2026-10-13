@@ -104,7 +104,7 @@ export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invi
   const result = await updateFiestaData(fiestaId, data => {
     nuevoInvitado = {
       ...nuevoInvitadoData,
-      id: `inv_${Date.now()}`,
+      id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       guestAccessToken: nuevoInvitadoData.guestAccessToken ?? randomUUID(),
     };
     const invitados = [...(data.invitados || []), nuevoInvitado];

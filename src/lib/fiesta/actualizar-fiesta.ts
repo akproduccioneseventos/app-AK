@@ -3,6 +3,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById, requireFiestaWriteAccess } from '@/app/actions/fiesta/fiesta.actions';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
+import { quienEsElEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 
 const fiestaUpdateQueues = new Map<string, Promise<void>>();
 
@@ -27,7 +28,16 @@ export async function acquireFiestaUpdateLock(fiestaId: string): Promise<() => v
 export async function actualizarFiesta(
   fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>,
-  options: { publicRsvp?: boolean } = {},
+  options: {
+    /** No pide permiso sobre la fiesta (RSVP publico, o acciones que ya piden sesion por su cuenta). */
+    publicRsvp?: boolean;
+    /**
+     * Solo el equipo de ESA fiesta (el operador, solo si esta asignado). Es lo que pedia
+     * `updateFiestaPartial`: el portal del cliente tambien pasa `requireFiestaWriteAccess`,
+     * pero no debe tocar tareas, reuniones, personal ni la carga operativa.
+     */
+    soloEquipo?: boolean;
+  } = {},
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   const releaseLock = await acquireFiestaUpdateLock(fiestaId);
   try {
@@ -46,6 +56,9 @@ export async function actualizarFiesta(
         }
         if (!base) {
           throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
+        }
+        if (options.soloEquipo && !(await quienEsElEquipo())(base)) {
+          throw new Error('No autorizado para modificar este evento.');
         }
         const updated = await updateFn(base);
         return await preserveFiestaSecrets(fiestaId, updated);

@@ -68,4 +68,6 @@ export const COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION = new Set([
   // borraba el insumo o el menu que otro acababa de crear.
   'insumos',
   'menus_catering',
+  // El catalogo de servicios: el ajuste masivo y los guardados no pueden borrar el que otro creo.
+  'servicios',
 ]);

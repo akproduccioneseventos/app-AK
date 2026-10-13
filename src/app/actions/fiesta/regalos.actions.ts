@@ -3,7 +3,6 @@
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, GiftItem } from '@/types/fiesta';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
@@ -13,12 +12,8 @@ async function updateFiestaData(
     updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const currentData = await getFiestaById(fiestaId);
-     if (!currentData) {
-        throw new Error("Fiesta no encontrada para actualizar regalos.");
-    }
-    const updatedData = updateFn(currentData);
-    const guardado = await saveFiesta(updatedData);
+    // Lee y guarda adentro del turno: un regalo reservado por un invitado en el medio no se pisa.
+    const guardado = await actualizarFiesta(fiestaId, updateFn);
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo guardar la lista de regalos.' };
     }
@@ -35,7 +30,14 @@ export async function updateGiftRegistry(fiestaId: string, giftList: GiftItem[])
         const invitacionDigital = data.invitacionDigital || initialFiestaActualData.invitacionDigital!;
         const regalos = invitacionDigital.regalos || { visible: true, titulo: { text: '' }, texto: { text: '' }, datosBancarios: '', items: [] };
 
-        const updatedRegalos = { ...regalos, items: giftList };
+        // Lo que edita el equipo (nombre, foto, orden, borrados) viene de la pantalla; lo que marca
+        // el invitado (reservado, quien) se conserva de lo guardado en ESTE momento por id.
+        const actuales = new Map((regalos.items || []).map(item => [item.id, item]));
+        const items = giftList.map(item => {
+            const guardado = actuales.get(item.id);
+            return guardado ? { ...item, isClaimed: guardado.isClaimed, claimedBy: guardado.claimedBy } : item;
+        });
+        const updatedRegalos = { ...regalos, items };
 
         return {
             ...data,
@@ -53,7 +55,7 @@ export async function addGiftToRegistry(fiestaId: string, newGiftData: Omit<Gift
     return updateFiestaData(fiestaId, data => {
         const newGift: GiftItem = {
             ...newGiftData,
-            id: `gift_user_${Date.now()}`,
+            id: `gift_user_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
             isClaimed: false,
         };
 

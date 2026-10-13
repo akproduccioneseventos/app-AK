@@ -8,6 +8,7 @@
  * Probado rompiéndolo: con `requireAppSession` de vuelta, se pone en rojo.
  */
 jest.mock('@/lib/auth/session-token', () => ({ verifySession: jest.fn() }));
+jest.mock('@/lib/firebase-sync', () => ({ listCollectionFromFirestore: jest.fn(async () => []) }));
 const escrituras = jest.fn();
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (_f: string, d: any) => d),

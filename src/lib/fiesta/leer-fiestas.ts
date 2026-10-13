@@ -51,14 +51,11 @@ async function leerColeccion(directory: string): Promise<FiestaEnPlanificacion[]
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
 
   if (!soloJsonLocal()) {
-    try {
-      const { isFirebaseAvailable } = await import('@/lib/firebase');
-      if (isProduction || isFirebaseAvailable()) {
-        const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-        return (await listCollectionFromFirestore(directory)) as FiestaEnPlanificacion[];
-      }
-    } catch {
-      // Si la base no contesta, se sigue con los archivos locales.
+    const { isFirebaseAvailable } = await import('@/lib/firebase');
+    if (isProduction || isFirebaseAvailable()) {
+      const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+      // Un respaldo local no confirma que un enlace o una fecha no existan en la base.
+      return (await listCollectionFromFirestore(directory, { throwOnError: true })) as FiestaEnPlanificacion[];
     }
   }
 

@@ -3,7 +3,8 @@
 
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
 import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { AsyncMutex } from '@/lib/mutex';
 import { limpiarEncuesta } from '@/lib/feedback/lo-que-llega-de-afuera';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -140,7 +141,7 @@ export async function getAllTestimonials(): Promise<Testimonial[]> {
 }
 
 export async function saveTestimonial(testimonialData: Omit<Testimonial, 'id' | 'createdAt' | 'isApproved'>): Promise<{ success: boolean, testimonial?: Testimonial, error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
   const allTestimonials = await getTestimonialsInternal();
   
   if (allTestimonials.some(t => t.feedbackId === testimonialData.feedbackId)) {
@@ -159,7 +160,7 @@ export async function saveTestimonial(testimonialData: Omit<Testimonial, 'id' | 
 }
 
 export async function updateTestimonialApproval(testimonialId: string, isApproved: boolean): Promise<{ success: boolean, error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
   const allTestimonials = await getTestimonialsInternal();
   const index = allTestimonials.findIndex(t => t.id === testimonialId);
   if (index === -1) {
@@ -171,7 +172,7 @@ export async function updateTestimonialApproval(testimonialId: string, isApprove
 }
 
 export async function updateTestimonialScreenshot(testimonialId: string, screenshotUrl: string): Promise<{ success: boolean, error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
   const allTestimonials = await getTestimonialsInternal();
   const index = allTestimonials.findIndex(t => t.id === testimonialId);
   if (index === -1) {
@@ -183,7 +184,7 @@ export async function updateTestimonialScreenshot(testimonialId: string, screens
 }
 
 export async function deleteTestimonial(testimonialId: string): Promise<{ success: boolean, error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
   let allTestimonials = await getTestimonialsInternal();
   const initialLength = allTestimonials.length;
   allTestimonials = allTestimonials.filter(t => t.id !== testimonialId);
@@ -253,7 +254,7 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
 }
 
 export async function requestGoogleReviewManual(feedbackId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM);
   
   const allFeedback = await readData<FeedbackSubmission[]>(FEEDBACK_FILE, []);
   const index = allFeedback.findIndex(fb => fb.id === feedbackId);

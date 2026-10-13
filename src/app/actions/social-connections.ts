@@ -3,13 +3,15 @@
 
 import type { SocialConnection, SocialPlatformName } from '@/types/settings';
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
 const CONNECTIONS_FILE = 'social-connections.json';
 
+/** Devuelve los tokens de las redes: sólo administración. Las pantallas del equipo que
+ *  sólo necesitan saber qué está conectado usan `getSocialConnectionsPublicas`. */
 export async function getSocialConnections(): Promise<SocialConnection[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   return readData<SocialConnection[]>(CONNECTIONS_FILE, []);
 }
 
@@ -288,7 +290,7 @@ export async function testInstagramConnection(): Promise<{
   photosCount?: number;
   connection?: SocialConnection;
 }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   const connections = await leerConexiones();
   const igIndex = connections.findIndex((c) => c.platform === 'Instagram');
   const now = new Date().toISOString();

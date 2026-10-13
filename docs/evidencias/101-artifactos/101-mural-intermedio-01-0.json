@@ -1,0 +1,41 @@
+{
+  "id": "e2e_101_mural_22268_1791728780291",
+  "withPhoto": true,
+  "measure": {
+    "viewport": {
+      "w": 412,
+      "h": 839
+    },
+    "root": {
+      "x": 0,
+      "y": 0,
+      "w": 412,
+      "h": 839
+    },
+    "position": "fixed",
+    "panel": {
+      "x": 0,
+      "y": 69,
+      "w": 412,
+      "h": 614
+    },
+    "content": {
+      "x": -51.5,
+      "y": -7.75,
+      "w": 515,
+      "h": 767.5
+    },
+    "title": {
+      "x": -51.5,
+      "y": -7.75,
+      "w": 515,
+      "h": 767.5
+    },
+    "pointReceives": false,
+    "natural": 602,
+    "opacity": "0.3"
+  },
+  "errors": [],
+  "fixtureExists": true,
+  "postExists": true
+}

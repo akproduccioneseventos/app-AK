@@ -5,7 +5,11 @@ import { readData, writeData, createDataItem, deleteDataItem, mutateDataItem } f
 import { AsyncMutex } from '@/lib/mutex';
 import type { Salon, SalonPago } from '@/types/salon';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+
+/** Quien puede tocar la ficha de un salon (nunca el personal). */
+const PERMISOS_FICHA_SALON = [PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD, PERMISOS.CRM] as const;
 
 const SALONES_FILE = 'salones.json';
 
@@ -61,8 +65,18 @@ export async function getSalones(): Promise<Salon[]> {
   // La ficha del salon guarda el contacto del gerente (su WhatsApp y su correo).
   // Eso es del equipo: sin comprobar sesion, cualquiera se llevaba la agenda de
   // contactos de todos los salones con los que trabaja AK.
-  await requireAppSession();
-  return leerSalones();
+  await requirePermisoAlguno(...PERMISOS_FICHA_SALON);
+  const salones = await leerSalones();
+  // Lo que AK le paga al salon es plata: sólo contabilidad. El contacto del gerente, sólo
+  // quien atiende clientes u organiza.
+  const verPagos = (await requirePermiso(PERMISOS.CONTABILIDAD)).ok;
+  const verGerente = (await requirePermiso(PERMISOS.CRM)).ok || (await requirePermiso(PERMISOS.ORGANIZACION)).ok;
+  if (verPagos && verGerente) return salones;
+  return salones.map(({ pagos, gerente, ...resto }) => ({
+    ...resto,
+    ...(verPagos ? { pagos } : {}),
+    ...(verGerente ? { gerente } : {}),
+  })) as Salon[];
 }
 
 /** Sin comprobar sesion: uso interno de este archivo. */
@@ -86,7 +100,13 @@ export async function getSalonesPublicos(): Promise<Salon[]> {
 export async function saveSalon(
   salonData: Omit<Salon, 'id'> | Salon
 ): Promise<{ success: boolean; salon?: Salon; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_FICHA_SALON);
+  // Una ficha leída sin pagos / gerente no debe pisar los que hay guardados, y sin permiso
+  // no se escriben: se sacan antes de guardar.
+  if (!(await requirePermiso(PERMISOS.CONTABILIDAD)).ok) delete (salonData as Partial<Salon>).pagos;
+  if (!(await requirePermiso(PERMISOS.CRM)).ok && !(await requirePermiso(PERMISOS.ORGANIZACION)).ok) {
+    delete (salonData as Partial<Salon>).gerente;
+  }
   if (!salonData.nombre.trim()) {
     return { success: false, error: 'El nombre del salón es obligatorio.' };
   }
@@ -119,7 +139,7 @@ export async function saveSalon(
 export async function deleteSalon(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_FICHA_SALON);
   if (!SIN_BASE()) {
     const borrado = await deleteDataItem(SALONES_FILE, SALONES_COLLECTION, id);
     return borrado ? { success: true } : { success: false, error: 'Salón no encontrado.' };
@@ -142,7 +162,7 @@ export async function deleteSalon(
 export async function uploadSalonFoto(
   formData: FormData
 ): Promise<{ success: boolean; url?: string; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_FICHA_SALON);
   const file = formData.get('file') as File | null;
   const salonId = formData.get('salonId') as string | null;
 
@@ -181,7 +201,7 @@ export async function deleteSalonFoto(
   salonId: string,
   fotoUrl: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PERMISOS_FICHA_SALON);
   try {
     const cambiado = await cambiarUnSalon(salonId, (salon) => ({
       ...salon,
@@ -223,7 +243,7 @@ export async function addSalonPago(
   salonId: string,
   pago: Omit<SalonPago, 'id'>
 ): Promise<{ success: boolean; pago?: SalonPago; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   try {
     const newPago: SalonPago = {
       ...pago,
@@ -248,7 +268,7 @@ export async function deleteSalonPago(
   salonId: string,
   pagoId: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   try {
     const cambiado = await cambiarUnSalon(salonId, (salon) => ({
       ...salon,

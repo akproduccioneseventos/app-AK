@@ -41,7 +41,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
  * La lista de verdad vive en `src/lib/auth/permisos-por-enlace.ts`, con una
  * prueba que cuida que estas dos no se separen.
  */
-const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string, icon: React.ElementType }[] = [
+const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string, icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }[] = [
     { id: 'musica', label: 'Musica de la Fiesta', icon: Music2 },
     { id: 'itinerario', label: 'Itinerario del Evento', icon: Clock },
     { id: 'carga-operativa', label: 'Lista de Carga Operativa', icon: PackageSearch },

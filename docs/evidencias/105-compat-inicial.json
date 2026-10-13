@@ -1,0 +1,459 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli",
+      "test",
+      "--config",
+      "playwright.105.config.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\playwright.105.config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/qa105-compat-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/calendarios-react19.spec.ts",
+          "**/qr-descargado-lector-real.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/qa105-compat-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/calendarios-react19.spec.ts",
+          "**/qr-descargado-lector-real.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-verificacion-81-20261009\\docs\\evidencias\\105-compat.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "calendarios-react19.spec.ts",
+      "file": "calendarios-react19.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "agenda: elegir dia y navegar meses sin tapar los controles",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3284,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T22:04:38.786Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "agenda-calendario.png",
+                      "contentType": "image/png",
+                      "body": "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"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "83026fd3dabb6df55497-e1d515fc1a6c2aa1630d",
+          "file": "calendarios-react19.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "redes: calendario visible y navegacion mensual",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7982,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T22:04:42.258Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "redes-calendario.png",
+                      "contentType": "image/png",
+                      "body": "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"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "83026fd3dabb6df55497-03e73313bb71213291f5",
+          "file": "calendarios-react19.spec.ts",
+          "line": 38,
+          "column": 5
+        },
+        {
+          "title": "agenda: elegir dia y navegar meses sin tapar los controles",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 3344,
+                  "error": {
+                    "message": "Error: El mes no tapa el control de navegacion\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m",
+                    "stack": "Error: El mes no tapa el control de navegacion\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n    at headerDoesNotOverlap (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts:15:85)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts:27:3",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts",
+                      "column": 85,
+                      "line": 15
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 13 |\u001b[39m     \u001b[36mconst\u001b[39m overlapX \u001b[33m=\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmin(label\u001b[33m.\u001b[39mx \u001b[33m+\u001b[39m label\u001b[33m.\u001b[39mwidth\u001b[33m,\u001b[39m button\u001b[33m.\u001b[39mx \u001b[33m+\u001b[39m button\u001b[33m.\u001b[39mwidth) \u001b[33m-\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmax(label\u001b[33m.\u001b[39mx\u001b[33m,\u001b[39m button\u001b[33m.\u001b[39mx)\u001b[33m;\u001b[39m\n \u001b[90m 14 |\u001b[39m     \u001b[36mconst\u001b[39m overlapY \u001b[33m=\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmin(label\u001b[33m.\u001b[39my \u001b[33m+\u001b[39m label\u001b[33m.\u001b[39mheight\u001b[33m,\u001b[39m button\u001b[33m.\u001b[39my \u001b[33m+\u001b[39m button\u001b[33m.\u001b[39mheight) \u001b[33m-\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmax(label\u001b[33m.\u001b[39my\u001b[33m,\u001b[39m button\u001b[33m.\u001b[39my)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 15 |\u001b[39m     expect(overlapX \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m \u001b[33m&&\u001b[39m overlapY \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'El mes no tapa el control de navegacion'\u001b[39m)\u001b[33m.\u001b[39mtoBe(\u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 16 |\u001b[39m   }\n \u001b[90m 17 |\u001b[39m }\n \u001b[90m 18 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts",
+                        "column": 85,
+                        "line": 15
+                      },
+                      "message": "Error: El mes no tapa el control de navegacion\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m\n\n  13 |     const overlapX = Math.min(label.x + label.width, button.x + button.width) - Math.max(label.x, button.x);\n  14 |     const overlapY = Math.min(label.y + label.height, button.y + button.height) - Math.max(label.y, button.y);\n> 15 |     expect(overlapX > 0 && overlapY > 0, 'El mes no tapa el control de navegacion').toBe(false);\n     |                                                                                     ^\n  16 |   }\n  17 | }\n  18 |\n    at headerDoesNotOverlap (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts:15:85)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts:27:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T22:05:31.669Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa105-compat-artifacts\\calendarios-react19-agenda-ecb01-ses-sin-tapar-los-controles-chromium-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa105-compat-artifacts\\calendarios-react19-agenda-ecb01-ses-sin-tapar-los-controles-chromium-mobile\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts",
+                    "column": 85,
+                    "line": 15
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "83026fd3dabb6df55497-0efdc06906838d7a6599",
+          "file": "calendarios-react19.spec.ts",
+          "line": 19,
+          "column": 5
+        },
+        {
+          "title": "redes: calendario visible y navegacion mensual",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 91422,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts",
+                        "column": 14,
+                        "line": 49
+                      },
+                      "message": "Error: locator.click: Test timeout of 90000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('tabpanel').getByRole('button', { name: 'Ir al mes siguiente' })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" aria-label=\"Ir al mes siguiente\" class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold ring-offset-background transition-all duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input text-foregro…>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is not stable\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - <div class=\"flex justify-center pt-1 relative items-center\">…</div> from <div class=\"space-y-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 100ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is not stable\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 100ms\u001b[22m\n\u001b[2m    159 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m        - element is visible, enabled and stable\u001b[22m\n\u001b[2m        - scrolling into view if needed\u001b[22m\n\u001b[2m        - done scrolling\u001b[22m\n\u001b[2m        - <div class=\"flex justify-center pt-1 relative items-center\">…</div> from <div class=\"space-y-4\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m      - retrying click action\u001b[22m\n\u001b[2m        - waiting 500ms\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is not stable\u001b[22m\n\u001b[2m  - retrying click action\u001b[22m\n\u001b[2m    - waiting 500ms\u001b[22m\n\n\n  47 |   await headerDoesNotOverlap(caption, panel.getByRole('button', { name: 'Ir al mes anterior' }));\n  48 |   const initialMonth = await caption.textContent();\n> 49 |   await next.click();\n     |              ^\n  50 |   await expect(caption).not.toHaveText(initialMonth!);\n  51 |   await panel.getByRole('button', { name: 'Ir al mes anterior' }).click();\n  52 |   await expect(caption).toHaveText(initialMonth!);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\calendarios-react19.spec.ts:49:14"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T22:05:36.491Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa105-compat-artifacts\\calendarios-react19-redes--317ce-isible-y-navegacion-mensual-chromium-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\qa105-compat-artifacts\\calendarios-react19-redes--317ce-isible-y-navegacion-mensual-chromium-mobile\\error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "83026fd3dabb6df55497-2a0a8a0ad60d84bbaf5c",
+          "file": "calendarios-react19.spec.ts",
+          "line": 38,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "qr-descargado-lector-real.spec.ts",
+      "file": "qr-descargado-lector-real.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "el QR descargado con token corto entra por el lector real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 20790,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T22:04:50.278Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "83fcfa0c785e79cf91da-bc7ccfb3c396a69da17f",
+          "file": "qr-descargado-lector-real.spec.ts",
+          "line": 25,
+          "column": 7
+        },
+        {
+          "title": "el QR descargado con token largo entra por el lector real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19641,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T22:05:11.094Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "83fcfa0c785e79cf91da-0b6c3ecaa6f54781839e",
+          "file": "qr-descargado-lector-real.spec.ts",
+          "line": 25,
+          "column": 7
+        },
+        {
+          "title": "el QR descargado con token corto entra por el lector real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 22900,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T22:07:09.210Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "83fcfa0c785e79cf91da-308b4dbeb54bac98028c",
+          "file": "qr-descargado-lector-real.spec.ts",
+          "line": 25,
+          "column": 7
+        },
+        {
+          "title": "el QR descargado con token largo entra por el lector real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19222,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-11T22:07:32.318Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "83fcfa0c785e79cf91da-7d649a7e84fc02bc3d10",
+          "file": "qr-descargado-lector-real.spec.ts",
+          "line": 25,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-11T22:04:36.953Z",
+    "duration": 195224.20200000002,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

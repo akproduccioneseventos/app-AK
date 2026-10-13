@@ -10,7 +10,7 @@ interface KpiCardProps {
   title: string;
   value: string | number;
   description?: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   isLoading?: boolean;
   className?: string;
 }

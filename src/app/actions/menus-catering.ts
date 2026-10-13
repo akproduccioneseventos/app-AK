@@ -311,7 +311,9 @@ async function adjustAllDishMarginsInterno(percentage: number): Promise<{ succes
             const newSuggestedSellingPrice = Math.round((item.totalDishCost || 0) * (1 + newProfitMargin / 100));
             return { ...item, profitMargin: newProfitMargin, suggestedSellingPrice: newSuggestedSellingPrice };
         });
-        const saveRes = await saveMenu(menu);
+        // Ya estamos dentro del turno de menús: `saveMenu` lo vuelve a pedir y se colgaba para
+        // siempre (el turno no se puede reentrar). Se guarda con la función interna.
+        const saveRes = await saveMenuInterno(menu);
         if (!saveRes.success) {
           return { success: false, error: saveRes.error || `No se pudo guardar el menú ${menu.name || menu.id}.` };
         }

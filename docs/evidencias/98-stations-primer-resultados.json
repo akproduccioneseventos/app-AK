@@ -1,0 +1,170 @@
+[
+  {
+    "title": "Touchpix camera native",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 23948,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "photo-bytes.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-00-0.json"
+      },
+      {
+        "name": "screen.png",
+        "file": "docs/evidencias/98-artifactos/98-stations-00-1.png"
+      },
+      {
+        "name": "screen.txt",
+        "file": "docs/evidencias/98-artifactos/98-stations-00-2.txt"
+      }
+    ]
+  },
+  {
+    "title": "Touchpix camera colors",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 16865,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "photo-bytes.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-01-0.json"
+      },
+      {
+        "name": "photo-second.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-01-1.json"
+      },
+      {
+        "name": "screen.png",
+        "file": "docs/evidencias/98-artifactos/98-stations-01-2.png"
+      },
+      {
+        "name": "screen.txt",
+        "file": "docs/evidencias/98-artifactos/98-stations-01-3.txt"
+      }
+    ]
+  },
+  {
+    "title": "Touchpix camera no-frame",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 7820,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "screen.png",
+        "file": "docs/evidencias/98-artifactos/98-stations-02-0.png"
+      },
+      {
+        "name": "screen.txt",
+        "file": "docs/evidencias/98-artifactos/98-stations-02-1.txt"
+      }
+    ]
+  },
+  {
+    "title": "Mirror failed image review creates one pending post and truthful notice",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 60507,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mirror-pending.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-03-0.json"
+      },
+      {
+        "name": "mirror-notice.png",
+        "file": "docs/evidencias/98-artifactos/98-stations-03-1.png"
+      },
+      {
+        "name": "mirror-final.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-03-2.json"
+      }
+    ]
+  },
+  {
+    "title": "Touchpix camera native",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 11106,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "photo-bytes.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-04-0.json"
+      },
+      {
+        "name": "screen.png",
+        "file": "docs/evidencias/98-artifactos/98-stations-04-1.png"
+      },
+      {
+        "name": "screen.txt",
+        "file": "docs/evidencias/98-artifactos/98-stations-04-2.txt"
+      }
+    ]
+  },
+  {
+    "title": "Touchpix camera colors",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 16241,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "photo-bytes.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-05-0.json"
+      },
+      {
+        "name": "photo-second.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-05-1.json"
+      },
+      {
+        "name": "screen.png",
+        "file": "docs/evidencias/98-artifactos/98-stations-05-2.png"
+      },
+      {
+        "name": "screen.txt",
+        "file": "docs/evidencias/98-artifactos/98-stations-05-3.txt"
+      }
+    ]
+  },
+  {
+    "title": "Touchpix camera no-frame",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 8751,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "screen.png",
+        "file": "docs/evidencias/98-artifactos/98-stations-06-0.png"
+      },
+      {
+        "name": "screen.txt",
+        "file": "docs/evidencias/98-artifactos/98-stations-06-1.txt"
+      }
+    ]
+  },
+  {
+    "title": "Mirror failed image review creates one pending post and truthful notice",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 36640,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "mirror-pending.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-07-0.json"
+      },
+      {
+        "name": "mirror-notice.png",
+        "file": "docs/evidencias/98-artifactos/98-stations-07-1.png"
+      },
+      {
+        "name": "mirror-final.json",
+        "file": "docs/evidencias/98-artifactos/98-stations-07-2.json"
+      }
+    ]
+  }
+]

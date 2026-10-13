@@ -27,7 +27,7 @@ type DetalleKey = 'ceremoniaReligiosa' | 'ceremoniaCivil' | 'celebracion';
 const DetalleEditor: React.FC<{
   detalle: DetalleEventoEspecifico;
   title: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   fiestaId?: string;
   onUpdate: (newData: DetalleEventoEspecifico) => void;
 }> = ({ detalle, title, icon: Icon, fiestaId, onUpdate }) => {

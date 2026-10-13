@@ -17,7 +17,7 @@ import {
 import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
 import { sanitizeActionError, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 import { uploadToStorage } from '@/lib/firebase/storage';
-import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
@@ -495,9 +495,15 @@ export async function approveClientPayment(
     const notif = initialTransition.notification;
     if (!initialTransition.changed) return { success: true };
 
+    // Sin presupuesto no hay donde acreditar el cobro: marcarlo "aprobado" y mandar el mail al
+    // cliente seria decirle que su pago esta acreditado sin estarlo.
+    if (!fiesta.presupuestoId) {
+      return { success: false, error: 'La fiesta no tiene presupuesto: no se puede acreditar el pago.' };
+    }
+
     // First register the money. If the budget rejects it (for example over saldo),
     // keep the notification pending so it can be reviewed correctly.
-    if (fiesta.presupuestoId) {
+    {
       const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
         fecha: new Date().toISOString(),
         monto: notif.monto,
@@ -510,13 +516,21 @@ export async function approveClientPayment(
     }
 
     let updatedNotif = initialTransition.notification;
-    const updateResult = await updateFiestaData(fiestaId, currentFiesta => {
+    // El mail sale solo si ESTA llamada hizo el cambio de pendiente a aprobado, dentro de la
+    // actualizacion (que se relee). Si otra llamada se adelanto, no se repite el mail.
+    let esteLlamadoLoAprobo = false;
+    // Con `actualizarFiesta` la fiesta se relee y se guarda en una transaccion: dos aprobaciones a
+    // la vez ya no ven las dos "pendiente". El cobro en si no se duplica: el presupuesto ignora
+    // una referencia repetida.
+    const updateResult = await actualizarFiesta(fiestaId, currentFiesta => {
+      esteLlamadoLoAprobo = false;
       const transition = transitionPaymentNotification(
         currentFiesta.clientPaymentNotifications ?? [],
         notificationId,
         'aprobado'
       );
       updatedNotif = transition.notification;
+      esteLlamadoLoAprobo = transition.changed;
       return {
         ...currentFiesta,
         clientPaymentNotifications: transition.notifications,
@@ -524,9 +538,11 @@ export async function approveClientPayment(
     });
     if (!updateResult.success) return updateResult;
 
-    notifyClientPaymentApproved(fiestaId, updatedNotif).catch((error) => {
-      console.warn('[Google Workspace] No se pudo enviar mail de pago aprobado:', error);
-    });
+    if (esteLlamadoLoAprobo) {
+      notifyClientPaymentApproved(fiestaId, updatedNotif).catch((error) => {
+        console.warn('[Google Workspace] No se pudo enviar mail de pago aprobado:', error);
+      });
+    }
 
     return { success: true };
   } catch (e: any) {
@@ -693,7 +709,7 @@ export async function addClientMusicSuggestion(
 }
 
 export async function approveClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -850,7 +866,7 @@ export async function approveClientGuestCountChangeRequest(
   fiestaId: string,
   requestId: string,
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -934,7 +950,7 @@ export async function rejectClientGuestCountChangeRequest(
 }
 
 export async function approveClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -1068,7 +1084,7 @@ export async function cancelServicesOrParty(
     cancelAll: boolean;
     passwordInput: string;
   }
-): Promise<{ success: boolean; error?: string; fileName?: string; refundAmount?: number; pendingDue?: number }> {
+): Promise<{ success: boolean; error?: string; yaEstaba?: boolean; fileName?: string; refundAmount?: number; pendingDue?: number }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
   if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   try {
@@ -1084,14 +1100,19 @@ export async function cancelServicesOrParty(
 
     const fs = await import('fs/promises');
     const path = await import('path');
-    const { readData, writeData } = await import('@/lib/data-service');
     const { getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
+    const { mutarPresupuesto } = await import('@/lib/budget/mutar-presupuesto');
 
-    const budgets = await readData<any[]>('presupuestos.json', []);
-    const budgetIndex = budgets.findIndex(b => b.id === fiesta.presupuestoId);
-    if (budgetIndex === -1) return { success: false, error: 'Presupuesto no encontrado.' };
-
-    const presupuesto = budgets[budgetIndex];
+    // Todo el calculo vive en `armar`, que corre ADENTRO de la transaccion del presupuesto sobre
+    // el dato recien leido: un doble toque ve lo que dejo el primero y no suma otra multa.
+    const armar = (original: any) => {
+    const presupuesto = JSON.parse(JSON.stringify(original));
+    const marcasPrevias: string[] = Array.isArray(presupuesto.ajustesAplicados) ? presupuesto.ajustesAplicados : [];
+    if (marcasPrevias.includes('cancelacion-total')) return { yaEstaba: true as const };
+    if (!payload.cancelAll) {
+      const hayQueCancelar = (presupuesto.itemsPresupuestados || []).some((i: any) => payload.servicesToCancel.includes(i.idServicioCatalogo));
+      if (!hayQueCancelar) return { yaEstaba: true as const };
+    }
     const paymentSummary = getBudgetPaymentSummary(presupuesto, {
       includeAnnualAdjustment: false,
     });
@@ -1271,12 +1292,6 @@ Firma AK Producciones: _________________   Fecha: __/__/____
 ============================================================`;
     }
 
-    // Write file locally
-    const dirPath = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta', fiestaId);
-    await fs.mkdir(dirPath, { recursive: true });
-    const filePath = path.join(dirPath, filename);
-    await fs.writeFile(filePath, docContent, 'utf-8');
-
     // Update Budget in database
     presupuesto.itemsPresupuestados = updatedItems;
     presupuesto.costoTotalEstimado = updatedItems
@@ -1293,8 +1308,49 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
     presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
 
-    budgets[budgetIndex] = presupuesto;
-    await writeData('presupuestos.json', budgets);
+    presupuesto.ajustesAplicados = [
+      ...marcasPrevias,
+      payload.cancelAll ? 'cancelacion-total' : `cancelacion-parcial:${[...payload.servicesToCancel].sort().join(',')}`,
+    ];
+    return { yaEstaba: false as const, presupuesto, docContent, filename, docId, penaltyTotal, nuevoTotal, totalPagado };
+    };
+
+    let armado: ReturnType<typeof armar> | null = null;
+    let antes: any = null;
+    const mutado = await mutarPresupuesto(fiesta.presupuestoId, (actual) => {
+      antes = actual;
+      armado = armar(actual);
+      return armado.yaEstaba ? null : armado.presupuesto;
+    });
+    if (!mutado.encontrado) return { success: false, error: 'Presupuesto no encontrado.' };
+    if (!armado || (armado as any).yaEstaba) {
+      return { success: true, yaEstaba: true, refundAmount: 0, pendingDue: 0 };
+    }
+    const { docContent, filename, docId, penaltyTotal, nuevoTotal, totalPagado } = armado as Extract<ReturnType<typeof armar>, { yaEstaba: false }>;
+
+    // Orden: primero el presupuesto (arriba, adentro de la transaccion), despues el documento y
+    // la fiesta. Si lo de despues falla, se DEVUELVE el presupuesto a como estaba: la multa no
+    // puede quedar cargada con la fiesta sin cancelar (reintentar la cobraria dos veces).
+    const revertir = async () => {
+      const marca = (armado as any).presupuesto.ajustesAplicados.slice(-1)[0];
+      await mutarPresupuesto(fiesta.presupuestoId!, (actual) => {
+        const marcas: string[] = Array.isArray(actual.ajustesAplicados) ? actual.ajustesAplicados : [];
+        if (!marcas.includes(marca)) return null;
+        return {
+          ...actual,
+          itemsPresupuestados: antes.itemsPresupuestados,
+          costoTotalEstimado: antes.costoTotalEstimado,
+          totalConDescuento: antes.totalConDescuento,
+          saldo: antes.saldo,
+          ajustesAplicados: marcas.filter((m) => m !== marca),
+        } as typeof actual;
+      });
+    };
+    let fiestaGuardada = false;
+    try {
+    const dirPath = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta', fiestaId);
+    await fs.mkdir(dirPath, { recursive: true });
+    await fs.writeFile(path.join(dirPath, filename), docContent, 'utf-8');
 
     // Update Fiesta in database
     const newDoc = {
@@ -1311,8 +1367,10 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     };
     const guardado = await saveFiesta(updatedFiesta);
     if (!guardado.success) {
+      await revertir();
       return { success: false, error: guardado.error || 'No se pudo guardar la cancelación.' };
     }
+    fiestaGuardada = true;
 
     // Create system notification
     const { createNotification } = await import('@/lib/notifications/create-notification');
@@ -1332,6 +1390,10 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       refundAmount,
       pendingDue
     };
+    } catch (errorDeAdentro) {
+      if (!fiestaGuardada) await revertir();
+      throw errorDeAdentro;
+    }
 
   } catch (e: any) {
     return { success: false, error: sanitizeActionError(e) };
@@ -1344,7 +1406,7 @@ export async function changeEventDate(
     newDate: string;
     passwordInput: string;
   }
-): Promise<{ success: boolean; error?: string; fileName?: string; penaltyAmount?: number; newBalance?: number }> {
+): Promise<{ success: boolean; error?: string; yaEstaba?: boolean; fileName?: string; penaltyAmount?: number; newBalance?: number }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
   if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   try {
@@ -1366,14 +1428,17 @@ export async function changeEventDate(
 
     const fs = await import('fs/promises');
     const path = await import('path');
-    const { readData, writeData } = await import('@/lib/data-service');
     const { getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
+    const { mutarPresupuesto } = await import('@/lib/budget/mutar-presupuesto');
 
-    const budgets = await readData<any[]>('presupuestos.json', []);
-    const budgetIndex = budgets.findIndex(b => b.id === fiesta.presupuestoId);
-    if (budgetIndex === -1) return { success: false, error: 'Presupuesto no encontrado.' };
-
-    const presupuesto = budgets[budgetIndex];
+    // Todo el calculo corre ADENTRO de la transaccion del presupuesto, sobre el dato recien leido:
+    // un doble toque ve la fecha que dejo el primero y no suma otro recargo del 10%.
+    const armar = (original: any) => {
+    const presupuesto = JSON.parse(JSON.stringify(original));
+    const marcasPrevias: string[] = Array.isArray(presupuesto.ajustesAplicados) ? presupuesto.ajustesAplicados : [];
+    if (presupuesto.eventoFecha && String(presupuesto.eventoFecha).slice(0, 10) === String(payload.newDate).slice(0, 10)) {
+      return { yaEstaba: true as const };
+    }
     const paymentSummary = getBudgetPaymentSummary(presupuesto, {
       includeAnnualAdjustment: false,
     });
@@ -1445,12 +1510,6 @@ Firma Cliente: ________________________   Fecha: __/__/____
 Firma AK Producciones: _________________   Fecha: __/__/____
 ============================================================`;
 
-    // Write file locally
-    const dirPath = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta', fiestaId);
-    await fs.mkdir(dirPath, { recursive: true });
-    const filePath = path.join(dirPath, filename);
-    await fs.writeFile(filePath, docContent, 'utf-8');
-
     // Update Budget in database
     presupuesto.eventoFecha = payload.newDate;
     presupuesto.itemsPresupuestados = updatedItems;
@@ -1468,8 +1527,48 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
     presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
 
-    budgets[budgetIndex] = presupuesto;
-    await writeData('presupuestos.json', budgets);
+    presupuesto.ajustesAplicados = [...marcasPrevias, `cambio-fecha:${String(payload.newDate).slice(0, 10)}`];
+    return { yaEstaba: false as const, presupuesto, docContent, filename, docId, penaltyAmount };
+    };
+
+    let armado: ReturnType<typeof armar> | null = null;
+    let antes: any = null;
+    const mutado = await mutarPresupuesto(fiesta.presupuestoId, (actual) => {
+      antes = actual;
+      armado = armar(actual);
+      return armado.yaEstaba ? null : armado.presupuesto;
+    });
+    if (!mutado.encontrado) return { success: false, error: 'Presupuesto no encontrado.' };
+    if (!armado || (armado as any).yaEstaba) {
+      return { success: true, yaEstaba: true, penaltyAmount: 0, newBalance: (mutado.presupuesto ?? antes)?.saldo };
+    }
+    const { presupuesto, docContent, filename, docId, penaltyAmount } = armado as Extract<ReturnType<typeof armar>, { yaEstaba: false }>;
+
+    // Orden: primero el presupuesto (adentro de la transaccion), despues el documento y la fiesta.
+    // Si lo de despues falla, se DEVUELVE el presupuesto a como estaba: el recargo no puede quedar
+    // cargado con la fecha vieja (reintentar lo cobraria dos veces).
+    const revertir = async () => {
+      const marca = presupuesto.ajustesAplicados.slice(-1)[0];
+      await mutarPresupuesto(fiesta.presupuestoId!, (actual) => {
+        const marcas: string[] = Array.isArray(actual.ajustesAplicados) ? actual.ajustesAplicados : [];
+        if (!marcas.includes(marca)) return null;
+        return {
+          ...actual,
+          eventoFecha: antes.eventoFecha,
+          itemsPresupuestados: antes.itemsPresupuestados,
+          costoTotalEstimado: antes.costoTotalEstimado,
+          totalConDescuento: antes.totalConDescuento,
+          saldo: antes.saldo,
+          ajustesAplicados: marcas.filter((m) => m !== marca),
+        } as typeof actual;
+      });
+    };
+    const newDateFmt = new Date(payload.newDate).toLocaleDateString('es-UY');
+    let fiestaGuardada = false;
+    try {
+    const dirPath = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta', fiestaId);
+    await fs.mkdir(dirPath, { recursive: true });
+    await fs.writeFile(path.join(dirPath, filename), docContent, 'utf-8');
 
     // Update Fiesta in database
     const newDoc = {
@@ -1490,8 +1589,10 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     };
     const guardado = await saveFiesta(updatedFiesta);
     if (!guardado.success) {
+      await revertir();
       return { success: false, error: guardado.error || 'No se pudo guardar el cambio de fecha.' };
     }
+    fiestaGuardada = true;
 
     // Create system notification
     const { createNotification } = await import('@/lib/notifications/create-notification');
@@ -1508,6 +1609,10 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       penaltyAmount,
       newBalance: presupuesto.saldo
     };
+    } catch (errorDeAdentro) {
+      if (!fiestaGuardada) await revertir();
+      throw errorDeAdentro;
+    }
 
   } catch (e: any) {
     return { success: false, error: sanitizeActionError(e) };

@@ -31,7 +31,7 @@ interface PasoInfo {
   numero: number;
   titulo: string;
   subtitulo: string;
-  icono: React.ElementType;
+  icono: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 const PASOS: PasoInfo[] = [

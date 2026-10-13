@@ -1,0 +1,198 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli",
+      "test",
+      "--config",
+      "playwright.106.config.ts",
+      "--grep",
+      "Recorrer mueve",
+      "--workers=1"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\playwright.106.config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/qa106-3d-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/salon-3d-ayuda-recorrido.spec.ts",
+          "**/salon-3d-real.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/qa106-3d-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/salon-3d-ayuda-recorrido.spec.ts",
+          "**/salon-3d-real.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\docs\\evidencias\\106-3d.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "salon-3d-ayuda-recorrido.spec.ts",
+      "file": "salon-3d-ayuda-recorrido.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 49255,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-12T14:50:05.329Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "recorrido-automatico.json",
+                      "contentType": "application/json",
+                      "body": "eyJyb3RhdGluZyI6MC4yNTE3MzYxMTExMTExMTExLCJjYW1lcmFSb3RhdGluZyI6MC4wMzk0MzA5NzU5MTQwMDE0NjUsImNhbWVyYUJlZm9yZSI6WzAuNzkyMjc1ODQ2MDA0NDg2MSwtMC4yOTA4ODM4MzkxMzA0MDE2LDAuNTM2MzYzMzAzNjYxMzQ2NCwwLC01LjU1MTExNTEyMzEyNTc4M2UtMTcsMC44NzkwNDkwNjI3Mjg4ODE4LDAuNDc2NzMxMzAwMzU0MDAzOSwwLC0wLjYxMDE2MzA5MjYxMzIyMDIsLTAuMzc3NzAyNjgzMjEwMzcyOSwwLjY5NjQ0OTMzOTM4OTgwMSwwLDAsOC44ODE3ODQxOTcwMDEyNTJlLTE2LC0xNi43ODA5NDEwMDk1MjE0ODQsMV0sImNhbWVyYU1vdmluZyI6WzAuODIxMTM2Mjk1Nzk1NDQwNywtMC4yNzIwODU4NzUyNzI3NTA4NSwwLjUwMTcwMTUzMzc5NDQwMzEsMCwtMS4xMTAyMjMwMjQ2MjUxNTY1ZS0xNiwwLjg3OTA0OTA2MjcyODg4MTgsMC40NzY3MzEzMDAzNTQwMDM5LDAsLTAuNTcwNzMyMTE2Njk5MjE4OCwtMC4zOTE0NjEzNzIzNzU0ODgzLDAuNzIxODE5MTAyNzY0MTI5NiwwLDguODgxNzg0MTk3MDAxMjUyZS0xNiw4Ljg4MTc4NDE5NzAwMTI1MmUtMTYsLTE2Ljc4MDk0MTAwOTUyMTQ4NCwxXX0="
+                    },
+                    {
+                      "name": "recorrido-pausado.json",
+                      "contentType": "application/json",
+                      "body": "eyJyb3RhdGluZyI6MC4yNTE3MzYxMTExMTExMTExLCJwYXVzZWQiOjAuMDM1NTkwMjc3Nzc3Nzc3Nzc2LCJjYW1lcmFSb3RhdGluZyI6MC4wMzk0MzA5NzU5MTQwMDE0NjUsImNhbWVyYVBhdXNlZCI6MCwiY2FtZXJhU3RvcHBlZCI6WzAuODMyOTA4NzQ5NTgwMzgzMywtMC4yNjM4MjgwMzkxNjkzMTE1LDAuNDg2NDc0ODcxNjM1NDM3LDAsLTIuNzc1NTU3NTYxNTYyODkxNGUtMTcsMC44NzkwNDkwNjI3Mjg4ODE4LDAuNDc2NzMxMzAwMzU0MDAzOSwwLC0wLjU1MzQxMDM1MTI3NjM5NzcsLTAuMzk3MDczNjU2MzIwNTcxOSwwLjczMjE2NzY2MTE5MDAzMywwLC0yLjIyMDQ0NjA0OTI1MDMxM2UtMTYsLTEuNzc2MzU2ODM5NDAwMjUwNWUtMTUsLTE2Ljc4MDk0MTAwOTUyMTQ4NCwxXX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a67a0ee506ededd0d86-9d17367af7da2093c683",
+          "file": "salon-3d-ayuda-recorrido.spec.ts",
+          "line": 94,
+          "column": 5
+        },
+        {
+          "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 86238,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-12T14:50:56.469Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "recorrido-automatico.json",
+                      "contentType": "application/json",
+                      "body": "eyJyb3RhdGluZyI6MC4zNDYyNDU2NTk3MjIyMjIyLCJjYW1lcmFSb3RhdGluZyI6MC4wNjg0MzUwMTMyOTQyMTk5NywiY2FtZXJhQmVmb3JlIjpbMC44MzA5NzE4OTY2NDg0MDcsLTAuMjY1MjEyNDc2MjUzNTA5NSwwLjQ4OTAyNzY0OTE2NDE5OTgzLDAsMi43NzU1NTc1NjE1NjI4OTE0ZS0xNywwLjg3OTA0OTA2MjcyODg4MTgsMC40NzY3MzEzMDAzNTQwMDM5LDAsLTAuNTU2MzE0NDA4Nzc5MTQ0MywtMC4zOTYxNTAzMjA3NjgzNTYzLDAuNzMwNDY1MDU0NTEyMDIzOSwwLC04Ljg4MTc4NDE5NzAwMTI1MmUtMTYsLTEuNzc2MzU2ODM5NDAwMjUwNWUtMTUsLTE2Ljc4MDk0MTAwOTUyMTQ4NCwxXSwiY2FtZXJhTW92aW5nIjpbMC44NzI5MTEwMzYwMTQ1NTY5LC0wLjIzMjU4NzM2NzI5NjIxODg3LDAuNDI4ODY5OTMyODg5OTM4MzUsMCwyLjc3NTU1NzU2MTU2Mjg5MTRlLTE3LDAuODc5MDQ5MDYyNzI4ODgxOCwwLjQ3NjczMTMwMDM1NDAwMzksMCwtMC40ODc4NzkzOTU0ODQ5MjQzLC0wLjQxNjE0NDAxMzQwNDg0NjIsMC43NjczMzE2NTk3OTM4NTM4LDAsLTEuNzc2MzU2ODM5NDAwMjUwNWUtMTUsLTEuNzc2MzU2ODM5NDAwMjUwNWUtMTUsLTE2Ljc4MDk0MTAwOTUyMTQ4NCwxXX0="
+                    },
+                    {
+                      "name": "recorrido-pausado.json",
+                      "contentType": "application/json",
+                      "body": "eyJyb3RhdGluZyI6MC4zNDYyNDU2NTk3MjIyMjIyLCJwYXVzZWQiOjAuMDM2NzgzODU0MTY2NjY2NjY0LCJjYW1lcmFSb3RhdGluZyI6MC4wNjg0MzUwMTMyOTQyMTk5NywiY2FtZXJhUGF1c2VkIjowLCJjYW1lcmFTdG9wcGVkIjpbMC44ODc4MDQ5ODUwNDYzODY3LC0wLjIxOTQwMTE5NTY0NTMzMjM0LDAuNDA0NTU1ODI3Mzc5MjI2NywwLDAsMC44NzkwNDkwNjI3Mjg4ODE4LDAuNDc2NzMxMzAwMzU0MDAzOSwwLC0wLjQ2MDIxOTg2MDA3NjkwNDMsLTAuNDIzMjQ0NDE2NzEzNzE0NiwwLjc4MDQyNDE3NzY0NjYzNywwLDAsMCwtMTYuNzgwOTQxMDA5NTIxNDg0LDFdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1a67a0ee506ededd0d86-33e06183718ec6e02c2e",
+          "file": "salon-3d-ayuda-recorrido.spec.ts",
+          "line": 94,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-12T14:50:03.978Z",
+    "duration": 139306.621,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

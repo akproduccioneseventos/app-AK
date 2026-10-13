@@ -10,7 +10,8 @@ import {
 } from '@/lib/social-media/comments-backfill';
 import { saveTestimonial } from '@/app/actions/feedback';
 import type { SocialComment, NetworkCommentsBackfillState, CommentNetwork } from '@/types/comentarios-redes';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutarComentarios } from '@/lib/social-media/guardar-comentarios';
 
 const COMMENTS_FILE = 'social-comments.json';
 
@@ -147,11 +148,23 @@ export async function publishCommentAsTestimonialAction(
       return { success: false, error: testRes.error || 'No se pudo guardar como testimonio.' };
     }
 
-    c.isTestimonialApproved = true;
-    c.testimonialScreenshotUrl = screenshotUrl || c.testimonialScreenshotUrl;
-    c.approvedAsTestimonialAt = new Date().toISOString();
-
-    await writeData(COMMENTS_FILE, comments);
+    // El testimonio ya se guardo: se marca el comentario SOLO a el, sobre la lista de ahora
+    // (la sincronizacion puede haber cambiado otros mientras tanto).
+    const aprobadoEn = new Date().toISOString();
+    const marcado = await mutarComentarios((lista) => {
+      if (!lista.some((x) => x.id === commentId)) return null;
+      return lista.map((x) => (x.id === commentId
+        ? {
+            ...x,
+            isTestimonialApproved: true,
+            testimonialScreenshotUrl: screenshotUrl || x.testimonialScreenshotUrl,
+            approvedAsTestimonialAt: aprobadoEn,
+          }
+        : x));
+    });
+    if (!marcado) {
+      return { success: false, error: 'El testimonio se guardó, pero el comentario ya no está en la lista para marcarlo.' };
+    }
 
     return {
       success: true,

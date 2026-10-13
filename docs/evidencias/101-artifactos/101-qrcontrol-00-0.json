@@ -1,0 +1,27 @@
+{
+  "id": "e2e_99_qr_uuid_1791695586308",
+  "hash": "178ee11b19547512912630eaca90474726b0244b409b2afa73ba92a677c62498",
+  "width": 276,
+  "height": 276,
+  "beforeGuest": {
+    "id": "g99uuid",
+    "nombre": "Invitado ficticio QA101",
+    "rsvp": "Confirmado",
+    "categoria": "Adulto",
+    "partySize": 2,
+    "guestAccessToken": "11111111-2222-4333-8444-555555555555",
+    "checkedIn": false
+  },
+  "afterGuest": {
+    "id": "g99uuid",
+    "nombre": "Invitado ficticio QA101",
+    "rsvp": "Confirmado",
+    "categoria": "Adulto",
+    "partySize": 2,
+    "guestAccessToken": "11111111-2222-4333-8444-555555555555",
+    "checkedIn": false
+  },
+  "beforeDocHash": "a54b07f8ebb830bc7c82b6e11482a5bb246f3437d6dd03c05a01ad9c0a00b349",
+  "afterDocHash": "a54b07f8ebb830bc7c82b6e11482a5bb246f3437d6dd03c05a01ad9c0a00b349",
+  "body": "Control de Acceso\nFiesta de esta noche\nNotFoundException: No MultiFormat Readers were able to detect the code.\nChoose Another - exact-uuid.png\nOr drop an image to scan\nScan using camera directly"
+}

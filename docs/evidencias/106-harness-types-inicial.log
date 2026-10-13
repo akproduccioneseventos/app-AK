@@ -1,0 +1,4 @@
+tests/e2e/salon-3d-ayuda-recorrido.spec.ts(53,42): error TS7006: Parameter 'location' implicitly has an 'any' type.
+tests/e2e/salon-3d-ayuda-recorrido.spec.ts(53,52): error TS7006: Parameter 'transpose' implicitly has an 'any' type.
+tests/e2e/salon-3d-ayuda-recorrido.spec.ts(53,63): error TS7006: Parameter 'value' implicitly has an 'any' type.
+tests/e2e/salon-3d-ayuda-recorrido.spec.ts(57,66): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.

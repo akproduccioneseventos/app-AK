@@ -1,0 +1,38 @@
+
+Running 1 test using 1 worker
+
+[1/1] [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo
+  1) [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('canvas').first()
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 60000ms
+      - waiting for locator('canvas').first()
+
+
+      45 |     }), 'El navegador de prueba debe ofrecer WebGL').toBe(true);
+      46 |     const canvas = page.locator('canvas').first();
+    > 47 |     await expect(canvas).toBeVisible({ timeout: 60000 });
+         |                          ^
+      48 |     await canvas.scrollIntoViewIfNeeded();
+      49 |     await expect.poll(async () => (await pixels(page)).colors).toBeGreaterThan(20);
+      50 |     const before = await pixels(page);
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\salon-3d-real.spec.ts:47:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa105-3d-dev-artifacts\salon-3d-real-reunion-esce-636ce-ractiva-no-foto-de-respaldo-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa105-3d-dev-artifacts\salon-3d-real-reunion-esce-636ce-ractiva-no-foto-de-respaldo-chromium-desktop\error-context.md
+
+    Error Context: qa105-3d-dev-artifacts\salon-3d-real-reunion-esce-636ce-ractiva-no-foto-de-respaldo-chromium-desktop\error-context.md
+
+
+  1 failed
+    [chromium-desktop] › tests\e2e\salon-3d-real.spec.ts:35:7 › reunion: escena real dibujada e interactiva, no foto de respaldo 

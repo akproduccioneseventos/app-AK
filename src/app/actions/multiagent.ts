@@ -163,7 +163,7 @@ export async function sendPersistentMultiAgentMessage(input: {
         const targetFiestaId = data.fiestaId || input.fiestaId;
         if (targetFiestaId) {
           const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
-          const { updateTareas } = await import('@/app/actions/fiesta/tareas.actions');
+          const { marcarTarea } = await import('@/app/actions/fiesta/tareas.actions');
           const { LECTURA_COMPLETA } = await import('@/lib/fiesta/lectura-completa');
           const fiesta = await getFiestaById(targetFiestaId, LECTURA_COMPLETA);
           if (!fiesta) {
@@ -172,7 +172,7 @@ export async function sendPersistentMultiAgentMessage(input: {
             const tareasActuales = fiesta.tareas || [];
             let encontrada = false;
             let tareaCompletadaTexto = '';
-            let nuevasTareas = tareasActuales;
+            let idACompletar = '';
 
             if (data.tareaId) {
               // Búsqueda exacta por id: si no existe, error claro
@@ -182,9 +182,7 @@ export async function sendPersistentMultiAgentMessage(input: {
               } else {
                 encontrada = true;
                 tareaCompletadaTexto = tarea.texto;
-                nuevasTareas = tareasActuales.map((t) =>
-                  t.id === data.tareaId ? { ...t, completada: true } : t
-                );
+                idACompletar = tarea.id;
               }
             } else if (data.texto) {
               // Búsqueda por texto: todas las que contienen el fragmento
@@ -199,16 +197,14 @@ export async function sendPersistentMultiAgentMessage(input: {
               } else {
                 encontrada = true;
                 tareaCompletadaTexto = candidatas[0].texto;
-                nuevasTareas = tareasActuales.map((t) =>
-                  t.id === candidatas[0].id ? { ...t, completada: true } : t
-                );
+                idACompletar = candidatas[0].id;
               }
             }
 
             // Si la IA no dijo cuál tarea, no se adivina: marcar la primera de la lista daría por
             // hecha una tarea que nadie hizo.
             if (encontrada) {
-              const updateRes = await updateTareas(targetFiestaId, nuevasTareas);
+              const updateRes = await marcarTarea(targetFiestaId, idACompletar, true);
               if (updateRes.success) {
                 result.response += `\n\n✅ **¡Tarea completada!** ✔️\n• **Tarea**: ${tareaCompletadaTexto || data.texto || 'Tarea'}\n• **Estado**: Hecha`;
               } else {
@@ -878,7 +874,8 @@ export async function ejecutarAccionSecretario(input: {
     const query = datos.consulta || datos.query || '';
     try {
       const { readData, writeData } = await import('@/lib/data-service');
-      const hoyStr = new Date().toISOString().slice(0, 10);
+      const { hoyEnUruguay } = await import('@/lib/utils');
+      const hoyStr = hoyEnUruguay();
       const tracking = await readData<{ fecha: string; count: number }>('asistente-web-busquedas.json', {
         fecha: hoyStr,
         count: 0,

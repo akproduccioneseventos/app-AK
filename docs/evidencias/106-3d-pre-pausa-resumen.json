@@ -1,0 +1,195 @@
+{
+  "sourceSha": "583c9b27c1f129892fc5bac16dbee725d460eb52",
+  "stats": {
+    "startTime": "2026-10-12T13:08:44.865Z",
+    "duration": 247422.966,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 17432,
+      "errors": [],
+      "files": [
+        {
+          "name": "ayuda-lienzo.json",
+          "path": "106-artifactos/106-3d-pre-pausa-000.json"
+        },
+        {
+          "name": "ayuda-lienzo.png",
+          "path": "106-artifactos/106-3d-pre-pausa-001.png"
+        }
+      ]
+    },
+    {
+      "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 23418,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 55,
+            "line": 76
+          },
+          "message": "Error: Pausar detiene el giro automatico\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0.01\u001b[39m\nReceived:   \u001b[31m0.0939670138888889\u001b[39m\n\n  74 |   await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused }), contentType: 'application/json' });\n  75 |   // OrbitControls frena con amortiguacion: se tolera antialias, no un giro sostenido.\n> 76 |   expect(paused, 'Pausar detiene el giro automatico').toBeLessThan(0.01);\n     |                                                       ^\n  77 |   expect(paused).toBeLessThan(rotating / 10);\n  78 |   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');\n  79 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:76:55"
+        }
+      ],
+      "files": [
+        {
+          "name": "recorrido-automatico.json",
+          "path": "106-artifactos/106-3d-pre-pausa-002.json"
+        },
+        {
+          "name": "recorrido-pausado.json",
+          "path": "106-artifactos/106-3d-pre-pausa-003.json"
+        },
+        {
+          "name": "screenshot",
+          "path": "106-artifactos/106-3d-pre-pausa-004.png"
+        },
+        {
+          "name": "error-context",
+          "path": "106-artifactos/106-3d-pre-pausa-005.bin"
+        }
+      ]
+    },
+    {
+      "title": "la ayuda queda fuera del lienzo y la navegacion no esta tapada",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 16441,
+      "errors": [],
+      "files": [
+        {
+          "name": "ayuda-lienzo.json",
+          "path": "106-artifactos/106-3d-pre-pausa-006.json"
+        },
+        {
+          "name": "ayuda-lienzo.png",
+          "path": "106-artifactos/106-3d-pre-pausa-007.png"
+        }
+      ]
+    },
+    {
+      "title": "Recorrer mueve la escena sin arrastrar y se puede pausar",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 92872,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts",
+            "column": 55,
+            "line": 76
+          },
+          "message": "Error: Pausar detiene el giro automatico\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: < \u001b[32m0.01\u001b[39m\nReceived:   \u001b[31m0.05154079861111111\u001b[39m\n\n  74 |   await info.attach('recorrido-pausado.json', { body: JSON.stringify({ rotating, paused }), contentType: 'application/json' });\n  75 |   // OrbitControls frena con amortiguacion: se tolera antialias, no un giro sostenido.\n> 76 |   expect(paused, 'Pausar detiene el giro automatico').toBeLessThan(0.01);\n     |                                                       ^\n  77 |   expect(paused).toBeLessThan(rotating / 10);\n  78 |   await expect(page.getByRole('button', { name: 'Recorrer', exact: true })).toHaveAttribute('aria-pressed', 'false');\n  79 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-ayuda-recorrido.spec.ts:76:55"
+        }
+      ],
+      "files": [
+        {
+          "name": "recorrido-automatico.json",
+          "path": "106-artifactos/106-3d-pre-pausa-008.json"
+        },
+        {
+          "name": "recorrido-pausado.json",
+          "path": "106-artifactos/106-3d-pre-pausa-009.json"
+        },
+        {
+          "name": "error-context",
+          "path": "106-artifactos/106-3d-pre-pausa-010.bin"
+        }
+      ]
+    },
+    {
+      "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 9584,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "106-artifactos/106-3d-pre-pausa-011.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "106-artifactos/106-3d-pre-pausa-012.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "106-artifactos/106-3d-pre-pausa-013.json"
+        }
+      ]
+    },
+    {
+      "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 17984,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "106-artifactos/106-3d-pre-pausa-014.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "106-artifactos/106-3d-pre-pausa-015.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "106-artifactos/106-3d-pre-pausa-016.json"
+        }
+      ]
+    },
+    {
+      "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 31233,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "106-artifactos/106-3d-pre-pausa-017.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "106-artifactos/106-3d-pre-pausa-018.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "106-artifactos/106-3d-pre-pausa-019.json"
+        }
+      ]
+    },
+    {
+      "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 29485,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "106-artifactos/106-3d-pre-pausa-020.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "106-artifactos/106-3d-pre-pausa-021.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "106-artifactos/106-3d-pre-pausa-022.json"
+        }
+      ]
+    }
+  ]
+}

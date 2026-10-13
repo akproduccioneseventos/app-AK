@@ -1,0 +1,33 @@
+{
+  "source": "/invitacion/e2e_99_qr_uuid_1791695586308/invitado/g99uuid?token=11111111-2222-4333-8444-555555555555",
+  "densityControls": [
+    {
+      "scale": 1,
+      "width": 234,
+      "state": {
+        "id": "g99uuid",
+        "nombre": "Invitado ficticio archivo preservado99",
+        "rsvp": "Confirmado",
+        "categoria": "Adulto",
+        "partySize": 2,
+        "guestAccessToken": "11111111-2222-4333-8444-555555555555",
+        "checkedIn": false
+      },
+      "text": "Control de Acceso\nFiesta de esta noche\nNotFoundException: No MultiFormat Readers were able to detect the code.\nChoose Another - density-control.png\nOr drop an image to scan\nScan using camera directly"
+    },
+    {
+      "scale": 2,
+      "width": 470,
+      "state": {
+        "id": "g99uuid",
+        "nombre": "Invitado ficticio archivo preservado99",
+        "rsvp": "Confirmado",
+        "categoria": "Adulto",
+        "partySize": 2,
+        "guestAccessToken": "11111111-2222-4333-8444-555555555555",
+        "checkedIn": false
+      },
+      "text": "Control de Acceso\nFiesta de esta noche\nNotFoundException: No MultiFormat Readers were able to detect the code.\nChoose Another - density-control.png\nOr drop an image to scan\nScan using camera directly"
+    }
+  ]
+}

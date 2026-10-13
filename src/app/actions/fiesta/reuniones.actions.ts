@@ -2,24 +2,29 @@
 
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { syncReunionToGoogleWorkspace } from '../google-workspace-extended';
-import { getFiestaById, updateFiestaPartial } from './fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { requireAppSession } from '@/lib/auth/require-session';
 
+/**
+ * Cambia la lista de reuniones SOBRE LA FIESTA DE ESE MOMENTO, adentro del turno
+ * (`actualizarFiesta`). Antes se leia la fiesta afuera del turno y se guardaba la lista armada
+ * con esa lectura: dos reuniones agregadas a la vez dejaban una sola y las dos pantallas decian
+ * "guardado" (pregunta 22 de COMO-AUDITAR.md).
+ */
 async function updateFiestaReuniones(
   fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => Reunion[]
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
-    const currentData = await getFiestaById(fiestaId);
-    if (!currentData) {
-      throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
+    const r = await actualizarFiesta(
+      fiestaId,
+      (actual) => ({ ...actual, reuniones: updateFn(actual) }),
+      { soloEquipo: true },
+    );
+    if (!r.success) {
+      return { success: false, error: r.error || 'No se pudieron guardar las reuniones de la fiesta.' };
     }
-    const updatedReuniones = updateFn(currentData);
-    const guardado = await updateFiestaPartial(fiestaId, { reuniones: updatedReuniones });
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'No se pudieron guardar las reuniones de la fiesta.' };
-    }
-    return { success: true, updatedFiesta: { ...currentData, reuniones: updatedReuniones } };
+    return { success: true, updatedFiesta: r.updatedFiesta };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -37,12 +42,13 @@ export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
 
   let newReunion: Reunion | null = null;
   const result = await updateFiestaReuniones(reunionData.fiestaId, data => {
-    newReunion = { ...reunionData, id: `reunion_${Date.now()}` };
+    newReunion = { ...reunionData, id: `reunion_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` };
     return [...(data.reuniones || []), newReunion];
   });
 
   if (result.success && newReunion) {
-    syncReunionInBackground(reunionData.fiestaId, newReunion, true);
+    const guardada = result.updatedFiesta?.reuniones?.find(r => r.id === (newReunion as Reunion).id) ?? newReunion;
+    syncReunionInBackground(reunionData.fiestaId, guardada, true);
   }
 
   return { ...result, reunion: newReunion };
@@ -62,13 +68,14 @@ export async function updateReunion(updatedReunion: Reunion) {
    * de una reunion **que ya no existe**.
    */
   let existia = false;
-  const result = await updateFiestaReuniones(updatedReunion.fiestaId, data =>
-    (data.reuniones || []).map(r => {
+  const result = await updateFiestaReuniones(updatedReunion.fiestaId, data => {
+    existia = false;
+    return (data.reuniones || []).map(r => {
       if (r.id !== updatedReunion.id) return r;
       existia = true;
       return updatedReunion;
-    })
-  );
+    });
+  });
 
   if (result.success && !existia) {
     return {
@@ -78,7 +85,9 @@ export async function updateReunion(updatedReunion: Reunion) {
   }
 
   if (result.success) {
-    syncReunionInBackground(updatedReunion.fiestaId, updatedReunion, true);
+    // El aviso al calendario sale con lo que quedo guardado, no con lo que mando la pantalla.
+    const guardada = result.updatedFiesta?.reuniones?.find(r => r.id === updatedReunion.id) ?? updatedReunion;
+    syncReunionInBackground(updatedReunion.fiestaId, guardada, true);
   }
 
   return { ...result, reunion: updatedReunion };

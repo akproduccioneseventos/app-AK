@@ -1,0 +1,94 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium-desktop] › tests\e2e\calendarios-react19.spec.ts:19:5 › agenda: elegir dia y navegar meses sin tapar los controles
+[2/8] [chromium-desktop] › tests\e2e\calendarios-react19.spec.ts:38:5 › redes: calendario visible y navegacion mensual
+[3/8] [chromium-desktop] › tests\e2e\qr-descargado-lector-real.spec.ts:25:7 › el QR descargado con token corto entra por el lector real
+[4/8] [chromium-desktop] › tests\e2e\qr-descargado-lector-real.spec.ts:25:7 › el QR descargado con token largo entra por el lector real
+[5/8] [chromium-mobile] › tests\e2e\calendarios-react19.spec.ts:19:5 › agenda: elegir dia y navegar meses sin tapar los controles
+  1) [chromium-mobile] › tests\e2e\calendarios-react19.spec.ts:19:5 › agenda: elegir dia y navegar meses sin tapar los controles 
+
+    Error: El mes no tapa el control de navegacion
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      13 |     const overlapX = Math.min(label.x + label.width, button.x + button.width) - Math.max(label.x, button.x);
+      14 |     const overlapY = Math.min(label.y + label.height, button.y + button.height) - Math.max(label.y, button.y);
+    > 15 |     expect(overlapX > 0 && overlapY > 0, 'El mes no tapa el control de navegacion').toBe(false);
+         |                                                                                     ^
+      16 |   }
+      17 | }
+      18 |
+        at headerDoesNotOverlap (C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\calendarios-react19.spec.ts:15:85)
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\calendarios-react19.spec.ts:27:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa105-compat-artifacts\calendarios-react19-agenda-ecb01-ses-sin-tapar-los-controles-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa105-compat-artifacts\calendarios-react19-agenda-ecb01-ses-sin-tapar-los-controles-chromium-mobile\error-context.md
+
+
+[6/8] [chromium-mobile] › tests\e2e\calendarios-react19.spec.ts:38:5 › redes: calendario visible y navegacion mensual
+  2) [chromium-mobile] › tests\e2e\calendarios-react19.spec.ts:38:5 › redes: calendario visible y navegacion mensual 
+
+    Test timeout of 90000ms exceeded.
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+      - waiting for getByRole('tabpanel').getByRole('button', { name: 'Ir al mes siguiente' })
+        - locator resolved to <button type="button" aria-label="Ir al mes siguiente" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold ring-offset-background transition-all duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input text-foregro…>…</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not stable
+        - retrying click action
+        - waiting 20ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <div class="flex justify-center pt-1 relative items-center">…</div> from <div class="space-y-4">…</div> subtree intercepts pointer events
+      - retrying click action
+        - waiting 100ms
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      - retrying click action
+        - waiting 100ms
+        159 × waiting for element to be visible, enabled and stable
+            - element is visible, enabled and stable
+            - scrolling into view if needed
+            - done scrolling
+            - <div class="flex justify-center pt-1 relative items-center">…</div> from <div class="space-y-4">…</div> subtree intercepts pointer events
+          - retrying click action
+            - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+        - element is not stable
+      - retrying click action
+        - waiting 500ms
+
+
+      47 |   await headerDoesNotOverlap(caption, panel.getByRole('button', { name: 'Ir al mes anterior' }));
+      48 |   const initialMonth = await caption.textContent();
+    > 49 |   await next.click();
+         |              ^
+      50 |   await expect(caption).not.toHaveText(initialMonth!);
+      51 |   await panel.getByRole('button', { name: 'Ir al mes anterior' }).click();
+      52 |   await expect(caption).toHaveText(initialMonth!);
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-react19-candidato-103\tests\e2e\calendarios-react19.spec.ts:49:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa105-compat-artifacts\calendarios-react19-redes--317ce-isible-y-navegacion-mensual-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa105-compat-artifacts\calendarios-react19-redes--317ce-isible-y-navegacion-mensual-chromium-mobile\error-context.md
+
+
+[7/8] [chromium-mobile] › tests\e2e\qr-descargado-lector-real.spec.ts:25:7 › el QR descargado con token corto entra por el lector real
+[8/8] [chromium-mobile] › tests\e2e\qr-descargado-lector-real.spec.ts:25:7 › el QR descargado con token largo entra por el lector real
+  2 failed
+    [chromium-mobile] › tests\e2e\calendarios-react19.spec.ts:19:5 › agenda: elegir dia y navegar meses sin tapar los controles 
+    [chromium-mobile] › tests\e2e\calendarios-react19.spec.ts:38:5 › redes: calendario visible y navegacion mensual 
+  6 passed (3.3m)

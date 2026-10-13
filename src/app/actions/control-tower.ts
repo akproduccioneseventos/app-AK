@@ -1,4 +1,5 @@
 'use server';
+import { diasHastaEnUruguay } from '@/lib/utils';
 
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
@@ -22,11 +23,7 @@ function toDate(value?: string | Date | null): Date | null {
 }
 
 function daysUntil(date: Date) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(date);
-  target.setHours(0, 0, 0, 0);
-  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return diasHastaEnUruguay(date);
 }
 
 function money(value: number) {
@@ -41,9 +38,14 @@ import { requireAppSession } from '@/lib/auth/require-session';
 
 export async function getControlTowerData() {
   await requireAppSession();
+  // Una lectura que FALLA no es una lista vacia: se anota para que la pantalla no diga "todo tranquilo".
+  let lecturaDeFiestasFallo = false;
   const [dashboardResult, fiestas, presupuestos, leads, notifications] = await Promise.all([
     getDashboardKpiData(),
-    getAllFiestas().catch(() => []),
+    getAllFiestas().catch(() => {
+      lecturaDeFiestasFallo = true;
+      return [];
+    }),
     getPresupuestos().catch(() => []),
     getCrmLeads().catch(() => []),
     getNotifications().catch(() => []),
@@ -141,6 +143,8 @@ export async function getControlTowerData() {
   return {
     success: true,
     data: {
+      // true = no se pudieron leer las fiestas; los numeros y la lista de abajo estan incompletos.
+      fiestasNoSeLeyeron: lecturaDeFiestasFallo || !dashboard,
       kpis: {
         fiestasFuturas: dashboard?.fiestasFuturas ?? 0,
         prospectosActivos: dashboard?.prospectosActivos ?? 0,
