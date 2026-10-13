@@ -1,4 +1,4 @@
-# Estado actual - 13/10/2026 (Codex118 comprobada; PR1293 ABIERTA)
+# Estado actual - 13/10/2026 (Codex119 manual en validacion; PR1293 ABIERTA)
 
 Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
@@ -25,7 +25,9 @@ Fuente final662f123d; head de entrega comprobar en GitHub antes de subir.
 -161 cerrada: ACK2->2/recarga/CRMsinrepetir/nueva cotizacion/documento visible.
 -118 SDK0,servicios/agentes cerrados,bytes restaurados; prototipo2FAIL conservados.
 -155 firmador/exports ya corregidos:51unidades116 PASS; proveedor real no probado.
--Siguiente guardado manual/AI: riesgos118-consumidores, reproducir antes de ordenar.
+-119 manual ACK perdido reprodujo1->2 en662; parche directo,21unidades/tipos PASS.
+-119 falta congelar/build/retest/broad; no certificar nuevo codigo con build662.
+-AI sigue riesgo118-consumidores NO ejecutado; no confundir con manual confirmado.
 -Restan152/deps/109;19originales/OAuth/Hosting/hardware no certificados.
 
 ## Esperando decisión del dueño

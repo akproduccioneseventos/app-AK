@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex119 en curso: presupuesto manual con ACK perdido
+
+-Reproducido sobre fuente662f123d en navegador compilado y SDK demo: guardar
+ deja1documento; perder solo respuesta y reintentar deja2 (ambos total900).
+ Evidencia119-manual-antes-arreglo/119-manual-ack-antes-arreglo, no deduccion.
+-Manual usa ahora operationId estable por intento y namespace distinto del
+ configurador; ref bloquea doble accion mientras guarda. Crear nueva cotizacion
+ tras confirmar sigue permitido; editar conserva updatePresupuesto. Sin cambiar
+ formulas, descuento10%, fechas, permisos ni proceso de cupon/fiesta.
+-21unidades focalizadas PASS y tipos PASS antes de congelar. Falta build/retest
+ nativo y validacion amplia sobre fuente nueva: NO declarar resuelto aun.
+-PR1293 ABIERTA/main4c sin cambios. Privado Claude NO CONTRASTADO CON LA TANDA.
+
 ## 13/10/2026 - Codex118:161 contrastada; no repetir configurador/ACK
 
 -Fuente final662f123d. Clave por intento+actor/carga, creacion y numero en

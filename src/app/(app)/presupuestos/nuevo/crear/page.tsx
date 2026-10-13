@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -26,6 +26,7 @@ import { getGuestCountForItem, recalcularCostoItem, calculateSuggestedQuantity }
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
+import { obtenerIntentoPresupuestoManual, terminarIntentoPresupuestoManual } from '@/lib/budget/intento-configurador';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -91,6 +92,7 @@ function CrearPresupuestoContent() {
     const searchParams = useSearchParams();
     const { toast } = useToast();
     const [isSaving, setIsSaving] = useState(false);
+    const savingRef = useRef(false);
     const [isLoadingInitialData, setIsLoadingInitialData] = useState(true);
     const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
     const [paquetesBase, setPaquetesBase] = useState<PaqueteArmadoRapido[]>([]);
@@ -407,6 +409,7 @@ function CrearPresupuestoContent() {
     }, [formData]);
 
     const handleSave = async () => {
+        if (savingRef.current) return;
         const descuentoValorNum = parseFloat(formData.descuentoValor || '0') || 0;
         const eventoYear = formData.eventoFecha?.getFullYear();
         const createdYear = new Date(formData.timestamp || Date.now()).getFullYear();
@@ -462,16 +465,17 @@ function CrearPresupuestoContent() {
             timestamp: formData.timestamp || new Date().toISOString(),
         };
         
+        savingRef.current = true;
         setIsSaving(true);
         try {
           let result;
-          // Con tope de espera: si el servidor no contesta, el boton vuelve y avisa que
-          // no se guardo nada. Sin esto, el operador se queda mirando "Guardando..." sin
-          // saber si el presupuesto entro, y termina apretando de nuevo.
+          // Un corte puede ocurrir despues de guardar: conservar la clave hasta
+          // recibir confirmacion para que reintentar recupere el mismo presupuesto.
           if (editingPresupuestoId) {
             result = await conTopeDeEspera(updatePresupuesto({ ...presupuestoData, id: editingPresupuestoId }));
           } else {
-            result = await conTopeDeEspera(savePresupuesto(presupuestoData, { source: 'manual', leadId: leadIdFromParams || undefined }));
+            const operationId = await obtenerIntentoPresupuestoManual({ ...presupuestoData, leadId: leadIdFromParams || undefined });
+            result = await conTopeDeEspera(savePresupuesto(presupuestoData, { source: 'manual', leadId: leadIdFromParams || undefined, operationId }));
           }
 
           if (result.success && result.id) {
@@ -516,11 +520,13 @@ function CrearPresupuestoContent() {
               toast({ title: 'Ojo con el seguimiento', description: result.avisoCrm, variant: 'destructive' });
             }
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
+            if (!editingPresupuestoId) terminarIntentoPresupuestoManual();
             router.push(`/presupuestos/${result.id}/ver`);
           } else { throw new Error(result.error || "Error al guardar"); }
         } catch (error: any) {
           toast({ title: "Error al Guardar", description: error.message, variant: "destructive" });
         } finally {
+          savingRef.current = false;
           setIsSaving(false);
         }
     };
