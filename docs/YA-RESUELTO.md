@@ -12944,3 +12944,21 @@ Dueno pide continuidad al dormir: heartbeat del chat cada30min activo,
 continuar-auditoria-ak-sin-repetir. Lee este registro y contrasta SHA; una tarea
 acotada por corrida, se detiene ante limites imprescindibles sin gastar en bucle.
 No dependencia de app ni promesa de ejecucion ilimitada; depende de cuota.
+
+### Cierre comprobado114 - fuente e5f22b53, 12/10/2026
+Sustituye PENDIENTES de validacion114 anteriores, no limites de toda app.
+Build con lint/tipos activos, tsc, lint, acentos2794 PASS.696suites4229tests PASS,
+cero fallidas/omitidas.90criterios:6mantenimiento/14costos/2incidentes/4titulos
+con8muestras y Guardar/Volver reales/64documentos por perfiles y enlaces reales.
+HTTP200 perdido no duplica gasto/ajuste; dos operadores no pierden historial;
+gramos conservados, costo correcto, stock/menu ajeno/precio explicito intactos.
+155 documental niega antes de leer, enlaces reales entregan PDF exacto al equipo
+permitido.155 completa NO cerrada: sharp y variantes siguen pendientes.
+Grafo local e5:14127nodos/42925relaciones/882comunidades, sin costo API.
+Datos ficticios retirados, copias restauradas byte a byte, servicios detenidos.
+Errores del harness conservados/excluidos: cookie sin expires y cuerpo del visor
+PDF no disponible por CDP; no defectos nuevos de app.114-aceptacion.json verifica.
+Nuevo limite: recibos ajustes_costos_insumos fuera del backup/mapa Firestore;
+round-trip NO certificado.159 conserva ID al recargar la misma pestaña, no cerrarla.
+152-154/156 pendientes; privado Claude NO contrastado; Hosting/integraciones/
+19presupuestos originales/hardware no certificados. PR abierta, dueno fusiona.

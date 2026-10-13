@@ -18,7 +18,7 @@ function cookie(perfil, expired = false) {
   const user = { email: 'qa114@example.invalid', userId: 'qa114', role: perfil === 'dueno' ? 'admin' : 'user', perfil };
   const payload = `v1.${Date.now() + (expired ? -60000 : 3600000)}.${crypto.randomUUID()}.${encodeURIComponent(JSON.stringify(user))}`;
   const token = `${payload}.${crypto.createHmac('sha256', process.env.AK_SESSION_SECRET).update(payload).digest('hex')}`;
-  return { name: 'ak_session', value: encodeURIComponent(token), domain: '127.0.0.1', path: '/', httpOnly: true, sameSite: 'Lax', secure: false };
+  return { name: 'ak_session', value: encodeURIComponent(token), domain: '127.0.0.1', path: '/', expires: -1, httpOnly: true, sameSite: 'Lax', secure: false };
 }
 try {
   for (const target of targets) {
@@ -46,6 +46,16 @@ try {
   await context.addCookies([cookie('dueno')]);
   await context.addInitScript(() => { localStorage.setItem('ak_session', 'true'); sessionStorage.setItem('ak_session', 'true'); });
   await context.route(/^https:\/\//, route => route.abort('blockedbyclient'));
+  const delivered = new Map();
+  await context.route('**/api/**', async route => {
+    const pathname = new URL(route.request().url()).pathname;
+    if (!pathname.endsWith('/' + filename)) return route.fallback();
+    // Chrome's PDF viewer does not expose its response body through CDP.
+    const response = await route.fetch({ maxRedirects: 0 });
+    const body = await response.body();
+    delivered.set(pathname, { status: response.status(), identicalBytes: body.equals(bytes), sha256: crypto.createHash('sha256').update(body).digest('hex') });
+    await route.fulfill({ response, body });
+  });
   const page = await context.newPage();
   page.setDefaultTimeout(20000);
   for (const [url, target] of [['/customers/qa114_cliente', 'contracts'], ['/customers/qa114_cliente', 'budgets'], ['/customers/qa114_cliente', 'salon-contracts'], ['/empleados/qa114_empleado/editar', 'employee-contracts']]) {
@@ -58,9 +68,10 @@ try {
       const responsePromise = context.waitForEvent('response', { predicate: response => new URL(response.url()).pathname === href, timeout: 30000 });
       await link.click();
       const response = await responsePromise;
-      expect(response.status()).toBe(200); expect((await response.body()).equals(bytes)).toBe(true);
+      expect(response.status()).toBe(200); expect(delivered.get(href)?.identicalBytes).toBe(true);
+      expect(delivered.get(href)?.status).toBe(200);
       for (const tab of context.pages()) if (tab !== page) await tab.close();
-      r.status = 'PASS'; r.actualLink = href;
+      r.status = 'PASS'; r.actualLink = href; r.actualResponse = delivered.get(href);
     } catch (e) { r.error = e.message; }
     results.push(r);
   }

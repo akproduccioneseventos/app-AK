@@ -81,13 +81,16 @@ No reabrir orden104: la accion y la alerta ya estan conectadas; estos dos
 bordes financieros son nuevos. Propuesta UX aparte: indicar que equipo vence
 y enlace a su ficha; no cuenta como defecto que frene aceptacion actual.
 
-Claude debe adjuntar SHA, diff, pruebas focalizadas, compilacion y datos finales.
-Regresiones formales bajo tests/e2e: PENDIENTES de crear/ejecutar por Claude;
-las sondas existentes reprodujeron fallos, NO aprueban esta correccion.
-No declarar solucionado hasta repetir sobre el SHA corregido. No fusionar.
+Actualizacion114: Codex implementa por autorizacion nueva; fuente e5f22b53.
+10tests focalizados y6criterios nativos PC/Pixel7 PASS: negativo sin escritura,
+recarga trasHTTP200 perdido sin duplicado y dos operadores sin perder filas/gastos.
+ID conservado en sessionStorage: cerrar la pestaña sigue fuera de esa garantia.
+Ver114-aceptacion.json, build y696suites4229tests finales.112 intacta como fallo.
+No Hosting ni certificacion global, no fusionar.
 
 ```comprobar
 archivo: src/app/actions/activos-fijos.ts
 usa: registrarMantenimientoDeEquipo en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
-prueba: docs/evidencias/112-mantenimiento-fallos.mjs
+prueba: docs/evidencias/114-mantenimiento-fallos.mjs
+prueba: src/__tests__/mantenimiento-reintentos-y-concurrencia.test.ts
 ```

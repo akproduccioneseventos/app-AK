@@ -1,0 +1,40 @@
+{
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "fixtureSha256": "902bcec855550ae59ba0e25a50bbef261a188b4beb89659b585e6a87f16418c3",
+  "results": [],
+  "cleanup": {
+    "restored": [
+      {
+        "file": "src\\data\\budgets\\qa114-f4342dea-5827-4e82-b431-9e0178ff0f8a.pdf",
+        "beforeSha256": null,
+        "qaSha256": "902bcec855550ae59ba0e25a50bbef261a188b4beb89659b585e6a87f16418c3"
+      },
+      {
+        "file": "src\\data\\contracts\\fiestas\\qa114_documento\\qa114-f4342dea-5827-4e82-b431-9e0178ff0f8a.pdf",
+        "beforeSha256": null,
+        "qaSha256": "902bcec855550ae59ba0e25a50bbef261a188b4beb89659b585e6a87f16418c3"
+      },
+      {
+        "file": "src\\data\\contracts\\qa114-f4342dea-5827-4e82-b431-9e0178ff0f8a.pdf",
+        "beforeSha256": null,
+        "qaSha256": "902bcec855550ae59ba0e25a50bbef261a188b4beb89659b585e6a87f16418c3"
+      },
+      {
+        "file": "src\\data\\employee-contracts\\qa114-f4342dea-5827-4e82-b431-9e0178ff0f8a.pdf",
+        "beforeSha256": null,
+        "qaSha256": "902bcec855550ae59ba0e25a50bbef261a188b4beb89659b585e6a87f16418c3"
+      },
+      {
+        "file": "src\\data\\payment-proofs\\qa114-f4342dea-5827-4e82-b431-9e0178ff0f8a.pdf",
+        "beforeSha256": null,
+        "qaSha256": "902bcec855550ae59ba0e25a50bbef261a188b4beb89659b585e6a87f16418c3"
+      },
+      {
+        "file": "src\\data\\salon-contracts\\qa114-f4342dea-5827-4e82-b431-9e0178ff0f8a.pdf",
+        "beforeSha256": null,
+        "qaSha256": "902bcec855550ae59ba0e25a50bbef261a188b4beb89659b585e6a87f16418c3"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "sha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "mode": "start",
+  "args": [
+    "node_modules/next/dist/bin/next",
+    "start",
+    "--hostname",
+    "127.0.0.1",
+    "--port",
+    "3301"
+  ],
+  "launcher": 35632,
+  "child": 35076,
+  "started": "2026-10-13T00:47:29.782Z",
+  "status": "finished",
+  "exitCode": 4294967295,
+  "finished": "2026-10-13T00:49:24.598Z"
+}

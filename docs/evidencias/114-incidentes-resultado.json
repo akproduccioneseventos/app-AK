@@ -1,0 +1,52 @@
+{
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "incidente-nuevo-y-borrador-fallido",
+      "status": "PASS",
+      "details": {
+        "errorDraftKept": true,
+        "contextAndResponsibleKept": true,
+        "distinctRecords": 2
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "incidente-nuevo-y-borrador-fallido",
+      "status": "PASS",
+      "details": {
+        "errorDraftKept": true,
+        "contextAndResponsibleKept": true,
+        "distinctRecords": 2
+      }
+    }
+  ],
+  "cleanup": {
+    "deleted": 7,
+    "documentsRemaining": 0,
+    "restored": [
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "3939cf8b343289174dd516bf9d83c2e821b6cd3d0112f0220096545b39d6b061"
+      },
+      {
+        "file": "src\\data\\incidentes.json",
+        "beforeSha256": null,
+        "qaSha256": "f3cf7c0b8268553b2105e467c7c3ea6928ca3b60a16539406148ac1f2065c087"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "3939cf8b343289174dd516bf9d83c2e821b6cd3d0112f0220096545b39d6b061"
+      },
+      {
+        "file": "data\\incidentes.json",
+        "beforeSha256": null,
+        "qaSha256": "f3cf7c0b8268553b2105e467c7c3ea6928ca3b60a16539406148ac1f2065c087"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

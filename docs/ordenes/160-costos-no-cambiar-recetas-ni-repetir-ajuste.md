@@ -75,15 +75,21 @@ menu ajeno y precio de venta50 conservados. Consumos reales reabiertos PC/celula
 Correccion66 de menus pendientes EXISTE y no se reabre como ausente. Este borde
 es HTTP200 COMPLETO perdido. Las pruebas unitarias antiguas no lo cubren por UI.
 No certificar menus originales, presupuestos reales ni Hosting. No fusionar.
-Regresiones formales nuevas: PENDIENTES de crear/ejecutar por Claude. Las sondas
-existentes reproducen FAIL, no aprueban la correccion ni la app entera.
+Actualizacion114: Codex implementa por autorizacion nueva; fuente e5f22b53.
+14criterios nativos PC/Pixel7 PASS y tests de recibo/unidades: g/kg conservados,
+costos correctos, respuesta perdida y cerrar/reabrir pestaña sin repetir porcentaje.
+Recibo+ajuste atomicos y menus cercados ante reintento lento.114-aceptacion.json.
+113 conserva fallo historico. Respaldo/restauracion de recibos queda pendiente
+porque no figura en registro/mapa; no marcar toda costos limpia ni certificar app.
 
 ```comprobar
 archivo: src/app/actions/menus-catering.ts
 usa: conElInsumoNuevo en src/app/actions/menus-catering.ts
-prueba: docs/evidencias/113-costos-probe.mjs
+prueba: docs/evidencias/114-costos-probe.mjs
 
 archivo: src/app/actions/insumos.ts
 usa: adjustAllInsumoCosts en src/app/(app)/empresa/insumos/page.tsx
-prueba: docs/evidencias/113-costos-probe.mjs
+prueba: docs/evidencias/114-costos-probe.mjs
+prueba: src/__tests__/ajuste-costos-recibo-atomico.test.ts
+prueba: src/__tests__/insumo-receta-conserva-unidad.test.ts
 ```

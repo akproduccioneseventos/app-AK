@@ -1,5 +1,9 @@
 ## Descripcion del Cambio
 
+Actualizacion114: fuente e5f22b53f5538f7331620e6e80bfe430e49e7e2b.
+Codex corrige por nueva autorizacion, Luna6low UI/tests y director dinero/permisos.
+Checklist actual114; secciones106-113 historicas. Misma PR abierta, no merge.
+
 Una sola PR1288 existente, ABIERTA; no fusion automatica. Se conservan las
 correcciones102-105 y sus evidencias por SHA. Tanda106 contrastada con HEAD48829bfd
 y main99faf4eb. No se reinstalan dependencias en el junction del checkout principal.
@@ -22,15 +26,13 @@ y main99faf4eb. No se reinstalan dependencias en el junction del checkout princi
 - [x] Actualizacion de documentacion / configuracion y parches compatibles
 
 ## Lista de Verificacion (Checklist) antes de solicitar revision
-- [x] TypeScript exit0, fuente8fa5b56a2833938541a657dcd15ef88130d24b0e.
-- [x] Acentos exit0:2771archivos;4regresiones focalizadas aprobadas.
-- [x]692suites/4139Jest aprobadas,0fallidas/0omitidas; JSON comprimido con hashes.
+- [x] TypeScript exit0 e5, `tsc --noEmit` via114-ejecutar.
+- [x] Acentos exit0:2794archivos.
+- [x]696suites/4229Jest aprobadas,0fallidas/0omitidas; gzip/hashes.
 - [x] Build canonico final exit0 con lint/tipos/PWA activos; avisos conservados.
-- [x]12casos unicos navegador PC/celular:11pass de ronda general +2camaras
-  repetidas tras mejorar solo la sonda. Se conserva el timeout de la ronda inicial.
-- [x] Graphify actualizado localmente:13713nodos/42463relaciones/838comunidades.
-  Salida ignorada por Git; log incluido, no se afirma que el grafo se subio.
-- [ ] Emuladores Firebase repetidos en106: no forman parte de este retest.
+- [x]90criterios114:60HTTP por perfiles y30criterios navegador PC/celular.
+- [x] Grafo local e5:14127nodos/42925relaciones/882comunidades; ignorado por Git.
+- [x] SDK Firestore emulado demo-ak-producciones y Next compilado3301.
 
 Los22E2E de105 tienen su propia fuentea33; no se presentan como ejecutados
 sobre8fa.106 vuelve a probar los consumidores3D y las bibliotecas cambiadas.
@@ -38,14 +40,14 @@ En Jest se simula el renderer SOLO para comprobar props; en el navegador
 se usa WebGL real. Se conservan los fallos anteriores, no se aflojan criterios.
 
 ## Impacto en Firebase
-- [ ] Afecta reglas de Firestore / Seguridad
+- [x] Afecta Seguridad: permisos de servidor; no modifica firestore.rules.
 - [ ] Modifica Cloud Functions
 - [x] Modifica Hosting / Frontend y dependencias: requiere publicar
 - [ ] Requiere variables productivas adicionales
 
 ## Limites Y Pendientes
 
-No certificado0errores de toda la app. Audit:0critical/25high/65moderate/1low;
+No certificado0errores de toda la app. Snapshot106 Audit:0critical/25high/65moderate/1low;
 91entradas agregadas y27advisories unicos pendientes, no91defectos observados.
 No cuentas externas/modelos pagos,19originales manuales, empaquetado/despliegue
 Firebase del mismoSHA ni hardware fisico. Standalone apagado SOLO para QA local.
@@ -151,4 +153,18 @@ Esta PR queda ABIERTA para revision y fusion del dueno.
 -App8fa sin cambios/main99fa contrastado; NO tanda privada deClaude.
 -Fixturas restauradas, servicios propios cerrados. Continuidad nocturna del
   chat programada cada30min, segun disponibilidad/cuota; no dependencia productiva.
--Correcciones159/160 pendientes, PR abierta, no merge ni garantia0errores.
+-Correcciones159/160 pendientes en113, reemplazadas por retest114; no0errores.
+
+## Correcciones114 comprobadas
+-159: identidad de reintento+recarga, no doble gasto, historial transaccional.
+-160: receta conserva unidad/cantidad, ajuste+recibo atomicos, turno compartido,
+ reintento lento no pisa nueva tanda; respuesta perdida no multiplica otra vez.
+-157: incidente nuevo limpia textos solo tras exito; borrador fallido conservado.
+-158: titulos contenidos; Guardar/Volver reales PC/Pixel7 con8muestras.
+-155 parcial: seisPDF CONTABILIDAD/SUELDOS, positivos/negativos y4enlaces reales.
+-Build/tipos/lint/acentos/Jest y90criterios sobre e5;114-aceptacion.json verificable.
+-Fixtures restaurados, demo vacio, servicios propios detenidos; fallos previos
+ conservados/excluidos. No nuevas dependencias de herramientas en produccion.
+-Pendientes:152-154/156, sharp/variantes155, respaldo de recibos de ajuste;
+ no Hosting, cierre de pestaña de mantenimiento, cuentas externas ni hardware.
+-Sin merge ni datos reales. No representa una app completa sin errores.

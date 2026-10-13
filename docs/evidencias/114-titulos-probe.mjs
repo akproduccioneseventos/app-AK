@@ -43,12 +43,19 @@ try{
         });
         const button=page.getByRole('button',{name:'Guardar Cambios',exact:true});let clickTrial=true,error=null;
         try{await button.click({trial:true,timeout:5000});}catch(e){clickTrial=false;error=e.message;}
-        row.samples.push({variant,nombre,geometry,clickTrial,error});
         if(viewport==='mobile')await page.screenshot({path:`docs/evidencias/114-${k.name}-title-${variant}-mobile.png`,fullPage:true});
+        const back=root+'/empresa/'+k.route,editor=back+'/'+id+'/editar';
+        await page.getByRole('link',{name:'Volver',exact:true}).click();await expect(page).toHaveURL(back);
+        await page.goto(editor,{waitUntil:'networkidle'});await expect(page.locator('#item-nombre')).toHaveValue(nombre);
+        await page.getByRole('button',{name:'Guardar Cambios',exact:true}).click();await expect(page).toHaveURL(back,{timeout:30000});
+        const saved=(await db.collection(k.collection).doc(id).get()).data();
+        expect(saved.nombre).toBe(nombre);expect(saved.cantidadDisponible).toBe(1);expect(saved.unidad).toBe('Unidad');
+        await page.goto(editor,{waitUntil:'networkidle'});await expect(page.locator('#item-nombre')).toHaveValue(nombre);
+        row.samples.push({variant,nombre,geometry,clickTrial,error,backClicked:true,saveClicked:true,persistedAfterReload:true});
       }
       const a=row.samples[0].geometry,b=row.samples[1].geometry;
       row.status=b.scrollWidth>b.clientWidth+4||row.samples.some(s=>!s.clickTrial)?'FAIL':'PASS';
-      row.details={shortOverflow:a.scrollWidth-a.clientWidth,longOverflow:b.scrollWidth-b.clientWidth,readOnly:true,acceptance:row.status==='FAIL'?'FAIL_LONG_TITLE_OVERFLOWS_VIEWPORT':'PASS'};
+      row.details={shortOverflow:a.scrollWidth-a.clientWidth,longOverflow:b.scrollWidth-b.clientWidth,actualSaveAndBack:true,acceptance:row.status==='FAIL'?'FAIL_LONG_TITLE_OVERFLOWS_VIEWPORT':'PASS'};
       results.push(row);console.log(JSON.stringify({viewport,name:row.name,status:row.status,details:row.details}));
     }
     await context.close();
@@ -57,5 +64,6 @@ try{
   await browser.close();const removed=[];
   for(const c of await db.listCollections())for(const d of(await c.get()).docs){await d.ref.delete();removed.push(d.ref.path);}
   fs.writeFileSync('docs/evidencias/114-titulos-restauracion.json',JSON.stringify({...restore(),initialDocuments:0,removedEmulatorDocuments:removed},null,2));
-  fs.writeFileSync('docs/evidencias/114-titulos.json',JSON.stringify(results,null,2));await app.delete();
+  fs.writeFileSync('docs/evidencias/114-titulos.json',JSON.stringify({applicationSourceSha:process.env.COMMIT_SHA,results},null,2));await app.delete();
 }
+if(results.some(r=>r.status!=='PASS'))process.exitCode=1;

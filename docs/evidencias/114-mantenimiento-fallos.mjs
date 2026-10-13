@@ -31,6 +31,13 @@ try{
     };
     const state=async assetId=>(await db.collection('activos_fijos').doc(assetId).get()).data();
     const expenses=async assetId=>(await db.collection('gastos_generales').get()).docs.filter(d=>d.data().notas?.includes('('+assetId+')')).map(d=>({id:d.id,...d.data()}));
+    await record(viewport,'negative-cost-must-not-be-recorded-as-free-maintenance',async()=>{
+      const page=await context.newPage(),d=await fill(page,id,marker+' Costo invalido','-10');
+      await d.getByRole('button',{name:'Anotar mantenimiento',exact:true}).click();
+      await expect(page.getByText('Costo inválido',{exact:true})).toBeVisible();
+      expect((await state(id)).mantenimiento.historial).toHaveLength(0);expect(await expenses(id)).toHaveLength(0);
+      await page.close();return{historyUnchanged:true,noExpense:true,acceptance:'PASS'};
+    });
     await record(viewport,'lost-confirmation-retry-must-not-double-charge',async()=>{
       const page=await context.newPage(),d=await fill(page,id,marker+' Lampara','123.45');drop=true;
       await d.getByRole('button',{name:'Anotar mantenimiento',exact:true}).click();await expect(page.getByText('Error al registrar mantenimiento',{exact:true})).toBeVisible();

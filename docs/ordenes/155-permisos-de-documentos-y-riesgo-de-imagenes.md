@@ -103,8 +103,15 @@ El bloque siguiente es aceptacion PENDIENTE de la nueva correccion, no describe
 un import ya existente en employee-contracts. La funcion y los archivos existen;
 las pruebas nuevas propuestas no se presentan como ejecutadas.
 
+Actualizacion114: fuente e5f22b53. Se corrige la parte de seisPDF locales con
+permisos existentes;66unitarias y64controles runtime PASS, incluidos cuatro enlaces
+reales y bytes exactos. Ver114-aceptacion.json. Sondas109 quedan como historia.
+No reimplementar esa parte. Sharp y variantes Storage/exports siguen pendientes;
+no se declara155 completa ni Hosting ni acceso propio no definido.
+
 ```comprobar
 archivo: src/lib/auth/require-session.ts
 usa: requirePermiso en src/app/api/employee-contracts/[filename]/route.ts
-prueba: PENDIENTE tests/e2e/documentos-perfiles-y-pertenencia.spec.ts
+prueba: src/__tests__/documentos-permisos-de-area.test.ts
+prueba: docs/evidencias/114-documentos-probe.mjs
 ```

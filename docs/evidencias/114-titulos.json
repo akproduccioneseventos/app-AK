@@ -1,0 +1,257 @@
+{
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "asset-long-title-responsive",
+      "samples": [
+        {
+          "variant": "short",
+          "nombre": "QA114 Silla blanca",
+          "geometry": {
+            "innerWidth": 1440,
+            "innerHeight": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "visualViewport": {
+              "width": 1440,
+              "height": 1000,
+              "scale": 1
+            },
+            "title": {
+              "x": 556.5,
+              "width": 327,
+              "right": 883.5
+            }
+          },
+          "clickTrial": true,
+          "error": null,
+          "backClicked": true,
+          "saveClicked": true,
+          "persistedAfterReload": true
+        },
+        {
+          "variant": "long",
+          "nombre": "QA114_desktop_asset_8a060d52-71c1-48ff-b18a-41cec82cda94",
+          "geometry": {
+            "innerWidth": 1440,
+            "innerHeight": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "visualViewport": {
+              "width": 1440,
+              "height": 1000,
+              "scale": 1
+            },
+            "title": {
+              "x": 544.09375,
+              "width": 518.40625,
+              "right": 1062.5
+            }
+          },
+          "clickTrial": true,
+          "error": null,
+          "backClicked": true,
+          "saveClicked": true,
+          "persistedAfterReload": true
+        }
+      ],
+      "status": "PASS",
+      "details": {
+        "shortOverflow": 0,
+        "longOverflow": 0,
+        "actualSaveAndBack": true,
+        "acceptance": "PASS"
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "ingredient-long-title-responsive",
+      "samples": [
+        {
+          "variant": "short",
+          "nombre": "QA114 Silla blanca",
+          "geometry": {
+            "innerWidth": 1440,
+            "innerHeight": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "visualViewport": {
+              "width": 1440,
+              "height": 1000,
+              "scale": 1
+            },
+            "title": {
+              "x": 556.5,
+              "width": 327,
+              "right": 883.5
+            }
+          },
+          "clickTrial": true,
+          "error": null,
+          "backClicked": true,
+          "saveClicked": true,
+          "persistedAfterReload": true
+        },
+        {
+          "variant": "long",
+          "nombre": "QA114_desktop_ingredient_aca0fa5f-3b37-4efb-bc51-857b34dbdb0d",
+          "geometry": {
+            "innerWidth": 1440,
+            "innerHeight": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "visualViewport": {
+              "width": 1440,
+              "height": 1000,
+              "scale": 1
+            },
+            "title": {
+              "x": 542.84375,
+              "width": 519.65625,
+              "right": 1062.5
+            }
+          },
+          "clickTrial": true,
+          "error": null,
+          "backClicked": true,
+          "saveClicked": true,
+          "persistedAfterReload": true
+        }
+      ],
+      "status": "PASS",
+      "details": {
+        "shortOverflow": 0,
+        "longOverflow": 0,
+        "actualSaveAndBack": true,
+        "acceptance": "PASS"
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "asset-long-title-responsive",
+      "samples": [
+        {
+          "variant": "short",
+          "nombre": "QA114 Silla blanca",
+          "geometry": {
+            "innerWidth": 412,
+            "innerHeight": 839,
+            "scrollWidth": 412,
+            "clientWidth": 412,
+            "visualViewport": {
+              "width": 412,
+              "height": 839,
+              "scale": 1
+            },
+            "title": {
+              "x": 49.921875,
+              "width": 224.078125,
+              "right": 274
+            }
+          },
+          "clickTrial": true,
+          "error": null,
+          "backClicked": true,
+          "saveClicked": true,
+          "persistedAfterReload": true
+        },
+        {
+          "variant": "long",
+          "nombre": "QA114_mobile_asset_3b302d06-0585-4e76-90f6-69b0f329b225",
+          "geometry": {
+            "innerWidth": 412,
+            "innerHeight": 839,
+            "scrollWidth": 412,
+            "clientWidth": 412,
+            "visualViewport": {
+              "width": 412,
+              "height": 839,
+              "scale": 1
+            },
+            "title": {
+              "x": 36.90625,
+              "width": 237.09375,
+              "right": 274
+            }
+          },
+          "clickTrial": true,
+          "error": null,
+          "backClicked": true,
+          "saveClicked": true,
+          "persistedAfterReload": true
+        }
+      ],
+      "status": "PASS",
+      "details": {
+        "shortOverflow": 0,
+        "longOverflow": 0,
+        "actualSaveAndBack": true,
+        "acceptance": "PASS"
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "ingredient-long-title-responsive",
+      "samples": [
+        {
+          "variant": "short",
+          "nombre": "QA114 Silla blanca",
+          "geometry": {
+            "innerWidth": 412,
+            "innerHeight": 839,
+            "scrollWidth": 412,
+            "clientWidth": 412,
+            "visualViewport": {
+              "width": 412,
+              "height": 839,
+              "scale": 1
+            },
+            "title": {
+              "x": 49.921875,
+              "width": 224.078125,
+              "right": 274
+            }
+          },
+          "clickTrial": true,
+          "error": null,
+          "backClicked": true,
+          "saveClicked": true,
+          "persistedAfterReload": true
+        },
+        {
+          "variant": "long",
+          "nombre": "QA114_mobile_ingredient_d76a6db0-fae3-4b3d-8290-6d4fc45feef7",
+          "geometry": {
+            "innerWidth": 412,
+            "innerHeight": 839,
+            "scrollWidth": 412,
+            "clientWidth": 412,
+            "visualViewport": {
+              "width": 412,
+              "height": 839,
+              "scale": 1
+            },
+            "title": {
+              "x": 36.53125,
+              "width": 237.46875,
+              "right": 274
+            }
+          },
+          "clickTrial": true,
+          "error": null,
+          "backClicked": true,
+          "saveClicked": true,
+          "persistedAfterReload": true
+        }
+      ],
+      "status": "PASS",
+      "details": {
+        "shortOverflow": 0,
+        "longOverflow": 0,
+        "actualSaveAndBack": true,
+        "acceptance": "PASS"
+      }
+    }
+  ]
+}
