@@ -1,4 +1,5 @@
 'use server';
+import { hoyEnUruguay } from '@/lib/utils';
 import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -198,7 +199,7 @@ export async function getDashboardKpiData() {
           title: `Reunión ${isSameDay(meetingDate, today) ? 'HOY' : 'MAÑANA'}: ${lead.name}`,
           description: `Cita agendada para las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs`,
           severity: isSameDay(meetingDate, today) ? 'high' : 'medium',
-          href: `/contabilidad/crm/agenda?date=${meetingDate.toISOString().split('T')[0]}`,
+          href: `/contabilidad/crm/agenda?date=${hoyEnUruguay(meetingDate)}`,
         });
       }
     });

@@ -120,11 +120,11 @@ export function SimulatorMeetingScheduler({
           <div className="rounded-xl bg-white p-4 border border-emerald-100 shadow-sm space-y-2">
             <div className="flex items-center gap-2 text-slate-900 font-bold">
               <Calendar className="h-4 w-4 text-emerald-600" />
-              <span>{new Date(bookedResult.appointment.fechaHora).toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              <span>{new Date(bookedResult.appointment.fechaHora).toLocaleDateString('es-UY', { timeZone: 'America/Montevideo', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
             </div>
             <div className="flex items-center gap-2 text-slate-800 font-bold">
               <Clock className="h-4 w-4 text-emerald-600" />
-              <span>{new Date(bookedResult.appointment.fechaHora).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs</span>
+              <span>{new Date(bookedResult.appointment.fechaHora).toLocaleTimeString('es-UY', { timeZone: 'America/Montevideo', hour: '2-digit', minute: '2-digit' })} hs</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <MapPin className="h-4 w-4 text-slate-400" />

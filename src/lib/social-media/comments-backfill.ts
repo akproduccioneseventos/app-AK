@@ -8,6 +8,7 @@ import type {
   CommentsSyncSummary,
 } from '@/types/comentarios-redes';
 import { readData, writeData } from '@/lib/data-service';
+import { mutarComentarios, aplicarParches, parcheEntre } from '@/lib/social-media/guardar-comentarios';
 import { generateWithGeminiFallback } from '@/ai/genkit';
 import { clasificarComentario } from './clasificador-comentarios';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
@@ -446,6 +447,9 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
   const currentStates = await getCommentsBackfillState();
   const existingComments = await readData<SocialComment[]>(COMMENTS_FILE, []);
   const existingMap = new Map(existingComments.map((c) => [c.id, c]));
+  // Foto de cada comentario como estaba al leer: al final se guarda SOLO lo que cambio la
+  // sincronizacion, fusionado por id sobre la lista de ese momento (no la lista entera).
+  const antesDeSincronizar = new Map(existingComments.map((c) => [c.id, JSON.parse(JSON.stringify(c)) as SocialComment]));
 
   // 1. Ejecutar sync por red (sin que el fallo de una rompa las demás)
   const [fbResult, igResult, ytResult] = await Promise.all([
@@ -525,8 +529,17 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
 
   const pendientesDeClasificar = Math.max(0, sinRevisar.length - totalClasificados);
 
-  const updatedComments = Array.from(existingMap.values());
-  await writeData(COMMENTS_FILE, updatedComments);
+  const parches = Array.from(existingMap.values())
+    .map((completo) => ({
+      id: completo.id,
+      completo,
+      parche: parcheEntre(antesDeSincronizar.get(completo.id) ?? {}, completo),
+    }))
+    .filter((p) => !antesDeSincronizar.has(p.id) || Object.keys(p.parche).length > 0);
+  if (parches.length > 0) {
+    const guardado = await mutarComentarios((lista) => aplicarParches(lista, parches));
+    if (!guardado) throw new Error('No se pudieron guardar los comentarios sincronizados.');
+  }
 
   const newStates: Record<CommentNetwork, NetworkCommentsBackfillState> = {
     Facebook: { ...fbResult.state, newCommentsCount: fbResult.comments.length },
@@ -573,11 +586,16 @@ export async function restoreHiddenCommentInternal(commentId: string): Promise<{
     }
   }
 
-  target.isAutoHidden = false;
-  target.isManuallyRestored = true;
-  target.manuallyRestoredAt = new Date().toISOString();
-
-  await writeData(COMMENTS_FILE, comments);
+  // Despues de hablar con Meta se vuelve a leer la lista y se cambia SOLO este comentario.
+  const restauradoEn = new Date().toISOString();
+  const guardado = await mutarComentarios((lista) => {
+    const actual = lista.find((c) => c.id === commentId);
+    if (!actual) return null;
+    return lista.map((c) => (c.id === commentId
+      ? { ...c, isAutoHidden: false, isManuallyRestored: true, manuallyRestoredAt: restauradoEn }
+      : c));
+  });
+  if (!guardado) return { success: false, error: 'Comentario no encontrado.' };
   return { success: true };
 }
 
@@ -606,10 +624,14 @@ export async function hideCommentInternal(commentId: string): Promise<{ success:
     }
   }
 
-  target.isAutoHidden = true;
-  target.autoHiddenReason = 'Ocultado manualmente por el dueño';
-  target.autoHiddenAt = new Date().toISOString();
-
-  await writeData(COMMENTS_FILE, comments);
+  const ocultadoEn = new Date().toISOString();
+  const guardado = await mutarComentarios((lista) => {
+    const actual = lista.find((c) => c.id === commentId);
+    if (!actual) return null;
+    return lista.map((c) => (c.id === commentId
+      ? { ...c, isAutoHidden: true, autoHiddenReason: 'Ocultado manualmente por el dueño', autoHiddenAt: ocultadoEn }
+      : c));
+  });
+  if (!guardado) return { success: false, error: 'Comentario no encontrado.' };
   return { success: true };
 }

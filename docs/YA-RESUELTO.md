@@ -58,6 +58,64 @@ usa: marcarHitoPrograma en src/app/evento/staff/[fiestaId]/cronograma/page.tsx
 usa: marcarTareaFiestaActual en src/app/(app)/fiestas/nueva/tareas/client.tsx
 usa: ajusteClave en src/app/actions/fiesta/barra-tecnologica.actions.ts
 prueba: src/__tests__/guardados-de-la-fiesta-no-se-pisan.test.ts
+
+## 13 de octubre de 2026 — Hora de Uruguay, tareas con la base caída, enlaces que no llevaban el dato y guardados que pisaban
+
+- **Reunión del simulador:** el prospecto elegía 10:00 y en la agenda quedaba 07:00 (el servidor corre en hora de
+  Greenwich). Ahora el horario se arma como `AAAA-MM-DDT10:00:00-03:00` (Uruguay no tiene horario de verano), el
+  día de la semana y el "ya pasó" son los de Uruguay, y las citas ya agendadas ocupan el horario por hora de
+  Uruguay. El mensaje y el calendario muestran la hora con zona de Montevideo.
+- **Días que faltan:** el recordatorio a los invitados, las reglas automáticas, el semáforo de la fiesta y la
+  ventana posterior al evento contaban con el "hoy" del servidor; desde las 21:00 de Uruguay todo se corría un
+  día. Ahora usan `diasHastaEnUruguay`. El enlace del aviso del panel a la agenda usa el día de Uruguay.
+- **Tareas "corridas" sin leer nada:** `avisos-al-cliente` y `asistente-proactivo` leían con lista vacía por
+  defecto: con la base caída recorrían cero fiestas y se anotaban hechas. Ahora la lectura tira (o devuelve error
+  500 en el asistente) y NO se marca corrida; se reintenta en la próxima.
+- **Enlaces:** post-evento, "ver reporte" y el control de entretenimiento mandaban `?id=` a pantallas que leen
+  `?fiestaId=`. La central de presupuestos lleva `fiestaId` y `leadId` hasta el formulario; el formulario
+  adelanta cliente, tipo, fecha, lugar e invitados de la fiesta, muestra "Presupuesto para la fiesta X" y, si la
+  fiesta no tenía presupuesto, lo enlaza al guardar (si el enlace falla, avisa; el presupuesto ya está guardado).
+  El CRM abre la ficha del prospecto de `?leadId=` (o avisa que no existe) y la agenda se para en el día de
+  `?date=`. Falso positivo: `empresa/presencia-digital` ya leía `?tab=`.
+- **Importar invitados:** el reintento tras una falla parcial perdía mesa, categoría y restricción (leía un campo
+  `lineaOriginal` que no existía) y filtraba los fallidos por nombre (duplicaba homónimos). Ahora cada fila guarda su
+  línea original, la planilla guarda su encabezado y los fallidos se identifican por número de fila.
+- **Campos que no existían:** "Menú sin definir" leía `seleccionPrincipalId` (el campo es `principal`); los avisos
+  y el calendario de reuniones leían `lugar`, `conQuien` y `nombreCliente`. Ahora salen del lugar y el cliente de la
+  fiesta (`datosDeLaReunion`).
+- **Guardados que pisaban:** las citas del simulador se agregan con `mutateGenericJsonArray` (y se vuelve a mirar el
+  horario adentro del turno: el mismo horario no se reserva dos veces). Los comentarios de redes se guardan como
+  parches por id sobre la lista actual (`guardar-comentarios.ts`): la sincronización ya no borra aprobaciones como
+  testimonio, ocultamientos ni respuestas automáticas hechas mientras tardaba; ocultar, restaurar y aprobar un
+  comentario cambian solo ese comentario.
+- **Por qué así:** el parche por id conserva lo que otro hizo; si otro ya revisó el comentario no se pisa su
+  revisión. Pendiente que NO se tocó acá (es de otro ayudante): `votePoll` no mira `active` y tiene un tope de 30 por
+  IP+encuesta (`social-interactive.ts`).
+
+```comprobar
+archivo: src/lib/social-media/guardar-comentarios.ts
+usa: :00-03:00 en src/lib/agenda/horarios-disponibles.ts
+usa: diasHastaEnUruguay en src/lib/fiesta-progress.ts
+usa: diasHastaEnUruguay en src/lib/automatizaciones-engine.ts
+usa: diasHastaEnUruguay en src/lib/experience-ak/post-event-utils.ts
+usa: diasHastaEnUruguay en src/app/api/cron/recordatorio-a-los-invitados/route.ts
+usa: leerFiestasCrudas en src/lib/whatsapp/avisos-al-cliente.ts
+usa: readDataConDetalle en src/app/api/cron/asistente-proactivo/route.ts
+usa: precargaDesdeFiesta en src/app/(app)/presupuestos/nuevo/crear/page.tsx
+usa: updateFiestaPresupuestoId en src/app/(app)/presupuestos/nuevo/crear/page.tsx
+usa: crearHref en src/app/(app)/presupuestos/nuevo/page.tsx
+usa: CrmLeadTimeline en src/app/(app)/contabilidad/crm/page.tsx
+usa: parseUruguayDate en src/app/(app)/contabilidad/crm/agenda/page.tsx
+usa: prepararReintentoDePlanilla en src/app/(app)/fiestas/nueva/invitados/page.tsx
+usa: datosDeLaReunion en src/app/actions/notifications.ts
+usa: datosDeLaReunion en src/app/actions/agenda.ts
+usa: mutateGenericJsonArray en src/app/actions/simulator-agenda.ts
+usa: mutarComentarios en src/lib/social-media/comments-backfill.ts
+usa: mutarComentarios en src/app/actions/comentarios-redes.ts
+prueba: src/__tests__/la-hora-de-uruguay-en-agenda-y-recordatorios.test.ts
+prueba: src/__tests__/tareas-no-corren-con-la-base-caida.test.ts
+prueba: src/__tests__/enlaces-y-planillas-leen-lo-que-reciben.test.ts
+prueba: src/__tests__/citas-y-comentarios-fusionan-sobre-lo-actual.test.ts
 ```
 
 ## 12 de octubre de 2026 — Barrido de plata: doble toque, ajustes a medias y saldos que ignoraban cobros

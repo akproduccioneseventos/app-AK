@@ -1,3 +1,4 @@
+import { diasHastaEnUruguay } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
@@ -21,8 +22,6 @@ async function correrTarea(request: Request) {
     }
 
     const fiestas = await leerFiestasCrudas();
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
 
     let mensajesPreparados = 0;
     const errores: string[] = [];
@@ -31,11 +30,9 @@ async function correrTarea(request: Request) {
       const fechaStr = fiesta.configuracion?.fechaEvento;
       if (!fechaStr) continue;
 
-      const [y, m, d] = fechaStr.split('T')[0].split('-').map(Number);
-      const fechaFiesta = new Date(y, m - 1, d);
-      fechaFiesta.setHours(0, 0, 0, 0);
-
-      const diffDias = Math.round((fechaFiesta.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+      // Dias de calendario de Uruguay: el servidor corre en hora de Greenwich y desde las 21:00
+      // de Uruguay ya era "mañana", asi que el recordatorio salia un dia antes o despues.
+      const diffDias = diasHastaEnUruguay(fechaStr.split('T')[0]);
 
       // Recordarle al invitado: dos días antes y el mismo día
       if (diffDias === 2 || diffDias === 0) {

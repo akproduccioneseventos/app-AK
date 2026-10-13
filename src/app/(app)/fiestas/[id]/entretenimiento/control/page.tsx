@@ -172,7 +172,7 @@ export default function ControlEntretenimientoPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Link
-            href={`/fiestas/nueva/entretenimiento?id=${fiestaId}`}
+            href={`/fiestas/nueva/entretenimiento?fiestaId=${fiestaId}`}
             className="rounded-lg border border-white/10 bg-zinc-900 p-2 text-slate-400 hover:text-white transition"
           >
             <ArrowLeft className="h-5 w-5" />

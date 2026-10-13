@@ -194,7 +194,7 @@ function PostEventoContent() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <Button asChild variant="ghost" size="sm"><Link href={`/fiestas/nueva?id=${fiestaId}`}>
+          <Button asChild variant="ghost" size="sm"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
               <ArrowLeft className="w-4 h-4 mr-1" /> Volver
             </Link></Button>
         </div>
@@ -262,7 +262,7 @@ function PostEventoContent() {
               </div>
             )}
             <div className="mt-3">
-              <Button asChild variant="outline" size="sm" className="w-full"><Link href={`/fiestas/nueva/gestion-costos-rentabilidad/reporte?id=${fiestaId}`}>
+              <Button asChild variant="outline" size="sm" className="w-full"><Link href={`/fiestas/nueva/gestion-costos-rentabilidad/reporte?fiestaId=${fiestaId}`}>
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Ver Reporte Completo de Rentabilidad
                 </Link></Button>

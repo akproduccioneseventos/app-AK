@@ -234,7 +234,7 @@ export function detectarErroresHumanos(
       const tieneMenu = Boolean(
         fiesta.menuAsignadoId ||
         fiesta.menuMesa?.platoPrincipal ||
-        (fiesta.menuSeleccionPortal as any)?.seleccionPrincipalId
+        fiesta.menuSeleccionPortal?.principal?.trim()
       );
       if (!tieneMenu) {
         alertas.push({
