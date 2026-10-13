@@ -4,10 +4,13 @@ import { isFileNotFoundError } from '@/lib/error-utils';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { hasAppSession } from '@/lib/auth/require-session';
+import { hasAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 export async function GET(request: NextRequest, props: { params: Promise<{ parts: string[] }> }) {
   if (!(await hasAppSession())) return new NextResponse('Unauthorized', { status: 401 });
+  const acceso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!acceso.ok) return new NextResponse(acceso.error, { status: 403 });
   const params = await props.params;
   const [fiestaId, filename] = params.parts;
 

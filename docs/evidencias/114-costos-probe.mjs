@@ -25,7 +25,7 @@ try{
     await context.route('**/*',async r=>{if(mode&&r.request().headers()['next-action']===process.env.QA_COST_ACTION){
       const selected=mode;mode=null;if(selected==='before')return r.abort('failed');const response=await r.fetch();await response.body();ack={status:response.status(),serverCompleted:true};return r.abort('failed');
     }return r.fallback();});
-    const page=await context.newPage();page.setDefaultTimeout(18000);
+    let page=await context.newPage();page.setDefaultTimeout(18000);
     const go=url=>page.goto(root+url,{waitUntil:'networkidle',timeout:60000});
     const adjust=async percent=>{await page.locator('#cost-percentage-adjust').fill(String(percent));await page.getByRole('button',{name:'Ajustar Costos',exact:true}).click();await page.getByRole('alertdialog').getByRole('button',{name:'Aplicar ajuste del '+(percent>0?'+':'')+percent+'%',exact:true}).click();};
     await go('/empresa/insumos');const before=await state();let expectedCost=before.insumo.valorUnitarioEstimado;
@@ -64,7 +64,8 @@ try{
       await go('/empresa/insumos');const old=await state();mode='after';await adjust(5);await expect(page.getByText('Error al ajustar costos',{exact:true})).toBeVisible();const first=await state();
       expect(ack.status).toBe(200);expect(first.insumo.valorUnitarioEstimado).toBe(Math.round(old.insumo.valorUnitarioEstimado*1.05));
       await page.screenshot({path:`docs/evidencias/114-response-lost-${viewport}.png`,fullPage:true});
-      await page.reload({waitUntil:'networkidle'});await expect(page.locator('#cost-percentage-adjust')).toHaveValue('5');
+      await page.close();page=await context.newPage();page.setDefaultTimeout(18000);
+      await go('/empresa/insumos');await expect(page.locator('#cost-percentage-adjust')).toHaveValue('5');
       await adjust(5);await expect(page.getByText('Costos de Insumos Ajustados',{exact:true})).toBeVisible();const after=await state();
       return{ack,costBefore:old.insumo.valorUnitarioEstimado,costAfterFirst:first.insumo.valorUnitarioEstimado,costAfterRetry:after.insumo.valorUnitarioEstimado,acceptance:Math.abs(after.insumo.valorUnitarioEstimado-first.insumo.valorUnitarioEstimado)<0.001?'PASS':'FAIL_PERCENTAGE_APPLIED_TWICE_AFTER_LOST_ACK'};
     });

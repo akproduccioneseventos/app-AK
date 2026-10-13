@@ -18,11 +18,20 @@ main contrastado99faf4eb. NO CONTRASTADO CON TANDA PRIVADA CLAUDE.
 -157: limpiar textos del incidente solo tras success; conservar contexto/elecciones
  de categoria/responsable y borrador cancelado/fallido.
 -158: titulos flex reducibles con cortes de palabra en editores activo/insumo.
+-155 parcial: seis endpoints PDF locales requieren permisos de area antes de
+ leer el archivo. SUELDOS laboral, CONTABILIDAD contratos/presupuestos/comprobantes.
+ No existe enlace propio permitido por estos handlers que se haya eliminado;
+ endpoints publicos con token separados permanecen intactos.66pruebas unitarias
+ nuevas pasan; prueba navegador enlaces reales PENDIENTE. Dependencias no corregidas.
 
 ## Evidencia inicial
 Seis suites34pruebas PASAN en arbol de trabajo; aun no certifican SHA ni pantalla.
 Types inicial agoto heap2GB; segunda encontro unit string|undefined, corregido.
 Build/Jest completo/tipos final/acentos/navegador: PENDIENTES.
+FullJest previo:695suites4163tests PASS; seis handlers cambiaron durante esa corrida,
+por eso NO se usa como validacion final del nuevo SHA. Se conserva pre-documentos.
+Corrida inicial con ambiente SDK incorrecto produjo timeouts y se interrumpio;
+restauracion de archivos byte a byte PASS. Repetida sin credenciales reales paso.
 Evidencias112/113 originales intactas como reproduccion del fallo.
 
 ## Limites

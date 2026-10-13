@@ -12931,6 +12931,15 @@ Luna6low UI/tests; director dinero/transacciones. Seis suites34tests focalizadas
 en arbol de trabajo; no equivalen a SHA/build/navegador aceptados. Resultado final
 y limites en docs/evidencias/114-correcciones.md. NO tanda privada Claude contrastada.
 No merge ni datos reales ni0errores.
+
+Codex114 tambien corrige la parte documental155: seis handlers de PDFs locales
+(los cinco probados en109 y contracts/fiestas) requieren permiso CONTABILIDAD;
+contratos de empleados requieren SUELDOS, igual que la politica del modulo.
+Se conserva401 anonimo,403 perfil no permitido, traversal y enlaces publicos
+con token de otros handlers intactos. Test nuevo66casos pasa con politica real
+y archivos simulados; falta verificacion final del SHA/navegador. Dependencias
+sharp/GHSA de155 SIGUEN pendientes; no dar la orden completa por resuelta.
+Prueba de voz ahora simula dbAdmin:null para no depender del entorno Firestore.
 Dueno pide continuidad al dormir: heartbeat del chat cada30min activo,
 continuar-auditoria-ak-sin-repetir. Lee este registro y contrasta SHA; una tarea
 acotada por corrida, se detiene ante limites imprescindibles sin gastar en bucle.

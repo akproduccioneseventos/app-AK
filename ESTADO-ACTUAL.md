@@ -9,9 +9,11 @@ Director conserva dinero, datos, seguridad y decisiones finales.
  turno compartido y menus protegidos frente a reintento lento.
 -157 nuevo incidente limpia textos solo tras success, conserva otras elecciones.
 -158 titulos largos contenidos en editores activo/insumo.
+-155 parcial: seisPDF permisos CONTABILIDAD/SUELDOS;66tests PASS, QA pendiente.
 -6suites34tests focalizadas PASS en arbol; aun no fuente compilada nueva.
 -Types inicial heap2GB agotado; segunda unit undefined corregido. Repetir final.
--Jest completo/build/tipos/acentos/QA PC-celular PENDIENTES.
+-695suites4163tests PASS previo; repetir final con nuevos handlers congelados.
+-Build/tipos/acentos/QA final PENDIENTES; no confundir con SHA viejo.
 -No usar build8fa para validar cambios. docs/evidencias/114-correcciones.md.
 ## Pendientes anteriores, no repetir auditoria por rutina
 -152 barra tapaGuardar3D;153 Google reconnect/empleados;154 conexiones falsas;
