@@ -1,3 +1,4 @@
+import { diasHastaEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 
@@ -46,11 +47,7 @@ export interface AlertaFiesta {
 function diasHastaEvento(fiesta: FiestaEnPlanificacion): number | null {
   const fechaStr = fiesta.configuracion?.fechaEvento;
   if (!fechaStr) return null;
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  const fecha = new Date(fechaStr);
-  fecha.setHours(0, 0, 0, 0);
-  return Math.ceil((fecha.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+  return diasHastaEnUruguay(fechaStr);
 }
 
 function statusLabel(status: SemaforoStatus): string {

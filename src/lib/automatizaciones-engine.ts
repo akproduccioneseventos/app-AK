@@ -1,3 +1,4 @@
+import { diasHastaEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { AutomatizacionRule, AlertaAutomatica } from '@/types/automatizaciones';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -177,11 +178,7 @@ export function verificarEquiposConMantenimientoVencidoEnFiesta(
 function getDiasRestantes(fiesta: FiestaEnPlanificacion, fechaReferencia: Date = new Date()): number | null {
   const fechaStr = fiesta.configuracion?.fechaEvento;
   if (!fechaStr) return null;
-  const hoy = new Date(fechaReferencia);
-  hoy.setHours(0, 0, 0, 0);
-  const fecha = new Date(fechaStr);
-  fecha.setHours(0, 0, 0, 0);
-  return Math.ceil((fecha.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
+  return diasHastaEnUruguay(fechaStr, fechaReferencia);
 }
 
 // Solo las cuatro de plata y contrato son urgentes; el resto no dispara urgencia ni globito rojo.
