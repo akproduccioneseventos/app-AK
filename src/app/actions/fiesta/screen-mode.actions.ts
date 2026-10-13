@@ -571,12 +571,12 @@ export async function trackSocialFollowClick(
     const existing = settings.sorteoParticipantesRedes ?? [];
     // Avoid duplicates: same name + platform combo
     const alreadyRegistered = existing.some(
-      p => p.nombre.toLowerCase() === authorName.toLowerCase() && (p as any).platform === platform
+      p => p.nombre.toLowerCase() === authorName.toLowerCase() && p.platform === platform
     );
     if (alreadyRegistered) return { success: true };
     const updated = [
       ...existing,
-      { nombre: authorName, timestamp: new Date().toISOString(), platform } as any,
+      { nombre: authorName, timestamp: new Date().toISOString(), platform },
     ];
     const guardado = await saveFiesta({
       ...fiesta,
