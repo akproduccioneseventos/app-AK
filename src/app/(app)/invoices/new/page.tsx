@@ -2,6 +2,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link'; 
@@ -184,8 +185,12 @@ function NewInvoicePageContent() {
     };
 
     try {
-      const result = await conTopeDeEspera(saveInvoice(invoiceData, sourcePresupuestoId || undefined));
+      // Pregunta 58: misma identidad en cada reintento (ruta /invoices/new).
+      const alcanceIntento = `factura-nueva:${sourcePresupuestoId || 'libre'}`;
+      const operationId = await obtenerIntento(alcanceIntento, { n: invoiceData.invoiceNumber, c: invoiceData.customer?.id, i: invoiceData.issueDate, items: invoiceData.items, t: invoiceData.taxRate, s: invoiceData.status });
+      const result = await conTopeDeEspera(saveInvoice(invoiceData, sourcePresupuestoId || undefined, operationId));
       if (result.success && result.id) {
+        terminarIntento(alcanceIntento);
         toast({ title: "¡Factura Creada!", description: `La factura ${result.invoice?.invoiceNumber} ha sido creada.` });
         router.push('/invoices');
       } else {

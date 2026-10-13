@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -465,13 +466,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
     setIsSavingPago(true);
     try {
+      // Pregunta 58: misma identidad en cada reintento (ruta /presupuestos/[id]/ver).
+      const alcanceIntento = `cobro:${presupuesto.id}`;
+      const intento = await obtenerIntento(alcanceIntento, { fecha: newPagoFecha, monto, metodoPago: newPagoMetodo, referencia: newPagoReferencia.trim() || null });
       const result = await conTopeDeEspera(addPagoToPresupuesto(presupuesto.id, {
+        id: `pago_${intento}`,
         fecha: `${newPagoFecha}T12:00:00.000Z`,
         monto,
         metodoPago: newPagoMetodo,
         referencia: newPagoReferencia.trim() || undefined,
       }));
       if (!result.success) throw new Error(result.error);
+      terminarIntento(alcanceIntento);
       setPresupuesto(result.presupuesto!);
       setNewPagoMonto('');
       setNewPagoReferencia('');
@@ -508,7 +514,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
     setIsSavingClientPago(true);
     try {
+      const alcanceIntento = `aviso-cobro:${presupuesto.id}`;
+      const intento = await obtenerIntento(alcanceIntento, { monto, metodoPago: clientPagoMetodo, referencia: clientPagoReferencia.trim() || null, comprobanteUrl: clientPagoComprobante ?? null });
       const result = await addPagoClienteFromPortal(presupuesto.id, {
+        id: `pago_${intento}`,
         fecha: new Date().toISOString(),
         monto,
         metodoPago: clientPagoMetodo,
@@ -516,6 +525,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         comprobanteUrl: clientPagoComprobante,
       }, searchParams.get('token') || undefined);
       if (!result.success) throw new Error(result.error);
+      terminarIntento(alcanceIntento);
       setPresupuesto(result.presupuesto!);
       setClientPagoMonto('');
       setClientPagoReferencia('');

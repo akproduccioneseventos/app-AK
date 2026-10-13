@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -505,11 +506,15 @@ export default function ClubUruguayPage() {
 
   const handleAddPago = async (pago: Omit<SalonPago, 'id'>) => {
     if (!salon) return;
-    const result = await addSalonPago(salon.id, pago);
+    // Pregunta 58: misma identidad en cada reintento (ruta /empresa/salones/club-uruguay).
+    const alcanceIntento = `pago-salon:${salon.id}`;
+    const intento = await obtenerIntento(alcanceIntento, pago);
+    const result = await addSalonPago(salon.id, { ...pago, id: `pago_${intento}` });
     if (!result.success) {
       toast({ title: 'Error', description: result.error, variant: 'destructive' });
       return;
     }
+    terminarIntento(alcanceIntento);
     toast({ title: 'Pago registrado', description: 'El pago fue guardado correctamente.' });
     await fetchData();
   };
