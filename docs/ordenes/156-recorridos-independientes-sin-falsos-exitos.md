@@ -122,26 +122,52 @@ Una orden subida no inicia automaticamente otra IA ni corrige estos defectos.
 Pruebas nuevas propuestas: PENDIENTES; no existen ni se ejecutaron con estos nombres.
 Las sondas ejecutadas110 son evidencia aparte, no equivalen a esas regresiones.
 
+## Correccion Codex115 - 13/10/2026
+
+Fuente81be9ac00485bc0ece0fb6db07bf7b5f4aa96669, no publicada.
+Codex corrige directamente por autorizacion nueva del dueno; no fusiona.
+Proveedor/plantilla custom: borrado nativo y recarga PC/Pixel7 PASS; incorporada
+se rechaza de forma visible. Se conserva la eliminacion individual transaccional.
+Los cuatro consumidores muestran error, reintento y mantienen datos previos;
+render ReactDOM de crear avisos/revision con rechazo simulado, no proveedor real.
+Lecturas torre/preparacion propagan fallos: acciones con infraestructura simulada
+y consumidores compilados con corte exacto de transporte PC/Pixel7. Son pruebas
+complementarias, no afirmar una sonda SDK conjunta de cada fuente del tablero.
+Contador: accion real y almacen de avisos en memoria; silencio y segunda corrida
+duplicada no suman. No se mandan mensajes ni avisos reales.
+La sonda tambien encontro bloqueo por undefined del proveedor, corregido con
+seis casos propios y borrado nativo tras crear un insumo sin proveedor.
+Ver115-correcciones.md,115-native-resultado.json y115-aceptacion.json.
+NO CONTRASTADO CON TANDA PRIVADA CLAUDE; no equivale a Hosting ni toda la app.
+
 ```comprobar
 archivo: src/lib/data-service.ts
 usa: deleteDataItem en src/app/actions/proveedores.ts
-prueba: PENDIENTE src/__tests__/collection-fallback-empty-after-delete.test.ts
+prueba: src/__tests__/ajustes-costos-respaldo-restauracion.test.ts
+prueba: src/__tests__/proveedor-insumos-sin-asociacion.test.ts
+prueba: docs/evidencias/115-native-probe.mjs
 archivo: src/app/actions/invitacion-digital-templates.ts
 usa: deleteInvitationTemplate en src/app/(app)/settings/templates/invitaciones/page.tsx
-prueba: PENDIENTE tests/e2e/invitation-base-delete-policy.spec.ts
+prueba: src/__tests__/invitacion-digital-templates-delete.test.ts
+prueba: docs/evidencias/115-native-probe.mjs
 archivo: src/app/actions/control-tower.ts
 usa: getControlTowerData en src/app/control-tower/page.tsx
-prueba: PENDIENTE tests/e2e/control-tower-provider-failure.spec.ts
+prueba: src/__tests__/control-tower-lecturas-reales.test.ts
+prueba: docs/evidencias/115-native-probe.mjs
 archivo: src/app/actions/preparation-score.ts
 usa: getAllFiestasPreparationScores en src/app/control-tower/preparacion/page.tsx
-prueba: PENDIENTE tests/e2e/preparation-provider-failure.spec.ts
+prueba: src/__tests__/control-tower-lecturas-ui.test.tsx
+prueba: docs/evidencias/115-native-probe.mjs
 archivo: src/app/actions/smart-automations.ts
 usa: runSmartAutomations en src/app/control-tower/automatizaciones/page.tsx
-prueba: PENDIENTE tests/e2e/smart-notification-count-and-failure.spec.ts
+prueba: src/__tests__/smart-automations-notification-count.test.ts
+prueba: src/__tests__/control-tower-errores-de-consumidores.test.tsx
 archivo: src/app/actions/commercial-intelligence.ts
 usa: getCommercialFollowups en src/app/control-tower/comercial/page.tsx
-prueba: PENDIENTE tests/e2e/commercial-and-postevent-transport-failure.spec.ts
+prueba: src/__tests__/control-tower-errores-de-consumidores.test.tsx
+prueba: docs/evidencias/115-native-probe.mjs
 archivo: src/app/actions/post-event-intelligence.ts
 usa: getPostEventOpportunities en src/app/control-tower/post-fiesta/page.tsx
-prueba: PENDIENTE tests/e2e/commercial-and-postevent-transport-failure.spec.ts
+prueba: src/__tests__/control-tower-errores-de-consumidores.test.tsx
+prueba: docs/evidencias/115-native-probe.mjs
 ```

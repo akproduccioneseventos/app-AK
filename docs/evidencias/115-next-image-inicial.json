@@ -1,0 +1,66 @@
+{
+  "status": 200,
+  "url": "http://127.0.0.1:3301/_next/image?url=%2Flogo_ak_producciones.png&w=256&q=75",
+  "headers": {
+    "cache-control": "public, max-age=60, must-revalidate",
+    "connection": "keep-alive",
+    "content-disposition": "attachment; filename=\"logo_ak_producciones.png\"",
+    "content-length": "9528",
+    "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+    "content-security-policy-report-only": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.googleapis.com https://graph.facebook.com; frame-src 'self' https://www.youtube.com https://open.spotify.com https://www.google.com https://maps.google.com https://*.canva.site; object-src 'none'; base-uri 'self'; form-action 'self'",
+    "content-type": "image/png",
+    "date": "Tue, 13 Oct 2026 05:07:10 GMT",
+    "etag": "Vy8iMjUzOC0xYTEyYzM4YjYwZCI",
+    "keep-alive": "timeout=5",
+    "permissions-policy": "camera=(self), microphone=(self), geolocation=(self)",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "strict-transport-security": "max-age=31536000",
+    "vary": "Accept",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "DENY",
+    "x-nextjs-cache": "STALE",
+    "x-xss-protection": "0"
+  },
+  "original": {
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 9528,
+    "width": 512,
+    "height": 512,
+    "space": "srgb",
+    "channels": 4,
+    "depth": "uchar",
+    "density": 288,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": true,
+    "autoOrient": {
+      "width": 512,
+      "height": 512
+    }
+  },
+  "output": {
+    "format": "png",
+    "mediaType": "image/png",
+    "size": 9528,
+    "width": 512,
+    "height": 512,
+    "space": "srgb",
+    "channels": 4,
+    "depth": "uchar",
+    "density": 288,
+    "isProgressive": false,
+    "isPalette": false,
+    "bitsPerSample": 8,
+    "hasProfile": false,
+    "hasAlpha": true,
+    "autoOrient": {
+      "width": 512,
+      "height": 512
+    }
+  },
+  "equalBytes": true,
+  "isAnimated": false
+}

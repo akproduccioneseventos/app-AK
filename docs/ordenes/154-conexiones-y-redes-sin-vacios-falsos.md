@@ -71,8 +71,20 @@ llamar proveedores reales. Nuevas pruebas propuestas PENDIENTES.
 Anotar resultado/SHA en YA-RESUELTO y ESTADO-ACTUAL, en la misma tanda.
 No declarar toda la app sin errores ni esta orden ejecutada por existir.
 
+## Correccion Codex115 - 13/10/2026
+
+Fuente81be9ac00485bc0ece0fb6db07bf7b5f4aa96669, no publicada.
+El fallo de lectura queda visible y ofrece reintento separado de importar/publicar.
+PC/Pixel7: fallo de ambas acciones compiladas y reintento real PASS.
+Los estados del historial usan intento/error/completo; no inventan actividad.
+El contrato de las cuatro etiquetas Instagram se comprueba por fuente, NO es
+una sincronizacion real ni un recorrido nativo de cada combinacion de historial.
+Ver115-native-resultado.json; cierre conjunto en115-aceptacion.json.
+No repetir81/102 ni certificar proveedores externos. NO tanda privada Claude.
+
 ```comprobar
 archivo: src/app/actions/conexiones-estado.actions.ts
 usa: getEstadoConexiones en src/app/(app)/settings/sincronizaciones/page.tsx
-prueba: PENDIENTE tests/e2e/conexiones-redes-error-y-reintento.spec.ts
+prueba: src/__tests__/orden-154-errores-visibles-y-reintento-ui.test.ts
+prueba: docs/evidencias/115-native-probe.mjs
 ```

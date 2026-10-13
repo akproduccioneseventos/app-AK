@@ -58,8 +58,18 @@ el resultado debe acreditarse en el consumidor real, no solo en una funcion pura
 Prueba propuesta abajo PENDIENTE: no existe ni se ejecuto.
 Una sola tanda/PR; no fusionar sin permiso; no declarar0errores de toda la app.
 
+## Correccion Codex115 - 13/10/2026
+
+Fuente81be9ac00485bc0ece0fb6db07bf7b5f4aa96669, no publicada.
+PC/Pixel7: needs_reconnect/error no habilitan sincronizar; connected si.
+Un empleado conectado y otro con error muestran1/2, sin ocultar el segundo.
+Pruebas de render reales con acciones simuladas y sonda nativa con SDK demo.
+Ver115-native-resultado.json y115-aceptacion.json al terminar el control conjunto.
+No OAuth, correo ni calendarios reales; NO CONTRASTADO CON TANDA PRIVADA CLAUDE.
+
 ```comprobar
 archivo: src/app/actions/google-workspace.ts
 usa: getGoogleWorkspaceDashboard en src/app/(app)/settings/google-workspace/page.tsx
-prueba: PENDIENTE tests/e2e/google-workspace-estado-conexion.spec.ts
+prueba: src/__tests__/paneles-estado-real-render.test.tsx
+prueba: docs/evidencias/115-native-probe.mjs
 ```

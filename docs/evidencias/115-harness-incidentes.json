@@ -1,0 +1,9 @@
+{
+  "classification": "HARNESS_ONLY_NOT_APPLICATION_DEFECT",
+  "applicationSourceSha": "9af39cd9bd14b228d8f3acabd61f3c05be729829",
+  "cases": [
+    { "step": "health command", "error": "ERR_AMBIGUOUS_MODULE_SYNTAX: require plus top-level await", "resolution": "Explicit ESM evaluation; health HTTP200, version9af39cd9" },
+    { "step": "action discovery before probe", "error": "Compiled action ambiguous: getSocialPosts", "cause": "Marketing and mural export distinct actions with the same symbol name", "resolution": "Scope discovery to the actual marketing consumer chunk; retain manifest validation" }
+  ],
+  "nativeCriteriaAcceptedBeforeCorrection": 0
+}

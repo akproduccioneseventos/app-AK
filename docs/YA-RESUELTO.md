@@ -1,6 +1,6 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 13/10/2026 - Codex115: correcciones directas EN VALIDACION, no publicadas
+## 13/10/2026 - Codex115: fuente81be9ac0 validada; entrega aun pendiente
 
 - Base d4c05d08/PR1288 abierta/main99faf4eb. NO CONTRASTADO con tanda privada Claude.
 - Libro ajustes_costos_insumos registrado en respaldo/mapa; IDs reales de recibos
@@ -21,16 +21,23 @@
 - Logo publico original venia truncado desde1253:9528bytes, IDAT24576 sin IEND.
   Fallo real de asset, no regresion de Sharp. El dueno entrego E:/Logo (Logotipo).png;
   copiado byte por byte a public/logo_ak_producciones.png, sin redibujar la marca.
-  Decodificacion completa del original verificada; consumidor/PDF aun en validacion.
+  Decodificacion completa, imagen visible PC/Pixel7 y PDF real con imagen PASS.
 - Torre, preparacion, comercial, post-fiesta, automatizaciones, conexiones y
   redes muestran errores y reintento sin reemplazar una lectura fallida por calma.
 - Notificacion silenciada/duplicada no cuenta como creada. Google retirado/error
   no cuenta conectado; empleados con problemas siguen visibles. No prueba OAuth.
 - Sharp fijado0.35.5 compatible Next15.5.27; minimo Node20.9; SDK y otros paquetes
   sin cambio mayor. Todavia no equivale a resolver todos los avisos de seguridad.
-- Pruebas focalizadas de acciones/render PASS en copia aislada dirty; hubo errores
-  de tipos de agente (campos inexistentes) corregidos. Build/full suite/runtime
-  del SHA congelado PENDIENTES. No usar114 para certificar115.
+- Fuente81be9ac0: build/tipos/lint/acentos2806 PASS;707suites4285tests PASS,
+  sin fallos/omitidos.34criterios nativos PC/Pixel7 PASS; SDK demo0, bytes intactos.
+  Los tres fallos reales iniciales9af se conservan. Sobre81, primera peticion
+  de imagen PC vio cache anterior (33PASS/1fallo); refresco automatico y repeticion
+  completa34PASS sin cambiar criterios ni codigo. No usar114 para certificar115.
+- PR1288 fue integrada como791f0a7a mientras corria115; main nuevo4c5ef2f9
+  incluye cambios de Claude (permisos, fechas y centavos de costos) que NO se
+  deben reemplazar con el checkout viejo. Tambien resolvio parte de153/154/156.
+  La evidencia81 no certifica4c; comparar delta y entregar solo lo faltante sobre
+  nueva rama desde main. Ninguna subida a la rama de la propuesta fusionada.
 - Una prueba del agente escribio preferencias demo; ambas restauradas. Ahora
   usa almacen en memoria, sin archivos compartidos. Agentes cerrados al alcanzar
   limite de uso, sin afirmar que terminaron su subparte.

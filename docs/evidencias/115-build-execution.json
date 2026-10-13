@@ -1,0 +1,79 @@
+{
+  "sha": "81be9ac00485bc0ece0fb6db07bf7b5f4aa96669",
+  "applicationSourceSha": "81be9ac00485bc0ece0fb6db07bf7b5f4aa96669",
+  "mode": "build",
+  "args": [
+    "scripts/build-next-with-memory.mjs"
+  ],
+  "launcher": 41080,
+  "child": 44240,
+  "started": "2026-10-13T05:35:18.935Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T05:45:55.716Z",
+  "cleanup": {
+    "restored": [
+      {
+        "file": "src\\data\\agentes-configuracion.json",
+        "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+        "qaSha256": "c0b1707b7c7bd3cf6a180a9861fb94a9e57f4208ccc59ee0d69833ed398be920"
+      },
+      {
+        "file": "src\\data\\agentes-historial.json",
+        "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+        "qaSha256": "0fc6e41a958a70a45d7808c909db26f597e26a4d3579e0860c3027e73eeb6c54"
+      },
+      {
+        "file": "src\\data\\social-analytics-history.json",
+        "beforeSha256": "264f87ac196f218582387df601500b7ff6e87f88f33f49bda832889f3d2de0d3",
+        "qaSha256": "72165d2450b492709a44d064b2684c0fac8010ea8487bc01e268204a592e2ede"
+      },
+      {
+        "file": "src\\data\\social-comments-backfill-state.json",
+        "beforeSha256": "eb8f90986c21537377435b4abcead8a8e38de384da2f117341379025f444ff4d",
+        "qaSha256": "a9768e2044eb84f2dc3117a91f46c00cfd7cc97ba591633c4366644dd9b53599"
+      },
+      {
+        "file": "src\\data\\tareas-al-entrar-estado.json",
+        "beforeSha256": "be802cf80baa3fcfde7ce94ad620457ea98bd0fdcb8ce817139f87e8317cf68b",
+        "qaSha256": "30f79a079808bf15364aa25de8bf663644f69faff71213f2fadf7d77599afce3"
+      },
+      {
+        "file": "src\\data\\tareas-automaticas.json",
+        "beforeSha256": "bff11b11e034de1406de0f391bd9e2129f8b61c17ffb3f759865a7f7fc4af83e",
+        "qaSha256": "dfe846e1aff6951b4a10f07fe878798654d17c39b7e6b930f97acd5a0d0f9f6d"
+      },
+      {
+        "file": "data\\agentes-configuracion.json",
+        "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+        "qaSha256": "c0b1707b7c7bd3cf6a180a9861fb94a9e57f4208ccc59ee0d69833ed398be920"
+      },
+      {
+        "file": "data\\agentes-historial.json",
+        "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+        "qaSha256": "0fc6e41a958a70a45d7808c909db26f597e26a4d3579e0860c3027e73eeb6c54"
+      },
+      {
+        "file": "data\\social-analytics-history.json",
+        "beforeSha256": "264f87ac196f218582387df601500b7ff6e87f88f33f49bda832889f3d2de0d3",
+        "qaSha256": "72165d2450b492709a44d064b2684c0fac8010ea8487bc01e268204a592e2ede"
+      },
+      {
+        "file": "data\\social-comments-backfill-state.json",
+        "beforeSha256": "eb8f90986c21537377435b4abcead8a8e38de384da2f117341379025f444ff4d",
+        "qaSha256": "a9768e2044eb84f2dc3117a91f46c00cfd7cc97ba591633c4366644dd9b53599"
+      },
+      {
+        "file": "data\\tareas-al-entrar-estado.json",
+        "beforeSha256": "be802cf80baa3fcfde7ce94ad620457ea98bd0fdcb8ce817139f87e8317cf68b",
+        "qaSha256": "30f79a079808bf15364aa25de8bf663644f69faff71213f2fadf7d77599afce3"
+      },
+      {
+        "file": "data\\tareas-automaticas.json",
+        "beforeSha256": "bff11b11e034de1406de0f391bd9e2129f8b61c17ffb3f759865a7f7fc4af83e",
+        "qaSha256": "dfe846e1aff6951b4a10f07fe878798654d17c39b7e6b930f97acd5a0d0f9f6d"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

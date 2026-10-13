@@ -109,6 +109,15 @@ reales y bytes exactos. Ver114-aceptacion.json. Sondas109 quedan como historia.
 No reimplementar esa parte. Sharp y variantes Storage/exports siguen pendientes;
 no se declara155 completa ni Hosting ni acceso propio no definido.
 
+Actualizacion115: Sharp0.35.5 compatible Next15.5.27 y Node>=20.9.
+Fuente81be9ac0; cuatro formatos decodificados/redimensionados con Sharp real y
+optimizador Next funcionando PC/Pixel7. El asset del logo estaba truncado1253;
+se reemplaza con el original entregado por el dueno, sin alterar su diseno.
+Audit de produccion: Sharp ya no figura; quedan24avisos unicos ajenos a Sharp
+(91entradas agregadas). El exit1 de npm audit no se oculta ni equivale a PASS.
+No se declaran resueltas otras variantes Storage/export ni la orden155 completa.
+Ver115-native-resultado.json y115-npm-audit-production.json.
+
 ```comprobar
 archivo: src/lib/auth/require-session.ts
 usa: requirePermiso en src/app/api/employee-contracts/[filename]/route.ts

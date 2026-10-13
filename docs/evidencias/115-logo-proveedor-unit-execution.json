@@ -1,0 +1,25 @@
+{
+  "sha": "9af39cd9bd14b228d8f3acabd61f3c05be729829",
+  "applicationSourceSha": "9af39cd9bd14b228d8f3acabd61f3c05be729829",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/115-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/logo-original-pdf.test.ts",
+    "src/__tests__/proveedor-insumos-sin-asociacion.test.ts"
+  ],
+  "launcher": 45872,
+  "child": 41240,
+  "started": "2026-10-13T05:34:52.723Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T05:34:59.891Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}
