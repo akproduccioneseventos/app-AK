@@ -1,5 +1,31 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex116: delta115 integrado sobre main4c5ef2f9, EN VALIDACION
+
+-PR1288 fue integrada por Claude mientras corria115. La fuente81be9ac0 quedo
+ comprobada (707suites4285tests y34criterios), pero no acredita este main nuevo.
+ Evidencia historica115 conservada; no sustituir resultados de116 por esos.
+-Rama nueva codex/116-respaldo-logo-main-20261013 desde4c5ef2f9. Codex corrige
+ por autorizacion directa; no fusiona. Privado Claude NO CONTRASTADO.
+-Se conservan sus pantallas/Google/plantillas/contador ya corregidos, permisos
+ de proveedores, fechas Uruguay y redondeo a centavos de costos. No se copia
+ la rama anterior entera ni se reintroducen cambios3D/compatibilidad descartados.
+-Delta aun ausente: libro de costos incluido en backup/mapa, IDs legacy reales,
+ restore de insumos antiguo sin recibos posteriores y respaldo interno tras ajuste.
+-ZIP no certifica lectura fallida: SDK/copia alternativa conservan huboFalla.
+ La pantalla puede mostrar respaldo sin afirmar que sea una lectura actual.
+-Proveedor sin nombreEmpresa no queda bloqueado por insumo sin proveedor:
+ no se comparan dos undefined como asociacion. Se mantienen IDs/nombres reales
+ y todos los permisos de la version publicada.
+-Plantilla personalizada se elimina individualmente en transaccion: no se
+ reescribe la lista vacia ni se pierde otra plantilla concurrente. Se conserva
+ la politica de main sobre bases/ediciones y sus permisos; no se reemplaza
+ por la politica mas restrictiva del checkout115.135tests focalizados PASS.
+-Logo original entregado por el dueno copiado byte exacto, sin redibujar:
+ public/logo_ak_producciones.png; SHA2567f6249ff1cc7fa347dfd737f975bfd36e58ac4c2f2f57c7e472144e252220166.
+-Minimo Node20.9 por Sharp0.35.5 ya fijado en main; no se actualiza otra libreria.
+-Pendiente prueba conjunta116 antes de subir/crear la propuesta. No0errores.
+
 ## 12 de octubre de 2026 — Mantenimiento de equipos: ni se duplica el gasto ni se pierde una fila (orden 159)
 
 - **Antes:** si se perdía la respuesta al anotar un mantenimiento con costo y la persona tocaba de nuevo, quedaban dos

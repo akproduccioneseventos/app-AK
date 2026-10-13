@@ -238,7 +238,11 @@ async function adjustAllInsumoCostsInterno(
         if (error instanceof AjusteNoIniciadoError) return { success: false, sinCambios: true, error: error.message };
         throw error;
       }
-      if (recibo.terminado) return { success: true };
+      if (recibo.terminado) {
+        const { scheduleAutoBackupAfterWrite } = await import('@/lib/backup/schedule-after-write');
+        await scheduleAutoBackupAfterWrite('insumos.json');
+        return { success: true };
+      }
       limpiarCacheInsumos();
       const actualizados = await leerInsumosParaAjuste();
       for (const id of recibo.ids) {
@@ -249,6 +253,8 @@ async function adjustAllInsumoCostsInterno(
       }
       if (pendiente?.pendientes?.length) await writeData(AJUSTE_PENDIENTE_FILE, { ...pendiente, pendientes: [] });
       await terminarAjusteCostos(operationId);
+      const { scheduleAutoBackupAfterWrite } = await import('@/lib/backup/schedule-after-write');
+      await scheduleAutoBackupAfterWrite('insumos.json');
       return { success: true };
     }
 

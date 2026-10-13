@@ -84,6 +84,28 @@ describe('El respaldo no miente', () => {
   });
 
   describe('Quien puede tocar los respaldos', () => {
+    it('restaurar insumos de un snapshot legacy descarta recibos de ajustes posteriores', async () => {
+      readData.mockResolvedValue([{ name: 'legacy-costos', data: { 'insumos.json': [{ id: 'i1', valorUnitarioEstimado: 100 }] } }]);
+      const { restoreFromPoint } = await import('@/app/actions/backup');
+      expect((await restoreFromPoint('legacy-costos')).success).toBe(true);
+      expect(writeData).toHaveBeenCalledWith('ajustes-costos-insumos.json', [], undefined, { skipAutoBackup: true, esRestauracion: true });
+    });
+
+    it('restaurar otro modulo no borra recibos de ajustes de costos', async () => {
+      readData.mockResolvedValue([{ name: 'solo-clientes', data: { 'customers.json': [] } }]);
+      const { restoreFromPoint } = await import('@/app/actions/backup');
+      expect((await restoreFromPoint('solo-clientes')).success).toBe(true);
+      expect(writeData.mock.calls.map((call: unknown[]) => call[0])).not.toContain('ajustes-costos-insumos.json');
+    });
+
+    it('restaurar un snapshot nuevo mantiene su recibo y turno compartido', async () => {
+      const libro = [{ id: 'hash', porcentaje: 10, ids: ['i1'], terminado: false }, { id: '_turno', operacion: 'hash', porcentaje: 10 }];
+      readData.mockResolvedValue([{ name: 'costos-con-libro', data: { 'insumos.json': [], 'ajustes-costos-insumos.json': libro } }]);
+      const { restoreFromPoint } = await import('@/app/actions/backup');
+      expect((await restoreFromPoint('costos-con-libro')).success).toBe(true);
+      expect(writeData).toHaveBeenCalledWith('ajustes-costos-insumos.json', libro, undefined, { skipAutoBackup: true, esRestauracion: true });
+    });
+
     it('el operador de fiesta NO puede borrar un punto de restauracion', async () => {
       verifySession.mockResolvedValue({ success: true, user: { perfil: 'operador' } });
       const { deleteRestorePoint } = await import('@/app/actions/backup');

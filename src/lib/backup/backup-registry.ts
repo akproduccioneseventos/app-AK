@@ -36,6 +36,7 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'carga-operativa-templates.json', defaultValue: [] },
   { file: 'meeting-checklist-template.json', defaultValue: {} },
   { file: 'insumos.json', defaultValue: [] },
+  { file: 'ajustes-costos-insumos.json', defaultValue: [] },
   { file: 'coupons.json', defaultValue: [] },
   { file: 'cupones.json', defaultValue: [] },
   { file: 'cupones-usage.json', defaultValue: [] },

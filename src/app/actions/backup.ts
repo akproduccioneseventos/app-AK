@@ -447,6 +447,11 @@ export async function restoreFromPoint(pointName: string): Promise<{ success: bo
 
     if (!data) return { success: false, error: 'Punto de restauracion no encontrado.' };
 
+    // Los snapshots anteriores al libro no pueden conservar recibos de costos posteriores.
+    if (Object.hasOwn(data, 'insumos.json') && !Object.hasOwn(data, 'ajustes-costos-insumos.json')) {
+      data = { ...data, 'ajustes-costos-insumos.json': [] };
+    }
+
     const summary: RestoreSummaryItem[] = [];
     for (const [file, value] of Object.entries(data)) {
       if (!isRestorableDataFile(file)) continue;
