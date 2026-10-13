@@ -1,0 +1,30 @@
+{
+  "head": "184c2b190222a756d37d9e366f884a7abb913f7b",
+  "tree": "ce0678fd2cba32df5c0e89b38f0cf557fa6161eb",
+  "verified": [
+    {
+      "file": "public/logo_ak_producciones.png",
+      "blob": "4b117a7476a0c19735c10f9c3d90702edc31ffa8",
+      "sha256": "7f6249ff1cc7fa347dfd737f975bfd36e58ac4c2f2f57c7e472144e252220166"
+    },
+    {
+      "file": "ESTADO-ACTUAL.md",
+      "blob": "1e92b4268abc2eaed3c161c652706b12f30be9c6",
+      "sha256": "a13bba755f71c8ae3e520f63802986f01149755e59b5aaa2b29277f97f9548f0"
+    },
+    {
+      "file": "docs/YA-RESUELTO.md",
+      "blob": "d87bf3ae453e61af634be837bf119b13e40fa099",
+      "sha256": "235e0e32020438da845e9350f719a8c8a8ec2a50ec55ccb59ec53d9b189d9220"
+    },
+    {
+      "file": "docs/evidencias/116-aceptacion.json",
+      "blob": "dfb83e9c490e8f9cbfa783515d2a1ea930f87347",
+      "sha256": "490589e09d9ba3e6b19b29da12bd6a35690f56bb6ad714ef819f0c4a4a8b7a8f"
+    }
+  ],
+  "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "pr": 1293,
+  "mergedByCodex": false,
+  "checkedAt": "2026-10-13T07:36:57.215Z"
+}
