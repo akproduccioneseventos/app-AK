@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex118 en curso: orden161 implementada, aun sin retest nativo
+
+-Clave UUID por intento en sessionStorage, sin guardar PII; timestamp nuevo no
+ cambia clave. Confirmado permite otra cotizacion incluso mismo telefono/datos.
+-savePresupuesto opcional operationId conserva recorrido legacy. Nuevo camino
+ crea documento y numero en transaccion Firestore, ligada al actor y carga;
+ retry devuelve mismo ID sin repetir CRM, mensaje ni sobrescribir cobros.
+-Seguimiento CRM pendiente se avisa; confirmar solo actualiza su vinculo.
+ Permisos e importes se mantienen.26focalizadas PASS; fuente por congelar y
+ build/validacion amplia/navegador aun pendientes. No declarar161 cerrada.
+
 ## 13/10/2026 - Codex117: configurador probado; defecto ACK nuevo, NO corregido
 
 -Fuente1656ac2e, HEAD479408f2, PR1293 abierta; privado Claude NO CONTRASTADO.

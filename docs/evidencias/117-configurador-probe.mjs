@@ -81,12 +81,31 @@ try {
       await expect(page.getByText('Error inesperado', { exact: true })).toBeVisible({ timeout: 60000 });
       const before = (await db.collection('presupuestos').get()).size;
       expect(before).toBe(2);
+      if (viewport === 'mobile') {
+        await page.reload({ waitUntil: 'networkidle', timeout: 90000 });
+        await page.getByPlaceholder('Ej. Familia Rodr\u00edguez').fill('QA117 Familia ACK ' + viewport);
+        await page.getByPlaceholder('Ej. 099 123 456').fill('099000117');
+      }
       await page.getByRole('button', { name: 'Generar Presupuesto Formal', exact: true }).click();
       await expect(page.getByRole('button', { name: /^Ver Presupuesto #/ })).toBeVisible({ timeout: 60000 });
       const after = (await db.collection('presupuestos').get()).size;
       fs.writeFileSync(`docs/evidencias/117-ack-${viewport}.json`, JSON.stringify({ before, after, expected: 2, saveRequests }, null, 2));
       expect(after).toBe(2);
-      return { before, after, saveRequests };
+      return { before, after, saveRequests, reloadedBeforeRetry: viewport === 'mobile' };
+    });
+    await record(viewport, 'new-quote-same-phone-keeps-distinct-budget', async () => {
+      await page.goto(root + '/empresa/configurador-reunion', { waitUntil: 'networkidle', timeout: 90000 });
+      await page.getByPlaceholder('Ej. Familia Rodr\u00edguez').fill('QA117 Familia ACK ' + viewport);
+      await page.getByPlaceholder('Ej. 099 123 456').fill('099000117');
+      await page.getByRole('button', { name: 'Generar Presupuesto Formal', exact: true }).click();
+      const destination=page.getByRole('button', { name: /^Ver Presupuesto #/ });
+      await expect(destination).toBeVisible({ timeout: 60000 });
+      const records=await db.collection('presupuestos').get(); expect(records.size).toBe(3);
+      const numbers=records.docs.map(d=>d.data().numero); expect(new Set(numbers).size).toBe(3);
+      const matching=records.docs.filter(d=>d.data().clienteNombre==='QA117 Familia ACK '+viewport);
+      expect(matching).toHaveLength(2); expect(new Set(matching.map(d=>d.id)).size).toBe(2);
+      await destination.click(); await expect(page).toHaveURL(/\/presupuestos\/pres_request_/);
+      return { count:records.size, numbers, legitimateQuotesSamePhone:2, destination:new URL(page.url()).pathname };
     });
     await context.close();
     for (const col of await db.listCollections()) if (col.id !== 'servicios') for (const doc of (await col.get()).docs) await doc.ref.delete();

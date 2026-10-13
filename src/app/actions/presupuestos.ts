@@ -31,6 +31,7 @@ import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 import { AsyncMutex } from '@/lib/mutex';
 import { mutarPresupuesto } from '@/lib/budget/mutar-presupuesto';
+import { prepararSolicitudGuardado, crearPresupuestoSolicitado, confirmarSeguimientoSolicitud } from '@/lib/budget/solicitud-guardado';
 
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 const presupuestosMutex = new AsyncMutex();
@@ -288,7 +289,7 @@ async function cambiarCobrosDelPresupuesto(
 
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
-  options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean }
+  options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean, operationId?: string }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
   const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
@@ -302,6 +303,15 @@ export async function savePresupuesto(
       ...sinPlata,
       estado: ESTADOS_DE_PROPUESTA.includes(presupuestoData.estado) ? presupuestoData.estado : 'Enviado',
     } as Omit<Presupuesto, 'id'>;
+  }
+
+  let solicitud: ReturnType<typeof prepararSolicitudGuardado> | undefined;
+  if (options?.operationId !== undefined) {
+    try {
+      solicitud = prepararSolicitudGuardado(options.operationId, auth.user?.userId || '', {
+        ...presupuestoData, source: options.source || 'manual', preserveTotal: Boolean(options.preserveTotal), leadId: options.leadId,
+      });
+    } catch (error) { return { success: false, error: error instanceof Error ? error.message : 'Intento de guardado invalido.' }; }
   }
 
   return await presupuestosMutex.runExclusive(async () => {
@@ -338,7 +348,7 @@ export async function savePresupuesto(
     ? presupuestoData.totalConDescuento
     : Math.round(totalConDescuento);
 
-  const presupuestoId = `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const presupuestoId = solicitud?.id || `pres_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   let nuevoPresupuesto: Presupuesto = normalizePresupuestoFinancials({
     ...presupuestoData,
     id: presupuestoId,
@@ -352,6 +362,17 @@ export async function savePresupuesto(
     source: options?.source || 'manual',
   }, { preserveStoredTotal: options?.preserveTotal });
 
+  if (solicitud) {
+    try {
+      const result = await crearPresupuestoSolicitado(nuevoPresupuesto, solicitud);
+      nuevoPresupuesto = result.presupuesto;
+      if (result.reused) return { success: true, id: presupuestoId,
+        presupuesto: puede(auth.user, PERMISOS.CONTABILIDAD) ? nuevoPresupuesto : sinCobros(nuevoPresupuesto),
+        leadId: nuevoPresupuesto.leadId,
+        avisoCrm: result.seguimientoConfirmado ? undefined : 'El presupuesto esta guardado, pero el seguimiento comercial aun no esta confirmado. Revisalo antes de volver a contactar.' };
+    } catch (error) { return { success: false, error: error instanceof Error ? error.message : 'No se pudo confirmar el guardado. Reintenta sin cambiar los datos.' }; }
+  }
+
   // El presupuesto se guarda igual aunque falle el CRM, pero el aviso vuelve a
   // la pantalla: antes el equipo creia que el cliente habia quedado cargado en
   // el seguimiento y no estaba.
@@ -359,18 +380,21 @@ export async function savePresupuesto(
   try {
     const syncRes = await findLeadByBudgetOrCreate(nuevoPresupuesto);
     nuevoPresupuesto.leadId = syncRes.lead.id;
+    if (solicitud) nuevoPresupuesto = await confirmarSeguimientoSolicitud(presupuestoId, syncRes.lead.id);
   } catch (crmError: any) {
     console.warn(`CRM Sync error during save: ${crmError.message}`);
     avisoCrm = 'El presupuesto se guardó, pero el cliente no se pudo cargar en el seguimiento comercial. Revisalo a mano.';
   }
 
-  presupuestos.push(nuevoPresupuesto);
-  try {
-    await writeData(PRESUPUESTOS_FILE, presupuestos);
-    logger.info('[Presupuesto] Guardado exitoso:', presupuestoId, `#${nuevoNumero}`, nuevoPresupuesto.clienteNombre);
-  } catch (writeError: any) {
-    logger.error('[Presupuesto] Error al guardar:', writeError.message || writeError);
-    return { success: false, error: 'No se pudo guardar el presupuesto. Intentá de nuevo.' };
+  if (!solicitud) {
+    presupuestos.push(nuevoPresupuesto);
+    try {
+      await writeData(PRESUPUESTOS_FILE, presupuestos);
+      logger.info('[Presupuesto] Guardado exitoso:', presupuestoId, `#${nuevoNumero}`, nuevoPresupuesto.clienteNombre);
+    } catch (writeError: any) {
+      logger.error('[Presupuesto] Error al guardar:', writeError.message || writeError);
+      return { success: false, error: 'No se pudo guardar el presupuesto. Intentá de nuevo.' };
+    }
   }
 
   await syncLinkedFiesta(nuevoPresupuesto);

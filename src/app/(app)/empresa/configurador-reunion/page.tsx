@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { SalonSceneAislada } from '@/components/salon-3d/SalonSceneAislada';
 import { useRouter } from 'next/navigation';
@@ -47,6 +47,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { savePresupuesto } from '@/app/actions/presupuestos';
+import { obtenerIntentoConfigurador, terminarIntentoConfigurador } from '@/lib/budget/intento-configurador';
 import { generarVisualizacionSalonReunion } from '@/app/actions/fiesta/decoracion.actions';
 import { calculateSimulatorPricing, type SimulatorPriceStats } from '@/lib/simulator/pricing';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -110,6 +111,7 @@ export default function ConfiguradorReunionPage() {
   // Selected Services
   const [selectedServiceIds, setSelectedServiceIds] = useState<Set<string>>(new Set());
   const [savingBudget, setSavingBudget] = useState(false);
+  const guardadoEnCurso = useRef(false);
   const [savedResult, setSavedResult] = useState<{ id: string; numero?: number } | null>(null);
 
   // Armado con una frase
@@ -429,6 +431,7 @@ export default function ConfiguradorReunionPage() {
   };
 
   const handleSaveBudget = async () => {
+    if (guardadoEnCurso.current) return;
     if (!clienteNombre.trim()) {
       toast({
         title: 'Falta el nombre del cliente',
@@ -439,6 +442,7 @@ export default function ConfiguradorReunionPage() {
     }
     if (!pricingStats) return;
 
+    guardadoEnCurso.current = true;
     setSavingBudget(true);
     try {
       const itemsPresupuestados = pricingStats.detallados.map((item) => ({
@@ -458,7 +462,7 @@ export default function ConfiguradorReunionPage() {
       }));
 
       const totalGuests = (Number(adultos) || 0) + (Number(menores) || 0);
-      const res = await conTopeDeEspera(savePresupuesto({
+      const payload = {
         clienteNombre: clienteNombre.trim(),
         clienteContacto: clienteTelefono.trim(),
         eventoTipo: tipoEvento,
@@ -472,16 +476,19 @@ export default function ConfiguradorReunionPage() {
         costoTotalEstimado: pricingStats.subtotalBruto,
         totalConDescuento: pricingStats.totalFinal,
         descuentoValor: pricingStats.descPromo,
-        descuentoTipo: 'fijo',
-        estado: 'Borrador',
+        descuentoTipo: 'fijo' as const,
+        estado: 'Borrador' as const,
         timestamp: new Date().toISOString(),
-      }));
+      };
+      const operationId = await obtenerIntentoConfigurador(payload);
+      const res = await conTopeDeEspera(savePresupuesto(payload, { operationId }));
 
       if (res.success && res.id) {
         setSavedResult({ id: res.id, numero: res.presupuesto?.numero });
+        terminarIntentoConfigurador();
         toast({
           title: '¡Presupuesto Formal Creado!',
-          description: `Guardado como Presupuesto #${res.presupuesto?.numero || res.id}.`,
+          description: res.avisoCrm || `Guardado como Presupuesto #${res.presupuesto?.numero || res.id}.`,
         });
       } else {
         toast({
@@ -497,6 +504,7 @@ export default function ConfiguradorReunionPage() {
         variant: 'destructive',
       });
     } finally {
+      guardadoEnCurso.current = false;
       setSavingBudget(false);
     }
   };

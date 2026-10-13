@@ -23,7 +23,7 @@ Object.assign(env, {
   COMMIT_SHA: sha, JAVA_TOOL_OPTIONS: '-Xmx512m',
 });
 if (['start', 'emulator', 'probe'].includes(mode)) {
-  const build = JSON.parse(fs.readFileSync('docs/evidencias/116-build-execution.json'));
+  const build = JSON.parse(fs.readFileSync('docs/evidencias/117-build-execution.json'));
   const changed = execFileSync('git', ['diff', '--name-only', build.sha, 'HEAD'], { encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean);
   const dirty = execFileSync('git', ['diff', '--name-only', 'HEAD'], { encoding: 'utf8' }).trim().split(/\r?\n/).filter(Boolean);
   const auxiliar = f => /^(docs\/|tests\/|src\/__tests__\/|graphify-out\/|ESTADO-ACTUAL\.md$)/.test(f);
