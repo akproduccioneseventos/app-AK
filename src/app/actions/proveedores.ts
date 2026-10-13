@@ -137,9 +137,12 @@ async function deleteProveedorInterno(id: string): Promise<{ success: boolean; e
   try {
     const proveedor = await getProveedorById(id);
     const insumos = await getInsumos();
-    const insumosEnUso = insumos.filter(
-      (ins: any) => ins.proveedorId === id || ins.proveedor === id || (proveedor && (ins.proveedor === proveedor.nombreEmpresa || ins.proveedor === proveedor.nombre))
-    );
+    const insumosEnUso = insumos.filter((ins: { proveedorId?: string; proveedor?: string }) => {
+      const coincideNombre = typeof ins.proveedor === 'string' && ins.proveedor.trim() !== ''
+        && [proveedor?.nombreEmpresa, proveedor?.nombre].some(nombre =>
+          typeof nombre === 'string' && nombre.trim() !== '' && ins.proveedor === nombre);
+      return ins.proveedorId === id || ins.proveedor === id || coincideNombre;
+    });
     if (insumosEnUso.length > 0) {
       return {
         success: false,

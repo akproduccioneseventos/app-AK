@@ -14,6 +14,14 @@
 - Ultimo proveedor y ultima plantilla custom no reviven desde JSON viejo al
   eliminar; plantilla incorporada se rechaza sin falso exito. Borrado custom
   individual transaccional, no reescritura de una lista entera concurrente.
+- La prueba nativa PC seguida de celular detecto otra causa de bloqueo al borrar:
+  insumo sin proveedor y registro sin nombreEmpresa coincidian por undefined.
+  Corregido: asociacion requiere ID real o nombre no vacio, sin quitar el bloqueo
+  cuando existen insumos verdaderamente asociados. Seis focalizadas PASS.
+- Logo publico original venia truncado desde1253:9528bytes, IDAT24576 sin IEND.
+  Fallo real de asset, no regresion de Sharp. El dueno entrego E:/Logo (Logotipo).png;
+  copiado byte por byte a public/logo_ak_producciones.png, sin redibujar la marca.
+  Decodificacion completa del original verificada; consumidor/PDF aun en validacion.
 - Torre, preparacion, comercial, post-fiesta, automatizaciones, conexiones y
   redes muestran errores y reintento sin reemplazar una lectura fallida por calma.
 - Notificacion silenciada/duplicada no cuenta como creada. Google retirado/error
