@@ -158,6 +158,8 @@ export async function votePoll(
       if (!snap.exists) throw new Error('Encuesta no encontrada.');
       const data = snap.data() as SocialPoll;
       if (data.fiestaId !== fiestaId) throw new Error('Encuesta no pertenece a este evento.');
+      // Una encuesta cerrada no suma votos (la de la pantalla en vivo ya lo controlaba).
+      if (data.active === false) throw new Error('Esta encuesta ya está cerrada.');
       const optIdx = data.options.findIndex(o => o.id === optionId);
       if (optIdx === -1) throw new Error('Opción no encontrada.');
       const updatedOptions = data.options.map(o =>
