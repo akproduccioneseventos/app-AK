@@ -1,4 +1,5 @@
 'use client';
+import { idDelTelefono } from '@/lib/social-fiesta/id-del-telefono';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
@@ -805,7 +806,7 @@ export default function SocialEventPage() {
 
     if (like) {
       setSongs((current) => current.map((s) => s.id === songId ? { ...s, votes: (s.votes || 0) + 1 } : s));
-      const result = await voteSongRequest(fiestaId, songId);
+      const result = await voteSongRequest(fiestaId, songId, idDelTelefono());
       if (!result.success) {
         toast({ title: 'No se pudo votar', description: result.error, variant: 'destructive' });
       }
@@ -904,7 +905,7 @@ export default function SocialEventPage() {
 
   const submitPollVote = async (optionId: string) => {
     if (!poll || votedPollId === poll.id) return;
-    const result = await votePoll(fiestaId, poll.id, optionId);
+    const result = await votePoll(fiestaId, poll.id, optionId, idDelTelefono());
     if (result.success) {
       setVotedPollId(poll.id);
       localStorage.setItem(`votedPoll_${fiestaId}`, poll.id);

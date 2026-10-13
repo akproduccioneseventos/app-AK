@@ -43,6 +43,40 @@ import { enforceSocialInteractionRateLimit } from '@/lib/commercial/social-inter
 const POLLS_COLLECTION = 'social_polls';
 const SONGS_COLLECTION = 'social_song_requests';
 const DEDICATIONS_COLLECTION = 'social_dedications';
+// Un documento por voto (encuesta o cancion + telefono). Como en las apps de votacion de eventos
+// (Slido, Mentimeter), el voto se cuenta UNA vez por telefono, y repetirlo no suma de nuevo.
+const POLL_VOTES_COLLECTION = 'social_poll_votes';
+const SONG_VOTES_COLLECTION = 'social_song_votes';
+
+/**
+ * Topes de votacion (13/10/2026). Antes eran 30 por minuto por red: en el wifi del salon todos los
+ * invitados salen por la misma red y el voto 31 de ese minuto se rechazaba. Ahora el control fino es
+ * por telefono, y el de la red es un techo alto que solo frena abusos.
+ */
+const VOTOS_POR_RED_POR_MINUTO = 600;
+const VOTOS_POR_TELEFONO_POR_MINUTO = 10;
+
+function telefonoValido(dispositivoId?: string): string | null {
+  return typeof dispositivoId === 'string' && /^[a-zA-Z0-9-]{8,64}$/.test(dispositivoId) ? dispositivoId : null;
+}
+
+async function topesDeVoto(scope: string, fiestaId: string, objetoId: string, dispositivo: string | null) {
+  await enforcePublicRateLimit({
+    scope,
+    identity: `${fiestaId}:${objetoId}`,
+    limit: VOTOS_POR_RED_POR_MINUTO,
+    windowMs: 60_000,
+  });
+  if (dispositivo) {
+    await enforcePublicRateLimit({
+      scope: `${scope}-telefono`,
+      identity: `${fiestaId}:${dispositivo}`,
+      limit: VOTOS_POR_TELEFONO_POR_MINUTO,
+      windowMs: 60_000,
+      ignoreClientAddress: true,
+    });
+  }
+}
 
 function dedicationAudioExtension(contentType: string): string {
   switch (contentType.toLowerCase()) {
@@ -141,20 +175,21 @@ export async function createPoll(
 export async function votePoll(
   fiestaId: string,
   pollId: string,
-  optionId: string
-): Promise<{ success: boolean; poll?: SocialPoll; error?: string }> {
+  optionId: string,
+  dispositivoId?: string,
+): Promise<{ success: boolean; poll?: SocialPoll; error?: string; yaVotado?: boolean }> {
   try {
-    await enforcePublicRateLimit({
-      scope: 'social-poll-vote',
-      identity: `${fiestaId}:${pollId}`,
-      limit: 30,
-      windowMs: 60_000,
-    });
+    const dispositivo = telefonoValido(dispositivoId);
+    await topesDeVoto('social-poll-vote', fiestaId, pollId, dispositivo);
     const db = await getDb();
     const ref = db.collection(POLLS_COLLECTION).doc(pollId);
+    const votoRef = dispositivo ? db.collection(POLL_VOTES_COLLECTION).doc(`${pollId}__${dispositivo}`) : null;
+    let yaVotado = false;
     // Transaction guarantees that every concurrent vote is counted — no vote is lost.
     const updatedPoll = await db.runTransaction(async (tx: Transaction) => {
+      yaVotado = false;
       const snap = await tx.get(ref);
+      const votoPrevio = votoRef ? await tx.get(votoRef) : null;
       if (!snap.exists) throw new Error('Encuesta no encontrada.');
       const data = snap.data() as SocialPoll;
       if (data.fiestaId !== fiestaId) throw new Error('Encuesta no pertenece a este evento.');
@@ -162,13 +197,19 @@ export async function votePoll(
       if (data.active === false) throw new Error('Esta encuesta ya está cerrada.');
       const optIdx = data.options.findIndex(o => o.id === optionId);
       if (optIdx === -1) throw new Error('Opción no encontrada.');
+      // Este telefono ya voto (o la respuesta anterior se perdio y reintenta): no suma otra vez.
+      if (votoPrevio?.exists) {
+        yaVotado = true;
+        return data;
+      }
       const updatedOptions = data.options.map(o =>
         o.id === optionId ? { ...o, votes: o.votes + 1 } : o
       );
       tx.update(ref, { options: updatedOptions });
+      if (votoRef) tx.set(votoRef, { fiestaId, pollId, optionId, createdAt: new Date().toISOString() });
       return { ...data, options: updatedOptions };
     });
-    return { success: true, poll: updatedPoll };
+    return { success: true, poll: updatedPoll, ...(yaVotado ? { yaVotado: true } : {}) };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -244,22 +285,24 @@ export async function addSongRequest(
 
 export async function voteSongRequest(
   fiestaId: string,
-  requestId: string
+  requestId: string,
+  dispositivoId?: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await enforcePublicRateLimit({
-      scope: 'social-song-vote',
-      identity: `${fiestaId}:${requestId}`,
-      limit: 30,
-      windowMs: 60_000,
-    });
+    const dispositivo = telefonoValido(dispositivoId);
+    await topesDeVoto('social-song-vote', fiestaId, requestId, dispositivo);
     const db = await getDb();
     const ref = db.collection(SONGS_COLLECTION).doc(requestId);
+    const votoRef = dispositivo ? db.collection(SONG_VOTES_COLLECTION).doc(`${requestId}__${dispositivo}`) : null;
     await db.runTransaction(async (transaction: Transaction) => {
       const snapshot = await transaction.get(ref);
+      const votoPrevio = votoRef ? await transaction.get(votoRef) : null;
       if (!snapshot.exists || snapshot.data()?.fiestaId !== fiestaId) {
         throw new Error('Pedido musical no encontrado para este evento.');
       }
+      // Este telefono ya voto esta cancion: no suma otra vez.
+      if (votoPrevio?.exists) return;
+      if (votoRef) transaction.set(votoRef, { fiestaId, requestId, createdAt: new Date().toISOString() });
       transaction.update(ref, {
         votes: admin.firestore.FieldValue.increment(1),
       });
