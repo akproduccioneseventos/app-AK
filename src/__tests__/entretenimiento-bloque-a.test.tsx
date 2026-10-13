@@ -1,4 +1,3 @@
-import { joinTriviaGame, submitTriviaScore } from '@/app/actions/games.actions';
 import { addFotoEnVivo, addSolicitudCancion, addMensajeEnVivo } from '@/app/actions/evento-en-vivo';
 import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
@@ -41,66 +40,8 @@ describe('Bloque A: Identidad del Invitado', () => {
     (saveFiesta as jest.Mock).mockResolvedValue({ success: false, error: 'No autorizado para modificar este evento.' });
   });
 
-  describe('Trivia por Mesa', () => {
-    it('debería asignar a un invitado con mesa a su mesa correspondiente y guardar puntos', async () => {
-      (getPublicGuestPortalData as jest.Mock).mockResolvedValue({
-        guest: { id: 'g1', nombre: 'Juan', tableNumber: 'Mesa 4' }
-      });
-
-      const mockFiesta = {
-        id: 'f1',
-        triviaGame: { participants: [] }
-      };
-      (getFiestaById as jest.Mock).mockResolvedValue(mockFiesta);
-      
-      const joinResult = await joinTriviaGame('f1', 'g1', 'token123', 'Juan');
-      expect(joinResult.success).toBe(true);
-
-      expect(guardada).toEqual(expect.objectContaining({
-        triviaGame: expect.objectContaining({
-          participants: expect.arrayContaining([
-            expect.objectContaining({ guestId: 'g1', tableNumber: 'Mesa 4', guestName: 'Juan', score: 0 })
-          ])
-        })
-      }));
-
-      // Submit score
-      // El puntaje se suma sobre lo que quedó guardado al unirse.
-
-      const scoreResult = await submitTriviaScore('f1', 'g1', 'token123', 100);
-      expect(scoreResult.success).toBe(true);
-      expect(guardada).toEqual(expect.objectContaining({
-        triviaGame: expect.objectContaining({
-          participants: expect.arrayContaining([
-            expect.objectContaining({ guestId: 'g1', score: 100 })
-          ])
-        })
-      }));
-    });
-
-    it('debería permitir jugar sin errores a un invitado sin mesa (individual)', async () => {
-      (getPublicGuestPortalData as jest.Mock).mockResolvedValue({
-        guest: { id: 'g2', nombre: 'Ana' } // Sin tableNumber
-      });
-
-      const mockFiesta = {
-        id: 'f1',
-        triviaGame: { participants: [] }
-      };
-      (getFiestaById as jest.Mock).mockResolvedValue(mockFiesta);
-      
-      const joinResult = await joinTriviaGame('f1', 'g2', 'token456', 'Ana');
-      expect(joinResult.success).toBe(true);
-
-      expect(guardada).toEqual(expect.objectContaining({
-        triviaGame: expect.objectContaining({
-          participants: expect.arrayContaining([
-            expect.objectContaining({ guestId: 'g2', guestName: 'Ana', score: 0 })
-          ])
-        })
-      }));
-    });
-  });
+  // La trivia (mesa, puntos, una respuesta por pregunta) se prueba en
+  // src/__tests__/trivia-en-vivo-y-misiones-con-puntos.test.ts.
 
   describe('Muro Social por Nombre', () => {
     it('debería inyectar el nombre real del invitado al subir foto con enlace personal', async () => {
@@ -157,14 +98,6 @@ describe('Bloque A: Identidad del Invitado', () => {
       expect((await addMensajeEnVivo('f1', { texto: 'Felicidades', autor: 'Ana' } as any)).success).toBe(true);
       expect(guardada.eventoEnVivo.solicitudesCanciones).toHaveLength(1);
       expect(guardada.eventoEnVivo.mensajes).toHaveLength(1);
-    });
-
-    it('la trivia no deja entrar con una credencial que no vale', async () => {
-      (getPublicGuestPortalData as jest.Mock).mockResolvedValue(null);
-      (getFiestaById as jest.Mock).mockResolvedValue({ id: 'f1' });
-      const r = await joinTriviaGame('f1', 'g9', 'falsa', 'Intruso');
-      expect(r.success).toBe(false);
-      expect(guardada).toBeNull();
     });
   });
 });

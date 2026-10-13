@@ -809,6 +809,14 @@ export interface ActiveGameData {
   pollId?: string;
   tableLeaderboard?: { tableNumber: string, score: number }[];
   isFinished?: boolean;
+  /**
+   * Trivia en vivo: `correctOptionId` lo fija el operador al lanzar la pregunta, pero NO viaja a los
+   * celulares ni a la pantalla gigante hasta que `respuestaRevelada` es true (ver
+   * `ocultarRespuestaCorrecta` en src/lib/social-fiesta/public-event.ts). Revelada, la pregunta cierra.
+   */
+  respuestaRevelada?: boolean;
+  /** Top 5 individual que deja `terminarTrivia` para el podio cuando la fiesta no tiene mesas. */
+  topJugadores?: { nombre: string; puntos: number }[];
 }
 
 export interface SocialGallerySettings {
@@ -1563,6 +1571,8 @@ export interface FiestaEnPlanificacion {
   /** Juegos del evento. Los guarda y lee `games.actions.ts`. */
   triviaGame?: import('@/lib/games/game-engine').TriviaGame;
   photoMissions?: import('@/lib/games/game-engine').PhotoMission[];
+  /** Puntos de las misiones de fotos cumplidas, por invitado (clave: guestId comprobado o `d:<dispositivo>`). */
+  misionesFotos?: Record<string, { nombre: string; misiones: string[]; puntos: number }>;
   clientChecklist?: ClientTarea[];
   clientNotes?: string;
   invitacionDigital?: InvitacionDigitalData;

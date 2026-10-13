@@ -29,7 +29,8 @@ export interface TriviaParticipant {
   guestName: string;
   tableNumber?: string;
   score: number;
-  answers: { questionId: string; answerId: string; correct: boolean; answeredAt: string }[];
+  /** `questionId` es el `launchedAt` de la pregunta lanzada; `puntos` los calculó el servidor. */
+  answers: { questionId: string; answerId: string; correct: boolean; answeredAt: string; puntos?: number }[];
 }
 
 export interface Leaderboard {
