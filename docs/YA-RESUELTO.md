@@ -13377,3 +13377,19 @@ prueba: src/__tests__/insumo-receta-conserva-unidad.test.ts
 prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
 usa: * 100) / 100 en src/lib/insumos/ajuste-costos-idempotente.ts
 ```
+
+## Votos en el wifi del salón: uno por teléfono (13 de octubre de 2026)
+
+Las encuestas, las canciones y los juegos de la pantalla gigante tenían un tope por red: 30 votos por
+minuto por encuesta, y 40 por minuto para **toda la fiesta** en los juegos. En el salón todos los
+invitados salen por el mismo wifi, así que el voto 31 (o el 41) de ese minuto se rechazaba.
+
+Ahora funciona como en las apps de votación de eventos (Slido, Mentimeter). Cada teléfono tiene un
+identificador anónimo (`idDelTelefono`, guardado en el navegador) y el voto cuenta **una vez por
+teléfono**: si lo repite o reintenta, no suma de nuevo. El tope de la red subió a 600 por minuto,
+que sólo frena abusos. No se le pide ningún dato al invitado.
+
+```comprobar
+prueba: src/__tests__/un-voto-por-telefono-sin-trabar-el-wifi.test.ts
+usa: idDelTelefono en src/app/evento/social/[fiestaId]/page.tsx
+```
