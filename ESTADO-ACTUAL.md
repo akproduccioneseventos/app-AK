@@ -23,6 +23,12 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
 - Misiones de fotos: la foto sube a la galería y suma una vez; ranking "Cazadores de fotos".
 - Una trivia lanzada antes de este cambio no tiene respuesta correcta: hay que relanzarla.
 
+## PR 1293 de Codex (junta el 13/10)
+- Chat: no duplica el presupuesto al reintentar; la tarjeta del asistente abre el chat.
+- Respaldo de ajustes de costos, flujo de caja por día de Uruguay, logo original en PDFs,
+  configurador con identidad por intento. Revisado lo de plata: centavos intactos.
+- Codex ahora sube en PRs propias (1288, 1293): suscribirse a cada una nueva.
+
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos: uno agregado a la vez desde otra pantalla puede perderse.
