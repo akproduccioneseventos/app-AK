@@ -29,6 +29,13 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
   configurador con identidad por intento. Revisado lo de plata: centavos intactos.
 - Codex ahora sube en PRs propias (1288, 1293): suscribirse a cada una nueva.
 
+## Método corregido solo (13/10, pedido del dueño)
+- Preguntas 58 (respuesta perdida duplica), 59 (formulario que reabre sucio), 60 (nombre largo en
+  celular) y 61 (prueba salteada en celular). Barridas en toda la app y arregladas.
+- Control `cada-hallazgo-de-codex-tiene-su-pregunta`: toda orden de Codex necesita su línea
+  "- Orden N → pregunta M" en LO-QUE-NO-VI.md o la puerta no publica.
+- Pendiente menor: pago a proveedor en gestión de costos (guarda la lista entera).
+
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos: uno agregado a la vez desde otra pantalla puede perderse.
