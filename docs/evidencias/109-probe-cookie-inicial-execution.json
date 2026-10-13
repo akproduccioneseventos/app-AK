@@ -1,0 +1,13 @@
+{
+  "head": "43620d4c10ff38b8f77223905089a19d15002053",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "args": [
+    "docs/evidencias/109-permisos-documentos-probe.mjs"
+  ],
+  "launcher": 25052,
+  "child": 22920,
+  "started": "2026-10-12T18:17:09.717Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-12T18:17:28.610Z"
+}

@@ -1,0 +1,91 @@
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3301
+   - Network:      http://127.0.0.1:3301
+
+ ✓ Starting...
+ ✓ Ready in 7.6s
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "proveedores.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "marketing-checklist.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "notification-preferences.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "gastos-generales.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "servicios-empresa.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "carga-operativa-templates.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "meeting-checklist-template.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "crm-stages.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "feature-flags.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "roles.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "playbooks.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "armado-rapido-config.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "ai-assistant-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "budget-display-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "fiestas-historicas.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "historial-fiestas.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invitacion-digital-templates.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "feedback.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "testimonials.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "whatsapp-conversations.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "accesos-personal.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "whatsapp-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "whatsapp-config.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "galeria-publica.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "reposteria-template.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "insumos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "menus-catering.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "bebidas-template.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "carga-operativa-master-template.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "task-templates.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "itinerary-templates.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "salon-layout-templates.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "personal-recibos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "insumos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "proveedores.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "proveedores.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "proveedores.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "proveedores.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "proveedores.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.

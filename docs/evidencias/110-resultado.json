@@ -1,0 +1,597 @@
+{
+  "auditoria": 110,
+  "generatedAt": "2026-10-12T19:41:10.846Z",
+  "evidenceHead": "2f6007beaf8fe93c5f87dfc632c63f66eeb0428d",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "comparedMain": "99faf4eb061fa46341cfdde6f81b93b3bfb9c73c",
+  "privateClaudeBranch": "NOT_CONTRASTED",
+  "summary": {
+    "PASS": 32,
+    "FAIL": 18,
+    "PARTIAL": 0
+  },
+  "criteria": [
+    {
+      "file": "110-providers.json",
+      "viewport": "desktop",
+      "name": "provider-create-persist-read",
+      "status": "PASS"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "desktop",
+      "name": "provider-duplicate-refused",
+      "status": "PASS"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "desktop",
+      "name": "provider-edit-reload",
+      "status": "PASS"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "desktop",
+      "name": "provider-failed-save-keeps-record-and-form",
+      "status": "PASS"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "desktop",
+      "name": "provider-delete-cancel-and-confirm",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "mobile",
+      "name": "provider-create-persist-read",
+      "status": "PASS"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "mobile",
+      "name": "provider-duplicate-refused",
+      "status": "PASS"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "mobile",
+      "name": "provider-edit-reload",
+      "status": "PASS"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "mobile",
+      "name": "provider-failed-save-keeps-record-and-form",
+      "status": "PASS"
+    },
+    {
+      "file": "110-providers.json",
+      "viewport": "mobile",
+      "name": "provider-delete-cancel-and-confirm",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-meetings.json",
+      "viewport": "desktop",
+      "name": "meeting-master-save-reload",
+      "status": "PASS"
+    },
+    {
+      "file": "110-meetings.json",
+      "viewport": "desktop",
+      "name": "meeting-master-consumer-dialog",
+      "status": "PASS"
+    },
+    {
+      "file": "110-meetings.json",
+      "viewport": "mobile",
+      "name": "meeting-master-save-reload",
+      "status": "PASS"
+    },
+    {
+      "file": "110-meetings.json",
+      "viewport": "mobile",
+      "name": "meeting-master-consumer-dialog",
+      "status": "PASS"
+    },
+    {
+      "file": "110-acciones.json",
+      "viewport": "desktop",
+      "name": "invitation-create-and-delete-saved",
+      "status": "PASS"
+    },
+    {
+      "file": "110-acciones.json",
+      "viewport": "desktop",
+      "name": "invitation-delete-builtin-observation",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-acciones.json",
+      "viewport": "mobile",
+      "name": "invitation-create-and-delete-saved",
+      "status": "PASS"
+    },
+    {
+      "file": "110-acciones.json",
+      "viewport": "mobile",
+      "name": "invitation-delete-builtin-observation",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-centro.json",
+      "viewport": "desktop",
+      "name": "commercial-read-network-failure",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-centro.json",
+      "viewport": "desktop",
+      "name": "postevent-read-network-failure",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-centro.json",
+      "viewport": "desktop",
+      "name": "automations-run-network-failure",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-centro.json",
+      "viewport": "desktop",
+      "name": "commercial-alert-network-failure",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-centro.json",
+      "viewport": "mobile",
+      "name": "commercial-read-network-failure",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-centro.json",
+      "viewport": "mobile",
+      "name": "postevent-read-network-failure",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-centro.json",
+      "viewport": "mobile",
+      "name": "automations-run-network-failure",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-centro.json",
+      "viewport": "mobile",
+      "name": "commercial-alert-network-failure",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "desktop",
+      "name": "tower-real-fiesta-and-task-links",
+      "status": "PASS"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "desktop",
+      "name": "preparation-open-correct-fiesta",
+      "status": "PASS"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "desktop",
+      "name": "postevent-close-memory-persisted",
+      "status": "PASS"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "desktop",
+      "name": "automations-repeat-without-notification-duplicates",
+      "status": "PASS"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "desktop",
+      "name": "provider-read-failure-control-tower",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "desktop",
+      "name": "provider-read-failure-control-tower-preparacion",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "mobile",
+      "name": "tower-real-fiesta-and-task-links",
+      "status": "PASS"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "mobile",
+      "name": "preparation-open-correct-fiesta",
+      "status": "PASS"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "mobile",
+      "name": "postevent-close-memory-persisted",
+      "status": "PASS"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "mobile",
+      "name": "automations-repeat-without-notification-duplicates",
+      "status": "PASS"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "mobile",
+      "name": "provider-read-failure-control-tower",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-negocios.json",
+      "viewport": "mobile",
+      "name": "provider-read-failure-control-tower-preparacion",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-marketing.json",
+      "viewport": "desktop",
+      "name": "marketing-template-save-and-apply-after-reload",
+      "status": "PASS"
+    },
+    {
+      "file": "110-marketing.json",
+      "viewport": "desktop",
+      "name": "marketing-checklist-save-and-reload",
+      "status": "PASS"
+    },
+    {
+      "file": "110-marketing.json",
+      "viewport": "desktop",
+      "name": "marketing-download-json",
+      "status": "PASS"
+    },
+    {
+      "file": "110-marketing.json",
+      "viewport": "mobile",
+      "name": "marketing-template-save-and-apply-after-reload",
+      "status": "PASS"
+    },
+    {
+      "file": "110-marketing.json",
+      "viewport": "mobile",
+      "name": "marketing-checklist-save-and-reload",
+      "status": "PASS"
+    },
+    {
+      "file": "110-marketing.json",
+      "viewport": "mobile",
+      "name": "marketing-download-json",
+      "status": "PASS"
+    },
+    {
+      "file": "110-counts.json",
+      "viewport": "desktop",
+      "name": "automations-created-counter-matches-persisted-delta",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-counts.json",
+      "viewport": "mobile",
+      "name": "automations-created-counter-matches-persisted-delta",
+      "status": "FAIL"
+    },
+    {
+      "file": "110-editores.json",
+      "viewport": "desktop",
+      "name": "landing-save-reload-anonymous-consumer",
+      "status": "PASS"
+    },
+    {
+      "file": "110-editores.json",
+      "viewport": "desktop",
+      "name": "led-catalog-save-reload-anonymous-consumers",
+      "status": "PASS"
+    },
+    {
+      "file": "110-editores.json",
+      "viewport": "mobile",
+      "name": "landing-save-reload-anonymous-consumer",
+      "status": "PASS"
+    },
+    {
+      "file": "110-editores.json",
+      "viewport": "mobile",
+      "name": "led-catalog-save-reload-anonymous-consumers",
+      "status": "PASS"
+    }
+  ],
+  "hashes": [
+    {
+      "file": "110-acciones-execution.json",
+      "sha256": "c1747540cd377a951d1af02bec9f9ba602bf15168118c7850a902f43ab97ecd5"
+    },
+    {
+      "file": "110-acciones-restauracion.json",
+      "sha256": "6d673b5cb446c047d22ee0d82ec1af585d1178cffc7f9d9798a9b8a0f491c372"
+    },
+    {
+      "file": "110-acciones.json",
+      "sha256": "ed24371caebcbdbff438e8c8dc4cf46402d43ad91045a8c053f43ba40c509931"
+    },
+    {
+      "file": "110-automations-run-network-failure-desktop.png",
+      "sha256": "97671fd38fa45450472579a688a4345c37b6867540ce39ef4f501e68cf303569"
+    },
+    {
+      "file": "110-automations-run-network-failure-mobile.png",
+      "sha256": "7019b6b7d2633497400b31f5f162fe767f8db5c8ab8c7e78dac5d87680417a33"
+    },
+    {
+      "file": "110-centro-execution.json",
+      "sha256": "4725896441f5c30d3d1ca6cddee0c7ff1a1157360f13e7cf65238f86f5976d87"
+    },
+    {
+      "file": "110-centro-inicial-execution.json",
+      "sha256": "b69625782573fec51c87693a6fe19633ef5ca9fad71f21de7ec9899bceb4ba45"
+    },
+    {
+      "file": "110-centro-restauracion.json",
+      "sha256": "d10bedb52b57eb03d158c2a8a0f946e6e12554a537027515de978dc42b142a83"
+    },
+    {
+      "file": "110-centro.json",
+      "sha256": "68d2af18425b2038386736a66297012f5befdbdf20c2ea7b275d4bdd4728b2bf"
+    },
+    {
+      "file": "110-commercial-alert-network-failure-desktop.png",
+      "sha256": "599bfc026ca8e7bb3d7fb5ff5e421e8fc85d4dbd6a7f00244d01cd10845387e8"
+    },
+    {
+      "file": "110-commercial-alert-network-failure-mobile.png",
+      "sha256": "e91be4d2e494e94489e51d6eef07b47ddf443018ecfb4981d20fe0bc46abb3c9"
+    },
+    {
+      "file": "110-commercial-read-network-failure-desktop.png",
+      "sha256": "a0a85655abcd4c5f7f742a6f320f086524dd61fa42ea59913535ec2f02092dd5"
+    },
+    {
+      "file": "110-commercial-read-network-failure-mobile.png",
+      "sha256": "68ee611c3c5e1b8426cc5232960d79a2a0e2826d90471bc74e97878380286307"
+    },
+    {
+      "file": "110-counts-restauracion.json",
+      "sha256": "266dfb712b8c98264d2f807db24f4f06ea42f8d587f4ec4d69cedf5c4143660a"
+    },
+    {
+      "file": "110-counts.json",
+      "sha256": "bec1991e170ca8ff5ed12eca20e50bc5a35211909fd692f042b1e27e20e1b180"
+    },
+    {
+      "file": "110-discovery-execution.json",
+      "sha256": "a6127308ef6d30d8b5b372035f378a95d463bac9f099e7a2e5545e912d09bcf0"
+    },
+    {
+      "file": "110-discovery-restauracion.json",
+      "sha256": "d10bedb52b57eb03d158c2a8a0f946e6e12554a537027515de978dc42b142a83"
+    },
+    {
+      "file": "110-discovery-retry-execution.json",
+      "sha256": "46fb2c1d08d2695c98d29e2ad684dc7c8585748157a4a01d2d7e5339a96f5a91"
+    },
+    {
+      "file": "110-editores-discovery-execution.json",
+      "sha256": "d17a4b05f86c771acc58b9ac7821775583e05742bd1843e630d8fe7c987425e5"
+    },
+    {
+      "file": "110-editores-discovery-restauracion.json",
+      "sha256": "7b19ee6e2dd408e07db8f61082a315ce0c5a568af353e416d19af3f58167bd3f"
+    },
+    {
+      "file": "110-editores-execution.json",
+      "sha256": "b276d4e6b6614421633a9eb851a2ec1c3fcbcefd44b05fb4a358798209bc3ce1"
+    },
+    {
+      "file": "110-editores-inicial-execution.json",
+      "sha256": "5fa33a79a6c0412e8fd53f2bd2d1a3264239de23d5c03ade1f70acbc0677e1c3"
+    },
+    {
+      "file": "110-editores-restauracion.json",
+      "sha256": "5b4f635b28c6b026f0cf1058273d3b60dac6b0fbbe6f391f9b88db6695ea9847"
+    },
+    {
+      "file": "110-editores.json",
+      "sha256": "e2a7a16956acd331465f7be2caf011db80e78f4c5c6d296e6a59424420a19332"
+    },
+    {
+      "file": "110-entorno-detenido.json",
+      "sha256": "c574ba13ba90ca8504171195765d5966b9e61c6b06e76ca053fb8ba878a1ce82"
+    },
+    {
+      "file": "110-invitation-desktop.png",
+      "sha256": "263991ea40d7154c1a8172bbb8178569c3351516ba976275be781f0e10552f98"
+    },
+    {
+      "file": "110-invitation-mobile.png",
+      "sha256": "830d505bf5d1970096e55515ae365fa10f8801235ac13607209c9d45f4b6350b"
+    },
+    {
+      "file": "110-marketing-copy-inicial-execution.json",
+      "sha256": "27df3d6b381049e75e9579735c3d346f9b3b2f807290c1a280b8797171352b54"
+    },
+    {
+      "file": "110-marketing-execution.json",
+      "sha256": "e84ca2b53fcac423d3b8c58346430f111ffffe3fe7d1dbde79517f3558a24593"
+    },
+    {
+      "file": "110-marketing-inicial-execution.json",
+      "sha256": "4c09d44db85e90739306c95e6174c5b0fc619dd98cbd99642e8ac84a87c47d55"
+    },
+    {
+      "file": "110-marketing-restauracion.json",
+      "sha256": "cac1059e5bc487d9f9af70c77ae2b3ff66c76d7f6b2e980b24e63db20c484507"
+    },
+    {
+      "file": "110-marketing.json",
+      "sha256": "20bf5ba6c38cd159717a33deac97f6f9c437ab872285b2fda1a9a3e246d6a98c"
+    },
+    {
+      "file": "110-meeting-desktop.png",
+      "sha256": "1ed788f4cf77befe52c6b1f79301463932e98052b92a950c4cd97bffd83749ca"
+    },
+    {
+      "file": "110-meeting-mobile.png",
+      "sha256": "800e3f89dad445d5b0ba3eb8be9205e9f8bbcf94ae753bcd6d09a8a2da008152"
+    },
+    {
+      "file": "110-meetings-execution.json",
+      "sha256": "36c88d6b43dbff549efb0a1d3c9041cfb45ef6cea8c068771291d5494b6f0b66"
+    },
+    {
+      "file": "110-meetings-restauracion.json",
+      "sha256": "1367ae0a615db4d41e484d641e9cd52f3e19dc7ad532441eae653fc87d45608c"
+    },
+    {
+      "file": "110-meetings.json",
+      "sha256": "016ea679c1379ca60d58a5a65ce34a2e667590f703fc90165e0f3717e5b790eb"
+    },
+    {
+      "file": "110-negocios-restauracion.json",
+      "sha256": "5cfe2c25c3a11aab14d7c0eb26978002822f715cc67da40121a6ecccd4bd941b"
+    },
+    {
+      "file": "110-negocios.json",
+      "sha256": "038418d00c57bd7059c5712fbeefdebf2892ab07ba073a7f548ce45bfcc5e0ab"
+    },
+    {
+      "file": "110-postevent-read-network-failure-desktop.png",
+      "sha256": "8152fa6a7e38c7482cc71680b46425680091dfc306c1c8ff277167a15500aee4"
+    },
+    {
+      "file": "110-postevent-read-network-failure-mobile.png",
+      "sha256": "805f82045cc6958c32e678ecf98a081af13e2bfc87ee79d7591d244c4902e053"
+    },
+    {
+      "file": "110-probe-execution.json",
+      "sha256": "b276d4e6b6614421633a9eb851a2ec1c3fcbcefd44b05fb4a358798209bc3ce1"
+    },
+    {
+      "file": "110-provider-delete-desktop.png",
+      "sha256": "ad0a581fa17f47f546a606db85cb64cc9c53dba45416b426d65b3aa6074bb8b3"
+    },
+    {
+      "file": "110-provider-delete-mobile.png",
+      "sha256": "371282ee3d79697647e075d0cab7f022377df5a7926696622d437880e85b881f"
+    },
+    {
+      "file": "110-provider-faults.jsonl",
+      "sha256": "737273ff9fb79def0f6faf8af957ec7a73411e6307d13ee791ca9f4d28fb11d4"
+    },
+    {
+      "file": "110-providers-restauracion.json",
+      "sha256": "121d44bb39541139c7222c5dc64e3714bfa893c0ccd7bf3088a755f020d329c2"
+    },
+    {
+      "file": "110-providers-sdk-restauracion.json",
+      "sha256": "2191d113666fe63f7ee38cf30011e55ce144bfb8b5b6596e8042163a94fb2119"
+    },
+    {
+      "file": "110-providers.json",
+      "sha256": "fbb9b2b346e7160a071b2dd8b4379cc28dd42a825ba06137a8a1a8525f7468f2"
+    },
+    {
+      "file": "110-read-control-tower-desktop.png",
+      "sha256": "187c18f2e0831a1f0b49821971280b6c42f5544758feeddb5dc3c2e7079e31cc"
+    },
+    {
+      "file": "110-read-control-tower-mobile.png",
+      "sha256": "b8070767084c85a8a0fcf8eac03b6db66c90bc11b1d0ef3041df126a8fab47b3"
+    },
+    {
+      "file": "110-read-control-tower-preparacion-desktop.png",
+      "sha256": "75c7f96bff293f1bc152d4a0e9e15d1e79cdc819ae3c049be6e682eec02dbfb4"
+    },
+    {
+      "file": "110-read-control-tower-preparacion-mobile.png",
+      "sha256": "3acccb6f6ca2782f7f5faf2abc9b9659e4f226b42ed423a9c7f9acb027c7079a"
+    },
+    {
+      "file": "110-recorridos-independientes.md",
+      "sha256": "ba618446186020cccb67425adfe3e94ca70427356915b09a0f762d3664a0c3fa"
+    },
+    {
+      "file": "110-recorridos-inicial.json.gz",
+      "sha256": "7feb69f06dd862130fc5682baa91bbf294b1fefbd6eff2d8bd4d3e964976f176"
+    },
+    {
+      "file": "110-recorridos-retry.json.gz",
+      "sha256": "f8658a52f26d70d0b2cac6c73a8a2d342451c5c64107b1d704c2baabdb1cbea8"
+    },
+    {
+      "file": "110-sdk-counts-execution.json",
+      "sha256": "bab6d4dee712389f14383f2ab9deb751c3a4fd837cc11d0a23d59070c114d2e6"
+    },
+    {
+      "file": "110-sdk-counts-inicial-execution.json",
+      "sha256": "f6d4044e3f0782b4abf9142fe0e5e7a68320c04b7468740914c5ac467df80a52"
+    },
+    {
+      "file": "110-sdk-counts-response-inicial-execution.json",
+      "sha256": "69f48ce05726bc2e123f4666a39a6473ed6b855418878c30dce21fe68623f82a"
+    },
+    {
+      "file": "110-sdk-emulator-execution.json",
+      "sha256": "e88c1ae41b4ead01fe42444e70833fbbb77fbbd387e688280b9d0dbf7d06eee7"
+    },
+    {
+      "file": "110-sdk-emulator.log.gz",
+      "sha256": "6d1c2ac7bdf0a8bfaf8799786648191568bc2c402dfcc9718548bc60fe4c67c1"
+    },
+    {
+      "file": "110-sdk-fixture-loader-inicial-execution.json",
+      "sha256": "1e13e4e49cbf922fe50713f427efec5093875891613d705b587a50c96c0844de"
+    },
+    {
+      "file": "110-sdk-negocios-execution.json",
+      "sha256": "4627e213558f5e858bcf40663e460fe63538a4a3449ddf0f67c0dab2d0ddda1f"
+    },
+    {
+      "file": "110-sdk-negocios-inicial-execution.json",
+      "sha256": "2750f9929f6353eebccc7ede6a70fe593acb9f626036571243f10b9b7ed1b869"
+    },
+    {
+      "file": "110-sdk-probe-execution.json",
+      "sha256": "bab6d4dee712389f14383f2ab9deb751c3a4fd837cc11d0a23d59070c114d2e6"
+    },
+    {
+      "file": "110-sdk-providers-execution.json",
+      "sha256": "6faab45dd7b6c015525e0b89598f18f567791e980f21220fcfc3f68ab3dfb008"
+    },
+    {
+      "file": "110-sdk-providers-inicial-execution.json",
+      "sha256": "f1dadee865a2b2c3b81c388280a99a98d53256438491fd8fd7a0a2ecbb86e661"
+    },
+    {
+      "file": "110-sdk-start-execution.json",
+      "sha256": "2828cb362a8f58bd107a02b92003b5d434251c167664d8dec92ae79870acdcd6"
+    },
+    {
+      "file": "110-sdk-start-inicial-execution.json",
+      "sha256": "b634a115b6ca1c38060ddea67c55c8698f979e865e7b24d5bdd53de6e2b7ef4f"
+    },
+    {
+      "file": "110-start-execution.json",
+      "sha256": "a7d1c1cb2d278464aedd6523ba1516ec733f611b41bb14ec16d6964409a367d4"
+    }
+  ],
+  "allAppAccepted": false,
+  "productionChanges": false,
+  "correctionsPending": "156",
+  "limits": "Not each button, all roles, real integrations, deployed same SHA, hardware or 19 original budgets."
+}

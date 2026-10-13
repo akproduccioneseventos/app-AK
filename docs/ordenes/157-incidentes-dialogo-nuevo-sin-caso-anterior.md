@@ -57,12 +57,13 @@ el guardado: ese borrador se conserva y el reintento ya funciona.
 - No modificar el consumidor de actualizaciones: el fallo conserva la nota y el
   reintento guarda una sola actualizacion, comprobado en111.
 
-La prueba propuesta abajo NO existe todavia: PENDIENTE crear y ejecutar por Gemini,
-y registrar SHA/entorno/resultado por Claude. La sonda111 si se ejecuto, pero aun
-reproduce el defecto; no equivale a prueba aprobada de la correccion.
+Actualizacion114: Codex corrige por autorizacion nueva; fuente e5f22b53.
+Sonda actual PC/Pixel7 PASS: nuevo caso limpio, borrador fallido y contexto
+conservados, dos casos distintos. Ver114-aceptacion.json; no reimplementar.
+Sonda111 conservada como fallo historico; Hosting no verificado.
 
 ```comprobar
 archivo: src/app/(app)/incidentes/page.tsx
 usa: IncidentesContent en src/app/(app)/incidentes/page.tsx
-prueba: src/__tests__/incidentes-dialogo-nuevo-sin-caso-anterior.test.tsx
+prueba: docs/evidencias/114-incidentes-probe.mjs
 ```

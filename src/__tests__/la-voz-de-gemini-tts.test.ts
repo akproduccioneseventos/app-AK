@@ -31,6 +31,8 @@ jest.mock('@/lib/data-service', () => ({
   }),
 }));
 jest.mock('@/lib/firebase/server-messaging', () => ({ sendPushNotificationToAll: jest.fn() }));
+// Estos casos usan la cuota local simulada, no una conexion Firestore del entorno.
+jest.mock('@/lib/firebase/server', () => ({ dbAdmin: null }));
 jest.mock('@/lib/whatsapp/meta-sender', () => ({ sendMetaWhatsAppMessage: jest.fn() }));
 
 import { sintetizarVozGemini, pcmAWav } from '@/lib/asistente/voz-gemini';

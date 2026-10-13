@@ -1,0 +1,13 @@
+{
+  "head": "3804674f677482de27f91874cd0b77f8bd246abb",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "args": [
+    "docs/evidencias/108-paneles-probe.mjs"
+  ],
+  "launcher": 22124,
+  "child": 22532,
+  "started": "2026-10-12T16:52:01.467Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-12T16:52:18.313Z"
+}

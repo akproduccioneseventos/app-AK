@@ -1,0 +1,12 @@
+{
+  "project": "demo-ak-producciones",
+  "host": "127.0.0.1:8085",
+  "collections": [
+    {
+      "name": "backup_snapshots_v2",
+      "count": 0
+    }
+  ],
+  "total": 0,
+  "pass": true
+}

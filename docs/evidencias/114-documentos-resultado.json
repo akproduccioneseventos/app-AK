@@ -1,0 +1,629 @@
+{
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "fixtureSha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef",
+  "results": [
+    {
+      "case": "documento-por-perfil",
+      "perfil": "dueno",
+      "target": "employee-contracts",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "dueno",
+      "target": "contracts",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "dueno",
+      "target": "payment-proofs",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "dueno",
+      "target": "budgets",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "dueno",
+      "target": "salon-contracts",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "dueno",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "secretaria",
+      "target": "employee-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "secretaria",
+      "target": "contracts",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "secretaria",
+      "target": "payment-proofs",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "secretaria",
+      "target": "budgets",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "secretaria",
+      "target": "salon-contracts",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "secretaria",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 200,
+      "actual": 200,
+      "identicalBytes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "operador",
+      "target": "employee-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "operador",
+      "target": "contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "operador",
+      "target": "payment-proofs",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "operador",
+      "target": "budgets",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "operador",
+      "target": "salon-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "operador",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "personal",
+      "target": "employee-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "personal",
+      "target": "contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "personal",
+      "target": "payment-proofs",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "personal",
+      "target": "budgets",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "personal",
+      "target": "salon-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "personal",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "cliente",
+      "target": "employee-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "cliente",
+      "target": "contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "cliente",
+      "target": "payment-proofs",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "cliente",
+      "target": "budgets",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "cliente",
+      "target": "salon-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "cliente",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "invitado",
+      "target": "employee-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "invitado",
+      "target": "contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "invitado",
+      "target": "payment-proofs",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "invitado",
+      "target": "budgets",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "invitado",
+      "target": "salon-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "invitado",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "prospecto",
+      "target": "employee-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "prospecto",
+      "target": "contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "prospecto",
+      "target": "payment-proofs",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "prospecto",
+      "target": "budgets",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "prospecto",
+      "target": "salon-contracts",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "prospecto",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 403,
+      "actual": 403,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "anonimo",
+      "target": "employee-contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "anonimo",
+      "target": "contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "anonimo",
+      "target": "payment-proofs",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "anonimo",
+      "target": "budgets",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "anonimo",
+      "target": "salon-contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "anonimo",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "vencido",
+      "target": "employee-contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "vencido",
+      "target": "contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "vencido",
+      "target": "payment-proofs",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "vencido",
+      "target": "budgets",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "vencido",
+      "target": "salon-contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "vencido",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "firma-alterada",
+      "target": "employee-contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "firma-alterada",
+      "target": "contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "firma-alterada",
+      "target": "payment-proofs",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "firma-alterada",
+      "target": "budgets",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "firma-alterada",
+      "target": "salon-contracts",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "documento-por-perfil",
+      "perfil": "firma-alterada",
+      "target": "contracts/fiestas/qa114_documento",
+      "expected": 401,
+      "actual": 401,
+      "identicalBytes": false,
+      "status": "PASS"
+    },
+    {
+      "case": "enlace-real-consumidor",
+      "url": "/customers/qa114_cliente",
+      "target": "contracts",
+      "status": "PASS",
+      "actualLink": "/api/contracts/qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+      "actualResponse": {
+        "status": 200,
+        "identicalBytes": true,
+        "sha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      }
+    },
+    {
+      "case": "enlace-real-consumidor",
+      "url": "/customers/qa114_cliente",
+      "target": "budgets",
+      "status": "PASS",
+      "actualLink": "/api/budgets/qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+      "actualResponse": {
+        "status": 200,
+        "identicalBytes": true,
+        "sha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      }
+    },
+    {
+      "case": "enlace-real-consumidor",
+      "url": "/customers/qa114_cliente",
+      "target": "salon-contracts",
+      "status": "PASS",
+      "actualLink": "/api/salon-contracts/qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+      "actualResponse": {
+        "status": 200,
+        "identicalBytes": true,
+        "sha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      }
+    },
+    {
+      "case": "enlace-real-consumidor",
+      "url": "/empleados/qa114_empleado/editar",
+      "target": "employee-contracts",
+      "status": "PASS",
+      "actualLink": "/api/employee-contracts/qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+      "actualResponse": {
+        "status": 200,
+        "identicalBytes": true,
+        "sha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      }
+    }
+  ],
+  "cleanup": {
+    "restored": [
+      {
+        "file": "src\\data\\budgets\\qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+        "beforeSha256": null,
+        "qaSha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      },
+      {
+        "file": "src\\data\\contracts\\fiestas\\qa114_documento\\qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+        "beforeSha256": null,
+        "qaSha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      },
+      {
+        "file": "src\\data\\contracts\\qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+        "beforeSha256": null,
+        "qaSha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      },
+      {
+        "file": "src\\data\\employee-contracts\\qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+        "beforeSha256": null,
+        "qaSha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      },
+      {
+        "file": "src\\data\\payment-proofs\\qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+        "beforeSha256": null,
+        "qaSha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      },
+      {
+        "file": "src\\data\\salon-contracts\\qa114-e2fef4e7-3f90-4158-827c-9395c7bee513.pdf",
+        "beforeSha256": null,
+        "qaSha256": "00e21d3f397991509ff4739e9f3b5d49cee070728fc595c98f2998c3df1af4ef"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

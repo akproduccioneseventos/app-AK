@@ -1,0 +1,18 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\multiagent\\memory.json",
+      "beforeSha256": null,
+      "qaSha256": "5c2f8b198edb22500c4bf180965b223e251b17846f46f44c45d3023a92b0bdd4"
+    },
+    {
+      "file": "data\\multiagent\\memory.json",
+      "beforeSha256": null,
+      "qaSha256": "5c2f8b198edb22500c4bf180965b223e251b17846f46f44c45d3023a92b0bdd4"
+    }
+  ],
+  "bytesRestored": true,
+  "removedFiestas": 4,
+  "removedNotifications": 2,
+  "memoryRestored": true
+}

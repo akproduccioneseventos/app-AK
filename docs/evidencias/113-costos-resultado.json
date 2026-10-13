@@ -1,0 +1,276 @@
+{
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "cancel-global-adjustment-preserves-inventory-and-menus",
+      "details": {
+        "noWrite": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "failed-send-keeps-percentage-without-writing",
+      "details": {
+        "noWrite": true,
+        "percentageKept": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "retry-adjusts-ingredient-and-linked-kg-recipe",
+      "details": {
+        "inventory": {
+          "id": "qa113_carne",
+          "nombre": "QA113 Carne",
+          "categoria": "Carnes",
+          "unidad": "kg",
+          "cantidadDisponible": 2,
+          "tipoItem": "Insumo/Ingrediente",
+          "valorUnitarioEstimado": 110,
+          "_syncedAt": "2026-10-12T23:27:13.637Z"
+        },
+        "kgDish": {
+          "id": "qa113_kg",
+          "name": "QA113 Plato kg",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa113_kg_ing",
+              "origenId": "qa113_carne",
+              "name": "QA113 Carne",
+              "quantityPerPerson": "0.25",
+              "unit": "kg",
+              "costoUnitario": 110,
+              "costoTotalReceta": 27.5
+            }
+          ],
+          "totalDishCost": 27.5,
+          "profitMargin": 82,
+          "suggestedSellingPrice": 50
+        },
+        "stockUnchanged": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "grams-recipe-retains-quantity-unit-and-equivalent-cost",
+      "details": {
+        "grams": {
+          "id": "qa113_g",
+          "name": "QA113 Plato gramos",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa113_g_ing",
+              "origenId": "qa113_carne",
+              "name": "QA113 Carne",
+              "quantityPerPerson": "250",
+              "unit": "kg",
+              "costoUnitario": 110,
+              "costoTotalReceta": 27500
+            }
+          ],
+          "totalDishCost": 27500,
+          "profitMargin": -100,
+          "suggestedSellingPrice": 50
+        },
+        "expectedCost": 27.5,
+        "acceptance": "FAIL_RECIPE_UNIT_OR_COST_CHANGED"
+      },
+      "status": "FAIL"
+    },
+    {
+      "viewport": "desktop",
+      "name": "unrelated-menu-and-selling-price-are-not-overwritten",
+      "details": {
+        "unrelatedMenuUnchanged": true,
+        "explicitSellingPricePreserved": 50
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false"
+    },
+    {
+      "viewport": "desktop",
+      "name": "lost-success-response-retry-applies-percentage-only-once",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "costBefore": 110,
+        "costAfterFirst": 116,
+        "costAfterRetry": 122,
+        "acceptance": "FAIL_PERCENTAGE_APPLIED_TWICE_AFTER_LOST_ACK"
+      },
+      "status": "FAIL"
+    },
+    {
+      "viewport": "mobile",
+      "name": "cancel-global-adjustment-preserves-inventory-and-menus",
+      "details": {
+        "noWrite": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "failed-send-keeps-percentage-without-writing",
+      "details": {
+        "noWrite": true,
+        "percentageKept": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "retry-adjusts-ingredient-and-linked-kg-recipe",
+      "details": {
+        "inventory": {
+          "id": "qa113_carne",
+          "nombre": "QA113 Carne",
+          "categoria": "Carnes",
+          "unidad": "kg",
+          "cantidadDisponible": 2,
+          "tipoItem": "Insumo/Ingrediente",
+          "valorUnitarioEstimado": 134,
+          "_syncedAt": "2026-10-12T23:27:32.294Z"
+        },
+        "kgDish": {
+          "id": "qa113_kg",
+          "name": "QA113 Plato kg",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa113_kg_ing",
+              "origenId": "qa113_carne",
+              "name": "QA113 Carne",
+              "quantityPerPerson": "0.25",
+              "unit": "kg",
+              "costoUnitario": 134,
+              "costoTotalReceta": 33.5
+            }
+          ],
+          "totalDishCost": 33.5,
+          "profitMargin": 49,
+          "suggestedSellingPrice": 50
+        },
+        "stockUnchanged": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "grams-recipe-retains-quantity-unit-and-equivalent-cost",
+      "details": {
+        "grams": {
+          "id": "qa113_g",
+          "name": "QA113 Plato gramos",
+          "type": "Plato Principal",
+          "ingredients": [
+            {
+              "id": "qa113_g_ing",
+              "origenId": "qa113_carne",
+              "name": "QA113 Carne",
+              "quantityPerPerson": "250",
+              "unit": "kg",
+              "costoUnitario": 134,
+              "costoTotalReceta": 33500
+            }
+          ],
+          "totalDishCost": 33500,
+          "profitMargin": -100,
+          "suggestedSellingPrice": 50
+        },
+        "expectedCost": 33.5,
+        "acceptance": "FAIL_RECIPE_UNIT_OR_COST_CHANGED"
+      },
+      "status": "FAIL"
+    },
+    {
+      "viewport": "mobile",
+      "name": "unrelated-menu-and-selling-price-are-not-overwritten",
+      "details": {
+        "unrelatedMenuUnchanged": true,
+        "explicitSellingPricePreserved": 50
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "reload-shows-updated-ingredient-and-menu-consumer",
+      "status": "NOT_ACCEPTED",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: true\nReceived: false"
+    },
+    {
+      "viewport": "mobile",
+      "name": "lost-success-response-retry-applies-percentage-only-once",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "costBefore": 134,
+        "costAfterFirst": 141,
+        "costAfterRetry": 148,
+        "acceptance": "FAIL_PERCENTAGE_APPLIED_TWICE_AFTER_LOST_ACK"
+      },
+      "status": "FAIL"
+    }
+  ],
+  "cleanup": {
+    "deleted": 7,
+    "documentsRemaining": 0,
+    "restored": [
+      {
+        "file": "src\\data\\insumos.json",
+        "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+        "qaSha256": "4b314440e99e740ac6216225f92e3e2e4861cccedbc7a0a71385ec3444e19010"
+      },
+      {
+        "file": "src\\data\\menus-catering.json",
+        "beforeSha256": "b2619502addbc82683c56f08e51a5731475713fb04e5c91199b791acdb3db111",
+        "qaSha256": "13b1a945d97ed1762bf4bff659286acfc5bf0c7d61629d68a30ad644b3496248"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "49b989ff93d544dd1cf49ef06c825a2c1f407cb0993e0bf220628ef282e9de93"
+      },
+      {
+        "file": "src\\data\\insumos-ajuste-pendiente.json",
+        "beforeSha256": null,
+        "qaSha256": "0b00fe8eb0f21c2933aae63c2a68a067556f52410a9d5a3d52d98d4fea59a001"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "49b989ff93d544dd1cf49ef06c825a2c1f407cb0993e0bf220628ef282e9de93"
+      },
+      {
+        "file": "data\\insumos-ajuste-pendiente.json",
+        "beforeSha256": null,
+        "qaSha256": "0b00fe8eb0f21c2933aae63c2a68a067556f52410a9d5a3d52d98d4fea59a001"
+      },
+      {
+        "file": "data\\insumos.json",
+        "beforeSha256": null,
+        "qaSha256": "4b314440e99e740ac6216225f92e3e2e4861cccedbc7a0a71385ec3444e19010"
+      },
+      {
+        "file": "data\\menus-catering.json",
+        "beforeSha256": null,
+        "qaSha256": "13b1a945d97ed1762bf4bff659286acfc5bf0c7d61629d68a30ad644b3496248"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

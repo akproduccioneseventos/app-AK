@@ -1,0 +1,729 @@
+{
+  "headAudited": "ead1238e9a762b06b158f5a889649231294a76d4",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "mainCompared": "99faf4eb061fa46341cfdde6f81b93b3bfb9c73c",
+  "privateClaudeBatch": "NOT_CONTRASTED",
+  "acceptance": "FAIL_TWO_P1_FAMILIES_PENDING_ORDER_159",
+  "counts": {
+    "criteria": 18,
+    "pass": 15,
+    "fail": 3
+  },
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "expired-assigned-equipment-has-visible-alert",
+      "details": {
+        "equipment": "QA112 desktop 3c3b4e27 Laser",
+        "party": "qa112_desktop_fiesta",
+        "date": "2026-10-16T23:12:07.428Z",
+        "visible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "cancel-maintenance-does-not-write",
+      "details": {
+        "noHistory": true,
+        "noExpense": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "connection-failure-keeps-draft-and-does-not-write",
+      "details": {
+        "draftKept": true,
+        "noExpense": true,
+        "noHistory": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "retry-saves-one-maintenance-and-one-exact-expense",
+      "details": {
+        "history": [
+          {
+            "id": "mant_1791846732347_erexp",
+            "fecha": "2026-10-12",
+            "nota": "QA112 desktop 3c3b4e27 Lampara",
+            "costo": 123.45,
+            "gastoPendiente": false
+          }
+        ],
+        "expense": {
+          "id": "gasto_llave_6bda7e8e0023b82adba974523e2aad60",
+          "concepto": "Mantenimiento: QA112 desktop 3c3b4e27 Laser - QA112 desktop 3c3b4e27 Lampara",
+          "fecha": "2026-10-12",
+          "categoria": "Reparaciones y Mantenimiento",
+          "monto": 123.45,
+          "notas": "Registrado automáticamente desde Activos Fijos (qa112_desktop)",
+          "idempotencyKey": "mantenimiento:qa112_desktop:mant_1791846732347_erexp",
+          "_syncedAt": "2026-10-12T23:12:12.541Z"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "history-and-expense-are-visible-after-reload",
+      "details": {
+        "historyReloaded": true,
+        "accountingExpenseVisible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "current-maintenance-removes-only-its-preventive-alert",
+      "details": {
+        "expiredEquipmentAlertGone": true,
+        "historyPreserved": true,
+        "expenseCount": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "existing-pending-expense-retry-clears-flag",
+      "details": {
+        "fixture": "Existing pending history simulated directly; NOT an induced mid-server failure",
+        "expenseCount": 2,
+        "pendingCleared": true,
+        "historyCount": 2,
+        "retryRemovedAfterReload": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "expired-assigned-equipment-has-visible-alert",
+      "details": {
+        "equipment": "QA112 mobile 01ad286a Laser",
+        "party": "qa112_mobile_fiesta",
+        "date": "2026-10-16T23:12:34.069Z",
+        "visible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "cancel-maintenance-does-not-write",
+      "details": {
+        "noHistory": true,
+        "noExpense": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "connection-failure-keeps-draft-and-does-not-write",
+      "details": {
+        "draftKept": true,
+        "noExpense": true,
+        "noHistory": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "retry-saves-one-maintenance-and-one-exact-expense",
+      "details": {
+        "history": [
+          {
+            "id": "mant_1791846757260_3q0du",
+            "fecha": "2026-10-12",
+            "nota": "QA112 mobile 01ad286a Lampara",
+            "costo": 123.45,
+            "gastoPendiente": false
+          }
+        ],
+        "expense": {
+          "id": "gasto_llave_2bcd51ad567fb241851dcb0a8e8dd004",
+          "concepto": "Mantenimiento: QA112 mobile 01ad286a Laser - QA112 mobile 01ad286a Lampara",
+          "fecha": "2026-10-12",
+          "categoria": "Reparaciones y Mantenimiento",
+          "monto": 123.45,
+          "notas": "Registrado automáticamente desde Activos Fijos (qa112_mobile)",
+          "idempotencyKey": "mantenimiento:qa112_mobile:mant_1791846757260_3q0du",
+          "_syncedAt": "2026-10-12T23:12:37.314Z"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "history-and-expense-are-visible-after-reload",
+      "details": {
+        "historyReloaded": true,
+        "accountingExpenseVisible": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "current-maintenance-removes-only-its-preventive-alert",
+      "details": {
+        "expiredEquipmentAlertGone": true,
+        "historyPreserved": true,
+        "expenseCount": 1
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "existing-pending-expense-retry-clears-flag",
+      "details": {
+        "fixture": "Existing pending history simulated directly; NOT an induced mid-server failure",
+        "expenseCount": 2,
+        "pendingCleared": true,
+        "historyCount": 2,
+        "retryRemovedAfterReload": true
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "desktop",
+      "name": "lost-confirmation-retry-must-not-double-charge",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "first": {
+          "history": [
+            {
+              "id": "mant_1791846785668_3t9xh",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_7e54ca3df915c5bee2dfe3cdfa9d4243",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop:mant_1791846785668_3t9xh",
+              "_syncedAt": "2026-10-12T23:13:05.751Z"
+            }
+          ]
+        },
+        "after": {
+          "history": [
+            {
+              "id": "mant_1791846787702_nzsfw",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            },
+            {
+              "id": "mant_1791846785668_3t9xh",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_435da172e9997ee9db74810f593b7739",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop:mant_1791846787702_nzsfw",
+              "_syncedAt": "2026-10-12T23:13:07.756Z"
+            },
+            {
+              "id": "gasto_llave_7e54ca3df915c5bee2dfe3cdfa9d4243",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop:mant_1791846785668_3t9xh",
+              "_syncedAt": "2026-10-12T23:13:05.751Z"
+            }
+          ]
+        },
+        "acceptance": "FAIL_DUPLICATE_AFTER_LOST_ACK"
+      },
+      "status": "FAIL_DUPLICATE_AFTER_LOST_ACK"
+    },
+    {
+      "viewport": "desktop",
+      "name": "two-operators-must-preserve-both-maintenance-records",
+      "details": {
+        "after": {
+          "history": [
+            {
+              "id": "mant_1791846795847_tmhqx",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Operador B",
+              "costo": 20.5,
+              "gastoPendiente": false
+            },
+            {
+              "id": "mant_1791846795553_dee11",
+              "fecha": "2026-10-12",
+              "nota": "QA112 desktop 4d46941e Operador A",
+              "costo": 10.25,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_add8f2e3405b65fe7102fde585a2b149",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Operador A",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 10.25,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop_concurrent)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop_concurrent:mant_1791846795553_dee11",
+              "_syncedAt": "2026-10-12T23:13:15.612Z"
+            },
+            {
+              "id": "gasto_llave_fe5ef93bb5a2b9a43417f51a77f906dc",
+              "concepto": "Mantenimiento: QA112 desktop 4d46941e Laser - QA112 desktop 4d46941e Operador B",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 20.5,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_desktop_concurrent)",
+              "idempotencyKey": "mantenimiento:qa112_ack_desktop_concurrent:mant_1791846795847_tmhqx",
+              "_syncedAt": "2026-10-12T23:13:15.893Z"
+            }
+          ]
+        },
+        "acceptance": "PASS"
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": "mobile",
+      "name": "lost-confirmation-retry-must-not-double-charge",
+      "details": {
+        "ack": {
+          "status": 200,
+          "serverCompleted": true
+        },
+        "first": {
+          "history": [
+            {
+              "id": "mant_1791846800333_58jng",
+              "fecha": "2026-10-12",
+              "nota": "QA112 mobile 86df50a3 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_4f24e8e3445e2b53f45cfd175283df7f",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile:mant_1791846800333_58jng",
+              "_syncedAt": "2026-10-12T23:13:20.412Z"
+            }
+          ]
+        },
+        "after": {
+          "history": [
+            {
+              "id": "mant_1791846803358_a8vlc",
+              "fecha": "2026-10-12",
+              "nota": "QA112 mobile 86df50a3 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            },
+            {
+              "id": "mant_1791846800333_58jng",
+              "fecha": "2026-10-12",
+              "nota": "QA112 mobile 86df50a3 Lampara",
+              "costo": 123.45,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_4f24e8e3445e2b53f45cfd175283df7f",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile:mant_1791846800333_58jng",
+              "_syncedAt": "2026-10-12T23:13:20.412Z"
+            },
+            {
+              "id": "gasto_llave_8310064e587d6a6ebe2357f8e6ef79fc",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Lampara",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 123.45,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile:mant_1791846803358_a8vlc",
+              "_syncedAt": "2026-10-12T23:13:23.420Z"
+            }
+          ]
+        },
+        "acceptance": "FAIL_DUPLICATE_AFTER_LOST_ACK"
+      },
+      "status": "FAIL_DUPLICATE_AFTER_LOST_ACK"
+    },
+    {
+      "viewport": "mobile",
+      "name": "two-operators-must-preserve-both-maintenance-records",
+      "details": {
+        "after": {
+          "history": [
+            {
+              "id": "mant_1791846811060_wlyrk",
+              "fecha": "2026-10-12",
+              "nota": "QA112 mobile 86df50a3 Operador A",
+              "costo": 10.25,
+              "gastoPendiente": false
+            }
+          ],
+          "expenses": [
+            {
+              "id": "gasto_llave_5bc3db1fbddbed7b69972cf53c85a36f",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Operador A",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 10.25,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile_concurrent)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile_concurrent:mant_1791846811060_wlyrk",
+              "_syncedAt": "2026-10-12T23:13:34.231Z"
+            },
+            {
+              "id": "gasto_llave_9774632e18f9d15e4866aedbfa9c7e09",
+              "concepto": "Mantenimiento: QA112 mobile 86df50a3 Laser - QA112 mobile 86df50a3 Operador B",
+              "fecha": "2026-10-12",
+              "categoria": "Reparaciones y Mantenimiento",
+              "monto": 20.5,
+              "notas": "Registrado automáticamente desde Activos Fijos (qa112_ack_mobile_concurrent)",
+              "idempotencyKey": "mantenimiento:qa112_ack_mobile_concurrent:mant_1791846811056_mrwv1",
+              "_syncedAt": "2026-10-12T23:13:33.125Z"
+            }
+          ]
+        },
+        "acceptance": "FAIL_LOST_CONCURRENT_MAINTENANCE"
+      },
+      "status": "FAIL_LOST_CONCURRENT_MAINTENANCE"
+    }
+  ],
+  "excludedAttempts": [
+    "112-mantenimiento-inicial.json: two incorrect alert-name assertions",
+    "112-sdk-probe-empty-guard-execution.json: empty collection guard"
+  ],
+  "cleanup": {
+    "base": {
+      "deleted": 11,
+      "documentsRemaining": 0,
+      "restored": [
+        {
+          "file": "src\\data\\activos-fijos.json",
+          "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+          "qaSha256": "2ce33f0f17f0f7144dd2e77a347c93873f9dcf9b59b10b1c77865ff71a138e52"
+        },
+        {
+          "file": "src\\data\\gastos-generales.json",
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "qaSha256": "481f2980e4fd566fdee035e947a9ee0beac293b71fb20569c98a3945a82f32a5"
+        },
+        {
+          "file": "src\\data\\backup-status.json",
+          "beforeSha256": null,
+          "qaSha256": "8fa528cf033c1a0337e2d821919a00231340c6ae68af4c9ec267cc4fd632d5e0"
+        },
+        {
+          "file": "data\\activos-fijos.json",
+          "beforeSha256": null,
+          "qaSha256": "2ce33f0f17f0f7144dd2e77a347c93873f9dcf9b59b10b1c77865ff71a138e52"
+        },
+        {
+          "file": "data\\backup-status.json",
+          "beforeSha256": null,
+          "qaSha256": "8fa528cf033c1a0337e2d821919a00231340c6ae68af4c9ec267cc4fd632d5e0"
+        },
+        {
+          "file": "data\\gastos-generales.json",
+          "beforeSha256": null,
+          "qaSha256": "481f2980e4fd566fdee035e947a9ee0beac293b71fb20569c98a3945a82f32a5"
+        }
+      ],
+      "bytesRestored": true
+    },
+    "edges": {
+      "deleted": 15,
+      "documentsRemaining": 0,
+      "restored": [
+        {
+          "file": "src\\data\\activos-fijos.json",
+          "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+          "qaSha256": "507f1874da539ac475a4777aae8307b710b883ce806c4788ae1e1f7f8dd6e523"
+        },
+        {
+          "file": "src\\data\\gastos-generales.json",
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "qaSha256": "34b46cf68a0e6ce7275905c85286bc7b12021d641b94e7cb9115e1b13dfca28b"
+        },
+        {
+          "file": "src\\data\\backup-status.json",
+          "beforeSha256": null,
+          "qaSha256": "c5396ee7508300a1d4e7156712ee3a7c327efdd0bbc912c28afff6b238011485"
+        },
+        {
+          "file": "data\\activos-fijos.json",
+          "beforeSha256": null,
+          "qaSha256": "507f1874da539ac475a4777aae8307b710b883ce806c4788ae1e1f7f8dd6e523"
+        },
+        {
+          "file": "data\\backup-status.json",
+          "beforeSha256": null,
+          "qaSha256": "c5396ee7508300a1d4e7156712ee3a7c327efdd0bbc912c28afff6b238011485"
+        },
+        {
+          "file": "data\\gastos-generales.json",
+          "beforeSha256": null,
+          "qaSha256": "34b46cf68a0e6ce7275905c85286bc7b12021d641b94e7cb9115e1b13dfca28b"
+        }
+      ],
+      "bytesRestored": true
+    },
+    "lifecycle": {
+      "stopped": [
+        {
+          "file": "112-sdk-start-execution.json",
+          "processTree": [
+            {
+              "ProcessId": 18168,
+              "ParentProcessId": 17804,
+              "Name": "node.exe",
+              "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3301"
+            }
+          ],
+          "stoppedAt": "2026-10-12T23:14:00.6764589Z",
+          "intentionalTermination": true
+        },
+        {
+          "file": "112-sdk-emulator-execution.json",
+          "processTree": [
+            {
+              "ProcessId": 26084,
+              "ParentProcessId": 25916,
+              "Name": "node.exe",
+              "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.112-25916.generated.json --only firestore --project demo-ak-producciones"
+            },
+            {
+              "ProcessId": 15612,
+              "ParentProcessId": 26084,
+              "Name": "java.exe",
+              "CommandLine": "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\firestore.rules --single_project_mode true"
+            }
+          ],
+          "stoppedAt": "2026-10-12T23:14:01.2382089Z",
+          "intentionalTermination": true
+        }
+      ],
+      "listeners": [],
+      "appFailure": false
+    }
+  },
+  "source": [
+    {
+      "file": "src/app/actions/activos-fijos.ts",
+      "sha256": "c991bc3b22af9cfdb27cf24a2d68a64c9c7c7cdc074934b5314a20682be82741"
+    },
+    {
+      "file": "src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx",
+      "sha256": "87f741aae867d9680eacdb78a546961ca4c412129a997d9662fc639386fc459e"
+    },
+    {
+      "file": "src/app/actions/gastos.ts",
+      "sha256": "2f32dc69f17f28ec81c3524e6fcc4b181ad1fec07a74bbd1fb6d4fe587625763"
+    },
+    {
+      "file": "src/app/actions/alertas.actions.ts",
+      "sha256": "fdf9d744b66d3ebaff626f573884da5d48be07da775705d18709c86d7efda5e6"
+    }
+  ],
+  "evidence": [
+    {
+      "file": "docs/evidencias/112-ack-lost-desktop.png",
+      "sha256": "dcd0739ae3632a1c648d3cf6351707c9181b5d416fa22eb5c25b6d73e6bf8212"
+    },
+    {
+      "file": "docs/evidencias/112-ack-lost-mobile.png",
+      "sha256": "89052ae64616ff35cd9ba778e7cccbfe7dd51da4fd2ed8e9291daa9225d9e44c"
+    },
+    {
+      "file": "docs/evidencias/112-ack-retry-desktop.png",
+      "sha256": "1a4bba56ef778fea6eea5af539e6fc17d39d8aa49e3463907705b799d708580d"
+    },
+    {
+      "file": "docs/evidencias/112-ack-retry-mobile.png",
+      "sha256": "b8b37bdb1c3f96cedd42eb19f9c3112dda934a8fd5035d534f3140eaa62d5bb2"
+    },
+    {
+      "file": "docs/evidencias/112-alert-after-desktop.txt",
+      "sha256": "ca13f4eec9019ec7f2bea1d4c2f64cac69d212a9275ad0f548708a6015cf1fbe"
+    },
+    {
+      "file": "docs/evidencias/112-alert-after-mobile.txt",
+      "sha256": "cb2744f1160211edb5bbbc47fca581ff0a31c26c27230222b0c764ebfdc12114"
+    },
+    {
+      "file": "docs/evidencias/112-alert-before-desktop.png",
+      "sha256": "331fcf25d47d0099e015f96170d82b530479dad81db065268648644ea073f69d"
+    },
+    {
+      "file": "docs/evidencias/112-alert-before-desktop.txt",
+      "sha256": "32a2d5099715a9095b364e8bedad54e4de135e7ae767f0a7bebaec25ad1201d4"
+    },
+    {
+      "file": "docs/evidencias/112-alert-before-mobile.png",
+      "sha256": "2373dc4d8d2c13b242f9ca15e87146504ef0a736ee7f06721566c62a08a149e5"
+    },
+    {
+      "file": "docs/evidencias/112-alert-before-mobile.txt",
+      "sha256": "54f94c769ef4b0638d2d8fce902f8d3bba3c63e8b433835b344d8248b0d6573a"
+    },
+    {
+      "file": "docs/evidencias/112-concurrent-desktop.png",
+      "sha256": "eedbff693bfd723e8180a6da1658a9572ffba953184bb83e844b1adff633871c"
+    },
+    {
+      "file": "docs/evidencias/112-concurrent-mobile.png",
+      "sha256": "0e7629cb155823a1279bbc950fcfbe92a286fd5daeba37888112851c2c6d3223"
+    },
+    {
+      "file": "docs/evidencias/112-detener-entorno.ps1",
+      "sha256": "9240abf8bcd6d2e10bbb8d231064f90a6fedeb8d04df1834a180ed32dc889fb8"
+    },
+    {
+      "file": "docs/evidencias/112-ejecutar-sdk.mjs",
+      "sha256": "6649290824a1a5505c5bfebada83fa2a8b6d78a0e233180ed90b5416cfac3dcf"
+    },
+    {
+      "file": "docs/evidencias/112-entorno-detenido.json",
+      "sha256": "48ba5a394d09160e7cc14344b2d62f6f3d981a1154784292163e1bd5a04e874b"
+    },
+    {
+      "file": "docs/evidencias/112-expenses-desktop.png",
+      "sha256": "954738cadabf9ed4da3ed67c26ef6a2ff01dad0efab8a7d183ebc00a67abcb0c"
+    },
+    {
+      "file": "docs/evidencias/112-expenses-desktop.txt",
+      "sha256": "ff58737e3f01cc0aad471b1c9439bea29ec7b247371670fbfb0fc07c9017e25c"
+    },
+    {
+      "file": "docs/evidencias/112-expenses-mobile.png",
+      "sha256": "653c668add0960dada50954568c729edac11c68efccb585836556d4caf517cf9"
+    },
+    {
+      "file": "docs/evidencias/112-expenses-mobile.txt",
+      "sha256": "aaa270eba5697104031b5891febb14c8ca5d02828dc63ecb5ce24a5de5bc4152"
+    },
+    {
+      "file": "docs/evidencias/112-firestore-config.json",
+      "sha256": "8a1dffbda261c363c7cd9bb2c584428ddbcb4785c49cc074a27420b4dc0c792f"
+    },
+    {
+      "file": "docs/evidencias/112-history-desktop.png",
+      "sha256": "294a1f80e9644d26c2380057658a91d8f4453388fc7f8c3244d56b5e3a02f6f3"
+    },
+    {
+      "file": "docs/evidencias/112-history-mobile.png",
+      "sha256": "231a4d3ca5cac0bbcc07ea9b7ffcab954bbaf8cfb01887c48402af3387232e8f"
+    },
+    {
+      "file": "docs/evidencias/112-mantenimiento-fallos-resultado.json",
+      "sha256": "958cbe9c9076259954cfb1634ec2fc16a51fe389976b78669f85624224e4edac"
+    },
+    {
+      "file": "docs/evidencias/112-mantenimiento-fallos.mjs",
+      "sha256": "6ea5e7ea7b376516cf6e27ea0609b25ac13c593a33cc2efe260c5b6b7a4c46a0"
+    },
+    {
+      "file": "docs/evidencias/112-mantenimiento-inicial.json",
+      "sha256": "10c783e7881d9c4e28d005a8f60aba309915ac990cf6f204950467fb1c15af63"
+    },
+    {
+      "file": "docs/evidencias/112-mantenimiento-probe.mjs",
+      "sha256": "0ffef879ab6bce805573c9c9a2f38c8ddc25c7aef97ae89348844b67f80f7160"
+    },
+    {
+      "file": "docs/evidencias/112-mantenimiento-resultado.json",
+      "sha256": "22175cdd05f2d38d464090c29996a9df53cb10fd203ee5b769acd49c2f6233c1"
+    },
+    {
+      "file": "docs/evidencias/112-mantenimiento.md",
+      "sha256": "d110e49b658236601732d3442723f059170748d77fef75d0bb08f5224358ef91"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-emulator-execution.json",
+      "sha256": "b98a1cb66b20cb1e983588e48b55e5055b7e6aedff3f71861add761011da0447"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-emulator.log.gz",
+      "sha256": "ac965294e2b7aff220bd795f354ceaad01ac146a58aaa7d2790e79b8f82ffa25"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-probe-empty-guard-execution.json",
+      "sha256": "238230e0569d638fd662c94566a7762169c77bb093016911e809d9f83f0ad56d"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-probe-empty-guard.log.gz",
+      "sha256": "2d64eb68e35a04d599456ddb7081144905ae9ec60ff34ee72edcd4d859580e33"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-probe-execution.json",
+      "sha256": "66b2a1f380219e64ffc0b912da0e05bd4fef3be29a97df9e64fe23f93c4b749a"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-probe-inicial-execution.json",
+      "sha256": "9f79ba62769d553a35f2226eed0bb80c1e31c9b63e02156e37b11201a00f7115"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-probe-inicial.log.gz",
+      "sha256": "7795893c30ea2697853c0f6490b8f13f6d5f28b55eeb5dc6911e35544cab367d"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-probe.log.gz",
+      "sha256": "f55ae0b0a7fc9284299e510fda937e124f8561e1ca65a24927d999b4717d2725"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-recorrido-execution.json",
+      "sha256": "946e3c04632c7db0c310bbbe10ed86ed93e0053141ff6997397ee36e75ce874f"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-recorrido.log.gz",
+      "sha256": "e43654604d8dc7535f2769813eb6d9b78877ff367cd4c63c6ab67c79ea37cecb"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-start-execution.json",
+      "sha256": "3b87607889c233da3914a5e5fa1635726f003fd5c1a5811537680d38ec519463"
+    },
+    {
+      "file": "docs/evidencias/112-sdk-start.log.gz",
+      "sha256": "f978272c3e3085e018150f2c330ca54ef72f68e0addaf29c7eae72e3c8c20d29"
+    },
+    {
+      "file": "docs/evidencias/112-verificar-evidencia.mjs",
+      "sha256": "0b46ce8c3e87e48c1c485bf58459f64507f0315ec37d25a0c1fdf2c4b62fa3a6"
+    }
+  ]
+}

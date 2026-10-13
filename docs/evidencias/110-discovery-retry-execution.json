@@ -1,0 +1,13 @@
+{
+  "head": "2f6007beaf8fe93c5f87dfc632c63f66eeb0428d",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "args": [
+    "docs/evidencias/110-recorridos-retry-probe.mjs"
+  ],
+  "launcher": 26324,
+  "child": 29648,
+  "started": "2026-10-12T18:50:47.203Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-12T18:51:49.899Z"
+}

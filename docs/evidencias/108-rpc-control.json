@@ -1,0 +1,40 @@
+[
+  {
+    "session": "valid",
+    "route": "/settings/sincronizaciones",
+    "status": 200,
+    "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:[{\"id\":\"google-analytics\",\"nombre\":\"Google Analytics (GA4)\",\"categoria\":\"Métricas web\",\"estado\":\"conectada\",\"detalle\":\"Medición de visitas activada\",\"queSePierdeSiFalta\":\"No sabés cuánta gente entra a la web, qué páginas miran ni de dónde vienen los pedidos de presupuesto.\",\"enlaceConfiguracion\":\"/settings/company\"},{\"id\":\"google-business\",\"nombre\":\"Ficha de Google (Perfil de Negocio)\",\"categoria\":\"Búsqueda local\",\"estado\":\"falta-configurarla\",\"detalle\":\"Falta enlace a tu perfil de Google\",\"queSePierdeSiFalta\":\"La gente que busca \\\"eventos en Salto\\\" no ve tu teléfono ni tus fotos en Google Maps, y perdés el 32% de los clientes locales.\",\"enlaceConfiguracion\":\"/settings/company\"},{\"id\":\"google-calendar\",\"nombre\":\"Google Calendar y Workspace\",\"categoria\":\"Agenda y correos\",\"estado\":\"falta-configurarla\",\"detalle\":\"Falta conectar cuenta de Google Workspace\",\"queSePierdeSiFalta\":\"Las fiestas y reuniones agendadas en la app no se copian solas a tu celular ni al calendario de tu equipo.\",\"enlaceConfiguracion\":\"/settings/google-workspace\"},{\"id\":\"whatsapp\",\"nombre\":\"WhatsApp\",\"categoria\":\"Mensajería directa\",\"estado\":\"falta-configurarla\",\"detalle\":\"Sin número conectado\",\"queSePierdeSiFalta\":\"Los clientes no pueden pedir presupuestos ni confirmar asistencia tocando un botón para escribirte directo.\",\"enlaceConfiguracion\":\"/settings/whatsapp\"},{\"id\":\"instagram\",\"nombre\":\"Instagram\",\"categoria\":\"Redes sociales\",\"estado\":\"falta-configurarla\",\"detalle\":\"Falta vincular cuenta de Instagram\",\"queSePierdeSiFalta\":\"No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\",\"historial\":{\"totalPublicaciones\":0,\"fechaMasVieja\":\"$undefined\",\"fechaMasNueva\":\"$undefined\",\"ultimaSincronizacion\":\"$undefined\",\"completo\":false,\"error\":\"$undefined\"}},{\"id\":\"facebook\",\"nombre\":\"Facebook\",\"categoria\":\"Redes sociales\",\"estado\":\"falta-configurarla\",\"detalle\":\"Falta vincular página de Facebook\",\"queSePierdeSiFalta\":\"No podés publicar posteos programados ni responder consultas de Facebook desde el panel.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\"},{\"id\":\"youtube\",\"nombre\":\"YouTube\",\"categoria\":\"Video y música\",\"estado\":\"conectada\",\"detalle\":\"Leer videos que mandan los clientes: anda\",\"queSePierdeSiFalta\":\"Los videos de YouTube que manda el cliente quedan como un enlace pelado: nadie sabe que tema es.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\"},{\"id\":\"tiktok\",\"nombre\":\"TikTok\",\"categoria\":\"Redes sociales\",\"estado\":\"no-se-usa\",\"detalle\":\"No configurado\",\"queSePierdeSiFalta\":\"Los videos cortos de 15 años y bodas no se enlazan desde el pie de la web.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\"},{\"id\":\"threads\",\"nombre\":\"Threads\",\"categoria\":\"Redes sociales\",\"estado\":\"no-se-usa\",\"detalle\":\"No configurado\",\"queSePierdeSiFalta\":\"No se enlaza el perfil de Threads desde la web.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\"},{\"id\":\"x\",\"nombre\":\"X (Twitter)\",\"categoria\":\"Redes sociales\",\"estado\":\"no-se-usa\",\"detalle\":\"No configurado\",\"queSePierdeSiFalta\":\"No se enlaza la cuenta de X en el pie de página.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\"},{\"id\":\"pinterest\",\"nombre\":\"Pinterest\",\"categoria\":\"Redes sociales\",\"estado\":\"no-se-usa\",\"detalle\":\"No configurado\",\"queSePierdeSiFalta\":\"No se enlazan los tableros de inspiración de eventos ni decoración.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\"},{\"id\":\"spotify\",\"nombre\":\"Spotify\",\"categoria\":\"Música y DJs\",\"estado\":\"falta-configurarla\",\"detalle\":\"Buscar canciones y abrir listas: faltan las credenciales de Spotify\",\"queSePierdeSiFalta\":\"El DJ no puede ver las canciones de las listas que mandan los clientes.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\"},{\"id\":\"mercado-pago\",\"nombre\":\"Mercado Pago\",\"categoria\":\"Cobros online\",\"estado\":\"falta-configurarla\",\"detalle\":\"Faltan credenciales de cobro\",\"queSePierdeSiFalta\":\"Los clientes no pueden pagar señas ni cuotas con tarjeta de crédito desde el presupuesto digital.\",\"enlaceConfiguracion\":\"/settings/company\"},{\"id\":\"meta-ads\",\"nombre\":\"Meta Ads (Publicidad)\",\"categoria\":\"Anuncios\",\"estado\":\"conectada\",\"detalle\":\"El pixel está midiendo las visitas que llegan de tus anuncios.\",\"queSePierdeSiFalta\":\"No podés medir qué anuncios de Instagram o Facebook te traen ventas reales ni recontactar a quienes vieron la web.\",\"enlaceConfiguracion\":\"/settings/sincronizaciones\"}]\n"
+  },
+  {
+    "session": "valid",
+    "route": "/empresa/redes-sociales",
+    "status": 200,
+    "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:[{\"id\":\"qa108-private\",\"content\":\"QA108_PRIVATE_POST\"}]\n"
+  },
+  {
+    "session": "expired",
+    "route": "/settings/sincronizaciones",
+    "status": 500,
+    "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3036932852\"}\n"
+  },
+  {
+    "session": "expired",
+    "route": "/empresa/redes-sociales",
+    "status": 200,
+    "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:[]\n"
+  },
+  {
+    "session": "anonymous",
+    "route": "/settings/sincronizaciones",
+    "status": 307,
+    "location": "http://localhost:3300/login?redirect=%2Fsettings%2Fsincronizaciones",
+    "body": "http://localhost:3300/login?redirect=%2Fsettings%2Fsincronizaciones"
+  },
+  {
+    "session": "anonymous",
+    "route": "/empresa/redes-sociales",
+    "status": 307,
+    "location": "http://localhost:3300/login?redirect=%2Fempresa%2Fredes-sociales",
+    "body": "http://localhost:3300/login?redirect=%2Fempresa%2Fredes-sociales"
+  }
+]

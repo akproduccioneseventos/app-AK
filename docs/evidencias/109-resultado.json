@@ -1,0 +1,35 @@
+{
+  "sourceApp": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "sourceHead": "43620d4c10ff38b8f77223905089a19d15002053",
+  "evaluatedAdvisories": 27,
+  "inventoryRoutes": 421,
+  "criteria": {
+    "documentProfileProtection": "FAIL",
+    "runtimeImageDependencies": "PATCH_REQUIRED",
+    "fullFunctionalCoverage": "NOT_COMPLETE",
+    "ownerFileControls": 5,
+    "anonymousDenials": 5,
+    "restrictedProfileBackupControls": 5,
+    "realBackupClickDenials": 2
+  },
+  "unjustifiedDocumentReads": 20,
+  "interpretation": "Exit0 verifies evidence collection and the observed failures, NOT application acceptance.",
+  "hashes": {
+    "109-artifactos-comprimidos.json": "e5cea851e25bb44d97137a2a0594f9ca5dd54d1bf0de3c72a38aad223664cee8",
+    "109-inventario-cobertura.json.gz": "f0d9ea5b7b90e0464bcf32dcad41e24d5987bc53463ff955aca7ea67abb7ec1a",
+    "109-matriz-conciliada.json.gz": "cb01af4bed8ea7e715dd84392f63e3aea3219f76fa71832314c5a1adb86207b6",
+    "109-operador-desktop.png": "636f0bd0cbaa24a53ac05a3c41c1553ee5170ffb08a7a244af71dded33a79bfd",
+    "109-operador-mobile.png": "4bbba5a2b3223cc4ee276a75577581424ab648cfc3760a56cb428a28e09d340a",
+    "109-permisos-cookie-inicial.json": "921555c9eb40b5a164c0f88ae2fffd1f8fe3ddcb2948740504788fe8f7dd1b94",
+    "109-permisos-documentos-extra.json": "43c5c6bc66b30f8cef28861a7d56e1041670daf0543a21044d691cc830267f3c",
+    "109-permisos-documentos.json": "070d43d4a0155c8359dc8ff54c9ee374a0857b426ff53a20be26169b0b5bbb66",
+    "109-permisos-inicial.json": "c0b5d204a5e79bfd5e6a4e603666b4d0f02b214548ff7773f5da11efcbcabb6b",
+    "109-permisos-principal-execution.json": "9ef95d95171ec2a0e2381e9e76a61c5b593b4b70c1933e93d5bda424415f165d",
+    "109-probe-cookie-inicial-execution.json": "89967205d986dfa31d3419fd7ff85c41436aa2180f46da0462ffc8386158efda",
+    "109-probe-execution.json": "29fa5e62dcd6dcd3e4c6ffba07ebabfc2d8897d26aa816c8d1d5f78ab308fb79",
+    "109-probe-inicial-execution.json": "3bf9c3d5ba4f6d2a57aa81a2389ada70cb4f8eda1e1c3bc3c11261f89e4665d5",
+    "109-seguridad-contraste.json.gz": "b5b1ebafd8eb9376760e99fcd0e240b0c2d43755e91a49b174dc8c32877d1248",
+    "109-seguridad-inventario.json.gz": "d5764acd25bfa6c0660f62d78cd2b2661f8a634d54f3900955661b90f95125ff",
+    "109-start-execution.json": "10bce8b77120f79d95383da10e9a5b705058e67e496ae7661577ff04c50e437b"
+  }
+}

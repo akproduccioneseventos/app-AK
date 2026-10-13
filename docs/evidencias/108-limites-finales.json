@@ -1,0 +1,254 @@
+[
+  {
+    "viewport": "desktop",
+    "route": "/settings/sincronizaciones",
+    "initialCuts": 1,
+    "firstFailure": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nConexiones Externas\nIngreso/Egreso Rápido\nAbrir notificaciones\n¿Qué está conectado?\n\nEstado real y transparente de las 13 integraciones y plataformas externas.\n\nActualizar\nTareas automáticas\nRevisar mi agenda de Google\nBusca eventos repetidos y fiestas que quedaron en una fecha vieja. Solo mira los que puso la app: tus eventos personales no se tocan.\nRevisar mi agenda\nTOTAL PLATAFORMAS\n0\nServicios soportados\nCONECTADAS\n0\nFuncionando activas\nFALTA CONFIGURAR\n0\nRequieren datos o cuenta\nNO SE USA\n0\nOpcionales desactivadas\nPlataformas e Integraciones Externas (0)\nLa pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.\nClara\nExperiencia del cliente",
+    "afterDismiss": "",
+    "failureButtons": [],
+    "recovered": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nConexiones Externas\nIngreso/Egreso Rápido\nAbrir notificaciones\n¿Qué está conectado?\n\nEstado real y transparente de las 13 integraciones y plataformas externas.\n\nActualizar\nTareas automáticas\nRevisar mi agenda de Google\nBusca eventos repetidos y fiestas que quedaron en una fecha vieja. Solo mira los que puso la app: tus eventos personales no se tocan.\nRevisar mi agenda\nTOTAL PLATAFORMAS\n14\nServicios soportados\nCONECTADAS\n3\nFuncionando activas\nFALTA CONFIGURAR\n7\nRequieren datos o cuenta\nNO SE USA\n4\nOpcionales desactivadas\nPlataformas e Integraciones Externas (14)\nLa pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.\nGoogle Analytics (GA4)\nMétricas web\nConectada\n\nEstado actual: Medición de visitas activada\n\nAdministrar\nFicha de Google (Perfil de Negocio)\nBúsqueda local\nFalta configurarla\n\nEstado actual: Falta enlace a tu perfil de Google\n\nQué se pierde: La gente que busca \"eventos en Salto\" no ve tu teléfono ni tus fotos en Google Maps, y perdés el 32% de los clientes locales.\n\nConfigurar\nGoogle Calendar y Workspace\nAgenda y correos\nFalta configurarla\n\nEstado actual: Falta conectar cuenta de Google Workspace\n\nQué se pierde: Las fiestas y reuniones agendadas en la app no se copian solas a tu celular ni al calendario de tu equipo.\n\nConfigurar\nWhatsApp\nMensajería directa\nFalta configurarla\n\nEstado actual: Sin número conectado\n\nQué se pierde: Los clientes no pueden pedir presupuestos ni confirmar asistencia tocando un botón para escribirte directo.\n\nConfigurar\nInstagram\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular cuenta de Instagram\n\nQué se pierde: No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.\n\nProbar conexión\nSincronizar historial\nConfigurar\nPublicaciones guardadas:\n0 publicaciones\nPublicación más antigua:\nSin publicaciones\nEstado del historial:\nSincronización en curso\n¿Cómo conectar Instagram paso a paso (sin saber programar)?\nFacebook\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular página de Facebook\n\nQué se pierde: No podés publicar posteos programados ni responder consultas de Facebook desde el panel.\n\nConfigurar\nYouTube\nVideo y música\nConectada\n\nEstado actual: Leer videos que mandan los clientes: anda\n\nAdministrar\nTikTok\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: Los videos cortos de 15 años y bodas no se enlazan desde el pie de la web.\n\nConfigurar\nThreads\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza el perfil de Threads desde la web.\n\nConfigurar\nX (Twitter)\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza la cuenta de X en el pie de página.\n\nConfigurar\nPinterest\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlazan los tableros de inspiración de eventos ni decoración.\n\nConfigurar\nSpotify\nMúsica y DJs\nFalta configurarla\n\nEstado actual: Buscar canciones y abrir listas: faltan las credenciales de Spotify\n\nQué se pierde: El DJ no puede ver las canciones de las listas que mandan los clientes.\n\nConfigurar\nMercado Pago\nCobros online\nFalta configurarla\n\nEstado actual: Faltan credenciales de cobro\n\nQué se pierde: Los clientes no pueden pagar señas ni cuotas con tarjeta de crédito desde el presupuesto digital.\n\nConfigurar\nMeta Ads (Publicidad)\nAnuncios\nConectada\n\nEstado actual: El pixel está midiendo las visitas que llegan de tus anuncios.\n\nAdministrar\nClara\nExperiencia del cliente",
+    "refreshCuts": 1,
+    "refreshFailure": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nConexiones Externas\nIngreso/Egreso Rápido\nAbrir notificaciones\n¿Qué está conectado?\n\nEstado real y transparente de las 13 integraciones y plataformas externas.\n\nActualizar\nTareas automáticas\nRevisar mi agenda de Google\nBusca eventos repetidos y fiestas que quedaron en una fecha vieja. Solo mira los que puso la app: tus eventos personales no se tocan.\nRevisar mi agenda\nTOTAL PLATAFORMAS\n14\nServicios soportados\nCONECTADAS\n3\nFuncionando activas\nFALTA CONFIGURAR\n7\nRequieren datos o cuenta\nNO SE USA\n4\nOpcionales desactivadas\nPlataformas e Integraciones Externas (14)\nLa pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.\nGoogle Analytics (GA4)\nMétricas web\nConectada\n\nEstado actual: Medición de visitas activada\n\nAdministrar\nFicha de Google (Perfil de Negocio)\nBúsqueda local\nFalta configurarla\n\nEstado actual: Falta enlace a tu perfil de Google\n\nQué se pierde: La gente que busca \"eventos en Salto\" no ve tu teléfono ni tus fotos en Google Maps, y perdés el 32% de los clientes locales.\n\nConfigurar\nGoogle Calendar y Workspace\nAgenda y correos\nFalta configurarla\n\nEstado actual: Falta conectar cuenta de Google Workspace\n\nQué se pierde: Las fiestas y reuniones agendadas en la app no se copian solas a tu celular ni al calendario de tu equipo.\n\nConfigurar\nWhatsApp\nMensajería directa\nFalta configurarla\n\nEstado actual: Sin número conectado\n\nQué se pierde: Los clientes no pueden pedir presupuestos ni confirmar asistencia tocando un botón para escribirte directo.\n\nConfigurar\nInstagram\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular cuenta de Instagram\n\nQué se pierde: No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.\n\nProbar conexión\nSincronizar historial\nConfigurar\nPublicaciones guardadas:\n0 publicaciones\nPublicación más antigua:\nSin publicaciones\nEstado del historial:\nSincronización en curso\n¿Cómo conectar Instagram paso a paso (sin saber programar)?\nFacebook\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular página de Facebook\n\nQué se pierde: No podés publicar posteos programados ni responder consultas de Facebook desde el panel.\n\nConfigurar\nYouTube\nVideo y música\nConectada\n\nEstado actual: Leer videos que mandan los clientes: anda\n\nAdministrar\nTikTok\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: Los videos cortos de 15 años y bodas no se enlazan desde el pie de la web.\n\nConfigurar\nThreads\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza el perfil de Threads desde la web.\n\nConfigurar\nX (Twitter)\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza la cuenta de X en el pie de página.\n\nConfigurar\nPinterest\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlazan los tableros de inspiración de eventos ni decoración.\n\nConfigurar\nSpotify\nMúsica y DJs\nFalta configurarla\n\nEstado actual: Buscar canciones y abrir listas: faltan las credenciales de Spotify\n\nQué se pierde: El DJ no puede ver las canciones de las listas que mandan los clientes.\n\nConfigurar\nMercado Pago\nCobros online\nFalta configurarla\n\nEstado actual: Faltan credenciales de cobro\n\nQué se pierde: Los clientes no pueden pagar señas ni cuotas con tarjeta de crédito desde el presupuesto digital.\n\nConfigurar\nMeta Ads (Publicidad)\nAnuncios\nConectada\n\nEstado actual: El pixel está midiendo las visitas que llegan de tus anuncios.\n\nAdministrar\nClara\nExperiencia del cliente",
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "[2026-10-12T17:03:35.219Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\nThis typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:3934)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Error al cargar conexiones: TypeError: Failed to fetch\n    at M (http://127.0.0.1:3300/_next/static/chunks/64696-8af26aa48fa530eb.js:1:94268)",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Error al cargar conexiones: TypeError: Failed to fetch\n    at M (http://127.0.0.1:3300/_next/static/chunks/64696-8af26aa48fa530eb.js:1:94268)"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "route": "/empresa/redes-sociales",
+    "initialCuts": 1,
+    "firstFailure": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nPlanificador de Contenido\nIngreso/Egreso Rápido\nAbrir notificaciones\nPlanificador de Contenido\nGenerar desde fiesta\nCreador & Auditor de Anuncios\nCentro de Presencia Digital\nImportar historial\nCrear Publicación\nVolver a Empresa\nPublicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic.\nHistorial de Publicaciones en Redes\nControlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.\nActualizar ahora\nInstagram\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nYouTube\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nFacebook\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nLandings para publicidad\nLinks listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.\nVer Tecnologia AK\n\nTECNOLOGIA AK\n\nTecnologia AK para tu fiesta\n\nVender el diferencial tecnologico de AK antes del presupuesto.\n\nCopiar\nAbrir\n\nXV CON TECNOLOGIA\n\nXV anos con experiencia digital\n\nCaptar familias que buscan una fiesta de XV moderna y completa.\n\nCopiar\nAbrir\n\nFOTOCABINA 360\n\nFotocabina y 360 para tu evento\n\nVender tecnologia puntual como entrada rapida a nuevos clientes.\n\nCopiar\nAbrir\n\nMURO SOCIAL\n\nMuro social en vivo\n\nPromocionar pantalla, QR y experiencia participativa en fiestas.\n\nCopiar\nAbrir\nGestor de Contenido\nFiltrar por Evento\nFiltrar por Plataforma\nTodos (0)\nListos para copiar (0)\nCon error (0)\nCalendario\n\nNo hay publicaciones que coincidan con los filtros seleccionados.\n\nInstagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.\n\nMia\nMarketing, ventas y pantallas LED\nError\nFailed to fetch",
+    "afterDismiss": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nPlanificador de Contenido\nIngreso/Egreso Rápido\nAbrir notificaciones\nPlanificador de Contenido\nGenerar desde fiesta\nCreador & Auditor de Anuncios\nCentro de Presencia Digital\nImportar historial\nCrear Publicación\nVolver a Empresa\nPublicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic.\nHistorial de Publicaciones en Redes\nControlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.\nActualizar ahora\nInstagram\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nYouTube\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nFacebook\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nLandings para publicidad\nLinks listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.\nVer Tecnologia AK\n\nTECNOLOGIA AK\n\nTecnologia AK para tu fiesta\n\nVender el diferencial tecnologico de AK antes del presupuesto.\n\nCopiar\nAbrir\n\nXV CON TECNOLOGIA\n\nXV anos con experiencia digital\n\nCaptar familias que buscan una fiesta de XV moderna y completa.\n\nCopiar\nAbrir\n\nFOTOCABINA 360\n\nFotocabina y 360 para tu evento\n\nVender tecnologia puntual como entrada rapida a nuevos clientes.\n\nCopiar\nAbrir\n\nMURO SOCIAL\n\nMuro social en vivo\n\nPromocionar pantalla, QR y experiencia participativa en fiestas.\n\nCopiar\nAbrir\nGestor de Contenido\nFiltrar por Evento\nFiltrar por Plataforma\nTodos (0)\nListos para copiar (0)\nCon error (0)\nCalendario\n\nNo hay publicaciones que coincidan con los filtros seleccionados.\n\nInstagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.\n\nMia\nMarketing, ventas y pantallas LED",
+    "failureButtons": [
+      "Ingreso/Egreso Rápido",
+      "Abrir notificaciones",
+      "",
+      "Generar desde fiesta",
+      "Importar historial",
+      "Crear Publicación",
+      "Actualizar ahora",
+      "Copiar",
+      "Copiar",
+      "Copiar",
+      "Copiar",
+      "Filtrar por Evento",
+      "Filtrar por Plataforma",
+      "",
+      "",
+      "",
+      "",
+      "MiaMarketing, ventas y pantallas LED",
+      ""
+    ],
+    "recovered": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nPlanificador de Contenido\nIngreso/Egreso Rápido\nAbrir notificaciones\nPlanificador de Contenido\nGenerar desde fiesta\nCreador & Auditor de Anuncios\nCentro de Presencia Digital\nImportar historial\nCrear Publicación\nVolver a Empresa\nPublicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic.\nHistorial de Publicaciones en Redes\nControlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.\nActualizar ahora\nInstagram\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nYouTube\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nFacebook\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nLandings para publicidad\nLinks listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.\nVer Tecnologia AK\n\nTECNOLOGIA AK\n\nTecnologia AK para tu fiesta\n\nVender el diferencial tecnologico de AK antes del presupuesto.\n\nCopiar\nAbrir\n\nXV CON TECNOLOGIA\n\nXV anos con experiencia digital\n\nCaptar familias que buscan una fiesta de XV moderna y completa.\n\nCopiar\nAbrir\n\nFOTOCABINA 360\n\nFotocabina y 360 para tu evento\n\nVender tecnologia puntual como entrada rapida a nuevos clientes.\n\nCopiar\nAbrir\n\nMURO SOCIAL\n\nMuro social en vivo\n\nPromocionar pantalla, QR y experiencia participativa en fiestas.\n\nCopiar\nAbrir\nGestor de Contenido\nFiltrar por Evento\nFiltrar por Plataforma\nTodos (0)\nListos para copiar (0)\nCon error (0)\nCalendario\n\nNo hay publicaciones que coincidan con los filtros seleccionados.\n\nInstagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.\n\nMia\nMarketing, ventas y pantallas LED",
+    "refreshCuts": 0,
+    "refreshFailure": "",
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "[2026-10-12T17:03:35.219Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\nThis typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:3934)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Error al cargar conexiones: TypeError: Failed to fetch\n    at M (http://127.0.0.1:3300/_next/static/chunks/64696-8af26aa48fa530eb.js:1:94268)",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Error al cargar conexiones: TypeError: Failed to fetch\n    at M (http://127.0.0.1:3300/_next/static/chunks/64696-8af26aa48fa530eb.js:1:94268)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:3934)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "[2026-10-12T17:03:42.414Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\nThis typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:3934)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "[2026-10-12T17:03:47.617Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\nThis typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    ]
+  },
+  {
+    "viewport": "desktop",
+    "session": "anonymous",
+    "route": "/settings/sincronizaciones",
+    "url": "http://localhost:3300/login?redirect=%2Fsettings%2Fsincronizaciones",
+    "body": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+    "rpc": {
+      "status": 500,
+      "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3736877243@E80\"}\n"
+    }
+  },
+  {
+    "viewport": "desktop",
+    "session": "anonymous",
+    "route": "/empresa/redes-sociales",
+    "url": "http://localhost:3300/login?redirect=%2Fempresa%2Fredes-sociales",
+    "body": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+    "rpc": {
+      "status": 500,
+      "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3736877243@E80\"}\n"
+    }
+  },
+  {
+    "viewport": "desktop",
+    "session": "expired",
+    "route": "/settings/sincronizaciones",
+    "url": "http://127.0.0.1:3300/login?redirect=%2Fsettings%2Fsincronizaciones",
+    "body": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+    "rpc": {
+      "status": 500,
+      "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3736877243@E80\"}\n"
+    }
+  },
+  {
+    "viewport": "desktop",
+    "session": "expired",
+    "route": "/empresa/redes-sociales",
+    "url": "http://localhost:3300/login?redirect=%2Fempresa%2Fredes-sociales",
+    "body": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+    "rpc": {
+      "status": 500,
+      "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3736877243@E80\"}\n"
+    }
+  },
+  {
+    "viewport": "mobile",
+    "route": "/settings/sincronizaciones",
+    "initialCuts": 1,
+    "firstFailure": "Toggle Sidebar\nConexiones Externas\nAbrir notificaciones\n¿Qué está conectado?\n\nEstado real y transparente de las 13 integraciones y plataformas externas.\n\nActualizar\nTareas automáticas\nRevisar mi agenda de Google\nBusca eventos repetidos y fiestas que quedaron en una fecha vieja. Solo mira los que puso la app: tus eventos personales no se tocan.\nRevisar mi agenda\nTOTAL PLATAFORMAS\n0\nServicios soportados\nCONECTADAS\n0\nFuncionando activas\nFALTA CONFIGURAR\n0\nRequieren datos o cuenta\nNO SE USA\n0\nOpcionales desactivadas\nPlataformas e Integraciones Externas (0)\nLa pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.",
+    "afterDismiss": "",
+    "failureButtons": [],
+    "recovered": "Toggle Sidebar\nConexiones Externas\nAbrir notificaciones\n¿Qué está conectado?\n\nEstado real y transparente de las 13 integraciones y plataformas externas.\n\nActualizar\nTareas automáticas\nRevisar mi agenda de Google\nBusca eventos repetidos y fiestas que quedaron en una fecha vieja. Solo mira los que puso la app: tus eventos personales no se tocan.\nRevisar mi agenda\nTOTAL PLATAFORMAS\n14\nServicios soportados\nCONECTADAS\n3\nFuncionando activas\nFALTA CONFIGURAR\n7\nRequieren datos o cuenta\nNO SE USA\n4\nOpcionales desactivadas\nPlataformas e Integraciones Externas (14)\nLa pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.\nGoogle Analytics (GA4)\nMétricas web\nConectada\n\nEstado actual: Medición de visitas activada\n\nAdministrar\nFicha de Google (Perfil de Negocio)\nBúsqueda local\nFalta configurarla\n\nEstado actual: Falta enlace a tu perfil de Google\n\nQué se pierde: La gente que busca \"eventos en Salto\" no ve tu teléfono ni tus fotos en Google Maps, y perdés el 32% de los clientes locales.\n\nConfigurar\nGoogle Calendar y Workspace\nAgenda y correos\nFalta configurarla\n\nEstado actual: Falta conectar cuenta de Google Workspace\n\nQué se pierde: Las fiestas y reuniones agendadas en la app no se copian solas a tu celular ni al calendario de tu equipo.\n\nConfigurar\nWhatsApp\nMensajería directa\nFalta configurarla\n\nEstado actual: Sin número conectado\n\nQué se pierde: Los clientes no pueden pedir presupuestos ni confirmar asistencia tocando un botón para escribirte directo.\n\nConfigurar\nInstagram\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular cuenta de Instagram\n\nQué se pierde: No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.\n\nProbar conexión\nSincronizar historial\nConfigurar\nPublicaciones guardadas:\n0 publicaciones\nPublicación más antigua:\nSin publicaciones\nEstado del historial:\nSincronización en curso\n¿Cómo conectar Instagram paso a paso (sin saber programar)?\nFacebook\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular página de Facebook\n\nQué se pierde: No podés publicar posteos programados ni responder consultas de Facebook desde el panel.\n\nConfigurar\nYouTube\nVideo y música\nConectada\n\nEstado actual: Leer videos que mandan los clientes: anda\n\nAdministrar\nTikTok\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: Los videos cortos de 15 años y bodas no se enlazan desde el pie de la web.\n\nConfigurar\nThreads\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza el perfil de Threads desde la web.\n\nConfigurar\nX (Twitter)\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza la cuenta de X en el pie de página.\n\nConfigurar\nPinterest\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlazan los tableros de inspiración de eventos ni decoración.\n\nConfigurar\nSpotify\nMúsica y DJs\nFalta configurarla\n\nEstado actual: Buscar canciones y abrir listas: faltan las credenciales de Spotify\n\nQué se pierde: El DJ no puede ver las canciones de las listas que mandan los clientes.\n\nConfigurar\nMercado Pago\nCobros online\nFalta configurarla\n\nEstado actual: Faltan credenciales de cobro\n\nQué se pierde: Los clientes no pueden pagar señas ni cuotas con tarjeta de crédito desde el presupuesto digital.\n\nConfigurar\nMeta Ads (Publicidad)\nAnuncios\nConectada\n\nEstado actual: El pixel está midiendo las visitas que llegan de tus anuncios.\n\nAdministrar",
+    "refreshCuts": 1,
+    "refreshFailure": "Toggle Sidebar\nConexiones Externas\nAbrir notificaciones\n¿Qué está conectado?\n\nEstado real y transparente de las 13 integraciones y plataformas externas.\n\nActualizar\nTareas automáticas\nRevisar mi agenda de Google\nBusca eventos repetidos y fiestas que quedaron en una fecha vieja. Solo mira los que puso la app: tus eventos personales no se tocan.\nRevisar mi agenda\nTOTAL PLATAFORMAS\n14\nServicios soportados\nCONECTADAS\n3\nFuncionando activas\nFALTA CONFIGURAR\n7\nRequieren datos o cuenta\nNO SE USA\n4\nOpcionales desactivadas\nPlataformas e Integraciones Externas (14)\nLa pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.\nGoogle Analytics (GA4)\nMétricas web\nConectada\n\nEstado actual: Medición de visitas activada\n\nAdministrar\nFicha de Google (Perfil de Negocio)\nBúsqueda local\nFalta configurarla\n\nEstado actual: Falta enlace a tu perfil de Google\n\nQué se pierde: La gente que busca \"eventos en Salto\" no ve tu teléfono ni tus fotos en Google Maps, y perdés el 32% de los clientes locales.\n\nConfigurar\nGoogle Calendar y Workspace\nAgenda y correos\nFalta configurarla\n\nEstado actual: Falta conectar cuenta de Google Workspace\n\nQué se pierde: Las fiestas y reuniones agendadas en la app no se copian solas a tu celular ni al calendario de tu equipo.\n\nConfigurar\nWhatsApp\nMensajería directa\nFalta configurarla\n\nEstado actual: Sin número conectado\n\nQué se pierde: Los clientes no pueden pedir presupuestos ni confirmar asistencia tocando un botón para escribirte directo.\n\nConfigurar\nInstagram\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular cuenta de Instagram\n\nQué se pierde: No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.\n\nProbar conexión\nSincronizar historial\nConfigurar\nPublicaciones guardadas:\n0 publicaciones\nPublicación más antigua:\nSin publicaciones\nEstado del historial:\nSincronización en curso\n¿Cómo conectar Instagram paso a paso (sin saber programar)?\nFacebook\nRedes sociales\nFalta configurarla\n\nEstado actual: Falta vincular página de Facebook\n\nQué se pierde: No podés publicar posteos programados ni responder consultas de Facebook desde el panel.\n\nConfigurar\nYouTube\nVideo y música\nConectada\n\nEstado actual: Leer videos que mandan los clientes: anda\n\nAdministrar\nTikTok\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: Los videos cortos de 15 años y bodas no se enlazan desde el pie de la web.\n\nConfigurar\nThreads\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza el perfil de Threads desde la web.\n\nConfigurar\nX (Twitter)\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlaza la cuenta de X en el pie de página.\n\nConfigurar\nPinterest\nRedes sociales\nNo se usa\n\nEstado actual: No configurado\n\nQué se pierde: No se enlazan los tableros de inspiración de eventos ni decoración.\n\nConfigurar\nSpotify\nMúsica y DJs\nFalta configurarla\n\nEstado actual: Buscar canciones y abrir listas: faltan las credenciales de Spotify\n\nQué se pierde: El DJ no puede ver las canciones de las listas que mandan los clientes.\n\nConfigurar\nMercado Pago\nCobros online\nFalta configurarla\n\nEstado actual: Faltan credenciales de cobro\n\nQué se pierde: Los clientes no pueden pagar señas ni cuotas con tarjeta de crédito desde el presupuesto digital.\n\nConfigurar\nMeta Ads (Publicidad)\nAnuncios\nConectada\n\nEstado actual: El pixel está midiendo las visitas que llegan de tus anuncios.\n\nAdministrar",
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:3934)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "[2026-10-12T17:03:59.375Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\nThis typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Error al cargar conexiones: TypeError: Failed to fetch\n    at M (http://127.0.0.1:3300/_next/static/chunks/64696-8af26aa48fa530eb.js:1:94268)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Error al cargar conexiones: TypeError: Failed to fetch\n    at M (http://127.0.0.1:3300/_next/static/chunks/64696-8af26aa48fa530eb.js:1:94268)"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/empresa/redes-sociales",
+    "initialCuts": 1,
+    "firstFailure": "Toggle Sidebar\nPlanificador de Contenido\nAbrir notificaciones\nPlanificador de Contenido\nGenerar desde fiesta\nCreador & Auditor de Anuncios\nCentro de Presencia Digital\nImportar historial\nCrear Publicación\nVolver a Empresa\nPublicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic.\nHistorial de Publicaciones en Redes\nControlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.\nActualizar ahora\nInstagram\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nYouTube\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nFacebook\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nLandings para publicidad\nLinks listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.\nVer Tecnologia AK\n\nTECNOLOGIA AK\n\nTecnologia AK para tu fiesta\n\nVender el diferencial tecnologico de AK antes del presupuesto.\n\nCopiar\nAbrir\n\nXV CON TECNOLOGIA\n\nXV anos con experiencia digital\n\nCaptar familias que buscan una fiesta de XV moderna y completa.\n\nCopiar\nAbrir\n\nFOTOCABINA 360\n\nFotocabina y 360 para tu evento\n\nVender tecnologia puntual como entrada rapida a nuevos clientes.\n\nCopiar\nAbrir\n\nMURO SOCIAL\n\nMuro social en vivo\n\nPromocionar pantalla, QR y experiencia participativa en fiestas.\n\nCopiar\nAbrir\nGestor de Contenido\nFiltrar por Evento\nFiltrar por Plataforma\nTodos (0)\nListos para copiar (0)\nCon error (0)\nCalendario\n\nNo hay publicaciones que coincidan con los filtros seleccionados.\n\nInstagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.\n\nError\nFailed to fetch",
+    "afterDismiss": "Toggle Sidebar\nPlanificador de Contenido\nAbrir notificaciones\nPlanificador de Contenido\nGenerar desde fiesta\nCreador & Auditor de Anuncios\nCentro de Presencia Digital\nImportar historial\nCrear Publicación\nVolver a Empresa\nPublicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic.\nHistorial de Publicaciones en Redes\nControlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.\nActualizar ahora\nInstagram\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nYouTube\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nFacebook\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nLandings para publicidad\nLinks listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.\nVer Tecnologia AK\n\nTECNOLOGIA AK\n\nTecnologia AK para tu fiesta\n\nVender el diferencial tecnologico de AK antes del presupuesto.\n\nCopiar\nAbrir\n\nXV CON TECNOLOGIA\n\nXV anos con experiencia digital\n\nCaptar familias que buscan una fiesta de XV moderna y completa.\n\nCopiar\nAbrir\n\nFOTOCABINA 360\n\nFotocabina y 360 para tu evento\n\nVender tecnologia puntual como entrada rapida a nuevos clientes.\n\nCopiar\nAbrir\n\nMURO SOCIAL\n\nMuro social en vivo\n\nPromocionar pantalla, QR y experiencia participativa en fiestas.\n\nCopiar\nAbrir\nGestor de Contenido\nFiltrar por Evento\nFiltrar por Plataforma\nTodos (0)\nListos para copiar (0)\nCon error (0)\nCalendario\n\nNo hay publicaciones que coincidan con los filtros seleccionados.\n\nInstagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.",
+    "failureButtons": [
+      "Toggle Sidebar",
+      "",
+      "Abrir notificaciones",
+      "",
+      "Generar desde fiesta",
+      "Importar historial",
+      "Crear Publicación",
+      "Actualizar ahora",
+      "Copiar",
+      "Copiar",
+      "Copiar",
+      "Copiar",
+      "Filtrar por Evento",
+      "Filtrar por Plataforma",
+      "",
+      "",
+      ""
+    ],
+    "recovered": "Toggle Sidebar\nPlanificador de Contenido\nAbrir notificaciones\nPlanificador de Contenido\nGenerar desde fiesta\nCreador & Auditor de Anuncios\nCentro de Presencia Digital\nImportar historial\nCrear Publicación\nVolver a Empresa\nPublicación desatendida y manual: Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña \"Listos para copiar\" para subirlas con 1 clic.\nHistorial de Publicaciones en Redes\nControlá el historial completo de publicaciones guardadas en la app y sincronizá con las redes en un clic.\nActualizar ahora\nInstagram\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nYouTube\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nFacebook\nSin sincronizar\nGuardadas:\n0 publicaciones\nÚltima búsqueda:\nPendiente\nLandings para publicidad\nLinks listos para campanas. Usalos en Meta Ads, historias, estados de WhatsApp o publicaciones.\nVer Tecnologia AK\n\nTECNOLOGIA AK\n\nTecnologia AK para tu fiesta\n\nVender el diferencial tecnologico de AK antes del presupuesto.\n\nCopiar\nAbrir\n\nXV CON TECNOLOGIA\n\nXV anos con experiencia digital\n\nCaptar familias que buscan una fiesta de XV moderna y completa.\n\nCopiar\nAbrir\n\nFOTOCABINA 360\n\nFotocabina y 360 para tu evento\n\nVender tecnologia puntual como entrada rapida a nuevos clientes.\n\nCopiar\nAbrir\n\nMURO SOCIAL\n\nMuro social en vivo\n\nPromocionar pantalla, QR y experiencia participativa en fiestas.\n\nCopiar\nAbrir\nGestor de Contenido\nFiltrar por Evento\nFiltrar por Plataforma\nTodos (0)\nListos para copiar (0)\nCon error (0)\nCalendario\n\nNo hay publicaciones que coincidan con los filtros seleccionados.\n\nInstagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.",
+    "refreshCuts": 0,
+    "refreshFailure": "",
+    "consoleErrors": [
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:3934)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "[2026-10-12T17:03:59.375Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\nThis typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Error al cargar conexiones: TypeError: Failed to fetch\n    at M (http://127.0.0.1:3300/_next/static/chunks/64696-8af26aa48fa530eb.js:1:94268)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Error al cargar conexiones: TypeError: Failed to fetch\n    at M (http://127.0.0.1:3300/_next/static/chunks/64696-8af26aa48fa530eb.js:1:94268)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "[2026-10-12T17:04:08.824Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\nThis typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:3934)",
+      "Failed to load resource: net::ERR_CONNECTION_FAILED",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "[2026-10-12T17:04:16.887Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\nThis typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/44270.97e20e5ddbebca47.js:1:3934)",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+      "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector"
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "session": "anonymous",
+    "route": "/settings/sincronizaciones",
+    "url": "http://localhost:3300/login?redirect=%2Fsettings%2Fsincronizaciones",
+    "body": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+    "rpc": {
+      "status": 500,
+      "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3736877243@E80\"}\n"
+    }
+  },
+  {
+    "viewport": "mobile",
+    "session": "anonymous",
+    "route": "/empresa/redes-sociales",
+    "url": "http://localhost:3300/login?redirect=%2Fempresa%2Fredes-sociales",
+    "body": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+    "rpc": {
+      "status": 500,
+      "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3736877243@E80\"}\n"
+    }
+  },
+  {
+    "viewport": "mobile",
+    "session": "expired",
+    "route": "/settings/sincronizaciones",
+    "url": "http://127.0.0.1:3300/login?redirect=%2Fsettings%2Fsincronizaciones",
+    "body": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+    "rpc": {
+      "status": 500,
+      "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3736877243@E80\"}\n"
+    }
+  },
+  {
+    "viewport": "mobile",
+    "session": "expired",
+    "route": "/empresa/redes-sociales",
+    "url": "http://localhost:3300/login?redirect=%2Fempresa%2Fredes-sociales",
+    "body": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+    "rpc": {
+      "status": 500,
+      "body": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"dP82c0Khj0DMiQL2ggq48\"}\n1:E{\"digest\":\"3736877243@E80\"}\n"
+    }
+  }
+]

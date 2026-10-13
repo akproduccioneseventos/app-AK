@@ -335,7 +335,7 @@ async function adjustAllDishMarginsInterno(percentage: number): Promise<{ succes
  */
 const turnoDeMenus = new AsyncMutex();
 
-/** El ingrediente que viene de ese insumo, con su nombre, unidad, costo y proveedor de ahora. */
+/** Actualiza el precio de compra sin cambiar la cantidad ni la unidad de la receta. */
 function conElInsumoNuevo(item: MenuItem, insumo: ServicioEmpresa): MenuItem {
   let cambio = false;
   const ingredients = (item.ingredients || []).map((ing) => {
@@ -344,7 +344,7 @@ function conElInsumoNuevo(item: MenuItem, insumo: ServicioEmpresa): MenuItem {
     return {
       ...ing,
       name: insumo.nombre,
-      unit: insumo.unidad || ing.unit,
+      unit: ing.unit || insumo.unidad || '',
       // Si el insumo quedó sin precio cargado, se respeta el que ya tenía el menú (antes se lo
       // pisaba con cero y el plato salía barato sin que nadie se diera cuenta).
       costoUnitario: Number(insumo.valorUnitarioEstimado) > 0 ? Number(insumo.valorUnitarioEstimado) : (ing.costoUnitario ?? 0),
@@ -360,7 +360,7 @@ function conElInsumoNuevo(item: MenuItem, insumo: ServicioEmpresa): MenuItem {
  * se leían todos los menús, se cambiaban y se guardaba cada uno entero: si alguien estaba editando
  * la receta de ese menú al mismo tiempo, uno de los dos cambios se perdía.
  */
-export async function aplicarInsumoEnMenus(insumo: ServicioEmpresa): Promise<{ success: boolean; error?: string }> {
+export async function aplicarInsumoEnMenus(insumo: ServicioEmpresa, operationId?: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
   return turnoDeMenus.runExclusive(async () => {
     invalidateMenusCache();
@@ -372,6 +372,18 @@ export async function aplicarInsumoEnMenus(insumo: ServicioEmpresa): Promise<{ s
       updatedAt: new Date().toISOString(),
     } as FullMenu);
     for (const menu of usan) {
+      if (operationId) {
+        const { cambiarMenuDuranteAjuste } = await import('@/lib/insumos/ajuste-costos-idempotente');
+        await cambiarMenuDuranteAjuste(operationId, menu.id, (actual, catalogo) => {
+          const vigente = catalogo.find(item => item.id === insumo.id);
+          if (!vigente) return actual;
+          return sinBuffetVirtual({
+            ...recalculateMenu({ ...actual, items: actual.items.map(item => conElInsumoNuevo(item, vigente)) }, catalogo, allDishes),
+            updatedAt: new Date().toISOString(),
+          }) as FullMenu;
+        });
+        continue;
+      }
       if (SIN_BASE()) {
         const frescos = await readMenusFile();
         const i = frescos.findIndex((m) => m.id === menu.id);

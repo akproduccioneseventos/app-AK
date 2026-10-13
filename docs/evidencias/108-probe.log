@@ -1,0 +1,34 @@
+[
+  {
+    "session": "valid",
+    "route": "/settings/sincronizaciones",
+    "status": 200
+  },
+  {
+    "session": "valid",
+    "route": "/empresa/redes-sociales",
+    "status": 200
+  },
+  {
+    "session": "expired",
+    "route": "/settings/sincronizaciones",
+    "status": 500
+  },
+  {
+    "session": "expired",
+    "route": "/empresa/redes-sociales",
+    "status": 200
+  },
+  {
+    "session": "anonymous",
+    "route": "/settings/sincronizaciones",
+    "status": 307,
+    "location": "http://localhost:3300/login?redirect=%2Fsettings%2Fsincronizaciones"
+  },
+  {
+    "session": "anonymous",
+    "route": "/empresa/redes-sociales",
+    "status": 307,
+    "location": "http://localhost:3300/login?redirect=%2Fempresa%2Fredes-sociales"
+  }
+]

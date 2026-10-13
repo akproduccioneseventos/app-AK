@@ -1,0 +1,13 @@
+{
+  "head": "2f6007beaf8fe93c5f87dfc632c63f66eeb0428d",
+  "applicationSourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "args": [
+    "docs/evidencias/110-editores-probe.mjs"
+  ],
+  "launcher": 16556,
+  "child": 20532,
+  "started": "2026-10-12T19:30:15.282Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-12T19:36:39.529Z"
+}

@@ -1,0 +1,132 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "provider-create-persist-read",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(page).toHaveURL(expected) failed\n\nExpected: \"http://127.0.0.1:3300/proveedores\"\nReceived: \"http://127.0.0.1:3300/proveedores/new\"\nTimeout:  5000ms\n\nCall log:\n  - Expect \"to.have.url\" with timeout 5000ms\n    13 × unexpected value \"http://127.0.0.1:3300/proveedores/new\"\n"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-duplicate-refused",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText(/Ya existe un proveedor o servicio/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText(/Ya existe un proveedor o servicio/)\n"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-edit-reload",
+    "status": "NOT_ACCEPTED",
+    "error": "Creation did not yield ID"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-failed-save-keeps-record-and-form",
+    "status": "NOT_ACCEPTED",
+    "error": "Creation did not yield ID"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-delete-cancel-and-confirm",
+    "status": "NOT_ACCEPTED",
+    "error": "Creation did not yield ID"
+  },
+  {
+    "viewport": "desktop",
+    "name": "meeting-master-save-reload",
+    "details": {
+      "stored": true,
+      "reload": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "meeting-master-consumer-dialog",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('dialog').getByText('QA110_desktop_abd1207e-8fe6-4d10-a72d-f6ebf23ab98c', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByRole('dialog').getByText('QA110_desktop_abd1207e-8fe6-4d10-a72d-f6ebf23ab98c', { exact: true })\n"
+  },
+  {
+    "viewport": "desktop",
+    "name": "invitation-create-and-delete-saved",
+    "details": {
+      "createdId": "tpl_1791831310755",
+      "deletedAndStored": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "invitation-delete-builtin-observation",
+    "details": {
+      "successToast": true,
+      "presentImmediately": 0,
+      "presentAfterReload": 1,
+      "acceptance": "FAIL_FALSE_SUCCESS"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-create-persist-read",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(page).toHaveURL(expected) failed\n\nExpected: \"http://127.0.0.1:3300/proveedores\"\nReceived: \"http://127.0.0.1:3300/proveedores/new\"\nTimeout:  5000ms\n\nCall log:\n  - Expect \"to.have.url\" with timeout 5000ms\n    13 × unexpected value \"http://127.0.0.1:3300/proveedores/new\"\n"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-duplicate-refused",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText(/Ya existe un proveedor o servicio/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText(/Ya existe un proveedor o servicio/)\n"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-edit-reload",
+    "status": "NOT_ACCEPTED",
+    "error": "Creation did not yield ID"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-failed-save-keeps-record-and-form",
+    "status": "NOT_ACCEPTED",
+    "error": "Creation did not yield ID"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-delete-cancel-and-confirm",
+    "status": "NOT_ACCEPTED",
+    "error": "Creation did not yield ID"
+  },
+  {
+    "viewport": "mobile",
+    "name": "meeting-master-save-reload",
+    "details": {
+      "stored": true,
+      "reload": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "meeting-master-consumer-dialog",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('dialog').getByText('QA110_mobile_2cbbc51b-153f-4ed8-abed-47ce6aaed67d', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByRole('dialog').getByText('QA110_mobile_2cbbc51b-153f-4ed8-abed-47ce6aaed67d', { exact: true })\n"
+  },
+  {
+    "viewport": "mobile",
+    "name": "invitation-create-and-delete-saved",
+    "details": {
+      "createdId": "tpl_1791831351308",
+      "deletedAndStored": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "invitation-delete-builtin-observation",
+    "details": {
+      "successToast": true,
+      "presentImmediately": 1,
+      "presentAfterReload": 1,
+      "acceptance": "FAIL_FALSE_SUCCESS"
+    },
+    "status": "PASS"
+  }
+]

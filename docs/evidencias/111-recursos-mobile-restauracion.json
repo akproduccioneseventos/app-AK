@@ -1,0 +1,45 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\activos-fijos.json",
+      "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+      "qaSha256": "ceaeeecc29f264b62823f86f6cccad17b281bf3657cf7841460dcbfd3f3b194b"
+    },
+    {
+      "file": "src\\data\\insumos.json",
+      "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+      "qaSha256": "a8f46ebd36c0b7e3d81b16ae2caaaae931dc9a0168410aa6132414a0ec36e418"
+    },
+    {
+      "file": "src\\data\\backup-status.json",
+      "beforeSha256": null,
+      "qaSha256": "9c321c2e7dc878bbcbe08327c06146e3ab7b9596ccf4fb83c12a358f0b3b2790"
+    },
+    {
+      "file": "data\\activos-fijos.json",
+      "beforeSha256": null,
+      "qaSha256": "ceaeeecc29f264b62823f86f6cccad17b281bf3657cf7841460dcbfd3f3b194b"
+    },
+    {
+      "file": "data\\backup-status.json",
+      "beforeSha256": null,
+      "qaSha256": "9c321c2e7dc878bbcbe08327c06146e3ab7b9596ccf4fb83c12a358f0b3b2790"
+    },
+    {
+      "file": "data\\insumos.json",
+      "beforeSha256": null,
+      "qaSha256": "a8f46ebd36c0b7e3d81b16ae2caaaae931dc9a0168410aa6132414a0ec36e418"
+    }
+  ],
+  "bytesRestored": true,
+  "removedEmulatorDocuments": [
+    "activos_fijos/QA111_sentinel_asset",
+    "activos_fijos/activo_1791836547687_vllykql",
+    "backup_snapshots_v2/backup-AUTO-2026-10-12T20_22_27_892Z",
+    "backup_system/auto_backup",
+    "insumos/QA111_sentinel_ingredient",
+    "insumos/insumo_1791836558040_umstg4r",
+    "json_documents/backup-status.json"
+  ],
+  "initialDocuments": 0
+}

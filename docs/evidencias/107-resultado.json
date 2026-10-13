@@ -1,0 +1,82 @@
+{
+  "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "head": "08478e71aa0e8240521526c041c1c97058d8c909",
+  "fixtureStatus": {
+    "company": "needs_reconnect",
+    "employee": "error"
+  },
+  "cases": [
+    {
+      "context": "desktop",
+      "statusCriterion": "FAIL",
+      "recoveryByRealButton": "PASS",
+      "injectedTransportFaults": 1
+    },
+    {
+      "context": "mobile",
+      "statusCriterion": "FAIL",
+      "recoveryByRealButton": "PASS",
+      "injectedTransportFaults": 1
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "107-google-desktop-after-retry.png",
+      "sha256": "787c35dbb66992fa986c91824907a73da90a2b394e94e38e522bd89eb5ced992"
+    },
+    {
+      "file": "107-google-desktop-failure.png",
+      "sha256": "bdc2f4f5f5343150f84238e99eb90baae3a0de1e4806037646b9c2b6db40272e"
+    },
+    {
+      "file": "107-google-desktop-focused-failure.png",
+      "sha256": "3e7fe5fcb22560f4a61a0e37efb4be3397e2efaba9a294975c6a9db77a6c1c5f"
+    },
+    {
+      "file": "107-google-desktop-initial.png",
+      "sha256": "bdc2f4f5f5343150f84238e99eb90baae3a0de1e4806037646b9c2b6db40272e"
+    },
+    {
+      "file": "107-google-desktop-revoked.png",
+      "sha256": "e91e525564105990278fafe74fcebb78610ffa6b0dde1a06e2817de5423a5b24"
+    },
+    {
+      "file": "107-google-focused-inicial.json",
+      "sha256": "9fb62081fcd48d9f5cde3cc205cc4c915e0c076d85f5bd9cc06cd95a217a58c9"
+    },
+    {
+      "file": "107-google-focused.json",
+      "sha256": "21492f66556578ae75ad85d340fa123f29bedde707bafdafb1f36ad4f22a8267"
+    },
+    {
+      "file": "107-google-mobile-after-retry.png",
+      "sha256": "33b24a3f02969539fdce9f164a64e6c65a4a27e4d7e84b73921dd58f398e43c2"
+    },
+    {
+      "file": "107-google-mobile-failure.png",
+      "sha256": "1818de3427eff12d96c7c1871676d2487e3c0e9ca84e45f547c4d1cf7792acc6"
+    },
+    {
+      "file": "107-google-mobile-focused-failure.png",
+      "sha256": "2127164296c629a68ace324d3f9eac0c40aaeaafff5c1a74fb1b407cc7d7106c"
+    },
+    {
+      "file": "107-google-mobile-initial.png",
+      "sha256": "1818de3427eff12d96c7c1871676d2487e3c0e9ca84e45f547c4d1cf7792acc6"
+    },
+    {
+      "file": "107-google-mobile-revoked.png",
+      "sha256": "c946dec3a9f56a5ad96e27325548fee0eb8b7b2ed9b1792d7ebea53bb97479a1"
+    },
+    {
+      "file": "107-google-probe.json",
+      "sha256": "ac63a1021f0bc3670cfe48dfd9a330b134e6474abf1d04d364effa850d63a593"
+    }
+  ],
+  "limits": [
+    "No OAuth/token/correo real",
+    "No nueva compilacion ni cambios de app",
+    "Sonda exit0 NO significa estado aprobado",
+    "Tanda privada de Claude no contrastada"
+  ]
+}

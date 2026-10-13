@@ -1,0 +1,28 @@
+[
+  {
+    "name": "desktop",
+    "injected": 1,
+    "configuredWarning": true,
+    "failure": "¡Ups! Algo salió mal\nOcurrió un error inesperado. No te preocupes, tus datos están seguros.\nReintentar\nVolver al Inicio\nVer detalles técnicos",
+    "retryError": "",
+    "recoversByButton": true,
+    "recovers": true,
+    "errors": [
+      "Failed to fetch",
+      "Failed to fetch"
+    ]
+  },
+  {
+    "name": "mobile",
+    "injected": 1,
+    "configuredWarning": true,
+    "failure": "¡Ups! Algo salió mal\nOcurrió un error inesperado. No te preocupes, tus datos están seguros.\nReintentar\nVolver al Inicio\nVer detalles técnicos",
+    "retryError": "",
+    "recoversByButton": true,
+    "recovers": true,
+    "errors": [
+      "Failed to fetch",
+      "Failed to fetch"
+    ]
+  }
+]

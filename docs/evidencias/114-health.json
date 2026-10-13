@@ -1,0 +1,18 @@
+{
+  "statusCode": 200,
+  "body": {
+    "status": "ok",
+    "timestamp": "2026-10-13T00:36:48.837Z",
+    "version": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b · compilada 2026-10-13T00:18:24.776Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 50
+  }
+}

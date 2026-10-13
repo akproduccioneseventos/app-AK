@@ -1,0 +1,233 @@
+{
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "asset-long-title-responsive",
+      "samples": [
+        {
+          "variant": "short",
+          "nombre": "QA114 Silla blanca",
+          "geometry": {
+            "innerWidth": 1440,
+            "innerHeight": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "visualViewport": {
+              "width": 1440,
+              "height": 1000,
+              "scale": 1
+            },
+            "title": {
+              "x": 556.5,
+              "width": 327,
+              "right": 883.5
+            }
+          },
+          "clickTrial": true,
+          "error": null
+        },
+        {
+          "variant": "long",
+          "nombre": "QA114_desktop_asset_b4781e86-f8e8-4e94-bf45-302fad85e634",
+          "geometry": {
+            "innerWidth": 1440,
+            "innerHeight": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "visualViewport": {
+              "width": 1440,
+              "height": 1000,
+              "scale": 1
+            },
+            "title": {
+              "x": 543.921875,
+              "width": 518.578125,
+              "right": 1062.5
+            }
+          },
+          "clickTrial": true,
+          "error": null
+        }
+      ],
+      "status": "PASS",
+      "details": {
+        "shortOverflow": 0,
+        "longOverflow": 0,
+        "readOnly": true,
+        "acceptance": "PASS"
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "ingredient-long-title-responsive",
+      "samples": [
+        {
+          "variant": "short",
+          "nombre": "QA114 Silla blanca",
+          "geometry": {
+            "innerWidth": 1440,
+            "innerHeight": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "visualViewport": {
+              "width": 1440,
+              "height": 1000,
+              "scale": 1
+            },
+            "title": {
+              "x": 556.5,
+              "width": 327,
+              "right": 883.5
+            }
+          },
+          "clickTrial": true,
+          "error": null
+        },
+        {
+          "variant": "long",
+          "nombre": "QA114_desktop_ingredient_0fec6834-85a8-40bd-9545-97e1f986f05f",
+          "geometry": {
+            "innerWidth": 1440,
+            "innerHeight": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "visualViewport": {
+              "width": 1440,
+              "height": 1000,
+              "scale": 1
+            },
+            "title": {
+              "x": 542.8125,
+              "width": 519.6875,
+              "right": 1062.5
+            }
+          },
+          "clickTrial": true,
+          "error": null
+        }
+      ],
+      "status": "PASS",
+      "details": {
+        "shortOverflow": 0,
+        "longOverflow": 0,
+        "readOnly": true,
+        "acceptance": "PASS"
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "asset-long-title-responsive",
+      "samples": [
+        {
+          "variant": "short",
+          "nombre": "QA114 Silla blanca",
+          "geometry": {
+            "innerWidth": 412,
+            "innerHeight": 839,
+            "scrollWidth": 412,
+            "clientWidth": 412,
+            "visualViewport": {
+              "width": 412,
+              "height": 839,
+              "scale": 1
+            },
+            "title": {
+              "x": 49.921875,
+              "width": 224.078125,
+              "right": 274
+            }
+          },
+          "clickTrial": true,
+          "error": null
+        },
+        {
+          "variant": "long",
+          "nombre": "QA114_mobile_asset_c91aec9f-32c5-4de1-b0b8-4191bf19f81c",
+          "geometry": {
+            "innerWidth": 412,
+            "innerHeight": 839,
+            "scrollWidth": 412,
+            "clientWidth": 412,
+            "visualViewport": {
+              "width": 412,
+              "height": 839,
+              "scale": 1
+            },
+            "title": {
+              "x": 37.125,
+              "width": 236.875,
+              "right": 274
+            }
+          },
+          "clickTrial": true,
+          "error": null
+        }
+      ],
+      "status": "PASS",
+      "details": {
+        "shortOverflow": 0,
+        "longOverflow": 0,
+        "readOnly": true,
+        "acceptance": "PASS"
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "ingredient-long-title-responsive",
+      "samples": [
+        {
+          "variant": "short",
+          "nombre": "QA114 Silla blanca",
+          "geometry": {
+            "innerWidth": 412,
+            "innerHeight": 839,
+            "scrollWidth": 412,
+            "clientWidth": 412,
+            "visualViewport": {
+              "width": 412,
+              "height": 839,
+              "scale": 1
+            },
+            "title": {
+              "x": 49.921875,
+              "width": 224.078125,
+              "right": 274
+            }
+          },
+          "clickTrial": true,
+          "error": null
+        },
+        {
+          "variant": "long",
+          "nombre": "QA114_mobile_ingredient_d0729232-3047-4bf1-95f8-92dc1e4da2d9",
+          "geometry": {
+            "innerWidth": 412,
+            "innerHeight": 839,
+            "scrollWidth": 412,
+            "clientWidth": 412,
+            "visualViewport": {
+              "width": 412,
+              "height": 839,
+              "scale": 1
+            },
+            "title": {
+              "x": 36.390625,
+              "width": 237.609375,
+              "right": 274
+            }
+          },
+          "clickTrial": true,
+          "error": null
+        }
+      ],
+      "status": "PASS",
+      "details": {
+        "shortOverflow": 0,
+        "longOverflow": 0,
+        "readOnly": true,
+        "acceptance": "PASS"
+      }
+    }
+  ]
+}

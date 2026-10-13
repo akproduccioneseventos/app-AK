@@ -1,0 +1,87 @@
+[
+  {
+    "route": "/incidentes",
+    "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nGestión de Incidentes\nIngreso/Egreso Rápido\nAbrir notificaciones\nGestión de Incidentes\n\nRegistrá y gestioná los incidentes del evento.\n\nNueva Incidencia\nAbiertos\n0\nEn Proceso\n0\nResueltos\nTodos\n\nNo hay incidentes en esta categoría.\n\nCTO\nSistema, backup y sincronizaciones",
+    "inputs": [],
+    "buttons": [
+      "Ingreso/Egreso Rápido",
+      "Abrir notificaciones",
+      "",
+      " Nueva Incidencia",
+      "",
+      "",
+      "",
+      "",
+      "CTOSistema, backup y sincronizaciones",
+      ""
+    ]
+  },
+  {
+    "route": "/incidentes",
+    "dialog": "Nueva Incidencia\n\nRegistrá un nuevo incidente para el evento.\n\nTítulo *\nDescripción\nCategoría\nOtro\nPrioridad\nMedia\nResponsable *\nPlan de Acción\nSeguimiento\nID del Evento\nCancelar\nRegistrar Incidente\nClose",
+    "inputs": [
+      {
+        "id": "",
+        "type": "text",
+        "placeholder": "Título del incidente",
+        "value": ""
+      },
+      {
+        "id": "",
+        "type": "textarea",
+        "placeholder": "Describí el incidente...",
+        "value": ""
+      },
+      {
+        "id": "",
+        "type": "text",
+        "placeholder": "Nombre del responsable",
+        "value": ""
+      },
+      {
+        "id": "",
+        "type": "textarea",
+        "placeholder": "Pasos a seguir para resolver...",
+        "value": ""
+      },
+      {
+        "id": "",
+        "type": "text",
+        "placeholder": "Notas de seguimiento...",
+        "value": ""
+      },
+      {
+        "id": "",
+        "type": "text",
+        "placeholder": "fiesta_1234...",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "route": "/playbooks",
+    "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nPlaybooks Inteligentes\nIngreso/Egreso Rápido\nAbrir notificaciones\nPlaybooks Inteligentes\n\nPlantillas prediseñadas para cada tipo de evento. Aplicalas a un evento para generar tareas, documentos y compras automáticamente.\n\nBoda Clásica\nBoda\nDefault\nPlaybook completo para organización de bodas. Cubre todos los aspectos desde la planificación inicial hasta el día del evento.\nVer detalles\nAplicar\n12 tareas\n4 etapas\n5 documentos\n6 compras\nXV Años Tradicional\nXV años\nDefault\nPlaybook para quinceañeras. Desde la planificación hasta el gran día, cubriendo vals, chambelanes y todos los detalles especiales.\nVer detalles\nAplicar\n12 tareas\n4 etapas\n5 documentos\n5 compras\nCumpleaños Adultos\nCumpleaños\nDefault\nPlaybook para celebraciones de cumpleaños de adultos. Flexible y adaptable a diferentes estilos y presupuestos.\nVer detalles\nAplicar\n10 tareas\n4 etapas\n4 documentos\n4 compras\nEvento Corporativo\nEvento corporativo\nDefault\nPlaybook para eventos corporativos: conferencias, cenas de gala, team buildings y lanzamientos de productos.\nVer detalles\nAplicar\n11 tareas\n4 etapas\n5 documentos\n5 compras\nCumpleaños Infantil\nCumpleaños infantil\nDefault\nPlaybook para fiestas infantiles. Divertido, seguro y lleno de actividades para los más pequeños.\nVer detalles\nAplicar\n10 tareas\n4 etapas\n4 documentos\n5 compras\nCTO\nSistema, backup y sincronizaciones",
+    "inputs": [],
+    "buttons": [
+      "Ingreso/Egreso Rápido",
+      "Abrir notificaciones",
+      "",
+      "Ver detalles",
+      "Aplicar",
+      "Ver detalles",
+      "Aplicar",
+      "Ver detalles",
+      "Aplicar",
+      "Ver detalles",
+      "Aplicar",
+      "Ver detalles",
+      "Aplicar",
+      "",
+      "",
+      "",
+      "",
+      "CTOSistema, backup y sincronizaciones",
+      ""
+    ]
+  }
+]

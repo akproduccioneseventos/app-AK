@@ -1,0 +1,14 @@
+{
+  "sha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/114-titulos-probe.mjs"
+  ],
+  "launcher": 25412,
+  "child": 5660,
+  "started": "2026-10-13T00:38:46.851Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T00:39:14.389Z"
+}

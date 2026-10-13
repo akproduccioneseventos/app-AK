@@ -1,0 +1,38 @@
+{
+  "sha": "35ef2faa7c474d31a9447851ed1b7c6991756777",
+  "applicationSourceSha": "35ef2faa7c474d31a9447851ed1b7c6991756777",
+  "mode": "jest",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/114-jest.json"
+  ],
+  "launcher": 32724,
+  "child": 11176,
+  "started": "2026-10-12T23:56:19.505Z",
+  "status": "finished",
+  "exitCode": 4294967295,
+  "finished": "2026-10-13T00:01:10.417Z",
+  "cleanup": {
+    "restored": [
+      {
+        "file": "src\\data\\notification-preferences.json",
+        "beforeSha256": "faea14978ca2d31280e79fb8fc166c3c90645ca1861726e2b4267329b27785d9",
+        "qaSha256": "eb10b5630140edee9502ffec20d3906672a872f5497049ac516d5ffc85e9ab75"
+      },
+      {
+        "file": "src\\data\\notifications.json",
+        "beforeSha256": "d1399ae55a8ee7d2425419f82cb6c2ef33d4ab5d8368487da7f6eaafad153ff6",
+        "qaSha256": "9e037705748ea33e860bff04ee39eb1d506cf14f6eb6d5b2bea63f8649985f08"
+      },
+      {
+        "file": "data\\notifications.json",
+        "beforeSha256": "d1399ae55a8ee7d2425419f82cb6c2ef33d4ab5d8368487da7f6eaafad153ff6",
+        "qaSha256": "9e037705748ea33e860bff04ee39eb1d506cf14f6eb6d5b2bea63f8649985f08"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

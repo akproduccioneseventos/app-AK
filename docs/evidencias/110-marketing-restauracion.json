@@ -1,0 +1,25 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\marketing-checklist.json",
+      "beforeSha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5",
+      "qaSha256": "42da48c2e892902a2f650e338aaa083f925876e21f30adb1e43e3537ad2baf70"
+    },
+    {
+      "file": "data\\marketing-checklist.json",
+      "beforeSha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5",
+      "qaSha256": "42da48c2e892902a2f650e338aaa083f925876e21f30adb1e43e3537ad2baf70"
+    },
+    {
+      "file": "src\\data\\marketing-templates.json",
+      "beforeSha256": null,
+      "qaSha256": "7a873b6b097e63e5eb1e9d0f64abdb3ef778ad2d8d331a36afd3f38a21eef7e8"
+    },
+    {
+      "file": "data\\marketing-templates.json",
+      "beforeSha256": null,
+      "qaSha256": "7a873b6b097e63e5eb1e9d0f64abdb3ef778ad2d8d331a36afd3f38a21eef7e8"
+    }
+  ],
+  "bytesRestored": true
+}

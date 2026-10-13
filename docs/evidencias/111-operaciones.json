@@ -1,0 +1,108 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "incident-failed-create-keeps-draft-then-recovers",
+    "details": {
+      "draftKept": true,
+      "errorVisible": true,
+      "createdAfterRetry": 1,
+      "incidentId": "inc_1791835645673_ok106o"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "incident-new-dialog-after-success-is-new",
+    "details": {
+      "title": "QA111_desktop_2a1be20b-b835-4d42-a9f1-309001981fb1 Cable",
+      "responsible": "QA111_desktop_2a1be20b-b835-4d42-a9f1-309001981fb1 Operador",
+      "description": "QA111_desktop_2a1be20b-b835-4d42-a9f1-309001981fb1 Detalle",
+      "unchangedPreviousIncident": true,
+      "acceptance": "FAIL_PREVIOUS_RECORD_IN_NEW_DIALOG"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "desktop",
+    "name": "incident-failed-update-keeps-note-and-recovers",
+    "details": {
+      "noteKeptOnFailure": true,
+      "storedExactlyOnce": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "playbook-dialog-context-cancel-and-missing-event",
+    "details": {
+      "queryContextKept": true,
+      "cancelDidNotWrite": true,
+      "missingEventErrorVisible": true,
+      "realEventUnchanged": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "playbook-failed-apply-keeps-target-without-writing",
+    "details": {
+      "errorVisible": true,
+      "targetKept": true,
+      "noTaskDocumentOrPurchaseCreated": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "incident-failed-create-keeps-draft-then-recovers",
+    "details": {
+      "draftKept": true,
+      "errorVisible": true,
+      "createdAfterRetry": 1,
+      "incidentId": "inc_1791835659028_xcxamf"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "incident-new-dialog-after-success-is-new",
+    "details": {
+      "title": "QA111_mobile_7f65c7a0-5411-4b64-a5f2-6569e7aacf7c Cable",
+      "responsible": "QA111_mobile_7f65c7a0-5411-4b64-a5f2-6569e7aacf7c Operador",
+      "description": "QA111_mobile_7f65c7a0-5411-4b64-a5f2-6569e7aacf7c Detalle",
+      "unchangedPreviousIncident": true,
+      "acceptance": "FAIL_PREVIOUS_RECORD_IN_NEW_DIALOG"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "mobile",
+    "name": "incident-failed-update-keeps-note-and-recovers",
+    "details": {
+      "noteKeptOnFailure": true,
+      "storedExactlyOnce": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "playbook-dialog-context-cancel-and-missing-event",
+    "details": {
+      "queryContextKept": true,
+      "cancelDidNotWrite": true,
+      "missingEventErrorVisible": true,
+      "realEventUnchanged": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "playbook-failed-apply-keeps-target-without-writing",
+    "details": {
+      "errorVisible": true,
+      "targetKept": true,
+      "noTaskDocumentOrPurchaseCreated": true
+    },
+    "status": "PASS"
+  }
+]

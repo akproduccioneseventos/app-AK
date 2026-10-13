@@ -1,0 +1,142 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "tower-real-fiesta-and-task-links",
+    "details": {
+      "fiestaId": "QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415_future",
+      "related": [
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva?fiestaId=QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/tareas?fiestaId=QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415_future"
+        }
+      ]
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "preparation-open-correct-fiesta",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText('QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415 Proxima', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText('QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415 Proxima', { exact: true }).first()\n"
+  },
+  {
+    "viewport": "desktop",
+    "name": "postevent-close-memory-persisted",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+  },
+  {
+    "viewport": "desktop",
+    "name": "automations-repeat-without-notification-duplicates",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText('Revisión completa. Avisos creados: 0', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText('Revisión completa. Avisos creados: 0', { exact: true })\n"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-read-failure-control-tower",
+    "details": {
+      "route": "/control-tower",
+      "faults": 5,
+      "visibleFailure": false,
+      "fixturePresent": true,
+      "body": "Centro diario\nControl Tower AK\n\nTu vista diaria de prioridades, pendientes importantes y próximos pasos. Sin ruido: solo lo que conviene revisar primero.\n\nPost-fiesta\nComercial\nPreparación\nAutomatizaciones\nSecretaria AK\n\nFIESTAS PRÓXIMAS\n\n0\n\nPROSPECTOS ACTIVOS\n\n0\n\nPRESUPUESTOS ENVIADOS\n\n0\n\nSALDO A REVISAR\n\n$ 0\n\nNOTIFICACIONES\n\n3\n\nPrioridades y próximos pasos\nPrioridad alta\nSistema\nInvitados a revisar: QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415 Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nAbrir\nPrioridad alta\nSistema\nMenú a revisar: QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415 Proxima\n\nFaltan 4 día(s). Conviene revisar o confirmar el menú/catering.\n\nAbrir\nNormal\nSistema\nPost-fiesta preparado: QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415 Pasada\n\nSe guardaron mensajes de testimonio, autorización de fotos e idea de publicación.\n\nAbrir\nPost-fiesta\nSeguimientos\nPreparación\nAutomatizaciones\nMemoria",
+      "acceptance": "FAIL_READ_ERROR_HIDDEN"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-read-failure-control-tower-preparacion",
+    "details": {
+      "route": "/control-tower/preparacion",
+      "faults": 1,
+      "visibleFailure": false,
+      "fixturePresent": false,
+      "body": "Nivel de preparación\nPreparación de fiestas\n\nVista general para saber qué fiestas están más encaminadas y cuáles tienen pendientes importantes para revisar.\n\nVolver\nNo hay fiestas para revisar en este momento.",
+      "acceptance": "FAIL_READ_ERROR_HIDDEN"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "mobile",
+    "name": "tower-real-fiesta-and-task-links",
+    "details": {
+      "fiestaId": "QA110_mobile_0989973c-f5ce-4eef-9ef9-987086bb8c4a_future",
+      "related": [
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva?fiestaId=QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/tareas?fiestaId=QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva?fiestaId=QA110_mobile_0989973c-f5ce-4eef-9ef9-987086bb8c4a_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/tareas?fiestaId=QA110_mobile_0989973c-f5ce-4eef-9ef9-987086bb8c4a_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/invitados?fiestaId=QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/catering?fiestaId=QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415_future"
+        }
+      ]
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "preparation-open-correct-fiesta",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText('QA110_mobile_0989973c-f5ce-4eef-9ef9-987086bb8c4a Proxima', { exact: true }).first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText('QA110_mobile_0989973c-f5ce-4eef-9ef9-987086bb8c4a Proxima', { exact: true }).first()\n"
+  },
+  {
+    "viewport": "mobile",
+    "name": "postevent-close-memory-persisted",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: 3\nReceived: 2"
+  },
+  {
+    "viewport": "mobile",
+    "name": "automations-repeat-without-notification-duplicates",
+    "status": "NOT_ACCEPTED",
+    "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText('Revisión completa. Avisos creados: 0', { exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText('Revisión completa. Avisos creados: 0', { exact: true })\n"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-read-failure-control-tower",
+    "details": {
+      "route": "/control-tower",
+      "faults": 5,
+      "visibleFailure": false,
+      "fixturePresent": true,
+      "body": "Centro diario\nControl Tower AK\n\nTu vista diaria de prioridades, pendientes importantes y próximos pasos. Sin ruido: solo lo que conviene revisar primero.\n\nPost-fiesta\nComercial\nPreparación\nAutomatizaciones\nSecretaria AK\n\nFIESTAS PRÓXIMAS\n\n0\n\nPROSPECTOS ACTIVOS\n\n0\n\nPRESUPUESTOS ENVIADOS\n\n0\n\nSALDO A REVISAR\n\n$ 0\n\nNOTIFICACIONES\n\n5\n\nPrioridades y próximos pasos\nPrioridad alta\nSistema\nInvitados a revisar: QA110_mobile_0989973c-f5ce-4eef-9ef9-987086bb8c4a Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nAbrir\nPrioridad alta\nSistema\nMenú a revisar: QA110_mobile_0989973c-f5ce-4eef-9ef9-987086bb8c4a Proxima\n\nFaltan 4 día(s). Conviene revisar o confirmar el menú/catering.\n\nAbrir\nPrioridad alta\nSistema\nInvitados a revisar: QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415 Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nAbrir\nPrioridad alta\nSistema\nMenú a revisar: QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415 Proxima\n\nFaltan 4 día(s). Conviene revisar o confirmar el menú/catering.\n\nAbrir\nNormal\nSistema\nPost-fiesta preparado: QA110_desktop_6a8c2f20-afe4-415f-abcd-5b38559e0415 Pasada\n\nSe guardaron mensajes de testimonio, autorización de fotos e idea de publicación.\n\nAbrir\nPost-fiesta\nSeguimientos\nPreparación\nAutomatizaciones\nMemoria",
+      "acceptance": "FAIL_READ_ERROR_HIDDEN"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-read-failure-control-tower-preparacion",
+    "details": {
+      "route": "/control-tower/preparacion",
+      "faults": 1,
+      "visibleFailure": false,
+      "fixturePresent": false,
+      "body": "Nivel de preparación\nPreparación de fiestas\n\nVista general para saber qué fiestas están más encaminadas y cuáles tienen pendientes importantes para revisar.\n\nVolver\nNo hay fiestas para revisar en este momento.",
+      "acceptance": "FAIL_READ_ERROR_HIDDEN"
+    },
+    "status": "FAIL"
+  }
+]

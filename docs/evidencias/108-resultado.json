@@ -1,0 +1,110 @@
+{
+  "sourceSha": "8fa5b56a2833938541a657dcd15ef88130d24b0e",
+  "head": "3804674f677482de27f91874cd0b77f8bd246abb",
+  "criteria": {
+    "connectionsLoad": "FAIL",
+    "socialErrorAfterDismiss": "FAIL",
+    "instagramNotStarted": "FAIL",
+    "browserSessionRedirects": {
+      "passed": 8
+    },
+    "rpcReadIsolation": {
+      "passed": 6
+    }
+  },
+  "artifacts": [
+    {
+      "file": "108-desktop-connections-first-failure.png",
+      "sha256": "ac3f981943c702c996313ed29e861f683d184af0cbfe5ca45e3336de045168b6"
+    },
+    {
+      "file": "108-desktop-connections-refresh-failure.png",
+      "sha256": "522162835f05df0f5542d9d2d6e0b49b11d7590c1e852cd803bc4e9db082f3cf"
+    },
+    {
+      "file": "108-desktop-connections.png",
+      "sha256": "02463b1b78023f04269e28f26e71c419150813d2720c25a318474eeee9236aff"
+    },
+    {
+      "file": "108-desktop-navigation.json",
+      "sha256": "8ca6200aea79a9cc9c229165ba1eeb8e21d6a7f84441195ed67244500594a68e"
+    },
+    {
+      "file": "108-desktop-social-dismissed.png",
+      "sha256": "250a35127a642e56b9be03648069b27a5f3ca715df170757ac16cbfc45863703"
+    },
+    {
+      "file": "108-desktop-social-first-failure.png",
+      "sha256": "e0e9353f38d04b9a03c498fcea8b0b059c2086afd73332083d354e03ce49fc64"
+    },
+    {
+      "file": "108-desktop-social.png",
+      "sha256": "bce73e35bc04a3710d5060a05bed0152ce092ef90fdaa7a604ea0ee4b7b05151"
+    },
+    {
+      "file": "108-limites-finales.json",
+      "sha256": "4d0000241dbd66315cf1e77a63aa8245d2b9c5fdb8e1ca7a1ffc85eddd60424f"
+    },
+    {
+      "file": "108-limites.json",
+      "sha256": "aacece3303f5af488a2e53c1c6fe01094a99b4c7b284443baafeec9e3b5d8fc9"
+    },
+    {
+      "file": "108-mobile-connections-first-failure.png",
+      "sha256": "fc39eab36b134d4ec0912dcf33bb4d0b842b65b86d8bb6290d1d227380ef58fe"
+    },
+    {
+      "file": "108-mobile-connections-refresh-failure.png",
+      "sha256": "0faaa2822144c73e6bf658ea0a3b7ccd84f75693968ccf72d4a092296c48b305"
+    },
+    {
+      "file": "108-mobile-connections.png",
+      "sha256": "b80c45e289731a66ba8770043b0e5f841a40b81a6e698c1e426ab1983d6d38ae"
+    },
+    {
+      "file": "108-mobile-social-dismissed.png",
+      "sha256": "f662525db1c87d43da3cfcf8fdcb26b50699e3e2e462666b78bbb85b35fe56b5"
+    },
+    {
+      "file": "108-mobile-social-first-failure.png",
+      "sha256": "6cfe8f3bd370e4155c866604b70b5ee5defcaf091cb598a2a4cdc16ba7ee9157"
+    },
+    {
+      "file": "108-mobile-social.png",
+      "sha256": "7a499be3d773686263e630d573d078ab01511dd7a11f19f1e21decc5e4f229a8"
+    },
+    {
+      "file": "108-paneles-inicial.json",
+      "sha256": "0017228b56c025e0d6105604c05ac035e6957a9dc6f5ae42cf4c878aad42e621"
+    },
+    {
+      "file": "108-probe-execution.json",
+      "sha256": "bfaf8dcd332d8636712688db16462738bf2445dfa0b9022f08db291deb5227b4"
+    },
+    {
+      "file": "108-probe-inicial-execution.json",
+      "sha256": "1a317ab5ec901af9b2871286caa04ded145d616eba178d33901ee169f04acd66"
+    },
+    {
+      "file": "108-rpc-control-inicial-execution.json",
+      "sha256": "71123ff31b3773dcf1ff5be7ce32b4ce8130f986d7b1eedeb5f7ea95d074a6b5"
+    },
+    {
+      "file": "108-rpc-control-inicial.json",
+      "sha256": "69a48184138ed9f690e81e16f75b9f3d2dd85f42fe3a232a815ef6ea8e8cdfb0"
+    },
+    {
+      "file": "108-rpc-control.json",
+      "sha256": "f09a8250741fdf8181fe90fd4f9170189a66365cf3385de20bf5ad447b5a72b6"
+    },
+    {
+      "file": "108-start-execution.json",
+      "sha256": "98213e85067436640ba2ae64c13e66fe5bb83d6ddbb15f2d9716bbd2baf3cdf1"
+    }
+  ],
+  "limits": [
+    "Orden154 sin programar",
+    "No cuentas/publicacion/entrega reales",
+    "No perfiles completos ni cero errores globales"
+  ]
+}

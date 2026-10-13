@@ -1,0 +1,40 @@
+{
+  "restored": [
+    {
+      "file": "src\\data\\insumos.json",
+      "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+      "qaSha256": "1e33edfd9b4d0f04b99932ba576c02eaddd72910f9dbca73f74f904d7c42e70d"
+    },
+    {
+      "file": "src\\data\\backup-status.json",
+      "beforeSha256": null,
+      "qaSha256": "9c1c287565cb58a35a54bfd33dcb4ffa7d60505ea18d113e28b262f5215ff7e7"
+    },
+    {
+      "file": "data\\backup-status.json",
+      "beforeSha256": null,
+      "qaSha256": "9c1c287565cb58a35a54bfd33dcb4ffa7d60505ea18d113e28b262f5215ff7e7"
+    },
+    {
+      "file": "data\\insumos.json",
+      "beforeSha256": null,
+      "qaSha256": "1e33edfd9b4d0f04b99932ba576c02eaddd72910f9dbca73f74f904d7c42e70d"
+    }
+  ],
+  "bytesRestored": true,
+  "initialDocuments": 0,
+  "removedEmulatorDocuments": [
+    "activos_fijos/QA114_titulo_desktop_asset_long",
+    "activos_fijos/QA114_titulo_desktop_asset_short",
+    "activos_fijos/QA114_titulo_mobile_asset_long",
+    "activos_fijos/QA114_titulo_mobile_asset_short",
+    "backup_snapshots_v2/backup-AUTO-2026-10-13T00_38_51_406Z",
+    "backup_system/auto_backup",
+    "insumos/QA114_titulo_desktop_ingredient_long",
+    "insumos/QA114_titulo_desktop_ingredient_short",
+    "insumos/QA114_titulo_mobile_ingredient_long",
+    "insumos/QA114_titulo_mobile_ingredient_short",
+    "insumos/insumo_1791851931337_zbftle1",
+    "json_documents/backup-status.json"
+  ]
+}

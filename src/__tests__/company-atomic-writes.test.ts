@@ -12,8 +12,7 @@ describe('company data atomic writes', () => {
     const source = read(relativePath);
 
     expect(source).toContain('createDataItem');
-    // Actualizar es `updateDataItem` o, cuando hay que decidir sobre el dato de ahora, `mutateDataItem`.
-    expect(/updateDataItem|mutateDataItem/.test(source)).toBe(true);
+    expect(source).toMatch(/updateDataItem|mutateDataItem/);
     expect(source).toContain('deleteDataItem');
     expect(source).not.toMatch(/\bwriteData\s*\(/);
   });

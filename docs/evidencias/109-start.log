@@ -1,0 +1,48 @@
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+
+ ✓ Starting...
+ ✓ Ready in 16.9s
+Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.
+Firebase Admin SDK already initialized (1 app(s)).
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[verifySignedSessionToken] Signature mismatch. Expected length: 64 Received signature length: 64
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "activos-fijos.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "empleados.json"; Firestore vacio o no disponible.
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.

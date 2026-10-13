@@ -1,0 +1,99 @@
+[
+  {
+    "viewport": "mobile",
+    "name": "asset-create-and-reopen",
+    "details": {
+      "id": "activo_1791836547687_vllykql",
+      "stock": 3,
+      "unit": "Unidad",
+      "cost": 0,
+      "reopened": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "asset-failed-edit-keeps-draft-and-retries",
+    "details": {
+      "errorVisible": true,
+      "draftKept": true,
+      "beforeRetryStock": 3,
+      "afterRetryStock": 4
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "asset-stock-report-and-print-command",
+    "details": {
+      "reportRow": "QA111 Cel Silla b0a4cb74\t-\t4 Unidad\t$ 0\t$ 0",
+      "buttons": [
+        "",
+        "",
+        "Vista Previa",
+        "Compartir",
+        "Imprimir / PDF"
+      ],
+      "printCommandObserved": true,
+      "physicalPrintingOrPdfNotTested": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "ingredient-create-and-reopen",
+    "details": {
+      "id": "insumo_1791836558040_umstg4r",
+      "stock": 3,
+      "unit": "Kg",
+      "cost": 0,
+      "reopened": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "ingredient-fractional-stock-in-edit",
+    "details": {
+      "unit": "Kg",
+      "requestedStock": 2.5,
+      "storedStock": 2.5,
+      "transientNativeValidity": {
+        "valid": false,
+        "stepMismatch": true,
+        "step": null,
+        "message": "Please enter a valid value. The two nearest valid values are 2 and 3."
+      },
+      "acceptance": "PASS"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "ingredient-failed-edit-keeps-draft-and-retries",
+    "details": {
+      "errorVisible": true,
+      "draftKept": true,
+      "beforeRetryStock": 2.5,
+      "afterRetryStock": 4
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "ingredient-stock-report-and-print-command",
+    "details": {
+      "reportRow": "QA111 Cel Harina b0fff26e\t-\t4 Kg\t$ 0\t$ 0",
+      "buttons": [
+        "",
+        "",
+        "Vista Previa",
+        "Compartir",
+        "Imprimir / PDF"
+      ],
+      "printCommandObserved": true,
+      "physicalPrintingOrPdfNotTested": true
+    },
+    "status": "PASS"
+  }
+]

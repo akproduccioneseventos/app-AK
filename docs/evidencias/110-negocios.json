@@ -1,0 +1,192 @@
+[
+  {
+    "viewport": "desktop",
+    "name": "tower-real-fiesta-and-task-links",
+    "details": {
+      "fiestaId": "QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future",
+      "related": [
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva?fiestaId=QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/tareas?fiestaId=QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future"
+        }
+      ]
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "preparation-open-correct-fiesta",
+    "details": {
+      "opened": "QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future",
+      "url": "http://127.0.0.1:3301/fiestas/nueva?fiestaId=QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future",
+      "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\n2\nPlanificador de Fiestas General\nIngreso/Egreso Rápido\nAbrir notificaciones\n\nCENTRO DE PRODUCCIÓN PREMIUM\n\nQA110_DESKTOP_C3159D69-9FC7-42E4-B50A-43C470AFC1DE PROXIMA\n16 de octubre de 2026\nSalón a definir\nSuspender\nEN VIVO\nVolver\nINVITADOS\n100\nTAREAS\n1\nPRESUPUESTO\n$ 0,00\nFECHA\n16 oct\n\nAVANCE GENERAL DEL EVENTO\n\nEstado de Preparación\nEN PROCESO (60%)\n\n6 de 10 áreas completadas\n\nCatering contratado pero menú sin definir (faltan menos de 20 días)\nSin cronograma cargado a menos de 7 días del evento\n\nFaltan 4 días para el evento 📅\n\n1 tarea pendiente — ¡revisá el checklist!\n\nGenerar Documentos PDF\n\nRECIBO, CONTRATO Y CANCELACIÓN — DISEÑO PREMIUM\n\nPDF\nCONFIGURAR MÓDULOS\nDÍA DEL EVENTO\nPREPARACIÓN\nVISTA CLIENTE\nTECNOLOGÍA AK\nHerramientas Principales del Evento\n\nMostrando los 10 accesos clave para la gestión diaria de la fiesta.\n\nVer todas las herramientas\n1. VENDER\n\nPresupuesto, contrato, cuotas, cobros y documentación.\n\nConfiguración\nINTERNO\n\nDatos maestros del evento.\n\nACTIVO\n100% completo\nABRIR\nConsolidado\nINTERNO\n\nVisión total de lo pactado.\n\nACTIVO\nListo\nABRIR\nDocumentos\nINTERNO\n\nContratos, recibos y expedientes.\n\nACTIVO\nPendiente\nABRIR\nCostos y Rentabilidad\nINTERNO\n\nMárgenes y rentabilidad real del evento.\n\nACTIVO\nPendiente\nABRIR\nPagos\nINTERNO\n\nPlan de pagos y cuotas del evento.\n\nINACTIVO\nPendiente\nACTIVAR Y ABRIR\n2. ARMAR\n\nInvitados, gastronomía, lista de compras, salón, cronograma y personal.\n\nProveedores\nOPERATIVO\n\nAcceso restringido y coordinación con externos.\n\nACTIVO\nListo\nABRIR\nPersonal\nOPERATIVO\n\nEquipo asignado al evento y recibos.\n\nACTIVO\nSin equipo\nABRIR\nItinerario\nCLIENTE\n\nCronograma minuto a minuto, vista cliente e interna.\n\nACTIVO\nSin cronograma\nABRIR\nMúsica\nCLIENTE\n\nLista de temas y pedidos musicales del cliente.\n\nACTIVO\nPendiente\nABRIR\nInvitados\nCLIENTE\n\nLista completa, confirmaciones y gestión.\n\nACTIVO\n100 estimados\nABRIR\nDecoración\nINTERNO\n\nEstilo, moodboard y ambientación del salón.\n\nACTIVO\nDecoración cargada\nABRIR\nGastronomía / Catering\nINTERNO\n\nCálculo de menú, insumos y porciones.\n\nACTIVO\nGastronomía al día\nABRIR\nLista de Compras\nOPERATIVO\n\nInsumos necesarios para el catering.\n\nACTIVO\nGastronomía al día\nABRIR\nGestión Alimentaria\nOPERATIVO\n\nCelíacos, alergias y dietas especiales.\n\nINACTIVO\nGastronomía al día\nACTIVAR Y ABRIR\nCartelería de Mesas\nIMPRESIÓN\n\nKit completo: tragos, menú, QR y números.\n\nACTIVO\nListo\nABRIR\n3. LA NOCHE\n\nBarra, fotocabina, 360, muro social, check-in QR, pantalla y buzón.\n\nEntretenimiento\nINVITADO\n\nFotocabina, 360, Bogue y Espejo Mágico conectados al QR, galería y muro social.\n\nACTIVO\nListo\nABRIR\nBuzón de Recuerdos\nCLIENTE\n\nDescarga de audios/videos del buzón y bienvenida.\n\nACTIVO\nListo\nABRIR\nQR / Check-in\nINVITADO\n\nIngreso con QR y recepción de invitados.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nEvento en Vivo\nPANTALLA\n\nCentro de operaciones para el día de la fiesta.\n\nACTIVO\nListo\nABRIR\nCentro de Fiesta\nPANTALLA\n\nLa pantalla para dirigir la noche: el reloj y el cronograma, cuánta gente llegó, quién trabaja y los accesos a cada herramienta.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nMuro Social & Pantalla\nPANTALLA\n\nMural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.\n\nACTIVO\nListo\nABRIR\nPantallas Tótem\nPANTALLA\n\nTótems personalizados con QR, fotos sincronizadas, fondos en movimiento y modo pista.\n\nACTIVO\nListo\nABRIR\nPlaylist Pantalla\nPANTALLA\n\nLista de reproducción en vivo para la pantalla del salón.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nBarra Tecnológica\nINVITADO\n\nPantalla tactil de tragos, pantalla barman y fotos sociales con hashtag.\n\nACTIVO\nListo\nABRIR\n4. DESPUÉS\n\nÁlbum post-fiesta, encuesta de satisfacción y cierre de rentabilidad.\n\nPost-Evento\nINTERNO\n\nNPS, galería y referidos post fiesta.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nFeedback\nINTERNO\n\nEncuesta post-evento y NPS.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nBruno\nResponsable general de fiesta"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "postevent-close-memory-persisted",
+    "details": {
+      "fiestaId": "QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_past",
+      "memoryProfiles": [
+        {
+          "id": "fiesta:fiesta:QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_past",
+          "agentType": "fiesta"
+        },
+        {
+          "id": "fiestas_general:modulo:fiestas_general",
+          "agentType": "fiestas_general"
+        },
+        {
+          "id": "marketing:modulo:marketing",
+          "agentType": "marketing"
+        }
+      ],
+      "persistedAfterReload": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "automations-repeat-without-notification-duplicates",
+    "details": {
+      "fixtureFiestaId": "QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future",
+      "first": 1,
+      "second": 1,
+      "status": "Automatizaciones\nAutomatizaciones inteligentes AK\n\nRevisan presupuestos, CRM, fiestas, menú, invitados y tareas para crear avisos útiles sin usar lenguaje alarmante.\n\nVolver\nRevisión automática\n\nAl ejecutar, la app revisa datos reales y crea notificaciones cuando detecta algo para atender: seguimientos comerciales, menú pendiente, invitados sin cargar o tareas con fecha cercana.\n\nEjecutar revisión inteligente\nRevisión completa. Avisos creados: 1\n\nInvitados a revisar: QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nDetectado\nAbrir\n\nTareas próximas: QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de Proxima\n\nHay 1 tarea(s) con fecha cercana para revisar.\n\nAviso creado\nAbrir",
+      "acceptance": "PASS"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-read-failure-control-tower",
+    "details": {
+      "route": "/control-tower",
+      "faults": 5,
+      "visibleFailure": false,
+      "fixturePresent": true,
+      "body": "Centro diario\nControl Tower AK\n\nTu vista diaria de prioridades, pendientes importantes y próximos pasos. Sin ruido: solo lo que conviene revisar primero.\n\nPost-fiesta\nComercial\nPreparación\nAutomatizaciones\nSecretaria AK\n\nFIESTAS PRÓXIMAS\n\n0\n\nPROSPECTOS ACTIVOS\n\n0\n\nPRESUPUESTOS ENVIADOS\n\n0\n\nSALDO A REVISAR\n\n$ 0\n\nNOTIFICACIONES\n\n2\n\nPrioridades y próximos pasos\nPrioridad alta\nSistema\nInvitados a revisar: QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nAbrir\nNormal\nSistema\nPost-fiesta preparado: QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de Pasada\n\nSe guardaron mensajes de testimonio, autorización de fotos e idea de publicación.\n\nAbrir\nPost-fiesta\nSeguimientos\nPreparación\nAutomatizaciones\nMemoria",
+      "acceptance": "FAIL_READ_ERROR_HIDDEN"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "desktop",
+    "name": "provider-read-failure-control-tower-preparacion",
+    "details": {
+      "route": "/control-tower/preparacion",
+      "faults": 1,
+      "visibleFailure": false,
+      "fixturePresent": false,
+      "body": "Nivel de preparación\nPreparación de fiestas\n\nVista general para saber qué fiestas están más encaminadas y cuáles tienen pendientes importantes para revisar.\n\nVolver\nNo hay fiestas para revisar en este momento.",
+      "acceptance": "FAIL_READ_ERROR_HIDDEN"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "mobile",
+    "name": "tower-real-fiesta-and-task-links",
+    "details": {
+      "fiestaId": "QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194_future",
+      "related": [
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva?fiestaId=QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/tareas?fiestaId=QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva?fiestaId=QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/tareas?fiestaId=QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194_future"
+        },
+        {
+          "text": "Abrir",
+          "href": "/fiestas/nueva/invitados?fiestaId=QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de_future"
+        }
+      ]
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "preparation-open-correct-fiesta",
+    "details": {
+      "opened": "QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194_future",
+      "url": "http://127.0.0.1:3301/fiestas/nueva?fiestaId=QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194_future",
+      "body": "Toggle Sidebar\nPlanificador de Fiestas General\nAbrir notificaciones\n\nCENTRO DE PRODUCCIÓN PREMIUM\n\nQA110_MOBILE_21B35D1E-BB14-489D-AFE9-F93D54FDE194 PROXIMA\n16 de octubre de 2026\nSalón a definir\nSuspender\nEN VIVO\nVolver\nINVITADOS\n100\nTAREAS\n1\nINGRESO\n$ 0\nFECHA\n16 oct\n\nAVANCE GENERAL DEL EVENTO\n\nEstado de Preparación\nEN PROCESO (60%)\n\n6 de 10 áreas completadas\n\nCatering contratado pero menú sin definir (faltan menos de 20 días)\nSin cronograma cargado a menos de 7 días del evento\n\nFaltan 4 días para el evento 📅\n\n1 tarea pendiente — ¡revisá el checklist!\n\nGenerar Documentos PDF\n\nRECIBO, CONTRATO Y CANCELACIÓN — DISEÑO PREMIUM\n\nPDF\nCONFIGURAR MÓDULOS\nDÍA DEL EVENTO\nPREPARACIÓN\nVISTA CLIENTE\nTECNOLOGÍA AK\nHerramientas Principales del Evento\n\nMostrando los 10 accesos clave para la gestión diaria de la fiesta.\n\nVer todas las herramientas\n1. VENDER\nConfiguración\nINTERNO\n\nDatos maestros del evento.\n\nACTIVO\n100% completo\nABRIR\nConsolidado\nINTERNO\n\nVisión total de lo pactado.\n\nACTIVO\nListo\nABRIR\nDocumentos\nINTERNO\n\nContratos, recibos y expedientes.\n\nACTIVO\nPendiente\nABRIR\nCostos y Rentabilidad\nINTERNO\n\nMárgenes y rentabilidad real del evento.\n\nACTIVO\nPendiente\nABRIR\nPagos\nINTERNO\n\nPlan de pagos y cuotas del evento.\n\nINACTIVO\nPendiente\nACTIVAR Y ABRIR\n2. ARMAR\nProveedores\nOPERATIVO\n\nAcceso restringido y coordinación con externos.\n\nACTIVO\nListo\nABRIR\nPersonal\nOPERATIVO\n\nEquipo asignado al evento y recibos.\n\nACTIVO\nSin equipo\nABRIR\nItinerario\nCLIENTE\n\nCronograma minuto a minuto, vista cliente e interna.\n\nACTIVO\nSin cronograma\nABRIR\nMúsica\nCLIENTE\n\nLista de temas y pedidos musicales del cliente.\n\nACTIVO\nPendiente\nABRIR\nInvitados\nCLIENTE\n\nLista completa, confirmaciones y gestión.\n\nACTIVO\n100 estimados\nABRIR\nDecoración\nINTERNO\n\nEstilo, moodboard y ambientación del salón.\n\nACTIVO\nDecoración cargada\nABRIR\nGastronomía / Catering\nINTERNO\n\nCálculo de menú, insumos y porciones.\n\nACTIVO\nGastronomía al día\nABRIR\nLista de Compras\nOPERATIVO\n\nInsumos necesarios para el catering.\n\nACTIVO\nGastronomía al día\nABRIR\nGestión Alimentaria\nOPERATIVO\n\nCelíacos, alergias y dietas especiales.\n\nINACTIVO\nGastronomía al día\nACTIVAR Y ABRIR\nCartelería de Mesas\nIMPRESIÓN\n\nKit completo: tragos, menú, QR y números.\n\nACTIVO\nListo\nABRIR\n3. LA NOCHE\nEntretenimiento\nINVITADO\n\nFotocabina, 360, Bogue y Espejo Mágico conectados al QR, galería y muro social.\n\nACTIVO\nListo\nABRIR\nBuzón de Recuerdos\nCLIENTE\n\nDescarga de audios/videos del buzón y bienvenida.\n\nACTIVO\nListo\nABRIR\nQR / Check-in\nINVITADO\n\nIngreso con QR y recepción de invitados.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nEvento en Vivo\nPANTALLA\n\nCentro de operaciones para el día de la fiesta.\n\nACTIVO\nListo\nABRIR\nCentro de Fiesta\nPANTALLA\n\nLa pantalla para dirigir la noche: el reloj y el cronograma, cuánta gente llegó, quién trabaja y los accesos a cada herramienta.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nMuro Social & Pantalla\nPANTALLA\n\nMural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.\n\nACTIVO\nListo\nABRIR\nPantallas Tótem\nPANTALLA\n\nTótems personalizados con QR, fotos sincronizadas, fondos en movimiento y modo pista.\n\nACTIVO\nListo\nABRIR\nPlaylist Pantalla\nPANTALLA\n\nLista de reproducción en vivo para la pantalla del salón.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nBarra Tecnológica\nINVITADO\n\nPantalla tactil de tragos, pantalla barman y fotos sociales con hashtag.\n\nACTIVO\nListo\nABRIR\n4. DESPUÉS\nPost-Evento\nINTERNO\n\nNPS, galería y referidos post fiesta.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR\nFeedback\nINTERNO\n\nEncuesta post-evento y NPS.\n\nINACTIVO\nListo\nACTIVAR Y ABRIR"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "postevent-close-memory-persisted",
+    "details": {
+      "fiestaId": "QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194_past",
+      "memoryProfiles": [
+        {
+          "id": "fiestas_general:modulo:fiestas_general",
+          "agentType": "fiestas_general"
+        },
+        {
+          "id": "marketing:modulo:marketing",
+          "agentType": "marketing"
+        },
+        {
+          "id": "fiesta:fiesta:QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194_past",
+          "agentType": "fiesta"
+        }
+      ],
+      "persistedAfterReload": true
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "automations-repeat-without-notification-duplicates",
+    "details": {
+      "fixtureFiestaId": "QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194_future",
+      "first": 1,
+      "second": 1,
+      "status": "Automatizaciones\nAutomatizaciones inteligentes AK\n\nRevisan presupuestos, CRM, fiestas, menú, invitados y tareas para crear avisos útiles sin usar lenguaje alarmante.\n\nVolver\nRevisión automática\n\nAl ejecutar, la app revisa datos reales y crea notificaciones cuando detecta algo para atender: seguimientos comerciales, menú pendiente, invitados sin cargar o tareas con fecha cercana.\n\nEjecutar revisión inteligente\nRevisión completa. Avisos creados: 2\n\nInvitados a revisar: QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nDetectado\nAbrir\n\nTareas próximas: QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de Proxima\n\nHay 1 tarea(s) con fecha cercana para revisar.\n\nAviso creado\nAbrir\n\nInvitados a revisar: QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194 Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nDetectado\nAbrir\n\nTareas próximas: QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194 Proxima\n\nHay 1 tarea(s) con fecha cercana para revisar.\n\nAviso creado\nAbrir",
+      "acceptance": "PASS"
+    },
+    "status": "PASS"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-read-failure-control-tower",
+    "details": {
+      "route": "/control-tower",
+      "faults": 5,
+      "visibleFailure": false,
+      "fixturePresent": true,
+      "body": "Centro diario\nControl Tower AK\n\nTu vista diaria de prioridades, pendientes importantes y próximos pasos. Sin ruido: solo lo que conviene revisar primero.\n\nPost-fiesta\nComercial\nPreparación\nAutomatizaciones\nSecretaria AK\n\nFIESTAS PRÓXIMAS\n\n0\n\nPROSPECTOS ACTIVOS\n\n0\n\nPRESUPUESTOS ENVIADOS\n\n0\n\nSALDO A REVISAR\n\n$ 0\n\nNOTIFICACIONES\n\n3\n\nPrioridades y próximos pasos\nPrioridad alta\nSistema\nInvitados a revisar: QA110_mobile_21b35d1e-bb14-489d-afe9-f93d54fde194 Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nAbrir\nPrioridad alta\nSistema\nInvitados a revisar: QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de Proxima\n\nFaltan 4 día(s). La lista de invitados no parece cargada o confirmada.\n\nAbrir\nNormal\nSistema\nPost-fiesta preparado: QA110_desktop_c3159d69-9fc7-42e4-b50a-43c470afc1de Pasada\n\nSe guardaron mensajes de testimonio, autorización de fotos e idea de publicación.\n\nAbrir\nPost-fiesta\nSeguimientos\nPreparación\nAutomatizaciones\nMemoria",
+      "acceptance": "FAIL_READ_ERROR_HIDDEN"
+    },
+    "status": "FAIL"
+  },
+  {
+    "viewport": "mobile",
+    "name": "provider-read-failure-control-tower-preparacion",
+    "details": {
+      "route": "/control-tower/preparacion",
+      "faults": 1,
+      "visibleFailure": false,
+      "fixturePresent": false,
+      "body": "Nivel de preparación\nPreparación de fiestas\n\nVista general para saber qué fiestas están más encaminadas y cuáles tienen pendientes importantes para revisar.\n\nVolver\nNo hay fiestas para revisar en este momento.",
+      "acceptance": "FAIL_READ_ERROR_HIDDEN"
+    },
+    "status": "FAIL"
+  }
+]

@@ -1,0 +1,159 @@
+{
+  "applicationSourceSha": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "evidenceHead": "e5f22b53f5538f7331620e6e80bfe430e49e7e2b",
+  "status": "PASS_CURRENT_LOT_ONLY",
+  "checks": {
+    "build": {
+      "pass": true,
+      "started": "2026-10-13T00:18:24.408Z",
+      "finished": "2026-10-13T00:27:49.061Z"
+    },
+    "types": {
+      "pass": true,
+      "started": "2026-10-13T00:13:33.403Z",
+      "finished": "2026-10-13T00:14:42.757Z"
+    },
+    "lint": {
+      "pass": true,
+      "started": "2026-10-13T00:20:00.146Z",
+      "finished": "2026-10-13T00:20:31.879Z"
+    },
+    "acentos": {
+      "pass": true,
+      "started": "2026-10-13T00:19:53.419Z",
+      "finished": "2026-10-13T00:19:58.281Z"
+    },
+    "jest": {
+      "pass": true,
+      "started": "2026-10-13T00:28:00.528Z",
+      "finished": "2026-10-13T00:35:32.099Z",
+      "suites": 696,
+      "tests": 4229
+    }
+  },
+  "probes": {
+    "mantenimiento": {
+      "pass": true,
+      "criteria": 6,
+      "resultFile": "114-mantenimiento-fallos-resultado.json"
+    },
+    "costos": {
+      "pass": true,
+      "criteria": 14,
+      "resultFile": "114-costos-resultado.json"
+    },
+    "incidentes": {
+      "pass": true,
+      "criteria": 2,
+      "resultFile": "114-incidentes-resultado.json"
+    },
+    "titulos": {
+      "pass": true,
+      "criteria": 4,
+      "resultFile": "114-titulos.json"
+    },
+    "documentos": {
+      "pass": true,
+      "criteria": 64,
+      "resultFile": "114-documentos-resultado.json"
+    }
+  },
+  "acceptedCriteria": 90,
+  "runtime": "127.0.0.1:3301 with demo-ak-producciones Firestore emulator",
+  "graphSource": "e5f22b53",
+  "hashTextNormalization": "LF for json/mjs/ps1; binary bytes unchanged",
+  "evidenceHashes": {
+    "114-acentos-execution.json": "5ff615d8fe91fa1b385711be3e6a4f811c1416f062c0eaeb23713cf3dd5d6219",
+    "114-acentos.log.gz": "66cc8d5b9aa999a038b71008cc602994106975b058deba3dc025766e2e250ade",
+    "114-ack-lost-desktop.png": "83e08994ca22cc8104b742fbc38c2a705f6772abd9882db50cb1ce14f9c1b53c",
+    "114-ack-lost-mobile.png": "350b073b31875fa7fd0ea6f44add1196f4bb3f6a666dff147f028c952ccab29a",
+    "114-ack-retry-desktop.png": "7cb2fdaecc149facf17221d7d3f2fd3575641a8ca2fb245fa02ce8ed43e99e04",
+    "114-ack-retry-mobile.png": "0634cbd323dc7b681c650496361b02679c96de7593773a174fd003726de64233",
+    "114-action-ids.json": "f682bbbd95ee15a4af34043522364addb8e783ef57c86493b80b6b02819bed56",
+    "114-asset-title-long-mobile.png": "e6a2812f08d7c2ef9deff1709c61e91c6f97462590ebceac480877049d24a2c2",
+    "114-asset-title-short-mobile.png": "621b95eacb411ba523e6dc59ab5f525cfb63bf6fb4ceb689a0e30c58505fb648",
+    "114-build-execution.json": "0a1d3e6388efa160be369579fb95347e25610b9afd55b64f57eb812e258e34f9",
+    "114-build.log.gz": "f419221a7b63a7744b445a33d89e76c6f05ce13b79fb1fefb0a40acc2f2e7ec6",
+    "114-concurrent-desktop.png": "d81ca71c6e4f921f6f8e8444fb19a951b2f5589b2048152b2fd08e93d6962804",
+    "114-concurrent-mobile.png": "25c3d5576f9c72f062e6ec4a9e92def92b6f1e4ea87f8cda7618430c6c01cd7f",
+    "114-costos-execution.json": "83198dd7cdd0fcede7851c3008eca9da2fe71981d76857985e5263632e4ba38b",
+    "114-costos-probe.mjs": "a5eb344a7d42884037b7940cd5fd22af37a8a16caca32c2d34c8f0e794dd4c8b",
+    "114-costos-resultado.json": "950b1340c1cfcabb67f908e4c2c860ec5b16d7f354d4a8fdd6a4e8f812f04a43",
+    "114-costos.log.gz": "6d4ea9c07fa520dd3ecaedf58c41e5c48dfdbd5a3b25277d6df47dcd89e618b6",
+    "114-detener-entorno.ps1": "716327c3ee465a4c838a47d8637d52d1a9b737bc6ce2e76630f8528cd04e719a",
+    "114-documentos-execution.json": "83bd3f781591db5ceb0585bc56f23f451998347743883edcc4093b136f07feff",
+    "114-documentos-inicial-cookie-execution.json": "f78ba5de2c8a32ac6b77c0241b61653893c68e489acce54e1b28fdf1189d0f63",
+    "114-documentos-inicial-cookie-resultado.json": "9caa3e02531235ade89f93fc93a2c2eab83e760519127fe0ed1baea7bcd99b06",
+    "114-documentos-inicial-cookie.log.gz": "f9c0fee0b33ca21aa9cf3665eccf681124020d2016313095a7fd756945e49397",
+    "114-documentos-inicial-pdf-viewer-execution.json": "c604bfde5bb961e80a724badb93f674a48acd5642bd22b50ef86ced4cd00b0b1",
+    "114-documentos-inicial-pdf-viewer-resultado.json": "902a1e9b0d41fb859e4f220b485ae6bb93b12482efa2a99903562770831e454d",
+    "114-documentos-inicial-pdf-viewer.log.gz": "eb085afc88e56b7a31ce7e79f37ec4a8a25fa7f114ef9868f8eee7c16986df28",
+    "114-documentos-probe.mjs": "f9af90106f1a1ed121b47324685147c115d59a44948e7e0347c48ebac31e61b9",
+    "114-documentos-resultado.json": "7774d7ab84c73533b23b61a20ef2d25cf9e903f1279e955deb5c775702477131",
+    "114-documentos.log.gz": "0d2cfd78f9571e080546a93ffde3d1773dd4c4cdd684c737acffdec62d19f7c5",
+    "114-ejecutar.mjs": "fe020ac7447f8794bc51782877550461f513ae4c21c177ec6f87454ff7791446",
+    "114-emulator-execution-pre-guardar.json": "0502aa4a3e85b8a801093818ae54167b7f499b1fe0f83c47d78d122afaf6956f",
+    "114-emulator-execution.json": "f7c9821ba79ee464ad5397eeae99d2e68cd7650a1fadb13b91665bd6b20a452d",
+    "114-emulator.log.gz": "e13dfec9c503e5d7435ebab1886cedb1de0a1a1032e60bc5e7502d897c0388d4",
+    "114-entorno-detenido-pre-guardar.json": "9f4c7084a6f9ab21c6761ed8bd719fcbe9399592ec83c232df3f88fe167ffd98",
+    "114-entorno-detenido.json": "c33af9af6a82d67dbdf31411208506b0b683b296ebf8f9d21f9e4e686c0f17a1",
+    "114-health.json": "7a31bde2bf05e9d90fd0da5c540860ef0863ed2c544bceef243bbb8bc1caa9f1",
+    "114-incidente-desktop.png": "e611ec98d0ec8afef742eca2cd5d569eea99627b6d09155615eed260a42529f4",
+    "114-incidente-mobile.png": "d3065adf07411d18c5674a48b8316337b4283fa5dfc84b7c49282e4a9589e5ac",
+    "114-incidentes-execution.json": "19c09a0677f467cb7e91a35055f62cf3407ee3fa51c3fa3e49c007f804ae8595",
+    "114-incidentes-probe.mjs": "d0a41041fed0cf827bba113dd1f1f2f4907d3185bc042dc8807f7fc8c760e2c7",
+    "114-incidentes-resultado.json": "3e65bc56e1abf15bb62e040410676009f4df9c0bd929560264df371fd688797f",
+    "114-incidentes.log.gz": "1853f9a8641164465e482b250b8e2b3eae1df9f4db62a8aab6a831a0c6f687e0",
+    "114-ingredient-title-long-mobile.png": "b8499f4848d92046a01c041f0954c83456863bdf03d987a9bbe8bed4089092dd",
+    "114-ingredient-title-short-mobile.png": "a381cfdfd46da7764ecf38cfa2add59ccb1b50e92d69da3c6c6d192fa522264b",
+    "114-jest-execution.json": "1fd0a6aa3c5310af647a6c946d8116cf7bdd9f92c6e21ac274b2b69e8733d2f4",
+    "114-jest-inicial-env-execution.json": "b23d3ea366194147c138af25502a885c89f101bbbba1c86d07072f9832ae7a03",
+    "114-jest-inicial-env.log.gz": "02c46859a4fc9a99978902ba49605b8a9bab97f2c92934692fe0f8f33c14d036",
+    "114-jest-pre-documentos-execution.json": "30ee922fd6ec028f27013eecc27932d7d7f6e3438632e72587039ae2bed4353c",
+    "114-jest-pre-documentos.json.gz": "8aea041993a56f0502c12c8a020e35ed967e673962112accd7d8f719c9d1308f",
+    "114-jest-pre-documentos.log.gz": "08fe4528da5e138729d91b107c74fcb855e760979e4e4918eb8bea486706e510",
+    "114-jest-pre-guard-execution.json": "7b5fea6c144808375b4cf9e55199c6cfc8e5c06b87ffa0713d0dd93f951c7fda",
+    "114-jest-pre-guard.json.gz": "5945bbfb3c8abc342aa37709a592234fd3be1387fbe134339e3d9cae9f14b349",
+    "114-jest-pre-guard.log.gz": "3c7060b412f0f0f41f3a64d475c90965ce3b887d76e8aeba316f9d2707eb60b8",
+    "114-jest.json.gz": "cfb8e8aaf631220424a1b55a069b4ff90ac5e55f1aadf2f6affa553811f1714d",
+    "114-jest.log.gz": "29f53e1b817b48eb86d67be20ac78125bd4bdcffa1b656ef1d8952a89903ea05",
+    "114-limpieza-sdk.json": "320491c2c0985308b032c40b33c2844a1089b94ebbe07f39765d23acbce5f8ae",
+    "114-lint-execution.json": "125f621faa4ae0624459c9f52e2455a52246025e2beda8fa07bb4ab5e3d60ce1",
+    "114-lint.log.gz": "acd0a0643ddf0d0ee2fb90bbf3c3505445069cffd72808d71f01e55aeae85ac2",
+    "114-mantenimiento-execution.json": "69e50beca186a3cdcf4389e979423b8a5e076fb9bd503e918796e32b5f659e5f",
+    "114-mantenimiento-fallos-resultado.json": "37778609ab9191202ad5f9085f2dc4c618be2d59f659e647d25d241bc5dab935",
+    "114-mantenimiento-fallos.mjs": "58cf6f45d5aa45b8d0f2cb0d4e6dc1d8e024bc78bc157f0aa7d7d44a877fe400",
+    "114-mantenimiento.log.gz": "dc7e73e196782d739d96be783683ef5ede0edcdbbbefd385b2dd89ffb7c18159",
+    "114-menu-consumer-desktop.json": "4cf2d47c67e9ed360518219bbf788c66df842805ff00f9767621c4453d6e6e4d",
+    "114-menu-consumer-desktop.png": "e49e4e9cbd83102d8394c48bbca016bebd8218dbbd41c4c706e9c52a4173d298",
+    "114-menu-consumer-mobile.json": "c194761289bbd782fb59592bab1bc7eed147d8110e77fad6933e10d744994a7c",
+    "114-menu-consumer-mobile.png": "9eb43d6b4fa3a0f71a232d778204c6692d1e586c00f6ba6c9bd53a507d943542",
+    "114-preparar-sondas.mjs": "7667e70e932a85f7946c04ed6d23f732c807eaec7a8150efc711ac852c8b195e",
+    "114-probe-execution.json": "33150e604a1e61053be1d8bed80722692c91ae0d8a02e699faf4067ce444b27e",
+    "114-probe.log.gz": "7df874d4ac074c878805db7e24ee141e49e125ad2950d3960b46e9e9576e9ee9",
+    "114-response-lost-desktop.png": "1500f9b98b094bb28e0e718c2b8b8d0004fcb0894f11e59107848d73b2fc53c4",
+    "114-response-lost-mobile.png": "5074ea4f14a493268258c601ae6f8c5d8cb338736127cf5da9b533cbdbcfda7e",
+    "114-start-execution-pre-guardar.json": "4363e2eb6e586177758e450ebe6c00d06f9691d022bf4c6e79ff3fc691616490",
+    "114-start-execution.json": "4512bc76ad6672241deaa5a52b35364ecb6f8d8f54c4142d61f1f3a4c4dd77cd",
+    "114-start.log.gz": "f06d44ddd13874eb5b8d61342b66f4f54deda9898c984dbb23228cb962a55247",
+    "114-titulos-execution-pre-guardar.json": "c25e6d37a6e1c1fb7f079a001a4812de9b02845258f099c74b50557b4421ccb6",
+    "114-titulos-execution.json": "33150e604a1e61053be1d8bed80722692c91ae0d8a02e699faf4067ce444b27e",
+    "114-titulos-pre-guardar.json": "4917b63f38a8313a71b4f7695ea9c4beccb30f9ad66358f23ef8026830cae1bf",
+    "114-titulos-pre-guardar.log.gz": "f2d23b85a8ec492f757f1d2ec2af50aa2f72a465167991625bd66777a570108f",
+    "114-titulos-probe.mjs": "2cae7450ecd98e48c774af26765b50b0de37eadcc006b341d2162a08e90f1b7d",
+    "114-titulos-restauracion-pre-guardar.json": "07cc8b404573d7d4b61d729b5e94ae05f696886a97f529871dc96c982ed05860",
+    "114-titulos-restauracion.json": "38df53b2bb558734b2e3e47e48933742f88c604088bc02d110d613602e6005bf",
+    "114-titulos.json": "29bb6c91cbccf4120346111d18ec60b62d608a15dbbe17a3d91cf0a13759633f",
+    "114-titulos.log.gz": "7df874d4ac074c878805db7e24ee141e49e125ad2950d3960b46e9e9576e9ee9",
+    "114-types-execution.json": "2d4e89719624b703e601f0ed7c657d906846b139955846c630f6a7ec039a1d16",
+    "114-types.log.gz": "9e72928e7a01615b4cf090daa617b4ca9d68531748f887f323f695eb4ca3ef63",
+    "114-validacion-final.mjs": "a21d5fc6f1144d5825a3ca890246c77f043dc93ca1c32e1f4c130ce2220a0ef9"
+  },
+  "notCertified": [
+    "Entire application",
+    "Public Hosting",
+    "External integrations and credentials",
+    "Physical equipment",
+    "Cost receipt backup/restore"
+  ]
+}

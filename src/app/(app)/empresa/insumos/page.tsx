@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,6 +47,9 @@ function InventarioInsumosContent() {
 
   const [costAdjustmentPercentage, setCostAdjustmentPercentage] = useState(10);
   const [isAdjustingCost, setIsAdjustingCost] = useState(false);
+  const ajusteEnCursoRef = useRef(false);
+  const ajusteInciertoRef = useRef<{ operationId: string; percentage: number } | null>(null);
+  const ajusteRestauradoRef = useRef(false);
 
   const ALL_CATEGORIES = useMemo(() => {
     const categories = new Set(allItems.map(item => item.categoria as CategoriaInsumo));
@@ -87,6 +90,31 @@ function InventarioInsumosContent() {
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
+
+  useEffect(() => {
+    if (ajusteRestauradoRef.current) return;
+    ajusteRestauradoRef.current = true;
+    const key = 'ak:ajuste-insumos-pendiente';
+    try {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (typeof saved?.operationId !== 'string' || !saved.operationId || typeof saved.percentage !== 'number' || !Number.isFinite(saved.percentage)) {
+        window.localStorage.removeItem(key);
+        return;
+      }
+      ajusteInciertoRef.current = saved;
+      setCostAdjustmentPercentage(saved.percentage);
+    } catch {
+      try {
+        const raw = window.localStorage.getItem(key);
+        if (raw) window.localStorage.removeItem(key);
+        ajusteRestauradoRef.current = true;
+      } catch {
+        ajusteRestauradoRef.current = false;
+      }
+    }
+  }, []);
   
   useEffect(() => {
     let tempItems = allItems;
@@ -118,18 +146,43 @@ function InventarioInsumosContent() {
 }, [searchTerm, allItems, categoryFilter, ALL_CATEGORIES, categoriaParam, subcategoriaParam]);
 
   const handleAdjustCosts = async () => {
+    if (ajusteEnCursoRef.current) return;
+    const percentage = costAdjustmentPercentage;
+    const incierto = ajusteInciertoRef.current;
+    if (incierto && incierto.percentage !== percentage) {
+      toast({ title: 'Ajuste anterior sin confirmar', description: `Reintentá primero el ajuste del ${incierto.percentage}%; no se enviará uno distinto hasta confirmar el anterior.`, variant: 'destructive' });
+      return;
+    }
+    ajusteEnCursoRef.current = true;
     setIsAdjustingCost(true);
     try {
-      const result = await adjustAllInsumoCosts(costAdjustmentPercentage);
+      const operationId = incierto?.operationId ?? crypto.randomUUID();
+      if (!incierto) {
+        try {
+          window.localStorage.setItem('ak:ajuste-insumos-pendiente', JSON.stringify({ operationId, percentage }));
+        } catch {
+          toast({ title: 'No se pudo guardar el reintento', description: 'El almacenamiento de esta pestaña no está disponible. No se envió el ajuste; habilitalo e intentá de nuevo.', variant: 'destructive' });
+          return;
+        }
+        ajusteInciertoRef.current = { operationId, percentage };
+      }
+      const result = await adjustAllInsumoCosts(percentage, operationId);
       if (result.success) {
-        toast({ title: "Costos de Insumos Ajustados", description: `Todos los costos de insumos fueron ajustados en un ${costAdjustmentPercentage}%.` });
+        ajusteInciertoRef.current = null;
+        try { window.localStorage.removeItem('ak:ajuste-insumos-pendiente'); } catch { /* Storage unavailable. */ }
+        toast({ title: "Costos de Insumos Ajustados", description: `Todos los costos de insumos fueron ajustados en un ${percentage}%.` });
         await fetchItems(); // Refresh data
       } else {
+        if ((result as typeof result & { sinCambios?: boolean }).sinCambios === true && ajusteInciertoRef.current?.operationId === operationId) {
+          ajusteInciertoRef.current = null;
+          try { window.localStorage.removeItem('ak:ajuste-insumos-pendiente'); } catch { /* Storage unavailable. */ }
+        }
         throw new Error(result.error);
       }
     } catch (err: any) {
       toast({ title: "Error al ajustar costos", description: err.message, variant: "destructive" });
     } finally {
+      ajusteEnCursoRef.current = false;
       setIsAdjustingCost(false);
     }
   };
@@ -235,7 +288,8 @@ function InventarioInsumosContent() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleAdjustCosts}>
+                <AlertDialogAction onClick={handleAdjustCosts} disabled={isAdjustingCost}>
+                  {isAdjustingCost && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   Aplicar ajuste del {costAdjustmentPercentage > 0 ? `+${costAdjustmentPercentage}`: costAdjustmentPercentage}%
                 </AlertDialogAction>
               </AlertDialogFooter>

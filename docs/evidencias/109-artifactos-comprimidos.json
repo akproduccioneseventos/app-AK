@@ -1,0 +1,33 @@
+{
+  "explanation": "Lossless raw artifacts; uncompressed local copies are not uploaded. Readers fall back to gzip.",
+  "artifacts": [
+    {
+      "file": "docs/evidencias/109-inventario-cobertura.json.gz",
+      "rawBytes": 2749943,
+      "archiveBytes": 198632,
+      "rawSha256": "6da714d6a489d90ed0640fba84782ad39bb279cdec392f3a155d78d73ca34339",
+      "archiveSha256": "f0d9ea5b7b90e0464bcf32dcad41e24d5987bc53463ff955aca7ea67abb7ec1a"
+    },
+    {
+      "file": "docs/evidencias/109-matriz-conciliada.json.gz",
+      "rawBytes": 1266205,
+      "archiveBytes": 49767,
+      "rawSha256": "95261dca41e39ad7c3e4f767ac0c8b16ae13c59ac3172bb5c3b32ce6468dfd18",
+      "archiveSha256": "cb01af4bed8ea7e715dd84392f63e3aea3219f76fa71832314c5a1adb86207b6"
+    },
+    {
+      "file": "docs/evidencias/109-seguridad-inventario.json.gz",
+      "rawBytes": 4263030,
+      "archiveBytes": 127965,
+      "rawSha256": "7e2df4c68d03a7943ef9d721d020203a2710e7fcd12ca612fb049e233d8bb2e2",
+      "archiveSha256": "d5764acd25bfa6c0660f62d78cd2b2661f8a634d54f3900955661b90f95125ff"
+    },
+    {
+      "file": "docs/evidencias/109-seguridad-contraste.json.gz",
+      "rawBytes": 210073,
+      "archiveBytes": 18183,
+      "rawSha256": "6f97a655732ccf0eb40b840481091a34d39e15c12c90a3d18843d0767c667fd6",
+      "archiveSha256": "b5b1ebafd8eb9376760e99fcd0e240b0c2d43755e91a49b174dc8c32877d1248"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+Toggle Sidebar
+AK Producciones
+Abrir notificaciones
+Gastos Generales
+Volver al Panel Contable
+Registrar Nuevo Gasto
+Añade aquí los gastos operativos de tu empresa que no están ligados a un evento específico.
+Escanear Recibo con IA
+Fecha*
+12 de octubre de 2026
+Monto (UYU)*
+Concepto*
+Categoría*
+Otro
+Compra de Equipo
+Reparaciones y Mantenimiento
+Marketing y Publicidad
+Impuestos y Tasas
+Servicios Públicos (Luz, Agua, etc.)
+Alquiler Oficina/Depósito
+Sueldos Administrativos
+Otro
+Notas
+Registrar Gasto
+Historial de Gastos
+Total de Gastos Generales: $ 292,57
+
+Mantenimiento: QA112 mobile 01ad286a Laser - QA112 mobile 01ad286a Lampara (Reparaciones y Mantenimiento)
+
+11 oct 2026 - $ 123,45
+
+Mantenimiento: QA112 desktop 3c3b4e27 Laser - QA112 desktop 3c3b4e27 Lampara (Reparaciones y Mantenimiento)
+
+11 oct 2026 - $ 123,45
+
+Mantenimiento: QA112 desktop 3c3b4e27 Laser - QA112 desktop 3c3b4e27 Revision pendiente (Reparaciones y Mantenimiento)
+
+11 oct 2026 - $ 45,67
