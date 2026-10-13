@@ -1,6 +1,6 @@
 {
   "applicationSourceSha": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
-  "evidenceHead": "1656ac2ed15f30f56c5a2cb1ddba119f755728e1",
+  "evidenceHead": "b21d060d3951fe55a29ff236ffd545d36f7e79fd",
   "status": "PASS_CURRENT_LOT_ONLY",
   "checks": {
     "build": {

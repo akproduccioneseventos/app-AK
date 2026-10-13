@@ -1,8 +1,10 @@
-# Estado actual - 13/10/2026 (Codex116 comprobada; entrega pendiente)
+# Estado actual - 13/10/2026 (Codex116 comprobada; PR1293 ABIERTA)
 
 Rama codex/116-respaldo-logo-main-20261013 desde main4c5ef2f9.
 PR1288 integrada por Claude como791f0a7a; NO subir a esa rama cerrada.
 No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
+Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
+Fuente app1656ac2e; head de entrega se comprueba en GitHub antes de subir.
 
 ## Delta116; mantener lo ya integrado por Claude
 -Libro de costos en backup/mapa, IDs legacy, restore sin recibos posteriores.
@@ -22,7 +24,7 @@ No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
 -Codex autorizado a corregir directo; principal conserva dinero/datos/seguridad.
 -No tocar datos ajenos, forzar push ni abrir corrida si la anterior sigue activa.
 -Servicios propios apagados; SDK demo0, bytes ajenos intactos. Agentes cerrados.
--Despues crear UNA nueva propuesta, verificar remoto y dejarla abierta.
+-PR1293 creada sin fusionar; continuar en ella SOLO si sigue ABIERTA.
 -Restan152/otras155/cobertura109;19originales/OAuth/Hosting/hardware no certificados.
 
 ## Esperando decisión del dueño

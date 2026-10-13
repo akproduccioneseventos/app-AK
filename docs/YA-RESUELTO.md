@@ -1,6 +1,6 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 13/10/2026 - Codex116: delta115 sobre main4c5ef2f9 comprobado, aun no publicado
+## 13/10/2026 - Codex116: delta115 sobre main4c5ef2f9 comprobado; PR1293 abierta
 
 -PR1288 fue integrada por Claude mientras corria115. La fuente81be9ac0 quedo
  comprobada (707suites4285tests y34criterios), pero no acredita este main nuevo.
@@ -25,6 +25,9 @@
  public/logo_ak_producciones.png; SHA2567f6249ff1cc7fa347dfd737f975bfd36e58ac4c2f2f57c7e472144e252220166.
 -Minimo Node20.9 por Sharp0.35.5 ya fijado en main; no se actualiza otra libreria.
 -Prueba conjunta116 completada; pendiente entrega remota, no0errores globales.
+-PR1293 creada y subida, sin fusionar. Fuente1656ac2e; rama
+ codex/116-respaldo-logo-main-20261013. No confundir subida con Hosting publicado.
+ Archivo historico115 visible en codex/qa-115-fuente-20261013, sin PR para fusionar.
 -La primera verificacion amplia116 detecto un mock156 viejo (borrado por lista)
  y un fallo REAL preexistente de flujo de caja: fiesta/presupuesto de hoy
  con fecha sin hora quedaban fuera; ISO medianoche se asignaba al mes anterior.
