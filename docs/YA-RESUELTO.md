@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 12 de octubre de 2026 — Mantenimiento de equipos: ni se duplica el gasto ni se pierde una fila (orden 159)
+
+- **Antes:** si se perdía la respuesta al anotar un mantenimiento con costo y la persona tocaba de nuevo, quedaban dos
+  filas y dos gastos del mismo trabajo. Y con dos operadores a la vez, la acción leía el historial entero, le sumaba su
+  fila y lo escribía: una fila desaparecía y su gasto quedaba sin dueño. Guardar la ficha con el formulario viejo
+  también borraba lo que otro había anotado.
+- **Ahora:** la pantalla arma un identificador por trabajo y lo repite en cada reintento o doble toque; se renueva al
+  confirmar o si la persona cambia fecha, detalle o costo (ahí es otro trabajo). El servidor lo recibe como `registroId`:
+  si el registro ya está completo devuelve "ya estaba" sin crear nada; si estaba pendiente, termina sólo el gasto con la
+  misma llave. Los dos guardados (agregar la fila y bajar el aviso de pendiente) son transacciones sobre el equipo de
+  ese momento y tocan SÓLO su fila. Guardar la ficha ya no pisa el historial: manda el del servidor.
+- **Por qué así:** en plata, el identificador nace antes del primer envío; si naciera en el servidor, un reintento no
+  podría reconocerse. Dos trabajos distintos con el mismo texto, fecha y costo NO se agrupan (son dos gastos reales).
+
+```comprobar
+archivo: src/app/actions/activos-fijos.ts
+usa: mutateDataItem en src/app/actions/activos-fijos.ts
+usa: registroId: registroIdReintento ?? idDeLaOperacion() en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
+prueba: src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
+prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
+```
+
 ## 12 de octubre de 2026 — Barrido de plata: doble toque, ajustes a medias y saldos que ignoraban cobros
 
 - **Cancelar servicios / cambiar la fecha desde el portal:** un doble toque sumaba dos multas o dos recargos del 10%
