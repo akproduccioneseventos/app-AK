@@ -61,5 +61,5 @@ Una sola tanda/PR; no fusionar sin permiso; no declarar0errores de toda la app.
 ```comprobar
 archivo: src/app/actions/google-workspace.ts
 usa: getGoogleWorkspaceDashboard en src/app/(app)/settings/google-workspace/page.tsx
-prueba: PENDIENTE tests/e2e/google-workspace-estado-conexion.spec.ts
+prueba: src/__tests__/google-workspace-muestra-el-estado-real-de-la-cuenta.test.tsx
 ```
