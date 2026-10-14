@@ -1,5 +1,44 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 14 de octubre de 2026 - Jest no corre las copias de los ayudantes
+
+- **Qué pasaba:** los ayudantes trabajan en copias dentro de `.claude/worktrees/` y Jest las
+  corría también: la puerta dio 53 fallas falsas con cinco veces más pruebas.
+- **Qué se hizo:** `jest.config` ignora `.claude/` al buscar pruebas y módulos.
+
+```comprobar
+usa: <rootDir>/.claude/ en jest.config.js
+```
+
+## 14 de octubre de 2026 - Órdenes 152 a 154: lo que estaba arreglado ahora tiene su prueba
+
+- **Qué pasaba:** las tres órdenes tenían la prueba "pendiente". El código ya estaba arreglado en la versión principal;
+  lo que faltaba era una prueba que mire lo que ve el usuario. No hubo que tocar la app.
+- **152 (asistente flotante):** la tarjeta del asistente se corre sola si quedaría encima de un botón (Guardar incluido);
+  Generar Presupuesto Formal llama a `handleSaveBudget`, que no guarda dos veces.
+- **153 (Google):** una cuenta que necesita reconectar o tiene error ya no se anuncia "Conectada" ni deja sincronizar; el
+  personal con error no suma al contador y sigue visible para reconectarlo.
+- **154 (conexiones y redes):** si falla la lectura se ve un error con "Reintentar" y no un "0" falso; si falla un
+  "Actualizar" se conservan los datos y se avisa que pueden estar viejos; el historial de Instagram nunca dice
+  "en curso" porque el servidor no expone ninguna operación activa.
+- **Por qué así:** las pruebas son de pantalla en Jest (no de navegador) porque lo que se comprueba es el texto y los
+  botones que salen; cada una se probó rompiendo el arreglo a propósito y falla.
+
+```comprobar
+archivo: src/lib/assistant/posicion-segura.ts
+prueba: src/__tests__/el-asistente-flotante-no-tapa-guardar.test.tsx
+prueba: src/__tests__/google-workspace-muestra-el-estado-real-de-la-cuenta.test.tsx
+prueba: src/__tests__/redes-sociales-error-de-lectura-con-reintento.test.tsx
+prueba: src/__tests__/sincronizaciones-error-de-lectura-e-historial-instagram.test.tsx
+```
+
+## 14/10/2026 - Orden 163: dependencias sin force
+
+- firebase-tools 14.27.0 a 15.33.0 (solo desarrollo; Java 21 presente, `test:rules` verde) y override
+  `uuid@<11.1.1` a 11.1.1 (todos los consumidores usan `v4()`). Avisos unicos 30 a 13; el critico
+  de tar desaparece. Siguen genkit/OpenTelemetry, braces, sprintf-js, basic-ftp, re2 y
+  postcss-selector-parser: sin version compatible; detalle en la orden 163. No usar force.
+
 ## 14/10/2026 - Codex124: delta123 integrado sobre main f04 y comprobado
 
 - PR1293 ya FUSIONADA por Claude hasta09a411. No subir a su rama cerrada.
@@ -13891,3 +13930,17 @@ arrancó de una versión vieja (d4c05d08). Lo que pedía (órdenes 153, 154 y 15
 la versión de Claude, y lo de respaldos, logo y proveedores entró por la PR 1293. Juntarla **sacaba**
 los permisos de plata de las plantillas y la identidad del intento de la pregunta 58. Falso pendiente:
 no se vuelve a juntar.
+
+## Tablero de control: una falla de lectura ya no se muestra como calma (14 de octubre de 2026)
+
+Orden 156, defectos 2 a 6. Borrar una plantilla base devuelve el error "no se puede eliminar" y la
+pantalla lo muestra sin anunciar "Plantilla Eliminada" (ya estaba así; ahora tiene prueba). En
+Seguimientos comerciales, Post-fiesta y Automatizaciones, tanto una excepción de red como una respuesta
+`success:false` muestran un cartel de error con Reintentar (o "no se pudo completar") en vez de "Todo
+tranquilo", "No hay fiestas recientes" o "Revisión completa". Antes sólo se cubría la excepción. Los
+avisos no se duplican al reintentar porque el servidor ya descarta los repetidos.
+
+```comprobar
+prueba: src/__tests__/control-tower-fallas-de-lectura-no-son-calma.test.tsx
+prueba: src/__tests__/borrar-plantilla-base-no-anuncia-exito.test.tsx
+```

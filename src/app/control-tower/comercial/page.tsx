@@ -30,6 +30,7 @@ export default function CommercialFollowupsPage() {
     setLoadError('');
     try {
       const result = await getCommercialFollowups();
+      if (!result?.success) throw new Error('lectura fallida');
       setItems(result.data || []);
     } catch {
       // Los datos anteriores (si habia) se conservan; solo se avisa que no se pudo leer.
@@ -53,6 +54,7 @@ export default function CommercialFollowupsPage() {
     setAlertsError('');
     try {
       const result = await createCommercialFollowupAlerts();
+      if (!result?.success) throw new Error('avisos fallidos');
       setStatus(`Avisos creados: ${result.created}. Seguimientos detectados: ${result.total}.`);
     } catch {
       setAlertsError('No se pudieron crear los avisos. Revisá la conexión y probá de nuevo; no se creó ninguno que podamos confirmar.');

@@ -25,6 +25,7 @@ export default function PostEventPage() {
     setLoadError('');
     try {
       const result = await getPostEventOpportunities();
+      if (!result?.success) throw new Error('lectura fallida');
       setItems(result.data || []);
     } catch {
       // Los datos anteriores (si habia) se conservan; solo se avisa que no se pudo leer.
