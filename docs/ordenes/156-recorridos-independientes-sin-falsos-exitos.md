@@ -128,7 +128,7 @@ usa: deleteDataItem en src/app/actions/proveedores.ts
 prueba: src/__tests__/collection-fallback-empty-after-delete.test.ts
 archivo: src/app/actions/invitacion-digital-templates.ts
 usa: deleteInvitationTemplate en src/app/(app)/settings/templates/invitaciones/page.tsx
-prueba: PENDIENTE tests/e2e/invitation-base-delete-policy.spec.ts
+prueba: src/__tests__/borrar-plantilla-base-no-anuncia-exito.test.tsx
 archivo: src/app/actions/control-tower.ts
 usa: getControlTowerData en src/app/control-tower/page.tsx
 prueba: src/__tests__/orden-156-paginas-del-centro-fallan-con-aviso.test.tsx
@@ -140,8 +140,8 @@ usa: runSmartAutomations en src/app/control-tower/automatizaciones/page.tsx
 prueba: src/__tests__/orden-156-acciones-no-mienten.test.ts
 archivo: src/app/actions/commercial-intelligence.ts
 usa: getCommercialFollowups en src/app/control-tower/comercial/page.tsx
-prueba: PENDIENTE tests/e2e/commercial-and-postevent-transport-failure.spec.ts
+prueba: src/__tests__/control-tower-fallas-de-lectura-no-son-calma.test.tsx
 archivo: src/app/actions/post-event-intelligence.ts
 usa: getPostEventOpportunities en src/app/control-tower/post-fiesta/page.tsx
-prueba: PENDIENTE tests/e2e/commercial-and-postevent-transport-failure.spec.ts
+prueba: src/__tests__/control-tower-fallas-de-lectura-no-son-calma.test.tsx
 ```

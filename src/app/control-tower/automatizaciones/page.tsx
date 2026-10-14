@@ -20,6 +20,7 @@ export default function SmartAutomationsPage() {
     setError('');
     try {
       const response = await runSmartAutomations();
+      if (!response?.success) throw new Error('revision fallida');
       setCreated(response.created);
       setResults(response.results);
     } catch {

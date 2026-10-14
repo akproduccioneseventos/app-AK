@@ -13891,3 +13891,17 @@ arrancó de una versión vieja (d4c05d08). Lo que pedía (órdenes 153, 154 y 15
 la versión de Claude, y lo de respaldos, logo y proveedores entró por la PR 1293. Juntarla **sacaba**
 los permisos de plata de las plantillas y la identidad del intento de la pregunta 58. Falso pendiente:
 no se vuelve a juntar.
+
+## Tablero de control: una falla de lectura ya no se muestra como calma (14 de octubre de 2026)
+
+Orden 156, defectos 2 a 6. Borrar una plantilla base devuelve el error "no se puede eliminar" y la
+pantalla lo muestra sin anunciar "Plantilla Eliminada" (ya estaba así; ahora tiene prueba). En
+Seguimientos comerciales, Post-fiesta y Automatizaciones, tanto una excepción de red como una respuesta
+`success:false` muestran un cartel de error con Reintentar (o "no se pudo completar") en vez de "Todo
+tranquilo", "No hay fiestas recientes" o "Revisión completa". Antes sólo se cubría la excepción. Los
+avisos no se duplican al reintentar porque el servidor ya descarta los repetidos.
+
+```comprobar
+prueba: src/__tests__/control-tower-fallas-de-lectura-no-son-calma.test.tsx
+prueba: src/__tests__/borrar-plantilla-base-no-anuncia-exito.test.tsx
+```
