@@ -1255,6 +1255,11 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Gemini vuelve para lo grande (14 de octubre de 2026).** Palabras suyas: *"para lo próximo a
+  programar tenemos a Gemini de nuevo para las cosas grandes"*. Manda sobre la del 10 de octubre:
+  lo grande sale como orden masticada en `docs/ordenes/` para Gemini; lo chico y mediano lo
+  siguen haciendo ayudantes baratos; Claude revisa, verifica y fusiona.
+
 - **Cada hallazgo de Codex corrige el método solo, sin que el dueño lo pida (13 de octubre de 2026).**
   Palabras suyas: *"eso lo debés hacer automático sin que te tenga que decir"*. Al juntar una orden de
   Codex: su línea "- Orden N → pregunta M" en `LO-QUE-NO-VI.md` (si no hay pregunta, se escribe), y se
