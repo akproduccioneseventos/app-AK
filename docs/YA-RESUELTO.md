@@ -13773,3 +13773,13 @@ escribir otra así.
 prueba: src/__tests__/las-pruebas-cuentan-los-dias-en-uruguay.test.ts
 prueba: src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
 ```
+
+## "Mi mesa" en la red social de la fiesta, con texto también en el celular (14 de octubre de 2026)
+
+En el celular el acceso a "Mi mesa" era sólo un ícono de alfiler, sin texto: el invitado no sabía qué
+era. Lo encontró la pregunta 61 apenas su prueba empezó a correr también en el celular. Ahora dice
+"Mi Mesa" en todos los tamaños.
+
+```comprobar
+prueba: tests/e2e/la-red-social-de-la-fiesta.spec.ts
+```
