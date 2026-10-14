@@ -1,0 +1,50 @@
+{
+  "status": "PASS_INTEGRATED_DELTA123_ONLY",
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "provider": "LOCAL_PROTOCOL_DOUBLE_NO_EXTERNAL_CALLS",
+  "jest": {
+    "suites": 750,
+    "tests": 4726,
+    "failed": 0,
+    "omitted": 0
+  },
+  "nativeCases": 52,
+  "dependencySmokeCases": 9,
+  "residualDependencyAudit": {
+    "classification": "FRESH_124_WITH_HISTORICAL_123_COMPARISON",
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 87,
+      "high": 19,
+      "critical": 1,
+      "total": 107
+    },
+    "uniqueAdvisories": 30
+  },
+  "allDependencySecurityCertified": false,
+  "graph": {
+    "builtAtCommit": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+    "nodes": 14993,
+    "links": 44500,
+    "communities": 947,
+    "llmCalls": 0
+  },
+  "sdkRemaining": 0,
+  "ownedServicesStopped": 2,
+  "foreignBytesRestored": true,
+  "mergeOwner": "Claude",
+  "mainBase": "f04db06619719be161a630edc8b9babd1abad763",
+  "allAppCertified": false,
+  "externalModelCertified": false,
+  "realVoiceCertified": false,
+  "publishedCertified": false,
+  "securityCertified": false,
+  "limits": [
+    "Not zero errors and not certification of the whole app.",
+    "Only the named 16 chat, 34 AI and 2 positioning native scenarios; no evidence reused.",
+    "Coverage remains limited as recorded in historical123: 421 routes and95evidence follow-ups are not95bugs; references are not functional approval.",
+    "Real Gemini/voice, OAuth/Hosting, the 19 original budgets and physical equipment are outside evidence.",
+    "Fresh dependency audit retains30GHSA including1criticalCLI; it does not certify total security."
+  ]
+}

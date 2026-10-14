@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {webcrypto} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import ts from 'typescript';
+import assert from 'node:assert/strict';
+const sha='5dc197e5c831d8dbd75dec268efa5806eca957d8';
+const source=execFileSync('git',['show',`${sha}:src/lib/budget/intento-configurador.ts`],{encoding:'utf8'});
+const storage=new Map(),sandbox={exports:{},crypto:webcrypto,TextEncoder,sessionStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)}};
+vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,sandbox);
+const api=sandbox.exports,a={message:'QA123 A'},b={message:'QA123 B'},before=await api.obtenerIntentoChat(a,'qa123-context');
+await api.obtenerIntentoChat(b,'qa123-context');api.terminarIntentoChat('qa123-context');const after=await api.obtenerIntentoChat(a,'qa123-context');assert.notEqual(after,before);
+fs.writeFileSync('docs/evidencias/123-intentos-antes.json',JSON.stringify({sourceSha:sha,executedSource:'original module transpiled without changes',scenario:'uncertain A -> B -> confirmed B -> retry A',before,after,status:'DEFECT_REPRODUCED_UNIT_NOT_BROWSER'},null,2)+'\n');
+console.log('Original module loses identity of uncertain A: reproduced');

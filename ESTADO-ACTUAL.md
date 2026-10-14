@@ -35,6 +35,12 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
   "- Orden N → pregunta M" en LO-QUE-NO-VI.md o la puerta no publica.
 - Pago a proveedor (gestión de costos): agrega uno solo con identidad del intento (14/10).
 
+## PR 1297 de Codex (junta el 14/10)
+- Precios del asistente con el mismo motor que el presupuesto manual (por persona, tramos,
+  personal); no guarda presupuestos con servicios dudosos ni repite uno.
+- Cada intento del chat se guarda aparte; el asistente no tapa "Guardar"; 23 parches de
+  dependencias sin cambios mayores. Quedan 30 avisos que piden versiones mayores (orden 163).
+
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
 - Regalos: uno agregado a la vez desde otra pantalla puede perderse.

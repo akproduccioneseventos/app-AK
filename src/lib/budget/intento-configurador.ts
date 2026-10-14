@@ -33,9 +33,40 @@ export function terminarIntentoPresupuestoManual(): void {
 }
 
 export function obtenerIntentoChat(carga: Record<string, unknown>, scope: string): Promise<string> {
-  return obtenerIntento(carga, `ak-multiagent-solicitud-v1:${scope}`);
+  return obtenerIntentoChatPendiente(carga, scope);
 }
 
-export function terminarIntentoChat(scope: string): void {
-  sessionStorage.removeItem(`ak-multiagent-solicitud-v1:${scope}`);
+type IntentoChat = { id: string; fingerprint: string };
+
+function leerIntentosChat(key: string): IntentoChat[] {
+  const raw = sessionStorage.getItem(key);
+  if (!raw) return [];
+  const parsed = JSON.parse(raw);
+  const list = Array.isArray(parsed?.attempts) ? parsed.attempts : [parsed];
+  if (!list.every((item: IntentoChat) => typeof item?.id === 'string' && typeof item?.fingerprint === 'string')) {
+    throw new Error('No se pueden recuperar los intentos pendientes del chat.');
+  }
+  return list;
+}
+
+async function obtenerIntentoChatPendiente(carga: Record<string, unknown>, scope: string): Promise<string> {
+  const { timestamp: _timestamp, ...estable } = carga;
+  const bytes = new TextEncoder().encode(JSON.stringify(estable));
+  const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)))
+    .map(n => n.toString(16).padStart(2, '0')).join('');
+  const key = `ak-multiagent-solicitud-v1:${scope}`;
+  // Una consulta nueva no reemplaza otra cuyo resultado sigue incierto.
+  const attempts = leerIntentosChat(key);
+  const previous = attempts.find(item => item.fingerprint === fingerprint);
+  if (previous) return previous.id;
+  const id = crypto.randomUUID();
+  sessionStorage.setItem(key, JSON.stringify({ attempts: [...attempts, { id, fingerprint }] }));
+  return id;
+}
+
+export function terminarIntentoChat(scope: string, id: string): void {
+  const key = `ak-multiagent-solicitud-v1:${scope}`;
+  const attempts = leerIntentosChat(key).filter(item => item.id !== id);
+  if (attempts.length) sessionStorage.setItem(key, JSON.stringify({ attempts }));
+  else sessionStorage.removeItem(key);
 }

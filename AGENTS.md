@@ -1,3 +1,14 @@
+## Fusion y trabajo vigente - pedido del dueno, 13/10/2026
+
+- Codex deja cambios, pruebas y registro preparados en la PR; NO la fusiona.
+- CLAUDE FUSIONA siempre. Esto sustituye las instrucciones antiguas que
+  reservaban la ejecucion de la fusion al dueno. El dueno mantiene las decisiones
+  de funcionamiento y condiciones comerciales.
+- Codex esta autorizado a corregir directamente con ayuda economica acotada;
+  el principal conserva dinero, seguridad y datos. No pisar entregas activas.
+- En la maquina de8GB, no solapar build/Jest/Graphify pesado. Reutilizar evidencia
+  del mismo codigo; conservar fallos de sonda y distinguir pruebas compuestas.
+
 ## ANTES DE AUDITAR: leé `docs/YA-RESUELTO.md`
 
 En este proyecto trabajan varias IA en paralelo, en cuentas distintas. Sin esa

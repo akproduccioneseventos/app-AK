@@ -1086,3 +1086,14 @@ cliente o el personal en el celular, la prueba de su resultado corre también en
 Saltear vale sólo cuando el resultado no depende del tamaño (un cálculo, un ajuste compartido, algo
 que se imprime desde la computadora) y el motivo lo dice. Barrido: `test.skip(testInfo.project.name`
 en `tests/e2e`, cruzado con las pantallas del invitado, del cliente y del personal.
+
+## Pregunta 62 - dependencias (Codex123, 14/10/2026)
+
+### 62. Una dependencia parcheada, ¿deja otras copias vulnerables y sigue funcionando su consumidor real?
+
+Un build aprobado no demuestra que desaparecieron los avisos de seguridad. Se
+comparan versiones resueltas y avisos unicos, no solo el numero agregado; se
+prueban los consumidores usados (PDF, ZIP, sanitizador, servidor y escena), y
+se documentan las copias que siguen vulnerables. No imponer una version mayor
+por override a un consumidor antiguo sin comprobar su contrato. Un import
+correcto tampoco certifica una pantalla ni un proveedor externo.

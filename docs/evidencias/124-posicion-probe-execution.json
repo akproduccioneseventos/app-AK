@@ -1,0 +1,14 @@
+{
+  "sha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/124-posicion-probe.mjs"
+  ],
+  "launcher": 66416,
+  "child": 20472,
+  "started": "2026-10-14T14:01:05.314Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T14:07:40.897Z"
+}

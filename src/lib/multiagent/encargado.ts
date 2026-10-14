@@ -118,12 +118,18 @@ async function ejecutarHerramienta(
           phone: args.telefono,
           partyType: args.tipoEvento || 'Fiesta',
           eventDate: args.fechaEvento,
-          guestCount: args.invitados ? Number(args.invitados) : 100,
+          guestCount: args.invitados != null ? Number(args.invitados) : undefined,
+          adultCount: args.adultos != null ? Number(args.adultos) : undefined,
+          adolescentCount: args.adolescentes != null ? Number(args.adolescentes) : undefined,
+          childCount: args.ninos != null ? Number(args.ninos) : undefined,
           venueName: args.salon,
           requestedServices: args.servicios || [],
           notes: args.notas,
         });
 
+        if (prop.serviciosNoEncontrados.length) {
+          return { exito: false, resultado: null, error: `No guarde un presupuesto incompleto. Aclara estos servicios: ${prop.serviciosNoEncontrados.join(', ')}.` };
+        }
         if (!prop.presupuesto.itemsPresupuestados?.length) {
           return { exito: false, resultado: null, error: 'No encontre servicios del catalogo para calcular ese presupuesto. Indica que servicios queres incluir.' };
         }
@@ -350,7 +356,7 @@ Instrucciones:
 Herramientas disponibles:
 - buscar_persona_o_prospecto(query: string)
 - crear_prospecto(nombre: string, telefono?: string, tipoEvento?: string, fechaEvento?: string, invitados?: number, notas?: string)
-- armar_presupuesto(nombreCliente: string, telefono?: string, tipoEvento?: string, fechaEvento?: string, invitados?: number, salon?: string, servicios?: string[], notas?: string)
+- armar_presupuesto(nombreCliente: string, telefono?: string, tipoEvento?: string, fechaEvento?: string, invitados?: number, adultos?: number, adolescentes?: number, ninos?: number, salon?: string, servicios?: string[], notas?: string)
 - leer_presupuesto(id?: string, nombreCliente?: string)
 - buscar_fiestas(query: string)
 - crear_tarea(fiestaId?: string, texto: string, asignadaA?: string, fechaLimite?: string)

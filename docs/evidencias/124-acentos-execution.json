@@ -1,0 +1,14 @@
+{
+  "sha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "mode": "acentos",
+  "args": [
+    "scripts/check-acentos.mjs"
+  ],
+  "launcher": 66212,
+  "child": 25096,
+  "started": "2026-10-14T13:46:00.014Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T13:46:02.680Z"
+}

@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import { spawnSync } from 'node:child_process';
+const suffix = process.argv[2] || 'antes';
+if (!['antes','despues'].includes(suffix)) throw new Error('Owned audit suffix');
+const npm = 'C:/Program Files/nodejs/node_modules/npm/bin/npm-cli.js';
+const p = spawnSync(process.execPath, [npm, 'audit', '--json', '--fetch-retries=0', '--fetch-timeout=15000'], { encoding:'utf8', maxBuffer:20000000, timeout:180000 });
+fs.writeFileSync(`docs/evidencias/123-npm-audit-${suffix}.log`,p.stderr || '');
+if (!p.stdout?.trim()) throw new Error(`Audit did not produce JSON: ${p.error?.message || p.status}`);
+const report=JSON.parse(p.stdout);
+fs.writeFileSync(`docs/evidencias/123-npm-audit-${suffix}.json`,JSON.stringify(report,null,2)+'\n');
+console.log(JSON.stringify({status:p.status,error:report.error,metadata:report.metadata,critical:Object.values(report.vulnerabilities||{}).filter(v=>v.severity==='critical').map(v=>({name:v.name,via:v.via,nodes:v.nodes,fix:v.fixAvailable}))}));

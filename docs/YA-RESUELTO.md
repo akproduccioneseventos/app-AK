@@ -1,5 +1,93 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 14/10/2026 - Codex124: delta123 integrado sobre main f04 y comprobado
+
+- PR1293 ya FUSIONADA por Claude hasta09a411. No subir a su rama cerrada.
+  Rama nueva codex/123-ia-controles-main-20261014 desde main f04db066,
+  PR1297; fuente app74258c9ffa3c8926327f1d8da74f0fffb0100e60.
+  Los cambios de preguntas58-61, cobros/proveedores, votos/trivia/misiones de
+  Claude quedan intactos. NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE.
+- Integra SOLO los arreglos123 de precios IA canonicos/edades/ceros/servicios
+  ambiguos o repetidos, chat A incierto+B confirmado, evitar controles con la
+  tarjeta y19familias compatibles de dependencias. No repite116-122.
+- Validacion NUEVA de ese conjunto: build exit0 incluido tipos/lint;
+ 750suites4726tests en UNA amplia verde,0fallos/omitidos;acentos2890 PASS.
+  La evidencia123 compuesta de34 sigue historica, NO usada para acreditar742.
+-52recorridos NUEVOS PC/Pixel7 sin reutilizar anteriores:16ACK/CRM/documento,
+ 34precios/menus/intercalado/roles/voz denegada,2posicion/3D;9smokes PASS.
+  Se perdio respuesta DESPUES de guardar y recarga/retry conserva uno; las
+  cotizaciones deliberadas identicas siguen permitidas. SDK real SOLO demo,
+  modelo DOBLE LOCAL. Seis roles: selector/contexto/respuesta, SIN acciones.
+-Guardar3/3puntos libres PC/celular y teclado; arrastre/minimizado PC. Canvas
+ real734/1142colores; Recorrer mueve y pausa. SwiftShader, NO GPU/hardware;
+ tarjeta tras arrastre puede tapar texto, no promete cero superposicion textual.
+-Npm audit124 completo:30GHSA/107entradas/1criticalCLI.56GHSA retirados frente
+  baseline123; residuales estructurales en orden163. No usar force/mayores a ciegas.
+-Grafo actualizado local14993nodos44500relaciones947comunidades,0LLM;
+ 4avisos nuevos de parser parcial no errores TS; nombres por hub, no LLM pago.
+-Recuento124 confirma421rutas:6escenarios acotados,315referencias en suites,
+ 5historicas,24solo referencias,71sin prueba vinculada.95seguimientos de
+ evidencia NO95bugs ni95rutas nunca auditadas. No aprobar areas por referencias.
+-Gate PASS_INTEGRATED_DELTA123_ONLY. SDK0,2servicios propios cerrados,
+ agentes cerrados y bytes restaurados. Salidas de cierre1/4294967295 son
+ intencionales, no fallos de recorridos. Sondas e incidencias preservadas.
+-CLAUDE FUSIONA siempre; Codex prepara/sube y verifica remoto. No certificado
+ de toda app/0errores/modelo o voz real/OAuth/Hosting/19originales/hardware.
+ No repetir esta validacion si la fuente app742 no cambia.
+-Entrega1297 en20c45667 verificada por API:22blobs coinciden con Git local,
+ incluidos registro/orden163/codigo/dependencias/recibos. Recibo124-entrega-remota
+ conserva ese SHA; el commit que agrega ese recibo es documental, no otra app.
+
+## 13/10/2026 - Codex123 CORREGIDA Y COMPROBADA, alcance acotado
+
+- Fuente app34f45fbb1a75b7ddc92edadc7831d55f098a9cdb; main096 integrado.
+  Entrega123 local posterior a PR1293. Esa PR ya fue fusionada por Claude
+  hasta09a411;123 se entrega como DELTA nuevo desde main f04db066.
+  La evidencia34 de abajo es historica, NO valida la integracion nueva124.
+  CLAUDE FUSIONA siempre; Codex no fusiona.
+  NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD no se conoce.
+- IA presupuestos: usa cantidades/costos del motor financiero existente,
+  conservando metodos/ratio/tramos/categorias y desglose de edades. Antes5dc:
+  persona0 frente75000, tramo9000 frente12000, ratio500 frente3000; ahora
+  importes correctos en SDK y respuesta. Desconocido junto a valido ya NO
+  guarda parcialmente; repetido por mismo servicio no se cobra dos veces.
+  Seleccion ambigua y catalogo incompleto piden aclarar antes de guardar.
+  Ceros legacy con respaldo y cero real valido tienen casos unitarios separados.
+- Chat: A incierto ya no pierde UUID cuando B se confirma; tras recarga y
+  retry queda1A; otra cotizacion deliberada identica queda2A. No deduplicar
+  cotizaciones por telefono/nombre/fecha. Manual/configurador mantienen sus
+  namespaces existentes; esta mejora intercalada esta probada SOLO para chat.
+- Posicion152: Guardar libre3/3puntos PC y3/3celular, teclado disponible;
+  arrastre/minimizado PC preservados. La tarjeta evita controles visibles;
+  esto NO promete que jamas tape texto, ni redisenar toda la estetica.
+- Dependencias: parches compatibles en19familias;56avisos GHSA unicos
+  retirados(86->30).107entradas agregadas residuales,1critical/19high/87moderate;
+  no afirmar seguridad total. Tar6 del FirebaseCLI14.27 queda; no se fuerza
+  tar7 en ese consumidor. Pendiente estructural documentado en orden163.
+- Build fuente34 exit0, con tipos/lint; acentos2872 PASS. Jest COMPUESTO:
+  739suites de amplia +1focal por ResizeObserver ausente en jsdom =740suites,
+  4660tests acreditados. No una sola corrida740verde. Amplia fallida, focal
+  e incidencias propias conservadas; no se bajaron aserciones ni se oculto error.
+-52nativos de MISMA fuente PC/Pixel7:16regresiones ACK/CRM/documento;
+  34IA precios/edades/ambiguos/intercalado/seis agentes y voz denegada/sin clave;
+  2posicion/3D. Evidencia compuesta:16desktop IA y1desktop posicion reutilizados
+  tras arreglar expectativas/capturas de sonda; restantes ejecutados. Proveedor
+  DOBLE LOCAL, no Gemini real; roles prueban cambio/respuesta sin acciones.
+  Descuentos/regalos: motor financiero unitario, no semantica del modelo real.
+-3D: pixeles reales738colores PC/1121celular; Recorrer cambia frame y se pausa.
+  Render software SwiftShader, NO hardware ni salon real.9smokes dependencias PASS.
+-Grafo local14850nodos44190relaciones935comunidades,0LLM;25avisos parciales
+  parser no errores TS. QA SDK0, servicios/agentes cerrados, bytes restaurados.
+-Recuento123:421rutas/14areas;6rutas con escenarios actuales acotados,
+  315referencias en suites ejecutadas,5historicas,24solo referencias,71sin
+  prueba vinculada.95seguimientos de evidencia NO son95bugs ni95nunca auditadas.
+  Regalos/post-evento/QR y trabajo historico conservados; no reencargar por ausencia
+  de referencia reciente. Indice de todos los prefijos de auditoria, no solo103+.
+-Gate PASS_AI_PRICING_CHAT_POSITION_COMPATIBLE_PATCHES_ONLY. NO toda app,
+  Hosting/OAuth/19originales/voz real/modelo real/hardware ni0errores certificados.
+  Ver123-aceptacion,123-cobertura-recuento y123-qa-incidencias para limites exactos.
+
+
 ## 13/10/2026 - Codex122 CORREGIDA Y COMPROBADA: tarjeta abre el chat real
 
 -Fuente5dc197e5. La tarjeta busca el lanzador real Abrir Asistente IA AK tanto
