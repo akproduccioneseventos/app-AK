@@ -1,0 +1,15 @@
+{
+  "sha": "34f45fbb1a75b7ddc92edadc7831d55f098a9cdb",
+  "applicationSourceSha": "34f45fbb1a75b7ddc92edadc7831d55f098a9cdb",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/123-ia-final-probe.mjs",
+    "--remaining-after-voice-redirect"
+  ],
+  "launcher": 54900,
+  "child": 63964,
+  "started": "2026-10-14T01:07:55.480Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T01:08:38.423Z"
+}

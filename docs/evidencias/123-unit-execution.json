@@ -1,0 +1,24 @@
+{
+  "sha": "34f45fbb1a75b7ddc92edadc7831d55f098a9cdb",
+  "applicationSourceSha": "34f45fbb1a75b7ddc92edadc7831d55f098a9cdb",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/123-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/indicador-abre-asistente-real.test.tsx"
+  ],
+  "launcher": 60536,
+  "child": 64988,
+  "started": "2026-10-14T00:37:14.138Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T00:37:21.910Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

@@ -1,41 +1,31 @@
-# Estado actual - 13/10/2026 (Claude, noche)
-
-Rama `claude/app-debug-stabilize-m70e6z`. main = 655de9fe6 (PR 1291 publicada).
-Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con la puerta en verde.
-
-## Qué trae esta tanda
-- Mantenimiento (159) y ajuste de costos (160): versión de Codex, con recibo por operación.
-  El redondeo quedó en centavos (Codex lo había vuelto a pesos enteros: error del insumo de $6).
-- Incidentes (157) y títulos largos (158): versión de Codex.
-- Documentos de plata (155): quedó la nuestra; es equivalente a la de Codex y usa sus pruebas.
-- Pruebas viejas del mantenimiento que miraban la forma del código: se sacaron; el
-  comportamiento lo miran la prueba de navegador y la de Codex.
-
-## Codex trabaja directo (autorización del dueño, 13/10)
-- Codex corrige con agentes y sube a la PR 1288; Claude junta, revisa plata y publica.
-- Su lote 115 (pantallas de control, conexiones, respaldo de ajustes, plantillas, Google)
-  estaba en su máquina sin subir: cuando aparezca en la PR 1288, se junta igual.
-
-## Hecho el 13/10 por pedido del dueño ("mirá cómo lo hacen otras apps")
-- Votos: uno por teléfono (como Slido/Mentimeter) y tope de red alto; el wifi del salón no frena.
-- Trivia en vivo como Kahoot: el celular muestra la pregunta lanzada, el servidor suma puntos,
-  "Mostrar respuesta" y "Terminar trivia y mostrar podio" en el panel del operador.
-- Misiones de fotos: la foto sube a la galería y suma una vez; ranking "Cazadores de fotos".
-- Una trivia lanzada antes de este cambio no tiene respuesta correcta: hay que relanzarla.
-
-## PR 1293 de Codex (junta el 13/10)
-- Chat: no duplica el presupuesto al reintentar; la tarjeta del asistente abre el chat.
-- Respaldo de ajustes de costos, flujo de caja por día de Uruguay, logo original en PDFs,
-  configurador con identidad por intento. Revisado lo de plata: centavos intactos.
-- Codex ahora sube en PRs propias (1288, 1293): suscribirse a cada una nueva.
-
-## Método corregido solo (13/10, pedido del dueño)
-- Preguntas 58 (respuesta perdida duplica), 59 (formulario que reabre sucio), 60 (nombre largo en
-  celular) y 61 (prueba salteada en celular). Barridas en toda la app y arregladas.
-- Control `cada-hallazgo-de-codex-tiene-su-pregunta`: toda orden de Codex necesita su línea
-  "- Orden N → pregunta M" en LO-QUE-NO-VI.md o la puerta no publica.
-- Pago a proveedor (gestión de costos): agrega uno solo con identidad del intento (14/10).
-
-## Límites aceptados
-- El candado de crear fiesta desde presupuesto cuida un solo servidor.
-- Regalos: uno agregado a la vez desde otra pantalla puede perderse.
+# Estado actual - 14/10/2026 (Codex123, integracion nueva en curso)
+Rama codex/123-ia-controles-main-20261014 desde main f04db066.
+PR1293 FUSIONADA por Claude en09a411; NO subir otra vez a su rama cerrada.
+CLAUDE FUSIONA siempre; Codex prepara cambios, pruebas y registro.
+NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD se desconoce.
+## Preservar lo cerrado
+-1288 y1293 integradas; 115QA archivada no valida main actual.
+-155Claude,157/158/159/160 integradas; centavos/permisos/fechas Uy intactos.
+-116backup/IDs/restore/caja/proveedores/plantillas/logo cerrados.
+-118configurador161,119manual ACK,120verdad,121UUID/ACK,122lanzador cerrados.
+-Claude: votos/trivia/misiones, preguntas58-61 y reintentos de plata/resto,
+ nombres largos/formularios limpios y pago a proveedor de14/10 preservados.
+## Delta123 y validacion del conjunto
+-IA persona/tramos/ratio con motor financiero, edades y ceros correctos;
+ desconocidos/ambiguos no guardan parcial; servicio repetido no cobra doble.
+-Chat conserva intentoA incierto mientras confirmaB; cotizaciones nuevas permitidas.
+-Guardar libre PC/celular, teclado y drag/minimizado; no promete evitar todo texto.
+-19familias parcheadas;56GHSA retirados86->30; residual107entradas/1criticalCLI.
+-Fuente anterior34: build/tipos/lint PASS,740suites4660tests COMPUESTOS,
+ 52nativos PC/Pixel7 y9smokes PASS. HISTORICA: no certifica main f04 combinado.
+-Nueva validacion124 sobre fuente congelada despues de integrar f04; pendiente.
+-Recuento123:421rutas;6escenarios acotados,315referenciasJest,5historicas,
+ 24solo referencias,71sin prueba vinculada.95seguimientos NO95bugs.
+-Orden163 revision estructural de residuales, mapeada a pregunta62 del metodo.
+## Limites
+-Candado de fiesta por presupuesto: un servidor; regalos simultaneos desde otra
+ pantalla: limite previo aceptado. No cambiar politica de Caja/saldos sin dueno.
+-No0errores ni toda app lista. Hosting/OAuth/19originales/modelo/voz/hardware
+ reales fuera de evidencia. Seis roles anteriores: respuesta SIN acciones.
+-SDK/servicios/agentes123 cerrados; bytes ajenos intactos. Secuenciar trabajos8GB.
+-Grafo123 local14850/44190/935 de34: historico, no certificado de f04 combinado.

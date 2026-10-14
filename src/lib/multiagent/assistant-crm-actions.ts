@@ -6,6 +6,7 @@ import type { Presupuesto, ItemPresupuestado, TipoEvento } from '@/types/presupu
 import type { CommercialSource } from '@/lib/commercial/acquisition';
 import { roundMoney } from '@/lib/budget/financial-guardrails';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
+import { calculateSuggestedQuantity, getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 
 export interface AssistantParsedLeadInput {
   name: string;
@@ -26,6 +27,9 @@ export interface AssistantParsedBudgetInput {
   partyType: string;
   eventDate?: string;
   guestCount?: number;
+  adultCount?: number;
+  adolescentCount?: number;
+  childCount?: number;
   venueName?: string;
   requestedServices?: string[];
   notes?: string;
@@ -164,61 +168,81 @@ export async function prepareAssistantBudgetProposal(input: AssistantParsedBudge
 }> {
   const serviciosCatalogo = await getServiciosEmpresaPublicos();
   const requested = input.requestedServices || [];
-  const guestCount = input.guestCount || 100;
+  const guestCount = input.guestCount ?? 100;
 
   const items: ItemPresupuestado[] = [];
   const desglose: Array<{ servicio: string; cantidad: number; precioUnitario: number; subtotal: number; fuente: string }> = [];
   const serviciosNoEncontrados: string[] = [];
 
+  const normalizar = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const incluidos = new Set<string>();
+  const adultos = input.adultCount ?? guestCount;
+  const adolescentes = input.adolescentCount ?? 0;
+  const ninos = input.childCount ?? 0;
+  const hasSplit = input.adultCount != null || input.adolescentCount != null || input.childCount != null;
+  if (![guestCount, adultos, adolescentes, ninos].every(n => Number.isSafeInteger(n) && n >= 0)
+      || guestCount <= 0 || (hasSplit && adultos + adolescentes + ninos !== guestCount)) {
+    throw new Error('Indica cantidades de invitados validas; adultos, adolescentes y ninos deben sumar el total.');
+  }
+
   for (const rawName of requested) {
-    const search = rawName.toLowerCase().trim();
+    const search = normalizar(rawName);
     if (!search) continue;
-
-    const matched = serviciosCatalogo.find((s) => {
-      const nom = s.nombre.toLowerCase();
-      const cat = (s.categoria || '').toLowerCase();
-      return nom.includes(search) || search.includes(nom) || cat.includes(search);
+    const exact = serviciosCatalogo.filter(s => normalizar(s.nombre) === search);
+    const matches = exact.length ? exact : serviciosCatalogo.filter(s => {
+      const nom = normalizar(s.nombre);
+      return nom.includes(search) || search.includes(nom) || normalizar(s.categoria || '').includes(search);
     });
-
-    if (matched) {
-      let unitPrice = 0;
-      let qty = 1;
-
-      if (matched.calculationMethod === 'porPersona' || matched.precioPorPersona) {
-        unitPrice = matched.precioPorPersona || 0;
-        qty = guestCount;
-      } else if (matched.precioVenta) {
-        unitPrice = matched.precioVenta;
-        qty = 1;
-      } else if (matched.precioBase) {
-        unitPrice = matched.precioBase;
-        qty = 1;
-      }
-
-      const subtotal = roundMoney(unitPrice * qty);
-
-      items.push({
-        idServicioCatalogo: matched.id,
-        nombreServicio: matched.nombre,
-        nombre: matched.nombre,
-        descripcionServicio: matched.categoria || 'Servicio de catálogo',
-        cantidad: qty,
-        unidad: matched.unidad || 'Servicio',
-        precioUnitario: unitPrice,
-        precioUnitarioPresupuesto: unitPrice,
-        costoTotalItem: subtotal,
-      });
-
-      desglose.push({
-        servicio: matched.nombre,
-        cantidad: qty,
-        precioUnitario: unitPrice,
-        subtotal,
-        fuente: 'Catálogo oficial de servicios AK',
-      });
-    } else {
-      serviciosNoEncontrados.push(rawName);
+    if (matches.length !== 1) {
+      serviciosNoEncontrados.push(matches.length ? `${rawName} (hay varias opciones; indica el nombre exacto)` : rawName);
+      continue;
     }
+    const matched = matches[0];
+    if (incluidos.has(matched.id)) continue;
+    incluidos.add(matched.id);
+    const method = matched.calculationMethod || (matched.precioPorPersona ? 'porPersona' : 'fijo');
+    if (method === 'fijo' && matched.cantidad != null && (!Number.isSafeInteger(matched.cantidad) || matched.cantidad <= 0)) {
+      throw new Error(`Configura una cantidad valida de ${matched.nombre} antes de presupuestarlo.`);
+    }
+    if ((method === 'porPersona' || method === 'ratio' || method === 'tramos') && input.guestCount == null) {
+      throw new Error('Indica la cantidad de invitados antes de calcular ese servicio.');
+    }
+    const prices = method === 'porPersona'
+      ? [matched.precioPorPersona, matched.precioVenta, matched.precioBase]
+      : [matched.precioVenta, matched.precioBase, matched.precioPorPersona];
+    const price = prices.find(value => value != null && value !== 0) ?? prices.find(value => value != null);
+    if (method !== 'tramos' && (price == null || !Number.isFinite(price) || price < 0)) {
+      throw new Error(`El servicio ${matched.nombre} no tiene un precio valido en el catalogo.`);
+    }
+    if (method === 'ratio' && !(Number(matched.invitadosPorUnidad) > 0)) {
+      throw new Error(`Configura los invitados por unidad de ${matched.nombre} antes de presupuestarlo.`);
+    }
+    const tiers = matched.tramosDePrecio?.filter(t => guestCount >= t.desde && guestCount <= t.hasta);
+    if (method === 'tramos' && (tiers?.length !== 1 || !Number.isFinite(tiers[0].precio) || tiers[0].precio < 0)) {
+      throw new Error(`El catalogo no tiene un unico tramo valido de ${matched.nombre} para ${guestCount} invitados.`);
+    }
+    const item: ItemPresupuestado = {
+      idServicioCatalogo: matched.id, nombreServicio: matched.nombre, nombre: matched.nombre,
+      descripcionServicio: matched.categoria || 'Servicio de catalogo',
+      categoriaServicio: matched.categoria, subcategoria: matched.subcategoria,
+      calculationMethod: method, invitadosPorUnidad: matched.invitadosPorUnidad,
+      tramosDePrecio: matched.tramosDePrecio,
+      precioBase: matched.precioBase, precioPorPersona: matched.precioPorPersona,
+      cantidad: matched.cantidad ?? 1, unidad: matched.unidad || 'Servicio',
+      precioUnitario: price ?? 0, precioUnitarioPresupuesto: price ?? 0, costoTotalItem: 0,
+    };
+    if (!hasSplit && getGuestCountForItem(item, guestCount, 0, 0) !== guestCount
+        && (method === 'porPersona' || method === 'ratio')) {
+      throw new Error('Indica cuantos adultos, adolescentes y ninos hay para calcular ese menu.');
+    }
+    item.cantidad = calculateSuggestedQuantity(item, adultos, adolescentes + ninos);
+    item.costoTotalItem = recalcularCostoItem(item, adultos, adolescentes, ninos);
+    if (method === 'tramos') item.precioUnitario = item.precioUnitarioPresupuesto = item.costoTotalItem;
+    items.push(item);
+    desglose.push({
+      servicio: matched.nombre, cantidad: item.cantidad, precioUnitario: item.precioUnitario,
+      subtotal: item.costoTotalItem, fuente: 'Catalogo oficial de servicios AK',
+    });
   }
 
   const subtotal = roundMoney(items.reduce((acc, it) => acc + (it.costoTotalItem || 0), 0));
@@ -237,6 +261,7 @@ export async function prepareAssistantBudgetProposal(input: AssistantParsedBudge
     eventoTipo: validTipoEvento,
     eventoFecha: input.eventDate || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     invitadosCantidad: guestCount,
+    ...(hasSplit ? { invitadosAdultos: adultos, invitadosAdolescentes: adolescentes, invitadosNinos: ninos } : {}),
     salonFiestas: input.venueName || 'Salto, Uruguay',
     itemsPresupuestados: items,
     costoTotalEstimado: total,

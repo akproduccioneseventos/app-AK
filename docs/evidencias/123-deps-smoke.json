@@ -1,0 +1,72 @@
+{
+  "applicationSourceSha": "34f45fbb1a75b7ddc92edadc7831d55f098a9cdb",
+  "results": [
+    {
+      "name": "fflate-prod-pdf-and-three-roundtrip",
+      "status": "PASS",
+      "details": {
+        "copies": 2,
+        "originalDataUsed": false
+      }
+    },
+    {
+      "name": "jspdf-two-pages",
+      "status": "PASS",
+      "details": {
+        "pages": 2,
+        "bytes": 3532
+      }
+    },
+    {
+      "name": "dompurify-dangerous-markup",
+      "status": "PASS",
+      "details": {
+        "scriptRemoved": true
+      }
+    },
+    {
+      "name": "yaml-major-lines",
+      "status": "PASS",
+      "details": {
+        "copies": 3
+      }
+    },
+    {
+      "name": "query-and-shell-input",
+      "status": "PASS",
+      "details": {
+        "roundtrip": true
+      }
+    },
+    {
+      "name": "glob-major-lines",
+      "status": "PASS",
+      "details": {
+        "sameMajorLines": true
+      }
+    },
+    {
+      "name": "grpc-client-closes-without-network-call",
+      "status": "PASS",
+      "details": {
+        "rpcCalls": 0
+      }
+    },
+    {
+      "name": "hono-and-mcp-imports",
+      "status": "PASS",
+      "details": {
+        "inProcessOnly": true
+      }
+    },
+    {
+      "name": "three-stdlib-and-undici-imports",
+      "status": "PASS",
+      "details": {
+        "imports": true,
+        "sceneNotCertifiedByImport": true
+      }
+    }
+  ],
+  "allDependencySecurityCertified": false
+}
