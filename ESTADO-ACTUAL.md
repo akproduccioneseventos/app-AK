@@ -13,8 +13,7 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
 
 ## Codex trabaja directo (autorización del dueño, 13/10)
 - Codex corrige con agentes y sube a la PR 1288; Claude junta, revisa plata y publica.
-- Su lote 115 (pantallas de control, conexiones, respaldo de ajustes, plantillas, Google)
-  estaba en su máquina sin subir: cuando aparezca en la PR 1288, se junta igual.
+- Su lote 115 (rama codex/qa-115) quedó superado: lo pedido ya está publicado; no se junta.
 
 ## Hecho el 13/10 por pedido del dueño ("mirá cómo lo hacen otras apps")
 - Votos: uno por teléfono (como Slido/Mentimeter) y tope de red alto; el wifi del salón no frena.

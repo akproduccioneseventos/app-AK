@@ -13795,3 +13795,11 @@ con la identidad del intento: el mismo pago reintentado queda uno solo.
 prueba: src/__tests__/un-pago-a-proveedor-reintentado-no-se-duplica.test.ts
 usa: agregarPagoProveedorFiestaActual en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
 ```
+
+## Rama `codex/qa-115-fuente-20261013`: no se junta, ya está cubierta (14 de octubre de 2026)
+
+Es la tanda 115 de Codex (paneles de control, Google, conexiones, avisos automáticos, plantillas) y
+arrancó de una versión vieja (d4c05d08). Lo que pedía (órdenes 153, 154 y 156) ya está publicado con
+la versión de Claude, y lo de respaldos, logo y proveedores entró por la PR 1293. Juntarla **sacaba**
+los permisos de plata de las plantillas y la identidad del intento de la pregunta 58. Falso pendiente:
+no se vuelve a juntar.
