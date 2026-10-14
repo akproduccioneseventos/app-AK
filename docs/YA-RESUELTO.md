@@ -3,6 +3,8 @@
 ## 14/10/2026 - Codex125: entradas faltantes, kiosco accesible y CLI sin tar6
 
 ### Actualizacion125 despues de integrar1299/1300 (prima sobre preparacion anterior)
+- Entrega en PR1301 ABIERTA; rama codex/125-kiosco-auditoria-main-20261014,
+  fuente compilada b520f7ce. Claude fusiona; no es despliegue verificado.
 -Fuente FINAL posterior del color:b520f7ce. Antes REAL42: input con valor
   qa125-totem, RGB3/7/17 sobre2/6/23,contraste1.0013; captura lo parecia vacio.
   Se corrige SOLO ese consumidor Input con slate100/placeholder400, no tema

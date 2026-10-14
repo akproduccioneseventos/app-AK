@@ -95,3 +95,10 @@
 -Primera sonda nativa encontro2alertas (la real y announcer deNext); selector
  propio ambiguo archivado125-before-alert-selector-*. Se especifico texto de
  errorreal, SIN cambiar la app. No es fallo de la pantalla.
+-Final125 b520:759suites4765tests,buildtiposlint,6nativos PC/Pixel7 PASS;
+  contraste texto18.414/placeholder7.868 y captura despues legible. SDK0,
+  servicios/agentescerrados, bytesrestaurados. GatePASS_DELTA125_ONLY.
+-Graphify local15117nodos44629edges1008comunidades,0LLM. Se renombraron
+  comunidades porhub; NO se pidieron etiquetasLLM ni graficoHTML>5000nodos.
+-PR1301 abierta paraClaude; baseMain4b6d6620 todavia igual al contrastar.
+  Fuente prueba b520 es distinta deHEADde entrega con documentos; no confundirlas.
