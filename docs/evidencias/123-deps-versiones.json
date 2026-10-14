@@ -1,0 +1,69 @@
+[
+  {
+    "spec": "@modelcontextprotocol/sdk",
+    "metadata": {
+      "version": "1.32.1",
+      "engines": {
+        "node": ">=18"
+      }
+    }
+  },
+  {
+    "spec": "baseline-browser-mapping",
+    "metadata": {
+      "version": "2.11.28",
+      "engines": {
+        "node": ">=6.0.0"
+      }
+    }
+  },
+  {
+    "spec": "browserslist",
+    "metadata": {
+      "version": "4.29.3",
+      "engines": {
+        "node": "^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7"
+      }
+    }
+  },
+  {
+    "spec": "compression",
+    "metadata": {
+      "version": "1.8.2",
+      "engines": {
+        "node": ">= 0.8.0"
+      }
+    }
+  },
+  {
+    "spec": "fast-uri",
+    "metadata": "4.2.2"
+  },
+  {
+    "spec": "ip-address",
+    "metadata": {
+      "version": "10.7.4",
+      "engines": {
+        "node": ">= 12"
+      }
+    }
+  },
+  {
+    "spec": "morgan",
+    "metadata": {
+      "version": "1.12.1",
+      "engines": {
+        "node": ">= 0.8.0"
+      }
+    }
+  },
+  {
+    "spec": "smol-toml",
+    "metadata": {
+      "version": "1.9.1",
+      "engines": {
+        "node": ">= 18"
+      }
+    }
+  }
+]

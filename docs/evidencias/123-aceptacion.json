@@ -1,0 +1,52 @@
+{
+  "status": "PASS_AI_PRICING_CHAT_POSITION_COMPATIBLE_PATCHES_ONLY",
+  "applicationSourceSha": "34f45fbb1a75b7ddc92edadc7831d55f098a9cdb",
+  "provider": "LOCAL_PROTOCOL_DOUBLE_NO_EXTERNAL_CALLS",
+  "suites": 740,
+  "tests": 4660,
+  "failed": 0,
+  "omitted": 0,
+  "nativeCases": 52,
+  "dependencySmokeCases": 9,
+  "jestEvidence": {
+    "wide": "123-amplio-123-jest.json.gz",
+    "wideExecution": "123-amplio-123-jest-execution.json.gz",
+    "widePassedSuites": 739,
+    "wideFailedToolingSuites": 1,
+    "focal": "123-jest.json",
+    "focalExecution": "123-unit-execution.json",
+    "repairedSuite": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\src\\__tests__\\indicador-abre-asistente-real.test.tsx",
+    "originalAssertionsPreserved": true,
+    "note": "Not a single 740/740 green run. 739 wide passes plus one focused browser-API fixture repair, same production source."
+  },
+  "residualDependencyAudit": {
+    "info": 0,
+    "low": 0,
+    "moderate": 87,
+    "high": 19,
+    "critical": 1,
+    "total": 107
+  },
+  "allDependencySecurityCertified": false,
+  "graph": {
+    "nodes": 14850,
+    "links": 44190,
+    "communities": 935,
+    "llmCalls": 0
+  },
+  "sdkRemaining": 0,
+  "ownedServicesStopped": 2,
+  "foreignBytesRestored": true,
+  "mergeOwner": "Claude",
+  "privateClaude": "NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE",
+  "allAppCertified": false,
+  "externalModelCertified": false,
+  "realVoiceCertified": false,
+  "publishedCertified": false,
+  "limits": [
+    "Only named native scenarios, not all421 routes or14 areas",
+    "Discounts/gifts use existing financial-engine unit tests; model instruction semantics not certified",
+    "Real Gemini/voice, OAuth/Hosting,19original budgets and physical equipment not tested",
+    "Residual dependency advisories requiring structural/major review remain recorded, including Firebase CLI tar6"
+  ]
+}

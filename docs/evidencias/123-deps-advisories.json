@@ -1,0 +1,290 @@
+[
+  {
+    "id": "GHSA-c6gr-qvv4-5v3f",
+    "url": "https://github.com/cure53/DOMPurify/security/advisories/GHSA-c6gr-qvv4-5v3f",
+    "severity": "low",
+    "summary": "SMIL attributeName=href guard is skipped when PARSER_MEDIA_TYPE is application/xhtml+xml",
+    "updated_at": "2026-10-12T12:40:17Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "dompurify"
+        },
+        "vulnerable_version_range": "<= 3.4.16",
+        "patched_versions": "3.4.17",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-mrv2-3pqr-j5jr",
+    "url": "https://github.com/cure53/DOMPurify/security/advisories/GHSA-mrv2-3pqr-j5jr",
+    "severity": "low",
+    "summary": "IN_PLACE: hook that removes a parent or sibling leaves the detached subtree's event handlers armed (incomplete fix for GHSA-p98j-92pf-mc4p)",
+    "updated_at": "2026-10-12T12:40:36Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "dompurify"
+        },
+        "vulnerable_version_range": "<= 3.4.16",
+        "patched_versions": "3.4.17",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-cg2g-xh64-v4q7",
+    "url": "https://github.com/cure53/DOMPurify/security/advisories/GHSA-cg2g-xh64-v4q7",
+    "severity": "high",
+    "summary": "SAFE_FOR_TEMPLATES bypass: split template expressions survive in attached shadow root content on DOM output modes",
+    "updated_at": "2026-10-12T12:40:50Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "dompurify"
+        },
+        "vulnerable_version_range": ">= 3.4.4, <= 3.4.16",
+        "patched_versions": "3.4.17",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-6688-9rhm-gjv2",
+    "url": "https://github.com/cure53/DOMPurify/security/advisories/GHSA-6688-9rhm-gjv2",
+    "severity": "low",
+    "summary": "DOMPurify 3.4.x: IN_PLACE returns a force-removed rawtext root whose text carries attacker markup — pure HTML reparse executes",
+    "updated_at": "2026-09-23T15:17:45Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "dompurify"
+        },
+        "vulnerable_version_range": "<= 3.4.15",
+        "patched_versions": "3.4.16",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-f596-whhp-79r4",
+    "url": "https://github.com/advisories/GHSA-f596-whhp-79r4",
+    "severity": "low",
+    "summary": "@grpc/grpc-js: The server transmits some error messages thrown by method handlers to the client in status messages",
+    "updated_at": "2026-09-30T15:35:42Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "@grpc/grpc-js"
+        },
+        "vulnerable_version_range": "< 1.13.6",
+        "first_patched_version": "1.13.6",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "@grpc/grpc-js"
+        },
+        "vulnerable_version_range": ">= 1.14.0, < 1.14.5",
+        "first_patched_version": "1.14.5",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-px8p-9vwx-vf98",
+    "url": "https://github.com/advisories/GHSA-px8p-9vwx-vf98",
+    "severity": "medium",
+    "summary": "fflate unzipSync can enter an infinite loop when parsing malformed ZIP64 archives",
+    "updated_at": "2026-09-03T14:58:15Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "fflate"
+        },
+        "vulnerable_version_range": ">= 0.4.5, < 0.4.9",
+        "first_patched_version": "0.4.9",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "fflate"
+        },
+        "vulnerable_version_range": ">= 0.5.0, < 0.5.4",
+        "first_patched_version": "0.5.4",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "fflate"
+        },
+        "vulnerable_version_range": ">= 0.6.0, < 0.6.11",
+        "first_patched_version": "0.6.11",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "fflate"
+        },
+        "vulnerable_version_range": ">= 0.7.0, < 0.7.5",
+        "first_patched_version": "0.7.5",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "fflate"
+        },
+        "vulnerable_version_range": ">= 0.8.0, < 0.8.3",
+        "first_patched_version": "0.8.3",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-2883-xcg3-v3hh",
+    "url": "https://github.com/advisories/GHSA-2883-xcg3-v3hh",
+    "severity": "high",
+    "summary": "js-yaml: maxTotalMergeKeys does not limit CPU use for empty merge sources",
+    "updated_at": "2026-09-08T21:24:52Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "js-yaml"
+        },
+        "vulnerable_version_range": ">= 4.0.0, < 4.3.2",
+        "first_patched_version": "4.3.2",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "js-yaml"
+        },
+        "vulnerable_version_range": ">= 3.0.0, < 3.15.2",
+        "first_patched_version": "3.15.2",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-q2hr-2g5m-vwhr",
+    "url": "https://github.com/advisories/GHSA-q2hr-2g5m-vwhr",
+    "severity": "medium",
+    "summary": "brace-expansion: Quadratic-time expansion of the `{a},b}` rewrite causes CPU denial of service",
+    "updated_at": "2026-09-29T23:45:39Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "brace-expansion"
+        },
+        "vulnerable_version_range": ">= 4.0.0, < 5.0.12",
+        "first_patched_version": "5.0.12",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "brace-expansion"
+        },
+        "vulnerable_version_range": ">= 3.0.0, < 3.0.9",
+        "first_patched_version": "3.0.9",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "brace-expansion"
+        },
+        "vulnerable_version_range": ">= 2.0.0, < 2.1.7",
+        "first_patched_version": "2.1.7",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "brace-expansion"
+        },
+        "vulnerable_version_range": "< 1.1.21",
+        "first_patched_version": "1.1.21",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-frvp-7c67-39w9",
+    "url": "https://github.com/advisories/GHSA-frvp-7c67-39w9",
+    "severity": "medium",
+    "summary": "Node.js Adapter for Hono: Path traversal in `serve-static` on Windows via encoded backslash (`%5C`)",
+    "updated_at": "2026-08-12T18:26:51Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "@hono/node-server"
+        },
+        "vulnerable_version_range": ">= 2.0.0, < 2.0.5",
+        "first_patched_version": "2.0.5",
+        "vulnerable_functions": []
+      },
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "@hono/node-server"
+        },
+        "vulnerable_version_range": "< 1.19.15",
+        "first_patched_version": "1.19.15",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-4mjr-xmp4-gh2g",
+    "url": "https://github.com/advisories/GHSA-4mjr-xmp4-gh2g",
+    "severity": "medium",
+    "summary": "qs: Denial of Service via Attacker Controlled isBuffer",
+    "updated_at": "2026-09-02T14:45:15Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "qs"
+        },
+        "vulnerable_version_range": ">= 2.2.5, < 6.16.0",
+        "first_patched_version": "6.16.0",
+        "vulnerable_functions": []
+      }
+    ]
+  },
+  {
+    "id": "GHSA-x5fp-wj9c-mxmx",
+    "url": "https://github.com/advisories/GHSA-x5fp-wj9c-mxmx",
+    "severity": "medium",
+    "summary": "qs array-limit bypass via bracket-key comma parsing",
+    "updated_at": "2026-09-02T14:46:58Z",
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "qs"
+        },
+        "vulnerable_version_range": ">= 6.14.2, <= 6.15.3",
+        "first_patched_version": "6.16.0",
+        "vulnerable_functions": []
+      }
+    ]
+  }
+]

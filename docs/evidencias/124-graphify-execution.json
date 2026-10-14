@@ -1,0 +1,15 @@
+{
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "started": "2026-10-14T14:10:04.337Z",
+  "status": "finished",
+  "llmCalls": 0,
+  "pid": 52976,
+  "exitCode": 0,
+  "finished": "2026-10-14T14:13:24.075Z",
+  "graph": {
+    "builtAtCommit": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+    "nodes": 14993,
+    "links": 44500,
+    "communities": 947
+  }
+}

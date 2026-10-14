@@ -13,8 +13,7 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
 
 ## Codex trabaja directo (autorización del dueño, 13/10)
 - Codex corrige con agentes y sube a la PR 1288; Claude junta, revisa plata y publica.
-- Su lote 115 (pantallas de control, conexiones, respaldo de ajustes, plantillas, Google)
-  estaba en su máquina sin subir: cuando aparezca en la PR 1288, se junta igual.
+- Su lote 115 (rama codex/qa-115) quedó superado: lo pedido ya está publicado; no se junta.
 
 ## Hecho el 13/10 por pedido del dueño ("mirá cómo lo hacen otras apps")
 - Votos: uno por teléfono (como Slido/Mentimeter) y tope de red alto; el wifi del salón no frena.
@@ -35,6 +34,12 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
 - Control `cada-hallazgo-de-codex-tiene-su-pregunta`: toda orden de Codex necesita su línea
   "- Orden N → pregunta M" en LO-QUE-NO-VI.md o la puerta no publica.
 - Pago a proveedor (gestión de costos): agrega uno solo con identidad del intento (14/10).
+
+## PR 1297 de Codex (junta el 14/10)
+- Precios del asistente con el mismo motor que el presupuesto manual (por persona, tramos,
+  personal); no guarda presupuestos con servicios dudosos ni repite uno.
+- Cada intento del chat se guarda aparte; el asistente no tapa "Guardar"; 23 parches de
+  dependencias sin cambios mayores. Quedan 30 avisos que piden versiones mayores (orden 163).
 
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.

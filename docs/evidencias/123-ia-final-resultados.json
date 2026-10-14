@@ -1,0 +1,725 @@
+{
+  "applicationSourceSha": "34f45fbb1a75b7ddc92edadc7831d55f098a9cdb",
+  "provider": "LOCAL_PROTOCOL_DOUBLE_NO_EXTERNAL_CALLS",
+  "results": [
+    {
+      "viewport": "desktop",
+      "name": "por-persona-base",
+      "status": "PASS",
+      "details": {
+        "expected": 75000,
+        "actual": 75000,
+        "ids": [
+          "pres_request_5ac0a053e40ed0bd255d856a8ec2b83cb7039595fcfe31b914517ba33194fcdf"
+        ],
+        "response": "Confirmado: presupuesto guardado por $75.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "tramos",
+      "status": "PASS",
+      "details": {
+        "expected": 12000,
+        "actual": 12000,
+        "ids": [
+          "pres_request_b3d76e8dd4274219abb77096d7e6c6fba5f1f43a299cd64f2bdf8a831526313e"
+        ],
+        "response": "Confirmado: presupuesto guardado por $12.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "ratio",
+      "status": "PASS",
+      "details": {
+        "expected": 3000,
+        "actual": 3000,
+        "ids": [
+          "pres_request_4b6f3e0fe3f49f53dae5196eed12c69a88508ab131a41376f9bacf776ce9f56b"
+        ],
+        "response": "Confirmado: presupuesto guardado por $3.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "partial-catalog",
+      "status": "PASS",
+      "details": {
+        "expected": null,
+        "actual": null,
+        "ids": [],
+        "response": "No pude completar ese paso. No guarde un presupuesto incompleto. Aclara estos servicios: NO EXISTE QA123."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "duplicate-service",
+      "status": "PASS",
+      "details": {
+        "expected": 1000,
+        "actual": 1000,
+        "ids": [
+          "pres_request_376f56f74d5365da84a9e50698a078ffd5a855424db1868d31b674625d3fefac"
+        ],
+        "response": "Confirmado: presupuesto guardado por $1.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "menu-infantil",
+      "status": "PASS",
+      "details": {
+        "expected": 25000,
+        "actual": 25000,
+        "ids": [
+          "pres_request_5d96d84a0b1c1cdfc3256d01bdeb3a5b9be3ff5e98f1a7cd9355112673adcd64"
+        ],
+        "response": "Confirmado: presupuesto guardado por $25.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "menu-sin-edades",
+      "status": "PASS",
+      "details": {
+        "expected": null,
+        "actual": null,
+        "ids": [],
+        "response": "No pude completar ese paso. Indica cuantos adultos, adolescentes y ninos hay para calcular ese menu."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "categoria-ambigua",
+      "status": "PASS",
+      "details": {
+        "expected": null,
+        "actual": null,
+        "ids": [],
+        "response": "No pude completar ese paso. No guarde un presupuesto incompleto. Aclara estos servicios: Catering (hay varias opciones; indica el nombre exacto)."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "sin-tramo",
+      "status": "PASS",
+      "details": {
+        "expected": null,
+        "actual": null,
+        "ids": [],
+        "response": "No pude completar ese paso. El catalogo no tiene un unico tramo valido de Servicio QA123 Tramos para 300 invitados."
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "uncertain-A-confirmed-B-reload-retry-A",
+      "status": "PASS",
+      "details": {
+        "uncertainId": "pres_request_8d75d3b7cce5fc8c9f1bc2142c5fd0016567f99ae5a81b3b98c2f1accfb5e93f",
+        "afterRetry": 1,
+        "deliberateNewQuote": 2,
+        "samePhoneAllowed": true
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "role-Eventos",
+      "status": "PASS",
+      "details": {
+        "route": "/empresa/dashboard?fiestaId=qa123-role-party",
+        "visible": true,
+        "response": "QA123 desktop Eventos sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "role-Fiesta",
+      "status": "PASS",
+      "details": {
+        "route": "/empresa/dashboard?fiestaId=qa123-role-party",
+        "visible": true,
+        "response": "QA123 desktop Fiesta sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "role-Agenda",
+      "status": "PASS",
+      "details": {
+        "route": "/empresa/dashboard?fiestaId=qa123-role-party",
+        "visible": true,
+        "response": "QA123 desktop Agenda sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "role-Caja",
+      "status": "PASS",
+      "details": {
+        "route": "/presupuestos",
+        "visible": true,
+        "response": "QA123 desktop Caja sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "role-Ventas",
+      "status": "PASS",
+      "details": {
+        "route": "/presupuestos",
+        "visible": true,
+        "response": "QA123 desktop Ventas sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "role-Marketing",
+      "status": "PASS",
+      "details": {
+        "route": "/presupuestos",
+        "visible": true,
+        "response": "QA123 desktop Marketing sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "desktop",
+      "name": "voice-no-provider-and-no-public-access",
+      "status": "PASS",
+      "details": {
+        "authenticatedNoKey": 503,
+        "guestDenied": 307,
+        "blockedBeforeApi": true,
+        "tokenLeaked": false,
+        "realVoiceTested": false
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "por-persona-base",
+      "status": "PASS",
+      "details": {
+        "expected": 75000,
+        "actual": 75000,
+        "ids": [
+          "pres_request_978b24fe927115179eef312c1c2706e7aa42d30c1234c05549c5c090d97d8345"
+        ],
+        "response": "Confirmado: presupuesto guardado por $75.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "tramos",
+      "status": "PASS",
+      "details": {
+        "expected": 12000,
+        "actual": 12000,
+        "ids": [
+          "pres_request_4cdef8ecdc8b6dfa556787ebce582af5ded85ae29f99b352d36454664549be79"
+        ],
+        "response": "Confirmado: presupuesto guardado por $12.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "ratio",
+      "status": "PASS",
+      "details": {
+        "expected": 3000,
+        "actual": 3000,
+        "ids": [
+          "pres_request_e192483115a45b909cf5f115e7d4ee4e87780c407cd81ec203bd892e82fa6977"
+        ],
+        "response": "Confirmado: presupuesto guardado por $3.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "partial-catalog",
+      "status": "PASS",
+      "details": {
+        "expected": null,
+        "actual": null,
+        "ids": [],
+        "response": "No pude completar ese paso. No guarde un presupuesto incompleto. Aclara estos servicios: NO EXISTE QA123."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "duplicate-service",
+      "status": "PASS",
+      "details": {
+        "expected": 1000,
+        "actual": 1000,
+        "ids": [
+          "pres_request_b48a4ce773fd5e9eb704903cc0b783eae3be5d4aa0dbf9c54fd47ec9daf7e0c4"
+        ],
+        "response": "Confirmado: presupuesto guardado por $1.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "menu-infantil",
+      "status": "PASS",
+      "details": {
+        "expected": 25000,
+        "actual": 25000,
+        "ids": [
+          "pres_request_89a9625fa0492cdb0600a97100911b8c8a37c081e8fa2f724ab69eb9459d1bcd"
+        ],
+        "response": "Confirmado: presupuesto guardado por $25.000 con estado Borrador."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "menu-sin-edades",
+      "status": "PASS",
+      "details": {
+        "expected": null,
+        "actual": null,
+        "ids": [],
+        "response": "No pude completar ese paso. Indica cuantos adultos, adolescentes y ninos hay para calcular ese menu."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "categoria-ambigua",
+      "status": "PASS",
+      "details": {
+        "expected": null,
+        "actual": null,
+        "ids": [],
+        "response": "No pude completar ese paso. No guarde un presupuesto incompleto. Aclara estos servicios: Catering (hay varias opciones; indica el nombre exacto)."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "sin-tramo",
+      "status": "PASS",
+      "details": {
+        "expected": null,
+        "actual": null,
+        "ids": [],
+        "response": "No pude completar ese paso. El catalogo no tiene un unico tramo valido de Servicio QA123 Tramos para 300 invitados."
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "uncertain-A-confirmed-B-reload-retry-A",
+      "status": "PASS",
+      "details": {
+        "uncertainId": "pres_request_948d55c0be300b702688f60c83af23126b40031d8c2e18613fceea3d5b858956",
+        "afterRetry": 1,
+        "deliberateNewQuote": 2,
+        "samePhoneAllowed": true
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "role-Eventos",
+      "status": "PASS",
+      "details": {
+        "route": "/empresa/dashboard?fiestaId=qa123-role-party",
+        "visible": true,
+        "response": "QA123 mobile Eventos sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "role-Fiesta",
+      "status": "PASS",
+      "details": {
+        "route": "/empresa/dashboard?fiestaId=qa123-role-party",
+        "visible": true,
+        "response": "QA123 mobile Fiesta sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "role-Agenda",
+      "status": "PASS",
+      "details": {
+        "route": "/empresa/dashboard?fiestaId=qa123-role-party",
+        "visible": true,
+        "response": "QA123 mobile Agenda sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "role-Caja",
+      "status": "PASS",
+      "details": {
+        "route": "/presupuestos",
+        "visible": true,
+        "response": "QA123 mobile Caja sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "role-Ventas",
+      "status": "PASS",
+      "details": {
+        "route": "/presupuestos",
+        "visible": true,
+        "response": "QA123 mobile Ventas sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "role-Marketing",
+      "status": "PASS",
+      "details": {
+        "route": "/presupuestos",
+        "visible": true,
+        "response": "QA123 mobile Marketing sin acciones",
+        "createdBudgets": 0,
+        "protocolOnly": true
+      }
+    },
+    {
+      "viewport": "mobile",
+      "name": "voice-no-provider-and-no-public-access",
+      "status": "PASS",
+      "details": {
+        "authenticatedNoKey": 503,
+        "guestDenied": 307,
+        "blockedBeforeApi": true,
+        "tokenLeaked": false,
+        "realVoiceTested": false
+      }
+    }
+  ],
+  "cleanup": {
+    "restored": [
+      {
+        "file": "src\\data\\accesos-personal.json",
+        "beforeSha256": "239548c4ef8c6acad987ee084875001b65617431d1dd135d948e05b70ef1cdfa",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\activos-fijos.json",
+        "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\agentes-configuracion.json",
+        "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\agentes-historial.json",
+        "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\catalogo-fotos.json",
+        "beforeSha256": "cf0b83fbdfd107ada31cf99ffd597029f3a4955c89d7c154a7ea86e5adff12ae",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\crm-leads.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "245636427e21d77d3865e9bb13cc09aa40184d5eeea124ca2c5e884d5f81e570"
+      },
+      {
+        "file": "src\\data\\crm-stages.json",
+        "beforeSha256": "2fe6a7bd840ef6afc3a3bc5b9ffb72f7ea555fd92ca7695d59eacc4edf073e69",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\customers.json",
+        "beforeSha256": "b679e0779048652c89d7410f7de65b03aa5b7b2fa23f4a9c90e44aa84385cf06",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\empleados.json",
+        "beforeSha256": "ab851e1009393f4895de459ddcefb0497703d716fc835e55d7c412347f89039f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\feedback.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\fiestas-historicas.json",
+        "beforeSha256": "8e510a4703db2d8f26e49f59528e6404bc64cf97aba3c88593bbd1a72d921bd7",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\gastos-generales.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\historial-fiestas.json",
+        "beforeSha256": "d9163d874acf3f2987f4d52821f2dfb8c7a95473603f039c99e0b2102a306482",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\insumos.json",
+        "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\invitacion-digital-templates.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\itinerary-templates.json",
+        "beforeSha256": "5a5116a94d58fb3bcf26aa51658baca8d65a22d61b9d44c2bec4e98478d01be0",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\marketing-checklist.json",
+        "beforeSha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\menus-catering.json",
+        "beforeSha256": "b2619502addbc82683c56f08e51a5731475713fb04e5c91199b791acdb3db111",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\notifications.json",
+        "beforeSha256": "10e60b3cf4d3013dfafc452a2ebe87ed31baa0f2e1c102a122e4af1809ac75a6",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\personal-recibos.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\playbooks.json",
+        "beforeSha256": "16e999b6c36430f6ad8cb8df6caf966718559280a85e97be564878b15d7bf39e",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\presupuestos.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "486b7b85640e6a4a43c73a67d80d5ee9c6775dbf7142968cb8a0e48123aeaae0"
+      },
+      {
+        "file": "src\\data\\proveedores.json",
+        "beforeSha256": "ef2d64435b1c91005eb553e96067d197b7c79766e8342c2255cf921f2d7bf620",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\roles.json",
+        "beforeSha256": "4e46773f300c7b1b9f2590e5f2745b2bc6a9d783291756598f4e2463702e59e5",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\salon-layout-templates.json",
+        "beforeSha256": "6713d48e3095223ab272956d4ee2fa823d2db82c30afb842bf6e3ee6b8585cbb",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\servicios-empresa.json",
+        "beforeSha256": "f7e2824329d05c70154fbc3a786979903478fe4ecddc57d9e0288e8058a04bd0",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-analytics-history.json",
+        "beforeSha256": "264f87ac196f218582387df601500b7ff6e87f88f33f49bda832889f3d2de0d3",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-chat\\fiesta_1759360164471.json",
+        "beforeSha256": "7781869625965e2d9c9a66523ee67ad7ce67ec92bd1d5c5ce4d26ae3898c6b4f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-chat\\fiesta_1761518911463_a2c0rmc.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-comments.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-gallery\\metadata.json",
+        "beforeSha256": "f2721399f92249ebc9105e0454ac0eed56d08c4c8909f727e5eb76ce37e35fd3",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2019.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2020.json",
+        "beforeSha256": "e4cee1b2df656954f47536c0d197cd40a4b48751fe4286b79fc65b5bebdd9bac",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2021.json",
+        "beforeSha256": "0f92184f53f2afc21b0f33aa4013932f6954ec45f072c8014adc30bc904b2608",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2022.json",
+        "beforeSha256": "9f0872df979ad6690a7c67ec04ccd43ba702173653701b4340a22343cba72b43",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2023.json",
+        "beforeSha256": "beee3d4b7f5790d95cd97fa0b9b67a4105a25bff73d5cebe13e7e6c426015f15",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2024.json",
+        "beforeSha256": "244ca23bbd9f0d43ebd65f663d31aa3345df3d446b3e8d98b8c802a562c54a6a",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2025.json",
+        "beforeSha256": "856bfeb1f700ccbec1ccd7112ea9cd52324170d210a6d13b4e38c7e97b851240",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\2026.json",
+        "beforeSha256": "078591757570ed62a4afcc560128daf74783ed5bd19825a610f919b51448e9e8",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-history-recovered\\undated.json",
+        "beforeSha256": "a780ce7d480b707efe044f17def45383ac9419533da25fa0791d3f3dfc3fdf8e",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\social-posts.json",
+        "beforeSha256": "d9163d874acf3f2987f4d52821f2dfb8c7a95473603f039c99e0b2102a306482",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\task-templates.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\testimonials.json",
+        "beforeSha256": "e61da7035ba8acbfe23d7e442637c649ca3b4fad3690acef02ebd1375d808f80",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\whatsapp-conversations.json",
+        "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "data\\agentes-configuracion.json",
+        "beforeSha256": "a48921035a5315e071f8dc752c40e5823f05241740ec1ddcfa4766a703617db9",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "data\\agentes-historial.json",
+        "beforeSha256": "2e5e18c24d043042008c7d26027ea35d16847ec991f1ed1e1bad5492f27a291e",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "data\\social-analytics-history.json",
+        "beforeSha256": "264f87ac196f218582387df601500b7ff6e87f88f33f49bda832889f3d2de0d3",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "data\\social-comments.json",
+        "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "qaSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "file": "src\\data\\ai-consumo.json",
+        "beforeSha256": null,
+        "qaSha256": "66499456b44a7f7930c4fffaf75e2f73682b513d7c5c2e15b7c25abc8739a777"
+      },
+      {
+        "file": "src\\data\\asistente\\voz-uso.json",
+        "beforeSha256": null,
+        "qaSha256": "d02baad7d0d9104f3739995cbce4ad919b7036c89c757a0901d38d5b72f25cf0"
+      },
+      {
+        "file": "src\\data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "90d527cd34027f9ebb2059381f5519a9cdadaee40475435f7e9cc38cb6a1219a"
+      },
+      {
+        "file": "src\\data\\multiagent\\chats.json",
+        "beforeSha256": null,
+        "qaSha256": "722c12e8acdae050b043ca2ee8a1aca77e01104edd852b4216595cf48838cea0"
+      },
+      {
+        "file": "src\\data\\multiagent\\memory.json",
+        "beforeSha256": null,
+        "qaSha256": "ce5c07cf4437856683b0bf6883b97d179a9bc722636707bfd734e5b969bf8948"
+      },
+      {
+        "file": "data\\ai-consumo.json",
+        "beforeSha256": null,
+        "qaSha256": "66499456b44a7f7930c4fffaf75e2f73682b513d7c5c2e15b7c25abc8739a777"
+      },
+      {
+        "file": "data\\asistente\\voz-uso.json",
+        "beforeSha256": null,
+        "qaSha256": "d02baad7d0d9104f3739995cbce4ad919b7036c89c757a0901d38d5b72f25cf0"
+      },
+      {
+        "file": "data\\backup-status.json",
+        "beforeSha256": null,
+        "qaSha256": "90d527cd34027f9ebb2059381f5519a9cdadaee40475435f7e9cc38cb6a1219a"
+      },
+      {
+        "file": "data\\crm-leads.json",
+        "beforeSha256": null,
+        "qaSha256": "245636427e21d77d3865e9bb13cc09aa40184d5eeea124ca2c5e884d5f81e570"
+      },
+      {
+        "file": "data\\multiagent\\chats.json",
+        "beforeSha256": null,
+        "qaSha256": "722c12e8acdae050b043ca2ee8a1aca77e01104edd852b4216595cf48838cea0"
+      },
+      {
+        "file": "data\\multiagent\\memory.json",
+        "beforeSha256": null,
+        "qaSha256": "ce5c07cf4437856683b0bf6883b97d179a9bc722636707bfd734e5b969bf8948"
+      },
+      {
+        "file": "data\\presupuestos.json",
+        "beforeSha256": null,
+        "qaSha256": "486b7b85640e6a4a43c73a67d80d5ee9c6775dbf7142968cb8a0e48123aeaae0"
+      }
+    ],
+    "bytesRestored": true
+  },
+  "compositeNative": {
+    "reused": 16,
+    "reusedEvidence": "123-ia-voz-redirect-123-ia-final-resultados.json.gz",
+    "newCases": 18,
+    "note": "Same compiled source; correct middleware-denial expectation, no production or other assertions changed."
+  }
+}

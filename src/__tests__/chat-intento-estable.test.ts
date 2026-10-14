@@ -28,7 +28,7 @@ it('reutiliza el mismo intento pendiente despues de recargar el modulo', async (
 
 it('al confirmar permite un UUID nuevo para la misma cotizacion', async () => {
   const id = await obtenerIntentoChat(carga, 'solicitud-a');
-  terminarIntentoChat('solicitud-a');
+  terminarIntentoChat('solicitud-a', id);
 
   expect(await obtenerIntentoChat(carga, 'solicitud-a')).not.toBe(id);
 });
@@ -65,7 +65,25 @@ it('no guarda datos personales ni la carga en sessionStorage', async () => {
   expect(almacenado).not.toContain('clienteContacto');
   expect(almacenado).not.toContain('850');
   expect(JSON.parse(mockStorage.get('ak-multiagent-solicitud-v1:solicitud-a')!)).toEqual({
-    id: expect.any(String),
-    fingerprint: expect.any(String),
+    attempts: [{ id: expect.any(String), fingerprint: expect.any(String) }],
   });
+});
+
+it('conserva A incierto al enviar y confirmar B en el mismo chat', async () => {
+  const a = await obtenerIntentoChat(carga, 'solicitud-a');
+  const otra = { ...carga, total: 1200 };
+  const b = await obtenerIntentoChat(otra, 'solicitud-a');
+  terminarIntentoChat('solicitud-a', b);
+  jest.resetModules();
+  const recargado = await import('@/lib/budget/intento-configurador');
+  expect(await recargado.obtenerIntentoChat(carga, 'solicitud-a')).toBe(a);
+  expect(await recargado.obtenerIntentoChat(otra, 'solicitud-a')).not.toBe(b);
+});
+
+it('migra un intento incierto de la version anterior sin cambiar su UUID', async () => {
+  const id = await obtenerIntentoChat(carga, 'solicitud-a');
+  const key = 'ak-multiagent-solicitud-v1:solicitud-a';
+  const stored = JSON.parse(mockStorage.get(key)!);
+  mockStorage.set(key, JSON.stringify(stored.attempts[0]));
+  expect(await obtenerIntentoChat(carga, 'solicitud-a')).toBe(id);
 });

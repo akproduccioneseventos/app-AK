@@ -54,6 +54,12 @@ it('servicios desconocidos no crean un presupuesto vacio como trabajo terminado'
   const result=await ejecutarEncargado(input);
   expect(save).not.toHaveBeenCalled();expect(result.success).toBe(false);expect(result.response).toMatch(/catálogo|servicios/i);
 });
+it('un servicio desconocido junto a otro valido no guarda silenciosamente un presupuesto parcial',async()=>{
+  model.mockResolvedValueOnce(decision('armar_presupuesto',{nombreCliente:'QA123',servicios:['DJ QA120','NO EXISTE QA123']}));
+  const result=await ejecutarEncargado(input);
+  expect(result.success).toBe(false);expect(save).not.toHaveBeenCalled();
+  expect(result.response).toContain('NO EXISTE QA123');
+});
 it('presupuesto valido confirma solamente el ID que devolvio el backend',async()=>{
   save.mockResolvedValue({success:true,id:'qa120-budget'});
   expect(await confirmAndSaveAssistantBudget(budget)).toEqual({success:true,presupuestoId:'qa120-budget'});
