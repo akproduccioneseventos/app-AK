@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 14 de octubre de 2026 - Jest no corre las copias de los ayudantes
+
+- **Qué pasaba:** los ayudantes trabajan en copias dentro de `.claude/worktrees/` y Jest las
+  corría también: la puerta dio 53 fallas falsas con cinco veces más pruebas.
+- **Qué se hizo:** `jest.config` ignora `.claude/` al buscar pruebas y módulos.
+
+```comprobar
+usa: <rootDir>/.claude/ en jest.config.js
+```
+
 ## 14 de octubre de 2026 - Órdenes 152 a 154: lo que estaba arreglado ahora tiene su prueba
 
 - **Qué pasaba:** las tres órdenes tenían la prueba "pendiente". El código ya estaba arreglado en la versión principal;
@@ -21,6 +31,13 @@ prueba: src/__tests__/google-workspace-muestra-el-estado-real-de-la-cuenta.test.
 prueba: src/__tests__/redes-sociales-error-de-lectura-con-reintento.test.tsx
 prueba: src/__tests__/sincronizaciones-error-de-lectura-e-historial-instagram.test.tsx
 ```
+
+## 14/10/2026 - Orden 163: dependencias sin force
+
+- firebase-tools 14.27.0 a 15.33.0 (solo desarrollo; Java 21 presente, `test:rules` verde) y override
+  `uuid@<11.1.1` a 11.1.1 (todos los consumidores usan `v4()`). Avisos unicos 30 a 13; el critico
+  de tar desaparece. Siguen genkit/OpenTelemetry, braces, sprintf-js, basic-ftp, re2 y
+  postcss-selector-parser: sin version compatible; detalle en la orden 163. No usar force.
 
 ## 14/10/2026 - Codex124: delta123 integrado sobre main f04 y comprobado
 

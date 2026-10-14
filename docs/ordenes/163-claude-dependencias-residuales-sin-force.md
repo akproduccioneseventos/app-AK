@@ -51,3 +51,42 @@ archivo: package.json
 usa: spawn en docs/evidencias/123-ejecutar.mjs
 prueba: docs/evidencias/123-deps-smoke.mjs y docs/evidencias/123-npm-audit.mjs; pendientes de repetir para la futura tanda estructural
 ```
+
+## Resultado 14/10/2026
+
+Hecho sin `npm audit fix --force`, sin bajar versiones y sin tocar firebase,
+firebase-admin, next ni react. `tsc --noEmit` en cero; pruebas de reglas de la
+base (`npm run test:rules`, 29 de 29) en verde con el emulador nuevo.
+
+Que se aplico:
+- **firebase-tools 14.27.0 a 15.33.0** (solo herramienta de desarrollo). Trae
+  su `tar` ya corregido: desaparece el unico aviso critico. El contenedor tiene
+  Java 21, asi que los emuladores corren (probado con `test:rules`).
+- **uuid**: la app no lo usa directo; lo piden genkit, firebase-admin y otras
+  librerias, todas con `v4()` (nombrado, sin buffer). Se agrego en `overrides`
+  `"uuid@<11.1.1": "11.1.1"`, que sigue teniendo export nombrado y version
+  para `require`. Con eso salen tambien firebase-admin, firestore, storage,
+  gax, gaxios, googleapis y logging de la lista de avisos.
+- Por arrastre salieron `stream-json`, `csv-parse` y `retry-request`.
+
+Que quedo y por que:
+- **Genkit 1.20 / OpenTelemetry**: genkit 1.42 (la ultima estable) sigue
+  pidiendo OpenTelemetry 1.25/0.52, o sea las mismas versiones con aviso. La
+  correccion esta en OpenTelemetry 2.x, otra familia mayor; mezclarla con
+  genkit rompe el contrato. No se toca `src/ai/`. Queda a la espera de un
+  genkit que suba OpenTelemetry.
+- **braces / micromatch / fast-glob / next-pwa / tailwind / eslint-config-next**:
+  no existe version corregida de `braces` (la ultima, 3.0.3, es la afectada).
+  Son herramientas de compilacion, no corren en el servidor.
+- **sprintf-js / jest / ts-jest**: tampoco hay version corregida de `sprintf-js`;
+  solo pruebas.
+- **basic-ftp (firebase-tools)**: la correccion es un salto mayor (5 a 6) dentro
+  de proxy-agent, sin compatibilidad demostrada; solo herramienta de desarrollo.
+- **re2** (opcional de superstatic, nativo): la 1.27 exige Node 22.22.2 o mas
+  y npm la descarta como opcional; forzarla sacaba el modulo. Se deja 1.24.
+- **postcss-selector-parser**: la correccion es 7.x, mayor, dentro de tailwind 3.
+
+Avisos de `npm audit` (entradas): antes 1 critico / 20 altos / 87 moderados
+(108); despues 0 / 20 / 71 (91). Unicos (GHSA): 30 a 13. Siguen quedando altos
+de produccion (OpenTelemetry via genkit), por eso la linea `prueba:` del bloque
+comprobar no se cambia.
