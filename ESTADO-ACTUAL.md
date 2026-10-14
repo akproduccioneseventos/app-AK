@@ -47,7 +47,7 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
 - Orden 163: firebase-tools 15.33 y uuid 11.1.1; avisos únicos 30 a 13, sin críticos. Lo que
   queda pide versiones mayores (genkit/OpenTelemetry 2, next-pwa, tailwind 4, jest).
 - Jest ignora `.claude/` (copias de los ayudantes); antes daba 53 fallas falsas.
-- Pendiente real: sólo la 92 (ensayo en el salón, al final) y lo mayor de la 163.
+- Orden 163 cerrada: basic-ftp 6.2.3; los 12 avisos que quedan no llegan a la app publicada (prueba los-avisos-de-dependencias-no-llegan-a-la-app).
 
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
