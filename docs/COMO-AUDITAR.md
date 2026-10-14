@@ -1109,3 +1109,8 @@ aria-pressed y avisos de error anunciados; probar cambio de rol y guardado
 bloqueado con datos ficticios, tambien en celular. Un archivo con texto cerca
 del input no demuestra esa asociacion. Separar la prueba de configuracion de
 una prueba de camara, impresora o plataforma fisica.
+
+Tampoco alcanza con que inputValue sea correcto: mirar la captura con texto
+escrito y medir color/fondo reales. Un Input text-foreground en tema claro
+sobre un fondo oscuro daba contraste1.0013 y parecia vacio. Probar lectura y
+placeholder en PC/celular (texto normal, umbral4.5), no solo clases de jsdom.

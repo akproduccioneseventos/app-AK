@@ -2,6 +2,40 @@
 
 ## 14/10/2026 - Codex125: entradas faltantes, kiosco accesible y CLI sin tar6
 
+### Actualizacion125 despues de integrar1299/1300 (prima sobre preparacion anterior)
+-Fuente FINAL posterior del color:b520f7ce. Antes REAL42: input con valor
+  qa125-totem, RGB3/7/17 sobre2/6/23,contraste1.0013; captura lo parecia vacio.
+  Se corrige SOLO ese consumidor Input con slate100/placeholder400, no tema
+  ni libraryInput global.9focalesPASS y759suites4765tests amplia b520PASS;
+  build tipos/lint exit0;6nativos PC/Pixel7 PASS. Texto18.414/placeholder7.868,
+  captura despues visible. SDK0/servicios/agentescerrados ybytesrestaurados.
+  Gate125 PASS_DELTA125_ONLY, no todaapp. Grafo15117/44629/1008,0LLM local.
+  42amplia/build/6nativos
+  PASARON controles acotados, pero no detectaban legibilidad: son historicos.
+- Main4b6d6620 integrado, fuente final42a25a31 congelada. CLI15/UUID11/FTP6
+  YA estan en main de Claude; no entregarlos ni encomendarlos otra vez.
+- RE21.27 candidato nativo corriaNode24, pero requiere22.22.2/24.15+;
+  workflowNode20. Rechazado antes de entregar;1.24restaurado/siguevulnerable.
+- Delta REAL frente a main1300: kiosco accesible y PWA, selector6.1.4/lock.
+- InstalacionPWA: antes real4fallos/2PASS (sin catch/doble click/fallo tardio/
+  respuesta vieja consume nuevo). Fix guardia sincrona/estado/catch/refs,
+  solo appinstalled confirma instalada;7focales PASS. Sin cambios de negocio.
+- Npm42:11GHSA/87entradas15high72moderate0critical. Un GHSA menos que main1300,
+  no0seguridad. Smokes4PASS fuente42, RE21.24es comportamiento no parche.
+- Amplia586751/4728 historica; build586 fallo displayName del mock,
+  focal2/ESLintcorregidos; buildd200 interrumpido por main1299. Amplia42
+  historica; conjunto b520 comprobado arriba. No copiar certificados.
+- PWAante6fallos por matchMedia inexistente era QA, archivado; no app.
+  Antes real separado. No se certifica instalacion real en OS ni hardware.
+
+```comprobar
+archivo: src/components/pwa-install-button.tsx
+usa: PwaInstallButton en src/app/(app)/settings/instalar-app/page.tsx
+prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx;7focales y amplia b520 ejecutadas PASS
+```
+
+### Preparacion anterior125 (historica; leer actualizacion arriba)
+
 - Base main d8800936: Claude integro1297 mediante1298. Nueva rama
   codex/125-kiosco-auditoria-main-20261014; Claude fusiona, Codex no.
 - NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD se desconoce.

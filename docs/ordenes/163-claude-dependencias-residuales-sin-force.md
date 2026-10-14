@@ -3,7 +3,24 @@
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD no se conoce.
 No empezar si una entrega activa ya cubre este tema. Escribir esta orden no inicia otra IA.
 
-## Base comprobada
+## Estado vigente125 - 14/10/2026 (prima sobre historial)
+
+- Main4b6d6620/1300: CLI15.33, UUID11 y FTP6 YA integrados por Claude.
+  No volver a encomendarlos. Delta125 finalb520f7ce agrega selector6.1.4:
+  conserva contrato6.x, quita un aviso; otro exige7.x y sigue pendiente.
+- RE21.27 probado Node24 pero RECHAZADO por engines incompatibles con Node20;
+  se conserva1.24. No declarar ese candidato parcheado ni forzarlo otra vez.
+- Npm42 (blobs package/lock iguales a b520):11GHSA/87entradas,
+  0critical/15high/72moderate. Artefactos125-npm-audit*, no seguridad completa.
+- Guardias de Claude evitan imports directos/SDKnode real, pero no certifican
+  por si solas todas las cadenas transitivas. No confundir guardia con prueba
+  de explotabilidad ni convertir cada entrada agregada en fallo funcional.
+- Java21 portable solo para QA local (global17 intacto), CI ya21. Cuatro
+  smokes y29reglas emuladas ejecutados; No despliegue/OAuth/Node20 real certificado.
+- Historial debajo conserva decisiones/resultados anteriores, no es nueva
+  lista de tareas. No ejecutar otra tanda estructural sin cambio verificable.
+
+## Base historica (no reencomendar a partir de ella)
 
 - Main remoto d8800936, integrado por Claude mediante PR1298; PR1297 ya cerrada.
 - Dependencias125 probadas en543b7f83; conjunto final congelado en58691f22
@@ -15,7 +32,7 @@ No empezar si una entrega activa ya cubre este tema. Escribir esta orden no inic
   agregados; ver cada version, rango, ruta y URL primaria en
   docs/evidencias/123-dependencias-residual.json.
 
-## Trabajo restante, sin instalar a ciegas
+## Trabajo planteado originalmente (historico)
 
 1. HISTORICO antes de125: firebase-tools14.27.0 conservaba tar6.2.1 interno vulnerable. El tar7 de
    node-gyp ya quedo7.5.21. No forzar tar7 en el consumidor tar6 ni degradar

@@ -1,20 +1,31 @@
-# Estado actual - 14/10/2026 (Codex125, fuente congelada58691f22)
+# Estado actual - 14/10/2026 (Codex125, fuente congeladab520f7ce)
 
 CLAUDE FUSIONA siempre. Codex prepara, prueba y registra; no fusiona.
-Base main remoto d8800936: Claude integro1297 mediante1298.1297 ya cerrada.
+Base main remoto4b6d6620: Claude integro1297 via1298 y tandas1299/1300.
 Rama NUEVA codex/125-kiosco-auditoria-main-20261014, solo delta125 desde main.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD se desconoce.
-Fuente12558691f22c6e4a71da26fb8d99ff83cb43353c253; PR nueva aun PENDIENTE.
+Fuente125b520f7cee28546634e1c87391efd7a80e1a40f48; PR nueva aun PENDIENTE.
 - Kiosco compartido11entradas: labels/IDs, grupo/aria-pressed, h1/alerta;
   se conserva espacio original y SIN PIN, roles, handlers y permisos.
-- CLI15.33 sin tar6; RE2nativo1.27 y selector6.1.4 probado, no selector7.
+- CLI15.33/UUID11/FTP6 YA mainClaude; propio selector6.1.4, no selector7.
+- RE21.27 RECHAZADO por Node20; consumidor1.24 restaurado, sigue aviso.
+-Texto del totem invisible en42: contraste REAL1.0013; fix slate100/400,
+  b520focal9PASS, amplia759suites4765tests PASS;build tipos/lint exit0.
+-6nativos PC/Pixel7 PASS sobreb520:11roles cadauno, guardias/nombres/PWA;
+  texto18.414 yplaceholder7.868 decontraste; screenshot despues visible.
+-Gate125 PASS_DELTA125_ONLY, NO todaapp. SDK0/servicios/agentescerrados,
+  bytesrestaurados. Grafo15117nodos44629enlaces1008comunidades,0LLM local.
+- InstalacionPWA:4fallos antes real,7focalesPASS; guardia/catch/resultado real,
+  conserva nuevo intento y appinstalled. NO instalacion OS real certificada.
 - Java21portable aislado verificadoSHA256; globalJava17 intacto, CI ya21.
 - Focales543:4suites17tests; CLI/RE2/tar/selector4smokes;3suites29tests
   Firestore/Storage PASS. Lock igual en586, no repetir por solo espacio CSS.
-- Amplia FINAL586:751suites4728tests PASS,0fallos/omitidos. Build CORRIENDO;
-  navegador nuevo PC/celular y grafo PENDIENTES. No tratar corrida como PASS.
-- Npm54330->9avisos unicos,critical1->0;104entradas19high/85moderate,
-  lock igual586. Orden163actualizada para residuales, no duplicate.
+-Amplia586751/4728 HISTORICA: buildfallo mockdisplayName, corregido;
+  buildd200 interrumpido por avance1299. NO validan el conjunto nuevo42.
+-42amplia759/4765/build PASS y6nativos limitados HISTORICOS antes del color;
+  screenshot descubrio valor invisible pese a assertinputValue; no repetir42.
+- Npm42:11avisos unicos/87entradas15high/72moderate,0critical;
+  queda1aviso menos que main1300 por selector6.1.4. Orden163no duplicada.
 -95seguimientos NO95bugs:32redirects+7wrappers destinos reales,3reexports,
   11kioscos entradas;94GET+1import29originales excluido. NO95modulos aprobados.
 - SDK/servicios125previos cerrados, bytes propios restaurados; al terminar125

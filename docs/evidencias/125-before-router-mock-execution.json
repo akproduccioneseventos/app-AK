@@ -1,0 +1,24 @@
+{
+  "sha": "edeaf3bf25a7ffd5eb55f24277624f9d18cb84d7",
+  "applicationSourceSha": "edeaf3bf25a7ffd5eb55f24277624f9d18cb84d7",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/125-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/kiosk-configuracion-accesible.test.tsx"
+  ],
+  "launcher": 59192,
+  "child": 65660,
+  "started": "2026-10-14T16:00:29.779Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-14T16:00:52.381Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

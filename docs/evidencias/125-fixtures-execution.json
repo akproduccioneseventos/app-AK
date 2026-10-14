@@ -1,0 +1,427 @@
+{
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "pid": 27888,
+  "readyAt": "2026-10-14T19:28:40.896Z",
+  "fixtureId": "qa125-fiesta",
+  "kind": "FICTITIOUS_LOCAL_SESSION_NOT_REAL_LOGIN",
+  "origin": "http://127.0.0.1:3302",
+  "status": "finished",
+  "fixtureFiles": [
+    {
+      "file": "data/agentes-configuracion.json",
+      "beforeSha256": "5161ae6a1ebdaad076ce2b4b57c788b7d35135081df89b890686edb777acaf29",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "data/agentes-historial.json",
+      "beforeSha256": "d20b54e907971123f3a87ff91770998fa231f685764ba698d7e593aada42d261",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "data/automatico/candado-marketing-automatico.json",
+      "beforeSha256": "58abf3b61fb5e1ae177acbf972eb69bed543005a61eda15fe4c468885dd19ffa",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "data/automatico/tareas-lock.json",
+      "beforeSha256": "58abf3b61fb5e1ae177acbf972eb69bed543005a61eda15fe4c468885dd19ffa",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "data/backup-status.json",
+      "beforeSha256": "a6849e9fb6107dbc30513bf5aa87f259af54c2f73b9db0bbbf3b3c175bcfd902",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "data/fiestas/prueba-134-1791994191864.json",
+      "beforeSha256": "12a938307fe3118cdd3937c44fcf6419fd678d60b1c2615de98e3f9238a89812",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "data/notification-preferences.json",
+      "beforeSha256": "faea14978ca2d31280e79fb8fc166c3c90645ca1861726e2b4267329b27785d9",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "data/social-analytics-history.json",
+      "beforeSha256": "057a6a602f39a3396f425df85d79ef0a368f55ef594d68e8ac37d99c2763c097",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "data/social-comments-backfill-state.json",
+      "beforeSha256": "c918d358a04c84900d2230de28ae621b6b54cbd674b857aad68e8313e7e4d6b2",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "data/social-comments.json",
+      "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "data/tareas-al-entrar-estado.json",
+      "beforeSha256": "6239c24a7e8bd2157781c985c257c8371c5540faae772e683fda2ec59b52eb3b",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "data/tareas-automaticas.json",
+      "beforeSha256": "31ca1391d449b67944a895fdc6f562521c3b99933e1aa1dee639bf260f276b83",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/accesos-personal.json",
+      "beforeSha256": "239548c4ef8c6acad987ee084875001b65617431d1dd135d948e05b70ef1cdfa",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/activos-fijos.json",
+      "beforeSha256": "b05e6276568970d6398d5b7baaf4bb68a56ecaefa1b3e8d20115c27769ab143f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/agentes-configuracion.json",
+      "beforeSha256": "5161ae6a1ebdaad076ce2b4b57c788b7d35135081df89b890686edb777acaf29",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/agentes-historial.json",
+      "beforeSha256": "d20b54e907971123f3a87ff91770998fa231f685764ba698d7e593aada42d261",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/ai-assistant-settings.json",
+      "beforeSha256": "743ed47dbc94f0b7fb50e09b0f69957a84ee8329881133c71c9120e240d3ad40",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/armado-rapido-config.json",
+      "beforeSha256": "4a117a1de8fbc7356980f572a334a1a646383abba3fc1f18f526d557d3018a79",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/automatico/candado-marketing-automatico.json",
+      "beforeSha256": "58abf3b61fb5e1ae177acbf972eb69bed543005a61eda15fe4c468885dd19ffa",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/automatico/tareas-lock.json",
+      "beforeSha256": "58abf3b61fb5e1ae177acbf972eb69bed543005a61eda15fe4c468885dd19ffa",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/backup-status.json",
+      "beforeSha256": "a6849e9fb6107dbc30513bf5aa87f259af54c2f73b9db0bbbf3b3c175bcfd902",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/bebidas-template.json",
+      "beforeSha256": "8efd5968135dd1f8537f500194e9c117d89b596f8d4cba1e8999fa0a8b09059a",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/budget-display-settings.json",
+      "beforeSha256": "c3f631fb7f1054f049408f1f2528cc17aafa855234efee7f731310faabb9354a",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/carga-operativa-master-template.json",
+      "beforeSha256": "392038f88b40bd26361c6f826984210ab563de6c3db21392e9b821318692ace8",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/carga-operativa-templates.json",
+      "beforeSha256": "c3d853597b67776b2c62c84781a35f8362fbdb761cc597aef2a1b4ec2a5d7d6e",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/catalogo-fotos.json",
+      "beforeSha256": "cf0b83fbdfd107ada31cf99ffd597029f3a4955c89d7c154a7ea86e5adff12ae",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/company-info.json",
+      "beforeSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/copilot-config.json",
+      "beforeSha256": "8fd35981d9bffeba57e297e0700c22bcc54ca2125b71dcf674d178de76925711",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/crm-leads.json",
+      "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/crm-stages.json",
+      "beforeSha256": "2fe6a7bd840ef6afc3a3bc5b9ffb72f7ea555fd92ca7695d59eacc4edf073e69",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/customers.json",
+      "beforeSha256": "b679e0779048652c89d7410f7de65b03aa5b7b2fa23f4a9c90e44aa84385cf06",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/empleados.json",
+      "beforeSha256": "ab851e1009393f4895de459ddcefb0497703d716fc835e55d7c412347f89039f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/feature-flags.json",
+      "beforeSha256": "7b172dc713965eee679db42cba5d8353ceb27f33b41f59870c0c7857d4d5c21a",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/feedback.json",
+      "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/fiestas/prueba-134-1791994191864.json",
+      "beforeSha256": "12a938307fe3118cdd3937c44fcf6419fd678d60b1c2615de98e3f9238a89812",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/fiestas-historicas.json",
+      "beforeSha256": "8e510a4703db2d8f26e49f59528e6404bc64cf97aba3c88593bbd1a72d921bd7",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/galeria-publica.json",
+      "beforeSha256": "0ddd1d55cc284d483a1b28276e9922f97551508043d5910f6fdfee0846920abc",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/gastos-generales.json",
+      "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/historial-fiestas.json",
+      "beforeSha256": "d9163d874acf3f2987f4d52821f2dfb8c7a95473603f039c99e0b2102a306482",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/insumos.json",
+      "beforeSha256": "7341d9aca24d0a9a48cf17e1df9bd0ea95d0b1711be6176d3d8d96c99614f902",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/invitacion-digital-templates.json",
+      "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/invoice-template-settings.json",
+      "beforeSha256": "cdca64b4dbe1d195bb8cf603d2b4055202b6d8e35f58213a025e14445e0f715b",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/itinerary-templates.json",
+      "beforeSha256": "5a5116a94d58fb3bcf26aa51658baca8d65a22d61b9d44c2bec4e98478d01be0",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/marketing-checklist.json",
+      "beforeSha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/meeting-checklist-template.json",
+      "beforeSha256": "d47eb610ed651001aabc1256390cdb29d0a7489417a1913becd88303f2f63689",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/menus-catering.json",
+      "beforeSha256": "b2619502addbc82683c56f08e51a5731475713fb04e5c91199b791acdb3db111",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/notification-preferences.json",
+      "beforeSha256": "faea14978ca2d31280e79fb8fc166c3c90645ca1861726e2b4267329b27785d9",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/notifications.json",
+      "beforeSha256": "10e60b3cf4d3013dfafc452a2ebe87ed31baa0f2e1c102a122e4af1809ac75a6",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/parte-manana-cache.json",
+      "beforeSha256": "22f23b85baeb3533ae3a9a39ec0f5d7cbf7dee09431be6c8476bb7fb52524b43",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/personal-recibos.json",
+      "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/playbooks.json",
+      "beforeSha256": "16e999b6c36430f6ad8cb8df6caf966718559280a85e97be564878b15d7bf39e",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/presupuestos.json",
+      "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/proveedores.json",
+      "beforeSha256": "ef2d64435b1c91005eb553e96067d197b7c79766e8342c2255cf921f2d7bf620",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/repaso-matutino-cache.json",
+      "beforeSha256": "c290dea844fcc85aea04f0e60192a26187455965f38ddd04d1d549ae2ba21566",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/reposteria-template.json",
+      "beforeSha256": "73404d8446a28d1b7b1eebdf91a12266ed22f40fa71fa0ad6341c3a4d522618b",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/roles.json",
+      "beforeSha256": "4e46773f300c7b1b9f2590e5f2745b2bc6a9d783291756598f4e2463702e59e5",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/salon-layout-templates.json",
+      "beforeSha256": "6713d48e3095223ab272956d4ee2fa823d2db82c30afb842bf6e3ee6b8585cbb",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/servicios-empresa.json",
+      "beforeSha256": "f7e2824329d05c70154fbc3a786979903478fe4ecddc57d9e0288e8058a04bd0",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-analytics-history.json",
+      "beforeSha256": "057a6a602f39a3396f425df85d79ef0a368f55ef594d68e8ac37d99c2763c097",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-chat/fiesta_1759360164471.json",
+      "beforeSha256": "7781869625965e2d9c9a66523ee67ad7ce67ec92bd1d5c5ce4d26ae3898c6b4f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-chat/fiesta_1761518911463_a2c0rmc.json",
+      "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-comments-backfill-state.json",
+      "beforeSha256": "c918d358a04c84900d2230de28ae621b6b54cbd674b857aad68e8313e7e4d6b2",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/social-comments.json",
+      "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-gallery/metadata.json",
+      "beforeSha256": "f2721399f92249ebc9105e0454ac0eed56d08c4c8909f727e5eb76ce37e35fd3",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/2019.json",
+      "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/2020.json",
+      "beforeSha256": "e4cee1b2df656954f47536c0d197cd40a4b48751fe4286b79fc65b5bebdd9bac",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/2021.json",
+      "beforeSha256": "0f92184f53f2afc21b0f33aa4013932f6954ec45f072c8014adc30bc904b2608",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/2022.json",
+      "beforeSha256": "9f0872df979ad6690a7c67ec04ccd43ba702173653701b4340a22343cba72b43",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/2023.json",
+      "beforeSha256": "beee3d4b7f5790d95cd97fa0b9b67a4105a25bff73d5cebe13e7e6c426015f15",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/2024.json",
+      "beforeSha256": "244ca23bbd9f0d43ebd65f663d31aa3345df3d446b3e8d98b8c802a562c54a6a",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/2025.json",
+      "beforeSha256": "856bfeb1f700ccbec1ccd7112ea9cd52324170d210a6d13b4e38c7e97b851240",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/2026.json",
+      "beforeSha256": "078591757570ed62a4afcc560128daf74783ed5bd19825a610f919b51448e9e8",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-history-recovered/audit-recent-2024-2026.json",
+      "beforeSha256": "79361a32e8a002b04b51302478f319903d16b2068039108e373865042cce2659",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/social-history-recovered/coverage.json",
+      "beforeSha256": "0db1f7af031cfd1da722cdfdcfb36be1ce8bd7c368f9eaf5c94d7b5fb7483c8f",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/social-history-recovered/undated.json",
+      "beforeSha256": "a780ce7d480b707efe044f17def45383ac9419533da25fa0791d3f3dfc3fdf8e",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/social-posts.json",
+      "beforeSha256": "d9163d874acf3f2987f4d52821f2dfb8c7a95473603f039c99e0b2102a306482",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/tareas-al-entrar-estado.json",
+      "beforeSha256": "6239c24a7e8bd2157781c985c257c8371c5540faae772e683fda2ec59b52eb3b",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/tareas-automaticas.json",
+      "beforeSha256": "31ca1391d449b67944a895fdc6f562521c3b99933e1aa1dee639bf260f276b83",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/task-templates.json",
+      "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/testimonials.json",
+      "beforeSha256": "e61da7035ba8acbfe23d7e442637c649ca3b4fad3690acef02ebd1375d808f80",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/whatsapp-config.json",
+      "beforeSha256": "f161eb71176bad22dfa832694474ae049179697a1b1e6886971cbfd99bf3342d",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "file": "src/data/whatsapp-conversations.json",
+      "beforeSha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+      "afterSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "file": "src/data/whatsapp-settings.json",
+      "beforeSha256": "2dc60f4eab16e8237b9736414cf4fb2ec843ccc00ca7760cac67993e59d1d9a8",
+      "afterSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    }
+  ],
+  "finishedAt": "2026-10-14T19:31:23.430Z"
+}

@@ -1,0 +1,8 @@
+{
+  "stoppedAt": "2026-10-14T19:31:22.3669010Z",
+  "file": "125-start-execution.json",
+  "pid": 6136,
+  "parent": 64044,
+  "command": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3301",
+  "intentionalTermination": true
+}

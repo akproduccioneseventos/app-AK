@@ -1,0 +1,13 @@
+{
+  "applicationSourceSha": "42a25a319fe06a9fec40e75e5b23c01addef8ce2",
+  "observed": {
+    "value": "qa125-totem",
+    "color": "rgb(3, 7, 17)",
+    "background": "rgb(2, 6, 23)",
+    "theme": "__variable_582887 __variable_99b4fd __variable_bc0239 __variable_af5f2a"
+  },
+  "contrast": 1.0013007246017014,
+  "minimum": 4.5,
+  "contrastPassed": false,
+  "kind": "ACTUAL_COMPILED_BROWSER_NOT_CSS_MOCK"
+}

@@ -1,0 +1,14 @@
+{
+  "sha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/125-fixtures.mjs"
+  ],
+  "launcher": 65860,
+  "child": 27888,
+  "started": "2026-10-14T19:28:37.142Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T19:31:23.468Z"
+}

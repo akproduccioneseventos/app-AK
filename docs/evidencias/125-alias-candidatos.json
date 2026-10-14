@@ -1,0 +1,1188 @@
+{
+  "sourceApp742": 742,
+  "documentaryHead": "edeaf3bf25a7ffd5eb55f24277624f9d18cb84d7",
+  "entries": [
+    {
+      "route": "/aprobaciones",
+      "file": "src/app/(app)/aprobaciones/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/contabilidad/fiestas-historicas",
+      "file": "src/app/(app)/contabilidad/fiestas-historicas/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/contabilidad",
+      "file": "src/app/(app)/contabilidad/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/empresa/contabilidad/page.tsx",
+      "targetRoute": "/empresa/contabilidad",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/empresa/activos-fijos/editar/:id",
+      "file": "src/app/(app)/empresa/activos-fijos/editar/[id]/page.tsx",
+      "kind": "wrapper",
+      "targetFile": "src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx",
+      "targetRoute": "/empresa/activos-fijos/:id/editar",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "router.replace de compatibilidad."
+    },
+    {
+      "route": "/empresa/activos-fijos",
+      "file": "src/app/(app)/empresa/activos-fijos/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/empresa/crm",
+      "file": "src/app/(app)/empresa/crm/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/contabilidad/crm/page.tsx",
+      "targetRoute": "/contabilidad/crm?view=guest",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Preserva view=guest en query."
+    },
+    {
+      "route": "/empresa/empleados/reporte",
+      "file": "src/app/(app)/empresa/empleados/reporte/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/empleados/reporte/page.tsx",
+      "targetRoute": "/empleados/reporte",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/empresa/insumos/editar/:id",
+      "file": "src/app/(app)/empresa/insumos/editar/[id]/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/empresa/insumos/[id]/editar/page.tsx",
+      "targetRoute": "/empresa/insumos/:id/editar",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Remapea id de segmento."
+    },
+    {
+      "route": "/empresa/marketing",
+      "file": "src/app/(app)/empresa/marketing/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/empresa/menus/nuevo",
+      "file": "src/app/(app)/empresa/menus/nuevo/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/empresa",
+      "file": "src/app/(app)/empresa/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/empresa/personal/:empleadoId/historial",
+      "file": "src/app/(app)/empresa/personal/[empleadoId]/historial/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/empleados/[id]/historial/page.tsx",
+      "targetRoute": "/empleados/:empleadoId/historial",
+      "requiredParams": {
+        "path": [
+          "empleadoId"
+        ],
+        "query": []
+      },
+      "notes": "Remapea empleadoId."
+    },
+    {
+      "route": "/empresa/redes-sociales/ia-marketing",
+      "file": "src/app/(app)/empresa/redes-sociales/ia-marketing/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/empresa/redes-sociales/page.tsx",
+      "targetRoute": "/empresa/redes-sociales",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/empresa/salones/:id/diseno",
+      "file": "src/app/(app)/empresa/salones/[id]/diseno/page.tsx",
+      "kind": "reexport",
+      "targetFile": "src/app/(app)/empresa/salones/[id]/croquis/page.tsx",
+      "targetRoute": "/empresa/salones/:id/croquis",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Reexporta default del componente croquis."
+    },
+    {
+      "route": "/empresa/servicios/:slugs*",
+      "file": "src/app/(app)/empresa/servicios/[...slugs]/page.tsx",
+      "kind": "wrapper",
+      "targetFile": "src/app/(app)/empresa/insumos/page.tsx",
+      "targetRoute": "/empresa/insumos",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "router.replace; catch-all no se transfiere."
+    },
+    {
+      "route": "/empresa/todos-los-servicios/:id/editar",
+      "file": "src/app/(app)/empresa/todos-los-servicios/[id]/editar/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/empresa/servicios/editar/[id]/page.tsx",
+      "targetRoute": "/empresa/servicios/editar/:id",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Con id redirige al editor; fallback sin id a /empresa/servicios."
+    },
+    {
+      "route": "/fiestas/:id/centro-de-mando",
+      "file": "src/app/(app)/fiestas/[id]/centro-de-mando/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/fiestas/[id]/centro/page.tsx",
+      "targetRoute": "/fiestas/:id/centro",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Alias del centro."
+    },
+    {
+      "route": "/fiestas/:id/centro-experiencia",
+      "file": "src/app/(app)/fiestas/[id]/centro-experiencia/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/fiestas/[id]/centro/page.tsx",
+      "targetRoute": "/fiestas/:id/centro",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Alias del centro."
+    },
+    {
+      "route": "/fiestas/:id/comando-total",
+      "file": "src/app/(app)/fiestas/[id]/comando-total/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/fiestas/[id]/centro/page.tsx",
+      "targetRoute": "/fiestas/:id/centro",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Alias del centro."
+    },
+    {
+      "route": "/fiestas/:id/show-control",
+      "file": "src/app/(app)/fiestas/[id]/show-control/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/fiestas/[id]/centro/page.tsx",
+      "targetRoute": "/fiestas/:id/centro",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Alias del centro."
+    },
+    {
+      "route": "/fiestas/nueva/accesos-personal",
+      "file": "src/app/(app)/fiestas/nueva/accesos-personal/page.tsx",
+      "kind": "wrapper",
+      "targetFile": "src/app/(app)/settings/accesos-personal/page.tsx",
+      "targetRoute": "/settings/accesos-personal",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "router.replace."
+    },
+    {
+      "route": "/fiestas/nueva/fiesta-lista",
+      "file": "src/app/(app)/fiestas/nueva/fiesta-lista/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/fiestas/[id]/ak-100/page.tsx",
+      "targetRoute": "/fiestas/:fiestaId/ak-100",
+      "requiredParams": {
+        "path": [],
+        "query": [
+          "fiestaId opcional"
+        ]
+      },
+      "notes": "Usa query opcional fiestaId; si falta redirige a /eventos."
+    },
+    {
+      "route": "/fiestas/nueva/invitados/numeros-mesa",
+      "file": "src/app/(app)/fiestas/nueva/invitados/numeros-mesa/page.tsx",
+      "kind": "wrapper",
+      "targetFile": "src/app/(app)/fiestas/nueva/numeros-mesa/page.tsx",
+      "targetRoute": "/fiestas/nueva/numeros-mesa?fiestaId=:fiestaId",
+      "requiredParams": {
+        "path": [],
+        "query": [
+          "fiestaId (necesario para seguir al destino principal)"
+        ]
+      },
+      "notes": "Requiere query fiestaId para el destino; si falta redirige a /eventos."
+    },
+    {
+      "route": "/fiestas/nueva/tareas",
+      "file": "src/app/(app)/fiestas/nueva/tareas/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/multiagente",
+      "file": "src/app/(app)/multiagente/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/perfil",
+      "file": "src/app/(app)/perfil/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/presupuestos/:id/editar",
+      "file": "src/app/(app)/presupuestos/[id]/editar/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/presupuestos/[id]/edit/page.tsx",
+      "targetRoute": "/presupuestos/:id/edit",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Remapea id."
+    },
+    {
+      "route": "/presupuestos/:id",
+      "file": "src/app/(app)/presupuestos/[id]/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/presupuestos/[id]/ver/page.tsx",
+      "targetRoute": "/presupuestos/:id/ver",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "Remapea id."
+    },
+    {
+      "route": "/proveedores/:id/edit",
+      "file": "src/app/(app)/proveedores/[id]/edit/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/proveedores/new",
+      "file": "src/app/(app)/proveedores/new/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/proveedores",
+      "file": "src/app/(app)/proveedores/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/repaso-diario",
+      "file": "src/app/(app)/repaso-diario/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/mi-dia/page.tsx",
+      "targetRoute": "/mi-dia",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/settings/account",
+      "file": "src/app/(app)/settings/account/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/ajuste-precios",
+      "file": "src/app/(app)/settings/ajuste-precios/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/asistentes-contextuales",
+      "file": "src/app/(app)/settings/asistentes-contextuales/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/biblioteca-visual-ak",
+      "file": "src/app/(app)/settings/biblioteca-visual-ak/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/cierre-operativo-final",
+      "file": "src/app/(app)/settings/cierre-operativo-final/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/instalar-app",
+      "file": "src/app/(app)/settings/instalar-app/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/lanzamiento-cto",
+      "file": "src/app/(app)/settings/lanzamiento-cto/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/mapa-tecnologico-ak",
+      "file": "src/app/(app)/settings/mapa-tecnologico-ak/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/social-connections",
+      "file": "src/app/(app)/settings/social-connections/page.tsx",
+      "kind": "wrapper",
+      "targetFile": "src/app/(app)/settings/sincronizaciones/page.tsx",
+      "targetRoute": "/settings/sincronizaciones",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "router.replace de compatibilidad."
+    },
+    {
+      "route": "/settings/task-templates",
+      "file": "src/app/(app)/settings/task-templates/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/templates/contrato",
+      "file": "src/app/(app)/settings/templates/contrato/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/settings/contratos/page.tsx",
+      "targetRoute": "/settings/contratos",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/settings/templates/invitaciones",
+      "file": "src/app/(app)/settings/templates/invitaciones/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/templates",
+      "file": "src/app/(app)/settings/templates/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/settings/templates/reuniones",
+      "file": "src/app/(app)/settings/templates/reuniones/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/admin/asistente-ak",
+      "file": "src/app/admin/asistente-ak/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/multiagente/page.tsx",
+      "targetRoute": "/multiagente",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/album/:fiestaId",
+      "file": "src/app/album/[fiestaId]/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/evento/album/[fiestaId]/page.tsx",
+      "targetRoute": "/evento/album/:fiestaId",
+      "requiredParams": {
+        "path": [
+          "fiestaId"
+        ],
+        "query": []
+      },
+      "notes": "Remapea fiestaId."
+    },
+    {
+      "route": "/api/health",
+      "file": "src/app/api/health/route.ts",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/api/imports/confirmed-events-29",
+      "file": "src/app/api/imports/confirmed-events-29/route.ts",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/api/manifest-estacion",
+      "file": "src/app/api/manifest-estacion/route.ts",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/api/payments/mercadopago/status",
+      "file": "src/app/api/payments/mercadopago/status/route.ts",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/api/public-page-assets/:parts*",
+      "file": "src/app/api/public-page-assets/[...parts]/route.ts",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/api/social-gallery/:fiestaId/:filename",
+      "file": "src/app/api/social-gallery/[fiestaId]/[filename]/route.ts",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/api/social-media-assets/:filename",
+      "file": "src/app/api/social-media-assets/[filename]/route.ts",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/api/v1/marketing/insights",
+      "file": "src/app/api/v1/marketing/insights/route.ts",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/blog/:slug",
+      "file": "src/app/blog/[slug]/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/public/blog/[slug]/page.tsx",
+      "targetRoute": "/public/blog/:slug",
+      "requiredParams": {
+        "path": [
+          "slug"
+        ],
+        "query": []
+      },
+      "notes": "Remapea slug."
+    },
+    {
+      "route": "/blog",
+      "file": "src/app/blog/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/public/blog/page.tsx",
+      "targetRoute": "/public/blog",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/compras",
+      "file": "src/app/compras/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/configuracion/backup-final",
+      "file": "src/app/configuracion/backup-final/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/settings/backup-final/page.tsx",
+      "targetRoute": "/settings/backup-final",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/control-tower/automatizaciones",
+      "file": "src/app/control-tower/automatizaciones/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/control-tower/comercial",
+      "file": "src/app/control-tower/comercial/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/control-tower",
+      "file": "src/app/control-tower/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/control-tower/preparacion",
+      "file": "src/app/control-tower/preparacion/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/actual",
+      "file": "src/app/evento/actual/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/invitacion/[fiestaId]/page.tsx",
+      "targetRoute": "/invitacion/:fiestaId",
+      "requiredParams": {
+        "path": [],
+        "query": [
+          "fiestaId opcional; si falta no hay query en destino /"
+        ]
+      },
+      "notes": "Query fiestaId opcional; ausente redirige a /. "
+    },
+    {
+      "route": "/evento/barra",
+      "file": "src/app/evento/barra/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/buzon",
+      "file": "src/app/evento/buzon/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/dj",
+      "file": "src/app/evento/dj/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/espejo-magico",
+      "file": "src/app/evento/espejo-magico/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/fotocabina",
+      "file": "src/app/evento/fotocabina/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/impresion",
+      "file": "src/app/evento/impresion/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/inicio",
+      "file": "src/app/evento/inicio/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/muro-en-vivo",
+      "file": "src/app/evento/muro-en-vivo/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento",
+      "file": "src/app/evento/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/(app)/eventos/page.tsx",
+      "targetRoute": "/eventos",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/evento/plataforma-360",
+      "file": "src/app/evento/plataforma-360/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/totem",
+      "file": "src/app/evento/totem/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/touchpix",
+      "file": "src/app/evento/touchpix/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/evento/video-vida",
+      "file": "src/app/evento/video-vida/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/galeria-led",
+      "file": "src/app/galeria-led/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/invitado/:fiestaId/:invitadoId",
+      "file": "src/app/invitado/[fiestaId]/[invitadoId]/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/portal-invitado/[fiestaId]/[guestId]/page.tsx",
+      "targetRoute": "/portal-invitado/:fiestaId/:invitadoId",
+      "requiredParams": {
+        "path": [
+          "fiestaId",
+          "invitadoId"
+        ],
+        "query": [
+          "token opcional (se conserva)"
+        ]
+      },
+      "notes": "Conserva searchParams.token si existe."
+    },
+    {
+      "route": "/landing/bodas",
+      "file": "src/app/landing/bodas/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/bodas/page.tsx",
+      "targetRoute": "/bodas",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/landing/eventos",
+      "file": "src/app/landing/eventos/page.tsx",
+      "kind": "reexport",
+      "targetFile": "src/app/cumpleanos/page.tsx",
+      "targetRoute": "/cumpleanos",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Reexporta default y metadata."
+    },
+    {
+      "route": "/landing",
+      "file": "src/app/landing/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/page.tsx",
+      "targetRoute": "/",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/landing/xv-anos",
+      "file": "src/app/landing/xv-anos/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/quinceaneras/page.tsx",
+      "targetRoute": "/quinceaneras",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/marketing/checklist",
+      "file": "src/app/marketing/checklist/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/marketing/page.tsx",
+      "targetRoute": "/marketing",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/marketing",
+      "file": "src/app/marketing/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/marketing/plantillas",
+      "file": "src/app/marketing/plantillas/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/marketing/page.tsx",
+      "targetRoute": "/marketing",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/pago/mercadopago",
+      "file": "src/app/pago/mercadopago/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/portal-cliente/:id/decoracion",
+      "file": "src/app/portal-cliente/[id]/decoracion/page.tsx",
+      "kind": "wrapper",
+      "targetFile": "src/app/portal/[fiestaId]/decoracion/page.tsx",
+      "targetRoute": "/portal/:id/decoracion",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "router.replace; el segmento destino se denomina fiestaId."
+    },
+    {
+      "route": "/portal-cliente",
+      "file": "src/app/portal-cliente/page.tsx",
+      "kind": "reexport",
+      "targetFile": "src/app/portal/page.tsx",
+      "targetRoute": "/portal",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Reexporta default."
+    },
+    {
+      "route": "/presentacion-led/portafolio",
+      "file": "src/app/presentacion-led/portafolio/page.tsx",
+      "kind": "independent",
+      "targetFile": null,
+      "targetRoute": null,
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Ruta inventariada como página/endpoint propio; no se abre aquí su implementación; no implica PASS."
+    },
+    {
+      "route": "/presentacion",
+      "file": "src/app/presentacion/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/presentacion-led/page.tsx",
+      "targetRoute": "/presentacion-led",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/proveedor/:id",
+      "file": "src/app/proveedor/[id]/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/proveedor/acceso/[token]/page.tsx",
+      "targetRoute": "/proveedor/acceso/:token",
+      "requiredParams": {
+        "path": [
+          "id"
+        ],
+        "query": []
+      },
+      "notes": "El id de origen ocupa el segmento token del destino."
+    },
+    {
+      "route": "/public",
+      "file": "src/app/public/page.tsx",
+      "kind": "redirect",
+      "targetFile": "src/app/page.tsx",
+      "targetRoute": "/",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "Redirect server-side."
+    },
+    {
+      "route": "/signup",
+      "file": "src/app/signup/page.tsx",
+      "kind": "wrapper",
+      "targetFile": "src/app/login/page.tsx",
+      "targetRoute": "/login",
+      "requiredParams": {
+        "path": [],
+        "query": []
+      },
+      "notes": "router.replace."
+    }
+  ],
+  "allRoutesAccepted": false
+}
