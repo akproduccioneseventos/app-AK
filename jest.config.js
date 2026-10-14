@@ -12,10 +12,12 @@ const customJestConfig = {
     '**/src/**/__tests__/**/*.[jt]s?(x)',
     '**/src/**/?(*.)+(spec|test).[jt]s?(x)',
   ],
-  modulePathIgnorePatterns: ['<rootDir>/.next/'],
+  // Las copias de los ayudantes (.claude/worktrees) no son pruebas de esta carpeta.
+  modulePathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/.claude/'],
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
+    '<rootDir>/.claude/',
     '/tests/e2e/',
     '\\\\tests\\\\e2e\\\\',
     '/tests/firebase/',

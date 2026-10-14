@@ -172,7 +172,8 @@ mes**. No se activa. Dejá:
 ```comprobar
 # Bloque 3 — hablar en vivo con el asistente
 archivo: src/lib/asistente/sesion-voz-en-vivo.ts
-usa: iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: iniciarVozEnVivo en src/lib/asistente/control-voz-en-vivo.ts
+usa: crearControlVozEnVivo en src/components/multiagent/multiagent-widget.tsx
 usa: reservarMinutos en src/app/api/asistente/voz-en-vivo/route.ts
 prueba: src/__tests__/la-voz-en-vivo-ruta.test.ts
 prueba: src/__tests__/la-voz-en-vivo-cliente.test.ts

@@ -75,6 +75,6 @@ No basta encontrar el archivo o un import: adjuntar el resultado observable.
 
 ```comprobar
 archivo: src/app/(app)/empresa/configurador-reunion/page.tsx
-usa: handleSaveBudget en src/app/(app)/empresa/configurador-reunion/page.tsx (onClick de los botones de guardar)
-prueba: PENDIENTE tests/e2e/configurador-reunion-guardado-sin-solapamiento.spec.ts
+usa: handleSaveBudget en src/app/(app)/empresa/configurador-reunion/page.tsx
+prueba: src/__tests__/el-asistente-flotante-no-tapa-guardar.test.tsx
 ```

@@ -74,5 +74,6 @@ No declarar toda la app sin errores ni esta orden ejecutada por existir.
 ```comprobar
 archivo: src/app/actions/conexiones-estado.actions.ts
 usa: getEstadoConexiones en src/app/(app)/settings/sincronizaciones/page.tsx
-prueba: PENDIENTE tests/e2e/conexiones-redes-error-y-reintento.spec.ts
+prueba: src/__tests__/redes-sociales-error-de-lectura-con-reintento.test.tsx
+prueba: src/__tests__/sincronizaciones-error-de-lectura-e-historial-instagram.test.tsx
 ```

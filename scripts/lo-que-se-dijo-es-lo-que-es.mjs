@@ -195,7 +195,7 @@ const SOLO_MIRA = /\.(toBeVisible|toBeAttached|toBeTruthy|toBeDefined|toBeInTheD
 
 /** Comprobaciones que miran el RESULTADO: un texto, un número, un valor, una cuenta. */
 const MIRA_EL_RESULTADO =
-  /\.(toHaveText|toContainText|toHaveValue|toHaveCount|toHaveURL|toHaveAttribute|toEqual|toStrictEqual|toMatch|toMatchObject|toBeGreaterThan|toBeLessThan|toBeCloseTo|toHaveLength|toHaveBeenCalled\w*|toHaveScreenshot)\s*\(|\.toBe\s*\(\s*(?!true\s*\)|false\s*\))/;
+  /\.(toHaveText|toContainText|toContain|toHaveValue|toHaveCount|toHaveURL|toHaveAttribute|toEqual|toStrictEqual|toMatch|toMatchObject|toBeGreaterThan(?:OrEqual)?|toBeLessThan(?:OrEqual)?|toBeCloseTo|toHaveLength|toHaveBeenCalled\w*|toHaveScreenshot)\s*\(|\.toBe\s*\(\s*(?!true\s*\)|false\s*\))/;
 
 /**
  * Las pruebas que recorren TODAS las pantallas de corrido no prueban ninguna.
