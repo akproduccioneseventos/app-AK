@@ -1,40 +1,40 @@
-# Estado actual - 13/10/2026 (Codex122 y121/162 comprobadas; PR1293 ABIERTA)
-Rama codex/116-respaldo-logo-main-20261013; main4c. PR1288 integrada791f0a7a.
-No fusionar; dueno fusiona. Privado Claude NO CONTRASTADO.
+# Estado actual - 13/10/2026 (Codex123 en curso; PR1293 abierta)
+Rama codex/116-respaldo-logo-main-20261013; main contrastado096f228f.
+Codex prepara y prueba; CLAUDE FUSIONA siempre, por ultima orden del dueno.
 Propuesta https://github.com/akproduccioneseventos/app-AK/pull/1293.
-Fuente final5dc197e5; head de entrega comprobar en GitHub antes de subir.
-## Delta116; mantener lo ya integrado por Claude
--Libro de costos en backup/mapa, IDs legacy, restore sin recibos posteriores.
--Backup interno despues de ajuste; fallo de lectura/ZIP incompleto no se certifica.
--Proveedor: undefined no es nombre asociado; plantilla custom se borra por ID.
--Logo original del dueno byte exacto; PDF real probado, sin redibujar.
--Node minimo20.9 para Sharp0.35.5 ya actualizado en main.
--Sus pantallas/Google/contador, permisos, fechas Uruguay y centavos se conservan.
--Fuente1656ac2e:729suites4545tests PASS;0fallos/omitidos; build/tipos/lint PASS.
--Acentos2840 PASS;16criterios nativos PC/Pixel7 PASS; calendarios6UTC/6Uy PASS.
--Caja no pierde eventos de hoy; convencion ISO00 y formulas/permisos intactos.
-## Continuidad
--Candidato C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103.
--Codex autorizado a corregir directo; principal conserva dinero/datos/seguridad.
--No tocar datos ajenos, forzar push ni abrir corrida si la anterior sigue activa.
--118:731suites4564tests/build(tipos/lint)/acentos PASS;6flujos PC/Pixel7 PASS.
--PR1293 creada sin fusionar; continuar en ella SOLO si sigue ABIERTA.
--161 cerrada: ACK2->2/recarga/CRMsinrepetir/nueva cotizacion/documento visible.
--155 firmador/exports ya corregidos:51unidades116 PASS; proveedor real no probado.
--119 fuente a638:731suites4566tests/build tipos lint/acentos2852/6nativos PASS.
--Manual ACK+recarga2->2; CRMsinrepetir; otra cotizacion3, mismos datos permitidos.
--119 SDK0/servicios/agente cerrados/bytes restaurados; gate PASS_MANUAL_ACK_ONLY.
--120 fuente3a:732suites4581tests/build tipos lint/acentos2854/6nativos PASS.
--Encargado confirma resultados reales; modelo DOBLE LOCAL, no Gemini certificado.
--121 fuente87:734suites4600tests0fallos/omitidos/build tipos lint/acentos2860 PASS.
--121 16nativosPCPixel7 ACK/recarga/replay/concurrencia/nueva cotizacion/docPASS.
--Restan152/deps/109;19originales/OAuth/Hosting/hardware no certificados.
-## Esperando decisión del dueño
-- Misiones de fotos y trivia: a medias, prometen puntos. ¿Terminarlas o sacar la promesa?
-- Votos: tope de 30 por minuto por red y encuesta; en el wifi del salón puede frenar invitados.
-## Límites aceptados
-- El candado de crear fiesta desde presupuesto cuida un solo servidor.
-- Regalos simultaneos desde otra pantalla pueden perderse; limite previo aceptado.
--152: PC cubre2/3puntosGuardar; teclado/superior disponibles. Movil3/3libres.
--122 fuente5dc:735suites4601tests/build tipos lint/acentos2862/18nativos PASS.
--No declarar0errores ni toda la app lista.
+Tanda privada Claude: NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE.
+## Conservar lo publicado por Claude
+- PR1288 integrada; nunca subir a su rama cerrada. Lote115 antiguo archivado.
+- 155 documentos de plata: implementacion Claude y51unidades aceptadas116.
+- 157 incidentes,158 titulos,159 mantenimiento y160 costos ya integrados.
+- Costos en centavos; recibo por operacion; no volver al redondeo entero.
+- Main096 trae votos por telefono sin frenar wifi del salon, trivia en vivo
+  con respuestas/podio y misiones con foto/galeria/puntos sin repetir.
+- Trivia previa sin respuesta correcta necesita relanzarse, segun Claude.
+## Evidencia Codex vigente por fuente; detalle en YA-RESUELTO y evidencias
+-116/1656: backup/libro costos/IDs/restore/proveedores/plantillas/logo exacto.
+  729suites4545tests/build/tipos/lint/acentos2840/16nativos/12fechas PASS.
+-118/662: configurador ACK+recarga sin duplicar; otra cotizacion legitima.
+-119/a638: manual ACK+recarga sin duplicar; CRM/documento persistentes.
+-120/3a: Encargado confirma resultados reales, no pensamientos ni envios falsos.
+-121/87: UUID por intento chat hasta guardado atomico ligado al actor.
+  734suites4600tests/build/tipos/lint/acentos2860/16nativosPCPixel7 PASS.
+-122/5dc: tarjeta abre lanzador real;735suites4601tests/build/tipos/lint,
+  acentos2862 y18nativos sobre la MISMA fuente PASS. Modelo DOBLE LOCAL.
+## Tanda123, todavia no aceptada
+- Cinco defectos reales IA: persona0/tramo9000/ratio500, servicio omitido,
+  servicio repetido. Fuente5dc; fixturesSDK ficticios; evidencia123-ia-antes.
+- Primera fixture de tramo mal definida archivada; repeticion valida9000vs12000.
+- Pendiente corregir y probar precios/seleccion e intentos intercalados.
+- Pendiente cerrar recuento109, posicion152 y parches compatibles dependencias.
+- No usar build122 para certificar cambios de main096 ni cambios nuevos123.
+- Congelar fuente antes de una validacion amplia; focalizadas durante cambios.
+## Limites y cuidados
+- Principal conserva dinero/datos/seguridad; no datos reales/cargos/mensajes.
+- Mantener pantallas/permisos/fechas Uruguay/centavos y cotizaciones multiples.
+- No tocar archivos ajenos ni forzar push; no dos guardas/servicios simultaneos.
+- Candado fiesta por presupuesto de un servidor y regalos simultaneos de otra
+  pantalla: limites previos aceptados, no generalizar otra garantia.
+- SDK0 y servicios123 detenidos tras baselines; bytes ajenos restaurados.
+- OAuth/Hosting/19originales/modeloIAreal/vozreal/hardware no certificados.
+- No declarar0errores ni toda app lista; propuesta no equivale a publicado.
