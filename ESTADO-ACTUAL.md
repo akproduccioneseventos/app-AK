@@ -1,4 +1,31 @@
-# Estado actual - 13/10/2026 (Claude, noche)
+# Estado actual - 14/10/2026 (Codex125, fuente congelada58691f22)
+
+CLAUDE FUSIONA siempre. Codex prepara, prueba y registra; no fusiona.
+Base main remoto d8800936: Claude integro1297 mediante1298.1297 ya cerrada.
+Rama NUEVA codex/125-kiosco-auditoria-main-20261014, solo delta125 desde main.
+NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD se desconoce.
+Fuente12558691f22c6e4a71da26fb8d99ff83cb43353c253; PR nueva aun PENDIENTE.
+- Kiosco compartido11entradas: labels/IDs, grupo/aria-pressed, h1/alerta;
+  se conserva espacio original y SIN PIN, roles, handlers y permisos.
+- CLI15.33 sin tar6; RE2nativo1.27 y selector6.1.4 probado, no selector7.
+- Java21portable aislado verificadoSHA256; globalJava17 intacto, CI ya21.
+- Focales543:4suites17tests; CLI/RE2/tar/selector4smokes;3suites29tests
+  Firestore/Storage PASS. Lock igual en586, no repetir por solo espacio CSS.
+- Amplia FINAL586:751suites4728tests PASS,0fallos/omitidos. Build CORRIENDO;
+  navegador nuevo PC/celular y grafo PENDIENTES. No tratar corrida como PASS.
+- Npm54330->9avisos unicos,critical1->0;104entradas19high/85moderate,
+  lock igual586. Orden163actualizada para residuales, no duplicate.
+-95seguimientos NO95bugs:32redirects+7wrappers destinos reales,3reexports,
+  11kioscos entradas;94GET+1import29originales excluido. NO95modulos aprobados.
+- SDK/servicios125previos cerrados, bytes propios restaurados; al terminar125
+  cerrar otra vez los nuevos. Originales ajenos NO tocar ni stage.
+-124 fuente742750suites4726tests/52nativos/9smokes/build PASS historicos;
+  no repetir esos recorridos sin cambio.116-123/resueltos Claude preservados.
+- Limites: no todaapp0errores, Hosting/OAuth,19originales, modelo/voz externos,
+  hardware ni acciones de todos los roles.95entradas no son cobertura total.
+- Memoria8GB: trabajos pesados secuenciales. Conservar incidencias de QA.
+
+## Registro previo de Claude (conservado; no es el estado remoto actual)
 
 Rama `claude/app-debug-stabilize-m70e6z`. main = 655de9fe6 (PR 1291 publicada).
 Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con la puerta en verde.

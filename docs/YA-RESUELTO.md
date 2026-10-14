@@ -1,5 +1,40 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 14/10/2026 - Codex125: entradas faltantes, kiosco accesible y CLI sin tar6
+
+- Base main d8800936: Claude integro1297 mediante1298. Nueva rama
+  codex/125-kiosco-auditoria-main-20261014; Claude fusiona, Codex no.
+- NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD se desconoce.
+- Defecto reproducido en navegador sobre742: selector de fiesta e input de
+  totem sin nombre accesible y rol solo identificado por color. Comparte
+  componente en11entradas. Delta125 labels/useId, grupo nombrado/aria-pressed,
+  h1 real y error anunciado. SIN cambiar handlers, permisos, roles ni SIN PIN.
+- Se preservo tambien separacion visual original del grupo. Fuente final125
+  58691f22; validacion amplia y navegador nuevos PENDIENTES al escribir esto.
+- Focales543:4suites17tests PASS. Smokes4PASS: CLI15.33, tar7.5.21,
+  RE2nativo1.27 Node24, selector6.1.4.3suites29tests Firestore/Storage PASS.
+  Java21portable verificadoSHA256, solo QA; global17 no modificado. CI ya21.
+- Npm543:30->9avisos unicos, critical1->0;104entradas agregadas restantes
+  19high/85moderate. Lock no cambio al preservar separacion en586. Pendientes
+  OT/FTP/braces/selector7/sprintf/uuid en orden163 ACTUALIZADA, no duplicada.
+- Inventario95seguimientos contrastado:32redirects+7wrappers destinos reales,
+  3reexports/11roles de kiosco entradas observadas;94GET+1import excluido.
+  Entidades inexistentes NO prueban guardar. No declarar95modulos aprobados.
+-503marketing es guardia esperada sinMARKETING_API_SECRET_KEY. Pie del blog
+  Catering llega al target real; falso positivo descartado. No reencargar.
+- QA125previa SDK0, servicios apagados y bytes originales restaurados. Sondas
+  propias fallidas guardadas en125-qa-incidencias; no ocultarlas ni llamar
+  defecto a mock de router inestable, inicializacion o guardia de Java17.
+- Limites: no modelo/voz externos, OAuth/Hosting,19originales, hardware,
+  acciones completas de otros roles ni todaapp0errores. No mas pruebas reales
+  de cuentas/datos/mensajes/cargos. Evidencia en docs/evidencias/125-*.
+
+```comprobar
+archivo: src/components/kiosk/kiosk-setup.tsx
+usa: KioskSetup en src/app/evento/barra/page.tsx
+prueba: src/__tests__/kiosk-configuracion-accesible.test.tsx; focal ejecutada543, fuente final586 pendiente
+```
+
 ## 14/10/2026 - Codex124: delta123 integrado sobre main f04 y comprobado
 
 - PR1293 ya FUSIONADA por Claude hasta09a411. No subir a su rama cerrada.
