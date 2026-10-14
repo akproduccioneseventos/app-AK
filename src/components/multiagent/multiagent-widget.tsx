@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { getSession } from '@/lib/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -745,6 +745,15 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
 
   /* ── Chat panel alignment ───────────────────────────────── */
   const cardAlign = dockSide === 'left' ? 'left-0' : 'right-0';
+  // El panel nunca se sale por arriba ni por abajo: se achica al espacio que hay sobre el
+  // botón, y si arriba no entra, se abre hacia abajo (orden 135, se cortaba ~10 px arriba).
+  const panelVertical = (() => {
+    if (!position || typeof window === 'undefined') return { bottom: 72 } as CSSProperties;
+    const espacioArriba = position.y - 20;
+    const espacioAbajo = window.innerHeight - (position.y + 72) - 8;
+    if (espacioArriba < 320 && espacioAbajo > espacioArriba) return { top: 72, maxHeight: espacioAbajo };
+    return { bottom: 72, maxHeight: Math.max(0, espacioArriba) };
+  })();
 
   /* ── Render ─────────────────────────────────────────────── */
   if (!isAuthenticated || !position || shouldHideInternalAgent(pathname)) return null;
@@ -760,9 +769,10 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         <Card
           data-testid="panel-asistente"
           className={cn(
-            'absolute bottom-[72px] flex h-[min(78vh,660px)] w-[calc(100vw-2rem)] max-w-[420px] flex-col overflow-hidden rounded-2xl border-0 bg-white shadow-2xl',
+            'absolute flex h-[min(78vh,660px)] w-[calc(100vw-2rem)] max-w-[420px] flex-col overflow-hidden rounded-2xl border-0 bg-white shadow-2xl',
             cardAlign,
           )}
+          style={panelVertical}
         >
           {/* Header */}
           <CardHeader className={cn('border-b border-white/10 bg-gradient-to-br p-4 text-white', style.color)}>
