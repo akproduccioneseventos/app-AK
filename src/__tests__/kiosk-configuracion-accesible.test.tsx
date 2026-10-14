@@ -18,8 +18,12 @@ jest.mock('@/components/kiosk/instalar-esta-estacion', () => ({
 jest.mock('framer-motion', () => {
   const React = require('react');
   const motion = new Proxy({}, {
-    get: (_target, tag: string) => React.forwardRef(({ children, ...props }: React.HTMLAttributes<HTMLElement>, ref: React.Ref<HTMLElement>) =>
-      React.createElement(tag, { ...props, ref }, children)),
+    get: (_target, tag: string) => {
+      const Component = React.forwardRef(({ children, ...props }: React.HTMLAttributes<HTMLElement>, ref: React.Ref<HTMLElement>) =>
+        React.createElement(tag, { ...props, ref }, children));
+      Component.displayName = `MotionMock(${tag})`;
+      return Component;
+    },
   });
   return { motion, AnimatePresence: ({ children }: { children: React.ReactNode }) => children };
 });
