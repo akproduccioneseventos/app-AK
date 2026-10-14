@@ -667,7 +667,7 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         sessionId: sessionIds[currentSessionKey],
       });
 
-      if (result.success) terminarIntentoChat(currentSessionKey);
+      if (result.success) terminarIntentoChat(currentSessionKey, requestId);
 
       if (result.sessionId) {
         setSessionIds(prev => ({ ...prev, [currentSessionKey]: result.sessionId! }));

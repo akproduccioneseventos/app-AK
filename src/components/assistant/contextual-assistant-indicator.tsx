@@ -14,6 +14,7 @@ import {
   type AssistantPersonaOverrideMap,
 } from '@/lib/assistant/contextual-assistants';
 import { useEsVistaDelCliente } from '@/hooks/use-es-vista-del-cliente';
+import { elegirPosicionAsistente, type RectanguloUI, type PosicionAsistente } from '@/lib/assistant/posicion-segura';
 
 function readOverrides(): AssistantPersonaOverrideMap {
   if (typeof window === 'undefined') return {};
@@ -60,11 +61,53 @@ export function ContextualAssistantIndicator() {
   const [overrides, setOverrides] = useState<AssistantPersonaOverrideMap>({});
   const esVistaDelCliente = useEsVistaDelCliente(pathname || '/');
   const [pref, setPref] = useState<PreferenciaTarjeta>(PREFERENCIA_INICIAL);
+  const [posicionVisual, setPosicionVisual] = useState<PosicionAsistente>({
+    bottom: PREFERENCIA_INICIAL.abajo,
+    right: PREFERENCIA_INICIAL.derecha,
+  });
+  const tarjetaRef = useRef<HTMLDivElement>(null);
   const arrastre = useRef<{ x: number; y: number; abajo: number; derecha: number } | null>(null);
 
   useEffect(() => {
     setPref(leerPreferencia());
   }, []);
+
+  useEffect(() => {
+    if (pref.minimizada || !tarjetaRef.current) return;
+    const tarjeta = tarjetaRef.current;
+    let frame = 0;
+    const medir = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const controles = Array.from(document.querySelectorAll<HTMLElement>(
+          'button, a[href], input, select, textarea, [role="button"]',
+        )).filter((el) => !tarjeta.contains(el) && el.getClientRects().length > 0
+          && getComputedStyle(el).visibility !== 'hidden');
+        const obstaculos: RectanguloUI[] = controles.map((el) => {
+          const r = el.getBoundingClientRect();
+          return { top: r.top, right: r.right, bottom: r.bottom, left: r.left };
+        });
+        const r = tarjeta.getBoundingClientRect();
+        setPosicionVisual(elegirPosicionAsistente(
+          { width: window.innerWidth, height: window.innerHeight },
+          { width: r.width, height: r.height },
+          { bottom: pref.abajo, right: pref.derecha },
+          obstaculos,
+        ));
+      });
+    };
+    const observer = new ResizeObserver(medir);
+    observer.observe(document.documentElement);
+    window.addEventListener('scroll', medir, true);
+    window.addEventListener('resize', medir);
+    medir();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('scroll', medir, true);
+      window.removeEventListener('resize', medir);
+    };
+  }, [pathname, pref.abajo, pref.derecha, pref.minimizada]);
 
   const cambiar = (nueva: PreferenciaTarjeta) => {
     setPref(nueva);
@@ -72,7 +115,12 @@ export function ContextualAssistantIndicator() {
   };
 
   const empezarArrastre = (e: React.PointerEvent) => {
-    arrastre.current = { x: e.clientX, y: e.clientY, abajo: pref.abajo, derecha: pref.derecha };
+    arrastre.current = {
+      x: e.clientX,
+      y: e.clientY,
+      abajo: posicionVisual.bottom,
+      derecha: posicionVisual.right,
+    };
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
   };
   const moverArrastre = (e: React.PointerEvent) => {
@@ -128,8 +176,9 @@ export function ContextualAssistantIndicator() {
 
   return (
     <div
+      ref={tarjetaRef}
       className="fixed z-30 hidden max-w-[250px] rounded-2xl border border-slate-200 bg-white/90 p-2 shadow-lg backdrop-blur print:hidden xl:block"
-      style={{ bottom: pref.abajo, right: pref.derecha }}
+      style={{ bottom: posicionVisual.bottom, right: posicionVisual.right }}
     >
       <div className="flex items-center gap-2">
         <span
