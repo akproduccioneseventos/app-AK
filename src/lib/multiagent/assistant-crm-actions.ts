@@ -200,7 +200,7 @@ export async function prepareAssistantBudgetProposal(input: AssistantParsedBudge
     const matched = matches[0];
     if (incluidos.has(matched.id)) continue;
     incluidos.add(matched.id);
-    const method = matched.calculationMethod || (matched.precioPorPersona != null ? 'porPersona' : 'fijo');
+    const method = matched.calculationMethod || (matched.precioPorPersona ? 'porPersona' : 'fijo');
     if (method === 'fijo' && matched.cantidad != null && (!Number.isSafeInteger(matched.cantidad) || matched.cantidad <= 0)) {
       throw new Error(`Configura una cantidad valida de ${matched.nombre} antes de presupuestarlo.`);
     }
@@ -208,8 +208,8 @@ export async function prepareAssistantBudgetProposal(input: AssistantParsedBudge
       throw new Error('Indica la cantidad de invitados antes de calcular ese servicio.');
     }
     const price = method === 'porPersona'
-      ? matched.precioPorPersona ?? matched.precioVenta ?? matched.precioBase
-      : matched.precioVenta ?? matched.precioBase ?? matched.precioPorPersona;
+      ? matched.precioPorPersona || matched.precioVenta || matched.precioBase || matched.precioPorPersona
+      : matched.precioVenta || matched.precioBase || matched.precioPorPersona || matched.precioVenta || matched.precioBase;
     if (method !== 'tramos' && (price == null || !Number.isFinite(price) || price < 0)) {
       throw new Error(`El servicio ${matched.nombre} no tiene un precio valido en el catalogo.`);
     }
