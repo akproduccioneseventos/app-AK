@@ -758,6 +758,7 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
       {/* ── Chat panel ── */}
       {isOpen && (
         <Card
+          data-testid="panel-asistente"
           className={cn(
             'absolute bottom-[72px] flex h-[min(78vh,660px)] w-[calc(100vw-2rem)] max-w-[420px] flex-col overflow-hidden rounded-2xl border-0 bg-white shadow-2xl',
             cardAlign,

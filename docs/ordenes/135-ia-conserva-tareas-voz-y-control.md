@@ -140,5 +140,5 @@ prueba: docs/evidencias/86-ia-no-falso-exito.test.ts
 prueba: docs/evidencias/86-ia-widget.spec.ts
 archivo: src/ai/flows/multiagent-flow.ts
 usa: runMultiAgent en src/app/actions/multiagent.ts
-prueba: docs/evidencias/86-ia-widget.spec.ts (presentacion sin desborde: pendiente)
+prueba: tests/e2e/el-asistente-no-se-sale-de-la-pantalla.spec.ts
 ```

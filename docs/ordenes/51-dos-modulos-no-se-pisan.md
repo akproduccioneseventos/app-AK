@@ -42,6 +42,6 @@ tiempo sobre la misma fiesta, uno cambiando las tareas y el otro el menú, y com
 que se pisen si el arreglo no está.
 
 ```comprobar
-usa: updateFiestaPartial en src/app/actions/fiesta/tareas.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/tareas.actions.ts
 prueba: src/__tests__/dos-modulos-de-la-fiesta-no-se-pisan.test.ts
 ```
