@@ -1,0 +1,125 @@
+{
+  "checkedAt": "2026-10-14T14:18:29.605Z",
+  "number": 1297,
+  "url": "https://github.com/akproduccioneseventos/app-AK/pull/1297",
+  "state": "open",
+  "draft": true,
+  "localHead": "20c45667b1f003f5a409e95d7772126dfa38f156",
+  "remoteHead": "20c45667b1f003f5a409e95d7772126dfa38f156",
+  "branch": "codex/123-ia-controles-main-20261014",
+  "main": "f04db06619719be161a630edc8b9babd1abad763",
+  "mergeOwner": "Claude",
+  "blobs": [
+    {
+      "path": "AGENTS.md",
+      "sha": "a7ae23aa7971ecc7e8fafca8b7152f26e22a9740",
+      "verified": true
+    },
+    {
+      "path": "ESTADO-ACTUAL.md",
+      "sha": "071ef22864fd008dc0371dda7676125aa5bf7897",
+      "verified": true
+    },
+    {
+      "path": "docs/YA-RESUELTO.md",
+      "sha": "6f43ca8251a0e9d649fb476756dc06fcaba9ba34",
+      "verified": true
+    },
+    {
+      "path": "docs/LO-QUE-NO-VI.md",
+      "sha": "47e16b74e867582e6b146c5d2161c4fa3b050519",
+      "verified": true
+    },
+    {
+      "path": "docs/COMO-AUDITAR.md",
+      "sha": "d5d34e13792edc82ec6ea7d7c199efcf654f2fcc",
+      "verified": true
+    },
+    {
+      "path": "docs/ordenes/163-claude-dependencias-residuales-sin-force.md",
+      "sha": "c9d575c82bb953aa8cde76a7f7512ea90ef1d5d3",
+      "verified": true
+    },
+    {
+      "path": "package.json",
+      "sha": "1338598c6b7a3f2008869d19b27c97d0db3fa276",
+      "verified": true
+    },
+    {
+      "path": "package-lock.json",
+      "sha": "ea729b5ffcf751256dd0ef8c760dee3c189dca72",
+      "verified": true
+    },
+    {
+      "path": "src/lib/multiagent/assistant-crm-actions.ts",
+      "sha": "06a63b71a68db699b354264ab179ccc2c78d2495",
+      "verified": true
+    },
+    {
+      "path": "src/lib/multiagent/encargado.ts",
+      "sha": "ed88906a275bcf638693dca066cfaa031b874b83",
+      "verified": true
+    },
+    {
+      "path": "src/lib/budget/intento-configurador.ts",
+      "sha": "e4b2a81f31b4817a83534403fcd4d2701a131c10",
+      "verified": true
+    },
+    {
+      "path": "src/components/multiagent/multiagent-widget.tsx",
+      "sha": "b5433bcbdb134f2602ef4860afa3dd859aea019f",
+      "verified": true
+    },
+    {
+      "path": "src/components/assistant/contextual-assistant-indicator.tsx",
+      "sha": "a37914c4a678d187bf3eea0a2828fc7be8e5e569",
+      "verified": true
+    },
+    {
+      "path": "src/lib/assistant/posicion-segura.ts",
+      "sha": "d8c575e55aec720848abb79a804108be42e2f67f",
+      "verified": true
+    },
+    {
+      "path": "src/__tests__/indicador-abre-asistente-real.test.tsx",
+      "sha": "f2adfdda44bc0394ceaf1f98d5d44bfb860a138c",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/124-aceptacion.json",
+      "sha": "ed506046fab5d732568951af90ef6f5a928f9f4f",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/124-pr-description.md",
+      "sha": "b1dfdde7a4b7dec693336cf4a85bdb4e177066a0",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/124-cobertura-recuento.json.gz",
+      "sha": "de4a3344e398d7fdac7fbbeb66eee3d0ade0e301",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/124-jest.json.gz",
+      "sha": "13ca904747366ade913d26d78ecaf24864f518c3",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/124-chat-aceptacion-resultados.json",
+      "sha": "9a68fc808810bef0846087d54bbf9bee62950488",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/124-ia-final-resultados.json",
+      "sha": "34944b0cc5d9a92e47a774548aab87c032674474",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/124-posicion-resultados.json",
+      "sha": "15f7806158206ba0b421feb0ba242aca87016355",
+      "verified": true
+    }
+  ],
+  "tree": "b403cc9f519384d22d48528c4bbbd90e5d602251"
+}

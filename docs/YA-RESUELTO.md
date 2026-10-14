@@ -34,6 +34,9 @@
 -CLAUDE FUSIONA siempre; Codex prepara/sube y verifica remoto. No certificado
  de toda app/0errores/modelo o voz real/OAuth/Hosting/19originales/hardware.
  No repetir esta validacion si la fuente app742 no cambia.
+-Entrega1297 en20c45667 verificada por API:22blobs coinciden con Git local,
+ incluidos registro/orden163/codigo/dependencias/recibos. Recibo124-entrega-remota
+ conserva ese SHA; el commit que agrega ese recibo es documental, no otra app.
 
 ## 13/10/2026 - Codex123 CORREGIDA Y COMPROBADA, alcance acotado
 

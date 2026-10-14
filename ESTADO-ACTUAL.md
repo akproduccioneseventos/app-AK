@@ -4,6 +4,7 @@ PR1293 FUSIONADA por Claude en09a411; NO subir otra vez a su rama cerrada.
 CLAUDE FUSIONA siempre; Codex prepara cambios, pruebas y registro.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD se desconoce.
 PR1297 abierta; fuente74258c9ffa3c8926327f1d8da74f0fffb0100e60.
+Entrega20c45667 verificada por API:22blobs iguales; recibo124-entrega-remota.
 ## Preservar lo cerrado
 -1288 y1293 integradas; 115QA archivada no valida main actual.
 -155Claude,157/158/159/160 integradas; centavos/permisos/fechas Uy intactos.

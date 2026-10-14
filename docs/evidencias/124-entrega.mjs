@@ -40,12 +40,16 @@ if(mode==='verify'){
     'src/lib/multiagent/assistant-crm-actions.ts','src/lib/multiagent/encargado.ts','src/lib/budget/intento-configurador.ts',
     'src/components/multiagent/multiagent-widget.tsx','src/components/assistant/contextual-assistant-indicator.tsx',
     'src/lib/assistant/posicion-segura.ts','src/__tests__/indicador-abre-asistente-real.test.tsx',
-    'docs/evidencias/124-aceptacion.json','docs/evidencias/124-pr-description.md'];
+    'docs/evidencias/124-aceptacion.json','docs/evidencias/124-pr-description.md',
+    'docs/evidencias/124-cobertura-recuento.json.gz','docs/evidencias/124-jest.json.gz',
+    'docs/evidencias/124-chat-aceptacion-resultados.json','docs/evidencias/124-ia-final-resultados.json',
+    'docs/evidencias/124-posicion-resultados.json'];
+  if(tree.tree.some(f=>f.path==='docs/evidencias/124-entrega-remota.json'))paths.push('docs/evidencias/124-entrega-remota.json');
   result.blobs=paths.map(path=>{
     const local=execFileSync('git',['rev-parse',`HEAD:${path}`],{encoding:'utf8'}).trim();
     const remote=tree.tree.find(f=>f.path===path)?.sha;assert.equal(remote,local,path);
     return{path,sha:local,verified:true};
   });result.tree=commit.tree.sha;
-  fs.writeFileSync('docs/evidencias/124-entrega-remota.json',JSON.stringify(result,null,2)+'\n');
+  if(!process.argv.includes('--no-write'))fs.writeFileSync('docs/evidencias/124-entrega-remota.json',JSON.stringify(result,null,2)+'\n');
 }
 console.log(JSON.stringify({...result,blobs:result.blobs?.length}));
