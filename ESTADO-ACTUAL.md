@@ -26,8 +26,9 @@ Fuente12558691f22c6e4a71da26fb8d99ff83cb43353c253; PR nueva aun PENDIENTE.
 - Memoria8GB: trabajos pesados secuenciales. Conservar incidencias de QA.
 
 ## Registro previo de Claude (conservado; no es el estado remoto actual)
+### Estado de Claude - 14/10/2026
 
-Rama `claude/app-debug-stabilize-m70e6z`. main = 655de9fe6 (PR 1291 publicada).
+Rama `claude/app-debug-stabilize-m70e6z`. main = a4b609a00 (PR 1299 fusionada).
 Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con la puerta en verde.
 
 ## Qué trae esta tanda
@@ -67,6 +68,14 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
   personal); no guarda presupuestos con servicios dudosos ni repite uno.
 - Cada intento del chat se guarda aparte; el asistente no tapa "Guardar"; 23 parches de
   dependencias sin cambios mayores. Quedan 30 avisos que piden versiones mayores (orden 163).
+
+## PR 1299 (14/10): cierre de pendientes
+- Órdenes 51, 105, 135 y 152-156 completas (tablero de control avisa fallas de lectura; pruebas).
+- Asistente: el panel se achica o abre hacia abajo para no salirse de la pantalla.
+- Orden 163: firebase-tools 15.33 y uuid 11.1.1; avisos únicos 30 a 13, sin críticos. Lo que
+  queda pide versiones mayores (genkit/OpenTelemetry 2, next-pwa, tailwind 4, jest).
+- Jest ignora `.claude/` (copias de los ayudantes); antes daba 53 fallas falsas.
+- Orden 163 cerrada: basic-ftp 6.2.3; los 12 avisos que quedan no llegan a la app publicada (prueba los-avisos-de-dependencias-no-llegan-a-la-app).
 
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.

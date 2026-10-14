@@ -55,10 +55,21 @@ Las pruebas existentes que siguen abajo prueban el parche compatible123, NO
 son certificado del trabajo estructural pendiente. Para una nueva tanda adaptar
 sus casos y ejecutarlos sobre el SHA nuevo antes de afirmar entrega.
 
+## Cierre 14/10/2026
+
+- basic-ftp 5.3.1 a 6.2.3 (override; get-uri sólo usa `Client`, cuya interfaz no cambió). Avisos
+  únicos 13 a 12.
+- Los 12 que quedan no llegan a la app publicada, y la prueba de abajo lo hace cumplir:
+  OpenTelemetry vive debajo de `@opentelemetry/sdk-node`, que la compilación reemplaza por
+  `src/lib/telemetria-apagada-node-sdk.js`, y de los plugins de telemetría de Genkit, que nadie
+  importa; braces, sprintf-js, re2 y postcss-selector-parser son de tailwind, jest y el emulador.
+- Sacarlos del todo pide Genkit con OpenTelemetry 2, tailwind 4 y jest nuevo: cambios mayores
+  que no arreglan nada que hoy corra en el servidor. No se hacen sin un pedido.
+
 ```comprobar
 archivo: package.json
 usa: spawn en docs/evidencias/123-ejecutar.mjs
-prueba: docs/evidencias/123-deps-smoke.mjs y docs/evidencias/123-npm-audit.mjs; pendientes de repetir para la futura tanda estructural
+prueba: src/__tests__/los-avisos-de-dependencias-no-llegan-a-la-app.test.ts
 ```
 
 ## Resultado 14/10/2026

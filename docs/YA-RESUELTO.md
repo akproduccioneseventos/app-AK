@@ -67,6 +67,16 @@ prueba: src/__tests__/redes-sociales-error-de-lectura-con-reintento.test.tsx
 prueba: src/__tests__/sincronizaciones-error-de-lectura-e-historial-instagram.test.tsx
 ```
 
+## 14/10/2026 - Orden 163 cerrada: los avisos que quedan no llegan a la app
+
+- basic-ftp pasa a 6.2.3; quedan 12 avisos, todos en herramientas de compilación y prueba o en
+  OpenTelemetry, que la compilación reemplaza por un sustituto vacío. **No es un pendiente:** si
+  una auditoría los lista, es falso positivo mientras esta prueba esté en verde.
+
+```comprobar
+prueba: src/__tests__/los-avisos-de-dependencias-no-llegan-a-la-app.test.ts
+```
+
 ## 14/10/2026 - Orden 163: dependencias sin force
 
 - firebase-tools 14.27.0 a 15.33.0 (solo desarrollo; Java 21 presente, `test:rules` verde) y override
