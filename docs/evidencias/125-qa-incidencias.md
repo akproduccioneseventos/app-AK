@@ -102,3 +102,7 @@
   comunidades porhub; NO se pidieron etiquetasLLM ni graficoHTML>5000nodos.
 -PR1301 abierta paraClaude; baseMain4b6d6620 todavia igual al contrastar.
   Fuente prueba b520 es distinta deHEADde entrega con documentos; no confundirlas.
+-Primera verificacion despues de push vioHEAD77 en listadoPR mientras git ya
+ habia aceptado919. Se conservo el rechazo del verificador (no se relajo);
+ nueva lectura verifico919/22blobs. Retardo de API no es fallo app ni justifica
+ forcepush. Entrega lista para revision; no fusionada por Codex.

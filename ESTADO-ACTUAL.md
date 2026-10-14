@@ -5,6 +5,7 @@ Base main remoto4b6d6620: Claude integro1297 via1298 y tandas1299/1300.
 Rama NUEVA codex/125-kiosco-auditoria-main-20261014, solo delta125 desde main.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD se desconoce.
 Fuente125b520f7cee28546634e1c87391efd7a80e1a40f48; PR1301 ABIERTA, Claude fusiona.
+Entrega919d47df contrastada porAPI:22blobs iguales; recibo125-entrega-remota.
 - Kiosco compartido11entradas: labels/IDs, grupo/aria-pressed, h1/alerta;
   se conserva espacio original y SIN PIN, roles, handlers y permisos.
 - CLI15.33/UUID11/FTP6 YA mainClaude; propio selector6.1.4, no selector7.
