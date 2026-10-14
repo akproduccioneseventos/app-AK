@@ -79,6 +79,6 @@ aprobada. Debe pasar despues del arreglo sin cambiar el esperado2documentos.
 
 ```comprobar
 archivo: src/app/actions/presupuestos.ts
-usa: savePresupuesto en src/app/(app)/empresa/configurador-reunion/page.tsx (handleSaveBudget)
+usa: savePresupuesto en src/app/(app)/empresa/configurador-reunion/page.tsx
 prueba: docs/evidencias/117-configurador-probe.mjs
 ```
