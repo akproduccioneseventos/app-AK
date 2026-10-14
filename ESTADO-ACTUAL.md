@@ -34,7 +34,7 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
   celular) y 61 (prueba salteada en celular). Barridas en toda la app y arregladas.
 - Control `cada-hallazgo-de-codex-tiene-su-pregunta`: toda orden de Codex necesita su línea
   "- Orden N → pregunta M" en LO-QUE-NO-VI.md o la puerta no publica.
-- Pendiente menor: pago a proveedor en gestión de costos (guarda la lista entera).
+- Pago a proveedor (gestión de costos): agrega uno solo con identidad del intento (14/10).
 
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.

@@ -109,6 +109,7 @@ export async function updateProgramaFiestaActual(fiestaId: string, programa: any
 // --- PERSONAL Y PAGOS ---
 export async function updatePersonalFiestaActual(fiestaId: string, personal: any[]) { return await PersonalModule.updatePersonal(fiestaId, personal); }
 export async function updatePagosProveedoresFiestaActual(fiestaId: string, pagos: PagoProveedor[]) { return await PagosModule.updatePagosProveedores(fiestaId, pagos); }
+export async function agregarPagoProveedorFiestaActual(fiestaId: string, pago: PagoProveedor) { return await PagosModule.agregarPagoProveedor(fiestaId, pago); }
 
 // --- PORTAL Y PÁGINA WEB ---
 export async function updateClientChecklistFiestaActual(fiestaId: string, checklist: ClientTarea[]) { return await PortalModule.updateClientChecklist(fiestaId, checklist); }
