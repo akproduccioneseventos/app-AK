@@ -317,7 +317,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
 
             {/* Step 2: Choose Kiosk Role */}
             <div className="space-y-2">
-              <div role="group" aria-labelledby={rolesGroupId}>
+              <div role="group" aria-labelledby={rolesGroupId} className="space-y-2">
                 <label id={rolesGroupId} className="text-xs font-bold uppercase tracking-wider text-slate-400">2. Rol del Dispositivo</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto pr-1">
                 {[

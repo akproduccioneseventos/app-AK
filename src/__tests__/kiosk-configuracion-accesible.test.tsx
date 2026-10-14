@@ -61,6 +61,7 @@ describe('Configuración accesible del kiosco', () => {
     const group = container.querySelector('[role="group"]');
     expect(select?.labels?.[0]?.textContent).toContain('Seleccionar Evento / Fiesta');
     expect(group?.getAttribute('aria-labelledby')).toBeTruthy();
+    expect(group?.classList.contains('space-y-2')).toBe(true);
     const selectedButtons = Array.from(group?.querySelectorAll('button[aria-pressed="true"]') ?? []);
     expect(selectedButtons).toHaveLength(1);
     expect(selectedButtons[0].textContent).toContain('Barra de Tragos');
