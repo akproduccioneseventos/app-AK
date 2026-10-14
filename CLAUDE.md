@@ -1661,6 +1661,7 @@ con otra cara.
 | Una transacción repetida por la base dejaba anotado el intento descartado: reels contados dos veces y "guardado" sin guardar | `src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts` y `src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts` |
 | El simulador ofrecía platos que el servidor rechazaba; el enlace del PDF no abría sin sesión; el portal contaba invitaciones y no personas; la fecha de la fiesta salía como cita | `src/__tests__/simulador-variantes-buffet-autorizadas.test.ts`, `src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts`, `src/__tests__/portal-cliente-contadores-personas.test.ts` y `src/__tests__/crm-fecha-evento-no-es-cita.test.ts` |
 | El entorno de pruebas no podía probar estaciones, mural ni fotos porque la base estaba apagada | `tests/firebase/estaciones-y-mural-con-emulador.test.ts` (corre en `npm run test:rules`) |
+| Pruebas que armaban "hoy" con la hora de Greenwich y fallaban de noche en Uruguay | `src/__tests__/las-pruebas-cuentan-los-dias-en-uruguay.test.ts` |
 | Codex encontraba la misma forma de error una y otra vez porque el método no sumaba la pregunta | `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` |
 
 ### Cómo se elige el matafuego

@@ -24,12 +24,12 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getFiestas: jest.fn(as
 jest.mock('@/app/actions/presupuestos', () => ({ getPresupuestos: jest.fn(async () => { throw new Error('No autorizado'); }) }));
 
 import { getParteDeLaManana, parteParaQuienMira } from '@/lib/automatico/parte-manana';
+import { hoyEnUruguay } from '@/lib/utils';
 
+// Desde HOY EN URUGUAY, como la app (en hora de Greenwich, de noche ya es mañana: 14/10/2026).
 function enDias(n: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + n);
-  const p = (x: number) => String(x).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T12:00:00`;
+  const [y, m, d] = hoyEnUruguay().split('-').map(Number);
+  return `${new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10)}T12:00:00`;
 }
 
 const fiesta = { id: 'f1', presupuestoId: 'p1', menuAsignadoId: 'm1', invitados: [{ id: 'i1' }], configuracion: { fechaEvento: enDias(5), nombreEvento: 'Los 15 de Ana' } };

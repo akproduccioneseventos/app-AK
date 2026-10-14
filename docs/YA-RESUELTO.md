@@ -13761,3 +13761,15 @@ prueba: src/__tests__/preguntas-59-y-60-aprobaciones-y-nombres-largos.test.tsx
 usa: idDelIntento en src/app/actions/fiesta/invitados.actions.ts
 usa: obtenerIntento en src/app/(app)/incidentes/page.tsx
 ```
+
+## Pruebas que fallaban de noche por contar el día en hora de Greenwich (14 de octubre de 2026)
+
+La app cuenta los días en hora de Uruguay; tres pruebas armaban "hoy" y "en 2 días" con la hora del
+servidor. Entre las 21 y la medianoche de Uruguay ya era mañana en Greenwich, daban un día de más y la
+puerta se frenaba. No era la app: eran las pruebas. Ahora usan `hoyEnUruguay()`, y un control no deja
+escribir otra así.
+
+```comprobar
+prueba: src/__tests__/las-pruebas-cuentan-los-dias-en-uruguay.test.ts
+prueba: src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
+```

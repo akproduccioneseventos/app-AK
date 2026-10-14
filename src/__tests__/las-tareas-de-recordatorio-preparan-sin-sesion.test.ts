@@ -52,12 +52,14 @@ const fiestas = jest.fn();
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: () => fiestas() }));
 
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { hoyEnUruguay } from '@/lib/utils';
 
+// Los días se cuentan desde HOY EN URUGUAY, como la app. Contados en la hora del servidor (Greenwich),
+// entre las 21 y la medianoche de Uruguay el "en 2 días" daba 3 y la prueba fallaba (14/10/2026).
 function enDias(n: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + n);
-  const p = (x: number) => String(x).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  const [y, m, d] = hoyEnUruguay().split('-').map(Number);
+  const f = new Date(Date.UTC(y, m - 1, d + n));
+  return f.toISOString().slice(0, 10);
 }
 
 beforeEach(() => {
