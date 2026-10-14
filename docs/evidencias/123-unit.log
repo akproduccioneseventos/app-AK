@@ -1,0 +1,7 @@
+PASS src/__tests__/indicador-abre-asistente-real.test.tsx
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        2.92 s
+Test results written to: docs\evidencias\123-jest.json

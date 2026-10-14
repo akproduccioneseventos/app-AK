@@ -1,0 +1,8 @@
+{
+  "sourceSha": "5dc197e5c831d8dbd75dec268efa5806eca957d8",
+  "executedSource": "original module transpiled without changes",
+  "scenario": "uncertain A -> B -> confirmed B -> retry A",
+  "before": "40c04848-db01-4fb0-8bca-f4d6f1567819",
+  "after": "3c8cfd69-599c-4a66-b155-a7e237b1f24e",
+  "status": "DEFECT_REPRODUCED_UNIT_NOT_BROWSER"
+}

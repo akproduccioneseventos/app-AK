@@ -1,0 +1,813 @@
+PASS src/__tests__/fase2-vip.test.ts
+PASS src/__tests__/e2e-flows.test.ts
+PASS src/__tests__/fase2-completion.test.ts
+PASS src/__tests__/assistant-actions.test.ts
+PASS src/__tests__/fase2-integration.test.ts
+PASS src/lib/__tests__/fiesta-progress.test.ts
+PASS src/__tests__/dispatcher-integration.test.ts
+PASS src/__tests__/release-security-boundaries.test.ts
+PASS src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts
+PASS src/__tests__/commercial-flow.test.ts
+PASS src/__tests__/los-prospectos-no-se-pierden-entre-servidores.test.ts
+PASS src/__tests__/planner-dashboard-modules.test.ts
+PASS src/__tests__/auditoria-puertas-abiertas.test.ts
+PASS src/__tests__/trivia-en-vivo-y-misiones-con-puntos.test.ts
+PASS src/__tests__/fase1-fixes.test.ts
+PASS src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
+PASS src/__tests__/panel-presencia-digital-cuatro-bloques.test.ts
+PASS src/__tests__/calculations.test.ts
+PASS src/__tests__/el-asistente-se-anticipa.test.ts
+PASS src/__tests__/guardados-de-la-fiesta-no-se-pisan.test.ts
+PASS src/__tests__/auditoria-71-campos-y-compras.test.ts
+PASS src/__tests__/el-asistente-no-pierde-ni-elige-mal.test.ts
+PASS src/__tests__/planPagos.test.ts
+PASS src/__tests__/resenas-y-plan-equipo.test.ts
+PASS src/__tests__/configurador-solicitud-atomica.test.ts
+PASS src/__tests__/el-blog-no-promete.test.ts
+PASS src/__tests__/mis-fiestas-en-orden.test.ts
+PASS src/__tests__/la-invitacion-no-abierta-se-recuerda-sola.test.ts
+PASS src/__tests__/espejo-guardada-no-es-publicada.test.ts
+PASS src/__tests__/el-respaldo-no-miente.test.ts
+PASS src/__tests__/tiktok-no-canta-victoria-antes.test.ts
+PASS src/__tests__/la-voz-en-vivo-cancela-y-reintenta.test.ts
+PASS src/__tests__/ajuste-costos-recibo-atomico.test.ts
+PASS src/__tests__/portal-cancelar-y-cambiar-fecha-no-se-aplican-dos-veces.test.ts
+PASS src/__tests__/video-vida-error-de-lectura-no-es-galeria-vacia.test.tsx
+PASS src/__tests__/salon-3d-y-piezas-layout.test.ts
+PASS src/__tests__/galeria-historial-instagram-completo.test.ts
+PASS src/__tests__/la-voz-en-vivo-ruta.test.ts
+PASS src/__tests__/entretenimiento-sesion-segura.test.ts
+PASS src/__tests__/los-videos-de-ayuda-se-ven-donde-se-cargaron.test.ts
+PASS src/__tests__/la-llegada-con-ubicacion-mide-bien.test.ts
+PASS src/__tests__/el-candado-de-la-plata.test.ts
+PASS src/__tests__/citas-y-comentarios-fusionan-sobre-lo-actual.test.ts
+PASS src/__tests__/ia-flujos-no-fingen-exito.test.ts
+PASS src/__tests__/auditoria-70-contabilidad.test.ts
+PASS src/__tests__/el-video-para-cada-invitado.test.ts
+PASS src/__tests__/la-voz-en-vivo-cliente.test.ts
+PASS src/__tests__/orden-156-paginas-del-centro-fallan-con-aviso.test.tsx
+PASS src/__tests__/la-voz-de-gemini-tts.test.ts
+PASS src/__tests__/financial-guardrails.test.ts
+PASS src/__tests__/puesta-al-dia.test.ts
+PASS src/__tests__/un-trago-que-no-se-guardo-no-descuenta-botellas.test.ts
+PASS src/__tests__/copiar-configuracion-no-copia-personas.test.ts
+PASS src/__tests__/resenas-y-panel-automatico.test.ts
+PASS src/__tests__/centro-de-presencia-digital.test.ts
+PASS src/__tests__/ninguna-pantalla-miente.test.ts
+PASS src/__tests__/la-foto-sin-revisar-queda-pendiente-no-rechazada.test.ts
+PASS src/__tests__/mantenimiento-reintentos-y-concurrencia.test.ts
+PASS src/__tests__/la-barra-cierra-la-cuenta.test.ts
+PASS src/__tests__/el-album-entrega-lo-que-dice.test.ts
+PASS src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts
+PASS src/__tests__/rsvp-deduplication.test.ts
+PASS src/__tests__/la-trivia-lanzada-se-ve-en-el-celular.test.tsx
+PASS src/__tests__/un-cupon-vencido-no-se-registra.test.ts
+PASS src/__tests__/comentarios-redes-sincronizacion.test.ts
+PASS src/__tests__/pantallas-nuevas-con-resultado.test.ts
+PASS src/__tests__/dos-servidores-no-pierden-invitados.test.ts
+PASS src/__tests__/orden-156-acciones-no-mienten.test.ts
+PASS src/__tests__/orden-83-lo-del-invitado-no-llama-acciones-del-equipo.test.ts
+PASS src/__tests__/auditoria-pantallas-sin-puerta.test.ts (8.422 s)
+PASS src/components/landing/landing-media-contract.test.ts
+PASS src/__tests__/errores-humanos.test.ts
+PASS src/__tests__/orden-22-la-pantalla-gigante.test.ts
+PASS src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
+PASS src/__tests__/carga-respuestas-viejas-sin-marca.test.ts
+PASS src/__tests__/el-agente-no-se-pasa-del-tope.test.ts
+PASS src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts
+PASS src/__tests__/ganancia-evento.test.ts
+PASS src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
+PASS src/__tests__/enlaces-y-planillas-leen-lo-que-reciben.test.ts
+PASS src/__tests__/la-configuracion-general-pide-permiso.test.ts
+PASS src/__tests__/ajustes-costos-respaldo-restauracion.test.ts
+PASS src/__tests__/instagram-sync-videos-concurrentes.test.ts
+PASS src/__tests__/la-contabilidad-no-miente.test.ts
+PASS src/__tests__/lo-automatico-que-se-ve-y-panel-dj.test.ts
+PASS src/__tests__/backup-upload.test.ts
+PASS src/__tests__/auth-session-multitenant-resilience.test.ts
+PASS src/__tests__/49-acciones-fiesta-verifican-guardado.test.ts
+PASS src/__tests__/compras-suman-en-la-misma-unidad.test.ts
+PASS src/__tests__/youtube-sube-el-video.test.ts
+PASS src/__tests__/itinerario-portal-cliente.test.ts
+PASS src/__tests__/video-vida-cierre-y-reemplazo.test.ts
+PASS src/__tests__/la-fiesta-vende-la-proxima.test.ts
+PASS src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts
+PASS src/__tests__/las-guias-de-armado-no-duplican-tareas.test.ts
+PASS src/__tests__/claude-audit-critical-regressions.test.ts
+PASS src/__tests__/google-workspace-estado-real.test.tsx
+PASS src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts
+PASS src/__tests__/personal-agenda-server.test.ts
+PASS src/__tests__/las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts
+PASS src/__tests__/decoracion-no-gasta-de-mas.test.ts
+PASS src/__tests__/el-secretario-hace-lo-del-dia.test.ts
+PASS src/__tests__/el-ajuste-de-costos-no-miente.test.ts
+PASS src/__tests__/assistant-intent.test.ts
+PASS src/__tests__/una-lectura-que-falla-no-se-muestra-como-vacio.test.ts
+PASS src/__tests__/auditoria-66-quien-ve-que.test.ts
+PASS src/__tests__/el-secretario-hace-tres-cosas-mas.test.ts
+PASS src/__tests__/invitacion-config.test.ts
+PASS src/__tests__/auth-user-session.test.ts
+PASS src/__tests__/external-integrations-consolidated.test.ts
+PASS src/__tests__/resumen-contador.test.ts
+PASS src/__tests__/ningun-numero-inventado.test.ts
+PASS src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
+PASS src/__tests__/la-voz-en-vivo-lib.test.ts
+PASS src/__tests__/sin-senal-no-se-pierde-nada.test.ts
+PASS src/__tests__/auditoria-73-guardado-concurrente.test.ts
+PASS src/__tests__/el-mejor-horario-sale-de-tus-resultados.test.ts
+PASS src/__tests__/la-noche-no-se-maneja-de-costado.test.ts
+PASS src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts
+PASS src/__tests__/led-technology-sales-readiness.test.ts
+PASS src/lib/payments/mercadopago-core.test.ts
+PASS src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts
+PASS src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts
+PASS src/__tests__/un-voto-por-telefono-sin-trabar-el-wifi.test.ts
+PASS src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts
+PASS src/__tests__/el-qr-viejo-no-entra.test.ts
+PASS src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
+PASS src/__tests__/profit-loss-report.test.ts
+PASS src/__tests__/el-3d-dibuja-lo-que-dice-el-plano.test.ts
+PASS src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
+PASS src/__tests__/la-promocion-de-la-portada-sale-de-lo-cargado.test.ts
+PASS src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts
+PASS src/__tests__/una-lista-vieja-no-borra-plata.test.ts
+PASS src/__tests__/el-muro-pinta-fotos-si-chat-se-cuelga.test.tsx
+PASS src/__tests__/frontera-general-de-fiestas.test.ts
+PASS src/__tests__/simulator-budget-pdf-flow.test.ts
+PASS src/__tests__/dueno-de-la-foto-y-prospecto-sin-telefono.test.ts
+PASS src/__tests__/performance-release-gate.test.ts
+PASS src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts
+PASS src/__tests__/la-puerta-no-miente.test.ts
+PASS src/__tests__/motor-de-costos-la-cuenta-real.test.ts
+PASS src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts
+PASS src/__tests__/encontrarme-en-google.test.ts
+PASS src/__tests__/mejoras-bloques-f-al-k.test.ts
+PASS src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts
+PASS src/__tests__/whatsapp-del-equipo.test.ts
+PASS src/__tests__/revision-de-plata-quien-toca-que.test.ts
+PASS src/__tests__/el-equipo-elige-que-ve-el-cliente.test.ts
+PASS src/__tests__/la-respuesta-a-comentarios-no-inventa.test.ts
+PASS src/__tests__/mejoras-comerciales-y-ventas.test.ts
+PASS src/__tests__/backup.test.ts (5.08 s)
+PASS src/__tests__/ia-86-tareas-y-exito.test.ts
+PASS src/__tests__/la-foto-es-del-plato.test.ts
+PASS src/__tests__/simulador-copilot.test.ts
+PASS src/__tests__/public-admin-entertainment-boundary.test.ts
+PASS src/__tests__/concurrencia-tareas-automaticas.test.ts
+PASS src/__tests__/entertainment-runtime-boundary.test.ts
+PASS src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts
+PASS src/__tests__/creador-anuncios.test.ts
+PASS src/__tests__/agentes-autonomos.test.ts
+PASS src/__tests__/el-mantenimiento-avisa-antes-de-la-fiesta.test.ts
+PASS src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts
+PASS src/lib/__tests__/confirmed-events-restore.test.ts
+PASS src/__tests__/proponer-equipo-sin-solapamiento.test.ts
+PASS src/__tests__/barrido-de-permisos-personal-y-operador.test.ts
+PASS src/__tests__/certificacion-cuatro-hallazgos.test.ts
+PASS src/__tests__/data-service.test.ts
+PASS src/__tests__/el-video-de-vida-no-miente.test.ts
+PASS src/__tests__/la-hora-de-uruguay-en-agenda-y-recordatorios.test.ts
+PASS src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts
+PASS src/__tests__/impreso-10x15-reparto-y-personalizacion.test.ts
+PASS src/__tests__/dos-modulos-de-la-fiesta-no-se-pisan.test.ts
+PASS src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
+PASS src/__tests__/conexiones-sincronizaciones-error-y-reintento.test.tsx
+PASS src/__tests__/el-seguimiento-va-en-pasos.test.ts
+PASS src/__tests__/orden-15-resultados-reales.test.ts
+PASS src/__tests__/outbox-enviar-por-mail.test.ts
+PASS src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
+PASS src/__tests__/auditoria-35-quien-ve-que.test.ts
+PASS src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
+PASS src/__tests__/redes-sociales-transparencia-y-modelos.test.ts
+PASS src/__tests__/encontrar-fotos-por-cara.test.ts
+PASS src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts
+PASS src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts
+PASS src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts
+PASS src/__tests__/fotocabina-fondo-y-configuracion.test.ts
+PASS src/__tests__/orden-86-acciones.test.ts
+PASS src/__tests__/marketing-automation-integrity.test.ts
+PASS src/__tests__/presentacion-catalogo.test.ts
+PASS src/__tests__/session-token.test.ts
+PASS src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts
+PASS src/__tests__/whatsapp-automation.test.ts
+PASS src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts
+PASS src/__tests__/documentos-permisos-de-area.test.ts
+PASS src/lib/medicion-segura.test.ts
+PASS src/__tests__/el-totem-apaga-el-microfono.test.tsx
+PASS src/__tests__/cerebro-publicidad-meta.test.ts
+PASS src/__tests__/la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo.test.ts
+PASS src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts
+PASS src/__tests__/incidentes-dos-servidores-no-pierden-comentarios.test.ts
+PASS src/__tests__/google-identity-auth.test.ts
+PASS src/__tests__/el-multiagente-tiene-tope.test.ts
+PASS src/__tests__/crm-outbox-whatsapp.test.ts
+PASS src/__tests__/incidentes-dialogo-nuevo-sin-caso-anterior.test.tsx
+PASS src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts
+PASS src/lib/budget/simulator-budget-pdf.render.test.ts
+PASS src/__tests__/servicios-empresa-guarda-de-a-uno.test.ts
+PASS src/__tests__/publicidad-autonoma-meta.test.ts
+PASS src/__tests__/ningun-boton-lleva-a-una-pantalla-que-no-existe.test.ts
+PASS src/__tests__/el-cartel-de-respaldo-no-miente.test.ts
+PASS src/__tests__/decoracion-autoguardado-concurrente.test.ts
+PASS src/lib/logistics/carga-operativa.test.ts
+PASS src/__tests__/blog-dynamic.test.ts
+PASS src/__tests__/portada-del-portal-del-cliente.test.ts
+PASS src/__tests__/la-publicacion-manual-no-sale-dos-veces.test.ts
+PASS src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts
+PASS src/lib/catering/menu-images.test.ts
+PASS src/__tests__/rutas-y-acciones-cubiertas-orden-49.test.ts
+PASS src/__tests__/plan-de-pagos-cuentas-que-cierran.test.ts
+PASS src/__tests__/totem-barra-y-buzon-saludos.test.ts
+PASS src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+PASS src/__tests__/comparativa-ganancias.test.ts
+PASS src/__tests__/lista-de-compras-y-menu.test.ts
+PASS src/__tests__/calendarios-con-react19.test.tsx
+PASS src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts
+PASS src/__tests__/entertainment-session-permissions.test.ts
+PASS src/__tests__/los-documentos-de-plata-piden-permiso.test.ts
+PASS src/__tests__/fiesta-sync-compat.test.ts
+PASS src/__tests__/pwa-security-readiness.test.ts
+PASS src/__tests__/public-entertainment-guest-flow.test.ts
+PASS src/__tests__/la-lista-de-invitados-pide-sesion.test.ts
+PASS src/__tests__/publicador-no-publica-dos-veces.test.ts
+PASS src/__tests__/el-video-resumen-de-la-fiesta.test.ts
+PASS src/__tests__/resenas-google-borrador-y-publicar.test.ts
+PASS src/__tests__/tareas-no-corren-con-la-base-caida.test.ts
+PASS src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts
+PASS src/__tests__/codex-alcance-total.test.ts (8.756 s)
+PASS src/__tests__/ninguna-prueba-esta-apagada.test.ts
+PASS src/__tests__/google-workspace-redirect.test.ts
+PASS src/__tests__/entretenimiento-bloque-a.test.tsx
+PASS src/__tests__/la-noche-de-la-fiesta-sigue-siendo-hoy.test.ts
+PASS src/__tests__/configurador-reunion-layout-real.test.tsx
+PASS src/__tests__/subir-foto-de-mision-suma-puntos.test.ts
+PASS src/__tests__/portal-entregas-y-agentes-86.test.ts
+PASS src/__tests__/recibos-del-personal-suman-y-se-reemplazan.test.ts
+PASS src/__tests__/el-parte-de-la-manana-no-miente.test.ts
+PASS src/__tests__/el-invitado-reserva-un-regalo.test.ts
+PASS src/__tests__/api-route-boundary.test.ts
+PASS src/__tests__/los-avisos-al-cliente-quedan-en-la-bandeja.test.ts
+PASS src/__tests__/orden-16-pantallas-y-acciones.test.ts
+PASS src/__tests__/recontacto-candidatos.test.ts
+PASS src/__tests__/guardia-de-guardado-de-fiesta.test.ts
+PASS src/__tests__/entregas-2-y-3.test.ts
+PASS src/__tests__/el-asistente-no-guarda-la-fiesta-como-cita.test.ts
+PASS src/__tests__/el-salon-se-arma-solo-con-lo-contratado.test.ts
+PASS src/__tests__/la-ganancia-da-lo-mismo-en-finanzas-analiticas-y-flujo.test.ts
+PASS src/__tests__/simulador-variantes-buffet-autorizadas.test.ts
+PASS src/__tests__/ajuste-de-precios-no-queda-a-medias-ni-se-duplica.test.ts
+PASS src/__tests__/47-publicidad-datos-verificados.test.ts
+PASS src/__tests__/poner-al-dia-aplica-solo-lo-que-arma-el-servidor.test.ts
+PASS src/__tests__/interactive-control-boundary.test.ts
+PASS src/__tests__/simulador-contacto-con-configuracion-caida.test.ts
+PASS src/__tests__/collection-fallback-empty-after-delete.test.ts
+PASS src/__tests__/posicionamiento-seo-auditoria.test.ts
+PASS src/__tests__/pedido-cambio-invitados-cliente.test.ts
+PASS src/__tests__/estaciones-dueno-y-pagina-web-historia.test.ts
+PASS src/__tests__/asistente-aislamiento-fiestas-y-seguridad.test.ts
+PASS src/__tests__/verificacion-agenda-empleado.test.ts
+PASS src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts
+PASS src/__tests__/lectura-real-fiestas-no-inventa-vacio.test.ts
+PASS src/__tests__/aceptar-una-propuesta-respeta-la-regla-de-oro.test.ts
+PASS src/__tests__/flujo-caja-dia-calendario-uruguay.test.ts
+PASS src/__tests__/nada-inventado-en-pantalla.test.ts
+PASS src/__tests__/las-promesas-tienen-respaldo.test.ts
+PASS src/__tests__/ia-tarea-sin-fiesta-queda-como-recordatorio.test.ts
+PASS src/__tests__/el-calendario-no-mueve-la-fiesta-equivocada.test.ts
+PASS src/__tests__/los-documentos-no-se-dan-por-guardados.test.ts
+PASS src/lib/guest-portal-public-data.test.ts
+PASS src/__tests__/orden-97-actualizar-fiesta-no-pisa-otras-fiestas.test.ts
+PASS src/lib/simulator/pricing.test.ts
+PASS src/__tests__/entrar-a-la-app-de-verdad.test.ts
+PASS src/__tests__/ajuste-anual-siempre.test.ts
+PASS src/__tests__/settings-import-boundary.test.ts
+PASS src/__tests__/inventario-titulos-largos-en-celular.test.tsx
+PASS src/__tests__/organizacion-bloque-a.test.tsx
+PASS src/__tests__/financial-integrity-report.test.ts
+PASS src/__tests__/social-admin.test.ts
+PASS src/__tests__/backup-status-states.test.ts
+PASS src/__tests__/recordatorios-de-pago.test.ts
+PASS src/__tests__/musica-accion-resuelve.test.ts
+PASS src/__tests__/personal-vigencia-y-coordenadas-invalidas.test.ts
+PASS src/lib/__tests__/barra-tecnologica.test.ts
+PASS src/__tests__/actualizar-fiesta-pide-permiso.test.ts
+PASS src/__tests__/si-no-hay-foto-va-una-de-ejemplo.test.ts
+PASS src/__tests__/release-workflow-integrity.test.ts
+PASS src/__tests__/galeria-borrado-seguro.test.ts
+PASS src/lib/__tests__/zona-digital-adolescentes.test.ts
+PASS src/__tests__/los-formatos-no-pierden-lo-escrito.test.ts
+PASS src/__tests__/orden-14-musica-conectada.test.ts
+PASS src/__tests__/el-autoguardado-no-miente.test.ts
+PASS src/__tests__/carga-stock-total-por-origen.test.ts
+PASS src/__tests__/el-duenio-se-entera-de-lo-que-pregunta-el-cliente.test.ts
+PASS src/__tests__/redes-sociales-error-y-reintento.test.tsx
+PASS src/lib/ai/gemini-image.test.ts
+PASS src/__tests__/el-aviso-de-datos-esta-donde-se-dejan-datos.test.ts
+PASS src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts
+PASS src/__tests__/auditoria-defectos-tapados.test.ts
+PASS src/__tests__/los-ajustes-del-panel-llegan-a-la-estacion.test.ts
+PASS src/__tests__/orden-19-ajustes-estaciones.test.ts
+PASS src/__tests__/tareas-no-marcan-exito-al-fallar.test.ts
+PASS src/__tests__/lo-que-corre-sin-sesion-llega-hasta-el-fondo.test.ts
+PASS src/__tests__/el-recuerdo-de-cada-invitado.test.ts
+PASS src/__tests__/despliegue-incluye-despertador.test.ts
+PASS src/__tests__/un-regalo-no-se-reserva-dos-veces.test.ts
+PASS src/__tests__/orden-14-entretenimiento-unificado.test.ts
+PASS src/__tests__/las-preguntas-del-contrato-llegan.test.ts
+PASS src/__tests__/auditoria-74-categorias-y-contacto.test.ts
+PASS src/__tests__/ia-86-agentes-publicidad-e-intervalo.test.ts
+PASS src/__tests__/auditoria-71-presupuesto-nuevo-sin-plata.test.ts
+PASS src/__tests__/catering-fotos-corresponden-al-plato.test.ts
+PASS src/__tests__/el-recordatorio-al-invitado-no-se-repite.test.ts
+PASS src/__tests__/invoice-deletion-integrity.test.ts
+PASS src/__tests__/el-cronograma-del-personal-marca-el-hito.test.tsx
+PASS src/__tests__/analytics-firm-sales.test.ts
+PASS src/__tests__/control-puertas-publicas-no-cerradas.test.ts
+PASS src/__tests__/la-planilla-de-invitados-se-entiende.test.ts
+PASS src/__tests__/hoja-de-cocina.test.ts
+PASS src/__tests__/history-import.test.ts
+PASS src/__tests__/public-simulator-funnel.test.ts
+PASS src/__tests__/poner-al-dia-arma-la-lista.test.ts
+PASS src/__tests__/perfiles.test.ts
+PASS src/ai/genkit.test.ts
+PASS src/__tests__/recontacto-apagado-de-fabrica.test.ts
+PASS src/__tests__/use-server-export-boundary.test.ts (6.56 s)
+PASS src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts
+PASS src/__tests__/un-cupon-de-un-uso-sirve-una-vez.test.ts
+PASS src/__tests__/ultimate-event-system.test.ts
+PASS src/__tests__/google-paginas-publicas.test.ts
+PASS src/__tests__/social-fiesta-private-feed.test.ts
+PASS src/__tests__/ninguna-pantalla-se-queda-cargando.test.ts
+PASS src/__tests__/orden-18-web-completa.test.ts
+PASS src/__tests__/saldo-con-ajuste.test.ts
+PASS src/__tests__/mapa-de-la-app-al-dia.test.ts
+PASS src/__tests__/el-limite-de-impresion-por-invitado.test.ts
+PASS src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts
+PASS src/__tests__/games-raffles-ranking.test.ts
+PASS src/__tests__/los-saldos-usan-el-estado-de-cuenta-oficial.test.ts
+PASS src/__tests__/candados-avisos-y-sorteo.test.ts
+PASS src/__tests__/tareas-candado-entre-instancias.test.ts
+PASS src/__tests__/las-tareas-corren-sin-contrasena.test.ts
+PASS src/__tests__/el-invitado-no-ve-lo-interno-en-pantallas-publicas.test.ts
+PASS src/__tests__/cambio-de-invitados.test.ts
+PASS src/__tests__/las-estaciones-dicen-que-tocar.test.ts
+PASS src/__tests__/las-llaves-no-viajan-en-el-repositorio.test.ts (8.512 s)
+PASS src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts
+PASS src/__tests__/las-caras-distinguen-personas.test.ts
+PASS src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
+PASS src/__tests__/el-buzon-no-confunde-una-falla-con-vacio.test.ts
+PASS src/__tests__/multi-social-publisher.test.ts
+PASS src/__tests__/50-la-app-de-tu-fiesta-recorrido.test.ts
+PASS src/__tests__/bajar-ruido-alertas.test.ts
+PASS src/__tests__/provider-portal-actions.test.ts
+PASS src/__tests__/panel-redes-sin-numeros-inventados.test.ts
+PASS src/__tests__/invoice-payment-integrity.test.ts
+PASS src/__tests__/pantallas-de-la-noche.test.ts
+PASS src/__tests__/codex-tiene-un-final.test.ts
+PASS src/__tests__/configurador-intento-recarga.test.ts
+PASS src/__tests__/la-plantilla-se-sugiere-por-tipo.test.ts
+PASS src/lib/simulator/package-customization.test.ts
+PASS src/lib/blog-ai-generator.test.ts
+PASS src/__tests__/el-cliente-sube-al-moodboard.test.ts
+PASS src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts
+PASS src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts
+PASS src/__tests__/firebase-enhancements.test.ts
+PASS src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts
+PASS src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts
+PASS src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts
+PASS src/__tests__/ningun-as-any-lee-un-campo-que-no-existe.test.ts
+PASS src/__tests__/rsvp-pro-control.test.ts
+PASS src/__tests__/volver-a-publicar-copia-y-programa.test.ts
+PASS src/__tests__/acceso-proveedor-token.test.ts
+PASS src/__tests__/el-pedido-al-proveedor-dice-si-llego-completo.test.ts
+PASS src/__tests__/permisos-de-colaborador.test.ts
+PASS src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts
+PASS src/__tests__/wfolio-album-delivery.test.ts
+PASS src/__tests__/social-cross-audit-regressions.test.ts
+PASS src/__tests__/las-claves-de-agrupacion-no-mienten.test.ts
+PASS src/__tests__/live-wall-premium.test.ts
+PASS src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts
+PASS src/__tests__/el-ingreso-con-google-dice-que-paso.test.ts
+PASS src/lib/firebase/messaging.test.ts
+PASS src/__tests__/nada-de-animaciones-de-mentira.test.ts
+PASS src/__tests__/clave-portal.test.ts
+PASS src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts
+PASS src/__tests__/numeros-de-menu.test.ts
+PASS src/__tests__/el-asistente-cuida-la-plata.test.ts
+PASS src/__tests__/instagram-no-duplica-al-sincronizar.test.ts
+PASS src/lib/data-item-service.test.ts
+PASS src/__tests__/aviso-margen-historico.test.ts
+PASS src/__tests__/resena-del-invitado.test.ts
+PASS src/__tests__/quality-closure.test.ts
+PASS src/__tests__/pantallas-internas-con-guardia.test.ts
+PASS src/__tests__/el-pixel-y-la-medicion-existen.test.ts
+PASS src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts
+PASS src/__tests__/ia-86-la-voz-parada-no-suena.test.ts
+PASS src/__tests__/las-cuentas-que-le-decimos-a-google.test.ts
+PASS src/__tests__/las-fotos-del-invitado-no-se-pierden.test.ts
+PASS src/__tests__/las-camaras-se-apagan-si-se-sale-pidiendo-permiso.test.ts
+PASS src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts (5.391 s)
+PASS src/__tests__/operator-moderation-panel.test.ts
+PASS src/__tests__/los-cupones-muestran-el-dia-y-estado-del-negocio.test.tsx
+PASS src/__tests__/logo-original-pdf.test.ts
+PASS src/__tests__/asistente-crm-prospecto-confirmacion.test.ts
+PASS src/__tests__/experience-report.test.ts
+PASS src/__tests__/el-qr-marca-el-equipo-correcto.test.ts
+PASS src/__tests__/financial-flow-consistency.test.ts
+PASS src/__tests__/public-bar-totem-foundation.test.ts
+PASS src/__tests__/recordatorio-no-abiertas-no-manda-doble.test.ts
+PASS src/__tests__/las-estaciones-no-apagan-la-pantalla.test.tsx
+PASS src/__tests__/el-despertador-contesta-sin-trabajar.test.ts
+PASS src/__tests__/las-mesas-se-cuentan-una-sola-vez.test.ts
+PASS src/__tests__/estetica-portal-contract.test.ts
+PASS src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts
+PASS src/__tests__/un-cobro-no-se-cuenta-dos-veces.test.ts
+PASS src/__tests__/el-cartel-del-ingreso-no-se-contradice.test.ts
+PASS src/lib/__tests__/ak-demo-fiesta-lista.test.ts
+PASS src/__tests__/metricas-de-redes-todos-los-dias.test.ts
+PASS src/__tests__/privacidad-llega-al-visitante.test.ts
+PASS src/__tests__/la-ganancia-descuenta-la-comision-de-mercado-pago.test.ts
+PASS src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts
+PASS src/__tests__/google-workspace-email.test.ts
+PASS src/__tests__/crm-fecha-evento-no-es-cita.test.ts
+PASS src/__tests__/una-reunion-borrada-no-dice-que-se-guardo.test.ts
+PASS src/__tests__/testimonios-solo-aprobados.test.ts
+PASS src/__tests__/armar-album.test.ts
+PASS src/__tests__/offline-action-queue.test.ts
+PASS src/__tests__/la-demo-no-ofrece-lo-que-no-puede.test.ts
+PASS src/lib/__tests__/world-class-app-plan.test.ts
+PASS src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts
+PASS src/__tests__/no-se-borra-un-equipo-asignado.test.ts
+PASS src/__tests__/promos-fechas.test.ts
+PASS src/__tests__/social-interactive-creaciones-simultaneas.test.ts
+PASS src/__tests__/el-menu-impreso-no-pierde-lo-escrito.test.ts
+PASS src/lib/guest-portal/public-event-navigation.test.ts
+PASS src/__tests__/cliente-ideal-calculado.test.ts
+PASS src/__tests__/el-ingreso-nunca-se-cuelga.test.ts
+PASS src/__tests__/invitacion-editor-y-vista-previa.test.ts
+PASS src/__tests__/social-feature-guardrails.test.ts
+PASS src/__tests__/invitacion-no-sale-con-el-ejemplo.test.ts
+PASS src/__tests__/puesta-al-dia-action.test.ts
+PASS src/__tests__/la-importacion-de-invitados-no-miente.test.ts
+PASS src/__tests__/lo-automatico-no-sale-dos-veces.test.ts
+PASS src/__tests__/video-recuerdo-solo-aprobado.test.ts
+PASS src/__tests__/encargado-vueltas.test.ts
+PASS src/__tests__/la-experiencia-ak-y-tecnologia.test.ts
+PASS src/__tests__/la-cita-del-simulador-llega-a-la-agenda.test.ts
+PASS src/__tests__/firebase-que-ahorra.test.ts
+PASS src/lib/__tests__/portal-menu-simulator.test.ts
+PASS src/__tests__/salon-72-plantilla-conserva-escala.test.ts
+PASS src/__tests__/instagram-production-integrity.test.ts
+PASS src/__tests__/pr771-public-release-contract.test.ts
+PASS src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts
+PASS src/__tests__/simulator-conversion-engine.test.ts
+PASS src/__tests__/los-frenos-contra-robots.test.ts
+PASS src/__tests__/comentarios-redes.test.ts
+PASS src/__tests__/el-afiche-deja-subir-fotos.test.ts
+PASS src/__tests__/gasto-ia.test.ts
+PASS src/lib/budget/formal-budget.test.ts
+PASS src/__tests__/invitacion-digital-templates-delete.test.ts
+PASS src/__tests__/internal-operations-integrity.test.ts
+PASS src/__tests__/el-salon-muestra-lo-que-se-cargo.test.ts
+PASS src/__tests__/conteo-confirmados-personas.test.ts
+PASS src/__tests__/orden-21-recorrido-y-lista-automatica.test.ts
+PASS src/__tests__/velocidad-recuerdo-fotocabina.test.ts
+PASS src/lib/staff-agenda-lock.test.ts
+PASS src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts
+PASS src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts
+PASS src/__tests__/historial-publico-tiktok-threads-x.test.ts
+PASS src/__tests__/sin-jerga-cuando-falta-un-dato.test.ts
+PASS src/lib/whatsapp/meta-sender.test.ts
+PASS src/__tests__/impresos-con-los-datos-reales.test.ts
+PASS src/__tests__/portal-cliente-contadores-personas.test.ts
+PASS src/__tests__/marcadores-contrato.test.ts
+PASS src/__tests__/backup-registry.test.ts
+PASS src/__tests__/cola-aislamiento-y-reintento.test.ts
+PASS src/__tests__/la-pantalla-trago-listo.test.ts
+PASS src/__tests__/solo-contesta-a-los-de-la-publicidad.test.ts
+PASS src/__tests__/los-avisos-al-cliente-no-se-repiten-al-reintentar.test.ts
+PASS src/__tests__/ak-css-cascade-guard.test.ts
+PASS src/__tests__/acentos-en-docs.test.ts
+PASS src/__tests__/un-cambio-del-servidor-no-corre-toda-la-app.test.ts (6.708 s)
+PASS src/__tests__/borrar-o-cancelar-una-fiesta-pide-permiso.test.ts
+PASS src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts
+PASS src/app/actions/public-simulator-bootstrap.test.ts
+PASS src/__tests__/el-total-cobrado-del-personal-no-miente.test.ts
+PASS src/__tests__/presentacion-led-total-unico.test.ts
+PASS src/__tests__/lo-automatico-tiene-que-haber-pasado.test.ts
+PASS src/__tests__/commercial-gallery.test.ts
+PASS src/__tests__/aprobaciones-se-deciden-una-vez.test.ts
+PASS src/__tests__/las-tareas-se-ponen-al-dia-solas.test.ts
+PASS src/__tests__/revision-web-pide-las-paginas.test.ts
+PASS src/__tests__/no-dead-action-links.test.ts
+PASS src/__tests__/cupon-fechas-cruzadas.test.ts
+PASS src/__tests__/sin-conflictos-sin-resolver.test.ts (7.323 s)
+PASS src/__tests__/robots-que-no-entran.test.ts
+PASS src/__tests__/paginas-de-venta-abiertas.test.ts
+PASS src/__tests__/las-reuniones-no-pisan-lo-del-equipo.test.ts
+PASS src/__tests__/unidades-de-receta.test.ts
+PASS src/__tests__/organizacion-bloque-b.test.tsx
+PASS src/__tests__/acentos-rotos.test.ts
+PASS src/__tests__/la-clave-de-uno-no-le-cambia-la-clave-a-otro.test.ts
+PASS src/__tests__/ajustar-margenes-guarda-todos-los-menus-sin-colgarse.test.ts
+PASS src/__tests__/historial-publico-meta-completo.test.ts
+PASS src/__tests__/el-cliente-no-ve-puertas-del-equipo.test.ts
+PASS src/__tests__/asistente-donde-aparece.test.ts
+PASS src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts
+PASS src/__tests__/entertainment-station-config.test.ts
+PASS src/__tests__/client-portal-summary.test.ts
+PASS src/lib/youtube/ak-channel.test.ts
+PASS src/__tests__/la-ia-que-se-paga-siempre-se-cuenta.test.ts
+PASS src/__tests__/hoy-es-uruguay-en-todos-lados.test.ts
+PASS src/app/actions/creador-anuncios.test.ts
+PASS src/__tests__/historial-publico-youtube-identidad-social.test.ts
+PASS src/__tests__/las-paginas-que-venden-dicen-salto.test.ts
+PASS src/__tests__/crm-agenda-performance.test.ts
+PASS src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts
+PASS src/__tests__/social-wall-guest-boundary.test.ts
+PASS src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts
+PASS src/__tests__/public-social-display-contract.test.ts
+PASS src/__tests__/la-ia-no-corta-la-respuesta.test.ts
+PASS src/__tests__/el-codigo-no-sabe-si-lo-prueban.test.ts
+PASS src/__tests__/commercial-follow-up.test.ts
+PASS src/__tests__/se-prueba-solo-lo-que-cambio-de-un-archivo.test.ts
+PASS src/__tests__/dependencias-multipart-mapas-regresion.test.ts
+PASS src/__tests__/asistente-mapa-y-navegacion.test.ts
+PASS src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts
+PASS src/__tests__/cada-pantalla-vacia-lo-suyo.test.ts
+PASS src/__tests__/un-codigo-que-no-se-mando-no-queda-vivo.test.ts
+PASS src/__tests__/130-clientes-enlace-whatsapp.test.ts
+PASS src/__tests__/el-concierge-lee-la-fiesta-y-pide-la-credencial.test.ts
+PASS src/__tests__/el-respaldo-de-la-ia-respeta-la-fiesta.test.ts
+PASS src/__tests__/otravez-repite-solo-lo-que-fallo.test.ts
+PASS src/__tests__/crm-etapas-finales.test.ts
+PASS src/lib/staff-agenda-data.test.ts
+PASS src/__tests__/pantallas-que-no-quedan-en-blanco.test.ts
+PASS src/__tests__/el-descuento-por-pago-contado.test.ts
+PASS src/__tests__/la-vista-3d-pone-cada-mueble-en-su-lugar.test.ts
+PASS src/__tests__/fotos-por-tipo.test.ts
+PASS src/lib/budget/verified-budget-date-migration.test.ts
+PASS src/__tests__/server-action-write-boundary.test.ts
+PASS src/__tests__/un-bloque-agregado-sin-comprobacion-no-da-hecha.test.ts
+PASS src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
+PASS src/__tests__/la-suscripcion-guarda-el-correo.test.ts
+PASS src/__tests__/editable-budget-summary.test.ts
+PASS src/__tests__/public-event-data-boundary.test.ts
+PASS src/__tests__/despertador-golpea-una-puerta-real.test.ts
+PASS src/__tests__/sitio-listo-para-ia.test.ts
+PASS src/__tests__/monto-de-senia.test.ts
+PASS src/__tests__/la-galeria-no-muestra-nombres-de-archivo.test.ts
+PASS src/__tests__/entretenimiento-bloque-b.test.tsx
+PASS src/__tests__/agentes-preparar-no-mandar.test.ts
+PASS src/__tests__/un-pago-a-confirmar-no-cuenta-como-cobrado.test.ts
+PASS src/__tests__/espejo-magico-sesion-segura.test.ts
+PASS src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts
+PASS src/__tests__/script-auditoria-mecanica.test.ts (24.376 s)
+PASS src/__tests__/get-social-posts-no-convierte-falla-en-vacio.test.ts
+PASS src/lib/budget/simulator-budget-pdf.test.ts
+PASS src/__tests__/portal-led-budget-connector.test.ts
+PASS src/__tests__/el-recorrido-mira-lo-que-cambia.test.ts
+PASS src/lib/events/event-ordering.test.ts
+PASS src/__tests__/operative-budget-import.test.ts
+PASS src/__tests__/llegada-del-equipo.test.ts
+PASS src/__tests__/simulator-sales-presentation.test.ts
+PASS src/__tests__/recepcion-y-portal-publico-cuentan-personas.test.ts
+PASS src/lib/crm/lead-presentation.test.ts
+PASS src/lib/payments/deposit-payment.test.ts
+PASS src/__tests__/invitation-pro-templates.test.ts
+PASS src/__tests__/el-qr-descargado-tiene-zona-blanca.test.ts
+PASS src/__tests__/el-video-resumen-elige-las-mejores-fotos.test.ts
+PASS src/__tests__/el-recibo-y-el-contrato-no-corren-la-fecha.test.ts
+PASS src/lib/simulator/payment-plan.test.ts
+PASS src/lib/guest-portal/guest-entertainment.test.ts
+PASS src/__tests__/lectura-firestore-no-oculta-fallo.test.ts
+PASS src/__tests__/firebase-saltea-solo-lo-que-ya-hizo-la-puerta.test.ts (5.399 s)
+PASS src/__tests__/el-itinerario-no-borra-lo-que-hiciste.test.ts
+PASS src/__tests__/la-privacidad-dice-la-ley-y-la-verdad.test.ts
+PASS src/__tests__/el-resumen-del-contador-cuadra.test.ts
+PASS src/__tests__/social-fiesta-invitation-entry.test.ts
+PASS src/__tests__/asistente-modelos-y-fallback.test.ts
+PASS src/__tests__/el-flujo-de-caja-no-muestra-ceros-falsos.test.ts
+PASS src/__tests__/barman-cancelar-visible-y-cola-movil.test.ts
+PASS src/__tests__/130-la-barra-comparte-el-enlace-del-cliente.test.ts
+PASS src/lib/budget/budget-ordering.test.ts
+PASS src/__tests__/client-portal-auth-boundary.test.ts
+PASS src/__tests__/organizacion-bloque-c.test.tsx
+PASS src/__tests__/el-salon-se-arma-con-una-frase.test.ts
+PASS src/__tests__/insumo-receta-conserva-unidad.test.ts
+PASS src/__tests__/plantilla-mensaje.test.ts
+PASS src/__tests__/entretenimiento-resiliencia-offline.test.ts
+PASS src/__tests__/portal-session-revocation.test.ts
+PASS src/__tests__/google-no-ve-precios-inventados.test.ts
+PASS src/__tests__/estaciones-abren-su-sesion.test.ts
+PASS src/__tests__/portal-led-calculos.test.ts
+PASS src/__tests__/provider-portal-workflow.test.ts
+PASS src/__tests__/la-ia-arranca-sin-telemetria.test.ts
+PASS src/__tests__/crm-concurrency-boundary.test.ts
+PASS src/__tests__/conversacion-en-vivo-con-voz.test.ts
+PASS src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts
+PASS src/lib/guest-portal/public-menu.test.ts
+PASS src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts
+PASS src/__tests__/recap-engine.test.ts
+PASS src/__tests__/security-risk.test.ts
+PASS src/__tests__/el-chat-no-inventa-datos-de-la-fiesta.test.ts
+PASS src/lib/budget/recibo-contrato-ajuste.test.ts
+PASS src/__tests__/ak-automation-calendar.test.ts
+PASS src/__tests__/ak-guest-portal-premium.test.ts
+PASS src/__tests__/entertainment-token.test.ts
+PASS src/__tests__/payment-notification-transitions.test.ts
+PASS src/__tests__/los-enlaces-del-pie-llegan-a-su-seccion.test.ts
+PASS src/__tests__/la-foto-nitida-gana.test.ts
+PASS src/__tests__/mesas-no-es-publica.test.ts
+PASS src/app/invitacion/[fiestaId]/invitado/[guestId]/page.contract.test.ts
+PASS src/__tests__/el-ingreso-tiene-tope-de-intentos.test.ts
+PASS src/__tests__/ak-premium-design-system.test.ts
+PASS src/__tests__/google-puede-leer-el-mapa.test.ts
+PASS src/__tests__/public-social-event.test.ts
+PASS src/__tests__/la-salud-dice-que-version-atiende.test.ts
+PASS src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts
+PASS src/__tests__/budget-share-access.test.ts
+PASS src/__tests__/fictitious-discount.test.ts
+PASS src/__tests__/el-portal-cuenta-el-dia-en-uruguay.test.ts
+PASS src/__tests__/public-marketing-resilience.test.ts
+PASS src/__tests__/dependencias-criticas-regresion.test.ts
+PASS src/__tests__/touchpix-real-ai-wiring.test.ts
+PASS src/__tests__/la-ficha-de-google-no-inventa-nada.test.ts
+PASS src/__tests__/portal-led-pro-visual-model.test.ts
+PASS src/__tests__/ak-public-experience-presets.test.ts
+PASS src/lib/simulator/catalog.test.ts
+PASS src/__tests__/payment-summary.test.ts
+PASS src/__tests__/el-cartel-de-whatsapp-no-miente.test.ts
+PASS src/__tests__/la-resena-se-le-pide-a-todos.test.ts
+PASS src/__tests__/una-prueba-no-escribe-en-el-repositorio.test.ts
+PASS src/__tests__/public-contact-integrity.test.ts
+PASS src/__tests__/testimonios-reales.test.ts
+PASS src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts
+PASS src/__tests__/la-lista-de-alergias-llega-a-la-cocina.test.ts
+PASS src/lib/ai/intelligence-guardrails.test.ts
+PASS src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts
+PASS src/__tests__/social-fiesta-content-review.test.ts
+PASS src/__tests__/chat-presupuesto-identidad.test.ts
+PASS src/__tests__/ak-operator-experience-presets.test.ts
+PASS src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts
+PASS src/__tests__/el-aviso-de-margen-pide-perfil.test.ts
+PASS src/lib/buzon/media-upload.test.ts
+PASS src/__tests__/proveedor-insumos-sin-asociacion.test.ts
+PASS src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts
+PASS src/__tests__/la-comparativa-descuenta-la-comision.test.ts
+PASS src/lib/crm/lead-stage.test.ts
+FAIL src/__tests__/indicador-abre-asistente-real.test.tsx
+  ● la tarjeta abre el lanzador real aun sin selector legacy
+
+    ReferenceError: ResizeObserver is not defined
+
+    [0m [90m  97 |[39m       })[33m;[39m
+     [90m  98 |[39m     }[33m;[39m
+    [31m[1m>[22m[39m[90m  99 |[39m     [36mconst[39m observer [33m=[39m [36mnew[39m [33mResizeObserver[39m(medir)[33m;[39m
+     [90m     |[39m                      [31m[1m^[22m[39m
+     [90m 100 |[39m     observer[33m.[39mobserve(document[33m.[39mdocumentElement)[33m;[39m
+     [90m 101 |[39m     window[33m.[39maddEventListener([32m'scroll'[39m[33m,[39m medir[33m,[39m [36mtrue[39m)[33m;[39m
+     [90m 102 |[39m     window[33m.[39maddEventListener([32m'resize'[39m[33m,[39m medir)[33m;[39m[0m
+
+      at src/components/assistant/contextual-assistant-indicator.tsx:99:22
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at flushPendingEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18358:14)
+      at performSyncWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18969:11)
+      at flushSyncWorkAcrossRoots_impl (node_modules/react-dom/cjs/react-dom-client.development.js:18814:21)
+      at flushSpawnedWork (node_modules/react-dom/cjs/react-dom-client.development.js:18334:9)
+      at commitRoot (node_modules/react-dom/cjs/react-dom-client.development.js:17955:9)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:16667:15)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at Object.<anonymous> (src/__tests__/indicador-abre-asistente-real.test.tsx:20:8)
+
+PASS src/__tests__/el-pedido-al-proveedor-pide-lo-que-falta.test.ts
+PASS src/__tests__/la-tecnologia-ak-no-se-despega.test.ts
+PASS src/__tests__/fecha-evento.test.ts
+PASS src/__tests__/public-simulator-package-flow.test.ts
+PASS src/__tests__/social-wall-content-safety.test.ts
+PASS src/lib/commercial/acquisition.test.ts
+PASS src/__tests__/whatsapp-webhook-security.test.ts
+PASS src/__tests__/organizacion-bloque-d.test.tsx
+PASS src/__tests__/social-interaction-rate-limit.test.ts
+PASS src/__tests__/cola-de-impresion.test.ts
+PASS src/__tests__/public-simulator-identity-boundary.test.ts
+PASS src/__tests__/shared-ui-accessibility.test.ts
+PASS src/__tests__/landing-navigation-release.test.ts
+PASS src/__tests__/mojibake-cleanup.test.ts
+PASS src/lib/buzon/video-frame-canvas.test.ts
+PASS src/__tests__/public-simulator-bootstrap-fallback.test.ts
+PASS src/__tests__/ajustes-remotos-no-rompen-nada.test.ts
+PASS src/lib/public-experience/wait-for-initial-public-load.test.ts
+PASS src/__tests__/el-titulo-de-la-portada-vende.test.ts
+PASS src/__tests__/el-permiso-de-publicar-no-viaja.test.ts
+PASS src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts
+PASS src/__tests__/pantallas-totem-enlace-impresion.test.ts
+PASS src/__tests__/la-importacion-avisa-lo-que-quedo-a-medias.test.ts
+PASS src/__tests__/orden-23-invitaciones-y-red-social.test.ts
+PASS src/__tests__/sena-pregunta-como-entro.test.ts
+PASS src/__tests__/cuenta-regresiva-del-portal.test.ts
+PASS src/__tests__/text-encoding-integrity.test.ts
+PASS src/__tests__/touchpix-caricatura.test.ts
+PASS src/__tests__/el-simulador-no-dice-libre-si-no-pudo-leer.test.ts
+PASS src/__tests__/menu-enlaza-las-tres-pantallas.test.ts
+PASS src/__tests__/un-si-de-casualidad-no-confirma.test.ts
+PASS src/lib/__tests__/whatsapp-template-markers.test.ts
+PASS src/__tests__/buzon-guarda-offline.test.ts
+PASS src/__tests__/la-direccion-de-la-web-en-los-documentos.test.ts
+PASS src/__tests__/el-qr-no-tumba-la-pantalla.test.tsx
+PASS src/__tests__/pinterest-nos-reconoce-el-sitio.test.ts
+PASS src/__tests__/client-portal-health.test.ts
+PASS src/__tests__/security-headers-config.test.ts
+PASS src/__tests__/backup-readiness.test.ts
+PASS src/__tests__/crm-firestore-read-path.test.ts
+PASS src/__tests__/el-album-se-abre-con-el-enlace.test.ts
+PASS src/__tests__/ak-final-premium-readiness.test.ts
+PASS src/__tests__/espejo-magico-style-selector.test.ts
+PASS src/__tests__/event-next-actions.test.ts
+PASS src/__tests__/lead-priority.test.ts
+PASS src/__tests__/crm-board-release.test.ts
+PASS src/__tests__/130-asistente-no-tapa-la-cabecera.test.ts
+PASS src/lib/crm/public-lead-stage.test.ts
+PASS src/__tests__/la-pantalla-no-se-recarga-al-volver-la-senal.test.ts
+PASS src/__tests__/assistant-action-safety.test.ts
+PASS src/lib/client-portal/public-guest-stats.test.ts
+PASS src/__tests__/el-portal-reintenta-la-lectura-del-servidor.test.tsx
+PASS src/__tests__/guest-counts.test.ts
+PASS src/__tests__/invitation-readiness.test.ts
+PASS src/__tests__/presupuesto-planificador-sync-path.test.ts
+PASS src/components/landing/TestimonialsSection.test.ts
+PASS src/lib/__tests__/carta-tragos-master.test.ts
+PASS src/__tests__/dynamic-route-params.test.ts
+PASS src/__tests__/hoy-es-el-dia-de-uruguay.test.ts
+PASS src/__tests__/multiagent-chat-scope.test.ts
+PASS src/lib/commercial/contact.test.ts
+PASS src/__tests__/snapshot-codec.test.ts
+PASS src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts
+PASS src/lib/seo/event-landing.test.ts
+PASS src/lib/invoice-money.test.ts
+PASS src/__tests__/next-image-url.test.ts
+PASS src/__tests__/company-atomic-writes.test.ts
+PASS src/lib/public-experience/event-date.test.ts
+PASS src/__tests__/vidriera-sin-karaoke.test.ts
+PASS src/app/actions/fiesta/invitados.actions.contract.test.ts
+PASS src/__tests__/la-galeria-clasifica-bien-la-bienvenida.test.ts
+PASS src/__tests__/deployment-recovery.test.ts
+PASS src/__tests__/global-premium-scope.test.ts
+PASS src/__tests__/camera-readiness.test.ts
+PASS src/__tests__/seo-schema-google.test.ts
+PASS src/lib/commercial/birthday.test.ts
+PASS src/lib/blog-display.test.ts
+PASS src/__tests__/encargado-no-inventa-guardados.test.ts
+PASS src/__tests__/asistente-presupuesto-catalogo.test.ts
+PASS src/__tests__/chat-intento-estable.test.ts
+PASS src/__tests__/asistente-posicion-segura.test.tsx
+
+Summary of all failing tests
+FAIL src/__tests__/indicador-abre-asistente-real.test.tsx
+  ● la tarjeta abre el lanzador real aun sin selector legacy
+
+    ReferenceError: ResizeObserver is not defined
+
+    [0m [90m  97 |[39m       })[33m;[39m
+     [90m  98 |[39m     }[33m;[39m
+    [31m[1m>[22m[39m[90m  99 |[39m     [36mconst[39m observer [33m=[39m [36mnew[39m [33mResizeObserver[39m(medir)[33m;[39m
+     [90m     |[39m                      [31m[1m^[22m[39m
+     [90m 100 |[39m     observer[33m.[39mobserve(document[33m.[39mdocumentElement)[33m;[39m
+     [90m 101 |[39m     window[33m.[39maddEventListener([32m'scroll'[39m[33m,[39m medir[33m,[39m [36mtrue[39m)[33m;[39m
+     [90m 102 |[39m     window[33m.[39maddEventListener([32m'resize'[39m[33m,[39m medir)[33m;[39m[0m
+
+      at src/components/assistant/contextual-assistant-indicator.tsx:99:22
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:25989:20)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at commitHookEffectListMount (node_modules/react-dom/cjs/react-dom-client.development.js:13249:29)
+      at commitHookPassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:13336:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15484:13)
+      at recursivelyTraversePassiveMountEffects (node_modules/react-dom/cjs/react-dom-client.development.js:15439:11)
+      at commitPassiveMountOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:15519:11)
+      at flushPassiveEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18432:9)
+      at flushPendingEffects (node_modules/react-dom/cjs/react-dom-client.development.js:18358:14)
+      at performSyncWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18969:11)
+      at flushSyncWorkAcrossRoots_impl (node_modules/react-dom/cjs/react-dom-client.development.js:18814:21)
+      at flushSpawnedWork (node_modules/react-dom/cjs/react-dom-client.development.js:18334:9)
+      at commitRoot (node_modules/react-dom/cjs/react-dom-client.development.js:17955:9)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:16667:15)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:18957:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:590:34)
+      at process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:884:10)
+      at Object.<anonymous> (src/__tests__/indicador-abre-asistente-real.test.tsx:20:8)
+
+
+Test Suites: 1 failed, 739 passed, 740 total
+Tests:       1 failed, 4659 passed, 4660 total
+Snapshots:   0 total
+Time:        428.372 s
+Test results written to: docs\evidencias\123-jest.json

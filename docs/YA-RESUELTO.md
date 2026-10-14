@@ -1,5 +1,52 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex123 CORREGIDA Y COMPROBADA, alcance acotado
+
+- Fuente app34f45fbb1a75b7ddc92edadc7831d55f098a9cdb; main096 integrado.
+  PR1293 preparada para Claude: CLAUDE FUSIONA siempre; Codex no fusiona.
+  NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD no se conoce.
+- IA presupuestos: usa cantidades/costos del motor financiero existente,
+  conservando metodos/ratio/tramos/categorias y desglose de edades. Antes5dc:
+  persona0 frente75000, tramo9000 frente12000, ratio500 frente3000; ahora
+  importes correctos en SDK y respuesta. Desconocido junto a valido ya NO
+  guarda parcialmente; repetido por mismo servicio no se cobra dos veces.
+  Seleccion ambigua y catalogo incompleto piden aclarar antes de guardar.
+  Ceros legacy con respaldo y cero real valido tienen casos unitarios separados.
+- Chat: A incierto ya no pierde UUID cuando B se confirma; tras recarga y
+  retry queda1A; otra cotizacion deliberada identica queda2A. No deduplicar
+  cotizaciones por telefono/nombre/fecha. Manual/configurador mantienen sus
+  namespaces existentes; esta mejora intercalada esta probada SOLO para chat.
+- Posicion152: Guardar libre3/3puntos PC y3/3celular, teclado disponible;
+  arrastre/minimizado PC preservados. La tarjeta evita controles visibles;
+  esto NO promete que jamas tape texto, ni redisenar toda la estetica.
+- Dependencias: parches compatibles en19familias;56avisos GHSA unicos
+  retirados(86->30).107entradas agregadas residuales,1critical/19high/87moderate;
+  no afirmar seguridad total. Tar6 del FirebaseCLI14.27 queda; no se fuerza
+  tar7 en ese consumidor. Pendiente estructural documentado en orden163.
+- Build fuente34 exit0, con tipos/lint; acentos2872 PASS. Jest COMPUESTO:
+  739suites de amplia +1focal por ResizeObserver ausente en jsdom =740suites,
+  4660tests acreditados. No una sola corrida740verde. Amplia fallida, focal
+  e incidencias propias conservadas; no se bajaron aserciones ni se oculto error.
+-52nativos de MISMA fuente PC/Pixel7:16regresiones ACK/CRM/documento;
+  34IA precios/edades/ambiguos/intercalado/seis agentes y voz denegada/sin clave;
+  2posicion/3D. Evidencia compuesta:16desktop IA y1desktop posicion reutilizados
+  tras arreglar expectativas/capturas de sonda; restantes ejecutados. Proveedor
+  DOBLE LOCAL, no Gemini real; roles prueban cambio/respuesta sin acciones.
+  Descuentos/regalos: motor financiero unitario, no semantica del modelo real.
+-3D: pixeles reales738colores PC/1121celular; Recorrer cambia frame y se pausa.
+  Render software SwiftShader, NO hardware ni salon real.9smokes dependencias PASS.
+-Grafo local14850nodos44190relaciones935comunidades,0LLM;25avisos parciales
+  parser no errores TS. QA SDK0, servicios/agentes cerrados, bytes restaurados.
+-Recuento123:421rutas/14areas;6rutas con escenarios actuales acotados,
+  315referencias en suites ejecutadas,5historicas,24solo referencias,71sin
+  prueba vinculada.95seguimientos de evidencia NO son95bugs ni95nunca auditadas.
+  Regalos/post-evento/QR y trabajo historico conservados; no reencargar por ausencia
+  de referencia reciente. Indice de todos los prefijos de auditoria, no solo103+.
+-Gate PASS_AI_PRICING_CHAT_POSITION_COMPATIBLE_PATCHES_ONLY. NO toda app,
+  Hosting/OAuth/19originales/voz real/modelo real/hardware ni0errores certificados.
+  Ver123-aceptacion,123-cobertura-recuento y123-qa-incidencias para limites exactos.
+
+
 ## 13/10/2026 - Codex122 CORREGIDA Y COMPROBADA: tarjeta abre el chat real
 
 -Fuente5dc197e5. La tarjeta busca el lanzador real Abrir Asistente IA AK tanto
