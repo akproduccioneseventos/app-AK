@@ -13783,3 +13783,15 @@ era. Lo encontró la pregunta 61 apenas su prueba empezó a correr también en e
 ```comprobar
 prueba: tests/e2e/la-red-social-de-la-fiesta.spec.ts
 ```
+
+## Pago a proveedor: un reintento ya no lo anota dos veces (14 de octubre de 2026)
+
+En gestión de costos, la pantalla mandaba la lista entera de pagos armada en el navegador. Si se perdía
+la respuesta y se volvía a tocar, o si otra persona cargaba un pago al mismo tiempo, la lista vieja pisaba
+la de la otra. Ahora `agregarPagoProveedor` agrega sólo ese pago sobre la lista guardada en ese momento,
+con la identidad del intento: el mismo pago reintentado queda uno solo.
+
+```comprobar
+prueba: src/__tests__/un-pago-a-proveedor-reintentado-no-se-duplica.test.ts
+usa: agregarPagoProveedorFiestaActual en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
+```

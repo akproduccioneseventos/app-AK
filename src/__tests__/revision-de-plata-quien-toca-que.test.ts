@@ -36,6 +36,7 @@ const CASOS: Array<[string, string, RegExp]> = [
   ['src/app/actions/servicios-empresa.ts', 'deleteServicioEmpresa', /requirePermisoAlguno\(PERMISOS\.CONTABILIDAD, PERMISOS\.INSUMOS\)/],
   ['src/app/actions/servicios-empresa.ts', 'adjustAllServicePrices', /requirePermisoAlguno\(PERMISOS\.CONTABILIDAD\)/],
   ['src/app/actions/fiesta/pagos.actions.ts', 'updatePagosProveedores', /requireEventPermission\(fiestaId, PERMISOS\.CONTABILIDAD\)/],
+  ['src/app/actions/fiesta/pagos.actions.ts', 'agregarPagoProveedor', /requireEventPermission\(fiestaId, PERMISOS\.CONTABILIDAD\)/],
   ['src/app/actions/reportes.ts', 'getProfitAndLossData', /requirePermisoAlguno\(PERMISOS\.GANANCIAS\)/],
   ['src/app/actions/dashboard.ts', 'getCashFlowProjection', /requirePermisoAlguno\(PERMISOS\.CONTABILIDAD\)/],
   ['src/app/actions/google-workspace-extended.ts', 'notifyClientPaymentApproved', /requirePermisoAlguno\(PERMISOS\.CONTABILIDAD\)/],

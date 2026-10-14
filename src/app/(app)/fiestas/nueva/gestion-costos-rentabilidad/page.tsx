@@ -11,7 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2, DollarSign, ChefHat, RefreshCw, Truck, Info, Layers, Banknote, CheckCircle2, UserCheck, Percent, GlassWater, CakeSlice, Building, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, updateGestionCostosFiestaActual, updatePagosProveedoresFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById, updateGestionCostosFiestaActual, agregarPagoProveedorFiestaActual } from '@/app/actions/fiesta-actual';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { syncAllEventCosts } from '@/app/actions/fiesta/costos.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import type { PagoCliente } from '@/types/presupuesto';
@@ -135,17 +136,22 @@ function GestionCostosRentabilidadContent() {
       toast({ title: 'Monto invalido', description: 'Poné un importe mayor o igual a cero.', variant: 'destructive' });
       return;
     }
-    const newPago: PagoProveedor = {
-        id: `pago_${Date.now()}`,
-        costoAsociadoId: newPagoCostoId,
-        fecha: newPagoFecha.toISOString(),
-        monto: montoPago
-    };
-    const updated = [...pagosProveedores, newPago];
+    const fechaPago = newPagoFecha.toISOString();
+    // Identidad del intento (pregunta 58): la misma en cada reintento del mismo pago, así un segundo
+    // toque después de perder la respuesta no lo anota dos veces.
+    const alcance = `pago-proveedor:${fiestaId}`;
     setIsSaving(true);
     try {
-        const result = await updatePagosProveedoresFiestaActual(fiestaId, updated);
+        const intento = await obtenerIntento(alcance, { costo: newPagoCostoId, fecha: fechaPago, monto: montoPago });
+        const newPago: PagoProveedor = {
+            id: `pago_${intento}`,
+            costoAsociadoId: newPagoCostoId,
+            fecha: fechaPago,
+            monto: montoPago
+        };
+        const result = await agregarPagoProveedorFiestaActual(fiestaId, newPago);
         if (!result.success) throw new Error(result.error || 'No se pudo registrar el pago.');
+        terminarIntento(alcance);
         toast({ title: "Pago registrado" });
         setNewPagoMonto('');
         await loadData(false);
