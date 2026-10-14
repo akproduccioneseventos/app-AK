@@ -1,0 +1,14 @@
+{
+  "sha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/124-chat-regresiones-probe.mjs"
+  ],
+  "launcher": 61408,
+  "child": 26696,
+  "started": "2026-10-14T13:57:11.539Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T13:58:19.203Z"
+}

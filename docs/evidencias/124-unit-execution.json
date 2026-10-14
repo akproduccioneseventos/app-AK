@@ -1,0 +1,29 @@
+{
+  "sha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/124-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts",
+    "src/__tests__/asistente-presupuesto-catalogo.test.ts",
+    "src/__tests__/chat-intento-estable.test.ts",
+    "src/__tests__/asistente-posicion-segura.test.tsx",
+    "src/__tests__/indicador-abre-asistente-real.test.tsx",
+    "src/__tests__/encargado-no-inventa-guardados.test.ts"
+  ],
+  "launcher": 33252,
+  "child": 9156,
+  "started": "2026-10-14T13:26:30.792Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T13:26:48.789Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

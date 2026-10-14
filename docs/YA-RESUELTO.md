@@ -1,5 +1,40 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 14/10/2026 - Codex124: delta123 integrado sobre main f04 y comprobado
+
+- PR1293 ya FUSIONADA por Claude hasta09a411. No subir a su rama cerrada.
+  Rama nueva codex/123-ia-controles-main-20261014 desde main f04db066,
+  PR1297; fuente app74258c9ffa3c8926327f1d8da74f0fffb0100e60.
+  Los cambios de preguntas58-61, cobros/proveedores, votos/trivia/misiones de
+  Claude quedan intactos. NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE.
+- Integra SOLO los arreglos123 de precios IA canonicos/edades/ceros/servicios
+  ambiguos o repetidos, chat A incierto+B confirmado, evitar controles con la
+  tarjeta y19familias compatibles de dependencias. No repite116-122.
+- Validacion NUEVA de ese conjunto: build exit0 incluido tipos/lint;
+ 750suites4726tests en UNA amplia verde,0fallos/omitidos;acentos2890 PASS.
+  La evidencia123 compuesta de34 sigue historica, NO usada para acreditar742.
+-52recorridos NUEVOS PC/Pixel7 sin reutilizar anteriores:16ACK/CRM/documento,
+ 34precios/menus/intercalado/roles/voz denegada,2posicion/3D;9smokes PASS.
+  Se perdio respuesta DESPUES de guardar y recarga/retry conserva uno; las
+  cotizaciones deliberadas identicas siguen permitidas. SDK real SOLO demo,
+  modelo DOBLE LOCAL. Seis roles: selector/contexto/respuesta, SIN acciones.
+-Guardar3/3puntos libres PC/celular y teclado; arrastre/minimizado PC. Canvas
+ real734/1142colores; Recorrer mueve y pausa. SwiftShader, NO GPU/hardware;
+ tarjeta tras arrastre puede tapar texto, no promete cero superposicion textual.
+-Npm audit124 completo:30GHSA/107entradas/1criticalCLI.56GHSA retirados frente
+  baseline123; residuales estructurales en orden163. No usar force/mayores a ciegas.
+-Grafo actualizado local14993nodos44500relaciones947comunidades,0LLM;
+ 4avisos nuevos de parser parcial no errores TS; nombres por hub, no LLM pago.
+-Recuento124 confirma421rutas:6escenarios acotados,315referencias en suites,
+ 5historicas,24solo referencias,71sin prueba vinculada.95seguimientos de
+ evidencia NO95bugs ni95rutas nunca auditadas. No aprobar areas por referencias.
+-Gate PASS_INTEGRATED_DELTA123_ONLY. SDK0,2servicios propios cerrados,
+ agentes cerrados y bytes restaurados. Salidas de cierre1/4294967295 son
+ intencionales, no fallos de recorridos. Sondas e incidencias preservadas.
+-CLAUDE FUSIONA siempre; Codex prepara/sube y verifica remoto. No certificado
+ de toda app/0errores/modelo o voz real/OAuth/Hosting/19originales/hardware.
+ No repetir esta validacion si la fuente app742 no cambia.
+
 ## 13/10/2026 - Codex123 CORREGIDA Y COMPROBADA, alcance acotado
 
 - Fuente app34f45fbb1a75b7ddc92edadc7831d55f098a9cdb; main096 integrado.

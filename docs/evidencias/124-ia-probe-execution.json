@@ -1,0 +1,14 @@
+{
+  "sha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/124-ia-final-probe.mjs"
+  ],
+  "launcher": 65588,
+  "child": 65168,
+  "started": "2026-10-14T13:58:56.101Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T14:00:30.247Z"
+}
