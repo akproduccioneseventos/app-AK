@@ -207,9 +207,10 @@ export async function prepareAssistantBudgetProposal(input: AssistantParsedBudge
     if ((method === 'porPersona' || method === 'ratio' || method === 'tramos') && input.guestCount == null) {
       throw new Error('Indica la cantidad de invitados antes de calcular ese servicio.');
     }
-    const price = method === 'porPersona'
-      ? matched.precioPorPersona || matched.precioVenta || matched.precioBase || matched.precioPorPersona
-      : matched.precioVenta || matched.precioBase || matched.precioPorPersona || matched.precioVenta || matched.precioBase;
+    const prices = method === 'porPersona'
+      ? [matched.precioPorPersona, matched.precioVenta, matched.precioBase]
+      : [matched.precioVenta, matched.precioBase, matched.precioPorPersona];
+    const price = prices.find(value => value != null && value !== 0) ?? prices.find(value => value != null);
     if (method !== 'tramos' && (price == null || !Number.isFinite(price) || price < 0)) {
       throw new Error(`El servicio ${matched.nombre} no tiene un precio valido en el catalogo.`);
     }

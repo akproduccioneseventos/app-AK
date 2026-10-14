@@ -97,6 +97,7 @@ describe('AI usa el calculo canonico y conserva sus datos al guardar', () => {
     [{ calculationMethod: 'porPersona', precioPorPersona: 0, precioBase: 500 }, 75000, 150],
     [{ calculationMethod: 'fijo', precioVenta: 0, precioBase: 500 }, 500, 1],
     [{ precioPorPersona: 0, precioBase: 500 }, 500, 1],
+    [{ calculationMethod: 'fijo', precioVenta: 0 }, 0, 1],
   ])('metodo %j: propuesta y recalculo coinciden', async (fields, total, qty) => {
     mockServicios = [{ id: 'qa123', nombre: 'Servicio QA123', ...fields }];
     const proposal = await prepareAssistantBudgetProposal({ ...input, requestedServices: ['Servicio QA123'] });
