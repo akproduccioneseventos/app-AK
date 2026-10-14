@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -379,7 +380,11 @@ function PagosRapidosContent() {
     }
     setIsSaving(true);
     try {
+      // Pregunta 58: misma identidad en cada reintento de este cobro (ruta /pagos-rapidos).
+      const alcanceIntento = `cobro:${presupuestoId}`;
+      const intento = await obtenerIntento(alcanceIntento, { monto, metodoPago: newPagoMetodo, referencia: newPagoReferencia.trim() || null, comprobanteUrl: newPagoComprobante ?? null });
       const result = await addPagoToPresupuesto(presupuestoId, {
+        id: `pago_${intento}`,
         fecha: new Date().toISOString(),
         monto,
         metodoPago: newPagoMetodo,
@@ -388,6 +393,7 @@ function PagosRapidosContent() {
         comprobanteUrl: newPagoComprobante,
       });
       if (!result.success) throw new Error(result.error);
+      terminarIntento(alcanceIntento);
 
       const newPago = result.presupuesto!.pagosCliente!.at(-1)!;
       setShowRecibo({ pago: newPago, presupuesto: result.presupuesto! });
@@ -760,14 +766,14 @@ function PagosRapidosContent() {
                 return (
                   <Card key={p.id} className="border-amber-100 shadow-md rounded-2xl overflow-hidden">
                     <CardHeader className="bg-amber-50/50 p-4 pb-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle className="text-sm font-black text-slate-800">{p.clienteNombre}</CardTitle>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <CardTitle className="text-sm font-black text-slate-800 break-words [overflow-wrap:anywhere]" data-testid="titulo-cliente-pago">{p.clienteNombre}</CardTitle>
                           <CardDescription className="text-[10px] font-medium uppercase tracking-tighter">
                             {p.eventoTipo} · Presupuesto #{p.numero}
                           </CardDescription>
                         </div>
-                        <Badge className="bg-amber-100 text-amber-700 text-[10px] font-bold">
+                        <Badge className="bg-amber-100 text-amber-700 text-[10px] font-bold shrink-0">
                           {pendingPagos.length} pendiente{pendingPagos.length > 1 ? 's' : ''}
                         </Badge>
                       </div>

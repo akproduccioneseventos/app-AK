@@ -1,6 +1,7 @@
 
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { Proveedor, NuevoProveedorFormData } from '@/types/proveedor';
 import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
@@ -35,14 +36,16 @@ export async function getProveedorById(id: string): Promise<Proveedor | null> {
 const turnoDeProveedores = new AsyncMutex();
 
 export async function saveProveedor(
-  proveedorData: NuevoProveedorFormData | Proveedor
+  proveedorData: NuevoProveedorFormData | Proveedor,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; proveedor?: Proveedor; error?: string }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.CONTABILIDAD);
-  return turnoDeProveedores.runExclusive(() => saveProveedorInterno(proveedorData));
+  return turnoDeProveedores.runExclusive(() => saveProveedorInterno(proveedorData, opciones));
 }
 
 async function saveProveedorInterno(
-  proveedorData: NuevoProveedorFormData | Proveedor
+  proveedorData: NuevoProveedorFormData | Proveedor,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; proveedor?: Proveedor; error?: string }> {
   // La lectura entra ADENTRO del turno a proposito: si quedara afuera, el que espera
   // trabajaria con la lista vieja y volveriamos al mismo problema.
@@ -68,12 +71,17 @@ async function saveProveedorInterno(
     finalProveedorData = proveedores[index];
   } else {
     // Create
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, el proveedor ya esta con ese id:
+    // es exito, no "ya existe".
+    const idDeLaPantalla = idDelIntento('prov', opciones?.idIntento);
+    const yaGuardado = idDeLaPantalla ? proveedores.find(p => p.id === idDeLaPantalla) : undefined;
+    if (yaGuardado) return { success: true, id: yaGuardado.id, proveedor: yaGuardado };
     const isDuplicate = proveedores.some(p => p.nombreEmpresa?.trim().toLowerCase() === proveedorData.nombreEmpresa!.trim().toLowerCase());
     if (isDuplicate) {
         return { success: false, error: `Ya existe un proveedor o servicio con el nombre "${proveedorData.nombreEmpresa!.trim()}".` };
     }
 
-    proveedorId = `prov_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    proveedorId = idDeLaPantalla ?? `prov_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     finalProveedorData = {
       ...proveedorData,
       id: proveedorId,
@@ -138,9 +146,12 @@ async function deleteProveedorInterno(id: string): Promise<{ success: boolean; e
   try {
     const proveedor = await getProveedorById(id);
     const insumos = await getInsumos();
-    const insumosEnUso = insumos.filter(
-      (ins: any) => ins.proveedorId === id || ins.proveedor === id || (proveedor && (ins.proveedor === proveedor.nombreEmpresa || ins.proveedor === proveedor.nombre))
-    );
+    const insumosEnUso = insumos.filter((ins: { proveedorId?: string; proveedor?: string }) => {
+      const coincideNombre = typeof ins.proveedor === 'string' && ins.proveedor.trim() !== ''
+        && [proveedor?.nombreEmpresa, proveedor?.nombre].some(nombre =>
+          typeof nombre === 'string' && nombre.trim() !== '' && ins.proveedor === nombre);
+      return ins.proveedorId === id || ins.proveedor === id || coincideNombre;
+    });
     if (insumosEnUso.length > 0) {
       return {
         success: false,

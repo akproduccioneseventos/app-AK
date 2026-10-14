@@ -20,10 +20,10 @@ jest.mock('@/lib/auth/require-session', () => ({
 jest.mock('@/lib/google-workspace', () => ({ sendGoogleGmailMessage: jest.fn(), ensureFreshGoogleAccount: jest.fn() }));
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({
   leerFiestasCrudas: jest.fn(async () => {
-    const date = new Date();
-    const p = (n: number) => String(n).padStart(2, '0');
+    // Hoy en Uruguay, como cuenta la app (en hora de Greenwich, de noche ya era mañana: 14/10/2026).
+    const { hoyEnUruguay } = jest.requireActual('@/lib/utils');
     return [{ id: 'audit81-guest-retry', configuracion: {
-      fechaEvento: `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}`,
+      fechaEvento: hoyEnUruguay(),
       nombreEvento: 'Audit fixture',
     }, invitados: [{ id: 'guest81', nombre: 'Fake guest', rsvp: 'Confirmado', contacto: '099123456' }] }];
   }),

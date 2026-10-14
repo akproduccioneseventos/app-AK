@@ -9,7 +9,6 @@ import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta } from './helpers/f
  * para correr con los datos de prueba de la puerta (sin emulador).
  */
 test('cancelar un trago con la señal cortada: el botón se recupera y no dice "cancelado"', async ({ page }, info) => {
-  test.skip(info.project.name !== 'chromium-desktop', 'La misma función de la pantalla en PC y celular.');
   test.setTimeout(180_000);
   const fiesta = crearFiestaDeEstaNoche({ id: `e2e_barra_corte_${Date.now()}` });
   if (fiesta.modulosContratados) fiesta.modulosContratados.barraTecnologica = true;

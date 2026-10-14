@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json().catch(() => null) as {
     message?: unknown;
+    requestId?: unknown;
     history?: unknown;
     pathname?: unknown;
     fiestaId?: unknown;
@@ -58,6 +59,12 @@ export async function POST(request: NextRequest) {
   const message = typeof body?.message === 'string' ? body.message.trim() : '';
   if (!message || message.length > 4_000) {
     return NextResponse.json({ error: 'Mensaje invalido' }, { status: 400 });
+  }
+
+  const requestId = body?.requestId;
+  if (requestId !== undefined && (typeof requestId !== 'string'
+    || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(requestId))) {
+    return NextResponse.json({ error: 'Identificador de intento invalido' }, { status: 400 });
   }
 
   const history: AkMultiAgentMessage[] = Array.isArray(body?.history)
@@ -80,6 +87,7 @@ export async function POST(request: NextRequest) {
   const { sendPersistentMultiAgentMessage } = await import('@/app/actions/multiagent');
   const result = await sendPersistentMultiAgentMessage({
     message,
+    requestId: requestId as string | undefined,
     history,
     pathname: typeof body?.pathname === 'string' ? body.pathname : undefined,
     fiestaId: typeof body?.fiestaId === 'string' ? body.fiestaId : undefined,

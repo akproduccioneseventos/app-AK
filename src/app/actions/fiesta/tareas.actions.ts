@@ -1,5 +1,6 @@
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { Tarea } from '@/types/fiesta';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -44,19 +45,31 @@ export async function updateTareas(
 
 export async function addTarea(
   fiestaId: string,
-  tareaData: Omit<Tarea, 'id' | 'completada'>
+  tareaData: Omit<Tarea, 'id' | 'completada'>,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; tarea?: Tarea; error?: string }> {
   await requireAppSession();
   try {
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la tarea ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('task', opciones?.idIntento);
     // El sufijo al azar evita dos ids iguales cuando dos personas agregan en el mismo milisegundo.
     const newTarea: Tarea = {
       ...tareaData,
-      id: `task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: idDeLaPantalla ?? `task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       completada: false,
     };
-    const r = await cambiarTareas(fiestaId, (tareas) => [newTarea, ...tareas]);
+    let guardada = newTarea;
+    const r = await cambiarTareas(fiestaId, (tareas) => {
+      const previa = idDeLaPantalla ? tareas.find((t) => t.id === idDeLaPantalla) : undefined;
+      if (previa) {
+        guardada = previa;
+        return tareas;
+      }
+      guardada = newTarea;
+      return [newTarea, ...tareas];
+    });
     if (!r.success) return { success: false, error: r.error };
-    return { success: true, tarea: newTarea };
+    return { success: true, tarea: guardada };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

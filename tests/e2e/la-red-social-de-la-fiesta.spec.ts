@@ -30,7 +30,6 @@ test.afterAll(() => borrarFiesta(ID));
 
 test('la red social le da al invitado su mesa, el cronograma y el ranking', async ({ page }, testInfo) => {
   test.setTimeout(180_000);
-  test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
   const erroresJs: string[] = [];
   page.on('pageerror', (e) => erroresJs.push(e.message));
@@ -72,7 +71,6 @@ test('la red social le da al invitado su mesa, el cronograma y el ranking', asyn
 
 test('el hub de la fiesta se dibuja para el invitado', async ({ page }, testInfo) => {
   test.setTimeout(120_000);
-  test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
   const erroresJs: string[] = [];
   page.on('pageerror', (e) => erroresJs.push(e.message));

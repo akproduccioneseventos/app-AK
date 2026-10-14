@@ -1,7 +1,8 @@
 
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { idDelIntento } from '@/lib/intento-en-servidor';
+import { readData, writeData, deleteDataItem } from '@/lib/data-service';
 import type { InvitacionDigitalData } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -177,17 +178,16 @@ export async function deleteInvitationTemplate(id: string): Promise<{ success: b
 
   // Only remove from the saved list; built-ins simply won't appear in savedTemplates
   const savedTemplates = await readSavedTemplates();
-  const filtered = savedTemplates.filter(t => t.id !== id);
-  if (filtered.length === savedTemplates.length) {
+  if (!savedTemplates.some(t => t.id === id)) {
     // Una plantilla base (nunca editada) no esta en la lista guardada: no hay nada que borrar.
     // No se anuncia exito si no cambio nada (si las bases se podran ocultar lo decide el dueno).
     return { success: false, error: "Esta es una plantilla base de la app y no se puede eliminar." };
   }
-  await writeData(TEMPLATES_FILE, filtered);
-  return { success: true };
+  const deleted = await deleteDataItem(TEMPLATES_FILE, 'invitacion_digital_templates', id);
+  return deleted ? { success: true } : { success: false, error: 'La plantilla ya no estaba guardada.' };
 }
 
-export async function duplicateInvitationTemplate(templateId: string): Promise<{ success: boolean; newTemplate?: InvitacionDigitalTemplate, error?: string }> {
+export async function duplicateInvitationTemplate(templateId: string, opciones?: { idIntento?: string }): Promise<{ success: boolean; newTemplate?: InvitacionDigitalTemplate, error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   const allTemplates = await getInvitationTemplates();
   const templateToDuplicate = allTemplates.find(t => t.id === templateId);
@@ -196,13 +196,17 @@ export async function duplicateInvitationTemplate(templateId: string): Promise<{
     return { success: false, error: "Plantilla a duplicar no encontrada." };
   }
 
+  // Pregunta 58: si la respuesta se perdio y la persona reintenta, la copia ya esta con ese id.
+  const idDeLaPantalla = idDelIntento('tpl', opciones?.idIntento);
   const newTemplate: InvitacionDigitalTemplate = {
     ...templateToDuplicate,
-    id: `tpl_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    id: idDeLaPantalla ?? `tpl_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
     name: `[COPIA] ${templateToDuplicate.name}`,
   };
 
   const savedTemplates = await readSavedTemplates();
+  const yaGuardada = idDeLaPantalla ? savedTemplates.find((t) => t.id === idDeLaPantalla) : undefined;
+  if (yaGuardada) return { success: true, newTemplate: yaGuardada };
   savedTemplates.push(newTemplate);
   await writeData(TEMPLATES_FILE, savedTemplates);
   return { success: true, newTemplate };

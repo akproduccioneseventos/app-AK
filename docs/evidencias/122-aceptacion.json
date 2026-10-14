@@ -1,0 +1,31 @@
+{
+  "status": "PASS_INDICATOR_AND_CHAT_BUDGET_ACK_ONLY",
+  "applicationSourceSha": "5dc197e5c831d8dbd75dec268efa5806eca957d8",
+  "evidenceHead": "5dc197e5c831d8dbd75dec268efa5806eca957d8",
+  "suites": 735,
+  "tests": 4601,
+  "failed": 0,
+  "omitted": 0,
+  "nativeCases": 18,
+  "graph": {
+    "nodes": 14652,
+    "links": 43895,
+    "communities": 922,
+    "llmCalls": 0,
+    "partialParserWarnings": 25
+  },
+  "sdkRemaining": 0,
+  "ownedServicesStopped": 2,
+  "foreignBytesRestored": true,
+  "privateClaude": "NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE",
+  "externalModelCertified": false,
+  "allAppCertified": false,
+  "publishedCertified": false,
+  "limits": [
+    "Friccion152 de posicion sigue separada, control puede moverse/minimizarse",
+    "Otras acciones/modelo externo/voz no certificados",
+    "Catalogo variable/fecha inferida pueden rechazar reintento distinto sin duplicar",
+    "Dependencias pendientes y cobertura109 por conciliar",
+    "Hosting OAuth19originales hardware no probados"
+  ]
+}

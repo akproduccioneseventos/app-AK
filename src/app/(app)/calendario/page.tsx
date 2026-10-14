@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   format,
@@ -458,7 +459,7 @@ export default function CalendarioInteractivoPage() {
         return;
       }
 
-      const res = await createAppointment({
+      const cargaCita = {
         clienteNombre: citaNombre,
         clienteContacto: citaTelefono,
         clienteEmail: citaEmail || undefined,
@@ -466,9 +467,13 @@ export default function CalendarioInteractivoPage() {
         fechaHora: fullDateTime,
         lugar: citaLugar,
         notas: citaNotas,
-      });
+      };
+      // Pregunta 58: mismo contenido = mismo intento; si la respuesta se pierde y reintenta, no se duplica.
+      const idIntento = await obtenerIntento('cita-nueva', cargaCita);
+      const res = await createAppointment(cargaCita, { idIntento });
 
       if (res.success && res.appointment) {
+        terminarIntento('cita-nueva');
         toast({ title: '¡Cita agendada!', description: `Cita con ${citaNombre} creada correctamente.` });
         if (res.whatsappUrl) {
           window.open(res.whatsappUrl, '_blank');

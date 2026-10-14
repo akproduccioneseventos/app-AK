@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -69,14 +70,19 @@ export default function GastosGeneralesPage() {
       return;
     }
     setIsSaving(true);
+    // Pregunta 58: la misma identidad en cada reintento, para que una respuesta perdida no cargue el gasto dos veces.
+    const alcanceIntento = 'gasto-general';
+    const idempotencyKey = await obtenerIntento(alcanceIntento, { fecha: fecha.toISOString().slice(0, 10), concepto: concepto.trim(), categoria, monto: parseFloat(monto), notas });
     const result = await saveGastoGeneral({
       fecha: fecha.toISOString(),
       concepto,
       categoria,
       monto: parseFloat(monto),
       notas,
+      idempotencyKey,
     });
     if (result.success) {
+      terminarIntento(alcanceIntento);
       toast({ title: "Gasto Registrado" });
       setConcepto(''); setCategoria('Otro'); setMonto(''); setNotas('');
       await loadGastos();

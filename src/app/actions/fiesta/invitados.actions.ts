@@ -1,5 +1,6 @@
 'use server';
 
+import { idDelIntento, type OpcionesDeIntento } from '@/lib/intento-en-servidor';
 import { randomUUID } from 'crypto';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
@@ -98,13 +99,24 @@ export async function getConfirmedRsvpCount(fiestaId: string): Promise<number> {
  * cliente. Todas las pantallas que las usan son internas, asi que pedir la sesion
  * del equipo no le cambia nada a nadie de afuera.
  */
-export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) {
+export async function addInvitado(
+  fiestaId: string,
+  nuevoInvitadoData: Omit<Invitado, 'id'>,
+  opciones?: OpcionesDeIntento,
+) {
   await requireAppSession();
+  // Pregunta 58: si la respuesta se perdio y la persona reintenta, el invitado ya esta con ese id.
+  const idDeLaPantalla = idDelIntento('inv', opciones?.idIntento);
   let nuevoInvitado: Invitado | null = null;
   const result = await updateFiestaData(fiestaId, data => {
+    const yaGuardado = idDeLaPantalla ? (data.invitados || []).find(i => i.id === idDeLaPantalla) : undefined;
+    if (yaGuardado) {
+      nuevoInvitado = yaGuardado;
+      return data;
+    }
     nuevoInvitado = {
       ...nuevoInvitadoData,
-      id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: idDeLaPantalla ?? `inv_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       guestAccessToken: nuevoInvitadoData.guestAccessToken ?? randomUUID(),
     };
     const invitados = [...(data.invitados || []), nuevoInvitado];

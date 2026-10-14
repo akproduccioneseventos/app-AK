@@ -1,0 +1,15 @@
+{
+  "sha": "81be9ac00485bc0ece0fb6db07bf7b5f4aa96669",
+  "applicationSourceSha": "81be9ac00485bc0ece0fb6db07bf7b5f4aa96669",
+  "mode": "lint",
+  "args": [
+    "node_modules/next/dist/bin/next",
+    "lint"
+  ],
+  "launcher": 46068,
+  "child": 45536,
+  "started": "2026-10-13T05:39:25.096Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T05:39:52.049Z"
+}

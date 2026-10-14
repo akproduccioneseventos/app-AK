@@ -1,5 +1,6 @@
 'use server';
-import { hoyEnUruguay } from '@/lib/utils';
+import { hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -71,6 +72,11 @@ function isFirmBudgetStatus(estado?: string) {
 function getMonthKey(date: Date) {
   if (Number.isNaN(date.getTime())) return 'sin fecha';
   return format(date, 'MMM yyyy', { locale: es });
+}
+
+function cashFlowCalendarDate(value: string | Date): Date {
+  const day = diaCalendario(value);
+  return day ? parseUruguayDate(day) : new Date(NaN);
 }
 
 function roundMoney(value: unknown) {
@@ -322,7 +328,7 @@ export async function getCashFlowProjection() {
       return { success: false, error: 'No se pudieron leer los datos del flujo de caja. Los ceros que se ven no son reales.' };
     }
 
-    const today = startOfToday();
+    const today = cashFlowCalendarDate(hoyEnUruguay());
     const projectionMonths: CashFlowMonth[] = [];
     const currentMonthKey = getMonthKey(today);
 
@@ -349,7 +355,7 @@ export async function getCashFlowProjection() {
       const paidAmount = reconciledPayments.reduce((sum, p) => sum + p.amount, 0);
       const remaining = Math.max(0, roundMoney(inv.totalAmount) - paidAmount);
       if (remaining <= 0) return;
-      const dueDate = inv.dueDate ? new Date(inv.dueDate) : today;
+      const dueDate = inv.dueDate ? cashFlowCalendarDate(inv.dueDate) : today;
       const monthKey = isAfter(dueDate, today) || isSameDay(dueDate, today) ? getMonthKey(dueDate) : currentMonthKey;
       const monthEntry = projectionMonths.find(m => m.month === monthKey);
       if (monthEntry) monthEntry.income += remaining;
@@ -359,7 +365,7 @@ export async function getCashFlowProjection() {
       if (!isFirmBudgetStatus(pres.estado)) return;
       if (invoicedPresupuestoIds.has(pres.id)) return;
       if (!pres.eventoFecha) return;
-      const eventDate = new Date(pres.eventoFecha);
+      const eventDate = cashFlowCalendarDate(pres.eventoFecha);
       if (!isAfter(eventDate, today) && !isSameDay(eventDate, today)) return;
       const monthEntry = projectionMonths.find(m => m.month === getMonthKey(eventDate));
       if (!monthEntry) return;
@@ -370,7 +376,7 @@ export async function getCashFlowProjection() {
 
     fiestas.forEach(fiesta => {
       if (!fiesta.configuracion?.fechaEvento) return;
-      const eventDate = new Date(fiesta.configuracion.fechaEvento);
+      const eventDate = cashFlowCalendarDate(fiesta.configuracion.fechaEvento);
       if (!isAfter(eventDate, today) && !isSameDay(eventDate, today)) return;
       const monthEntry = projectionMonths.find(m => m.month === getMonthKey(eventDate));
       if (!monthEntry) return;

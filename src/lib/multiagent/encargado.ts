@@ -16,6 +16,7 @@ import {
   crearRecordatorioDesdeMultiagente,
 } from '@/app/actions/multiagent';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { clavePresupuestoChat } from '@/lib/multiagent/intento-presupuesto';
 
 export const MAX_ESPECIALISTAS_POR_PEDIDO = 3;
 export const MAX_VUELTAS_POR_PEDIDO = 5;
@@ -70,20 +71,22 @@ export function seleccionarEspecialistas(mensaje: string, pathname?: string, fie
 async function ejecutarHerramienta(
   nombre: string,
   args: Record<string, any>,
-  contexto: { fiestaId?: string; pathname?: string }
+  contexto: { fiestaId?: string; pathname?: string; requestId?: string; presupuestoOrdinal?: number }
 ): Promise<{ exito: boolean; resultado: any; comprobacion?: string; error?: string }> {
   try {
     switch (nombre) {
       case 'buscar_persona_o_prospecto': {
         const query = (args.query || '').toLowerCase().trim();
-        const leads = await getCrmLeads().catch(() => []);
+        const leads = await getCrmLeads();
         const encontrados = leads.filter(
           (l) => l.name.toLowerCase().includes(query) || (l.phone && l.phone.includes(query))
         );
         return {
           exito: true,
           resultado: encontrados.length > 0 ? encontrados.slice(0, 3) : null,
-          comprobacion: encontrados.length > 0 ? `Se encontraron ${encontrados.length} coincidencia(s).` : 'No se encontraron personas con ese nombre.',
+          comprobacion: encontrados.length > 0
+            ? `Se encontraron ${encontrados.length} coincidencia(s), mostrando hasta 3:\n${encontrados.slice(0, 3).map(l => `- ${l.name}${l.phone ? ` (${l.phone})` : ''}`).join('\n')}`
+            : 'No se encontraron personas con ese nombre.',
         };
       }
 
@@ -97,6 +100,7 @@ async function ejecutarHerramienta(
           notes: args.notas || 'Creado por el Encargado',
           acquisition: { source: 'direct', campaign: 'encargado_agent' },
         });
+        if (!res.success) return { exito: false, resultado: null, error: res.error || 'El prospecto no quedo confirmado.' };
         // Comprobación leyendo la base de nuevo
         const leadsActualizados = await getCrmLeads().catch(() => []);
         const guardado = leadsActualizados.find((l) => l.id === res.lead?.id || l.name === args.nombre);
@@ -108,6 +112,7 @@ async function ejecutarHerramienta(
       }
 
       case 'armar_presupuesto': {
+        const operationId = clavePresupuestoChat(contexto.requestId, contexto.presupuestoOrdinal || 1);
         const prop = await prepareAssistantBudgetProposal({
           clientName: args.nombreCliente,
           phone: args.telefono,
@@ -119,7 +124,12 @@ async function ejecutarHerramienta(
           notes: args.notas,
         });
 
-        const guardado = await confirmAndSaveAssistantBudget(prop.presupuesto as any);
+        if (!prop.presupuesto.itemsPresupuestados?.length) {
+          return { exito: false, resultado: null, error: 'No encontre servicios del catalogo para calcular ese presupuesto. Indica que servicios queres incluir.' };
+        }
+
+        const guardado = await confirmAndSaveAssistantBudget(prop.presupuesto as any, operationId);
+        if (!guardado.success) return { exito: false, resultado: null, error: guardado.error || 'El presupuesto no quedo confirmado.' };
         // Comprobación leyendo presupuestos reales
         const presupuestos = await getPresupuestos().catch(() => []);
         const verificado = presupuestos.find((p) => p.id === guardado.presupuestoId);
@@ -132,7 +142,7 @@ async function ejecutarHerramienta(
       }
 
       case 'leer_presupuesto': {
-        const presupuestos = await getPresupuestos().catch(() => []);
+        const presupuestos = await getPresupuestos();
         const p = presupuestos.find((item) => item.id === args.id || item.clienteNombre.toLowerCase().includes((args.nombreCliente || '').toLowerCase()));
         return {
           exito: Boolean(p),
@@ -143,7 +153,7 @@ async function ejecutarHerramienta(
 
       case 'buscar_fiestas': {
         const query = (args.query || '').toLowerCase().trim();
-        const fiestas = await getFiestas(false).catch(() => []);
+        const fiestas = await getFiestas(false);
         const filtradas = fiestas.filter(
           (f) =>
             (f.configuracion?.nombreEvento || '').toLowerCase().includes(query) ||
@@ -157,7 +167,7 @@ async function ejecutarHerramienta(
             fecha: f.configuracion?.fechaEvento,
             invitados: f.configuracion?.invitadosEstimados,
           })),
-          comprobacion: `Se encontraron ${filtradas.length} fiesta(s).`,
+          comprobacion: `Se encontraron ${filtradas.length} fiesta(s), mostrando hasta 3:\n${filtradas.slice(0, 3).map(f => `- ${f.configuracion?.nombreEvento || f.id}${f.configuracion?.fechaEvento ? `: ${f.configuracion.fechaEvento}` : ''}`).join('\n')}`,
         };
       }
 
@@ -218,7 +228,7 @@ async function ejecutarHerramienta(
         return {
           exito: true,
           resultado: wa,
-          comprobacion: 'Mensaje de WhatsApp preparado en la bandeja de salida (listo para enviar por una persona).',
+          comprobacion: `Texto de WhatsApp preparado; no se envio ni se guardo en una bandeja.\n${wa.message}`,
         };
       }
 
@@ -333,6 +343,8 @@ Instrucciones:
   let vuelta = 0;
   let respuestaFinal = '';
   let preguntaAlDueno: string | undefined;
+  let fallo = false;
+  let presupuestoOrdinal = 0;
 
   const HERRAMIENTAS_DOC = `
 Herramientas disponibles:
@@ -383,11 +395,8 @@ Decidí el SIGUIENTE paso. Respondé ÚNICAMENTE en este formato JSON exacto:
       try {
         decision = JSON.parse(textoLimpio);
       } catch {
+        fallo = true;
         break;
-      }
-
-      if (decision.pensamiento) {
-        pasosEjecutados.push(decision.pensamiento);
       }
 
       if (decision.accion === 'preguntar_al_dueno') {
@@ -398,7 +407,11 @@ Decidí el SIGUIENTE paso. Respondé ÚNICAMENTE en este formato JSON exacto:
       }
 
       if (decision.accion === 'terminar') {
-        respuestaFinal = decision.argumentos?.resumen || 'Listo, ya quedó todo terminado y comprobado.';
+        // El resumen del modelo no demuestra que haya ejecutado una accion.
+        respuestaFinal = pasosEjecutados.length
+          ? pasosEjecutados.join('\n')
+          : 'No ejecute ninguna accion en la app.';
+        if (!pasosEjecutados.length) fallo = true;
         break;
       }
 
@@ -406,28 +419,39 @@ Decidí el SIGUIENTE paso. Respondé ÚNICAMENTE en este formato JSON exacto:
       const ejecucion = await ejecutarHerramienta(decision.accion, decision.argumentos || {}, {
         fiestaId: input.fiestaId,
         pathname: input.pathname,
+        requestId: input.requestId,
+        presupuestoOrdinal: decision.accion === 'armar_presupuesto' ? ++presupuestoOrdinal : undefined,
       });
+      if (!ejecucion.exito) {
+        fallo = true;
+        respuestaFinal = `No pude completar ese paso. ${ejecucion.error || ejecucion.comprobacion || 'La accion no quedo confirmada.'}`;
+        if (pasosEjecutados.length) respuestaFinal += `\nPasos anteriores confirmados:\n${pasosEjecutados.join('\n')}`;
+        break;
+      }
+      pasosEjecutados.push(ejecucion.comprobacion || `La herramienta ${decision.accion} devolvio un resultado correcto.`);
 
       historialVueltas.push(
         `Vuelta ${vuelta}: Ejecuté ${decision.accion} con resultado: ${JSON.stringify(ejecucion.resultado)}. Comprobación: ${ejecucion.comprobacion || (ejecucion.exito ? 'OK' : 'Error')}`
       );
     } catch {
+      fallo = true;
       break;
     }
   }
 
   if (!respuestaFinal) {
     respuestaFinal = pasosEjecutados.length > 0
-      ? `Avancé con lo siguiente: ${pasosEjecutados.join(' → ')}. Ya quedó guardado y comprobado.`
-      : 'Ya revisé los datos en el sistema y quedaron organizados.';
+      ? `No pude completar la coordinacion. Estos pasos si devolvieron resultado:\n${pasosEjecutados.join('\n')}`
+      : 'No pude completar el pedido. No ejecute ninguna accion en la app.';
+    fallo = true;
   }
 
   return {
-    success: true,
+    success: !fallo,
     response: respuestaFinal,
     agentType: 'central',
     agentName: 'Encargado General AK',
-    especialistasConsultados: [{ id: 'central', nombre: 'Encargado General', estado: 'listo', resumen: respuestaFinal.slice(0, 100) }],
+    especialistasConsultados: [{ id: 'central', nombre: 'Encargado General', estado: fallo ? 'error' : 'listo', resumen: respuestaFinal.slice(0, 100) }],
     vueltasRealizadas: vuelta,
     preguntasAlDueno: preguntaAlDueno ? [preguntaAlDueno] : undefined,
     pasosEjecutados,

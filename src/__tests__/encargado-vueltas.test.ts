@@ -50,13 +50,15 @@ describe('Bloque 7: El Encargado trabaja en vueltas agénticas', () => {
     expect(resultado.vueltasRealizadas).toBe(0);
   });
 
-  it('ejecuta en vueltas y devuelve los pasos realizados al dueño', async () => {
+  it('no presenta como ejecutados los pasos que el modelo solo dice haber terminado', async () => {
     const resultado = await ejecutarEncargado({
       message: 'Armá el presupuesto de la boda de Sofía para 120 personas con paquete oro',
       history: [],
     });
 
-    expect(resultado.success).toBe(true);
+    expect(resultado.success).toBe(false);
+    expect(resultado.pasosEjecutados).toEqual([]);
+    expect(resultado.response).toContain('No ejecute ninguna accion');
     expect(resultado.agentName).toBe('Encargado General AK');
     expect(resultado.vueltasRealizadas).toBeGreaterThanOrEqual(1);
     expect(resultado.vueltasRealizadas).toBeLessThanOrEqual(5);

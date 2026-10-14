@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { fixtureGuard } from './110-fixture-guard.mjs';
+const zone = process.argv[2];
+if (!['UTC', 'America/Montevideo'].includes(zone)) throw new Error('Explicit QA time zone required');
+if (fs.lstatSync('node_modules').isSymbolicLink() || fs.readdirSync('.').some(n => /^\.env(?:\.(?:local|production|development|test)(?:\.local)?)?$/.test(n))) throw new Error('Private checkout required');
+const source = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const keys = ['PATH', 'HOME', 'LANG', 'TEMP', 'TMP', 'SYSTEMROOT', 'USERPROFILE', 'WINDIR', 'APPDATA', 'LOCALAPPDATA', 'PROGRAMDATA', 'PROGRAMFILES', 'COMSPEC', 'PATHEXT'];
+const env = Object.fromEntries(keys.filter(k => process.env[k] !== undefined).map(k => [k, process.env[k]]));
+Object.assign(env, { NODE_ENV: 'test', TZ: zone, NODE_OPTIONS: '--max-old-space-size=4096', GOOGLE_APPLICATION_CREDENTIALS: process.cwd() + '/qa116-no-real-credentials.json' });
+if (fs.existsSync(env.GOOGLE_APPLICATION_CREDENTIALS)) throw new Error('Credentials sentinel must not exist');
+process.env.AK_ENTORNO_AISLADO = 'true';
+const restore = fixtureGuard(), tag = zone === 'UTC' ? 'utc' : 'uy';
+const started = new Date().toISOString();
+const result = spawnSync(process.execPath, ['node_modules/jest/bin/jest', '--runInBand', '--silent', '--json', '--outputFile=docs/evidencias/116-fechas-' + tag + '.json', '--runTestsByPath', 'src/__tests__/flujo-caja-dia-calendario-uruguay.test.ts'], { env, encoding: 'utf8', maxBuffer: 1000000 });
+fs.writeFileSync(`docs/evidencias/116-fechas-${tag}.log`, result.stdout + result.stderr);
+fs.writeFileSync(`docs/evidencias/116-fechas-${tag}-execution.json`, JSON.stringify({ source, zone, started, finished: new Date().toISOString(), exitCode: result.status, cleanup: restore() }, null, 2) + '\n');
+console.log(result.stdout + result.stderr); process.exitCode = result.status ?? 1;

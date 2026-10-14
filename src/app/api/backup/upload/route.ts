@@ -85,16 +85,25 @@ export async function POST(request: Request) {
         if (fileName === 'fiestas.json' && Array.isArray(data)) {
           for (const fiesta of data) {
             if (!fiesta?.id) continue;
-            await writeData(`fiestas/${fiesta.id}.json`, fiesta);
+            await writeData(`fiestas/${fiesta.id}.json`, fiesta, undefined, { skipAutoBackup: true, esRestauracion: true });
           }
           summary.fiestas = data.filter((fiesta: any) => fiesta?.id).length;
         } else {
-          await writeData(fileName, data);
+          await writeData(fileName, data, undefined, { skipAutoBackup: true, esRestauracion: true });
           summary[fileName.replace('.json', '')] = getBackupValueCount(data);
         }
       } catch (err: any) {
         logger.error(`[Backup] Error restoring ${fileName}:`, err.message || err);
         errors.push(fileName);
+      }
+    }
+
+    if (Object.hasOwn(summary, 'insumos') && !jsonFiles.includes('ajustes-costos-insumos.json')) {
+      try {
+        await writeData('ajustes-costos-insumos.json', [], undefined, { skipAutoBackup: true, esRestauracion: true });
+        summary['ajustes-costos-insumos'] = 0;
+      } catch {
+        errors.push('ajustes-costos-insumos.json');
       }
     }
 

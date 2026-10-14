@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -412,7 +413,9 @@ function SalonCard({ salon, deletingId, onEdit, onDelete }: SalonCardProps) {
 
       <CardHeader className="pb-1 pt-3 px-4">
         <div className="flex justify-between items-start gap-2">
-          <CardTitle className="text-sm font-black text-slate-800 flex-grow">{salon.nombre}</CardTitle>
+          <div className="min-w-0 flex-grow">
+            <CardTitle className="text-sm font-black text-slate-800 break-words [overflow-wrap:anywhere]" data-testid="titulo-salon">{salon.nombre}</CardTitle>
+          </div>
           <div className="flex gap-1 shrink-0">
             <Button
               variant="ghost"
@@ -646,8 +649,11 @@ export default function SalonesPage() {
     setIsSaving(true);
     try {
       const payload = editing ? { ...form, id: editing.id } : form;
-      const result = await saveSalon(payload);
+      // Pregunta 58: en el alta, mismo contenido = mismo intento (la edicion ya lleva su id).
+      const idIntento = editing ? undefined : await obtenerIntento('salon-nuevo', payload);
+      const result = await saveSalon(payload, idIntento ? { idIntento } : undefined);
       if (result.success) {
+        if (!editing) terminarIntento('salon-nuevo');
         toast({ title: editing ? 'Salón actualizado' : 'Salón creado', description: `"${form.nombre}" fue guardado correctamente.` });
         handleCancel();
         fetchSalones();

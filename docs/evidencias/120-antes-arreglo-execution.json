@@ -1,0 +1,24 @@
+{
+  "sha": "468348ff69afa16712f882e6c15702e9d7133194",
+  "applicationSourceSha": "468348ff69afa16712f882e6c15702e9d7133194",
+  "mode": "unit",
+  "args": [
+    "node_modules/jest/bin/jest",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/120-jest.json",
+    "--runTestsByPath",
+    "src/__tests__/encargado-no-inventa-guardados.test.ts"
+  ],
+  "launcher": 55356,
+  "child": 51264,
+  "started": "2026-10-13T12:49:13.367Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-13T12:49:23.635Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

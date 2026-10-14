@@ -63,9 +63,9 @@ function AprobacionCard({
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
-              <CardTitle className="text-base">{aprobacion.descripcion}</CardTitle>
+              <CardTitle className="text-base break-words [overflow-wrap:anywhere]" data-testid="titulo-aprobacion">{aprobacion.descripcion}</CardTitle>
               <Badge variant="outline">{tipoCambioLabel[aprobacion.tipoCambio]}</Badge>
               {estadoBadge(aprobacion.estadoAprobacion)}
             </div>
@@ -206,6 +206,17 @@ function AprobacionesContent() {
     setCreando(false);
     if (result.success) {
       toast({ title: 'Solicitud creada', description: 'La solicitud de aprobación fue registrada.' });
+      // Pregunta 59: el formulario vuelve a abrirse limpio (se conserva solo la fiesta elegida).
+      setForm(f => ({
+        ...f,
+        tipoCambio: 'otro',
+        descripcion: '',
+        valorAntes: '',
+        valorDespues: '',
+        impactoEconomico: '0',
+        impactoOperativo: '',
+        solicitadoPor: '',
+      }));
       setNuevaDialogOpen(false);
       load();
     } else {

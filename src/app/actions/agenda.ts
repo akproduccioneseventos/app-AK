@@ -1,5 +1,6 @@
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import { datosDeLaReunion } from '@/lib/reuniones/datos-de-la-reunion';
 import { getFiestas, getHistorialFiestas, saveFiesta } from './fiesta/fiesta.actions';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
@@ -278,7 +279,7 @@ import {
   buildGmailAppointmentInviteUrl,
 } from '@/lib/agenda-utils';
 
-export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'creadoEn' | 'estado'> & { estado?: CrmAppointment['estado'] }): Promise<{
+export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'creadoEn' | 'estado'> & { estado?: CrmAppointment['estado'] }, opciones?: { idIntento?: string }): Promise<{
   success: boolean;
   appointment?: CrmAppointment;
   whatsappUrl?: string;
@@ -288,22 +289,36 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
 }> {
   try {
     await requireAppSession();
+    const idDeLaPantalla = idDelIntento('cita', opciones?.idIntento);
     const newAppointment: CrmAppointment = {
       ...data,
-      id: `cita_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: idDeLaPantalla ?? `cita_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       estado: data.estado || 'Agendada',
       creadoEn: new Date().toISOString(),
     };
 
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la cita ya esta con ese id.
+    let yaExistia = false;
     if (!SIN_BASE()) {
-      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => [...lista, newAppointment]);
+      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => {
+        if (idDeLaPantalla && lista.some((c) => c.id === idDeLaPantalla)) {
+          yaExistia = true;
+          return lista;
+        }
+        return [...lista, newAppointment];
+      });
     } else {
       await agendaMutex.runExclusive(async () => {
         const appointments = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
+        if (idDeLaPantalla && appointments.some((c) => c.id === idDeLaPantalla)) {
+          yaExistia = true;
+          return;
+        }
         appointments.push(newAppointment);
         await writeData(APPOINTMENTS_FILE, appointments);
       });
     }
+    if (yaExistia) return { success: true, appointment: newAppointment };
 
     // Sincronizacion automatica con Google Workspace (Calendar + Gmail de la Empresa & Cliente)
     const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');

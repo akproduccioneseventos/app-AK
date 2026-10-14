@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, type FormEvent, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -119,8 +120,11 @@ function NuevoServicioContent() {
 
 
     try {
-      const result = await saveServicioEmpresa(dataToSave);
+      // Pregunta 58: reintento de una respuesta perdida = el mismo servicio, no "ya existe".
+      const idIntento = await obtenerIntento('servicio-nuevo', dataToSave);
+      const result = await saveServicioEmpresa(dataToSave, { idIntento });
       if (result.success && result.id) {
+        terminarIntento('servicio-nuevo');
         toast({ title: "¡Servicio Guardado!", description: `El servicio "${dataToSave.nombre}" ha sido añadido.` });
         router.push(backUrl);
       } else {

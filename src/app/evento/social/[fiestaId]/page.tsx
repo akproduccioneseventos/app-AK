@@ -1108,9 +1108,11 @@ export default function SocialEventPage() {
             href={`/evento/mi-mesa/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 text-amber-800 transition text-xs font-bold shrink-0"
             title="Buscar mi mesa"
+            aria-label="Mi mesa: buscar dónde me siento"
           >
             <MapPin className="w-3.5 h-3.5 text-amber-600" />
-            <span className="hidden sm:inline">Mi Mesa</span>
+            {/* En el celular también con texto: sólo el alfiler no decía qué era (pregunta 61, 14/10/2026). */}
+            <span>Mi Mesa</span>
           </a>
           <button type="button" onClick={() => void loadCore(true)} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Actualizar"><RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} /></button>
         </div>

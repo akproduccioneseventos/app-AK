@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,8 +78,11 @@ const EditServicioForm: React.FC<{ onCatalogUpdate: () => Promise<void> }> = ({ 
         
         setIsSaving(true);
         try {
-            const result = await saveServicioEmpresa(currentItem as ServicioEmpresa);
+            // Pregunta 58: en el alta (sin id) el reintento de una respuesta perdida es el mismo servicio.
+            const idIntento = currentItem.id ? undefined : await obtenerIntento('servicio-nuevo-modal', currentItem);
+            const result = await saveServicioEmpresa(currentItem as ServicioEmpresa, idIntento ? { idIntento } : undefined);
             if (result.success) {
+                if (idIntento) terminarIntento('servicio-nuevo-modal');
                 toast({ title: `Servicio ${currentItem.id ? 'actualizado' : 'creado'}` });
                 setIsModalOpen(false);
                 await fetchAndSetServicios(); // Refresh parent and local list

@@ -1,0 +1,14 @@
+{
+  "sha": "662f123d41c59f6e802384322b10049b913fb416",
+  "applicationSourceSha": "662f123d41c59f6e802384322b10049b913fb416",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/117-configurador-probe.mjs"
+  ],
+  "launcher": 52552,
+  "child": 56000,
+  "started": "2026-10-13T11:45:54.122Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T11:48:39.984Z"
+}

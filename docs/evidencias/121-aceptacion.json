@@ -1,0 +1,30 @@
+{
+  "status": "PASS_CHAT_BUDGET_ACK_ONLY",
+  "applicationSourceSha": "87b74b7d809f2524c2d0fcade0176749f5f5c02a",
+  "evidenceHead": "87b74b7d809f2524c2d0fcade0176749f5f5c02a",
+  "suites": 734,
+  "tests": 4600,
+  "failed": 0,
+  "omitted": 0,
+  "nativeCases": 16,
+  "graph": {
+    "nodes": 14621,
+    "links": 43864,
+    "communities": 931,
+    "llmCalls": 0,
+    "partialParserWarnings": 25
+  },
+  "sdkRemaining": 0,
+  "ownedServicesStopped": 2,
+  "foreignBytesRestored": true,
+  "privateClaude": "NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE",
+  "externalModelCertified": false,
+  "allAppCertified": false,
+  "publishedCertified": false,
+  "limits": [
+    "Otros efectos del chat no idempotentes por este parche",
+    "Modelo externo, voz y respuestas no deterministas no certificados",
+    "Catalogo cambiante o fecha inferida pueden rechazar un reintento distinto sin duplicar",
+    "Hosting OAuth 19 originales hardware no probados"
+  ]
+}

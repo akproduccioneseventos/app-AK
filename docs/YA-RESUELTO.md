@@ -1,5 +1,273 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 13/10/2026 - Codex122 CORREGIDA Y COMPROBADA: tarjeta abre el chat real
+
+-Fuente5dc197e5. La tarjeta busca el lanzador real Abrir Asistente IA AK tanto
+ en widget como lazy. Antes en87 no hacia nada; ahora abre. Solo ese selector
+ app se cambio despues de121: movimiento/minimizado/permisos/dinero intactos.
+-735suites4601tests PASS,0fallos/omitidos; build tipos/lint, acentos2862 PASS.
+ 18nativos sobre5dc: tarjeta/principal abren y16regresiones del presupuesto ACK
+ PC/Pixel7; PC entra POR tarjeta, no salta el nuevo enlace. Guarda/retry/recarga
+ conservanIDs/numeros/importes/CRM; cotizaciones legitimas y primera doble
+ confirmacion atomica permitidas. Modelo DOBLE LOCAL, no servicio IA externo.
+-Gate122 PASS_INDICATOR_AND_CHAT_BUDGET_ACK_ONLY; SDK0/dos servicios/agentes
+ cerrados/bytes restaurados. Grafo14652/43895/922 sinLLM,25avisos parser noTS.
+-Baselines3a y87 conservados, problemas propiosQA separados; no declarar app
+ defectuosa por herramienta ausente ni HEADdocs distinto de fuente app. Comparar
+ diff de produccion antes de invalidar una evidencia por commit documental.
+-Inventario109 no demuestra ausencia de pruebas: regalos/post-evento/QR ya
+ tienen tests historicos en tests/e2e, y la sonda no los ejecuto en122. No emitir
+ orden duplicada solo por no encontrarlos en103-121. Fuenteapp87..5dc difiere
+ solo en selector; codigo pendiente/deps/19originales/OAuth/Hosting/hardware no
+ certificados. Friccion152 de posicion sigue aparte; mover/minimizar disponible.
+ No0errores ni toda app lista. PrivadoClaude NO CONTRASTADO. No repetir5dc.
+
+## Historico - Codex122 en validacion: tarjeta apunta al boton real
+
+-Sobre app87: navegador PC, tarjeta Abrir asistente activo no abre el chat;
+ boton principal SI. DOM: nuevo lanzador1, selector antiguo0. Reproduccion con
+ SDKdemo y JSONvaciados en122-indicador-antes.json.gz. No repeticion de121.
+-Cambio UNICOapp: ContextualAssistantIndicator busca Abrir Asistente IA AK,
+ el nombre real del lanzador/lazy. No movimiento, minimizado, permisos ni dinero
+ modificados; friccion152 de posicion sigue separada. Test ReactDOM focal PASS.
+-Fallo inicial de herramienta QA ausente (@testing-library/react,0tests) guardado;
+ se uso ReactDOM existente sin instalar dependencias. Primera sonda no vacio
+ arrays JSON: se descarto para aceptar y se repitio con fixture limpio; guardas
+ restauraron bytes. No falsear esos problemas QA como defectos de app.
+-Faltan build/amplia/nativo del nuevoSHA. No extender prueba12187 a este cambio.
+
+## 13/10/2026 - Codex121/orden162 CORREGIDA Y COMPROBADA, alcance presupuestos
+
+-Fuente87b74b7d. El intento financiero del chat pasa UUID desde widget a API/
+ actions/Encargado; ordinal por presupuesto y guardado atomico ligado al actor.
+ Error incierto conserva texto y clave tras recarga. Nueva cotizacion confirmada
+ conserva varios documentos aun con mismo nombre/telefono/fecha. No formulas,
+ precios, descuentos, permisos, datos originales ni funciones de Claude alterados.
+-734suites4600tests PASS,0fallos/omitidos; build con tipos/lint PASS; acentos2860.
+ 16recorridos nativos PC/Pixel7 PASS por widget/API/Firestore SDK demo, proveedor
+ DOBLE LOCAL de protocolo. Antes-envio0/retry1; ACK perdido tras guardar2/retry2
+ y recarga con IDs/numeros/importes/CRM iguales; nueva cotizacion3; dos primeras
+ confirmaciones simultaneas crean solo cuarta, no quinta. Documento /ver visible
+ y persistente tras recarga. Nonce invalido400 sin modelo ni escritura.
+-Baseline3a1->2 sigue conservado, no reescrito para ocultar el defecto. Gate121
+ PASS_CHAT_BUDGET_ACK_ONLY. SDK0/2servicios/agente cerrados y bytes restaurados.
+ Grafo14621/43864/931 sinLLM,25avisos parciales parser (no errores TypeScript).
+-Otros efectos del chat NO quedan idempotentes por este arreglo; modelo externo,
+ voz, rutas IA ajenas, catalogo/precios cambiantes o fecha inferida NO certificados.
+ Si cambia la carga calculada, se rechaza sin sobrescribir/crear otro. No0errores,
+ Hosting/OAuth/19originales/hardware/todaapp. PrivadoClaude NO CONTRASTADO.
+ No repetir la validacion si la fuenteapp87 no cambia; PR1293 no fusionar.
+
+## Historico - Codex121/orden162: parche escrito, aceptacion entonces PENDIENTE
+
+-El widget prepara UUID+huella antes del POST, conserva el intento incierto en
+ sessionStorage por contexto sin datos personales; busyRef frena doble envio.
+ RequestId pasa por API/actions/Encargado; cada presupuesto usa clave derivada
+ por ordinal y el guardado atomico existente ligado al actor verificado. Sin
+ identidad no se guarda desde Encargado. Otra cotizacion confirmada usa otra
+ clave incluso con mismos datos. No se cambiaron formulas/precios/permisos.
+-Error de transporte reconoce incertidumbre y conserva texto; no asegura que
+ no se hizo nada. Otras acciones requieren revisar estado antes de repetir.
+-55 pruebas focalizadas PASS (49 principal+6 cliente), tipos PASS. Faltan build,
+ matriz amplia y navegador sobre nuevo SHA; no marcar arreglado por estos tests.
+ Fuente anterior3a/baseline121 se conserva; no acredita este parche nuevo.
+
+## 13/10/2026 - Codex121: ACK del chat reproducido, TODAVIA NO CORREGIDO
+
+-Fuente compilada3a3bc1c6, cabeza76d09612, main4c5ef2f9, PR1293 ABIERTA.
+ NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE. No repetir esta sonda.
+-Widget General real -> /api/multiagent/message -> Firestore SDK demo: se deja
+ guardar un presupuesto de1000, se corta SOLO la respuesta ya completada y se
+ repite el cuerpo HTTP IDENTICO. PC y Pixel7 pasan1->2 documentos; esperado1.
+ No es una nueva cotizacion deliberada. Modelo DOBLE LOCAL, sin API externa.
+-La UI muestra "No pude responder ahora. No marque nada como hecho" aunque el
+ presupuesto ya existe. Ambas observaciones estan en121-chat-ack-resultados.json.
+-No cambio codigo app. SDK0, servicios/agente cerrados, JSON restaurados y hash
+ marketing ajeno intacto. Falta corregir intento estable/guardado atomico y probar
+ concurrencia, recarga y nueva cotizacion legitima; no declarar ACK/IA cerrados.
+
+## 13/10/2026 - Codex120 comprobada: Encargado no inventa operaciones completadas
+
+-Fuente3a3bc1c6. Confirmacion exige success+ID; fallos se propagan sin que el
+ modelo declare guardado/cobrado/contrato. Pasos se arman con resultados reales,
+ no pensamientos/resumen del modelo. No se crea borrador sin servicios.
+ Lecturas fallidas no se anuncian como listas vacias; WhatsApp entrega texto,
+ sin afirmar que se envio/encolo. Nombres reales y limite3 siguen disponibles.
+-732suites4581tests PASS,0fallos/omitidos; build tipos/lint y acentos2854 PASS.
+ 6nativos widget real PC/Pixel7 -> API -> SDK demo PASS, con DOBLE LOCAL de
+ protocoloGemini: proveedor caido0presupuestos;1real por1000 sin resumen falso
+ de90000/contrato; servicio desconocido no agrega otro. Modelo real NO certificado.
+-5fallos iniciales y3lecturas de prototipo conservados; prueba vieja de vueltas
+ ya no aprueba terminar sin actuar. Selector propio label/short equivocado se
+ corrigio solo en QA; no era falloapp.120-nativo-selector-inicial conservado.
+-Gate120 PASS_ENCARGADO_TRUTHFUL_RESULTS_ONLY, SDK0/2servicios/agente cerrados,
+ bytes ajenos restaurados; grafo14581/43812/906 sinLLM,25avisosparser noTS.
+-Flujo assistant.ts antiguo sin consumidor UI encontrado: no duplicar auditoria
+ de ahi como chat actual. ACK financiero/chat sigue PENDIENTE DE CONTRASTE por
+ ruta REAL, no cerrado por estos6casos. Voz/otros roles/modelo real tampoco.
+ No todaapp/publicacion/0errores. PrivadoClaude NO CONTRASTADO, PR1293 no fusionar.
+
+## 13/10/2026 - Codex120 en curso: Encargado confirma lo que realmente hizo
+
+-Referencias118 a sendAssistantMessage/executeCrearPresupuesto pertenecen al
+ flujo antiguo sin consumidor UI encontrado en468. No marcarlas como fallos
+ del chat actual. El helper confirmAndSaveAssistantBudget SI esta usado por
+ encargado -> sendMultiAgentMessage -> API/widget actual. Alias ingles del
+ inventario no es simbolo real; no emitir una ruta inventada para programarlo.
+-Inyeccion aislada con funciones reales y proveedores/backend doblados:5fallos
+ de7asserts antes del parche (120-antes-arreglo); tres lecturas fallidas adicionales
+ se ocultaban como listas vacias (prototipo conservado). No son pruebas externas.
+-Parche: guardado requiere success+ID; Encargado se detiene ante fallo, no acepta
+ resumen/pensamiento del modelo como pasos ejecutados, no guarda borrador sin
+ items; lecturas lanzadas conservan error. TextoWhatsApp no afirma bandeja/envio.
+ Consultas mantienen nombres reales y explicitan el limite existente de3.
+-23unidades focalizadas PASS antes de congelar. Falta build/broad/nativo; NO listo.
+ No se certifica ACK financiero del chat, modelo real, voz ni todaapp.
+ PrivadoClaude NO CONTRASTADO CON LA TANDA. PR1293 aun ABIERTA.
+
+## 13/10/2026 - Codex119 comprobada: manual ya no duplica tras perder ACK
+
+-Fuente a638c850. Repro anterior662: un guardado confirmado por SDK, respuesta
+ cortada y retry dejaban1->2 por900; evidencia antes-arreglo conservada.
+-Manual prepara operationId antes de enviar; UUID y huella sobreviven recarga,
+ separados del configurador. Ref bloquea doble entrada. Confirmado libera clave
+ para otra cotizacion legitima incluso mismos datos/telefono; editar no cambia.
+ Sin tocar importes, descuentos, fechas, cupones, enlace ni permisos.
+-731suites4566tests PASS,0fallos/omitidos; build con tipos/lint y acentos2852 PASS.
+ 6recorridos nativos PC/Pixel7 PASS: antes-envio/retry1, ACK+recarga2->2,
+ timelineCRM intacto y nueva cotizacion3 con2legitimas del mismo telefono.
+ Documento /ver realmente visible y persistente despues de recargar.
+-119-aceptacion.json PASS_MANUAL_ACK_ONLY. SDK0,2servicios y agente cerrados,
+ bytes ajenos restaurados. Grafo14542/43760/927 sinLLM;25warningsparser, noTS.
+-No repetir manual/configurador. AI sigue riesgo NO ejecutado (118-consumidores).
+ No todaapp/Hosting/OAuth/19originales/hardware certificados; privadoClaude
+ NO CONTRASTADO CON LA TANDA. PR1293 sin fusion; dueno decide.
+
+## 13/10/2026 - Codex119 en curso: presupuesto manual con ACK perdido
+
+-Reproducido sobre fuente662f123d en navegador compilado y SDK demo: guardar
+ deja1documento; perder solo respuesta y reintentar deja2 (ambos total900).
+ Evidencia119-manual-antes-arreglo/119-manual-ack-antes-arreglo, no deduccion.
+-Manual usa ahora operationId estable por intento y namespace distinto del
+ configurador; ref bloquea doble accion mientras guarda. Crear nueva cotizacion
+ tras confirmar sigue permitido; editar conserva updatePresupuesto. Sin cambiar
+ formulas, descuento10%, fechas, permisos ni proceso de cupon/fiesta.
+-21unidades focalizadas PASS y tipos PASS antes de congelar. Falta build/retest
+ nativo y validacion amplia sobre fuente nueva: NO declarar resuelto aun.
+-PR1293 ABIERTA/main4c sin cambios. Privado Claude NO CONTRASTADO CON LA TANDA.
+
+## 13/10/2026 - Codex118:161 contrastada; no repetir configurador/ACK
+
+-Fuente final662f123d. Clave por intento+actor/carga, creacion y numero en
+ transaccion; retry devuelve mismo ID sin repetir CRM/aviso ni pisar cobros.
+ Nueva cotizacion legitima mismo telefono/datos conserva otro documento.
+-731suites4564tests0fallos/omitidos PASS, build incluyendo tipos/lint PASS,
+ acentos2851.6flujos nativos PC/Pixel7 PASS,2observaciones separadas de hitbox.
+ ACK2->2 antes/despues, incluso recargaPixel7; timeline CRM no se repite;
+ mismo prospecto conserva2cotizaciones y documento real visible tras recarga.
+-Friccion152 PC sigue2/3puntos cubiertos; no se disfraza de PASS estetico.
+ Respuesta inicial al operador y aviso del numero real fueron corregidos tras
+ dos regresiones del prototipo06c (fallos conservados); build06c no valida662.
+-URLs solas no acreditan destino: sonda ampliada espera /ver y presupuesto
+ visible/persistente; evidencia inicial conserva alcance mas chico. No app nueva.
+-SDK0,2servicios apagados, bytes ajenos restaurados, agente barato cerrado.
+ Grafo local14499/43709/915 sinLLM,25warningsparser parciales registrados.
+-Gate118-aceptacion.json PASS_ORDER_161_ONLY. No fusion/publicacion/0errores.
+ Otros consumidores sin operationId: riesgos reales a probar, no defectos
+ ejecutados;118-consumidores-a-contrastar. No extender161 por mera referencia.
+ Privado Claude NO CONTRASTADO; Hosting/OAuth/19originales/hardware no acreditados.
+
+## 13/10/2026 - Codex118 en curso: orden161 implementada, aun sin retest nativo
+
+-Clave UUID por intento en sessionStorage, sin guardar PII; timestamp nuevo no
+ cambia clave. Confirmado permite otra cotizacion incluso mismo telefono/datos.
+-savePresupuesto opcional operationId conserva recorrido legacy. Nuevo camino
+ crea documento y numero en transaccion Firestore, ligada al actor y carga;
+ retry devuelve mismo ID sin repetir CRM, mensaje ni sobrescribir cobros.
+-Seguimiento CRM pendiente se avisa; confirmar solo actualiza su vinculo.
+ Permisos e importes se mantienen.26focalizadas iniciales PASS; dos regresiones
+ nuevas detectaron fallos del prototipo06c: respuesta inicial al operador podia
+ incluir un cobro concurrente, y notificacion usaba numero anterior a transaccion.
+ Corregidos sin bajar criterios;118-focal-prototipo-fallos conserva2FAIL.
+ Build06c compilaba, pero NO acredita fuente final ni cierre161. Se valida
+ nuevamente SOLO porque esas dos correcciones cambian app; no por rutina.
+
+## 13/10/2026 - Codex117: configurador probado; defecto ACK nuevo, NO corregido
+
+-Fuente1656ac2e, HEAD479408f2, PR1293 abierta; privado Claude NO CONTRASTADO.
+ No cambia app ni se repiten build/Jest116. Solo sonda/contraste/registro.
+-Cortar antes de enviar y reintentar: PC/Pixel7 guardan uno, total850, boton
+ Ver Presupuesto abre ID real. No fallo de guardado en ese caso.
+-P1 NUEVO PENDIENTE: perder respuesta despues del guardado y reintentar crea
+ otro presupuesto. SDK2->3 en ambas vistas, esperado2. Orden161 y117-contraste;
+ no deduplicar por telefono: el dueno requiere varias cotizaciones legitimas.
+-P2 existente152: indicador PC cubre2/3puntos del boton inferior; teclado y
+ boton superior disponibles. Movil3/3libres. No nuevo encargo de flotantes.
+-155 firmador/exports ya corregidos por Claude; suite51casos PASS reutilizada
+ de116 sobre1656, proveedor mock. NO certifica firma Storage ni token externo.
+ No repetir implementacion ni seguir diciendo que esos permisos faltan.
+-Falso positivo del ayudante barato descartado: backup/ZIP116 ya probado;
+ "no certifica" significa rechazar el incompleto, no ausencia de pruebas.
+-Primer timeout5s del harness conservado, reintento con60s confirma UI; no
+ ocultar ese incidente ni bajar el esperado2 del defecto ACK.6sondas finales:
+ 4recoleccionesPASS (PC hitbox clasificado FRICCION),2ACK NOT_ACCEPTED.
+-Datos ficticios, bytes restaurados, SDK0,2servicios propios apagados; agente
+ cerrado. Evidencia117-auditoria-configurador.md. No correccion/publicacion,
+ fusion ni certificado global0errores. Escribir orden no inicia Claude/Gemini.
+
+## 13/10/2026 - Codex116: delta115 sobre main4c5ef2f9 comprobado; PR1293 abierta
+
+-PR1288 fue integrada por Claude mientras corria115. La fuente81be9ac0 quedo
+ comprobada (707suites4285tests y34criterios), pero no acredita este main nuevo.
+ Evidencia historica115 conservada; no sustituir resultados de116 por esos.
+-Rama nueva codex/116-respaldo-logo-main-20261013 desde4c5ef2f9. Codex corrige
+ por autorizacion directa; no fusiona. Privado Claude NO CONTRASTADO.
+-Se conservan sus pantallas/Google/plantillas/contador ya corregidos, permisos
+ de proveedores, fechas Uruguay y redondeo a centavos de costos. No se copia
+ la rama anterior entera ni se reintroducen cambios3D/compatibilidad descartados.
+-Delta aun ausente: libro de costos incluido en backup/mapa, IDs legacy reales,
+ restore de insumos antiguo sin recibos posteriores y respaldo interno tras ajuste.
+-ZIP no certifica lectura fallida: SDK/copia alternativa conservan huboFalla.
+ La pantalla puede mostrar respaldo sin afirmar que sea una lectura actual.
+-Proveedor sin nombreEmpresa no queda bloqueado por insumo sin proveedor:
+ no se comparan dos undefined como asociacion. Se mantienen IDs/nombres reales
+ y todos los permisos de la version publicada.
+-Plantilla personalizada se elimina individualmente en transaccion: no se
+ reescribe la lista vacia ni se pierde otra plantilla concurrente. Se conserva
+ la politica de main sobre bases/ediciones y sus permisos; no se reemplaza
+ por la politica mas restrictiva del checkout115.135tests focalizados PASS.
+-Logo original entregado por el dueno copiado byte exacto, sin redibujar:
+ public/logo_ak_producciones.png; SHA2567f6249ff1cc7fa347dfd737f975bfd36e58ac4c2f2f57c7e472144e252220166.
+-Minimo Node20.9 por Sharp0.35.5 ya fijado en main; no se actualiza otra libreria.
+-Prueba conjunta116 y entrega remota comprobadas; no0errores globales.
+-PR1293 creada y subida, sin fusionar. Fuente1656ac2e; rama
+ codex/116-respaldo-logo-main-20261013. No confundir subida con Hosting publicado.
+ Archivo historico115 visible en codex/qa-115-fuente-20261013, sin PR para fusionar.
+-La primera verificacion amplia116 detecto un mock156 viejo (borrado por lista)
+ y un fallo REAL preexistente de flujo de caja: fiesta/presupuesto de hoy
+ con fecha sin hora quedaban fuera; ISO medianoche se asignaba al mes anterior.
+ Cuatro fuentes iguales a main4c; el fallo no se atribuye a la integracion115.
+ Se reutilizan diaCalendario/parseUruguayDate/hoyEnUruguay SOLO en la proyeccion.
+ No se cambia permiso, redondeo ni formula de ganancia, ni otros reportes.
+ Se conservan convenios legacy medianocheUTC y facturas vencidas por cobrar.
+ Seis casos nuevos antes del arreglo:3fallos/3PASS. El test156 mantiene exito,
+ borrado de la edicion base y no tocar plantillas no guardadas; ahora exige
+ borrar el ID transaccional y no reescribir toda la lista.
+-Cierre fuente1656ac2e:729suites4545tests PASS,0fallos/omitidos; build/tipos/lint
+ y acentos2840 PASS. Seis casos de calendario PASS en UTC y Uruguay.16criterios
+ nativos PC/Pixel7 PASS; caja muestra1500por cobrar/10000gastos/-8500saldo;
+ PNG/Sharp, borrados, ZIP+recibos y reintentos tambien comprobados.
+-El primer fixture nativo de factura uso invoices por error; el mapa real es
+ invoices.json->facturas. Se conserva14PASS/2fallos como fallo de preparacion,
+ no de app; se corrige el fixture sin bajar expectativas y16PASS despues.
+ Verificar siempre archivo->coleccion antes de sembrar SDK, no inferir del nombre.
+-SDK demo vacio despues de parar app; servicios propios apagados, bytes ajenos
+ intactos. Grafo165:14452nodos/43630relaciones/923comunidades,0tokens modelo.
+-115 queda archivada, no certifica116. No se reintroducen sus pantallas ni regla
+ de pesos enteros. No declarar toda la app o Hosting sin errores; no merge.
+-Observaciones UX separadas116-observaciones-ux.md: solapamiento vinculado a152,
+ etiquetas de proyeccion y politica de saldos pasados requieren seguimiento/decision.
+
 ## 12 de octubre de 2026 — Mantenimiento de equipos: ni se duplica el gasto ni se pierde una fila (orden 159)
 
 - **Antes:** si se perdía la respuesta al anotar un mantenimiento con costo y la persona tocaba de nuevo, quedaban dos
@@ -13425,4 +13693,93 @@ Ahora funcionan como Kahoot (trivia) y como las apps de búsqueda de fotos (misi
 prueba: src/__tests__/trivia-en-vivo-y-misiones-con-puntos.test.ts
 prueba: src/__tests__/subir-foto-de-mision-suma-puntos.test.ts
 prueba: src/__tests__/la-trivia-lanzada-se-ve-en-el-celular.test.tsx
+```
+
+## Pregunta 58 en la plata: un reintento no duplica cobros, gastos, facturas ni señas (13 de octubre de 2026)
+
+Si se cortaba la señal justo cuando el servidor ya había guardado, la persona veía un error, volvía a
+tocar "Guardar" y el cobro, el gasto o la factura quedaba dos veces. Ahora cada pantalla arma una
+identidad del intento (`obtenerIntento` de `src/lib/intento-de-guardado.ts`): la misma en cada reintento,
+aunque recargue, y nueva sólo cuando los datos cambian o el servidor confirmó. El servidor, al recibirla,
+si ya tiene ese registro contesta "listo" con el que existe y no crea otro.
+
+- **Gasto general** (`/empresa/contabilidad/gastos`): la pantalla manda `idempotencyKey`; el servidor ya
+  la entendía (número fijo sacado de la llave), sólo faltaba que la pantalla la mandara.
+- **Cobro a presupuesto** (`/pagos-rapidos`, `/presupuestos/[id]/ver`) y **aviso de pago del cliente**
+  (`addPagoClienteFromPortal`): la pantalla manda `pago.id = pago_<intento>`. El servidor controla que
+  el id tenga forma segura y, si ya está, no vuelve a mirar el saldo (antes el reintento podía fallar
+  por "supera el saldo" con el primer cobro ya contado) ni avisa de nuevo.
+- **Factura nueva** (`/invoices/new`): `saveInvoice` acepta `operationId` (UUID); el id de la factura sale
+  de él (`inv_op_…`) y un reintento devuelve la misma factura, sin chocar con su propio número.
+- **Pago de salón** (`/empresa/salones/club-uruguay`): `addSalonPago` acepta `pago.id` y no repite.
+- **Seña al firmar contrato** (`registerContractDeposit`): UNA por presupuesto, con número fijo
+  `pago_senia_contrato_<presupuesto>`; firmar de nuevo no agrega otro pago, no suma la seña dos veces ni
+  repite el pago en la factura.
+- **Revisados y sin cambio**: la seña de `registerBookingDeposit` (invoices.ts) ya corta por
+  `findExistingDepositReceipt`; los cobros espejo de la factura (~717, ~972) y `poner-al-dia.ts` usan una
+  referencia fija (`AK_SYNC:…`) que el presupuesto ya deduplica; `addPaymentToInvoice` ya tenía `operacionId`.
+  Fuera de esta tanda: el pago a proveedor de `/fiestas/nueva/gestion-costos-rentabilidad` (guarda la lista
+  entera, otro tipo de arreglo).
+- **Por qué así**: la identidad la pone la pantalla porque sólo ella sabe que dos toques son el mismo
+  intento; el servidor no puede adivinarlo mirando montos (dos cobros iguales del mismo día son legítimos).
+
+```comprobar
+prueba: src/__tests__/un-reintento-no-duplica-plata.test.ts
+prueba: src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts
+
+## Preguntas 58, 59 y 60 en el resto de la app (13 de octubre de 2026)
+
+Las tres preguntas nuevas del método se pasaron por las pantallas que faltaban.
+
+- **Pregunta 58, "la respuesta se pierde y la persona reintenta"**: si se cortaba la señal justo después
+  de guardar, quien volvía a tocar "Guardar" creaba el registro dos veces. Ahora la pantalla arma UN
+  número de intento por borrador (`obtenerIntento`, `src/lib/intento-de-guardado.ts`), lo manda con el
+  pedido y lo suelta sólo cuando el guardado se confirmó. El servidor (`src/lib/intento-en-servidor.ts`)
+  usa ese número como id del registro y, si ya existe uno con ese id, devuelve el que está en vez de
+  crear otro. Cubre invitado nuevo y filas de la planilla (cada fila lleva su número desde que se lee,
+  así reintentar las "fallidas" que en realidad se guardaron no duplica), incidente, cita de la agenda,
+  salón nuevo (sólo el alta, no los pagos), tarea, aviso programado de `/alertas` y copia de plantilla de
+  invitación. Sin número, cada acción sigue como antes.
+- **Error falso después de guardar**: prospecto, proveedor, empleado y servicio del catálogo le decían
+  "ya existe" a quien reintentaba, chocando con su propio registro. Con el número de intento, si el que
+  está tiene ESE id es éxito; el chequeo por nombre o teléfono sigue para personas distintas.
+- **Pregunta 59, formulario que se reabre sucio**: `/aprobaciones` vuelve a abrir la solicitud en blanco
+  después de guardar (conserva sólo el evento) y, si falla, conserva lo escrito. `/eventos` ya no cierra
+  el diálogo ni suelta al cliente elegido si la creación falla.
+- **Pregunta 60, nombres largos en el celular**: el título se parte en cualquier lado (sin puntos
+  suspensivos ni letra más chica) y los botones quedan a la vista, en `/empresa/salones`,
+  `/empresa/servicios`, `/aprobaciones` y el encabezado de las tarjetas de `/pagos-rapidos`.
+- **Por qué así**: el número de intento sale del contenido (mismo contenido = mismo número), así que
+  editar el formulario después de un error arma un registro nuevo de verdad y no uno viejo. Sin
+  `crypto.subtle` (página sin https) la huella cae a una simple y nunca rompe el guardado.
+
+```comprobar
+prueba: src/__tests__/pregunta-58-altas-reintento-no-duplica.test.ts
+prueba: src/__tests__/pregunta-58-invitados-y-tareas-reintento-no-duplica.test.ts
+prueba: src/__tests__/pregunta-58-pantallas-mandan-la-identidad.test.ts
+prueba: src/__tests__/preguntas-59-y-60-aprobaciones-y-nombres-largos.test.tsx
+usa: idDelIntento en src/app/actions/fiesta/invitados.actions.ts
+usa: obtenerIntento en src/app/(app)/incidentes/page.tsx
+```
+
+## Pruebas que fallaban de noche por contar el día en hora de Greenwich (14 de octubre de 2026)
+
+La app cuenta los días en hora de Uruguay; tres pruebas armaban "hoy" y "en 2 días" con la hora del
+servidor. Entre las 21 y la medianoche de Uruguay ya era mañana en Greenwich, daban un día de más y la
+puerta se frenaba. No era la app: eran las pruebas. Ahora usan `hoyEnUruguay()`, y un control no deja
+escribir otra así.
+
+```comprobar
+prueba: src/__tests__/las-pruebas-cuentan-los-dias-en-uruguay.test.ts
+prueba: src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
+```
+
+## "Mi mesa" en la red social de la fiesta, con texto también en el celular (14 de octubre de 2026)
+
+En el celular el acceso a "Mi mesa" era sólo un ícono de alfiler, sin texto: el invitado no sabía qué
+era. Lo encontró la pregunta 61 apenas su prueba empezó a correr también en el celular. Ahora dice
+"Mi Mesa" en todos los tamaños.
+
+```comprobar
+prueba: tests/e2e/la-red-social-de-la-fiesta.spec.ts
 ```

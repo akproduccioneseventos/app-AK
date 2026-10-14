@@ -55,7 +55,6 @@ test.describe('La música del álbum: suena la canción de la fiesta o no hay bo
 
   test('1. Con una fiesta sin canción cargada, el botón de música no aparece', async ({ page }, testInfo) => {
     test.setTimeout(60_000);
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto(`/evento/album/${fiestaSinCancionId}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1_000);
@@ -71,7 +70,6 @@ test.describe('La música del álbum: suena la canción de la fiesta o no hay bo
 
   test('2. Con una canción cargada, el botón aparece y el reproductor apunta a esa canción', async ({ page }, testInfo) => {
     test.setTimeout(60_000);
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto(`/evento/album/${fiestaConCancionId}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1_000);

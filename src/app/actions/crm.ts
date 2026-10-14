@@ -1,6 +1,8 @@
 
 'use server';
+import { createHash } from 'crypto';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types/crm';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
@@ -206,7 +208,7 @@ export async function getCrmLeadOptions(): Promise<CrmLeadOption[]> {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
+export async function addCrmLead(leadData: NewCrmLeadData, opciones?: { idIntento?: string }): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
   const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   const nameCleaned = (leadData.name || '').trim().replace(/\s+/g, ' ');
@@ -240,6 +242,12 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
   const stages = await getCrmStages();
   const now = new Date().toISOString();
 
+  // Pregunta 58: si la respuesta se perdio y la persona reintenta, el prospecto ya esta con ese id.
+  // Sin esto, el reintento chocaba con SU PROPIO registro y decia "ya existe" despues de guardar.
+  const idDeLaPantalla = idDelIntento('lead', opciones?.idIntento);
+  const yaGuardado = idDeLaPantalla ? leads.find((l) => l.id === idDeLaPantalla) : undefined;
+  if (yaGuardado) return { success: true, lead: yaGuardado };
+
   // Duplicate detection by phone
   if (sanitizedData.phone) {
     const normalizedPhone = normalizePhone(sanitizedData.phone);
@@ -267,7 +275,7 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
 
   const newLead: CrmLead = {
     ...sanitizedData,
-    id: `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    id: idDeLaPantalla ?? `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     createdAt: now,
     updatedAt: now,
     currentStageId: sanitizedData.currentStageId || stages[0].id,
@@ -452,14 +460,24 @@ export async function registerContractDeposit(params: {
   if (!auth.success) throw new Error('No autorizado');
 
   const { presupuesto, monto, referencia, metodoPago } = params;
-  const paymentValidation = validatePaymentAgainstBudget(presupuesto, monto, { includePendingForLimit: true });
-  if (!paymentValidation.ok) {
-    throw new Error(paymentValidation.error);
+
+  // Pregunta 58: la seña del contrato es UNA por presupuesto, con número fijo. Si se firma de nuevo
+  // porque la respuesta se perdió, el cobro ya está y no se agrega otro.
+  const idCrudo = `pago_senia_contrato_${presupuesto.id}`;
+  const pagoId = /^[a-zA-Z0-9_-]{8,80}$/.test(idCrudo)
+    ? idCrudo
+    : `pago_senia_contrato_${createHash('sha256').update(String(presupuesto.id)).digest('hex').slice(0, 32)}`;
+  const yaEstaba = (presupuesto.pagosCliente ?? []).some((p) => p.id === pagoId);
+
+  if (!yaEstaba) {
+    const paymentValidation = validatePaymentAgainstBudget(presupuesto, monto, { includePendingForLimit: true });
+    if (!paymentValidation.ok) {
+      throw new Error(paymentValidation.error);
+    }
   }
 
   const normalizedAmount = roundMoney(monto);
   const now = new Date().toISOString();
-  const pagoId = `pago_senia_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
   const newPago: PagoCliente = {
     id: pagoId,
@@ -478,17 +496,22 @@ export async function registerContractDeposit(params: {
   }
   const updatedPagosCliente = anotado.presupuesto?.pagosCliente ?? [...(presupuesto.pagosCliente ?? []), newPago];
 
+  // Si el cobro ya estaba (reintento), la seña acumulada no se suma otra vez.
+  const yaContado = yaEstaba;
   const updatedPresupuesto: Presupuesto = normalizePresupuestoFinancials({
     ...presupuesto,
     pagosCliente: updatedPagosCliente,
-    senia: roundMoney((Number(presupuesto.senia) || 0) + (Number(normalizedAmount) || 0)),
+    // (si el primer intento no llegó a guardar la seña acumulada, se completa con el monto del cobro que ya estaba)
+    senia: yaContado
+      ? roundMoney(Math.max(Number(presupuesto.senia) || 0, Number((presupuesto.pagosCliente ?? []).find((p) => p.id === pagoId)?.monto) || 0))
+      : roundMoney((Number(presupuesto.senia) || 0) + (Number(normalizedAmount) || 0)),
   }, { preserveStoredTotal: true });
 
   // Sync invoice payments if invoice exists
   if (presupuesto.invoiceId) {
     try {
       const invoice = await getInvoiceById(presupuesto.invoiceId);
-      if (invoice) {
+      if (invoice && !(invoice.payments ?? []).some((p) => p.id === pagoId)) {
         const metodoStr = newPago.metodoPago as string;
         const invoiceMethod: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro' =
           (metodoStr === 'Transferencia Bancaria' || metodoStr === 'Transferencia') ? 'Transferencia'

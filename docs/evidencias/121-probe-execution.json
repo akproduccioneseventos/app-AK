@@ -1,0 +1,14 @@
+{
+  "sha": "87b74b7d809f2524c2d0fcade0176749f5f5c02a",
+  "applicationSourceSha": "87b74b7d809f2524c2d0fcade0176749f5f5c02a",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/121-chat-aceptacion-probe.mjs"
+  ],
+  "launcher": 53748,
+  "child": 58428,
+  "started": "2026-10-13T16:03:45.315Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-13T16:04:47.646Z"
+}

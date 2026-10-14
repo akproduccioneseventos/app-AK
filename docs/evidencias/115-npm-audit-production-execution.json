@@ -1,0 +1,15 @@
+{
+  "sha": "09f824175d0378f8e303d7b3e4a1634b25908981",
+  "command": "npm audit --omit=dev --json --ignore-scripts",
+  "exitCode": 1,
+  "observedAt": "2026-10-13T04:42:19.401Z",
+  "vulnerabilities": {
+    "info": 0,
+    "low": 2,
+    "moderate": 65,
+    "high": 24,
+    "critical": 0,
+    "total": 91
+  },
+  "sharpPresent": false
+}

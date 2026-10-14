@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -205,7 +206,7 @@ function IncidentesContent() {
     }
     setCreando(true);
     try {
-      const result = await conTopeDeEspera(createIncidente({
+      const carga = {
         titulo: form.titulo,
         descripcion: form.descripcion,
         categoria: form.categoria,
@@ -216,8 +217,12 @@ function IncidentesContent() {
         seguimiento: form.seguimiento,
         fiestaId: form.fiestaId,
         registradoPor: form.registradoPor,
-      }));
+      };
+      // Pregunta 58: mismo contenido = mismo intento; si la respuesta se pierde y reintenta, no se duplica.
+      const idIntento = await obtenerIntento('incidente-nuevo', carga);
+      const result = await conTopeDeEspera(createIncidente(carga, { idIntento }));
       if (result.success) {
+        terminarIntento('incidente-nuevo');
         toast({ title: 'Incidente creado', description: 'El incidente fue registrado correctamente.' });
         setForm(prev => ({
           ...prev,

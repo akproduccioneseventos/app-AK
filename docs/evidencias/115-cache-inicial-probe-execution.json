@@ -1,0 +1,14 @@
+{
+  "sha": "81be9ac00485bc0ece0fb6db07bf7b5f4aa96669",
+  "applicationSourceSha": "81be9ac00485bc0ece0fb6db07bf7b5f4aa96669",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/115-native-probe.mjs"
+  ],
+  "launcher": 48096,
+  "child": 28912,
+  "started": "2026-10-13T05:47:03.293Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-13T05:48:51.419Z"
+}
