@@ -76,6 +76,8 @@ describe('Configuración accesible del kiosco', () => {
 
     const totemInput = Array.from(container.querySelectorAll('input')).find((input) => input.labels?.[0]?.textContent.includes('Identificador del Tótem'));
     expect(totemInput).toBeTruthy();
+    expect(totemInput?.classList.contains('text-slate-100')).toBe(true);
+    expect(totemInput?.classList.contains('placeholder:text-slate-400')).toBe(true);
     expect(container.querySelectorAll('[role="group"] button[aria-pressed="true"]')).toHaveLength(1);
   });
 

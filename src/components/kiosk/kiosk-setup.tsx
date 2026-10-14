@@ -372,7 +372,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                   value={totemId}
                   onChange={(e) => setTotemId(e.target.value)}
                   placeholder="ej. totem-principal o totem-entrada"
-                  className="bg-slate-950 border-slate-800 text-sm h-12"
+                  className="bg-slate-950 border-slate-800 text-sm h-12 text-slate-100 placeholder:text-slate-400"
                 />
               </motion.div>
             )}
