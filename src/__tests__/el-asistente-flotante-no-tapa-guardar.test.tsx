@@ -61,7 +61,7 @@ async function montar(botonGuardar?: string) {
   await act(async () => {
     root.render(
       <>
-        {botonGuardar && <button data-rect={botonGuardar}>Generar Presupuesto Formal</button>}
+        {botonGuardar && <button data-rect={botonGuardar} onClick={() => undefined}>Generar Presupuesto Formal</button>}
         <ContextualAssistantIndicator />
       </>,
     );
