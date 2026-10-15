@@ -36,5 +36,7 @@ Sin PR abierta al inicio de esta tanda. PR1318 y PR1319 estaban fusionadas; rama
 QA sintetico aislado, build de app `a635b27071ecea22092eba2a285892c84c6f9d08`; servicios reales deshabilitados.
 Portal/cliente no 3D: mensajes persisten al recargar en desktop y movil; cuatro criterios del panel pasan en ambos.
 Contrato movil: defecto reproducido en 390 px (titulo 3 lineas, sello tapa etiqueta, texto PDF fuera del boton), orden171.
-Salon 3D: tanda de 28 escenarios dio 13 PASS y 15 timeouts durante teardown de Chromium/trazas; no clasificar como 15 errores app ni como area aprobada. Queda prueba 3D focalizada pendiente.
+Panel social: ruta 200, contenido visible y 0px de desborde, pero el dock tapa el encabezado de columna Evento por 1455px2 a 390x844; orden172.
+Salon 3D: tanda de 28 escenarios dio 13 PASS y 15 timeouts durante teardown de Chromium/trazas; no clasificar como 15 errores app ni como area aprobada. Corrida duro 1.1 h; no repetir este bloque. Queda prueba 3D focalizada pendiente.
+Orden del evento y ubicacion sintetica del personal: 4/4 PASS desktop/movil. Agenda respondio, pero su prueba no aprueba por Firebase SDK con API key falsa; runner informa Firebase apagado pero permite intento desde browser. Limite QA, no defecto app confirmado; bloquear salida externa antes de repetir.
 Privados Claude/Gemini NO CONTRASTADOS. Ver evidencia133; no declarar auditoria completa ni cero errores.

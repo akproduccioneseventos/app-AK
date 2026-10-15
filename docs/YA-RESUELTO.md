@@ -5,9 +5,14 @@
 - Contrato del portal en movil: en 390 px, el sello de firma tapa la etiqueta del titular,
   el titulo ocupa tres lineas y el texto del boton PDF se sale. Reproduccion QA y captura:
   `docs/evidencias/133-contrato-mobile-layout.md` y `.png`; correccion pendiente, orden171.
+- Panel social movil: el `ModuleNavigationDock` cubre aproximadamente 1455 px2 del encabezado
+  `Evento` de la tabla a 390 x 844; el ancho horizontal no desborda. Correccion pendiente, orden172.
 - El subgrupo no 3D del portal aprobo mensajes y cuatro criterios del panel en desktop/movil.
   La tanda 3D no es concluyente: 15 expiraciones durante el cierre de contexto/trazas,
   no fallos de asercion atribuibles a la app. No marcar 3D como aprobado ni como bug por esta corrida.
+- Pruebas operativas sintéticas: orden del evento y permiso de ubicacion 4/4 PASS.
+  Agenda respondio, pero el test de consola fallo por una llamada del Firebase SDK con clave QA invalida;
+  el runner no bloquea toda salida externa. Es limite de aislamiento, no bug confirmado del producto.
 - Base app `d10f332a`, equivalente al arbol `src` de main `9aa64f99`; copia QA `a635b270`.
   Privados Claude/Gemini siguen NO CONTRASTADOS.
 
