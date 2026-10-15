@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useParams } from 'next/navigation';
@@ -138,10 +139,14 @@ export default function BarmanScreenPage() {
 
   const handleQuickOrder = async (drinkId: string) => {
     setUpdatingId(drinkId);
-    const result = await createBarmanManualOrder({ fiestaId, drinkId });
+    // Pregunta 58: reintento de una respuesta perdida = el mismo pedido, sin descontar botellas otra vez.
+    const alcance = `barman:${fiestaId}`;
+    const clientRequestId = await obtenerIntento(alcance, { drinkId });
+    const result = await createBarmanManualOrder({ fiestaId, drinkId, clientRequestId });
     if (!result.success) {
       toast({ title: 'Error', description: result.error, variant: 'destructive' });
     } else {
+      terminarIntento(alcance);
       toast({ title: 'Registrado', description: 'Trago descontado del stock.', variant: 'default' });
       setQuickDrink(null);
       await loadData(false);

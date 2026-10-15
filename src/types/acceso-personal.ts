@@ -23,6 +23,8 @@ export interface AccesoPersonal {
    */
   empleadoId?: string;
   permisos: ModuloPermiso[];
+  /** Identidad del intento de crear el enlace (pregunta 58): un reintento devuelve este mismo acceso. No es el token. */
+  idIntento?: string;
   fechaCreacion: string; // ISO Date String
   /**
    * Hasta cuándo sirve el enlace. Si no viene, se usa la ventana por defecto

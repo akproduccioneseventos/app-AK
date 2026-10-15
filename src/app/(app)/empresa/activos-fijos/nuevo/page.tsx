@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, type FormEvent, Suspense, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -125,8 +126,11 @@ function NuevoActivoFijoContent() {
 
 
     try {
-      const result = await saveActivoFijo(dataToSave);
+      // Pregunta 58: reintento de una respuesta perdida = el mismo activo, no "ya existe".
+      const idIntento = await obtenerIntento('activo-nuevo', dataToSave);
+      const result = await saveActivoFijo(dataToSave, { idIntento });
       if (result.success && result.id) {
+        terminarIntento('activo-nuevo');
         toast({ title: "¡Activo Guardado!", description: `El activo "${dataToSave.nombre}" ha sido añadido.` });
         router.push('/empresa/activos-fijos');
       } else {

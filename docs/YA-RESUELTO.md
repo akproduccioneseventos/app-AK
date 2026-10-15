@@ -14093,9 +14093,22 @@ devuelve el existente). Ahora cubre: plantilla de itinerario, plano del salón y
 comentario de la galería y mensaje del chat (social y en vivo). En las colecciones de Firestore se usa `create`
 y, si el id ya existe, se devuelve el que estaba. Quedaron sin tocar, por ser idempotentes de por sí, el
 testimonio (se descarta por `feedbackId`), la plantilla de tareas (por nombre), el anuncio guardado y la foto del
-catálogo (el id viene de la pantalla). Plata, comida y permisos quedan para su propio barrido.
+catálogo (el id viene de la pantalla) y las reacciones de aplausos de la pantalla social (son efímeras,
+viven 20 segundos en memoria y cada toque es un aplauso a propósito).
+
+**Parte 2, mismo día.** Mismo arreglo, sólo en la identidad del intento (sin tocar permisos, montos ni
+cuentas de stock): promos nuevas, pedido manual del barman (el reintento devuelve el pedido que ya está y
+**no vuelve a descontar botellas**), insumo nuevo (el reintento ya no dice "ya existe"), menú nuevo (el
+autoguardado del formulario actualiza ese menú en vez de crear uno por cada cambio) y copia de menú, enlace de
+acceso del personal (el token sigue siendo un UUID del servidor: la identidad del intento se guarda aparte,
+nunca es el token), activo fijo nuevo, cliente nuevo (el reintento no repite fiesta, aviso ni WhatsApp), foto
+subida al muro (el reintento no vuelve a subir el archivo), evento nuevo y copia de evento (el reintento no
+pisa con uno en blanco el evento que ya se empezó a cargar), y la consulta del portal del cliente. De paso se
+arregló que copiar un menú llevaba el id del original y actualizaba el original con el nombre "[COPIA]".
 
 ```comprobar
 archivo: src/app/actions/itinerary-templates.ts
 prueba: src/__tests__/pregunta-58-rebarrido.test.ts
+prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
+prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```

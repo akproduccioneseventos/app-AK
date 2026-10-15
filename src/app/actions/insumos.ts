@@ -1,5 +1,6 @@
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { aplicarInsumoEnMenus } from './menus-catering';
@@ -82,7 +83,8 @@ async function propagateInsumoChangesToMenus(
 
 
 async function saveInsumoInterno(
-  itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
+  itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
   limpiarCacheInsumos();
@@ -128,9 +130,14 @@ async function saveInsumoInterno(
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, el insumo ya esta con ese id: es
+    // exito, no "ya existe". Se devuelve el guardado sin tocar nada.
+    const idDeLaPantalla = idDelIntento('insumo', opciones?.idIntento);
+    const yaGuardado = idDeLaPantalla ? inventario.find((s) => s.id === idDeLaPantalla) : undefined;
+    if (yaGuardado) return { success: true, id: yaGuardado.id, servicio: yaGuardado };
     const existingItem = inventario.find(s => s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase() && s.categoria === dataWithParsedNumbers.categoria);
     if (existingItem) return { success: false, error: `Ya existe un insumo con el nombre "${dataWithParsedNumbers.nombre!.trim()}" en la categoría "${dataWithParsedNumbers.categoria}".` };
-    itemId = `insumo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    itemId = idDeLaPantalla ?? `insumo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId };
     inventario.push(finalItemData as ServicioEmpresa);
   }

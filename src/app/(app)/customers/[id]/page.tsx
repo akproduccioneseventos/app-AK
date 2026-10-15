@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -67,10 +68,13 @@ export default function CustomerDetailsPage() {
     if (!customer || isCreatingEvent) return;
     setIsCreatingEvent(true);
     try {
-      const result = await createFiestaVacia(customer.id, customer.name);
+      // Pregunta 58: reintento de una respuesta perdida = el mismo evento, no dos.
+      const idIntento = await obtenerIntento('evento-nuevo-cliente', { id: customer.id });
+      const result = await createFiestaVacia(customer.id, customer.name, { idIntento });
       if (!result.success || !result.newFiestaId) {
         throw new Error(result.error || 'No se pudo crear el evento.');
       }
+      terminarIntento('evento-nuevo-cliente');
       router.push(`/fiestas/nueva/configuracion?fiestaId=${result.newFiestaId}`);
     } catch (createError: any) {
       toast({

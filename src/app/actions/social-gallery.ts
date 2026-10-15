@@ -328,6 +328,7 @@ export async function uploadSocialPost(
   const guestId = (formData.get('guestId') as string) || '';
   const guestAccessToken = (formData.get('guestAccessToken') as string) || '';
   const dispositivoId = (formData.get('dispositivoId') as string) || undefined;
+  const idIntentoCrudo = formData.get('idIntento');
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos (ID de fiesta o archivo).' };
 
@@ -388,6 +389,14 @@ export async function uploadSocialPost(
       windowMs: 60_000,
     });
     const db = await getDb();
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la foto ya esta con ese id: se
+    // devuelve esa, sin volver a subir el archivo ni sumar otra vez la mision.
+    const idDeLaPantalla = idDelIntento('post', idIntentoCrudo);
+    if (idDeLaPantalla) {
+      const previa = await db.collection(GALLERY_COLLECTION).doc(idDeLaPantalla).get();
+      const previaData = previa.exists ? (previa.data() as SocialGalleryPost) : null;
+      if (previaData && previaData.fiestaId === fiestaId) return { success: true, post: previaData };
+    }
     const wallEnabled = fiestaData.socialGallerySettings?.enabled !== false;
     const wallActive = fiestaData.socialGallerySettings?.uploadsActive !== false;
     const bypassWallCheck = source === 'entertainment';
@@ -439,7 +448,7 @@ export async function uploadSocialPost(
     }
 
     const fileExtension = path.extname(file.name);
-    const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const postId = idDeLaPantalla ?? `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const storagePath = `social-gallery/${fiestaId}/${postId}${fileExtension}`;
 
     const bytes = await file.arrayBuffer();
@@ -507,7 +516,14 @@ export async function uploadSocialPost(
 
     // Single-document write — zero write conflict even with 200 simultaneous uploads,
     // because every caller writes to its own unique postId document.
-    await db.collection(GALLERY_COLLECTION).doc(postId).set(newPost);
+    try {
+      await (idDeLaPantalla ? db.collection(GALLERY_COLLECTION).doc(postId).create(newPost) : db.collection(GALLERY_COLLECTION).doc(postId).set(newPost));
+    } catch (e) {
+      if (!esIdYaExistente(e)) throw e;
+      // Otro intento con la misma identidad llego primero: es la misma foto.
+      const previa = await db.collection(GALLERY_COLLECTION).doc(postId).get();
+      return { success: true, post: (previa.data() as SocialGalleryPost) ?? newPost };
+    }
 
     // Misión de fotos: la foto ya quedó guardada (aprobada o esperando aprobación). Se suman los
     // puntos una vez por jugador y misión; si esto falla, la foto no se pierde.

@@ -1,5 +1,6 @@
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import { agregarVariantesBufet, getMenuItemSellingPrice } from '@/lib/simulator/catalog';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -191,7 +192,8 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 }
 
 async function saveMenuInterno(
-  menuDataInput: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
+  menuDataInput: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
   invalidateMenusCache();
@@ -217,7 +219,14 @@ async function saveMenuInterno(
   const sanitizedMenuInput = { ...menuDataInput, items: cleanItems } as FullMenu;
 
   const allDishes = menus.flatMap(m => m.items);
-  const menuToSave = recalculateMenu(sanitizedMenuInput, catalog, allDishes);
+  let menuToSave = recalculateMenu(sanitizedMenuInput, catalog, allDishes);
+
+  // Pregunta 58: un alta con identidad de intento que YA esta guardada (la respuesta se perdio y la
+  // persona reintenta, o el autoguardado del formulario vuelve a mandar el mismo menu nuevo) es el
+  // mismo menu: se actualiza ese, no se crea otro.
+  const idDeLaPantalla = idDelIntento('menu', opciones?.idIntento);
+  const previo = !('id' in menuToSave && menuToSave.id) && idDeLaPantalla ? menus.find((m) => m.id === idDeLaPantalla) : undefined;
+  if (previo) menuToSave = { ...menuToSave, id: previo.id, createdAt: previo.createdAt } as FullMenu;
 
   if ('id' in menuToSave && menuToSave.id) {
     menuId = menuToSave.id;
@@ -231,7 +240,7 @@ async function saveMenuInterno(
       return { success: true, id: menuId, menu: menus[index] };
     }
   } else {
-    menuId = `menu_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    menuId = idDeLaPantalla ?? `menu_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newMenu: FullMenu = {
       ...(menuToSave as Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'>),
       id: menuId,
@@ -288,16 +297,19 @@ async function deleteMenuInterno(id: string): Promise<{ success: boolean; error?
   return { success: true };
 }
 
-export async function duplicateMenu(id: string): Promise<{ success: boolean; error?: string; menu?: FullMenu }> {
+export async function duplicateMenu(id: string, opciones?: { idIntento?: string }): Promise<{ success: boolean; error?: string; menu?: FullMenu }> {
     await requirePermisoAlguno(PERMISOS.INSUMOS);
     invalidateMenusCache();
     const menuToDuplicate = await getMenuById(id);
     if (!menuToDuplicate) return { success: false, error: 'Menú a duplicar no encontrado.' };
+    // La copia NO lleva el id del original: con el id puesto, guardar la "copia" actualizaba el menu
+    // de origen y le cambiaba el nombre a "[COPIA] ...".
+    const { id: _idOriginal, createdAt: _creadoOriginal, updatedAt: _actualizadoOriginal, ...sinIdentidad } = menuToDuplicate;
     const newMenu: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> = {
-        ...menuToDuplicate,
+        ...sinIdentidad,
         name: `[COPIA] ${menuToDuplicate.name}`,
     };
-    return saveMenu(newMenu);
+    return saveMenu(newMenu, opciones);
 }
 
 async function adjustAllDishMarginsInterno(percentage: number): Promise<{ success: boolean; error?: string }> {

@@ -1,6 +1,7 @@
 
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
@@ -49,7 +50,7 @@ export async function getCustomerById(id: string): Promise<Customer | null> {
 
 export async function saveCustomer(
   customerData: Omit<Customer, 'id'> | Customer | FormData,
-  options?: { skipFiestaCreation?: boolean }
+  options?: { skipFiestaCreation?: boolean; idIntento?: string }
 ): Promise<{ success: boolean; id?: string; customer?: Customer; error?: string }> {
   const auth = await requirePermisoParaTocarClientes();
   if (!auth.ok) return { success: false, error: auth.error };
@@ -114,8 +115,13 @@ export async function saveCustomer(
       };
     }
   } else { // Create
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, el cliente ya esta con ese id: se
+    // devuelve ese, sin repetir la fiesta, el aviso ni el WhatsApp de "cliente nuevo".
+    const idDeLaPantalla = idDelIntento('cust', options?.idIntento);
+    const yaGuardado = idDeLaPantalla ? customers.find((c) => c.id === idDeLaPantalla) : undefined;
+    if (yaGuardado) return { success: true, id: yaGuardado.id, customer: yaGuardado };
     isNewCustomer = true;
-    customerId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    customerId = idDeLaPantalla ?? `cust_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const newCustomerBase: Omit<Customer, 'id'> = {
         ...(customerToSave as Omit<Customer, 'id'>),
         name: customerToSave.name || customerToSave.companyName || 'Sin Nombre Asignado',

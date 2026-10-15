@@ -725,8 +725,16 @@ export default function SocialEventPage() {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         throw new Error('Sin conexión');
       }
+      // Pregunta 58: si la respuesta se perdio y el invitado reintenta, es la misma foto.
+      const alcanceFoto = `foto-muro:${fiestaId}`;
+      const idIntentoFoto = await obtenerIntento(alcanceFoto, {
+        n: uploadFile.name, s: uploadFile.size, t: uploadFile.type, l: uploadFile.lastModified,
+        h: formData.get('imageHash'), d: formData.get('dedication'), m: formData.get('momentTag'),
+      });
+      formData.append('idIntento', idIntentoFoto);
       const result = await conTopeDeEspera(uploadSocialPost(formData));
       if (result.success) {
+        terminarIntento(alcanceFoto);
         toast({
           title: settings.requireApproval ? 'Momento enviado' : 'Momento publicado',
           description: settings.requireApproval ? 'El equipo lo revisará antes de mostrarlo.' : 'Ya aparece en la red social.',

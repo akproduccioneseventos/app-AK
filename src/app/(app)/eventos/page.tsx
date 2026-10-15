@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -227,9 +228,12 @@ export default function GestorFiestasPage() {
     setIsProcessing('reset-fiesta');
 
     try {
-      const result = await createFiestaVacia(clienteId, clienteNombre);
+      // Pregunta 58: reintento de una respuesta perdida = el mismo evento, no dos.
+      const idIntento = await obtenerIntento('evento-nuevo', { clienteId, clienteNombre });
+      const result = await createFiestaVacia(clienteId, clienteNombre, { idIntento });
 
       if (result.success && result.newFiestaId) {
+        terminarIntento('evento-nuevo');
         toast({
           title: "¡Nuevo Evento Creado!",
           description: clienteNombre
@@ -315,8 +319,12 @@ export default function GestorFiestasPage() {
   const handleDuplicate = async (fiestaId: string) => {
     setIsProcessing(fiestaId);
     try {
-      const result = await duplicateFiesta(fiestaId);
+      // Pregunta 58: reintento de una respuesta perdida = la misma copia, no dos.
+      const alcance = `evento-copia:${fiestaId}`;
+      const idIntento = await obtenerIntento(alcance, { fiestaId });
+      const result = await duplicateFiesta(fiestaId, { idIntento });
       if (result.success) {
+        terminarIntento(alcance);
         toast({ title: "Evento Duplicado", description: "Se ha creado una copia del evento." });
         await loadData();
       } else {

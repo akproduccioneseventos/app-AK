@@ -1,4 +1,5 @@
 'use client';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useState } from 'react';
@@ -55,7 +56,11 @@ export default function PortalFaqPage() {
     try {
       const { addChatMessage } = await import('@/app/actions/social-gallery');
       const fiestaId = params.id;
-      await addChatMessage(fiestaId, `❓ Consulta de Cliente: ${qText}`, 'Cliente VIP Portal');
+      // Pregunta 58: reintento de una respuesta perdida = la misma consulta, no dos.
+      const alcance = `consulta-portal:${fiestaId}`;
+      const idIntento = await obtenerIntento(alcance, { qText });
+      const enviada = await addChatMessage(fiestaId, `❓ Consulta de Cliente: ${qText}`, 'Cliente VIP Portal', {}, { idIntento });
+      if (enviada.success) terminarIntento(alcance);
       setUserQuestions(prev => [...prev, { q: qText, status: 'Enviada al equipo' }]);
       setNewQuestion('');
       toast({

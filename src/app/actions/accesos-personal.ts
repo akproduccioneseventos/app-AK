@@ -5,6 +5,7 @@ import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { readData, writeData } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import { verifySession } from '@/lib/auth/session-token';
 import { accesoVencido } from '@/lib/auth/vigencia-acceso';
 import type { AccesoPersonal, ModuloPermiso } from '@/types/acceso-personal';
@@ -14,7 +15,8 @@ export type { AccesoPersonal, ModuloPermiso } from '@/types/acceso-personal';
 const ACCESOS_FILE = 'accesos-personal.json';
 
 export async function createAccesoPersonal(
-  data: Omit<AccesoPersonal, 'id' | 'fechaCreacion'>
+  data: Omit<AccesoPersonal, 'id' | 'fechaCreacion'>,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; acceso?: AccesoPersonal; error?: string }> {
   // Los enlaces para proveedores los maneja organización (auditoría con las 35 preguntas): antes
   // alcanzaba cualquier sesión, también la del personal.
@@ -26,8 +28,14 @@ export async function createAccesoPersonal(
   }
   try {
     const accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, el enlace ya esta creado. El id del
+    // intento NO es el token (el token sigue siendo un UUID del servidor): se guarda aparte.
+    const idDeLaPantalla = idDelIntento('acceso', opciones?.idIntento);
+    const yaCreado = idDeLaPantalla ? accesos.find((a) => a.idIntento === idDeLaPantalla) : undefined;
+    if (yaCreado) return { success: true, acceso: yaCreado };
     const newAcceso: AccesoPersonal = {
       ...data,
+      ...(idDeLaPantalla ? { idIntento: idDeLaPantalla } : {}),
       fiestaId: data.fiestaId || undefined,
       id: randomUUID(),
       fechaCreacion: new Date().toISOString(),

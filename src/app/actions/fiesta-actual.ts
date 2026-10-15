@@ -61,8 +61,8 @@ export async function deleteFiesta(fiestaId: string) { return await FiestaModule
 export async function resetFiestaActual() { return await FiestaModule.resetFiestaActual(); }
 export async function resetAllActiveFiestas() { return await FiestaModule.resetAllActiveFiestas(); }
 export async function deleteAllFiestas() { return await FiestaModule.deleteAllFiestas(); }
-export async function createFiestaVacia(clienteId?: string, clienteNombre?: string) {
-  return await FiestaModule.createFiestaVacia(clienteId, clienteNombre);
+export async function createFiestaVacia(clienteId?: string, clienteNombre?: string, opciones?: { idIntento?: string }) {
+  return await FiestaModule.createFiestaVacia(clienteId, clienteNombre, opciones);
 }
 export async function createDemoFiesta(kind: import('@/lib/experience-ak/demo-fiesta-factory').AkDemoFiestaKind) {
   return await FiestaModule.createDemoFiesta(kind);
@@ -71,7 +71,7 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol) { return
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion) { return await FiestaModule.saveFiesta(fiestaData); }
 export async function addInvoiceIdToFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.addInvoiceId(fiestaId, invoiceId); }
 export async function removeInvoiceIdFromFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.removeInvoiceId(fiestaId, invoiceId); }
-export async function duplicateFiesta(fiestaId: string) { return await FiestaModule.duplicateFiesta(fiestaId); }
+export async function duplicateFiesta(fiestaId: string, opciones?: { idIntento?: string }) { return await FiestaModule.duplicateFiesta(fiestaId, opciones); }
 export async function syncFiestaFromBudget(fiestaId: string) { return await FiestaModule.syncFiestaFromBudget(fiestaId); }
 export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId: string | null) { return await FiestaModule.updateFiestaPresupuestoId(fiestaId, presupuestoId); }
 

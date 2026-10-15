@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -127,9 +128,12 @@ export default function PromosAdminPage() {
     }
     setSaving(true);
     const payload = editingId ? { ...form, id: editingId } : form;
-    const res = await savePromo(payload as any);
+    // Pregunta 58: al crear, un reintento de una respuesta perdida es la misma promo, no otra.
+    const idIntento = editingId ? undefined : await obtenerIntento('promo-nueva', form);
+    const res = await savePromo(payload as any, { idIntento });
     setSaving(false);
     if (res.success) {
+      if (!editingId) terminarIntento('promo-nueva');
       toast({ title: editingId ? 'Promo actualizada' : 'Promo creada' });
       setDialogOpen(false);
       loadData();
