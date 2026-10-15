@@ -1,0 +1,18 @@
+{
+  "stopped": [
+    {
+      "ProcessId": 15968,
+      "ParentProcessId": 22436,
+      "CommandLine": "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.22.0.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --database-edition standard --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\firestore.rules --single_project_mode true"
+    },
+    {
+      "ProcessId": 22436,
+      "ParentProcessId": 63144,
+      "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.126-63144.generated.json --only firestore --project demo-ak-producciones"
+    }
+  ],
+  "listeners": [],
+  "bytesRestored": true,
+  "total": 0,
+  "finishedAt": "2026-10-15T03:31:06.396Z"
+}

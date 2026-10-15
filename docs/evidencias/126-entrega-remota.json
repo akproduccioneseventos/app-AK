@@ -1,0 +1,13 @@
+{
+  "deliverySnapshotSha": "7dcbcdde8fc4a33f9c0f37feac658971ad4b2bac",
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "branch": "codex/125-kiosco-auditoria-main-20261014",
+  "pullRequest": "https://github.com/akproduccioneseventos/app-AK/pull/1301",
+  "stateObserved": "OPEN",
+  "checkedDate": "2026-10-15",
+  "verifiedRemoteBlobs": 42,
+  "method": "PR head equals local HEAD, untruncated remote Git tree, git rev-parse HEAD:path equals remote blob for every changed path since27d024e3",
+  "merged": false,
+  "fixImplementedByThisAudit": false,
+  "scope": "Delivery snapshot only; subsequent receipt commit is not a new app build or global acceptance."
+}

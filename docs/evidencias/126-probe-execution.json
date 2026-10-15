@@ -1,0 +1,14 @@
+{
+  "sha": "27d024e3a555eb1f7763aab16051220d5740a922",
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "mode": "probe",
+  "args": [
+    "docs/evidencias/126-plantillas-native.mjs"
+  ],
+  "launcher": 61536,
+  "child": 12920,
+  "started": "2026-10-15T03:24:58.417Z",
+  "status": "finished",
+  "exitCode": 1,
+  "finished": "2026-10-15T03:26:41.028Z"
+}

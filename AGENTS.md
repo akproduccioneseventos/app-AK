@@ -1,4 +1,13 @@
-## Fusion y trabajo vigente - pedido del dueno, 13/10/2026
+## Reparto vigente - pedido del dueno, 15/10/2026
+
+- GEMINI PROGRAMA. Codex revisa, ejecuta QA ficticio y documenta evidencia y
+  ordenes verificadas; no implementa codigo app ni compila por defecto.
+- Claude compila/valida el conjunto y fusiona; Codex nunca fusiona.
+- Este reparto sustituye la autorizacion incompatible del13/10 para corregir
+  app directamente. Conservar dinero, seguridad, datos y decisiones del dueno.
+- No dar una orden por ejecutada ni un arreglo por terminado solo por subirlo.
+
+## Fusion y trabajo previo - pedido del dueno, 13/10/2026
 
 - Codex deja cambios, pruebas y registro preparados en la PR; NO la fusiona.
 - CLAUDE FUSIONA siempre. Esto sustituye las instrucciones antiguas que

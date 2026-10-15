@@ -1,0 +1,29 @@
+{
+  "byteExactArchives": true,
+  "hashes": [
+    {
+      "file": "docs/evidencias/126-emulator.log",
+      "archivedAs": "docs/evidencias/126-emulator.log.gz",
+      "sha256": "581d321048e1afd8b0b5d771a1d76e28da62caa34a45b5c0e57a9e2aa1f9ef76",
+      "bytes": 2191
+    },
+    {
+      "file": "docs/evidencias/126-probe.log",
+      "archivedAs": "docs/evidencias/126-probe.log.gz",
+      "sha256": "65cb4bb63a67850fa490f9e1b511eaa17a26b500296eca9a1d42d6d74ed27833",
+      "bytes": 69196
+    },
+    {
+      "file": "docs/evidencias/126-start.log",
+      "archivedAs": "docs/evidencias/126-start.log.gz",
+      "sha256": "3675e21d95f285ed151e48134b260b2215090f101e488a364b303d9f9e6268a0",
+      "bytes": 7359
+    },
+    {
+      "file": "docs/evidencias/126-outbound-blocked.log",
+      "archivedAs": "docs/evidencias/126-outbound-blocked.log.gz",
+      "sha256": "0933500ac958a8d458befa0e723190d33309827eafce8333bd0245017701fba6",
+      "bytes": 65
+    }
+  ]
+}

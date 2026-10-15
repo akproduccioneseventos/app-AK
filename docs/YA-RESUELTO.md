@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Codex126: dos hallazgos comprobados, NO corregidos
+
+- Gemini programa segun ultima orden del dueno; Codex revisa/prueba y Claude
+  compila/fusiona. Esta tanda solo agrega QA/documentacion, no codigo app.
+- Orden164 pendiente: Crear Nueva Plantilla, guardar y perder SOLO HTTP200,
+  reintentar payload IDENTICO deja dos IDs, esperado uno. Chromium real PC y
+  Pixel7 emulado con SDK demo; ambos persisten tras recarga. Dos creaciones
+  deliberadas legitimas SI dejan dos, control PASS. NO tocar copia de plantilla
+  ya protegida ni deduplicar por nombre. No reencomendar este hallazgo otra vez.
+- Decoracion del portal: boton Quiero cambiar algo tiene texto RGB226/232/240
+  sobre252/252/252, contraste1.2016. FAIL PC/mobile. Sugerencia escrita SI se
+  guarda y recupera tras recarga en ambos; no reencomendar guardado como roto.
+- Fuente appb520f7ce sin cambiar; build125 reutilizado, no nueva compilacion.
+  Ocho casos nativos:4PASS/4FAIL; dos defectos, NO cuatro defectos distintos.
+  Main4b y rama abierta27d tienen iguales blobs de esos tres archivos.
+  PrivadoClaude NO CONTRASTADO; Hosting no contrastado por estos recorridos.
+- No se declara cero errores ni auditoria completa. Npm11avisos unicos de163
+  siguen pendientes. Evidencia/limites en126-observaciones.md y orden164.
+- Sonda Jest del ayudante sin resultado, archivada como texto; no prueba app.
+  Capturas con imagenes remotas bloqueadas NO son fallos de galeria reportables.
+  Limpieza126: SDK0, bytes ajenos restaurados y servicios/agentes cerrados.
+
 ## 14/10/2026 - Codex125: entradas faltantes, kiosco accesible y CLI sin tar6
 
 ### Actualizacion125 despues de integrar1299/1300 (prima sobre preparacion anterior)
