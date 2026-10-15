@@ -1,0 +1,26 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "REAL_ACTION_WITH_NOTIFICATION_DATA_AUTH_DOUBLES",
+  "result": {
+    "success": true,
+    "results": [
+      {
+        "id": "tasks_qa129-uno",
+        "title": "Tareas próximas: Fiesta ficticia qa129-uno",
+        "description": "Hay 1 tarea(s) con fecha cercana para revisar.",
+        "href": "/fiestas/nueva/tareas?fiestaId=qa129-uno",
+        "created": true
+      },
+      {
+        "id": "tasks_qa129-dos",
+        "title": "Tareas próximas: Fiesta ficticia qa129-dos",
+        "description": "Hay 1 tarea(s) con fecha cercana para revisar.",
+        "href": "/fiestas/nueva/tareas?fiestaId=qa129-dos",
+        "created": false
+      }
+    ],
+    "created": 1
+  },
+  "expected": "Conservar un aviso creado y comunicar explicitamente el otro fallo, no exito global sin advertencia",
+  "realAccountsOrMessagesTouched": false
+}

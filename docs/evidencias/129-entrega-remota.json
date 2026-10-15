@@ -1,0 +1,144 @@
+{
+  "verifiedAt": "2026-10-15T12:20:02.793Z",
+  "snapshotHead": "141739208383708ffb162e23b815ee7c9e782ded",
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "mainAtAudit": "1a717203a1a58d4dbf6c5009b7b7cf2636b9e3a4",
+  "pr": {
+    "headRefOid": "141739208383708ffb162e23b815ee7c9e782ded",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/akproduccioneseventos/app-AK/pull/1308"
+  },
+  "verifiedBlobs": 32,
+  "allIdentical": true,
+  "files": [
+    {
+      "path": "ESTADO-ACTUAL.md",
+      "sha": "d002abfbfebb5f3e1c5c1b71556c04bb5874d04b"
+    },
+    {
+      "path": "docs/LO-QUE-NO-VI.md",
+      "sha": "3909776c97d278bc6697298d4d937e63c0265dd2"
+    },
+    {
+      "path": "docs/YA-RESUELTO.md",
+      "sha": "7acca0f843d64678fa0965c20a73c6001b48a44c"
+    },
+    {
+      "path": "docs/codex/129-compras-automatizaciones-personal.md",
+      "sha": "a8e18b69adeec50419f51fe79be2133326564341"
+    },
+    {
+      "path": "docs/evidencias/129-archivos-archivados.json",
+      "sha": "0722705694ecfeff88ab76432b04c3f24b175ac4"
+    },
+    {
+      "path": "docs/evidencias/129-auto-aviso-observado.json",
+      "sha": "7c720db92d16331742b93e0125801bea8661b7e7"
+    },
+    {
+      "path": "docs/evidencias/129-auto-lectura-observado.json",
+      "sha": "a89ea398c28fdbf39a660b89b09dc9288a31f603"
+    },
+    {
+      "path": "docs/evidencias/129-auto-lote-observado.json",
+      "sha": "8f79b6c35c4abd839a1aff53e5aaa18e7558606a"
+    },
+    {
+      "path": "docs/evidencias/129-automatizaciones-ejecucion.json",
+      "sha": "e9d08c5d519d0bb4fcf85d728f0e97eb2e624fee"
+    },
+    {
+      "path": "docs/evidencias/129-automatizaciones-jest.json",
+      "sha": "b80cdd8654e41e0e1f1cd76b583aae2956fde21f"
+    },
+    {
+      "path": "docs/evidencias/129-automatizaciones-reales.test.tsx",
+      "sha": "f09497742b6889dd30377e5f961f5a361a8daf88"
+    },
+    {
+      "path": "docs/evidencias/129-automatizaciones.log.gz",
+      "sha": "5dae9776a628d6fca2fa1248b97c38bb6f739c4a"
+    },
+    {
+      "path": "docs/evidencias/129-compras-ampliado-ejecucion.json",
+      "sha": "f59ad599a8e7aaffb2a2d392d18e1f4f9ef457da"
+    },
+    {
+      "path": "docs/evidencias/129-compras-ampliado-jest.json",
+      "sha": "b45217d49ca8f0aa50ab3883f34997a9b67788ea"
+    },
+    {
+      "path": "docs/evidencias/129-compras-ampliado.log.gz",
+      "sha": "38938d2593d8d5756bac584f3c97a6e0f6b1face"
+    },
+    {
+      "path": "docs/evidencias/129-compras-ejecucion.json",
+      "sha": "24a06924deb66ae909244f481804f8c7a3b04b35"
+    },
+    {
+      "path": "docs/evidencias/129-compras-importe-observado.json",
+      "sha": "79349bf5f14db8668b13e58045ac5b24aedb5c11"
+    },
+    {
+      "path": "docs/evidencias/129-compras-jest.json",
+      "sha": "7da1c67cb023050a854e575fa5c08e7327d9a247"
+    },
+    {
+      "path": "docs/evidencias/129-compras-reversion-observado.json",
+      "sha": "b59b5a2816e043bce81c9423a68b4359a6c070ca"
+    },
+    {
+      "path": "docs/evidencias/129-compras-reversion.test.ts",
+      "sha": "3f766b04194c19779fb8858aea0e7d606a37d993"
+    },
+    {
+      "path": "docs/evidencias/129-compras.log.gz",
+      "sha": "a6a60ec3f806e08abe5d56d3211a73c288b008c2"
+    },
+    {
+      "path": "docs/evidencias/129-personal-ejecucion.json",
+      "sha": "c3779025f92ad9d103cbc6b03fe53470bc7c850a"
+    },
+    {
+      "path": "docs/evidencias/129-personal-jest.json",
+      "sha": "8b99f0d7ec7b089c213cf4f83d09af8da458ee2d"
+    },
+    {
+      "path": "docs/evidencias/129-personal-llegada-observado.json",
+      "sha": "37ea0723f13419256e8ab2dc0878df7f3ae01057"
+    },
+    {
+      "path": "docs/evidencias/129-personal-llegada-reintento.test.tsx",
+      "sha": "87a8fd861bde3b3d7c3f4d28738c9eb518f4bc95"
+    },
+    {
+      "path": "docs/evidencias/129-personal.log.gz",
+      "sha": "a346cac1359a3ab7d6c5e569df22158080d848ba"
+    },
+    {
+      "path": "docs/evidencias/129-pr-description.md",
+      "sha": "0ac3d30e5ce1fe1a78b772b9dc4136225fcf8cd5"
+    },
+    {
+      "path": "docs/evidencias/129-registro-ejecucion.json",
+      "sha": "3658505de642da2f55aa9bc0672906ce1f20a32c"
+    },
+    {
+      "path": "docs/evidencias/129-registro-jest.json",
+      "sha": "cd74781152ec78cd8c8b1c91d17afa0ef1aabfc3"
+    },
+    {
+      "path": "docs/evidencias/129-registro.log.gz",
+      "sha": "a90a9335daa0952bebaea440088a0906ae84262b"
+    },
+    {
+      "path": "docs/evidencias/129-sondas-runner.mjs",
+      "sha": "99924345a8c28e14888f34b11a2226c3cd96ea31"
+    },
+    {
+      "path": "docs/ordenes/166-compras-revision-automatica-y-hora-del-personal.md",
+      "sha": "ec1fc3c329147d7e7c8ee8a57d9b6f258567d885"
+    }
+  ]
+}

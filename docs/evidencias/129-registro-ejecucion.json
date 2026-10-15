@@ -1,0 +1,29 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "contrastedMain": "1a717203a1a58d4dbf6c5009b7b7cf2636b9e3a4",
+  "mainApplicationDiff": "NONE_FOR_GATED_PATHS",
+  "documentaryHead": "1a717203a1a58d4dbf6c5009b7b7cf2636b9e3a4",
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/129-registro-jest.json",
+    "--testMatch=**/docs/evidencias/129-*.test.ts?(x)",
+    "--testMatch=**/src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts",
+    "--runTestsByPath",
+    "src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts"
+  ],
+  "startedAt": "2026-10-15T12:11:16.812Z",
+  "credentials": "WHITELIST_NO_INHERITED_SERVICE_KEYS_MISSING_ADC_SENTINEL",
+  "scope": "FOCUSED_REAL_MODULES_WITH_FICTITIOUS_DOUBLES_NOT_BUILD_NOT_NATIVE_BROWSER",
+  "status": "finished",
+  "pid": 17040,
+  "exitCode": 0,
+  "signal": null,
+  "finishedAt": "2026-10-15T12:11:27.664Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}
