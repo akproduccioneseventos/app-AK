@@ -7,6 +7,8 @@
   PR1306 quedo integrada por Claude; no subir mas a esa rama cerrada.
   Nueva rama documental129 desde1a7, una sola tanda en borrador para integrar
   con las correcciones de quienes programan, NO fusion documental aislada.
+- PR1308 ABIERTA/BORRADOR, snapshot14173920 y32blobs verificados remotos;
+  recibo129-entrega-remota.json. Codex NO fusiono ni programo el arreglo.
 - Comida/plata: updateShoppingListStatus deja la tarea de pago completada al
   desmarcar Pagado total, y acepta montoPagado=-500 desde A cuenta. No son
   los arreglos previos de concurrencia de compras; esos no se reencomiendan.

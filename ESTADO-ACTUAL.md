@@ -5,7 +5,8 @@ Codex no implementa app, no compila ni fusiona. Conservar dinero/permisos.
 Main remoto1a717203a1a58d4dbf6c5009b7b7cf2636b9e3a4, codigo app=ce1ac07d.
 PR1306 integrada por Claude via1307 durante129; NO subir a rama127 cerrada.
 Rama nueva: codex/129-auditoria-compras-avisos-personal-20261015, desde1a7.
-Entrega129 documental para unir a arreglo; dejar BORRADOR, no fusionar sola.
+PR1308 ABIERTA/BORRADOR: unir al arreglo, no fusionar documentos solos.
+Snapshot14173920 verificado32blobs remotos; recibo129-entrega-remota.json.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE (HEAD desconocido).
 Orden165 en main renombrada para Gemini, dos casos siguen sin parche aceptado:
 - Fecha civil del portal un dia antes; contrato fisico no avisa recibo fallido.
