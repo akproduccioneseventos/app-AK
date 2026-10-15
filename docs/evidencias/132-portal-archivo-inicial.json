@@ -1,0 +1,17 @@
+[
+  {
+    "original": "docs/evidencias/132-portal.log",
+    "archive": "docs/evidencias/132-portal-antes-doble-server.log.gz",
+    "sha256": "577d27c49bfaffb48dcf0309a81013c5ef14036ad6039db2912a379a1e90cc2d"
+  },
+  {
+    "original": "docs/evidencias/132-portal-jest.json",
+    "archive": "docs/evidencias/132-portal-antes-doble-server-jest.json.gz",
+    "sha256": "dea2e163faf367a6205718ad635ba7295ff1e0b0e9626e8a9950a6dea9c3aa9a"
+  },
+  {
+    "original": "docs/evidencias/132-portal-ejecucion.json",
+    "archive": "docs/evidencias/132-portal-antes-doble-server-ejecucion.json.gz",
+    "sha256": "f0d92e104a454bcb4332210ad1ea156e853b3554569fa6987fdfa655971abeba"
+  }
+]

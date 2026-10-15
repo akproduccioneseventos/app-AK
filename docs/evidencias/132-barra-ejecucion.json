@@ -1,0 +1,39 @@
+{
+  "applicationSourceSha": "d10f332a17241de5a4705a560336585853073a76",
+  "contrastedMain": "bbf68006e09b358f8e0869c1d534acdd0863724c",
+  "mainSourceEquivalent": true,
+  "documentaryHead": "bbf68006e09b358f8e0869c1d534acdd0863724c",
+  "sourceMode": "GIT_ARCHIVE_FROZEN_SRC_NOT_OLD_CHECKOUT",
+  "scope": "TS_JEST_REAL_COMPONENT_ACTIONS_SYNTHETIC_PROVIDERS_NOT_NEXT_BUILD_OR_BROWSER",
+  "typecheck": false,
+  "network": "HTTP_HTTPS_FETCH_DENIED",
+  "env": "WHITELIST_NO_KEYS_NO_ENV_FILES_IN_SNAPSHOT",
+  "startedAt": "2026-10-15T17:07:22.950Z",
+  "status": "finished",
+  "args": [
+    "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\jest\\bin\\jest.js",
+    "--config",
+    "{\"rootDir\":\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-react19-candidato-103\",\"testEnvironment\":\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-react19-candidato-103\\\\node_modules\\\\jest-environment-jsdom\\\\build\\\\index.js\",\"testMatch\":[\"**/docs/evidencias/132-*.test.ts?(x)\"],\"modulePaths\":[\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-react19-candidato-103\\\\node_modules\"],\"moduleNameMapper\":{\"^@/(.*)$\":\"C:/Users/Usuario/AppData/Local/Temp/ak-qa132-source-xDcEy0/src/$1\",\"^@opentelemetry/sdk-node$\":\"C:/Users/Usuario/AppData/Local/Temp/ak-qa132-source-xDcEy0/src/lib/empty-mock.js\"},\"setupFiles\":[\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-react19-candidato-103\\\\docs\\\\evidencias\\\\132-no-network.cjs\"],\"setupFilesAfterEnv\":[\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-react19-candidato-103\\\\jest.setup.js\"],\"transform\":{\"^.+\\\\.[tj]sx?$\":[\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-react19-candidato-103\\\\node_modules\\\\ts-jest\\\\dist\\\\index.js\",{\"tsconfig\":{\"target\":\"ES2022\",\"module\":\"CommonJS\",\"jsx\":\"react-jsx\",\"esModuleInterop\":true,\"allowJs\":true,\"isolatedModules\":true},\"diagnostics\":false}]}}",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/132-barra-jest.json",
+    "--runTestsByPath",
+    "docs/evidencias/132-barra-listos.test.tsx"
+  ],
+  "testHashes": [
+    {
+      "file": "docs/evidencias/132-barra-listos.test.tsx",
+      "sha256": "de6d33cecb362a8cab7bfc00ef1abadfe1a1799987c897e6b01d3ff8fb91becd"
+    }
+  ],
+  "pid": 16488,
+  "exitCode": 1,
+  "signal": null,
+  "finishedAt": "2026-10-15T17:07:29.627Z",
+  "fixtures": {
+    "restored": [],
+    "bytesRestored": true
+  },
+  "snapshotRemoved": true
+}

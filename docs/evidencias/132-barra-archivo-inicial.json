@@ -1,0 +1,14 @@
+[
+  {
+    "archive": "docs/evidencias/132-barra-antes-contador.log.gz",
+    "sha256": "b9e4f53e77de9e41e2c3846841660e39eef5e008a1a6ce39245883ce848c2fcf"
+  },
+  {
+    "archive": "docs/evidencias/132-barra-antes-contador-jest.json.gz",
+    "sha256": "8079d756bdf34af376cd5bed9af5ff8ccec5279977b9e34182a544fda0385ba3"
+  },
+  {
+    "archive": "docs/evidencias/132-barra-antes-contador-ejecucion.json.gz",
+    "sha256": "fccb0a8ce7667f021badacd23178ecc2597b41cb9ebec4da42fec6f15507c7b3"
+  }
+]
