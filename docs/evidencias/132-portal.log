@@ -1,0 +1,23 @@
+FAIL docs/evidencias/132-portal-menu-musica.test.tsx (7.223 s)
+  ● el DJ muestra la canción "Si es posible" persistida por el portal con solicitudes vacías
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Canción opcional QA132"
+    Received string:    "🎧 Panel DJFiesta ficticia QA132Solo pendientes0 pendientes0 reproducidasActualizado hace menos de un minuto⭐INFALTABLES DEL CLIENTE1 obligatorias1Tema inicial QA132🎛️Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.🎵No hay pedidos pendientesLos pedidos de los invitados aparecen aquí automáticamente.EN VIVO · actualización automática"
+
+    [0m [90m 230 |[39m     expect(mockGetSongRequests)[33m.[39mtoHaveBeenCalledWith(fiestaId)[33m;[39m
+     [90m 231 |[39m     record([32m'dj-cancion-opcional'[39m[33m,[39m host[33m,[39m { songRequests[33m:[39m clone(mockGetSongRequests[33m.[39mmock[33m.[39mresults[33m.[39mmap(r [33m=>[39m r[33m.[39mvalue)) })[33m;[39m
+    [31m[1m>[22m[39m[90m 232 |[39m     expect(host[33m.[39mtextContent)[33m.[39mtoContain([32m'Canción opcional QA132'[39m)[33m;[39m
+     [90m     |[39m                              [31m[1m^[22m[39m
+     [90m 233 |[39m   } [36mfinally[39m { close()[33m;[39m }
+     [90m 234 |[39m })[33m;[39m
+     [90m 235 |[39m[0m
+
+      at Object.<anonymous> (docs/evidencias/132-portal-menu-musica.test.tsx:232:30)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 8 passed, 9 total
+Snapshots:   0 total
+Time:        9.736 s
+Test results written to: docs\evidencias\132-portal-jest.json

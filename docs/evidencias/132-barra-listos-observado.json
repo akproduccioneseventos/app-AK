@@ -1,0 +1,60 @@
+{
+  "applicationSourceSha": "d10f332a17241de5a4705a560336585853073a76",
+  "scope": "Pagina real con accion getBarPedidosListos simulada; sin autenticacion ni hardware real.",
+  "cases": [
+    {
+      "caso": "vacio-legitimo",
+      "estado": "respuesta-vacia-success",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK ProduccionesFiesta QA ficticiaLos tragos se están preparandoEn instantes vas a ver tu nombre en esta pantalla cuando el barman termine tu pedido.Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 1
+    },
+    {
+      "caso": "pedido-listo",
+      "estado": "pedido-visible",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK ProduccionesFiesta QA ficticia Listo para retirarMesa QAInvitada Ficticia QALimonada QAPedido #0042¡Salud! 🥂Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 1
+    },
+    {
+      "caso": "respuesta-inicial-fallida",
+      "estado": "success-false-sin-aviso-es-fallo",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK ProduccionesLos tragos se están preparandoEn instantes vas a ver tu nombre en esta pantalla cuando el barman termine tu pedido.Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 1
+    },
+    {
+      "caso": "rechazo-inicial",
+      "estado": "rechazo-sin-aviso-es-fallo",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK ProduccionesLos tragos se están preparandoEn instantes vas a ver tu nombre en esta pantalla cuando el barman termine tu pedido.Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 1
+    },
+    {
+      "caso": "fallo-sondeo-tras-listos",
+      "estado": "carga-inicial",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK Producciones Listo para retirarMesa QAInvitada Ficticia QALimonada QAPedido #0042¡Salud! 🥂Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 1
+    },
+    {
+      "caso": "fallo-sondeo-tras-listos",
+      "estado": "despues-de-sondeo-fallido",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK Producciones Listo para retirarMesa QAInvitada Ficticia QALimonada QAPedido #0042¡Salud! 🥂Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 2
+    },
+    {
+      "caso": "recuperacion-posterior",
+      "estado": "carga-inicial",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK Producciones Listo para retirarMesa QAInvitada Anterior QALimonada QAPedido #0042¡Salud! 🥂Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 1
+    },
+    {
+      "caso": "recuperacion-posterior",
+      "estado": "despues-de-sondeo-fallido",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK Producciones Listo para retirarMesa QAInvitada Anterior QALimonada QAPedido #0042¡Salud! 🥂Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 2
+    },
+    {
+      "caso": "recuperacion-posterior",
+      "estado": "despues-de-recuperacion",
+      "textoVisibleReal": "¡Tu trago está listo!Pasá por la barra a retirarloAK Producciones Listo para retirarMesa QAInvitado Nuevo QAAgua saborizada QAPedido #0043¡Salud! 🥂Pantalla de avisos en vivo · Barra de tragosEn tiempo real",
+      "providerCalls": 3
+    }
+  ]
+}

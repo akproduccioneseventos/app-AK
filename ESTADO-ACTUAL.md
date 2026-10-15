@@ -1,30 +1,29 @@
-# Estado actual - 15/10/2026 (Codex131)
+# Estado actual - 15/10/2026 (Codex132)
 
-Codex SOLO audita/prueba/documenta; Gemini programa, Claude valida/compila/fusiona.
-Main/publicadoe8cd2c2b114bcda21d153cb406318cc1119d1dc5; no app/build/merge.
-Nueva rama codex/131-cierre-inventario-20261015 desde main nuevo.
-PR1315 ABIERTA/BORRADOR: snapshot a30f0135; entrega131-entrega-remota.json.
-No fusionar documentacion sola; integrar con quienes programan. Claude fusiona.
-PR1311 anterior cerrada: NO volver a subir rama130.
-PR1314 ABIERTA d4b1a84ee6cea662603e00cdea0012854875ee83, Gemini167 activa.
-Orden168 tambien encargada porClaude; no reencargar lo ya indicado.
-NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI: HEAD desconocido.
-165/166 presentes en main. Retest166:3suites14casosPASS0omitidos;
-cierra5defectos129 ENALCANCE, no comida/personal/automaticos enteros.
-131DJ nuevo: pagina+accion reales/dobles;2PASS2FAIL, orden169 paraGemini.
-Desmarcar escribe played:true; al remontar sigue fuera de pendientes.
-Si guardar marca falla, accion retornaerror y pantalla no avisa. Votos NOprobados.
-ControlesPASS: marcar normal; IDcancion de otra fiesta no muta.
-Dos fuentesDJ identicas main/PR1314; no contraste transitivo ni privado.
-Final18casosdistintos16PASS2FAIL, no sumar corridas repetidas.
-Sondas131-retest166/131-dj; guardia0fixturesalterados bytesintactos.
-Inventario131 revalida421rutas y controles/imports, NOaceptacionfuncional.
-AliasWindows inicial omitioimports: errorQA corregido/archivado, no app.
-Maincambio17archivos desdece1; amplia128 NOcertifica fuenteactual entera.
-Healthpublicooke8, build15:35UTC. Menu no ejecutado por timeoutCDP herramienta,
-no bugapp. Requisito114: artefactoQAactual/SHA/health/datosficticios.
-No otra114 ni usar .nextb520 paraaceptare8. No compilarporCodex ni rehacergrafo.
-Reutilizar pruebas por dependencias vigentes; no reiniciar auditoria.
-No convertir inventario en14areaslimpias ni afirmar0errores/todoauditado.
-Hosting/OAuth/proveedores/modelo-voz/19originales/hardware sin evidencia real.
-No archivosajenos/forcepush/dependenciasproduccion; cerrarservicios/agentespropios.
+Codex SOLO audita/prueba/documenta; Gemini programa, Claude revisa/compila/fusiona.
+Mainbbf68006e09b358f8e0869c1d534acdd0863724c, app iguald10f332a.
+PR1315 integrada porClaude via1317: NO subir rama131 cerrada.
+Nueva rama codex/132-portal-musica-y-avisos-barra-20261015 desdebbf.
+PR1318 ABIERTA/BORRADOR snapshotb30a5aea,35blobs remotos identicos; recibo132.
+NoPRcoders abierta alcontraste;169encargada yprivado NO CONTRASTADO HEADdesconocido.
+No reauditar169 ni pisar archivoDJ enentregaactiva; coordinar170con169.
+132portal9casos8PASS1FAIL: paginas+acciones/mapeo reales, datos/sesion ficticios.
+Menu ylistas musicales guardan/remontan, borrador/error yclaveinvalidaPASS.
+FalloP2: Si es posible persistida porUI no visibleDJ, mismoFiesta recibido.
+132barra/listo6casos3PASS3FAIL: pagina real/acciondoble. Errorinicial falso
+preparando ysondeocaido sin aviso de desactualizacion son UNAcausaP2.
+Vacio/pedidolisto/recuperacionPASS. Motor/stock/barman anteriores NOreabiertos.
+Orden170 con2defectos,15casosdistintos11PASS4FAIL0omitidos; registro3PASSaparte.
+Fuente congelada Gitarchive d10, TS-jest NO Nextbuild/tsc/navegador.
+RedHTTP/HTTPS/fetchbloqueada, envsinclaves, ADCinexistente;0fixturesalterados.
+Temporalesretirados alterminar, datosajenosbytespreservados; dosLunalowcerrados.
+FallosQAserver-only/contador.mock conservadosgzip; no fallosappni casosnuevos.
+No app/compilacion/fusion/dependenciasproduccion. Checkacentos2957PASS.
+13116614casosPASS cierra5defectos129ENALCANCE; fuentee8historica, reutilizarporconsumidor.
+167presentemain;169pendiente; no alterar politicaingresoscuotasenteros.
+Inventario131421rutas/4633ASTcontroles NOaceptacionfuncional ni14areaslimpias.
+Requisito114vigente: artefactoQAactualSHA/health/ficticio para viajesnativos.
+Se pregunto excepcionasincrona decompilar SOLOQA; NO asumir respuesta concedida.
+Si seautoriza: prepararQAaislado, no prod/datos/cuentas/cargos/mensajesreales.
+No0errores/todoauditado/Hosting/OAuth/19originales/IAvozreal/hardware sin evidencia.
+No grafo/buildpor docs, noforcepush/archivosajenos; cerrar servicios/agentespropios.

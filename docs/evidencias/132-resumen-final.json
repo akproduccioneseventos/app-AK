@@ -1,0 +1,62 @@
+{
+  "applicationSourceSha": "d10f332a17241de5a4705a560336585853073a76",
+  "contrastedMain": "bbf68006e09b358f8e0869c1d534acdd0863724c",
+  "mainAppSourceIdentical": true,
+  "comparedPaths": [
+    "src",
+    "package.json",
+    "package-lock.json",
+    "jest.config.js",
+    "next.config.ts",
+    "tsconfig.json"
+  ],
+  "batches": [
+    {
+      "tag": "132-portal",
+      "tests": 9,
+      "passed": 8,
+      "failed": 1,
+      "skipped": 0
+    },
+    {
+      "tag": "132-barra",
+      "tests": 6,
+      "passed": 3,
+      "failed": 3,
+      "skipped": 0
+    },
+    {
+      "tag": "132-registro",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "functionalCases": {
+    "distinct": 15,
+    "passed": 11,
+    "failed": 4,
+    "skipped": 0
+  },
+  "newDefectCauses": 2,
+  "registryCases": 3,
+  "correctionOrder": 170,
+  "scope": "REAL_COMPONENT_ACTIONS_WITH_FICTITIOUS_PROVIDERS_TS_JEST_NOT_NEXT_BROWSER_NOT_REAL_AUTH_OR_HARDWARE",
+  "dirtyBytes": [
+    {
+      "file": "data/notification-preferences.json",
+      "sha256": "faea14978ca2d31280e79fb8fc166c3c90645ca1861726e2b4267329b27785d9"
+    },
+    {
+      "file": "src/data/marketing-checklist.json",
+      "sha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5"
+    }
+  ],
+  "noAppChanges": true,
+  "noBuild": true,
+  "noMerge": true,
+  "allAppAudited": false,
+  "exceptionToCompileRequested": true,
+  "exceptionToCompileApproved": false
+}
