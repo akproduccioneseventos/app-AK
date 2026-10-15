@@ -56,7 +56,7 @@ export default function PortalPersonalPage() {
         const res = await registrarLlegadaPersonal(params.tokenId, coords);
         if (res.success) {
           toast({ title: '¡Llegada confirmada!', description: 'Se registró tu llegada al evento.' });
-          setFiesta((prev) => (prev ? { ...prev, checkInTimestamp: new Date().toISOString() } : null));
+          setFiesta((prev) => (prev ? { ...prev, checkInTimestamp: res.checkInTimestamp || new Date().toISOString() } : null));
         } else {
           toast({
             title: 'No pudimos registrar tu llegada',
@@ -458,3 +458,4 @@ export default function PortalPersonalPage() {
 </div>
   );
 }
+

@@ -21,8 +21,17 @@ export default function SmartAutomationsPage() {
     try {
       const response = await runSmartAutomations();
       if (!response?.success) throw new Error('revision fallida');
-      setCreated(response.created);
       setResults(response.results);
+      if (response.fuentesQueFallaron && response.fuentesQueFallaron.length > 0) {
+        setError(`No se pudieron leer: ${response.fuentesQueFallaron.join(', ')}. La revisión quedó incompleta.`);
+        setCreated(null);
+      } else if (response.fallidos && response.fallidos > 0) {
+        setError(`${response.fallidos} avisos no se pudieron guardar.`);
+        setCreated(null);
+      } else {
+        setCreated(response.created);
+        setError('');
+      }
     } catch {
       // No se anuncia "revision completa" si la revision no llego a terminar.
       setError('La revisión no se pudo completar, así que no sabemos si se crearon avisos. Probá de nuevo; los avisos que ya existen no se repiten.');
@@ -56,11 +65,23 @@ export default function SmartAutomationsPage() {
             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />} Ejecutar revisión inteligente
           </Button>
           {error && (
-            <div role="alert" className="flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800">
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> {error}
+            <div role="alert" className="flex items-start justify-between gap-2 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+                <span>{error}</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={run}
+                disabled={loading}
+                className="rounded-xl border-red-300 bg-white font-bold text-red-700 hover:bg-red-100"
+              >
+                Reintentar
+              </Button>
             </div>
           )}
-          {created !== null && (
+          {created !== null && !error && (
             <div className="flex items-center gap-2 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-800">
               <CheckCircle2 className="h-5 w-5" /> Revisión completa. Avisos creados: {created}
             </div>
@@ -90,3 +111,4 @@ export default function SmartAutomationsPage() {
     </div>
   );
 }
+

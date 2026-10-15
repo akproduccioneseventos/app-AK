@@ -150,7 +150,7 @@ export async function responderAsistenciaPersonal(
 export async function registrarLlegadaPersonal(
   tokenId: string,
   ubicacion?: { lat: number; lng: number }
-): Promise<{ success: boolean; error?: string; distanciaMetros?: number }> {
+): Promise<{ success: boolean; error?: string; distanciaMetros?: number; checkInTimestamp?: string }> {
   const acceso = await accesoVigente(tokenId);
   if (!acceso || !acceso.fiestaId) {
     return { success: false, error: 'Acceso no válido o sin evento asociado.' };
@@ -215,6 +215,8 @@ export async function registrarLlegadaPersonal(
 
   // Guardar llegada de forma concurrente y segura sobre copia fresca
   const nowIso = new Date().toISOString();
+  let checkInTimestamp: string | undefined;
+
   const res = await actualizarFiesta(acceso.fiestaId, (fiestaFresca) => {
     const personal = fiestaFresca.personalAsignado || [];
     let updated = false;
@@ -222,9 +224,11 @@ export async function registrarLlegadaPersonal(
     const nextPersonal = personal.map((p) => {
       if (p.empleadoId === acceso.empleadoId) {
         updated = true;
+        const persistido = p.checkInTimestamp || nowIso;
+        checkInTimestamp = persistido;
         return {
           ...p,
-          checkInTimestamp: p.checkInTimestamp || nowIso,
+          checkInTimestamp: persistido,
           checkInUbicacion: ubicacion
             ? {
                 lat: ubicacion.lat,
@@ -248,5 +252,6 @@ export async function registrarLlegadaPersonal(
     return { success: false, error: res.error || 'No se pudo registrar la llegada.' };
   }
 
-  return { success: true, distanciaMetros: distanciaCalculada };
+  return { success: true, distanciaMetros: distanciaCalculada, checkInTimestamp };
 }
+
