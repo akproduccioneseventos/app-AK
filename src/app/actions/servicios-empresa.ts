@@ -297,7 +297,7 @@ export async function adjustAllServiceCosts(
       const newServicio = { ...servicio };
 
       if (newServicio.valorUnitarioEstimado !== undefined) {
-        newServicio.valorUnitarioEstimado = Math.round((newServicio.valorUnitarioEstimado * multiplier));
+        newServicio.valorUnitarioEstimado = Math.round(newServicio.valorUnitarioEstimado * multiplier * 100) / 100;
       }
       
       return newServicio;

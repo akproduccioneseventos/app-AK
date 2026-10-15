@@ -16,7 +16,14 @@ function formatDate(date?: string) {
 }
 
 export default async function VideoVidaHubPage() {
-  const fiestas = (await getFiestas(false).catch(() => [])).slice(0, 8);
+  let errorLectura = false;
+  let fiestas: any[] = [];
+  try {
+    const raw = await getFiestas(false);
+    fiestas = (raw || []).slice(0, 8);
+  } catch {
+    errorLectura = true;
+  }
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_58%,#ffffff_100%)] px-4 py-8 text-slate-950 sm:px-6 lg:px-8">
@@ -101,7 +108,17 @@ export default async function VideoVidaHubPage() {
             </Button>
           </div>
 
-          {fiestas.length === 0 ? (
+          {errorLectura ? (
+            <div role="alert" className="rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center space-y-3">
+              <p className="font-bold text-amber-900">No pudimos cargar las fiestas ahora. Reintentar.</p>
+              <p className="text-sm text-amber-700">Ocurrió un problema al leer la lista de eventos.</p>
+              <div>
+                <Button asChild variant="outline" className="rounded-full border-amber-300 text-amber-900 hover:bg-amber-100">
+                  <Link href="/video-vida">Reintentar</Link>
+                </Button>
+              </div>
+            </div>
+          ) : fiestas.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
               <p className="font-bold text-slate-700">No hay fiestas activas para mostrar.</p>
               <p className="mt-2 text-sm text-slate-500">Crea o abre una fiesta desde Eventos Activos para usar Video de Vida.</p>

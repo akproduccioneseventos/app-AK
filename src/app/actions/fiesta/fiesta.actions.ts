@@ -1448,13 +1448,23 @@ export async function reactivarFiestaAction(fiestaId: string) {
 
 export async function obtenerFiestasParaRevisarAction() {
   await requireAppSession();
-  const [fiestas, presupuestos] = await Promise.all([
-    leerFiestasCrudas(true),
-    getPresupuestos().catch(() => []),
-  ]);
+  let errorPresupuestos = false;
+  let presupuestos: any[] | undefined = undefined;
+
+  const fiestas = await leerFiestasCrudas(true);
+  try {
+    presupuestos = await getPresupuestos();
+  } catch {
+    errorPresupuestos = true;
+    presupuestos = undefined;
+  }
 
   const { obtenerFiestasParaRevisar } = await import('@/lib/fiesta/revisar-fiestas');
-  return obtenerFiestasParaRevisar(fiestas, { presupuestos });
+  const resultado = obtenerFiestasParaRevisar(fiestas, { presupuestos });
+  if (errorPresupuestos) {
+    (resultado as any).lecturaIncompleta = true;
+  }
+  return resultado;
 }
 
 export async function actualizarClienteYAgasajadoAction(

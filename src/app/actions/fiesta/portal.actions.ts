@@ -482,7 +482,7 @@ export async function submitClientServiceAddRequest(
 export async function approveClientPayment(
   fiestaId: string,
   notificationId: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; approvedAt?: string; error?: string }> {
   try {
     // Aprobar o rechazar el pago que informó el cliente es plata: contabilidad (auditoría 70).
     const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
@@ -493,7 +493,7 @@ export async function approveClientPayment(
     const notifications = fiesta.clientPaymentNotifications ?? [];
     const initialTransition = transitionPaymentNotification(notifications, notificationId, 'aprobado');
     const notif = initialTransition.notification;
-    if (!initialTransition.changed) return { success: true };
+    if (!initialTransition.changed) return { success: true, approvedAt: notif.approvedAt };
 
     // Sin presupuesto no hay donde acreditar el cobro: marcarlo "aprobado" y mandar el mail al
     // cliente seria decirle que su pago esta acreditado sin estarlo.
@@ -544,7 +544,7 @@ export async function approveClientPayment(
       });
     }
 
-    return { success: true };
+    return { success: true, approvedAt: updatedNotif.approvedAt };
   } catch (e: any) {
     return { success: false, error: sanitizeActionError(e) };
   }

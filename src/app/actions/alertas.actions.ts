@@ -15,13 +15,22 @@ const PRIORIDADES_DESCARTADAS_FILE = 'prioridades-descartadas.json';
 export async function getAlertasGlobales(): Promise<AlertaAutomatica[]> {
   await requireAppSession();
   try {
-    const [fiestas, activos] = await Promise.all([
-      getAllFiestas(),
-      getActivosFijos().catch(() => []),
-    ]);
+    let errorActivos = false;
+    const fiestas = await getAllFiestas();
+    let activos: any[] = [];
+    try {
+      activos = await getActivosFijos();
+    } catch {
+      errorActivos = true;
+      activos = [];
+    }
     // Only active (non-archived) fiestas. Evalúa mantenimiento-equipo-vencido con activos fijos
     const activas = fiestas.filter(f => !f.generadoDesdeHistorico);
-    return evaluarReglasParaTodasLasFiestas(activas, undefined, activos);
+    const resultado = evaluarReglasParaTodasLasFiestas(activas, undefined, activos);
+    if (errorActivos) {
+      (resultado as any).lecturaIncompleta = true;
+    }
+    return resultado;
   } catch {
     return [];
   }
@@ -30,14 +39,23 @@ export async function getAlertasGlobales(): Promise<AlertaAutomatica[]> {
 export async function getAlertasPorFiesta(fiestaId: string): Promise<AlertaAutomatica[]> {
   await requireAppSession();
   try {
-    const [fiestas, activos] = await Promise.all([
-      getAllFiestas(),
-      getActivosFijos().catch(() => []),
-    ]);
+    let errorActivos = false;
+    const fiestas = await getAllFiestas();
+    let activos: any[] = [];
+    try {
+      activos = await getActivosFijos();
+    } catch {
+      errorActivos = true;
+      activos = [];
+    }
     const fiesta = fiestas.find(f => f.id === fiestaId);
     if (!fiesta) return [];
     // Evalúa reglas por fiesta incluyendo mantenimiento-equipo-vencido
-    return evaluarReglasParaFiesta(fiesta, undefined, activos);
+    const resultado = evaluarReglasParaFiesta(fiesta, undefined, activos);
+    if (errorActivos) {
+      (resultado as any).lecturaIncompleta = true;
+    }
+    return resultado;
   } catch {
     return [];
   }
@@ -90,7 +108,11 @@ export async function getAlertasGlobalesConLeidas(): Promise<AlertaAutomatica[]>
   }
   const idsLeidosSet = new Set(idsLeidosActivos);
 
-  return alertasFiltradas.map(a => ({ ...a, leida: idsLeidosSet.has(a.id) }));
+  const res = alertasFiltradas.map(a => ({ ...a, leida: idsLeidosSet.has(a.id) }));
+  if ((alertasActuales as any).lecturaIncompleta) {
+    (res as any).lecturaIncompleta = true;
+  }
+  return res;
 }
 
 export async function resetAlertasLeidas(): Promise<{ success: boolean }> {

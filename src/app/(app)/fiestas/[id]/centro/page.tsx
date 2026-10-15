@@ -114,10 +114,21 @@ export default async function CentroDeFiestaPage(props: PageProps) {
     );
   }
 
-  const [empleados, roles] = await Promise.all([
-    getEmpleados().catch(() => []),
-    getRoles().catch(() => []),
-  ]);
+  let empleados: any[] = [];
+  let roles: any[] = [];
+  let errorEquipoLectura = false;
+
+  try {
+    empleados = await getEmpleados();
+  } catch {
+    errorEquipoLectura = true;
+  }
+
+  try {
+    roles = await getRoles();
+  } catch {
+    errorEquipoLectura = true;
+  }
 
   const readiness = buildAk100Readiness(fiesta);
   const nombre = readiness.eventName;
@@ -189,8 +200,22 @@ export default async function CentroDeFiestaPage(props: PageProps) {
           ))}
         </section>
 
-        {equipo.length > 0 && (
-          <EquipoCheckIn fiestaId={params.id} equipo={equipo} />
+        {errorEquipoLectura ? (
+          <section role="alert" className="rounded-[1.5rem] border border-amber-400/30 bg-amber-400/10 p-5">
+            <h2 className="text-sm font-black uppercase tracking-widest text-amber-300">
+              No pudimos cargar el equipo. Reintentar.
+            </h2>
+            <p className="mt-1 text-sm text-slate-300">
+              Ocurrió un error al leer los empleados o sus roles asignados.
+            </p>
+            <Button asChild size="sm" variant="outline" className="mt-3 rounded-xl border-amber-300/40 text-amber-200 hover:bg-amber-400/20">
+              <Link href={`/fiestas/${encodeURIComponent(params.id)}/centro`}>Reintentar</Link>
+            </Button>
+          </section>
+        ) : (
+          equipo.length > 0 && (
+            <EquipoCheckIn fiestaId={params.id} equipo={equipo} />
+          )
         )}
 
         {/* El libro se armaba y no habia forma de bajarlo: el boton existia y no

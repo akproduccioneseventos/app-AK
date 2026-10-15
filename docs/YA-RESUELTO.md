@@ -5,6 +5,37 @@
 - **Pregunta 4 (botón que dice "desmarcar" y no desmarca):** se revisaron todos los botones de dos estados de la app. El del DJ es el único; galería, cupones, promos, en vivo, agentes y facturas pasan el valor contrario. Falso positivo para el resto.
 - **Pregunta 9 (`no-mira-el-resultado`):** de las 66 marcas, 63 son avisos secundarios después de un guardado que sí se mira, o estado de la estación después de guardar la foto: están bien y no se tocan. Tres pantallas decían "listo" sin mirar (pedido de reseña, ficha del prospecto y carga de evento histórico) y entraron a la orden 169, bloque 4. Las reacciones del invitado y el giro de la rueda en la pantalla gigante quedan como están: no pierden nada.
 
+## 15/10/2026 - Orden 168: barrido de formas de fallos, lecturas críticas y validaciones de plata
+
+- **Bloque 1 (Lecturas que deciden plata o permisos):**
+  - En `crm.ts`, si `readData('presupuestos.json')` falla, no se elimina el prospecto y se retorna error claro: "No pudimos comprobar si este prospecto ya firmó. Probá de nuevo."
+  - En `invoices.ts`, si `getScheduledMessages` falla, no se preparan avisos de cobro ni corre cálculo de avisos pendientes para evitar duplicados.
+  - En `simple-auth.ts`, en las 4 funciones de recuperación de acceso (`verifyResetCode`, `resetPasswordWithCode`, `resetPasswordWithSecurityAnswers`, `resetPasswordWithRecoveryCode`), ante falla de `getAuthDoc()` se corta con "No pudimos verificar el acceso ahora. Probá en unos minutos." sin vulnerar el bloqueo por fuerza bruta.
+- **Bloque 2 (Pantallas con falsos vacíos):**
+  - `video-vida/page.tsx` y `mi-dia/page.tsx`: muestran `role="alert"` con reintento ante falla de lectura de eventos; en Mi Día el contador muestra "Error al cargar" en lugar de "0".
+  - `centro/page.tsx`, `album/[fiestaId]/page.tsx`, `playbooks/page.tsx`, `portal/c/[accessKey]/page.tsx`: alertan el error con botón de reintento en vez de selector o estado vacío.
+  - Acciones con `lecturaIncompleta`: `dashboard.ts`, `alertas.actions.ts`, `screen-mode.actions.ts`, `commercial-intelligence.ts`, `post-event-intelligence.ts` y `fiesta.actions.ts` marcan lecturas incompletas y sus pantallas avisan mediante toast o alerta sin alarmar falsamente.
+- **Bloque 3 (PDFs con ID pero lectura fallida):**
+  - `carga-operativa/pdf`, `itinerario/pdf`, `musica/pdf`, `resumen-imprimible`: diferencian la ausencia de `fiestaId` ("Elegí una fiesta...") del fallo de lectura con `fiestaId` provisto (`role="alert"` y botón Reintentar).
+- **Bloque 4 (Hora de servidor devuelta por la acción):**
+  - `personal-fiestas.ts` (`marcarLlegadaPersonal`), `accesos-personal-view.ts` (`responderAsistenciaPersonal`), `portal.actions.ts` (`approveClientPayment`): devuelven la marca de tiempo generada por el servidor, consumida por `EquipoCheckIn.tsx`, `/acceso-personal` y `/plan-pagos`.
+- **Bloque 5 (Plata: centavos y validación de finitud/positividad):**
+  - `price-adjustments.ts` y `servicios-empresa.ts`: `costoNuevo` redondea costos de insumos a 2 decimales (`Math.round(x * 100) / 100`), preservando los centavos. Los precios de venta se mantienen en enteros.
+  - En `costos.actions.ts`, `presupuestos.ts`, `approvals.ts`, `social-media.ts`: el servidor valida que los importes sean finitos y `>= 0`, rechazando negativos, NaN e Infinity, aceptando `0`.
+
+```comprobar
+archivo: src/app/actions/crm.ts
+usa: getActiveLockMessage en src/app/actions/simple-auth.ts
+usa: calcularAvisosPendientes en src/app/actions/invoices.ts
+usa: costoNuevo en src/app/actions/price-adjustments.ts
+usa: marcarLlegadaPersonal en src/components/centro/EquipoCheckIn.tsx
+archivo: src/app/video-vida/page.tsx
+archivo: src/app/(app)/fiestas/nueva/carga-operativa/pdf/page.tsx
+prueba: src/__tests__/orden-168-lecturas-que-deciden.test.ts
+prueba: src/__tests__/orden-168-pantallas-avisan-la-falla.test.tsx
+prueba: src/__tests__/orden-168-plata-centavos-y-negativos.test.ts
+```
+
 ## 15/10/2026 - Orden 167: costos con centavos, compartir seguro y material del cliente
 
 - **Reportes (costos con centavos):** en `src/app/actions/reportes.ts` se introdujo `montoCosto(value)` con precisión

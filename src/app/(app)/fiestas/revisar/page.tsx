@@ -61,6 +61,13 @@ export default function RevisarMisFiestasPage() {
     try {
       const data = await obtenerFiestasParaRevisarAction();
       setFiestasParaRevisar(data || []);
+      if ((data as any)?.lecturaIncompleta) {
+        toast({
+          title: 'Presupuestos no disponibles',
+          description: 'No se pudieron consultar los presupuestos. No se evaluaron posibles faltas de servicios.',
+          variant: 'destructive',
+        });
+      }
     } catch (err: any) {
       toast({
         title: 'Error al cargar revisión',

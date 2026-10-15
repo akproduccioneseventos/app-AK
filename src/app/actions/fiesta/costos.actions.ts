@@ -18,6 +18,19 @@ export async function updateGestionCostos(fiestaId: string, costos: GestionCosto
   await requireAppSession();
   await requireEventPermission(fiestaId, [PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION]); // Plata: no cualquier sesión (candado de plata, 6/10/2026).
   try {
+    if (costos?.costosItems && Array.isArray(costos.costosItems)) {
+      for (const item of costos.costosItems) {
+        if (item.montoEstimado !== undefined && item.montoEstimado !== null) {
+          const val = Number(item.montoEstimado);
+          if (!Number.isFinite(val) || val < 0) {
+            return {
+              success: false,
+              error: `El monto estimado de "${item.nombre || 'ítem'}" debe ser un número válido mayor o igual a 0.`,
+            };
+          }
+        }
+      }
+    }
     const result = await updateFiestaPartial(fiestaId, { gestionCostos: costos });
     if (!result.success) throw new Error(result.error);
     return { success: true, updatedData: costos };

@@ -147,7 +147,7 @@ function ImportarPageContent() {
                   <div><Label>Crear fiesta también</Label><p className="text-xs text-muted-foreground">Además del presupuesto, crea evento en planificación.</p></div>
                   <Switch checked={crearFiesta} onCheckedChange={setCrearFiesta} />
                 </div>
-                <div className="space-y-2"><Label>Seña manual</Label><Input value={senaManual} onChange={(e) => setSenaManual(e.target.value)} type="number" placeholder="Opcional" /></div>
+                <div className="space-y-2"><Label>Seña manual</Label><Input value={senaManual} onChange={(e) => setSenaManual(e.target.value)} type="number" min={0} placeholder="Opcional" /></div>
                 <div className="space-y-2"><Label>Fecha del evento</Label><Input value={eventoFechaOverride} onChange={(e) => setEventoFechaOverride(e.target.value)} type="date" /></div>
               </CardContent>
             </Card>

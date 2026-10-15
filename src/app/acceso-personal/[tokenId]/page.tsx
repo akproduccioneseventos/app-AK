@@ -118,7 +118,7 @@ export default function PortalPersonalPage() {
       const res = await responderAsistenciaPersonal(params.tokenId, true);
       if (res.success) {
         toast({ title: '¡Asistencia confirmada!', description: 'El equipo ya sabe que contás para el evento.' });
-        setFiesta((prev) => prev ? { ...prev, asistenciaConfirmada: true, fechaConfirmacionAsistencia: new Date().toISOString() } : null);
+        setFiesta((prev) => prev ? { ...prev, asistenciaConfirmada: true, fechaConfirmacionAsistencia: res.fechaConfirmacionAsistencia } : null);
       } else {
         toast({ title: 'Error', description: res.error || 'No se pudo registrar la confirmación.', variant: 'destructive' });
       }
@@ -136,7 +136,7 @@ export default function PortalPersonalPage() {
       const res = await responderAsistenciaPersonal(params.tokenId, false, rejectReason);
       if (res.success) {
         toast({ title: 'Aviso registrado', description: 'Notificamos al equipo que no podés asistir a este evento.' });
-        setFiesta((prev) => prev ? { ...prev, asistenciaConfirmada: false, motivoRechazoAsistencia: rejectReason || 'No especificado', fechaConfirmacionAsistencia: new Date().toISOString() } : null);
+        setFiesta((prev) => prev ? { ...prev, asistenciaConfirmada: false, motivoRechazoAsistencia: rejectReason || 'No especificado', fechaConfirmacionAsistencia: res.fechaConfirmacionAsistencia } : null);
         setRejectDialogOpen(false);
         setRejectReason('');
       } else {

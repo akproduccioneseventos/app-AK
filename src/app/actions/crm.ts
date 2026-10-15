@@ -336,7 +336,15 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     // aparece nada. Es fácil confundir un contrato viejo con un duplicado.
     const lead = (await getCrmLeads()).find(l => l.id === leadId);
     if (lead?.presupuestoId) {
-      const presupuestos = await readData<any[]>('presupuestos.json', []).catch(() => []);
+      let presupuestos: any[];
+      try {
+        presupuestos = await readData<any[]>('presupuestos.json', []);
+      } catch {
+        return {
+          success: false,
+          error: 'No pudimos comprobar si este prospecto ya firmó. Probá de nuevo.',
+        };
+      }
       const vinculado = (presupuestos || []).find(p => p?.id === lead.presupuestoId);
       const contratado = vinculado?.estado === 'Aceptado' || vinculado?.estado === 'Facturado';
       if (contratado) {

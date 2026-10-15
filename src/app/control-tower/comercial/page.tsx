@@ -32,6 +32,9 @@ export default function CommercialFollowupsPage() {
       const result = await getCommercialFollowups();
       if (!result?.success) throw new Error('lectura fallida');
       setItems(result.data || []);
+      if (result.lecturaIncompleta) {
+        setLoadError('No se pudieron leer todas las fuentes (prospectos o presupuestos); la lista puede estar incompleta.');
+      }
     } catch {
       // Los datos anteriores (si habia) se conservan; solo se avisa que no se pudo leer.
       setLoadError('No se pudieron leer los seguimientos comerciales, así que no sabemos si hay algo para atender.');

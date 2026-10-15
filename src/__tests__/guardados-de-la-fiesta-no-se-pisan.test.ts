@@ -174,7 +174,7 @@ describe('Dos guardados a la vez sobre la misma fiesta: no se pierde ninguno', (
 
   it('dos empleados marcando su llegada a la vez quedan marcados los dos', async () => {
     const [a, b] = await Promise.all([marcarLlegadaPersonal(ID, 'e1'), marcarLlegadaPersonal(ID, 'e2')]);
-    expect([a, b]).toEqual([true, true]);
+    expect([a.success, b.success]).toEqual([true, true]);
     const personal = almacen[RUTA].personalAsignado;
     expect(personal.every((p: any) => Boolean(p.checkInTimestamp))).toBe(true);
   });

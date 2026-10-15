@@ -66,6 +66,7 @@ type PublicPortalClientExperienceProps = {
   companyName: string;
   presupuesto?: any | null;
   catalogServices?: CatalogService[];
+  errorCatalogo?: boolean;
   /** Ajuste anual configurado en ajustes. Si no llega, se usa el 15% historico. */
   ajusteAnualPorcentaje?: number;
 };
@@ -304,7 +305,7 @@ function PhaseRoadmap({ access, eventColor }: { access: ReturnType<typeof resolv
   );
 }
 
-export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [], ajusteAnualPorcentaje = 15 }: PublicPortalClientExperienceProps) {
+export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [], errorCatalogo = false, ajusteAnualPorcentaje = 15 }: PublicPortalClientExperienceProps) {
   const config = fiesta?.configuracion ?? {};
   const settings = fiesta?.clientPortalSettings ?? {};
   const access = resolveClientPortalAccess(fiesta);
@@ -1610,7 +1611,21 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
               <div className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center gap-3"><IconBlock icon={Plus} color={eventColor} /><div><p className="font-black">Agregar servicio del catalogo</p><InfoBadge tone="action">Requiere aprobacion de AK</InfoBadge></div></div>
-                {catalogServices.length === 0 ? <PortalEmptyState title="El catálogo no está disponible por ahora" description="AK debe publicar los servicios antes de que puedas solicitar un adicional." /> : (
+                {errorCatalogo ? (
+                  <div role="alert" className="rounded-xl border border-amber-300 bg-amber-50/70 p-4 text-center">
+                    <AlertTriangle className="w-6 h-6 text-amber-600 mx-auto mb-1.5" />
+                    <p className="font-bold text-amber-900 text-sm">No pudimos cargar los servicios del catálogo ahora.</p>
+                    <p className="text-xs text-amber-800 mt-0.5 mb-3">Ocurrió un error al leer los servicios disponibles.</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl border-amber-300 text-amber-900 hover:bg-amber-100 text-xs"
+                      onClick={() => window.location.reload()}
+                    >
+                      Reintentar
+                    </Button>
+                  </div>
+                ) : catalogServices.length === 0 ? <PortalEmptyState title="El catálogo no está disponible por ahora" description="AK debe publicar los servicios antes de que puedas solicitar un adicional." /> : (
                   <>
                     <div className="grid gap-3 lg:grid-cols-[1.2fr_.5fr_1fr]">
                       <label className="space-y-1 text-sm font-semibold text-slate-700">

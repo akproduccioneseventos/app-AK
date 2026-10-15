@@ -50,7 +50,6 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      setError("Falta el ID del evento.");
       setIsLoading(false);
       return;
     }
@@ -174,7 +173,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
   [fiesta?.decoracion?.items]);
 
   if (isLoading) { return <div className="p-8 max-w-3xl mx-auto bg-white"><div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div></div>; }
-  if (error || !fiesta) {
+  if (!fiestaId) {
     return (
       <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border shadow-sm my-12 space-y-4">
         <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-2" />
@@ -184,8 +183,32 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
         </p>
         <div className="pt-2">
           <Button asChild>
-            <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : "/eventos"}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> {fiestaId ? "Volver a la fiesta" : "Ir al listado de eventos"}
+            <Link href="/eventos">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de eventos
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !fiesta) {
+    return (
+      <div role="alert" className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border border-red-200 bg-red-50/50 shadow-sm my-12 space-y-4">
+        <AlertTriangle className="w-12 h-12 mx-auto text-red-500 mb-2" />
+        <h2 className="text-xl font-bold text-foreground">
+          No pudimos cargar esta fiesta: {error || 'Error al cargar los datos'}.
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Ocurrió un problema al leer el resumen de este evento. Podés reintentar la lectura.
+        </p>
+        <div className="pt-2 flex flex-wrap gap-2 justify-center">
+          <Button onClick={loadData}>
+            Reintentar
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>
+              <ArrowLeft className="w-4 h-4 mr-2" /> Volver a la fiesta
             </Link>
           </Button>
         </div>

@@ -61,9 +61,19 @@ function buildMessages(fiesta: any, score: number, pendingTasks: number) {
   return { testimonyMessage, photoMessage, socialPostIdea };
 }
 
-export async function getPostEventOpportunities(): Promise<{ success: boolean; data: PostEventItem[] }> {
+export async function getPostEventOpportunities(): Promise<{ success: boolean; data: PostEventItem[]; lecturaIncompleta?: boolean; error?: string }> {
   await requireAppSession();
-  const fiestas = await getAllFiestas().catch(() => []);
+  let fiestas: any[] = [];
+  try {
+    fiestas = await getAllFiestas();
+  } catch {
+    return {
+      success: false,
+      data: [],
+      lecturaIncompleta: true,
+      error: 'No se pudieron consultar las fiestas para oportunidades post-evento.',
+    };
+  }
 
   const data = (fiestas as any[])
     .map(fiesta => {

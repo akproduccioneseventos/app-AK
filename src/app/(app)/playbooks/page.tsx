@@ -25,6 +25,7 @@ function PlaybooksContent() {
   const [selectedPlaybook, setSelectedPlaybook] = useState<Playbook | null>(null);
   const [fiestaIdInput, setFiestaIdInput] = useState(fiestaIdFromUrl);
   const [applying, setApplying] = useState(false);
+  const [errorAplicaciones, setErrorAplicaciones] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -43,6 +44,7 @@ function PlaybooksContent() {
   const handleOpenApplyDialog = (pb: Playbook) => {
     setSelectedPlaybook(pb);
     setFiestaIdInput(fiestaIdFromUrl);
+    setErrorAplicaciones(null);
     setApplyDialogOpen(true);
   };
 
@@ -54,7 +56,20 @@ function PlaybooksContent() {
     setApplying(true);
     try {
       const targetFiestaId = fiestaIdInput.trim();
-      const aplicaciones = await getPlaybookAplicaciones().catch(() => []);
+      let aplicaciones;
+      try {
+        aplicaciones = await getPlaybookAplicaciones();
+      } catch {
+        setErrorAplicaciones('No pudimos comprobar si este playbook ya fue aplicado. No se puede aplicar mientras no se pueda verificar.');
+        toast({
+          title: 'Error de lectura',
+          description: 'No pudimos verificar si esta guía ya fue aplicada. Por seguridad no se aplicó.',
+          variant: 'destructive',
+        });
+        setApplying(false);
+        return;
+      }
+
       const yaAplicada = aplicaciones.find(
         (a) => a.playbookId === selectedPlaybook.id && a.fiestaId === targetFiestaId
       );
@@ -275,11 +290,31 @@ function PlaybooksContent() {
               onChange={(e) => setFiestaIdInput(e.target.value)}
             />
           </div>
+          {errorAplicaciones && (
+            <div role="alert" className="p-3 my-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 text-xs font-semibold flex items-center justify-between gap-2">
+              <span>{errorAplicaciones}</span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs border-amber-500/40"
+                onClick={async () => {
+                  try {
+                    await getPlaybookAplicaciones();
+                    setErrorAplicaciones(null);
+                  } catch {
+                    setErrorAplicaciones('No pudimos comprobar si este playbook ya fue aplicado. Reintentar.');
+                  }
+                }}
+              >
+                Reintentar
+              </Button>
+            </div>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setApplyDialogOpen(false)} disabled={applying}>
               Cancelar
             </Button>
-            <Button onClick={handleApply} disabled={applying || !fiestaIdInput.trim()}>
+            <Button onClick={handleApply} disabled={applying || !fiestaIdInput.trim() || Boolean(errorAplicaciones)}>
               {applying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Play className="h-4 w-4 mr-2" />}
               Aplicar Playbook
             </Button>

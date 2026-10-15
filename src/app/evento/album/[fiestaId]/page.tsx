@@ -27,6 +27,7 @@ import {
   MessageCircle,
   Music,
   Film,
+  AlertTriangle,
 } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
@@ -96,6 +97,7 @@ export default function PublicAlbumPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [errorDedications, setErrorDedications] = useState(false);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [descargaFallida, setDescargaFallida] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -123,12 +125,24 @@ export default function PublicAlbumPage() {
   const loadPosts = useCallback(async () => {
     try {
       setHasError(false);
-      const [data, deds] = await Promise.all([
-        getPublicSocialPosts(fiestaId),
-        getDedications(fiestaId).catch(() => []),
-      ]);
-      setPosts(data);
-      setDedications(deds);
+      setErrorDedications(false);
+      const postsPromise = getPublicSocialPosts(fiestaId);
+      const dedsPromise = getDedications(fiestaId);
+
+      const [dataResult, dedsResult] = await Promise.allSettled([postsPromise, dedsPromise]);
+
+      if (dataResult.status === 'fulfilled') {
+        setPosts(dataResult.value);
+      } else {
+        setHasError(true);
+      }
+
+      if (dedsResult.status === 'fulfilled') {
+        setDedications(dedsResult.value);
+        setErrorDedications(false);
+      } else {
+        setErrorDedications(true);
+      }
     } catch {
       setHasError(true);
     } finally {
@@ -603,7 +617,7 @@ export default function PublicAlbumPage() {
                 { id: 'bogue', label: '⚡ Boomerang' },
                 { id: 'buzon', label: '🎙️ Buzón' },
                 { id: 'invitados', label: '📱 Invitados' },
-                { id: 'mensajes', label: `💌 Mensajes (${dedications.length})` },
+                { id: 'mensajes', label: errorDedications ? '💌 Mensajes (error)' : `💌 Mensajes (${dedications.length})` },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -620,27 +634,45 @@ export default function PublicAlbumPage() {
             </div>
 
             {activeTab === 'mensajes' ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {dedications.map((ded) => (
-                  <div
-                    key={ded.id}
-                    className="p-6 rounded-2xl bg-zinc-900/70 border border-white/10 space-y-3 shadow-lg"
+              errorDedications ? (
+                <div role="alert" className="flex flex-col items-center justify-center py-16 text-center rounded-2xl bg-zinc-900/50 border border-amber-500/30 p-6">
+                  <AlertTriangle className="w-10 h-10 text-amber-500 mb-3" />
+                  <p className="text-base font-bold text-amber-300">No pudimos cargar las dedicatorias y mensajes.</p>
+                  <p className="text-xs text-zinc-400 mt-1 mb-4">Ocurrió un problema al leer los mensajes de los invitados.</p>
+                  <button
+                    onClick={loadPosts}
+                    className="px-5 py-2 rounded-full bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all shadow-md active:scale-95"
                   >
-                    <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
-                      💌 Dedicatoria
-                    </span>
-                    <p className="text-base font-medium text-white/90 leading-relaxed italic">
-                      "{ded.message}"
-                    </p>
-                    <p className="text-xs font-bold text-zinc-400 tracking-wider uppercase">
-                      — {ded.authorName || 'Invitado'}
-                    </p>
-                    {ded.audioUrl && (
-                      <audio src={ded.audioUrl} controls className="w-full h-8 mt-2" />
-                    )}
-                  </div>
-                ))}
-              </div>
+                    Reintentar
+                  </button>
+                </div>
+              ) : dedications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-24 text-center">
+                  <p className="text-sm text-zinc-400">No hay dedicatorias en esta fiesta todavía.</p>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {dedications.map((ded) => (
+                    <div
+                      key={ded.id}
+                      className="p-6 rounded-2xl bg-zinc-900/70 border border-white/10 space-y-3 shadow-lg"
+                    >
+                      <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                        💌 Dedicatoria
+                      </span>
+                      <p className="text-base font-medium text-white/90 leading-relaxed italic">
+                        "{ded.message}"
+                      </p>
+                      <p className="text-xs font-bold text-zinc-400 tracking-wider uppercase">
+                        — {ded.authorName || 'Invitado'}
+                      </p>
+                      {ded.audioUrl && (
+                        <audio src={ded.audioUrl} controls className="w-full h-8 mt-2" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )
             ) : filteredPosts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center">
                 <Camera className="w-12 h-12 text-zinc-700 mb-3" />

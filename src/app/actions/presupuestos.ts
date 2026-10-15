@@ -953,6 +953,13 @@ export async function importarPresupuestoDesdeTexto(
     };
   }
 
+  if (options.senaManual !== undefined && options.senaManual !== null) {
+    const s = Number(options.senaManual);
+    if (!Number.isFinite(s) || s < 0) {
+      return { success: false, error: 'El importe de la seña manual debe ser un número válido mayor o igual a 0.' };
+    }
+  }
+
   const eventoFecha = options.eventoFechaOverride || parsed.eventoFecha || '';
   const total = parsed.totalDeclarado;
   const senaPct = parsed.senaCondicion;

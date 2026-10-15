@@ -84,7 +84,7 @@ function PlanPagosContent() {
       const res = await approveClientPayment(fiestaId, notifId);
       if (!res.success) throw new Error(res.error);
       setClientNotifications(prev =>
-        prev.map(n => n.id === notifId ? { ...n, estado: 'aprobado', approvedAt: new Date().toISOString() } : n)
+        prev.map(n => n.id === notifId ? { ...n, estado: 'aprobado', approvedAt: res.approvedAt } : n)
       );
       toast({ title: '✅ Pago aprobado', description: 'El saldo del evento fue actualizado.' });
     } catch (e: any) {
