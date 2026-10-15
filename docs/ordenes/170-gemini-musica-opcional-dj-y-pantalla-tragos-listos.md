@@ -1,4 +1,59 @@
-# Orden170 - Musica del cliente al DJ y estado real de pedidos listos
+# PARA GEMINI - Orden 170: la lista "Si es posible" llega al DJ, y la pantalla de tragos listos avisa si no pudo leer
+
+**Hacela en la MISMA propuesta que la orden 169**: las dos tocan `src/app/evento/dj/[fiestaId]/page.tsx`.
+Una sola propuesta con las dos órdenes. Si un bloque se traba, entregá el resto y avisá cuál faltó.
+Antes de decir "terminé", pasá `docs/ANTES-DE-ENTREGAR.md`. Arrancá de la versión principal de hoy.
+
+## Camino exacto (lo investigó Claude)
+
+### Bloque 1 - Panel DJ muestra "Si es posible"
+
+- Dato: `fiesta.listaMusicaPortal?.siEsPosible` (`string[]`), tipo `ListaMusicaPortal` en
+  `src/types/fiesta.ts` línea ~1334. Lo guarda el portal del cliente (`saveListaMusica`); eso anda, no se toca.
+- `src/app/evento/dj/[fiestaId]/page.tsx`: hoy hay una sección para `imprescindibles` (línea ~239,
+  título ámbar, "N obligatorias") y otra para `noQuiero` (línea ~272, rosa, "N vetadas").
+  **Agregá una tercera sección entre esas dos**, con la misma forma, para `siEsPosible`:
+  título "Si es posible", contador "N sugeridas", color distinto (por ejemplo `sky`), y un texto
+  chico: *"Sugerencias del cliente: pasalas si encajan."* Si la lista está vacía, no se muestra.
+- **No** las mezcles con las obligatorias ni con los pedidos de invitados, **no** crees pedidos ni
+  votos con ellas, y **no** toques la bandeja de `musica.playlistFiesta` (línea ~88).
+
+### Bloque 2 - Pantalla de tragos listos no disfraza una lectura fallida
+
+`src/app/evento/barra/[fiestaId]/listo/page.tsx`, `cargarPedidos` (línea ~19). Hoy, si
+`getBarPedidosListos` devuelve `success:false` o tira excepción, no pasa nada visible: con la lista
+vacía dice "Los tragos se están preparando" y siempre "En tiempo real".
+
+- Estado nuevo `const [lecturaFallida, setLecturaFallida] = useState(false)`.
+- `res.success && res.orders`: `setPedidosListos(res.orders)` como hoy y `setLecturaFallida(false)`.
+- `success:false` o `catch`: `setLecturaFallida(true)` y **no** vaciar `pedidosListos` (se conserva
+  lo último que se leyó).
+- Con `lecturaFallida`:
+  - el rótulo "En tiempo real" (línea ~128) pasa a decir "Sin conexión, reintentando…";
+  - arriba aparece un cartel con `role="alert"`:
+    - con lista vacía: *"No pudimos leer los pedidos. Reintentando…"*;
+    - con pedidos en pantalla: *"Puede estar desactualizado. Reintentando…"*.
+- Con lista vacía y `lecturaFallida`, **no** mostrar "Los tragos se están preparando" (línea ~71).
+- Mantener el reintento cada 2500 ms (línea ~35). Al primer éxito el cartel se va solo.
+- **No** tocar `getBarPedidosListos`, estados de pedidos, stock, importes ni permisos.
+
+### Bloque 3 - Pruebas
+
+- `src/__tests__/musica-opcional-visible-dj.test.tsx`: una fiesta con
+  `listaMusicaPortal.siEsPosible = ['Tema X']` muestra "Tema X" bajo "Si es posible". Las
+  obligatorias y vetadas siguen. Con la lista vacía, la sección no aparece. Nombrar la ruta
+  `/evento/dj/[fiestaId]`.
+- `src/__tests__/barra-listos-informa-lecturas-fallidas.test.tsx`, con la acción simulada:
+  1. `success:false` de entrada: aparece el aviso y no dice "Los tragos se están preparando" ni "En tiempo real".
+  2. Primero un pedido listo y después una falla: el pedido sigue en pantalla y aparece "Puede estar desactualizado".
+  3. Después vuelve a andar: el aviso desaparece y la lista nueva reemplaza a la vieja.
+  4. Lista vacía confirmada: dice "Los tragos se están preparando", sin aviso.
+  Nombrar la ruta `/evento/barra/[fiestaId]/listo`. Podés partir de `docs/evidencias/132-barra-listos.test.tsx`.
+
+---
+
+## Lo que encontró Codex (auditoría 132)
+
 
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI: HEAD desconocido.
 Fuente ejecutada d10f332a17241de5a4705a560336585853073a76. Main bbf68006
