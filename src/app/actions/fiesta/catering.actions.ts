@@ -59,6 +59,16 @@ export async function updateShoppingListStatus(
         if (!actual) throw new Error("Fiesta no encontrada");
         const cambios = cambiosPedidos(leidos ?? actual.estadosCompra ?? [], estados);
         if (cambios.length === 0) return { success: true };
+
+        for (const { nuevo, campos } of cambios) {
+            if (campos.includes('montoPagado')) {
+                const monto = nuevo.montoPagado;
+                if (typeof monto !== 'number' || !Number.isFinite(monto) || monto < 0) {
+                    return { success: false, error: 'El importe a cuenta tiene que ser un número de 0 o más.' };
+                }
+            }
+        }
+
         const tocaUnPago = cambios.some((c) => c.campos.some((k) => (CAMPOS_DE_PAGO as readonly string[]).includes(k)));
         await requireEventPermission(
             fiestaId,
@@ -106,6 +116,22 @@ export async function updateShoppingListStatus(
                 }
                 if (campos.includes('pagado') && resultado.pagado) {
                     tareas = tareas.map(t => (t.texto === tareaTexto ? { ...t, completada: true } : t));
+                } else if (campos.includes('pagado') && !resultado.pagado && resultado.pedido) {
+                    const tieneTarea = tareas.some(t => t.texto === tareaTexto);
+                    if (tieneTarea) {
+                        tareas = tareas.map(t => (t.texto === tareaTexto ? { ...t, completada: false } : t));
+                    } else {
+                        tareas = [
+                            {
+                                id: `task_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+                                texto: tareaTexto,
+                                descripcion: `Pedido realizado para el evento ${fiesta?.configuracion?.nombreEvento ?? 'Evento sin nombre'}. Pendiente de pago.`,
+                                asignadaA: 'Organizador',
+                                completada: false,
+                            },
+                            ...tareas,
+                        ];
+                    }
                 }
             }
 
@@ -119,3 +145,4 @@ export async function updateShoppingListStatus(
         return { success: false, error: e.message };
     }
 }
+

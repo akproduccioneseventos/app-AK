@@ -1,5 +1,90 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 165: fecha civil en portal del contrato y aviso de recibo de seña parcial
+
+- **Fecha civil del portal del contrato:** la fecha del evento (ej. "2027-08-08") se convertía con `new Date(string)`
+  interpretándola en UTC, lo que en huso horario de Uruguay (UTC-3) restaba horas y mostraba el día anterior ("07 de agosto").
+  Ahora se usa `diaCalendario(iso)` para descomponer año, mes y día de forma exacta y construir la fecha local civil.
+- **Aviso de contrato físico con recibo de seña fallido:** si al subir el contrato físico la generación automática del
+  recibo de seña falla o da excepción, la fiesta queda contratada pero se guarda `reciboSenaPendiente` con el motivo.
+  La pantalla muestra un toast destructivo de advertencia ("Contrato cargado, falta el recibo de seña") y un banner
+  persistente visible con `data-testid="recibo-sena-pendiente"`. Al enganchar manualmente un recibo o crear uno de seña,
+  el pendiente se limpia automáticamente.
+
+```comprobar
+archivo: src/app/portal/[fiestaId]/contrato/page.tsx
+usa: formatDate en src/app/portal/[fiestaId]/contrato/page.tsx
+prueba: src/__tests__/contrato-fecha-portal-dia-civil.test.tsx
+archivo: src/app/actions/fiesta/documentos.actions.ts
+usa: uploadPhysicalContract en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
+prueba: src/__tests__/contrato-recibo-parcial-aviso.test.ts
+```
+
+## 15/10/2026 - Codex130: otros recorridos, tres defectos y una friccion PENDIENTES167
+
+- Trabajo fuera de165/166 que Gemini esta programando. Codex SOLO audito.
+  Maina97d33f0 incorpora documentos129 via1309, app igual ce1ac07d. PR1308
+  integrada por Claude: NO subir a rama129 cerrada. Nueva rama130 desdea97.
+  Privados Claude/Gemini NO CONTRASTADOS, HEAD desconocido.
+- Entregada PR1311 ABIERTA/BORRADOR, snapshot0dc10bbd con57blobs remotos
+  identicos. Recibo130-entrega-remota.json. No fusionar documentos solos.
+- Tanda publica1310c49a231d (Gemini165):12fuentes/consumidores de167 iguales
+  a main, contraste guardado. No equivalencia transitiva ni aprobacion de1310.
+- P1costos: saveGastoGeneral/getGastosGenerales/getProfitAndLossData REALES
+  guardan60.30, releen60.30 y reportan60; dos gastos60.30 reportan120, no120.60.
+  Un control enteroPASS, dosFAIL. No es solo formato ni se cambio la app.
+- Limite/rectificacion: ingresos/cuotas en enteros son politica previa. La
+  sonda inicial que esperaba centavos ahi queda como DIAGNOSTICO, no defecto
+  ni mandato de cambiar politica. No tocar roundMoney global (tambien invitados).
+  Primer fixture de factura date sin paymentDate fue error QA, conservado.
+- Compartir: siete reportes reales fallan con share disponible/canShare ausente,
+  sin camino alternativo.14PASS7FAIL con dobles de capacidades, no OS real.
+  Es una causa en siete paginas, no siete bugs. Cargaoperativa ya tiene guardia.
+- Barrido adicionalAST:10handlers originales y enlaceonClick verificado,
+  29PASS1FAIL;9documentos conservan alternativa, NO rotos por grep. Solo
+  reporte de rentabilidad falla, octava ubicacion de la MISMA causa. No UI.
+  Contexto inicial incompleto produjo8fallosQA, archivados, no erroresapp.
+- Portal fotos-video: error de fotos se muestra como0, error de audios oculta
+  seccion, sin aviso. Pagina/mapeo reales, sesion/datos ficticios:3PASS2FAIL.
+  No reencargar el mapeo86 ni ZIP141, son otros criterios ya corregidos.
+- Reporte de fiesta: error SI lanza toast, pero cuerpo manda elegir fiesta
+  aun conID. FriccionP2, no silencio total ni error de calculo nuevo.2PASS2FAIL.
+- Aceptacion final13063casos distintos49PASS14FAIL:3defectos+1friccion, no14bugs.
+  No sumar diagnostico de ingresos ni fixture inicial; todos se conservaron.
+  Orden167 exige contrastar tanda, corregir solo lo comprobado y preservar politicas.
+- Un Luna low acotado/cerrado; cero pagos/envios/cuentas/archivos del negocio.
+  Guardia0fixtures alterados; fuente app intacta. No build/grafo completo.
+  Informe docs/codex/130-reportes-y-material-cliente.md, resultados130 en evidencias.
+  Reusar amplia128 solo misma app; sin certificado de0errores ni14areas limpias.
+
+
+## 15/10/2026 - Orden 166: compras, revisión automática y hora de llegada del personal
+
+- **Compras (recordatorio de pago al desmarcar Pagado total):** al cambiar de pagado total a pendiente un pedido,
+  la tarea de pago se reabre (`completada: false`) o se crea si no existía, evitando que quede como pagada cuando el
+  pedido está impago.
+- **Compras (validación de adelanto no negativo):** el importe a cuenta ahora rechaza números menores a 0, NaN o
+  Infinity del lado del servidor antes de guardar. En la interfaz se agregaron `min={0}` y `step="0.01"`, restaurando
+  el valor anterior con aviso claro ante error.
+- **Revisión inteligente (lecturas fallidas y avisos no guardados):** la acción ahora anota las fuentes caídas
+  (`fuentesQueFallaron`) y distingue avisos creados de silenciados, duplicados o fallidos. La pantalla ya no anuncia
+  "Revisión completa" falsamente ante lecturas o avisos caídos, muestra el motivo con alerta visible y botón Reintentar.
+- **Personal (hora de llegada tras reintento):** `registrarLlegadaPersonal` ahora retorna el `checkInTimestamp`
+  persistido por el servidor. La vista del personal utiliza este valor confirmado en lugar de la hora local del celular,
+  mostrando la hora original correcta tras un reintento.
+
+```comprobar
+archivo: src/app/actions/fiesta/catering.actions.ts
+usa: updateShoppingListStatus en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/compras-reversion-y-adelanto.test.ts
+archivo: src/app/actions/smart-automations.ts
+usa: runSmartAutomations en src/app/control-tower/automatizaciones/page.tsx
+prueba: src/__tests__/automatizaciones-revision-inteligente-avisos.test.tsx
+archivo: src/app/acceso-personal/[tokenId]/page.tsx
+usa: registrarLlegadaPersonal en src/app/acceso-personal/[tokenId]/page.tsx
+prueba: src/__tests__/personal-llegada-reintento-hora-original.test.tsx
+```
+
 ## 15/10/2026 - Codex129: cinco fallos nuevos COMPROBADOS, PENDIENTES166
 
 - Codex SOLO audito. Fuente appce1ac07d; main nuevo1a717203 tiene el mismo
@@ -14201,3 +14286,6 @@ prueba: src/__tests__/pregunta-58-rebarrido.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```
+
+
+

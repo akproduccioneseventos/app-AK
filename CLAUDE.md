@@ -1049,6 +1049,17 @@ escritura está apagada: no podía pasar nunca. La frenó la puerta, con una cor
 **Qué se hace distinto:** una prueba de navegador nueva se corre sola antes de la puerta. Si
 necesita guardar, se prueba lo que la pantalla manda (cortando el pedido) y el guardado va en Jest.
 
+### 38. Juntar los hallazgos de Codex sin lanzar el barrido de su forma en toda la app
+
+**Pasó el 15 de octubre de 2026, con las auditorías 129 y 130.** Junté las órdenes 166 y 167 y no
+lancé la búsqueda de las mismas formas en el resto de la app; lo tuvo que pedir el dueño: *"¿y la
+búsqueda de esas preguntas de toda la app, que debe salir automático?"*. El barrido encontró casos
+graves que nadie había pedido (un prospecto firmado que se podía borrar si fallaba una lectura).
+
+**Qué se hace distinto:** al juntar cualquier PR de Codex, **en la misma tanda** se lanzan los
+ayudantes de sólo lectura con las preguntas de sus líneas en `LO-QUE-NO-VI.md`, y lo confirmado sale
+como orden para Gemini (así salió la 168). Juntar sin barrer es una tanda incompleta.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y

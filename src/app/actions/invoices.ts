@@ -450,7 +450,7 @@ export async function registerBookingDeposit(data: {
       if (!data.skipFiestaSave && !(fiesta.invoiceIds || []).includes(existingReceipt.id)) {
         // Si esto falla, el recibo existe pero el evento no lo lista: el equipo no
         // encuentra el comprobante de la sena cobrada.
-        const enganchado = await addInvoiceId(data.fiestaId, existingReceipt.id);
+        const enganchado = await addInvoiceId(data.fiestaId, existingReceipt.id, { esReciboDeSena: true });
         if (!enganchado?.success) {
           logger.error('El recibo de sena no quedo enganchado al evento', { fiestaId: data.fiestaId, invoiceId: existingReceipt.id });
           return {
@@ -557,7 +557,7 @@ export async function registerBookingDeposit(data: {
     }
 
     if (!data.skipFiestaSave) {
-      const enganchadoNuevo = await addInvoiceId(data.fiestaId, invoiceResult.id);
+      const enganchadoNuevo = await addInvoiceId(data.fiestaId, invoiceResult.id, { esReciboDeSena: true });
       if (!enganchadoNuevo?.success) {
         // LA PLATA ENTRO PERO EL COMPROBANTE NO APARECE EN EL EVENTO.
         // Antes esto solo se anotaba en el registro y la pantalla decia "Sena
@@ -984,3 +984,4 @@ export async function pasarCobrosPendientesAlPresupuesto(): Promise<{ success: b
   }
   return { success: true, pasados };
 }
+

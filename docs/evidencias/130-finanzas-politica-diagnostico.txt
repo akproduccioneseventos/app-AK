@@ -1,0 +1,74 @@
+/** DIAGNOSTICO, NO REGRESION: ingresos enteros son politica previa. Ver informe130. */
+/** @jest-environment node */
+import fs from 'fs';
+const mockInvoices = jest.fn(), mockBudgets = jest.fn(), mockFiestas = jest.fn(), mockGastos = jest.fn();
+jest.mock('@/lib/auth/require-session', () => ({ requirePermisoAlguno: jest.fn(async () => ({})), requireAppSession: jest.fn() }));
+jest.mock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => ({ success: true, user: { role: 'admin', perfil: 'dueno' } })) }));
+jest.mock('@/app/actions/invoices', () => ({ getInvoices: (...args: any[]) => mockInvoices(...args) }));
+jest.mock('@/app/actions/presupuestos', () => ({ getPresupuestos: (...args: any[]) => mockBudgets(...args) }));
+jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getAllFiestas: (...args: any[]) => mockFiestas(...args) }));
+jest.mock('@/app/actions/roles', () => ({ getRoles: jest.fn(async () => []) }));
+jest.mock('@/app/actions/gastos', () => ({ getGastosGenerales: (...args: any[]) => mockGastos(...args) }));
+jest.mock('@/app/actions/settings', () => ({ getCompanyInfo: jest.fn(async () => ({})) }));
+jest.mock('@/lib/contabilidad/mandar-resumen-al-contador', () => ({ mandarResumenAlContador: jest.fn() }));
+import { getProfitAndLossData } from '@/app/actions/reportes';
+import { getReconciledSalePayments } from '@/lib/commercial-flow/ledger-service';
+
+const range = { from: new Date('2026-01-01T00:00:00Z'), to: new Date('2026-12-31T23:59:59Z') };
+const rows: any[] = [];
+function presupuesto(montos: number[]) {
+  return { id: 'qa130-budget', numero: 'QA130', clienteNombre: 'Cliente ficticio', estado: 'Aceptado', pagosCliente: montos.map((monto, i) => ({
+    id: `qa130-pago-${i}`, monto, fecha: '2026-10-15', estadoPago: 'confirmado', metodoPago: 'Efectivo',
+  })) };
+}
+beforeEach(() => {
+  jest.clearAllMocks(); mockInvoices.mockResolvedValue([]); mockBudgets.mockResolvedValue([]);
+  mockFiestas.mockResolvedValue([]); mockGastos.mockResolvedValue([]);
+});
+afterAll(() => fs.writeFileSync('docs/evidencias/130-finanzas-centavos-observado.json', JSON.stringify({
+  applicationSourceSha: 'ce1ac07d1bb16c24dd73e2d26ac55038028a2472',
+  scope: 'REAL_GET_PROFIT_AND_LOSS_ACTION_AND_REAL_RECONCILIATION_WITH_SYNTHETIC_READ_AUTH_DOUBLES_NO_SENDING',
+  rows, realMoneyOrAccountsOrMessagesTouched: false,
+}, null, 2) + '\n'));
+async function calcular(caso: string, expected: any) {
+  const result = await getProfitAndLossData(range);
+  rows.push({ caso, expected, result }); expect(result.success).toBe(true); return result.data!;
+}
+
+test('control: ingresos y gastos enteros mantienen la cuenta conocida', async () => {
+  mockBudgets.mockResolvedValue([presupuesto([100, 100])]);
+  mockGastos.mockResolvedValue([{ id: 'qa130-gasto', fecha: '2026-10-15', monto: 60, concepto: 'Gasto ficticio', categoria: 'Otros' }]);
+  const data = await calcular('enteros', { ingresos: 200, costos: 60, ganancia: 140 });
+  expect(data.ingresos.total).toBe(200); expect(data.costos.total).toBe(60); expect(data.gananciaNeta).toBe(140);
+});
+test('dos cobros confirmados de100.25 suman200.50, no200', async () => {
+  mockBudgets.mockResolvedValue([presupuesto([100.25, 100.25])]);
+  const data = await calcular('cobros-presupuesto-centavos', { ingresos: 200.50 });
+  expect(data.ingresos.total).toBeCloseTo(200.50, 2);
+});
+test('un cobro confirmado de0.25 no desaparece del reporte', async () => {
+  mockBudgets.mockResolvedValue([presupuesto([0.25])]);
+  const data = await calcular('cobro-menor-a-un-peso', { ingresos: 0.25, renglones: 1 });
+  expect(data.ingresos.total).toBeCloseTo(0.25, 2); expect(data.ingresos.detalle).toHaveLength(1);
+});
+test('un gasto de60.30 mantiene costos y ganancia con centavos', async () => {
+  mockBudgets.mockResolvedValue([presupuesto([200])]);
+  mockGastos.mockResolvedValue([{ id: 'qa130-gasto', fecha: '2026-10-15', monto: 60.30, concepto: 'Gasto ficticio', categoria: 'Otros' }]);
+  const data = await calcular('gasto-general-centavos', { ingresos: 200, costos: 60.30, ganancia: 139.70 });
+  expect(data.costos.total).toBeCloseTo(60.30, 2); expect(data.gananciaNeta).toBeCloseTo(139.70, 2);
+});
+test('un pago de factura por100.25 mantiene el importe reconciliado', async () => {
+  const invoice = { id: 'qa130-invoice', invoiceNumber: 'QA130-F', status: 'Paid', totalAmount: 100.25,
+    customer: { name: 'Cliente ficticio' }, payments: [{ id: 'qa130-pago-factura', paymentDate: '2026-10-15', amount: 100.25, method: 'Efectivo' }] };
+  expect(getReconciledSalePayments(invoice as any)).toEqual([expect.objectContaining({ amount: 100.25, date: '2026-10-15' })]);
+  mockInvoices.mockResolvedValue([invoice]);
+  const data = await calcular('factura-centavos', { ingresos: 100.25 });
+  expect(data.ingresos.total).toBeCloseTo(100.25, 2);
+});
+test('un pago a proveedor de60.30 no se redondea a60 al consolidar', async () => {
+  mockFiestas.mockResolvedValue([{ id: 'qa130-fiesta', configuracion: { nombreEvento: 'Fiesta ficticia', fechaEvento: '2026-10-15' },
+    pagosProveedores: [{ id: 'qa130-prov-pago', monto: 60.30, fecha: '2026-10-15', costoAsociadoId: 'qa130-costo' }],
+    gestionCostos: { costosItems: [{ id: 'qa130-costo', nombre: 'Costo ficticio', montoEstimado: 60.30 }], others: {} }, personalAsignado: [] }]);
+  const data = await calcular('proveedor-centavos', { costos: 60.30 });
+  expect(data.costos.total).toBeCloseTo(60.30, 2);
+});

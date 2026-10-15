@@ -171,11 +171,12 @@ de abajo por las rutas reales.
 ```comprobar
 archivo: src/app/actions/fiesta/catering.actions.ts
 usa: updateShoppingListStatus en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
-prueba: docs/evidencias/129-compras-reversion.test.ts (EJECUTADA 3PASS2FAIL; arreglo PENDIENTE)
+prueba: src/__tests__/compras-reversion-y-adelanto.test.ts
 archivo: src/app/actions/smart-automations.ts
 usa: runSmartAutomations en src/app/control-tower/automatizaciones/page.tsx
-prueba: docs/evidencias/129-automatizaciones-reales.test.tsx (EJECUTADA 4PASS3FAIL; arreglo PENDIENTE)
+prueba: src/__tests__/automatizaciones-revision-inteligente-avisos.test.tsx
 archivo: src/app/acceso-personal/[tokenId]/page.tsx
 usa: registrarLlegadaPersonal en src/app/acceso-personal/[tokenId]/page.tsx
-prueba: docs/evidencias/129-personal-llegada-reintento.test.tsx (EJECUTADA 1PASS1FAIL; arreglo PENDIENTE)
+prueba: src/__tests__/personal-llegada-reintento-hora-original.test.tsx
 ```
+

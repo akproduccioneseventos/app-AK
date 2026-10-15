@@ -1,0 +1,437 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "EXACT_AST_EXTRACTED_REAL_HANDLERS_WITH_REAL_BUTTON_BINDING_VERIFIED_AND_BROWSER_DOUBLES_NOT_REACT_RENDER_NOT_NATIVE_BROWSER",
+  "rows": [
+    {
+      "file": "src/app/(app)/fiestas/nueva/itinerario/pdf/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "76c2294584cca83b9f4555409cd09e6a732f1640482d5376c88b2ddf49415c38",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/itinerario/pdf/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "76c2294584cca83b9f4555409cd09e6a732f1640482d5376c88b2ddf49415c38",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/itinerario/pdf/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "76c2294584cca83b9f4555409cd09e6a732f1640482d5376c88b2ddf49415c38",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "f5730b7b6c4dcf0d956e81edc215b563ab4471d1ec0765e7e7c005192cddf672",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "f5730b7b6c4dcf0d956e81edc215b563ab4471d1ec0765e7e7c005192cddf672",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "f5730b7b6c4dcf0d956e81edc215b563ab4471d1ec0765e7e7c005192cddf672",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/resumen-imprimible/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "057965657ee3cb964cd0571b30f38642989748b8b13217597136ac1db5b57478",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/resumen-imprimible/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "057965657ee3cb964cd0571b30f38642989748b8b13217597136ac1db5b57478",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/resumen-imprimible/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "057965657ee3cb964cd0571b30f38642989748b8b13217597136ac1db5b57478",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "a0a23783b5faf73931b1798c233820c2ef703a4b778800e566ae31c3934602b0",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace fue copiado al portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "a0a23783b5faf73931b1798c233820c2ef703a4b778800e566ae31c3934602b0",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "a0a23783b5faf73931b1798c233820c2ef703a4b778800e566ae31c3934602b0",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace fue copiado al portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "7867d6dca47bc1be2e4bbc049030b6821c6b08c92b6244836bdcbce8bc3bdaf9",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace copiado",
+            "description": "El enlace fue copiado al portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "7867d6dca47bc1be2e4bbc049030b6821c6b08c92b6244836bdcbce8bc3bdaf9",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "7867d6dca47bc1be2e4bbc049030b6821c6b08c92b6244836bdcbce8bc3bdaf9",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace copiado",
+            "description": "El enlace fue copiado al portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "137139c099477f491fc90d2a4dae691c9517497af6dc18633f0eb635c8a3f5e8",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "137139c099477f491fc90d2a4dae691c9517497af6dc18633f0eb635c8a3f5e8",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "137139c099477f491fc90d2a4dae691c9517497af6dc18633f0eb635c8a3f5e8",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "81561e20391fba05b390911de38308ac558eafa33aaf0247574d80e3380f117f",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "81561e20391fba05b390911de38308ac558eafa33aaf0247574d80e3380f117f",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "81561e20391fba05b390911de38308ac558eafa33aaf0247574d80e3380f117f",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/decoracion/pdf/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "3b3e4e7d3158814ffe291364cf4d9f61da94b84aa806dc93eeeeb218fb9e43c9",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/decoracion/pdf/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "3b3e4e7d3158814ffe291364cf4d9f61da94b84aa806dc93eeeeb218fb9e43c9",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/decoracion/pdf/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "3b3e4e7d3158814ffe291364cf4d9f61da94b84aa806dc93eeeeb218fb9e43c9",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/musica/pdf/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "0996bc0025a42503f2b9963da3a8221037da6fdc4b1bf221a6dabe4ab8fa9f77",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/musica/pdf/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "0996bc0025a42503f2b9963da3a8221037da6fdc4b1bf221a6dabe4ab8fa9f77",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/musica/pdf/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "0996bc0025a42503f2b9963da3a8221037da6fdc4b1bf221a6dabe4ab8fa9f77",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 1,
+      "toastCalls": [
+        [
+          {
+            "title": "Enlace Copiado",
+            "description": "El enlace ha sido copiado a tu portapapeles."
+          }
+        ]
+      ]
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx",
+      "modo": "sin-share",
+      "sourceSha256": "36dcf6377124caf883e32c6c98afb26148ea6160506c946a6bf79f577bf12341",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 1,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx",
+      "modo": "share-completo",
+      "sourceSha256": "36dcf6377124caf883e32c6c98afb26148ea6160506c946a6bf79f577bf12341",
+      "bound": true,
+      "nativeCalls": 1,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": []
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx",
+      "modo": "share-sin-canShare",
+      "sourceSha256": "36dcf6377124caf883e32c6c98afb26148ea6160506c946a6bf79f577bf12341",
+      "bound": true,
+      "nativeCalls": 0,
+      "fallbackCalls": 0,
+      "clipboardCalls": 0,
+      "toastCalls": [],
+      "thrown": {
+        "name": "TypeError",
+        "message": "navigator.canShare is not a function"
+      }
+    }
+  ],
+  "realAccountsOrMessagesTouched": false
+}

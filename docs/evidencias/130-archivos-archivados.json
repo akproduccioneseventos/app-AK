@@ -1,0 +1,48 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "description": "Logs exactos; archivos antes-fixture/contexto y diagnostico-politica conservan preparaciones previas, no defectos extra",
+  "files": [
+    {
+      "file": "130-costos.log",
+      "bytes": 2653,
+      "sha256": "eb6ab0dc3e562c3bf847f1cd1dd6240e8359267700f73a54e7220d2045b16d55",
+      "archive": "130-costos.log.gz"
+    },
+    {
+      "file": "130-finanzas.log",
+      "bytes": 7407,
+      "sha256": "46cc4efc089bda6e027f1c5beaacbd4d6bb966b9ff158fdac0c7da8b68176a00",
+      "archive": "130-finanzas.log.gz"
+    },
+    {
+      "file": "130-portal.log",
+      "bytes": 2269,
+      "sha256": "1c1c1346dcf17bd9feace21021ec14d951c8ffda4cfe51e6a9a094945eb0a1cc",
+      "archive": "130-portal.log.gz"
+    },
+    {
+      "file": "130-registro.log",
+      "bytes": 237,
+      "sha256": "9f1a60f636eec4dbd21e547ce3091d98a75c9568943de850f754a37323c292d2",
+      "archive": "130-registro.log.gz"
+    },
+    {
+      "file": "130-reporte-evento.log",
+      "bytes": 3080,
+      "sha256": "db8a28658a81c2b4f8fb3a42e7e9abd6376d3862c4ec23f3140fbb481441077f",
+      "archive": "130-reporte-evento.log.gz"
+    },
+    {
+      "file": "130-reportes.log",
+      "bytes": 36965,
+      "sha256": "4238b917ea19f8490f877b402c07756f397b6e0a0e8769ae71dbdc4198ed4633",
+      "archive": "130-reportes.log.gz"
+    },
+    {
+      "file": "130-variantes.log",
+      "bytes": 1444,
+      "sha256": "bbde9e7022110580da389f7466ba35c5985ebca9cbd634ced1d1383f590f644b",
+      "archive": "130-variantes.log.gz"
+    }
+  ]
+}

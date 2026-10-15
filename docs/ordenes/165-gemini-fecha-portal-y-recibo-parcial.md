@@ -116,8 +116,9 @@ plata (`src/__tests__/el-candado-de-la-plata.test.ts`): no se toca ninguna líne
 ```comprobar
 archivo: src/app/portal/[fiestaId]/contrato/page.tsx
 usa: formatDate en src/app/portal/[fiestaId]/contrato/page.tsx
-prueba: docs/evidencias/128-contrato-fecha-ui.test.tsx (EJECUTADA FAIL; arreglo PENDIENTE)
+prueba: src/__tests__/contrato-fecha-portal-dia-civil.test.tsx
 archivo: src/app/actions/fiesta/documentos.actions.ts
 usa: uploadPhysicalContract en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
-prueba: docs/evidencias/128-contrato-recibo-parcial.test.ts (EJECUTADA:1PASS1FAIL; arreglo PENDIENTE)
+prueba: src/__tests__/contrato-recibo-parcial-aviso.test.ts
 ```
+

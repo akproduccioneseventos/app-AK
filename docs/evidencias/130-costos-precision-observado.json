@@ -1,0 +1,151 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "REAL_SAVE_EXPENSE_REAL_READ_EXPENSE_REAL_PROFIT_LOSS_WITH_IN_MEMORY_DATA_AUTH_DOUBLES_NOT_NATIVE_BROWSER",
+  "rows": [
+    {
+      "caso": "control-enteros",
+      "expected": 60,
+      "persisted": [
+        {
+          "concepto": "Gasto ficticio QA130 0",
+          "fecha": "2026-10-15",
+          "categoria": "Compra de Equipo",
+          "monto": 30,
+          "idempotencyKey": "qa130-control-enteros-0",
+          "id": "gasto_1792071434595_hqfkcs"
+        },
+        {
+          "concepto": "Gasto ficticio QA130 1",
+          "fecha": "2026-10-15",
+          "categoria": "Compra de Equipo",
+          "monto": 30,
+          "idempotencyKey": "qa130-control-enteros-1",
+          "id": "gasto_1792071434596_lnylpf"
+        }
+      ],
+      "persistedTotal": 60,
+      "result": {
+        "success": true,
+        "data": {
+          "ingresos": {
+            "total": 0,
+            "detalle": []
+          },
+          "costos": {
+            "total": 60,
+            "detalle": [
+              {
+                "id": "gasto_1792071434595_hqfkcs",
+                "fecha": "2026-10-15",
+                "concepto": "Gasto ficticio QA130 0",
+                "categoria": "Compra de Equipo",
+                "monto": 30
+              },
+              {
+                "id": "gasto_1792071434596_lnylpf",
+                "fecha": "2026-10-15",
+                "concepto": "Gasto ficticio QA130 1",
+                "categoria": "Compra de Equipo",
+                "monto": 30
+              }
+            ]
+          },
+          "gananciaNeta": -60,
+          "margen": 0
+        }
+      }
+    },
+    {
+      "caso": "un-gasto-con-centavos",
+      "expected": 60.3,
+      "persisted": [
+        {
+          "concepto": "Gasto ficticio QA130 0",
+          "fecha": "2026-10-15",
+          "categoria": "Compra de Equipo",
+          "monto": 60.3,
+          "idempotencyKey": "qa130-un-gasto-con-centavos-0",
+          "id": "gasto_1792071434604_ea5zh0"
+        }
+      ],
+      "persistedTotal": 60.3,
+      "result": {
+        "success": true,
+        "data": {
+          "ingresos": {
+            "total": 0,
+            "detalle": []
+          },
+          "costos": {
+            "total": 60,
+            "detalle": [
+              {
+                "id": "gasto_1792071434604_ea5zh0",
+                "fecha": "2026-10-15",
+                "concepto": "Gasto ficticio QA130 0",
+                "categoria": "Compra de Equipo",
+                "monto": 60
+              }
+            ]
+          },
+          "gananciaNeta": -60,
+          "margen": 0
+        }
+      }
+    },
+    {
+      "caso": "dos-gastos-con-centavos",
+      "expected": 120.6,
+      "persisted": [
+        {
+          "concepto": "Gasto ficticio QA130 0",
+          "fecha": "2026-10-15",
+          "categoria": "Compra de Equipo",
+          "monto": 60.3,
+          "idempotencyKey": "qa130-dos-gastos-con-centavos-0",
+          "id": "gasto_1792071434627_ezyqja"
+        },
+        {
+          "concepto": "Gasto ficticio QA130 1",
+          "fecha": "2026-10-15",
+          "categoria": "Compra de Equipo",
+          "monto": 60.3,
+          "idempotencyKey": "qa130-dos-gastos-con-centavos-1",
+          "id": "gasto_1792071434628_14attj"
+        }
+      ],
+      "persistedTotal": 120.6,
+      "result": {
+        "success": true,
+        "data": {
+          "ingresos": {
+            "total": 0,
+            "detalle": []
+          },
+          "costos": {
+            "total": 120,
+            "detalle": [
+              {
+                "id": "gasto_1792071434627_ezyqja",
+                "fecha": "2026-10-15",
+                "concepto": "Gasto ficticio QA130 0",
+                "categoria": "Compra de Equipo",
+                "monto": 60
+              },
+              {
+                "id": "gasto_1792071434628_14attj",
+                "fecha": "2026-10-15",
+                "concepto": "Gasto ficticio QA130 1",
+                "categoria": "Compra de Equipo",
+                "monto": 60
+              }
+            ]
+          },
+          "gananciaNeta": -120,
+          "margen": 0
+        }
+      }
+    }
+  ],
+  "realMoneyOrAccountsOrMessagesTouched": false
+}

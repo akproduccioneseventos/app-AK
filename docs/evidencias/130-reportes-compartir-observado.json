@@ -1,0 +1,206 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "SEVEN_REAL_REACT_REPORT_PAGES_AND_BUTTONS_WITH_SYNTHETIC_DATA_AND_BROWSER_API_DOUBLES_NOT_NATIVE_BROWSER",
+  "rows": [
+    {
+      "pagina": "clientes",
+      "caso": "sin-share",
+      "shareCalls": 0,
+      "fallbackCalls": 1,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "clientes",
+      "caso": "share-completo",
+      "shareCalls": 1,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "clientes",
+      "caso": "share-sin-canShare",
+      "shareCalls": 0,
+      "fallbackCalls": 0,
+      "errors": [
+        {
+          "message": "navigator.canShare is not a function",
+          "name": "TypeError"
+        }
+      ],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "proveedores",
+      "caso": "sin-share",
+      "shareCalls": 0,
+      "fallbackCalls": 1,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "proveedores",
+      "caso": "share-completo",
+      "shareCalls": 1,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "proveedores",
+      "caso": "share-sin-canShare",
+      "shareCalls": 0,
+      "fallbackCalls": 0,
+      "errors": [
+        {
+          "message": "navigator.canShare is not a function",
+          "name": "TypeError"
+        }
+      ],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "activos",
+      "caso": "sin-share",
+      "shareCalls": 0,
+      "fallbackCalls": 1,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "activos",
+      "caso": "share-completo",
+      "shareCalls": 1,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "activos",
+      "caso": "share-sin-canShare",
+      "shareCalls": 0,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "insumos",
+      "caso": "sin-share",
+      "shareCalls": 0,
+      "fallbackCalls": 1,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "insumos",
+      "caso": "share-completo",
+      "shareCalls": 1,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "insumos",
+      "caso": "share-sin-canShare",
+      "shareCalls": 0,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "servicios",
+      "caso": "sin-share",
+      "shareCalls": 0,
+      "fallbackCalls": 1,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "servicios",
+      "caso": "share-completo",
+      "shareCalls": 1,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "servicios",
+      "caso": "share-sin-canShare",
+      "shareCalls": 0,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "menus",
+      "caso": "sin-share",
+      "shareCalls": 0,
+      "fallbackCalls": 1,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "menus",
+      "caso": "share-completo",
+      "shareCalls": 1,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "menus",
+      "caso": "share-sin-canShare",
+      "shareCalls": 0,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "presupuestos",
+      "caso": "sin-share",
+      "shareCalls": 0,
+      "fallbackCalls": 1,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "presupuestos",
+      "caso": "share-completo",
+      "shareCalls": 1,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    },
+    {
+      "pagina": "presupuestos",
+      "caso": "share-sin-canShare",
+      "shareCalls": 0,
+      "fallbackCalls": 0,
+      "errors": [],
+      "consoleErrors": [],
+      "toasts": []
+    }
+  ],
+  "realAccountsOrMessagesTouched": false
+}

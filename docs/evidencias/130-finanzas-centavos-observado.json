@@ -1,0 +1,174 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "REAL_GET_PROFIT_AND_LOSS_ACTION_AND_REAL_RECONCILIATION_WITH_SYNTHETIC_READ_AUTH_DOUBLES_NO_SENDING",
+  "rows": [
+    {
+      "caso": "enteros",
+      "expected": {
+        "ingresos": 200,
+        "costos": 60,
+        "ganancia": 140
+      },
+      "result": {
+        "success": true,
+        "data": {
+          "ingresos": {
+            "total": 200,
+            "detalle": [
+              {
+                "id": "qa130-pago-0",
+                "fecha": "2026-10-15",
+                "concepto": "Pago Presupuesto #QA130 (Cliente ficticio)",
+                "monto": 100
+              },
+              {
+                "id": "qa130-pago-1",
+                "fecha": "2026-10-15",
+                "concepto": "Pago Presupuesto #QA130 (Cliente ficticio)",
+                "monto": 100
+              }
+            ]
+          },
+          "costos": {
+            "total": 60,
+            "detalle": [
+              {
+                "id": "qa130-gasto",
+                "fecha": "2026-10-15",
+                "concepto": "Gasto ficticio",
+                "categoria": "Otros",
+                "monto": 60
+              }
+            ]
+          },
+          "gananciaNeta": 140,
+          "margen": 70
+        }
+      }
+    },
+    {
+      "caso": "cobros-presupuesto-centavos",
+      "expected": {
+        "ingresos": 200.5
+      },
+      "result": {
+        "success": true,
+        "data": {
+          "ingresos": {
+            "total": 200,
+            "detalle": [
+              {
+                "id": "qa130-pago-0",
+                "fecha": "2026-10-15",
+                "concepto": "Pago Presupuesto #QA130 (Cliente ficticio)",
+                "monto": 100
+              },
+              {
+                "id": "qa130-pago-1",
+                "fecha": "2026-10-15",
+                "concepto": "Pago Presupuesto #QA130 (Cliente ficticio)",
+                "monto": 100
+              }
+            ]
+          },
+          "costos": {
+            "total": 0,
+            "detalle": []
+          },
+          "gananciaNeta": 200,
+          "margen": 100
+        }
+      }
+    },
+    {
+      "caso": "cobro-menor-a-un-peso",
+      "expected": {
+        "ingresos": 0.25,
+        "renglones": 1
+      },
+      "result": {
+        "success": true,
+        "data": {
+          "ingresos": {
+            "total": 0,
+            "detalle": []
+          },
+          "costos": {
+            "total": 0,
+            "detalle": []
+          },
+          "gananciaNeta": 0,
+          "margen": 0
+        }
+      }
+    },
+    {
+      "caso": "gasto-general-centavos",
+      "expected": {
+        "ingresos": 200,
+        "costos": 60.3,
+        "ganancia": 139.7
+      },
+      "result": {
+        "success": true,
+        "data": {
+          "ingresos": {
+            "total": 200,
+            "detalle": [
+              {
+                "id": "qa130-pago-0",
+                "fecha": "2026-10-15",
+                "concepto": "Pago Presupuesto #QA130 (Cliente ficticio)",
+                "monto": 200
+              }
+            ]
+          },
+          "costos": {
+            "total": 60,
+            "detalle": [
+              {
+                "id": "qa130-gasto",
+                "fecha": "2026-10-15",
+                "concepto": "Gasto ficticio",
+                "categoria": "Otros",
+                "monto": 60
+              }
+            ]
+          },
+          "gananciaNeta": 140,
+          "margen": 70
+        }
+      }
+    },
+    {
+      "caso": "proveedor-centavos",
+      "expected": {
+        "costos": 60.3
+      },
+      "result": {
+        "success": true,
+        "data": {
+          "ingresos": {
+            "total": 0,
+            "detalle": []
+          },
+          "costos": {
+            "total": 60,
+            "detalle": [
+              {
+                "id": "pago-qa130-prov-pago",
+                "fecha": "2026-10-15",
+                "concepto": "Costo ficticio (Fiesta ficticia)",
+                "categoria": "Egresos Reales",
+                "monto": 60
+              }
+            ]
+          },
+          "gananciaNeta": -60,
+          "margen": 0
+        }
+      }
+    }
+  ],
+  "realMoneyOrAccountsOrMessagesTouched": false
+}
