@@ -1819,8 +1819,8 @@ export default function GuestBuzonPage() {
             {((activeTab === 'photo' && photoUrl && photoState === 'review') || (activeTab === 'audio' && audioUrl && phoneState === 'review') || (activeTab === 'video' && videoUrl && videoState === 'review')) && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 space-y-4 w-full">
                 <div className="space-y-1.5">
-                  <label className="text-xs text-foreground font-black uppercase tracking-wider pl-1">Tu Nombre y Apellido</label>
-                  <input
+                  <label htmlFor="p63-page-1" className="text-xs text-foreground font-black uppercase tracking-wider pl-1">Tu Nombre y Apellido</label>
+                  <input id="p63-page-1"
                     type="text"
                     placeholder="Ej: Laura Pérez"
                     value={authorName}
@@ -1873,10 +1873,10 @@ export default function GuestBuzonPage() {
                         </div>
                       </div>
                       <div>
-                        <label className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block mb-1">
+                        <label htmlFor="p63-page-2" className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block mb-1">
                           Destinatario / Motivo (opcional)
                         </label>
-                        <input
+                        <input id="p63-page-2"
                           type="text"
                           value={recipientNote}
                           onChange={(e) => setRecipientNote(e.target.value)}

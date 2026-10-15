@@ -1,0 +1,89 @@
+{
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "allPassed": true,
+  "cases": [
+    {
+      "name": "desktop-all11-role-selection-and-named-event",
+      "status": "PASS",
+      "roles": [
+        "Barra de Tragos",
+        "Muro Social",
+        "Plataforma 360",
+        "Tótem LED",
+        "Fotocabina",
+        "Espejo Mágico",
+        "Touchpix AI",
+        "Buzón Saludos",
+        "Video de Vida",
+        "Estación Impresión",
+        "Pedidos al DJ"
+      ],
+      "selectedEvent": "qa125-fiesta"
+    },
+    {
+      "name": "desktop-named-totem-error-announced-no-launch",
+      "status": "PASS",
+      "colors": 164,
+      "screenshot": "125-kiosk-desktop.png",
+      "physicalDeviceLaunched": false,
+      "pageErrors": [
+        "Installations: Create Installation request failed with error \"400 INVALID_ARGUMENT: API key not valid. Please pass a valid API key.\" (installations/request-failed)."
+      ],
+      "textStyle": {
+        "color": "rgb(241, 245, 249)",
+        "background": "rgb(2, 6, 23)",
+        "placeholder": "rgb(148, 163, 184)"
+      },
+      "textContrast": 18.413990730203857,
+      "placeholderContrast": 7.867596661581724
+    },
+    {
+      "name": "desktop-install-page-loads-without-false-installed",
+      "status": "PASS",
+      "osInstallationTriggered": false
+    },
+    {
+      "name": "mobile-all11-role-selection-and-named-event",
+      "status": "PASS",
+      "roles": [
+        "Barra de Tragos",
+        "Muro Social",
+        "Plataforma 360",
+        "Tótem LED",
+        "Fotocabina",
+        "Espejo Mágico",
+        "Touchpix AI",
+        "Buzón Saludos",
+        "Video de Vida",
+        "Estación Impresión",
+        "Pedidos al DJ"
+      ],
+      "selectedEvent": "qa125-fiesta"
+    },
+    {
+      "name": "mobile-named-totem-error-announced-no-launch",
+      "status": "PASS",
+      "colors": 507,
+      "screenshot": "125-kiosk-mobile.png",
+      "physicalDeviceLaunched": false,
+      "pageErrors": [
+        "Installations: Create Installation request failed with error \"400 INVALID_ARGUMENT: API key not valid. Please pass a valid API key.\" (installations/request-failed)."
+      ],
+      "textStyle": {
+        "color": "rgb(241, 245, 249)",
+        "background": "rgb(2, 6, 23)",
+        "placeholder": "rgb(148, 163, 184)"
+      },
+      "textContrast": 18.413990730203857,
+      "placeholderContrast": 7.867596661581724
+    },
+    {
+      "name": "mobile-install-page-loads-without-false-installed",
+      "status": "PASS",
+      "osInstallationTriggered": false
+    }
+  ],
+  "hardwareCertified": false,
+  "realLoginCertified": false,
+  "realOsPwaInstallCertified": false
+}

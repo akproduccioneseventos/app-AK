@@ -1,0 +1,26 @@
+{
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "kind": "OBSERVED_NATIVE_BROWSER_ENTRY_ONLY",
+  "wrappers": [
+    ["/empresa/activos-fijos/editar/qa125-not-provisioned", "/empresa/activos-fijos/qa125-not-provisioned/editar"],
+    ["/empresa/servicios/qa125-not-provisioned", "/empresa/insumos"],
+    ["/fiestas/nueva/accesos-personal?fiestaId=qa125-fiesta", "/settings/accesos-personal"],
+    ["/fiestas/nueva/invitados/numeros-mesa?fiestaId=qa125-fiesta", "/fiestas/nueva/numeros-mesa?fiestaId=qa125-fiesta"],
+    ["/settings/social-connections", "/settings/sincronizaciones"],
+    ["/portal-cliente/qa125-fiesta/decoracion", "/portal/qa125-fiesta/decoracion"],
+    ["/signup", "/login"]
+  ],
+  "allSevenDestinationsObserved": true,
+  "reexports": [
+    { "path": "/landing/eventos", "heading": "Cumpleaños & Fiestas", "urlPath": "/landing/eventos" },
+    { "path": "/portal-cliente", "heading": "Portal de Planificación del Cliente", "urlPath": "/portal" },
+    { "path": "/empresa/salones/qa125-not-provisioned/diseno", "heading": "AK Producciones", "validEntityTested": false }
+  ],
+  "sharedKioskRolesVisuallySelected": ["barra", "muro-en-vivo", "plataforma-360", "totem", "fotocabina", "espejo-magico", "touchpix", "buzon", "video-vida", "impresion", "dj"],
+  "kioskEntryCount": 11,
+  "viewport": "desktop",
+  "hardwareTested": false,
+  "realLoginCertified": false,
+  "modulesFullyAccepted": false,
+  "note": "Destinos localhost:3301 observados, no prueba OAuth/Hosting. Entidades inexistentes no prueban guardar. Seleccion previa visual: faltaban nombres accesibles y aria-pressed."
+}

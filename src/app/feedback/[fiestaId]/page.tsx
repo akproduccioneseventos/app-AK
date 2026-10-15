@@ -31,6 +31,7 @@ function NpsButton({ score, selected, onClick }: { score: number; selected: bool
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={selected}
       className={cn(
         'w-9 h-9 rounded-lg border text-sm font-bold transition-all',
         selected ? selectedColor : color

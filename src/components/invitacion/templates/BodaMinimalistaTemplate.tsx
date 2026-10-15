@@ -182,16 +182,16 @@ export const BodaMinimalistaTemplate: React.FC<TemplateProps> = ({
           </DialogHeader>
           <form onSubmit={handleRsvpSubmit} className="space-y-4 pt-2">
             <div className="space-y-1">
-              <Label className="text-xs font-bold text-zinc-700">Nombre completo</Label>
-              <Input value={rsvpName} onChange={(e) => setRsvpName(e.target.value)} required className="rounded-none border-zinc-300" />
+              <Label htmlFor="p63-BodaMinimalistaTem-1" className="text-xs font-bold text-zinc-700">Nombre completo</Label>
+              <Input id="p63-BodaMinimalistaTem-1" value={rsvpName} onChange={(e) => setRsvpName(e.target.value)} required className="rounded-none border-zinc-300" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs font-bold text-zinc-700">Lugares</Label>
-              <Input type="number" min={1} max={10} value={rsvpCount} onChange={(e) => setRsvpCount(Number(e.target.value) || 1)} className="rounded-none border-zinc-300" />
+              <Label htmlFor="p63-BodaMinimalistaTem-2" className="text-xs font-bold text-zinc-700">Lugares</Label>
+              <Input id="p63-BodaMinimalistaTem-2" type="number" min={1} max={10} value={rsvpCount} onChange={(e) => setRsvpCount(Number(e.target.value) || 1)} className="rounded-none border-zinc-300" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs font-bold text-zinc-700">Menú especial (opcional)</Label>
-              <Input value={rsvpDiet} onChange={(e) => setRsvpDiet(e.target.value)} placeholder="Celíaco, vegetariano..." className="rounded-none border-zinc-300" />
+              <Label htmlFor="p63-BodaMinimalistaTem-3" className="text-xs font-bold text-zinc-700">Menú especial (opcional)</Label>
+              <Input id="p63-BodaMinimalistaTem-3" value={rsvpDiet} onChange={(e) => setRsvpDiet(e.target.value)} placeholder="Celíaco, vegetariano..." className="rounded-none border-zinc-300" />
             </div>
             <Button type="submit" disabled={isSubmitting || !rsvpName.trim()} className="w-full h-11 rounded-none bg-zinc-900 text-white font-bold text-xs uppercase tracking-widest">
               {isSubmitting ? 'Enviando...' : 'Confirmar'}

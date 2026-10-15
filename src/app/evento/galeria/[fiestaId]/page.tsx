@@ -115,6 +115,7 @@ export default function GaleriaPage() {
           setCaras(f.carasIndexadas);
         }
       })
+      // no pasa nada si falla: las caras sólo suman el filtro "buscame"; la galería se ve igual.
       .catch(() => {});
 
     getCarasDeFiesta(fiestaId)
@@ -123,6 +124,7 @@ export default function GaleriaPage() {
           setCaras(c);
         }
       })
+      // no pasa nada si falla: sin el índice de caras la galería se ve entera, sin el filtro.
       .catch(() => {});
   }, [fiestaId]);
 
@@ -304,6 +306,7 @@ export default function GaleriaPage() {
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        // no pasa nada si falla: el navegador ya reproduce el video solo al recibir la cámara.
         await videoRef.current.play().catch(() => {});
       }
 
@@ -473,6 +476,7 @@ export default function GaleriaPage() {
                         key={persona.id}
                         onClick={() => setSelectedPersonaId(isSelected ? null : persona.id)}
                         aria-label="Ver fotos de esta cara"
+                        aria-pressed={isSelected}
                         className={`relative flex-shrink-0 rounded-full transition-all duration-200 focus:outline-none ${
                           isSelected
                             ? 'ring-4 ring-rose-500 scale-110 shadow-lg shadow-rose-500/30'

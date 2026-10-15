@@ -222,8 +222,8 @@ export const XvModernaTemplate: React.FC<TemplateProps> = ({
 
           <form onSubmit={handleRsvpSubmit} className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-zinc-300">Nombre completo</Label>
-              <Input
+              <Label htmlFor="p63-XvModernaTemplate-1" className="text-xs font-bold text-zinc-300">Nombre completo</Label>
+              <Input id="p63-XvModernaTemplate-1"
                 value={rsvpName}
                 onChange={(e) => setRsvpName(e.target.value)}
                 placeholder="Tu nombre y apellido"
@@ -233,8 +233,8 @@ export const XvModernaTemplate: React.FC<TemplateProps> = ({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-zinc-300">Cantidad de personas</Label>
-              <Input
+              <Label htmlFor="p63-XvModernaTemplate-2" className="text-xs font-bold text-zinc-300">Cantidad de personas</Label>
+              <Input id="p63-XvModernaTemplate-2"
                 type="number"
                 min={1}
                 max={10}
@@ -245,8 +245,8 @@ export const XvModernaTemplate: React.FC<TemplateProps> = ({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-zinc-300">Restricciones alimentarias (opcional)</Label>
-              <Input
+              <Label htmlFor="p63-XvModernaTemplate-3" className="text-xs font-bold text-zinc-300">Restricciones alimentarias (opcional)</Label>
+              <Input id="p63-XvModernaTemplate-3"
                 value={rsvpDiet}
                 onChange={(e) => setRsvpDiet(e.target.value)}
                 placeholder="Celíaco, vegetariano, alergias..."

@@ -809,19 +809,19 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           </DialogHeader>
           <form onSubmit={handleRsvpFormSubmit} className="space-y-6 md:space-y-8 pt-4 md:pt-6">
             <div className="space-y-2 md:space-y-3">
-              <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
-              <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
+              <Label htmlFor="p63-GraziaTemplate-1" className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
+              <Input id="p63-GraziaTemplate-1" value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 md:space-y-3">
-                    <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nº Adultos</Label>
-                    <Input type="number" value={numAdults} onChange={e => setNumAdults(Math.max(1, Number(e.target.value)))} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
+                    <Label htmlFor="p63-GraziaTemplate-2" className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nº Adultos</Label>
+                    <Input id="p63-GraziaTemplate-2" type="number" value={numAdults} onChange={e => setNumAdults(Math.max(1, Number(e.target.value)))} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
                 </div>
                 {showKidsSelector ? (
                     <div className="space-y-2 md:space-y-3">
-                        <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nº Niños/Adolescentes</Label>
-                        <Input type="number" value={numKids} onChange={e => setNumKids(Math.max(0, Number(e.target.value)))} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={0} />
+                        <Label htmlFor="p63-GraziaTemplate-3" className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nº Niños/Adolescentes</Label>
+                        <Input id="p63-GraziaTemplate-3" type="number" value={numKids} onChange={e => setNumKids(Math.max(0, Number(e.target.value)))} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={0} />
                     </div>
                 ) : (
                     <div className="flex items-center justify-center bg-slate-50 rounded-2xl p-4 border border-dashed border-slate-200">
@@ -832,9 +832,9 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
             {invitacionData.confirmacion?.showRelationshipTags && (
                 <div className="space-y-2 md:space-y-3">
-                    <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Relación / Grupo</Label>
+                    <Label htmlFor="p63-GraziaTemplate-4" className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Relación / Grupo</Label>
                     <Select value={rsvpTag} onValueChange={setRsvpTag}>
-                        <SelectTrigger className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none font-bold">
+                        <SelectTrigger id="p63-GraziaTemplate-4" className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none font-bold">
                             <SelectValue placeholder="Selecciona tu relación..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -856,8 +856,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
             {companionNames.map((name, i) => (
               <div key={i} className="space-y-2 md:space-y-3 animate-in fade-in slide-in-from-top-2">
-                <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nombre Acompañante {i+1}</Label>
-                <Input value={name} onChange={e => {
+                <Label htmlFor={`acompanante-nombre-${i}`} className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nombre Acompañante {i+1}</Label>
+                <Input id={`acompanante-nombre-${i}`} value={name} onChange={e => {
                   const n = [...companionNames]; n[i] = e.target.value; setCompanionNames(n);
                 }} className="h-10 md:h-12 rounded-lg md:rounded-xl bg-slate-50 border-none text-sm" />
               </div>
@@ -865,8 +865,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
             {invitacionData.musica?.visible && (
                 <div className="space-y-2 md:space-y-3">
-                    <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Sugerencia Musical</Label>
-                    <Input value={rsvpMusicSuggestion} onChange={e => setRsvpMusicSuggestion(e.target.value)} placeholder={invitacionData.musica.placeholder} className="h-10 md:h-12 rounded-lg md:rounded-xl bg-slate-50 border-none text-sm" />
+                    <Label htmlFor="p63-GraziaTemplate-5" className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Sugerencia Musical</Label>
+                    <Input id="p63-GraziaTemplate-5" value={rsvpMusicSuggestion} onChange={e => setRsvpMusicSuggestion(e.target.value)} placeholder={invitacionData.musica.placeholder} className="h-10 md:h-12 rounded-lg md:rounded-xl bg-slate-50 border-none text-sm" />
                 </div>
             )}
 

@@ -81,8 +81,8 @@ export default function QrFlyerGenerator({ qrUrl, eventName, onClose }: QrFlyerG
 
       {/* Editable Headline */}
       <div className="space-y-1.5">
-        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Título del Cartel</label>
-        <input
+        <label htmlFor="p63-QrFlyerGenerator-1" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Título del Cartel</label>
+        <input id="p63-QrFlyerGenerator-1"
           type="text"
           value={headline}
           onChange={(e) => setHeadline(e.target.value)}

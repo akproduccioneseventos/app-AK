@@ -1,0 +1,42 @@
+{
+  "applicationSourceSha": "42a25a319fe06a9fec40e75e5b23c01addef8ce2",
+  "node": "v24.19.0",
+  "results": [
+    {
+      "name": "firebase-cli-local-version",
+      "status": "PASS",
+      "details": {
+        "version": "15.33.0",
+        "projectCommands": 0
+      }
+    },
+    {
+      "name": "tar-cli-fictitious-archive",
+      "status": "PASS",
+      "details": {
+        "version": "7.5.21",
+        "names": [
+          "ficticio.txt"
+        ]
+      }
+    },
+    {
+      "name": "re2-legacy-consumer-api-node24-not-security-fixed",
+      "status": "PASS",
+      "details": {
+        "version": "1.24.0",
+        "nativeLoaded": true,
+        "securityFixed": false
+      }
+    },
+    {
+      "name": "selector-parser-compatible-major6",
+      "status": "PASS",
+      "details": {
+        "version": "6.1.4",
+        "selectorPreserved": true
+      }
+    }
+  ],
+  "allDependencySecurityCertified": false
+}

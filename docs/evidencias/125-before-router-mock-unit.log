@@ -1,0 +1,38 @@
+FAIL src/__tests__/kiosk-configuracion-accesible.test.tsx (11.594 s)
+  ● Configuración accesible del kiosco › nombra campos, expone una selección y etiqueta el identificador al cambiar a tótem
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+    [0m [90m 53 |[39m   }
+     [90m 54 |[39m
+    [31m[1m>[22m[39m[90m 55 |[39m   test([32m'nombra campos, expone una selección y etiqueta el identificador al cambiar a tótem'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+     [90m    |[39m   [31m[1m^[22m[39m
+     [90m 56 |[39m     [36mawait[39m renderSetup()[33m;[39m
+     [90m 57 |[39m
+     [90m 58 |[39m     expect(container[33m.[39mquerySelector([32m'h1'[39m)[33m?[39m[33m.[39mtextContent)[33m.[39mtoBe([32m'Configuración de Kiosco'[39m)[33m;[39m[0m
+
+      at test (src/__tests__/kiosk-configuracion-accesible.test.tsx:55:3)
+      at Object.describe (src/__tests__/kiosk-configuracion-accesible.test.tsx:28:1)
+
+  ● Configuración accesible del kiosco › no guarda ni navega si no hay fiesta seleccionable
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+    [0m [90m 74 |[39m   })[33m;[39m
+     [90m 75 |[39m
+    [31m[1m>[22m[39m[90m 76 |[39m   test([32m'no guarda ni navega si no hay fiesta seleccionable'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+     [90m    |[39m   [31m[1m^[22m[39m
+     [90m 77 |[39m     (getFiestas [36mas[39m jest[33m.[39m[33mMock[39m)[33m.[39mmockResolvedValue([])[33m;[39m
+     [90m 78 |[39m     [36mawait[39m renderSetup()[33m;[39m
+     [90m 79 |[39m[0m
+
+      at test (src/__tests__/kiosk-configuracion-accesible.test.tsx:76:3)
+      at Object.describe (src/__tests__/kiosk-configuracion-accesible.test.tsx:28:1)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 2 total
+Snapshots:   0 total
+Time:        13.949 s
+Test results written to: docs\evidencias\125-jest.json

@@ -196,18 +196,18 @@ export const XvClasicaTemplate: React.FC<TemplateProps> = ({
 
           <form onSubmit={handleRsvpSubmit} className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-zinc-300">Nombre y Apellido</Label>
-              <Input value={rsvpName} onChange={(e) => setRsvpName(e.target.value)} required className="bg-zinc-900 border-zinc-700 text-white" />
+              <Label htmlFor="p63-XvClasicaTemplate-1" className="text-xs font-bold text-zinc-300">Nombre y Apellido</Label>
+              <Input id="p63-XvClasicaTemplate-1" value={rsvpName} onChange={(e) => setRsvpName(e.target.value)} required className="bg-zinc-900 border-zinc-700 text-white" />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-zinc-300">Cantidad de personas</Label>
-              <Input type="number" min={1} max={10} value={rsvpCount} onChange={(e) => setRsvpCount(Number(e.target.value) || 1)} className="bg-zinc-900 border-zinc-700 text-white" />
+              <Label htmlFor="p63-XvClasicaTemplate-2" className="text-xs font-bold text-zinc-300">Cantidad de personas</Label>
+              <Input id="p63-XvClasicaTemplate-2" type="number" min={1} max={10} value={rsvpCount} onChange={(e) => setRsvpCount(Number(e.target.value) || 1)} className="bg-zinc-900 border-zinc-700 text-white" />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-zinc-300">Alergias o menú especial (opcional)</Label>
-              <Input value={rsvpDiet} onChange={(e) => setRsvpDiet(e.target.value)} placeholder="Vegetariano, celíaco..." className="bg-zinc-900 border-zinc-700 text-white" />
+              <Label htmlFor="p63-XvClasicaTemplate-3" className="text-xs font-bold text-zinc-300">Alergias o menú especial (opcional)</Label>
+              <Input id="p63-XvClasicaTemplate-3" value={rsvpDiet} onChange={(e) => setRsvpDiet(e.target.value)} placeholder="Vegetariano, celíaco..." className="bg-zinc-900 border-zinc-700 text-white" />
             </div>
 
             <Button type="submit" disabled={isSubmitting || !rsvpName.trim()} className="w-full h-12 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black uppercase text-xs">

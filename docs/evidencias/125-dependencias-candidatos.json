@@ -1,0 +1,1892 @@
+{
+  "status": "ONLY_CANDIDATES_NOT_VALIDATED",
+  "scope": "Datos de npm audit guardado + package-lock.json; inventario, no evaluacion de seguridad o compatibilidad efectiva.",
+  "repositoryHead": "edeaf3bf25a7ffd5eb55f24277624f9d18cb84d7",
+  "sources": {
+    "audit": "docs/evidencias/124-npm-audit.json.gz",
+    "lockfile": "package-lock.json",
+    "auditReportVersion": 2,
+    "auditTotals": {
+      "info": 0,
+      "low": 0,
+      "moderate": 87,
+      "high": 19,
+      "critical": 1,
+      "total": 107
+    }
+  },
+  "summary": {
+    "uniqueGHSA": 30,
+    "packageAdvisoryRows": 37
+  },
+  "families": [
+    {
+      "id": "GHSA-23hp-3jrh-7fpw",
+      "title": "node-tar: Decompression/parse DoS via unlimited input",
+      "severity": "critical",
+      "url": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
+      "affectedRange": "<=7.5.18",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-34x7-hfp2-rc4v",
+      "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-34x7-hfp2-rc4v",
+      "affectedRange": "<7.5.7",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-45rx-2jwx-cxfr",
+      "title": "OpenTelemetry JavaScript: Denial of service in `JaegerPropagator` via unhandled exception on a malformed header",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-45rx-2jwx-cxfr",
+      "affectedRange": "<2.9.0",
+      "packages": [
+        {
+          "package": "@opentelemetry/propagator-jaeger",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/propagator-jaeger",
+              "installedVersion": "1.25.1",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/sdk-trace-node",
+                  "package": "node_modules/@opentelemetry/sdk-trace-node",
+                  "version": "1.25.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": ">=1.0.0 <1.10.0"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-528h-pc64-c93x",
+      "title": "stream-json: pick/ignore/filter/replace filters are O(depth²) on nested input — small crafted JSON blocks the event loop for seconds→minutes (DoS)",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-528h-pc64-c93x",
+      "affectedRange": "<=3.4.0",
+      "packages": [
+        {
+          "package": "stream-json",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/stream-json",
+              "installedVersion": "1.9.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^1.7.3",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-6hxr-mr5r-9836",
+      "title": "re2: Global `String.prototype.match` with an empty-matchable pattern never advances → infinite loop with unbounded native memory growth (DoS)",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-6hxr-mr5r-9836",
+      "affectedRange": "<=1.25.1",
+      "packages": [
+        {
+          "package": "re2",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/re2",
+              "installedVersion": "1.24.0",
+              "classification": "transitive-dev",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/superstatic",
+                  "package": "node_modules/superstatic",
+                  "version": "10.0.0",
+                  "dependencyRange": "^1.17.7",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-83g3-92jg-28cx",
+      "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-83g3-92jg-28cx",
+      "affectedRange": "<7.5.8",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-8988-4f7v-96qf",
+      "title": "OpenTelemetry Core: Unbounded memory allocation in W3C Baggage propagation",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-8988-4f7v-96qf",
+      "affectedRange": "<2.8.0",
+      "packages": [
+        {
+          "package": "@opentelemetry/core",
+          "fixAvailable": false,
+          "instances": [
+            {
+              "lockPath": "node_modules/@google-cloud/pubsub/node_modules/@opentelemetry/core",
+              "installedVersion": "1.30.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/@google-cloud/pubsub",
+                  "package": "node_modules/@google-cloud/pubsub",
+                  "version": "5.3.1",
+                  "dependencyRange": "^1.30.1",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": ">=1.0.0 <1.10.0"
+                }
+              }
+            },
+            {
+              "lockPath": "node_modules/@opentelemetry/core",
+              "installedVersion": "1.25.1",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/@genkit-ai/core",
+                  "package": "node_modules/@genkit-ai/core",
+                  "version": "1.20.0",
+                  "dependencyRange": "~1.25.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@genkit-ai/google-cloud",
+                  "package": "node_modules/@genkit-ai/google-cloud",
+                  "version": "1.20.0",
+                  "dependencyRange": "~1.25.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/exporter-trace-otlp-grpc",
+                  "package": "node_modules/@opentelemetry/exporter-trace-otlp-grpc",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/exporter-trace-otlp-http",
+                  "package": "node_modules/@opentelemetry/exporter-trace-otlp-http",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/exporter-trace-otlp-proto",
+                  "package": "node_modules/@opentelemetry/exporter-trace-otlp-proto",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/exporter-zipkin",
+                  "package": "node_modules/@opentelemetry/exporter-zipkin",
+                  "version": "1.25.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-amqplib",
+                  "package": "node_modules/@opentelemetry/instrumentation-amqplib",
+                  "version": "0.41.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-aws-sdk",
+                  "package": "node_modules/@opentelemetry/instrumentation-aws-sdk",
+                  "version": "0.43.1",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-connect",
+                  "package": "node_modules/@opentelemetry/instrumentation-connect",
+                  "version": "0.38.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-express",
+                  "package": "node_modules/@opentelemetry/instrumentation-express",
+                  "version": "0.41.1",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-fastify",
+                  "package": "node_modules/@opentelemetry/instrumentation-fastify",
+                  "version": "0.38.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-fs",
+                  "package": "node_modules/@opentelemetry/instrumentation-fs",
+                  "version": "0.14.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-hapi",
+                  "package": "node_modules/@opentelemetry/instrumentation-hapi",
+                  "version": "0.40.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-http",
+                  "package": "node_modules/@opentelemetry/instrumentation-http",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-koa",
+                  "package": "node_modules/@opentelemetry/instrumentation-koa",
+                  "version": "0.42.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-mongoose",
+                  "package": "node_modules/@opentelemetry/instrumentation-mongoose",
+                  "version": "0.41.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-pino",
+                  "package": "node_modules/@opentelemetry/instrumentation-pino",
+                  "version": "0.41.0",
+                  "dependencyRange": "^1.25.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-restify",
+                  "package": "node_modules/@opentelemetry/instrumentation-restify",
+                  "version": "0.40.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/instrumentation-undici",
+                  "package": "node_modules/@opentelemetry/instrumentation-undici",
+                  "version": "0.5.0",
+                  "dependencyRange": "^1.8.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/otlp-exporter-base",
+                  "package": "node_modules/@opentelemetry/otlp-exporter-base",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/otlp-grpc-exporter-base",
+                  "package": "node_modules/@opentelemetry/otlp-grpc-exporter-base",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/otlp-transformer",
+                  "package": "node_modules/@opentelemetry/otlp-transformer",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/propagator-b3",
+                  "package": "node_modules/@opentelemetry/propagator-b3",
+                  "version": "1.25.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/propagator-jaeger",
+                  "package": "node_modules/@opentelemetry/propagator-jaeger",
+                  "version": "1.25.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/resource-detector-aws",
+                  "package": "node_modules/@opentelemetry/resource-detector-aws",
+                  "version": "1.12.0",
+                  "dependencyRange": "^1.0.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/resource-detector-azure",
+                  "package": "node_modules/@opentelemetry/resource-detector-azure",
+                  "version": "0.2.12",
+                  "dependencyRange": "^1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/resource-detector-gcp",
+                  "package": "node_modules/@opentelemetry/resource-detector-gcp",
+                  "version": "0.29.13",
+                  "dependencyRange": "^1.0.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/resources",
+                  "package": "node_modules/@opentelemetry/resources",
+                  "version": "1.25.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/sdk-logs",
+                  "package": "node_modules/@opentelemetry/sdk-logs",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/sdk-metrics",
+                  "package": "node_modules/@opentelemetry/sdk-metrics",
+                  "version": "1.25.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/sdk-node",
+                  "package": "node_modules/@opentelemetry/sdk-node",
+                  "version": "0.52.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/sdk-trace-base",
+                  "package": "node_modules/@opentelemetry/sdk-trace-base",
+                  "version": "1.25.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/sdk-trace-node",
+                  "package": "node_modules/@opentelemetry/sdk-trace-node",
+                  "version": "1.25.1",
+                  "dependencyRange": "1.25.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/sql-common",
+                  "package": "node_modules/@opentelemetry/sql-common",
+                  "version": "0.40.1",
+                  "dependencyRange": "^1.1.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": ">=1.0.0 <1.10.0"
+                }
+              }
+            },
+            {
+              "lockPath": "node_modules/@opentelemetry/exporter-jaeger/node_modules/@opentelemetry/core",
+              "installedVersion": "1.30.1",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/exporter-jaeger",
+                  "package": "node_modules/@opentelemetry/exporter-jaeger",
+                  "version": "1.30.1",
+                  "dependencyRange": "1.30.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/exporter-jaeger/node_modules/@opentelemetry/resources",
+                  "package": "@opentelemetry/resources",
+                  "version": "1.30.1",
+                  "dependencyRange": "1.30.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/exporter-jaeger/node_modules/@opentelemetry/sdk-trace-base",
+                  "package": "@opentelemetry/sdk-trace-base",
+                  "version": "1.30.1",
+                  "dependencyRange": "1.30.1",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": ">=1.0.0 <1.10.0"
+                }
+              }
+            },
+            {
+              "lockPath": "node_modules/@opentelemetry/resource-detector-alibaba-cloud/node_modules/@opentelemetry/core",
+              "installedVersion": "1.30.1",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/resource-detector-alibaba-cloud",
+                  "package": "node_modules/@opentelemetry/resource-detector-alibaba-cloud",
+                  "version": "0.29.7",
+                  "dependencyRange": "^1.26.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": ">=1.0.0 <1.10.0"
+                }
+              }
+            },
+            {
+              "lockPath": "node_modules/@opentelemetry/resource-detector-container/node_modules/@opentelemetry/core",
+              "installedVersion": "1.30.1",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/resource-detector-container",
+                  "package": "node_modules/@opentelemetry/resource-detector-container",
+                  "version": "0.4.4",
+                  "dependencyRange": "^1.26.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": ">=1.0.0 <1.10.0"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-8cw4-87c7-c6xx",
+      "title": "node-csv: Prototype replacement still reachable via columns path",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-8cw4-87c7-c6xx",
+      "affectedRange": "<7.0.2",
+      "packages": [
+        {
+          "package": "csv-parse",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/csv-parse",
+              "installedVersion": "5.6.0",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^5.0.4",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-8hcv-x26h-mcgp",
+      "title": "node-re2: String.prototype.replace(re2, template) aborts the Node process (uncatchable ToLocalChecked on empty MaybeLocal) when the result exceeds V8's max string length",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-8hcv-x26h-mcgp",
+      "affectedRange": "<=1.25.0",
+      "packages": [
+        {
+          "package": "re2",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/re2",
+              "installedVersion": "1.24.0",
+              "classification": "transitive-dev",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/superstatic",
+                  "package": "node_modules/superstatic",
+                  "version": "10.0.0",
+                  "dependencyRange": "^1.17.7",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-8qq5-rm4j-mr97",
+      "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-8qq5-rm4j-mr97",
+      "affectedRange": "<=7.5.2",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-8x88-c5mf-7j5w",
+      "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
+      "affectedRange": "<=7.5.17",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-9ppj-qmqm-q256",
+      "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-9ppj-qmqm-q256",
+      "affectedRange": "<=7.5.10",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-c475-qrg2-pj4r",
+      "title": "basic-ftp: Quadratic-time CPU denial of service in Client.list() Unix directory-listing parser (RE_LINE backtracking)",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-c475-qrg2-pj4r",
+      "affectedRange": "<=6.2.0",
+      "packages": [
+        {
+          "package": "basic-ftp",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/basic-ftp",
+              "installedVersion": "5.3.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/get-uri",
+                  "package": "node_modules/get-uri",
+                  "version": "6.0.5",
+                  "dependencyRange": "^5.0.2",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10.0.0"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-ff84-5f28-78qj",
+      "title": "re2: Out-of-bounds heap read in `exec`/`test`/`match` via attacker-influenced `lastIndex` on a non-ASCII subject → uncatchable process crash (DoS)",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-ff84-5f28-78qj",
+      "affectedRange": "<=1.25.1",
+      "packages": [
+        {
+          "package": "re2",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/re2",
+              "installedVersion": "1.24.0",
+              "classification": "transitive-dev",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/superstatic",
+                  "package": "node_modules/superstatic",
+                  "version": "10.0.0",
+                  "dependencyRange": "^1.17.7",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-gvwx-54wh-qm9j",
+      "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-gvwx-54wh-qm9j",
+      "affectedRange": "<=7.5.16",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-hp3w-g68c-fv3c",
+      "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+      "affectedRange": "<=1.1.3",
+      "packages": [
+        {
+          "package": "sprintf-js",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/sprintf-js",
+              "installedVersion": "1.0.3",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/@istanbuljs/load-nyc-config/node_modules/argparse",
+                  "package": "argparse",
+                  "version": "1.0.10",
+                  "dependencyRange": "~1.0.2",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/firebase-tools/node_modules/argparse",
+                  "package": "argparse",
+                  "version": "1.0.10",
+                  "dependencyRange": "~1.0.2",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-hqr4-qq8f-hg3x",
+      "title": "stream-json: JSONC parser and verifier re-scan the whole accumulated comment on every input chunk",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-hqr4-qq8f-hg3x",
+      "affectedRange": "<=3.5.0",
+      "packages": [
+        {
+          "package": "stream-json",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/stream-json",
+              "installedVersion": "1.9.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^1.7.3",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-j4r3-hg7j-8chg",
+      "title": "node-re2: Out-of-bounds heap read in `replace`/`split` via a `Buffer` ending in a truncated multi-byte UTF-8 character → adjacent heap memory disclosed to JavaScript",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-j4r3-hg7j-8chg",
+      "affectedRange": "<=1.26.0",
+      "packages": [
+        {
+          "package": "re2",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/re2",
+              "installedVersion": "1.24.0",
+              "classification": "transitive-dev",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/superstatic",
+                  "package": "node_modules/superstatic",
+                  "version": "10.0.0",
+                  "dependencyRange": "^1.17.7",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-mjw6-4jj6-33hc",
+      "title": "stream-json has a prototype pollution issue: Assembler writes this.current[this.key] on plain objects",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-mjw6-4jj6-33hc",
+      "affectedRange": "<3.6.0",
+      "packages": [
+        {
+          "package": "stream-json",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/stream-json",
+              "installedVersion": "1.9.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^1.7.3",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-q7rr-3cgh-j5r3",
+      "title": "Prometheus exporter process crash via malformed HTTP request",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-q7rr-3cgh-j5r3",
+      "affectedRange": "<0.75.0",
+      "packages": [
+        {
+          "package": "@opentelemetry/auto-instrumentations-node",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/auto-instrumentations-node",
+              "installedVersion": "0.49.2",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@genkit-ai/google-cloud",
+                  "package": "node_modules/@genkit-ai/google-cloud",
+                  "version": "1.20.0",
+                  "dependencyRange": "^0.49.1",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": "^1.4.1"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "package": "@opentelemetry/sdk-node",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/sdk-node",
+              "installedVersion": "0.52.1",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/@genkit-ai/core",
+                  "package": "node_modules/@genkit-ai/core",
+                  "version": "1.20.0",
+                  "dependencyRange": "^0.52.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@genkit-ai/google-cloud",
+                  "package": "node_modules/@genkit-ai/google-cloud",
+                  "version": "1.20.0",
+                  "dependencyRange": "^0.52.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "package": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "version": "0.49.2",
+                  "dependencyRange": "^0.52.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": ">=1.3.0 <1.10.0"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-qffp-2rhf-9h96",
+      "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-qffp-2rhf-9h96",
+      "affectedRange": "<=7.5.9",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-qqmp-wf37-98f9",
+      "title": "Multiple @opentelemetry/instrumentation-* packages expose database username via unconditional db.user span attribute",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-qqmp-wf37-98f9",
+      "affectedRange": "<0.66.0",
+      "packages": [
+        {
+          "package": "@opentelemetry/instrumentation-cassandra-driver",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/instrumentation-cassandra-driver",
+              "installedVersion": "0.40.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "package": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "version": "0.49.2",
+                  "dependencyRange": "^0.40.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": "^1.3.0"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "package": "@opentelemetry/instrumentation-knex",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/instrumentation-knex",
+              "installedVersion": "0.39.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "package": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "version": "0.49.2",
+                  "dependencyRange": "^0.39.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": "^1.3.0"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "package": "@opentelemetry/instrumentation-mongoose",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/instrumentation-mongoose",
+              "installedVersion": "0.41.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "package": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "version": "0.49.2",
+                  "dependencyRange": "^0.41.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": "^1.3.0"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "package": "@opentelemetry/instrumentation-mysql",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/instrumentation-mysql",
+              "installedVersion": "0.40.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "package": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "version": "0.49.2",
+                  "dependencyRange": "^0.40.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": "^1.3.0"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "package": "@opentelemetry/instrumentation-mysql2",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/instrumentation-mysql2",
+              "installedVersion": "0.40.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "package": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "version": "0.49.2",
+                  "dependencyRange": "^0.40.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": "^1.3.0"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "package": "@opentelemetry/instrumentation-pg",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/instrumentation-pg",
+              "installedVersion": "0.43.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "package": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "version": "0.49.2",
+                  "dependencyRange": "^0.43.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": "^1.3.0"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "package": "@opentelemetry/instrumentation-tedious",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/@opentelemetry/instrumentation-tedious",
+              "installedVersion": "0.13.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "package": "node_modules/@opentelemetry/auto-instrumentations-node",
+                  "version": "0.49.2",
+                  "dependencyRange": "^0.13.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=14"
+                },
+                "peerDependencies": {
+                  "@opentelemetry/api": "^1.3.0"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-r292-9mhp-454m",
+      "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-r292-9mhp-454m",
+      "affectedRange": "<=7.5.20",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-r6q2-hw4h-h46w",
+      "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-r6q2-hw4h-h46w",
+      "affectedRange": "<=7.5.3",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-rj75-hqrm-r3gf",
+      "title": "PostCSS: Quadratic complexity in flat selector parsing allows CPU exhaustion",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-rj75-hqrm-r3gf",
+      "affectedRange": "<7.1.6",
+      "packages": [
+        {
+          "package": "postcss-selector-parser",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/postcss-selector-parser",
+              "installedVersion": "6.1.2",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/postcss-nested",
+                  "package": "node_modules/postcss-nested",
+                  "version": "6.2.0",
+                  "dependencyRange": "^6.1.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/tailwindcss",
+                  "package": "node_modules/tailwindcss",
+                  "version": "3.4.19",
+                  "dependencyRange": "^6.1.2",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=4"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+      "severity": "high",
+      "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+      "affectedRange": "<=3.0.3",
+      "packages": [
+        {
+          "package": "braces",
+          "fixAvailable": {
+            "name": "tailwindcss",
+            "version": "4.3.3",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/braces",
+              "installedVersion": "3.0.3",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/chokidar",
+                  "package": "node_modules/chokidar",
+                  "version": "3.6.0",
+                  "dependencyRange": "~3.0.2",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/micromatch",
+                  "package": "node_modules/micromatch",
+                  "version": "4.0.8",
+                  "dependencyRange": "^3.0.3",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=8"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-vmf3-w455-68vh",
+      "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-vmf3-w455-68vh",
+      "affectedRange": "<=7.5.15",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-w5hq-g745-h8pq",
+      "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+      "affectedRange": "<11.1.1",
+      "packages": [
+        {
+          "package": "uuid",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/@genkit-ai/ai/node_modules/uuid",
+              "installedVersion": "10.0.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/@genkit-ai/ai",
+                  "package": "node_modules/@genkit-ai/ai",
+                  "version": "1.20.0",
+                  "dependencyRange": "^10.0.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            },
+            {
+              "lockPath": "node_modules/eventid/node_modules/uuid",
+              "installedVersion": "8.3.2",
+              "classification": "transitive-prod-or-shared",
+              "optional": true,
+              "parents": [
+                {
+                  "path": "node_modules/eventid",
+                  "package": "node_modules/eventid",
+                  "version": "2.0.1",
+                  "dependencyRange": "^8.0.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            },
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/uuid",
+              "installedVersion": "8.3.2",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^8.3.2",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            },
+            {
+              "lockPath": "node_modules/genkit/node_modules/uuid",
+              "installedVersion": "10.0.0",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/genkit",
+                  "package": "node_modules/genkit",
+                  "version": "1.20.0",
+                  "dependencyRange": "^10.0.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            },
+            {
+              "lockPath": "node_modules/jaeger-client/node_modules/uuid",
+              "installedVersion": "8.3.2",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/jaeger-client",
+                  "package": "node_modules/jaeger-client",
+                  "version": "3.19.0",
+                  "dependencyRange": "^8.3.2",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            },
+            {
+              "lockPath": "node_modules/uuid",
+              "installedVersion": "9.0.1",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/@google-cloud/opentelemetry-cloud-monitoring-exporter/node_modules/googleapis-common",
+                  "package": "googleapis-common",
+                  "version": "7.2.0",
+                  "dependencyRange": "^9.0.0",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/gaxios",
+                  "package": "node_modules/gaxios",
+                  "version": "6.7.1",
+                  "dependencyRange": "^9.0.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/google-gax",
+                  "package": "node_modules/google-gax",
+                  "version": "4.6.1",
+                  "dependencyRange": "^9.0.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/teeny-request",
+                  "package": "node_modules/teeny-request",
+                  "version": "9.0.0",
+                  "dependencyRange": "^9.0.0",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": null,
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-w8wr-v893-vjvp",
+      "title": "node-tar: Process crash via PAX numeric path type confusion",
+      "severity": "moderate",
+      "url": "https://github.com/advisories/GHSA-w8wr-v893-vjvp",
+      "affectedRange": "<=7.5.17",
+      "packages": [
+        {
+          "package": "tar",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "15.33.0",
+            "isSemVerMajor": true
+          },
+          "instances": [
+            {
+              "lockPath": "node_modules/firebase-tools/node_modules/tar",
+              "installedVersion": "6.2.1",
+              "classification": "transitive-dev",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/firebase-tools",
+                  "package": "node_modules/firebase-tools",
+                  "version": "14.27.0",
+                  "dependencyRange": "^6.1.11",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=10"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "GHSA-w9m9-85wc-3x92",
+      "title": "postcss-selector-parser allows denial of service through uncontrolled AST recursion",
+      "severity": "low",
+      "url": "https://github.com/advisories/GHSA-w9m9-85wc-3x92",
+      "affectedRange": ">=6.1.0 <6.1.3",
+      "packages": [
+        {
+          "package": "postcss-selector-parser",
+          "fixAvailable": true,
+          "instances": [
+            {
+              "lockPath": "node_modules/postcss-selector-parser",
+              "installedVersion": "6.1.2",
+              "classification": "transitive-prod-or-shared",
+              "optional": false,
+              "parents": [
+                {
+                  "path": "node_modules/postcss-nested",
+                  "package": "node_modules/postcss-nested",
+                  "version": "6.2.0",
+                  "dependencyRange": "^6.1.1",
+                  "section": "transitive"
+                },
+                {
+                  "path": "node_modules/tailwindcss",
+                  "package": "node_modules/tailwindcss",
+                  "version": "3.4.19",
+                  "dependencyRange": "^6.1.2",
+                  "section": "transitive"
+                }
+              ],
+              "declaredCompatibility": {
+                "engines": {
+                  "node": ">=4"
+                },
+                "peerDependencies": null
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "compatibilityChecks": {
+    "rootDeclared": {
+      "node": ">=20.9.0"
+    },
+    "firebaseToolsInstalled": {
+      "version": "14.27.0",
+      "engines": {
+        "node": ">=20.0.0 || >=22.0.0 || >=24.0.0"
+      },
+      "declaredByRoot": "14.27.0"
+    },
+    "firebaseToolsTargetFromAudit": {
+      "version": "15.33.0",
+      "fixAvailableIsSemVerMajor": true,
+      "metadataSource": "https://registry.npmjs.org/firebase-tools/15.33.0",
+      "metadata": {
+        "engines": {
+          "node": ">=20.0.0 || >=22.0.0 || >=24.0.0"
+        },
+        "dependencies": {
+          "tar": "^7.5.21"
+        }
+      }
+    },
+    "java": {
+      "observed": "17.0.10",
+      "source": "java -version",
+      "firebaseToolsOfficialNotice": "https://github.com/firebase/firebase-tools/blob/main/src/emulator/commandUtils.ts",
+      "officialDeclaredMinimumMajor": 21,
+      "observedBelowMinimum": true,
+      "meaning": "El aviso/minimo declarado por el CLI es actual; no se ejecuto CLI ni emulador en esta tarea."
+    }
+  },
+  "validation": "No se instalaron paquetes ni se ejecuto postinstall. No se valida compatibilidad, explotabilidad, ausencia de falsos positivos, correccion, ni seguridad. fixAvailable es el valor literal del informe npm audit."
+}

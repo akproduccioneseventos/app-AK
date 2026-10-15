@@ -1097,3 +1097,20 @@ prueban los consumidores usados (PDF, ZIP, sanitizador, servidor y escena), y
 se documentan las copias que siguen vulnerables. No imponer una version mayor
 por override a un consumidor antiguo sin comprobar su contrato. Un import
 correcto tampoco certifica una pantalla ni un proveedor externo.
+
+## Pregunta 63 - controles accesibles (Codex125, 14/10/2026)
+
+### 63. El nombre y la seleccion que se ven, ¿tambien los reconoce el navegador sin depender del color?
+
+El kiosco compartido por once entradas mostraba los textos pero el selector de
+fiesta y el identificador del totem no tenian nombre accesible. El rol elegido
+solo se distinguia por color. Revisar labels asociados, nombre de grupos,
+aria-pressed y avisos de error anunciados; probar cambio de rol y guardado
+bloqueado con datos ficticios, tambien en celular. Un archivo con texto cerca
+del input no demuestra esa asociacion. Separar la prueba de configuracion de
+una prueba de camara, impresora o plataforma fisica.
+
+Tampoco alcanza con que inputValue sea correcto: mirar la captura con texto
+escrito y medir color/fondo reales. Un Input text-foreground en tema claro
+sobre un fondo oscuro daba contraste1.0013 y parecia vacio. Probar lectura y
+placeholder en PC/celular (texto normal, umbral4.5), no solo clases de jsdom.
