@@ -1,0 +1,7 @@
+PASS docs/evidencias/131-registro.test.ts
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        2.051 s
+Test results written to: docs\evidencias\131-registro-jest.json

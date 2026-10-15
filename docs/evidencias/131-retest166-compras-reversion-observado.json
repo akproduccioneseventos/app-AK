@@ -1,0 +1,43 @@
+{
+  "applicationSourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "scope": "REAL_ACTION_WITH_IN_MEMORY_TRANSACTION_AND_AUTH_DOUBLES_NOT_NATIVE_BROWSER",
+  "sequence": [
+    "pedido:true,pagado:false",
+    "pagado:true",
+    "pagado:false"
+  ],
+  "result": {
+    "success": true
+  },
+  "persisted": {
+    "id": "qa129-compras",
+    "configuracion": {
+      "nombreEvento": "Fiesta ficticia QA129"
+    },
+    "estadosCompra": [
+      {
+        "proveedor": "Proveedor QA129",
+        "proveedorId": "qa129-prov",
+        "pedido": true,
+        "pagado": false
+      }
+    ],
+    "tareas": [
+      {
+        "id": "task_1792082470554_0l8hj",
+        "texto": "Pagar insumos a: Proveedor QA129",
+        "descripcion": "Pedido realizado para el evento Fiesta ficticia QA129. Pendiente de pago.",
+        "asignadaA": "Organizador",
+        "completada": false
+      },
+      {
+        "id": "otra",
+        "texto": "Confirmar horario",
+        "completada": false
+      }
+    ]
+  },
+  "expectedPendingPaymentReminders": 1,
+  "observedPendingPaymentReminders": 1,
+  "realAccountsOrMoneyTouched": false
+}
