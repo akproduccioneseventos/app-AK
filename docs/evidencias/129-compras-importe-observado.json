@@ -1,0 +1,21 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "REAL_ACTION_WITH_IN_MEMORY_TRANSACTION_AND_AUTH_DOUBLES_NOT_NATIVE_BROWSER",
+  "input": {
+    "montoPagado": -500
+  },
+  "result": {
+    "success": true
+  },
+  "persisted": [
+    {
+      "proveedor": "Proveedor QA129",
+      "proveedorId": "qa129-prov",
+      "pedido": true,
+      "pagado": false,
+      "montoPagado": -500
+    }
+  ],
+  "expected": "Rechazo claro sin guardar monto negativo; cero y centavos positivos siguen permitidos",
+  "realAccountsOrMoneyTouched": false
+}

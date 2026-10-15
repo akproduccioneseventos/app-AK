@@ -1,0 +1,26 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "documentaryHead": "f8092c0b62e7212c0bad3512d40622bd75003e61",
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/129-compras-ampliado-jest.json",
+    "--testMatch=**/docs/evidencias/129-*.test.ts?(x)",
+    "--runTestsByPath",
+    "docs/evidencias/129-compras-reversion.test.ts"
+  ],
+  "startedAt": "2026-10-15T11:59:39.627Z",
+  "credentials": "WHITELIST_NO_INHERITED_SERVICE_KEYS_MISSING_ADC_SENTINEL",
+  "scope": "FOCUSED_REAL_MODULES_WITH_FICTITIOUS_DOUBLES_NOT_BUILD_NOT_NATIVE_BROWSER",
+  "status": "finished",
+  "pid": 12924,
+  "exitCode": 1,
+  "signal": null,
+  "finishedAt": "2026-10-15T11:59:50.954Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

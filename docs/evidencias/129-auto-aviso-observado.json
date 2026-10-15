@@ -1,0 +1,9 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "REAL_REACT_PAGE_BUTTON_AND_REAL_ACTION_WITH_DATA_AUTH_NOTIFICATION_DOUBLES_NOT_NATIVE_BROWSER",
+  "visibleText": "AutomatizacionesAutomatizaciones inteligentes AKRevisan presupuestos, CRM, fiestas, menú, invitados y tareas para crear avisos útiles sin usar lenguaje alarmante. Volver Revisión automáticaAl ejecutar, la app revisa datos reales y crea notificaciones cuando detecta algo para atender: seguimientos comerciales, menú pendiente, invitados sin cargar o tareas con fecha cercana. Ejecutar revisión inteligente Revisión completa. Avisos creados: 0Tareas próximas: Fiesta ficticia qa129-unicaHay 1 tarea(s) con fecha cercana para revisar.DetectadoAbrir",
+  "alerts": [],
+  "notificationCalls": 1,
+  "realAccountsOrMessagesTouched": false,
+  "injected": "createNotification returns success:false"
+}
