@@ -142,7 +142,7 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
 
         const bytes = await file.arrayBuffer();
         const fileUrl = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'application/octet-stream', false);
-        
+
         const newDoc: OtroDocumento = {
             id: docId,
             nombre: customName.trim() || file.name,
@@ -150,7 +150,7 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
             fileName: fileUrl,
             timestamp: new Date().toISOString(),
         };
-        
+
         const updatedFiesta = {
             ...fiesta,
             othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
@@ -187,7 +187,7 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
         if (!docToDelete) {
             return { success: false, error: 'Documento no encontrado.' };
         }
-        
+
         // Delete from Firebase Storage (fileName is now a URL or storage path)
         if (docToDelete.fileName) {
             await deleteFromStorage(docToDelete.fileName).catch(e => {
@@ -277,7 +277,12 @@ export async function signContractDigitally(fiestaId: string, signerName: string
  * la senia y la organizacion. Sin la guarda, cualquiera de afuera podia dar por
  * firmado un contrato que nadie firmo.
  */
-export async function uploadPhysicalContract(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function uploadPhysicalContract(formData: FormData): Promise<{
+    success: boolean;
+    error?: string;
+    warning?: string;
+    reciboPendiente?: string;
+}> {
     // El contrato en papel da la fiesta por contratada y anota la seña: es plata (auditoría con
     // las 35 preguntas, 5/10/2026). Antes alcanzaba cualquier sesión, y sin contabilidad la seña
     // no se cargaba y nadie se enteraba.
@@ -321,7 +326,7 @@ async function dejarLaFiestaContratada(
     fiesta: FiestaEnPlanificacion,
     firma: NonNullable<FiestaEnPlanificacion['contratoFirmaInfo']>,
     aviso: { titulo: string; mensaje: string },
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; warning?: string; reciboPendiente?: string }> {
     const fiestaId = fiesta.id;
         const updatedFiesta: FiestaEnPlanificacion = {
             ...fiesta,
@@ -347,6 +352,8 @@ async function dejarLaFiestaContratada(
             isDepositReceiptInvoice(invoice)
             && (eventInvoiceIds.has(invoice.id) || invoice.sourceFiestaId === fiesta.id)
         );
+        let motivoReciboPendiente: string | undefined;
+
         if (!hasDeposit) {
             try {
                 const depositAmount = await resolveDepositAmount(fiesta);
@@ -359,12 +366,26 @@ async function dejarLaFiestaContratada(
                 });
                 if (depositResult.success && depositResult.invoiceId) {
                     updatedFiesta.invoiceIds = [...(updatedFiesta.invoiceIds || []), depositResult.invoiceId];
-                    // La factura queda enganchada porque el guardado del evento va
-                    // mas abajo, despues de este bloque. No hace falta guardar aca.
+                    delete updatedFiesta.reciboSenaPendiente;
+                } else if (!depositResult.success) {
+                    const motivo = depositResult.error || 'No se pudo generar el recibo de seña.';
+                    motivoReciboPendiente = motivo;
+                    updatedFiesta.reciboSenaPendiente = {
+                        motivo,
+                        fecha: new Date().toISOString()
+                    };
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.warn("No se pudo auto-generar factura de seña:", e);
+                const motivo = (e && typeof e.message === 'string' && e.message) ? e.message : 'Error al generar el recibo de seña.';
+                motivoReciboPendiente = motivo;
+                updatedFiesta.reciboSenaPendiente = {
+                    motivo,
+                    fecha: new Date().toISOString()
+                };
             }
+        } else {
+            delete updatedFiesta.reciboSenaPendiente;
         }
 
         // Cargar tareas iniciales si está vacío
@@ -413,5 +434,10 @@ async function dejarLaFiestaContratada(
             rolDestino: 'admin',
         }).catch(err => console.warn('Error creating contract notification:', err));
 
-        return { success: true };
+        return {
+            success: true,
+            ...(motivoReciboPendiente ? { reciboPendiente: motivoReciboPendiente, warning: motivoReciboPendiente } : {})
+        };
 }
+
+

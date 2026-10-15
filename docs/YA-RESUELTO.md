@@ -1,5 +1,25 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 165: fecha civil en portal del contrato y aviso de recibo de seña parcial
+
+- **Fecha civil del portal del contrato:** la fecha del evento (ej. "2027-08-08") se convertía con `new Date(string)`
+  interpretándola en UTC, lo que en huso horario de Uruguay (UTC-3) restaba horas y mostraba el día anterior ("07 de agosto").
+  Ahora se usa `diaCalendario(iso)` para descomponer año, mes y día de forma exacta y construir la fecha local civil.
+- **Aviso de contrato físico con recibo de seña fallido:** si al subir el contrato físico la generación automática del
+  recibo de seña falla o da excepción, la fiesta queda contratada pero se guarda `reciboSenaPendiente` con el motivo.
+  La pantalla muestra un toast destructivo de advertencia ("Contrato cargado, falta el recibo de seña") y un banner
+  persistente visible con `data-testid="recibo-sena-pendiente"`. Al enganchar manualmente un recibo o crear uno de seña,
+  el pendiente se limpia automáticamente.
+
+```comprobar
+archivo: src/app/portal/[fiestaId]/contrato/page.tsx
+usa: formatDate en src/app/portal/[fiestaId]/contrato/page.tsx
+prueba: src/__tests__/contrato-fecha-portal-dia-civil.test.tsx
+archivo: src/app/actions/fiesta/documentos.actions.ts
+usa: uploadPhysicalContract en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
+prueba: src/__tests__/contrato-recibo-parcial-aviso.test.ts
+```
+
 ## 15/10/2026 - Codex128: amplia verde, DOS hallazgos NUEVOS PENDIENTES165
 
 - Entrega solo documental en PR1306 BORRADOR, e1a86bcc24blobs verificados;
@@ -14169,3 +14189,4 @@ prueba: src/__tests__/pregunta-58-rebarrido.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```
+
