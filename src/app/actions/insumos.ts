@@ -82,7 +82,7 @@ async function propagateInsumoChangesToMenus(
 /**
  * Termina menús pendientes aplicando el insumo actualizado.
  */
-export async function terminarMenusPendientes(
+async function terminarMenusPendientes(
     updatedInsumo: ServicioEmpresa,
     operationId?: string,
 ): Promise<{ success: boolean; error?: string }> {
