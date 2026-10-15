@@ -1,4 +1,7 @@
-# Orden165 - Contrato: fecha civil del portal y recibo automatico fallido
+# Orden165 - Gemini: fecha civil del portal y recibo automatico fallido
+
+**PARA GEMINI.** Lo programa Gemini (regla del dueño, 15/10/2026). Arrancar desde `main` actualizado,
+rama nueva, UNA sola propuesta con los dos bloques. Claude revisa y fusiona; Codex audita.
 
 **NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE.** Su HEAD se desconoce.
 Main confirmado: `ce1ac07d1bb16c24dd73e2d26ac55038028a2472`, publicado segun
