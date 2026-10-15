@@ -3,6 +3,8 @@
 Codex SOLO audita/prueba/documenta; Gemini programa, Claude valida/compila/fusiona.
 Main/publicadoe8cd2c2b114bcda21d153cb406318cc1119d1dc5; no app/build/merge.
 Nueva rama codex/131-cierre-inventario-20261015 desde main nuevo.
+PR1315 ABIERTA/BORRADOR: snapshot a30f0135; entrega131-entrega-remota.json.
+No fusionar documentacion sola; integrar con quienes programan. Claude fusiona.
 PR1311 anterior cerrada: NO volver a subir rama130.
 PR1314 ABIERTA d4b1a84ee6cea662603e00cdea0012854875ee83, Gemini167 activa.
 Orden168 tambien encargada porClaude; no reencargar lo ya indicado.

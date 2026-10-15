@@ -4,6 +4,8 @@
 
 - Main/publicadoe8cd2c2b; cambia17archivos frente ace1. Amplia128 no certifica
   toda esta fuente. PR1311 cerrada; nueva rama codex/131-cierre-inventario-20261015.
+- Entrega PR1315 ABIERTA/BORRADOR, snapshot a30f0135,39blobs remotos identicos.
+  Recibo131-entrega-remota.json. No fusionar documentos solos; Claude integra.
 - Retest166 original14casosPASS0omitidos:5defectos129 cerrados ENALCANCE,
   no comida/personal/automaticos enteros. Misma expectativa, nueva fuente.
 - DJ real/persistencia ficticia: desmarcar siempre escribe true; despues de
