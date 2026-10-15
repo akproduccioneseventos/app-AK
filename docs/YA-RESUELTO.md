@@ -116,9 +116,6 @@ prueba: src/__tests__/contrato-recibo-parcial-aviso.test.ts
   Informe docs/codex/130-reportes-y-material-cliente.md, resultados130 en evidencias.
   Reusar amplia128 solo misma app; sin certificado de0errores ni14areas limpias.
 
-<<<<<<< HEAD
->>>>>>> origin/claude/app-debug-stabilize-m70e6z
-=======
 
 ## 15/10/2026 - Orden 166: compras, revisión automática y hora de llegada del personal
 
@@ -147,7 +144,6 @@ usa: registrarLlegadaPersonal en src/app/acceso-personal/[tokenId]/page.tsx
 prueba: src/__tests__/personal-llegada-reintento-hora-original.test.tsx
 ```
 
->>>>>>> origin/main
 ## 15/10/2026 - Codex129: cinco fallos nuevos COMPROBADOS, PENDIENTES166
 
 - Codex SOLO audito. Fuente appce1ac07d; main nuevo1a717203 tiene el mismo
@@ -14350,14 +14346,8 @@ prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/claude/app-debug-stabilize-m70e6z
 
 
-=======
 
 
->>>>>>> origin/main
+
