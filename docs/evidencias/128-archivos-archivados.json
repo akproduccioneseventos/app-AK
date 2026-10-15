@@ -1,0 +1,17 @@
+{
+  "byteExactArchives": true,
+  "rows": [
+    {
+      "original": "docs/evidencias/128-jest.json",
+      "archive": "docs/evidencias/128-jest.json.gz",
+      "bytes": 2310279,
+      "sha256": "b125054a5149a7ab90a9daae93daaa872a1323db4e20644de699453484372105"
+    },
+    {
+      "original": "docs/evidencias/128-jest.log",
+      "archive": "docs/evidencias/128-jest.log.gz",
+      "bytes": 44461,
+      "sha256": "9f2e7061736eb24e293cbd2ee3c8aeb78eee33d21c6467bf6bb5742bf6a901c1"
+    }
+  ]
+}

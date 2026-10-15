@@ -1,27 +1,59 @@
-# Estado actual - 15/10/2026 (Codex126, app sigue b520f7ce)
+# Estado actual - 15/10/2026 (Codex128, main ce1ac07d)
 
-REPARTO NUEVO: GEMINI PROGRAMA; Codex revisa/prueba/documenta. Claude compila
-y fusiona. No usar autorizacion antigua para programar app en otra corrida.
-126 no cambio app: reutiliza build125b520 y entrega QA/orden164 en PR1301.
-Snapshot1267dcbcdde subido,42blobs remotos iguales; recibo126-entrega-remota.
-Main4b6d6620, cabeza documental al iniciar27d024e3; PR1301 ABIERTA.
+CLAUDE Y GEMINI PROGRAMAN SIEMPRE; CODEX SOLO AUDITA, no app/build/merge.
+Fuente main ce1ac07d1bb16c24dd73e2d26ac55038028a2472, health publicado mismoSHA.
+Rama documental conjunta127/128: codex/127-cierre-areas-20261015.
+PR1306 BORRADOR, solo auditoria/orden165; no fusionar documentos solos.
+Snapshot e1a86bcc verificado remoto24blobs; recibo128-entrega-remota.json.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE (HEAD desconocido).
-DOS hallazgos nuevos REPRODUCIDOS tambien en tanda, pendientes Gemini164:
-- Crear plantilla+perder HTTP200 tras commit+retry identico deja2IDs, espera1.
-  PC/Pixel7 FAIL; nuevas creaciones deliberadas conservan2legitimas PASS.
-- Portal decoracion boton Quiero cambiar algo contraste1.2016 (esperado4.5).
-  PC/Pixel7 FAIL; guardar sugerencia/recarga SDK/pantalla SI pasa ambos.
-8casos nativos:4PASS/4FAIL, DOS defectos, NO auditoria global terminada.
-Fuente de los tres archivos identica a main4b, recibo en orden164.
-NO repetir estos casos antes del parche. Gemini debe corregir, Claude validar
-nuevoSHA/build; no usar evidencia b520 como aceptacion de codigo nuevo.
-SDK0/bytesrestaurados/serviciosagentescerrados, 126-entorno-detenido.json.
-Sonda Jest del ayudante sin resultado, borrador .txt, NO evidencia valida.
-Luego brechas funcionales reales109/124, no repetir125 ni inventario=PASS.
-Orden163 sigue vigente:11GHSA/87entradas,0critical, no overrides mayores ciegos.
-Hosting/OAuth/modelo/voz/19originales/hardware NO certificados. NO0errores.
+Amplia128:769suites4819tests PASS0fallos/omitidos576.69s, bytes restaurados.
+Nuevas sondas:2P2 comprobados, orden165 PENDIENTE Claude/Gemini:
+- Portal contrato muestra07agosto para fecha civil2027-08-08 en Uruguay.
+  UIReact+accion resumen reales/dobles1FAIL; funcionAST confirma. No Nextnativo.
+- Subir papel: recibo automatico devuelve error, guarda Contratada sinrecibo
+  y devuelve solo success:true. Accionreal/dobles1FAIL; controlesito1PASS.
+No cambiar politica de contrato/cobro, solo fecha civil/aviso parcial correcto.
+164 YA corregida,1278suites34PASS historicas sobre misma app; no reencomendar.
+128-matriz-areas.json:421rutas/14areas/0sin-asignar. ImportsNOcoberturafuncional.
+Ningun area se marco limpia. No todos los botones/roles probados en navegador.
+Reporte128 y sondas+comandos porcaso en docs/codex y docs/evidencias.
+Webpublica:5vistasdemo cambianbien trasanimacion; no moduloRSVP/barrareal.
+Health flags no certificanproveedores. Instagram/MP false no es nuevo defecto.
+BuildQA localb520 viejo NOce1,3300inaccesible; usarentorno actualdeClaude.
+No reabrir114 ni compilarporCodex ni repetirsondas antesdelparche.
+Agentes cerrados, ningunSDK/servidor iniciado, ajenos restaurados. Cerrar tabUI.
+No0errores/todaapp/Hostingcompleto/OAuth/modelo/voz/19originales/hardware.
 
-## Evidencia125 reutilizable (sin cambio de app; registro conservado)
+## Historico127 (parcial y ahora complementado por128)
+
+CLAUDE Y GEMINI PROGRAMAN SIEMPRE; CODEX SOLO AUDITA (aclaracion del dueno).
+Claude compila/valida/fusiona; Codex no programa app ni fusiona.
+Main comprobado: ce1ac07d1bb16c24dd73e2d26ac55038028a2472; GitHub0PR abiertas.
+Rama documental127: codex/127-cierre-areas-20261015, desde ese main.
+NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE (HEAD desconocido).
+164 YA corregida en main, no es pendiente de programacion: YA y1302/1304.
+Codex ejecuto8suites/34tests sobre ce1:34PASS,0fallos/omitidos, con dobles.
+Incluye contrato/fechas/marcadores/constancia/sena idempotente y164 servidor/UI.
+NO prueba de navegador actual ni contraste de color computado: no cerrar
+areas completas con estos tests. Ver docs/codex/127-contrato-revision-parcial.md.
+Una primera corrida QA tenia flag local que contradice el doble de base;
+3FAIL propios archivados, no defecto app. Sin cambios al codigo, segunda34PASS.
+No nueva orden de programacion ni fallo funcional nuevo emitido en127.
+Registro14 sigue0limpias,2sin-revisar/12con-hallazgos; sus fechas5-11/10 son
+anteriores a125/126: no usarlo para afirmar que nunca se miro una subpantalla.
+NO marcar limpia un area que solo tuvo comprobacion parcial ni por tener0PR.
+Contrato: faltan recorridos completos de documento/firma/papel en navegador
+con build actual, no solo tests de texto o dobles de persistencia.
+Host:3300sin servidor, resto3301/3302/8085sin listeners; .next valido local
+solo b520(14/10), app distinta. NO iniciar ese build como si fuera ce1.
+Claude prepara/reutiliza artefacto QA actual conforme114; NO reabrir114
+como error de app ni repetir compilaciones si ya tiene artefacto comprobable.
+Codex puede seguir revision de fuente/pruebas existentes de un area por vez.
+No build/grafo completo nuevo, ningun servicio/SDK iniciado, agente cerrado.
+Archivos locales ajenos conservados. Hosting/OAuth/modelo/voz/19originales/
+hardware y todaapp0errores NO certificados por esta revision.
+
+## Historico125/126 (NO estado actual ni certificado de ce1)
 
 CLAUDE FUSIONA siempre. Codex prepara, prueba y registra; no fusiona.
 Base main remoto4b6d6620: Claude integro1297 via1298 y tandas1299/1300.

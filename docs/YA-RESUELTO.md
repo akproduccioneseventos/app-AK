@@ -1,5 +1,46 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Codex128: amplia verde, DOS hallazgos NUEVOS PENDIENTES165
+
+- Entrega solo documental en PR1306 BORRADOR, e1a86bcc24blobs verificados;
+  no se fusiono. Claude/Gemini deben integrar el arreglo, no esta auditoria sola.
+- Claude y Gemini programan siempre; Codex SOLO audita. App sigue maince1ac07d,
+  publicado confirmado por health. No se programo app ni compilo en esta tanda.
+-769suites/4819tests existentes PASS,0fallos/omitidos,576.69s; bytes restaurados.
+  No equivalen a14areas limpias ni cada boton probado. Matriz128:421rutas,
+  14areas,0sin-asignar; imports AST son relevancia, NO cobertura funcional.
+- NUEVO portal del contrato: fecha civil2027-08-08 sale07deagosto en Uruguay.
+  Componente/accion de resumen reales, datos/auth con dobles.1FAIL sonda nueva.
+  No reencomendar el arreglo viejo del recibo impreso: es otro consumidor.
+- NUEVO aviso de contrato fisico: si recibo automatico devuelve success:false,
+  accion guarda Contratada sin invoiceIds y devuelve solo success:true.
+  Accion real/dobles de storage/base/auth;1FAIL, control de exito1PASS.
+  Solo se pide comunicar parcial; no decidir descontratar ni cambiar cobros.
+- Orden165 pendiente de Claude/Gemini, NO corregida ni certificado lanzamiento.
+  Reporte docs/codex/128-recuento-y-hallazgos.md; nuevas sondas preservadas.
+-5vistas de demo web abren bien tras animacion; no pruebas de modulos reales.
+  Selector AX checkbox fue error QA, y el desfase era transicion, no fallo app.
+- Requisito QA vigente114 no reabierto: build localb520 no valida ce1. No hay
+  servidor3300 accesible. Claude prepara/reutiliza artefactoQA actual para
+  recorridos completos. No repetir casos anteriores si sus pruebas siguen vigentes.
+
+## 15/10/2026 - Codex127: reparto aclarado y revision parcial de contrato
+
+- CLAUDE Y GEMINI PROGRAMAN SIEMPRE; CODEX SOLO AUDITA, prueba y registra.
+  Regla permanente en AGENTS; no autoriza programar app ni fusionar a Codex.
+- Main ce1ac07d, GitHub0PR abiertas comprobadas. Orden164 YA corregida segun
+  implementacion y cierre anterior; no reencomendarla como programacion pendiente.
+-8suites/34tests existentes PASS sobre ce1,0fallos/omitidos. Contrato, fechas,
+  marcadores, constancia sin reserva digital ni sena duplicada y regresiones164.
+  Dobles de base/permisos y clases de UI NO son navegador/SDK reales ni color
+  computado. Ver docs/codex/127-contrato-revision-parcial.md y JSONporcaso.
+- Ningun fallo nuevo emitido. Area contrato y portal NO se marcaron limpias:
+  falta ejecucion de recorridos completos con una compilacion QA vigente.
+  Build localb520 no valida ce1;3300 conexion rechazada no es fallo de Hosting.
+-3FAIL iniciales fueron modoQA JSON incompatible con doble Firestore de la
+  suite; archivados. Segunda corrida34PASS sin editar app ni expectativas.
+- No nuevas dependencias, servidores ni SDK; agente cerrado y ajenos intactos.
+
 
 ## 15/10/2026 - La PR 1303 no se fusionó: callaba dos controles cambiando el código
 

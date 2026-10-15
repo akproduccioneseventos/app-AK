@@ -1,0 +1,3796 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "areaCount": 14,
+  "registeredCleanAreas": 0,
+  "routeCount": 421,
+  "unmappedRoutes": [],
+  "existingJest": {
+    "suites": 769,
+    "tests": 4819,
+    "passed": 4819,
+    "failed": 0,
+    "skipped": 0
+  },
+  "allAppCertified": false,
+  "newReproducedDefects": 2,
+  "rows": [
+    {
+      "id": "plata",
+      "name": "Cobros, cuotas, facturas y recibos",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-09",
+        "commit": "497ee725",
+        "hallazgos": 2,
+        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
+      },
+      "routeFiles": [
+        "src/app/(app)/aprobaciones/page.tsx",
+        "src/app/(app)/comparativa-ganancias/page.tsx",
+        "src/app/(app)/contabilidad/comercial-360/page.tsx",
+        "src/app/(app)/contabilidad/crm/agenda/page.tsx",
+        "src/app/(app)/contabilidad/crm/atraccion-fiestas/page.tsx",
+        "src/app/(app)/contabilidad/crm/ciclo-comercial/page.tsx",
+        "src/app/(app)/contabilidad/crm/marketing-ads/page.tsx",
+        "src/app/(app)/contabilidad/crm/outbox/page.tsx",
+        "src/app/(app)/contabilidad/crm/page.tsx",
+        "src/app/(app)/contabilidad/fiestas-historicas/page.tsx",
+        "src/app/(app)/contabilidad/page.tsx",
+        "src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx",
+        "src/app/(app)/empresa/activos-fijos/editar/[id]/page.tsx",
+        "src/app/(app)/empresa/activos-fijos/nuevo/page.tsx",
+        "src/app/(app)/empresa/activos-fijos/page.tsx",
+        "src/app/(app)/empresa/activos-fijos/reporte/page.tsx",
+        "src/app/(app)/empresa/contabilidad/flujo-caja/page.tsx",
+        "src/app/(app)/empresa/contabilidad/gastos/page.tsx",
+        "src/app/(app)/empresa/contabilidad/page.tsx",
+        "src/app/(app)/empresa/contabilidad/poner-al-dia/page.tsx",
+        "src/app/(app)/empresa/contabilidad/reportes/page.tsx",
+        "src/app/(app)/empresa/dashboard/page.tsx",
+        "src/app/(app)/empresa/servicios/[...slugs]/page.tsx",
+        "src/app/(app)/empresa/servicios/editar/[id]/page.tsx",
+        "src/app/(app)/empresa/servicios/nuevo/page.tsx",
+        "src/app/(app)/empresa/servicios/page.tsx",
+        "src/app/(app)/empresa/servicios/reporte/page.tsx",
+        "src/app/(app)/empresa/todos-los-servicios/[id]/editar/page.tsx",
+        "src/app/(app)/invoices/[id]/edit/page.tsx",
+        "src/app/(app)/invoices/[id]/page.tsx",
+        "src/app/(app)/invoices/new/page.tsx",
+        "src/app/(app)/invoices/page.tsx",
+        "src/app/(app)/pagos-rapidos/page.tsx",
+        "src/app/(app)/presupuestos/[id]/edit/page.tsx",
+        "src/app/(app)/presupuestos/[id]/editar/page.tsx",
+        "src/app/(app)/presupuestos/[id]/estado-de-cuenta/page.tsx",
+        "src/app/(app)/presupuestos/[id]/page.tsx",
+        "src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx",
+        "src/app/(app)/presupuestos/[id]/ver/page.tsx",
+        "src/app/(app)/presupuestos/importar/page.tsx",
+        "src/app/(app)/presupuestos/nuevo/crear/page.tsx",
+        "src/app/(app)/presupuestos/nuevo/page.tsx",
+        "src/app/(app)/presupuestos/page.tsx",
+        "src/app/(app)/presupuestos/reporte/page.tsx",
+        "src/app/(app)/proveedores/[id]/edit/page.tsx",
+        "src/app/(app)/proveedores/new/page.tsx",
+        "src/app/(app)/proveedores/page.tsx",
+        "src/app/(app)/proveedores/reporte/page.tsx",
+        "src/app/(app)/settings/ajuste-precios/page.tsx",
+        "src/app/(app)/settings/budget-display/page.tsx",
+        "src/app/(app)/settings/catalogo-servicios/page.tsx",
+        "src/app/(app)/settings/cupones/page.tsx",
+        "src/app/admin/finanzas/page.tsx",
+        "src/app/admin/ventas/page.tsx",
+        "src/app/api/analytics/looker-export/route.ts",
+        "src/app/api/budgets/[filename]/route.ts",
+        "src/app/api/payment-proofs/[filename]/route.ts",
+        "src/app/api/payments/mercadopago/checkout/route.ts",
+        "src/app/api/payments/mercadopago/status/route.ts",
+        "src/app/api/payments/mercadopago/webhook/route.ts",
+        "src/app/pago/mercadopago/page.tsx",
+        "src/app/proveedor/[id]/page.tsx",
+        "src/app/proveedor/acceso/[token]/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/alta-de-activo-fijo-manda-su-intento.test.tsx",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/(app)/empresa/activos-fijos/nuevo/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/logo-original-pdf.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/budget/simulator-budget-pdf.ts",
+            "src/lib/budget/formal-budget.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/auditoria-70-contabilidad.test.ts",
+          "status": "passed",
+          "assertions": 20,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/gastos.ts",
+            "src/app/actions/payment-plans.ts",
+            "src/lib/commercial-flow/ledger-service.ts",
+            "src/lib/budget/financial-guardrails.ts",
+            "src/lib/commercial-flow/budget-audit.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/budget-share-access.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/lib/auth/session-token.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/dispatcher-integration.test.ts",
+          "status": "passed",
+          "assertions": 15,
+          "directImports": [
+            "src/app/actions/assistant.ts",
+            "src/ai/flows/assistant-flow.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/crm.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/fiesta/documentos.actions.ts",
+            "src/app/actions/fiesta-actual.ts",
+            "src/lib/client-portal/public-fiesta.ts",
+            "src/app/actions/invoices.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/servicios-empresa-guarda-de-a-uno.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/servicios-empresa.ts",
+            "src/lib/budget/los-cobros-no-se-pisan.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/barrido-de-permisos-personal-y-operador.test.ts",
+          "status": "passed",
+          "assertions": 77,
+          "directImports": [
+            "src/app/actions/whatsapp.ts",
+            "src/app/actions/fiesta/bebidas.actions.ts",
+            "src/app/actions/fiesta/reposteria.actions.ts",
+            "src/app/actions/social-connections.ts",
+            "src/app/actions/salones.ts",
+            "src/app/actions/fiesta-actual.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/fiestas-historicas.ts",
+            "src/app/actions/customers.ts",
+            "src/app/actions/task-templates.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/auditoria-71-presupuesto-nuevo-sin-plata.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/presupuestos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-cupones-muestran-el-dia-y-estado-del-negocio.test.tsx",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/(app)/settings/cupones/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/un-reintento-no-duplica-plata.test.ts",
+          "status": "passed",
+          "assertions": 13,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/invoices.ts",
+            "src/app/actions/salones.ts",
+            "src/app/actions/gastos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/un-cobro-no-se-cuenta-dos-veces.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/budget/pago-duplicado.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/lib/auth/session-token.ts",
+            "src/lib/budget/los-cobros-no-se-pisan.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-documentos-de-plata-piden-permiso.test.ts",
+          "status": "passed",
+          "assertions": 51,
+          "directImports": [
+            "src/app/api/employee-contracts/[filename]/route.ts",
+            "src/app/api/contracts/[filename]/route.ts",
+            "src/app/api/payment-proofs/[filename]/route.ts",
+            "src/app/api/budgets/[filename]/route.ts",
+            "src/app/api/salon-contracts/[filename]/route.ts",
+            "src/app/api/contracts/fiestas/[...parts]/route.ts",
+            "src/app/api/storage/signed-url/route.ts"
+          ]
+        },
+        {
+          "test": "src/lib/budget/simulator-budget-pdf.render.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/budget/simulator-budget-pdf.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-saldos-usan-el-estado-de-cuenta-oficial.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/fiesta/revisar-fiestas.ts",
+            "src/lib/budget/saldo-con-ajuste.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/financial-integrity-report.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/commercial-flow/financial-integrity.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/asistente-presupuesto-catalogo.test.ts",
+          "status": "passed",
+          "assertions": 18,
+          "directImports": [
+            "src/lib/multiagent/assistant-crm-actions.ts",
+            "src/lib/budget/financial-guardrails.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/encargado-no-inventa-guardados.test.ts",
+          "status": "passed",
+          "assertions": 19,
+          "directImports": [
+            "src/lib/multiagent/encargado.ts",
+            "src/lib/multiagent/assistant-crm-actions.ts",
+            "src/ai/genkit.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/crm.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/invoices.ts",
+            "src/lib/money/monto-en-letras.ts"
+          ]
+        },
+        {
+          "test": "src/lib/budget/budget-ordering.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/budget/budget-ordering.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/lib/budget/formal-budget.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/budget/formal-budget.ts"
+          ]
+        },
+        {
+          "test": "src/lib/budget/verified-budget-date-migration.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/budget/verified-budget-date-migration.ts"
+          ]
+        },
+        {
+          "test": "src/lib/budget/recibo-contrato-ajuste.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/budget/saldo-con-ajuste.ts",
+            "src/lib/public-experience/event-date.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/invoice-deletion-integrity.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/invoices.ts",
+            "src/lib/data-service.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/payment-summary.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/budget/payment-summary.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/cambio-de-invitados.test.ts",
+          "status": "passed",
+          "assertions": 10,
+          "directImports": [
+            "src/lib/budget/cambio-de-invitados.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/financial-guardrails.test.ts",
+          "status": "passed",
+          "assertions": 12,
+          "directImports": [
+            "src/lib/budget/financial-guardrails.ts",
+            "src/lib/commercial-flow/budget-audit.ts"
+          ]
+        },
+        {
+          "test": "src/lib/budget/simulator-budget-pdf.test.ts",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/lib/budget/simulator-budget-pdf.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/documentos-permisos-de-area.test.ts",
+          "status": "passed",
+          "assertions": 66,
+          "directImports": [
+            "src/lib/auth/session-token.ts",
+            "src/app/api/employee-contracts/[filename]/route.ts",
+            "src/app/api/contracts/[filename]/route.ts",
+            "src/app/api/payment-proofs/[filename]/route.ts",
+            "src/app/api/budgets/[filename]/route.ts",
+            "src/app/api/salon-contracts/[filename]/route.ts",
+            "src/app/api/contracts/fiestas/[...parts]/route.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/ajuste-anual-siempre.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/lib/budget/financial-guardrails.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/commercial-flow/cobros-sin-pasar-al-presupuesto.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/payment-plans.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/configurador-solicitud-atomica.test.ts",
+          "status": "passed",
+          "assertions": 14,
+          "directImports": [
+            "src/lib/budget/solicitud-guardado.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/crm.ts",
+            "src/lib/notifications/create-notification.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/chat-intento-estable.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/lib/budget/intento-configurador.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/chat-presupuesto-identidad.test.ts",
+          "status": "passed",
+          "assertions": 10,
+          "directImports": [
+            "src/lib/multiagent/intento-presupuesto.ts",
+            "src/lib/budget/solicitud-guardado.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/simulador-variantes-buffet-autorizadas.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/menus-catering.ts",
+            "src/lib/budget/public-simulator-persistence.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/commercial-flow.test.ts",
+          "status": "passed",
+          "assertions": 26,
+          "directImports": [
+            "src/lib/commercial-flow/contract-builder.ts",
+            "src/lib/commercial-flow/budget-audit.ts",
+            "src/lib/commercial-flow/ledger-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/simulator-budget-pdf-flow.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/auth.ts",
+            "src/app/actions/public-simulator-bootstrap.ts",
+            "src/app/actions/armado-rapido.ts",
+            "src/lib/budget/budget-narrative.ts",
+            "src/lib/budget/financial-guardrails.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/assistant-actions.test.ts",
+          "status": "passed",
+          "assertions": 37,
+          "directImports": [
+            "src/app/actions/assistant.ts",
+            "src/ai/flows/assistant-flow.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/crm.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/mejoras-bloques-f-al-k.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/budget/budget-narrative.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/invoice-payment-integrity.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/invoices.ts",
+            "src/lib/data-service.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/monto-de-senia.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/lib/budget/monto-de-senia.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/invoices.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/puesta-al-dia-action.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/puesta-al-dia.ts",
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/commercial-flow/puesta-al-dia.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/configurador-intento-recarga.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/budget/intento-configurador.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/fase2-completion.test.ts",
+          "status": "passed",
+          "assertions": 18,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/app/actions/invoices.ts",
+            "src/app/actions/social-gallery.ts",
+            "src/app/actions/social-interactive.ts",
+            "src/app/actions/crm.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/e2e-flows.test.ts",
+          "status": "passed",
+          "assertions": 69,
+          "directImports": [
+            "src/lib/assistant/tools/executors.ts",
+            "src/lib/assistant/intent-router.ts",
+            "src/lib/commercial-flow/ledger-service.ts",
+            "src/lib/commercial-flow/budget-audit.ts",
+            "src/lib/assistant/tool-registry.ts",
+            "src/lib/assistant/app-routes.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/profit-loss-report.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/reportes.ts",
+            "src/app/actions/invoices.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/roles.ts",
+            "src/app/actions/gastos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/puesta-al-dia.test.ts",
+          "status": "passed",
+          "assertions": 17,
+          "directImports": [
+            "src/lib/commercial-flow/puesta-al-dia.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/saldo-con-ajuste.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/lib/budget/saldo-con-ajuste.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "contrato",
+      "name": "Contrato, seña y firma",
+      "registeredStatus": "sin-revisar",
+      "registeredRevision": null,
+      "routeFiles": [
+        "src/app/(app)/settings/contratos/clausulas/page.tsx",
+        "src/app/(app)/settings/contratos/page.tsx",
+        "src/app/(app)/settings/templates/carga-operativa/page.tsx",
+        "src/app/(app)/settings/templates/contrato/page.tsx",
+        "src/app/(app)/settings/templates/invitaciones/page.tsx",
+        "src/app/(app)/settings/templates/layouts/page.tsx",
+        "src/app/(app)/settings/templates/page.tsx",
+        "src/app/(app)/settings/templates/reuniones/page.tsx",
+        "src/app/api/contracts/[filename]/route.ts",
+        "src/app/api/contracts/fiestas/[...parts]/route.ts",
+        "src/app/api/documentos-fiesta/[...parts]/route.ts",
+        "src/app/api/employee-contracts/[filename]/route.ts",
+        "src/app/api/salon-contracts/[filename]/route.ts"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/borrar-plantilla-base-no-anuncia-exito.test.tsx",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/(app)/settings/templates/invitaciones/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts",
+            "src/data/preguntas-frecuentes-contrato.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-documentos-de-plata-piden-permiso.test.ts",
+          "status": "passed",
+          "assertions": 51,
+          "directImports": [
+            "src/app/api/employee-contracts/[filename]/route.ts",
+            "src/app/api/contracts/[filename]/route.ts",
+            "src/app/api/payment-proofs/[filename]/route.ts",
+            "src/app/api/budgets/[filename]/route.ts",
+            "src/app/api/salon-contracts/[filename]/route.ts",
+            "src/app/api/contracts/fiestas/[...parts]/route.ts",
+            "src/app/api/storage/signed-url/route.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/las-preguntas-del-contrato-llegan.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/data/preguntas-frecuentes-contrato.ts",
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-formatos-no-pierden-lo-escrito.test.ts",
+          "status": "passed",
+          "assertions": 11,
+          "directImports": [
+            "src/lib/contract-template.ts",
+            "src/lib/fechas/formato-fecha-evento.ts",
+            "src/lib/public-experience/event-date.ts",
+            "src/lib/entretenimiento/tira-fotocabina.ts",
+            "src/lib/fechas/formato-fecha-evento.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/documentos-permisos-de-area.test.ts",
+          "status": "passed",
+          "assertions": 66,
+          "directImports": [
+            "src/lib/auth/session-token.ts",
+            "src/app/api/employee-contracts/[filename]/route.ts",
+            "src/app/api/contracts/[filename]/route.ts",
+            "src/app/api/payment-proofs/[filename]/route.ts",
+            "src/app/api/budgets/[filename]/route.ts",
+            "src/app/api/salon-contracts/[filename]/route.ts",
+            "src/app/api/contracts/fiestas/[...parts]/route.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/contract-template.ts",
+            "src/types/settings.ts",
+            "src/app/actions/settings.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/lib/__tests__/whatsapp-template-markers.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/whatsapp-template-markers.ts",
+            "src/types/settings.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/contract-template.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "comida",
+      "name": "Menús, compras e insumos",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-06",
+        "commit": "e52c078",
+        "hallazgos": 1,
+        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+      },
+      "routeFiles": [
+        "src/app/(app)/empresa/insumos/[id]/editar/page.tsx",
+        "src/app/(app)/empresa/insumos/editar/[id]/page.tsx",
+        "src/app/(app)/empresa/insumos/nuevo/page.tsx",
+        "src/app/(app)/empresa/insumos/page.tsx",
+        "src/app/(app)/empresa/insumos/reporte/page.tsx",
+        "src/app/(app)/empresa/menus/[menuId]/editar/page.tsx",
+        "src/app/(app)/empresa/menus/catalogo/page.tsx",
+        "src/app/(app)/empresa/menus/nuevo/page.tsx",
+        "src/app/(app)/empresa/menus/page.tsx",
+        "src/app/(app)/empresa/menus/reporte/page.tsx",
+        "src/app/(app)/empresa/menus/tragos/page.tsx",
+        "src/app/compras/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/pregunta-58-rebarrido-plata.test.ts",
+          "status": "passed",
+          "assertions": 14,
+          "directImports": [
+            "src/app/actions/promos.ts",
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts",
+            "src/app/actions/insumos.ts",
+            "src/app/actions/menus-catering.ts",
+            "src/app/actions/accesos-personal.ts",
+            "src/app/actions/activos-fijos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/alta-de-insumo-manda-su-intento.test.tsx",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/(app)/empresa/insumos/nuevo/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/insumos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-menu-impreso-no-pierde-lo-escrito.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/menus-catering.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/compras-suman-en-la-misma-unidad.test.ts",
+          "status": "passed",
+          "assertions": 13,
+          "directImports": [
+            "src/lib/compras/consolidar-compras.ts",
+            "src/lib/compras/unidades.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/compras/unidades.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/ajustar-margenes-guarda-todos-los-menus-sin-colgarse.test.ts",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/actions/menus-catering.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/simulador-variantes-buffet-autorizadas.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/menus-catering.ts",
+            "src/lib/budget/public-simulator-persistence.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/insumo-receta-conserva-unidad.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/menus-catering.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/las-claves-de-agrupacion-no-mienten.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/compras/unidades.ts"
+          ]
+        },
+        {
+          "test": "src/app/actions/public-simulator-bootstrap.test.ts",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/actions/armado-rapido.ts",
+            "src/app/actions/menus-catering.ts",
+            "src/app/actions/public-simulator-bootstrap.ts",
+            "src/app/actions/servicios-empresa.ts",
+            "src/app/actions/settings.ts",
+            "src/app/actions/social-connections.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "permisos",
+      "name": "Ingreso, sesiones y quién ve qué",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-06",
+        "commit": "e52c078",
+        "hallazgos": 2,
+        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+      },
+      "routeFiles": [
+        "src/app/(app)/admin/page.tsx",
+        "src/app/(app)/admin/usuarios/page.tsx",
+        "src/app/(app)/auditoria/page.tsx",
+        "src/app/(app)/empleados/roles/page.tsx",
+        "src/app/(app)/perfil/page.tsx",
+        "src/app/(app)/settings/accesos-personal/page.tsx",
+        "src/app/(app)/settings/account/page.tsx",
+        "src/app/(app)/settings/company/page.tsx",
+        "src/app/(app)/settings/feature-flags/page.tsx",
+        "src/app/(app)/settings/google-workspace/page.tsx",
+        "src/app/api/admin/clean-db/route.ts",
+        "src/app/api/google/oauth/callback/route.ts",
+        "src/app/api/google/oauth/start/route.ts",
+        "src/app/login/page.tsx",
+        "src/app/signup/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/backup.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-secretario-hace-lo-del-dia.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/multiagent.ts",
+            "src/lib/google-workspace.ts",
+            "src/app/actions/scheduled-messages.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/auditoria-70-contabilidad.test.ts",
+          "status": "passed",
+          "assertions": 20,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/gastos.ts",
+            "src/app/actions/payment-plans.ts",
+            "src/lib/commercial-flow/ledger-service.ts",
+            "src/lib/budget/financial-guardrails.ts",
+            "src/lib/commercial-flow/budget-audit.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/comentarios-redes-sincronizacion.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/social-media/comments-backfill.ts",
+            "src/lib/data-service.ts",
+            "src/lib/social-media/clasificador-comentarios.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/budget-share-access.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/lib/auth/session-token.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/auth-session-multitenant-resilience.test.ts",
+          "status": "passed",
+          "assertions": 9,
+          "directImports": [
+            "src/lib/auth/session-token.ts",
+            "src/app/actions/auth.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/lib/marketing/tope-de-gasto-publicidad.ts",
+            "src/app/actions/marketing-ads.ts",
+            "src/lib/auth/require-session.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/entertainment-token.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/auth/entertainment-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/instagram-production-integrity.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/social-media.ts",
+            "src/lib/marketing/internal-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/personal-agenda-server.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/personal.actions.ts",
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/empleados.ts",
+            "src/lib/staff-agenda-conflicts.ts",
+            "src/app/actions/google-workspace.ts",
+            "src/lib/staff-agenda-data.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-multiagente-tiene-tope.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/api/multiagent/message/route.ts",
+            "src/lib/auth/session-token.ts",
+            "src/lib/commercial/public-rate-limit.ts",
+            "src/lib/ai/consumo-servidor.ts",
+            "src/app/actions/multiagent.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/google-workspace-muestra-el-estado-real-de-la-cuenta.test.tsx",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/(app)/settings/google-workspace/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/backup-upload.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/panel-presencia-digital-cuatro-bloques.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/presencia-digital/publicador.ts",
+            "src/app/actions/presencia-digital.ts",
+            "src/lib/data-service.ts",
+            "src/lib/ai/consumo-servidor.ts",
+            "src/ai/flows/marketing-agent-flow.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/social-gallery.ts",
+            "src/app/actions/social-media.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-recordatorio-al-invitado-no-se-repite.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/api/cron/recordatorio-a-los-invitados/route.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/lib/auth/session-token.ts",
+            "src/lib/budget/los-cobros-no-se-pisan.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/orden-86-acciones.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/fiesta/proponer-equipo.actions.ts",
+            "src/app/actions/google-business-resenas.ts",
+            "src/lib/social-media/google-business-resenas.ts",
+            "src/app/actions/touchpix-ai.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/rsvp-deduplication.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/fiesta/invitados.actions.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/pantallas-nuevas-con-resultado.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/app/actions/videos-de-ayuda.ts",
+            "src/app/actions/settings.ts",
+            "src/app/actions/landing-editor.ts",
+            "src/lib/catering/hoja-de-cocina.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/session-token.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/borrar-o-cancelar-una-fiesta-pide-permiso.test.ts",
+          "status": "passed",
+          "assertions": 13,
+          "directImports": [
+            "src/lib/auth/session-token.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-prospectos-no-se-pierden-entre-servidores.test.ts",
+          "status": "passed",
+          "assertions": 12,
+          "directImports": [
+            "src/lib/auth/session-token.ts",
+            "src/app/actions/crm.ts",
+            "src/app/actions/customers.ts",
+            "src/app/actions/agenda.ts",
+            "src/app/actions/scheduled-messages.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/acceso-proveedor-token.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/auth/vigencia-acceso.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/mesas-no-es-publica.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/auth/public-paths.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/marketing-automation-integrity.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/blog-ai-generator.ts",
+            "src/app/actions/social-media.ts",
+            "src/lib/marketing-automation.ts",
+            "src/lib/marketing/internal-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/presupuestos.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/concurrencia-tareas-automaticas.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/automatico/control-concurrencia.ts",
+            "src/lib/data-service.ts",
+            "src/lib/automatico/al-entrar-a-la-app.ts",
+            "src/lib/automatico/tareas-automaticas.ts"
+          ]
+        },
+        {
+          "test": "src/lib/data-item-service.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/pantallas-internas-con-guardia.test.ts",
+          "status": "passed",
+          "assertions": 14,
+          "directImports": [
+            "src/lib/auth/public-paths.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/invoice-deletion-integrity.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/invoices.ts",
+            "src/lib/data-service.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/provider-portal-actions.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/provider-portal.ts",
+            "src/lib/auth/require-session.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/privacidad-llega-al-visitante.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/auth/public-paths.ts",
+            "src/lib/seo/paginas-publicas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-duenio-se-entera-de-lo-que-pregunta-el-cliente.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts",
+            "src/app/actions/notifications.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/documentos-permisos-de-area.test.ts",
+          "status": "passed",
+          "assertions": 66,
+          "directImports": [
+            "src/lib/auth/session-token.ts",
+            "src/app/api/employee-contracts/[filename]/route.ts",
+            "src/app/api/contracts/[filename]/route.ts",
+            "src/app/api/payment-proofs/[filename]/route.ts",
+            "src/app/api/budgets/[filename]/route.ts",
+            "src/app/api/salon-contracts/[filename]/route.ts",
+            "src/app/api/contracts/fiestas/[...parts]/route.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/google-identity-auth.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/auth/google-identity.ts",
+            "src/lib/auth/redirect.ts",
+            "src/lib/auth/google-recovery.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/perfiles.test.ts",
+          "status": "passed",
+          "assertions": 13,
+          "directImports": [
+            "src/lib/auth/perfiles.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/robots-que-no-entran.test.ts",
+          "status": "passed",
+          "assertions": 56,
+          "directImports": [
+            "src/lib/auth/rutas-de-robots.ts",
+            "src/lib/auth/public-paths.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/lectura-firestore-no-oculta-fallo.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/generic-json-store.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/contract-template.ts",
+            "src/types/settings.ts",
+            "src/app/actions/settings.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/configurador-solicitud-atomica.test.ts",
+          "status": "passed",
+          "assertions": 14,
+          "directImports": [
+            "src/lib/budget/solicitud-guardado.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/crm.ts",
+            "src/lib/notifications/create-notification.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/social-admin.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/social-admin.ts",
+            "src/lib/data-service.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/tiktok-no-canta-victoria-antes.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/social-media/tiktok-publisher.ts",
+            "src/lib/presencia-digital/publicador.ts"
+          ]
+        },
+        {
+          "test": "src/lib/blog-ai-generator.test.ts",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/ai/genkit.ts",
+            "src/lib/data-service.ts",
+            "src/lib/ai/gemini-image.ts",
+            "src/lib/firebase/storage.ts",
+            "src/lib/blog-ai-generator.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/permisos-de-colaborador.test.ts",
+          "status": "passed",
+          "assertions": 13,
+          "directImports": [
+            "src/lib/auth/permisos-por-enlace.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/invitacion-digital-templates-delete.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/invitacion-digital-templates.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/blog-dynamic.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/blog.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/collection-fallback-empty-after-delete.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/invoice-payment-integrity.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/invoices.ts",
+            "src/lib/data-service.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/galeria-historial-instagram-completo.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/instagram/public-feed.ts",
+            "src/lib/data-service.ts",
+            "src/lib/social-media/meta-history-backfill.ts",
+            "src/app/actions/social-history.ts",
+            "src/app/actions/conexiones-estado.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/resumen-contador.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/contabilidad/mandar-resumen-al-contador.ts",
+            "src/lib/auth/require-session.ts",
+            "src/lib/google-workspace.ts",
+            "src/lib/data-service.ts",
+            "src/app/actions/settings.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/puesta-al-dia-action.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/puesta-al-dia.ts",
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/commercial-flow/puesta-al-dia.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/fase2-completion.test.ts",
+          "status": "passed",
+          "assertions": 18,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/app/actions/invoices.ts",
+            "src/app/actions/social-gallery.ts",
+            "src/app/actions/social-interactive.ts",
+            "src/app/actions/crm.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-cartel-del-ingreso-no-se-contradice.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/auth/diagnostico-acceso.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/video-recuerdo-solo-aprobado.test.ts",
+          "status": "passed",
+          "assertions": 10,
+          "directImports": [
+            "src/lib/social-fiesta/visibilidad.ts",
+            "src/lib/auth/perfiles.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-album-se-abre-con-el-enlace.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/auth/public-paths.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-publicacion-manual-no-sale-dos-veces.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/social-media/meta-publisher.ts",
+            "src/lib/social-media/tiktok-publisher.ts",
+            "src/lib/presencia-digital/publicador.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-agente-no-se-pasa-del-tope.test.ts",
+          "status": "passed",
+          "assertions": 12,
+          "directImports": [
+            "src/lib/marketing/tope-de-gasto-publicidad.ts",
+            "src/lib/data-service.ts",
+            "src/lib/marketing/tope-de-gasto-publicidad.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/pwa-security-readiness.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/auth/session-token.ts",
+            "src/lib/auth/public-paths.ts"
+          ]
+        },
+        {
+          "test": "src/app/actions/creador-anuncios.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/marketing/creador-anuncios-ia.ts",
+            "src/app/actions/creador-anuncios.ts",
+            "src/lib/auth/require-session.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/paginas-de-venta-abiertas.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/auth/public-paths.ts",
+            "src/lib/seo/paginas-publicas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/outbox-enviar-por-mail.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/scheduled-messages.ts",
+            "src/lib/auth/require-session.ts",
+            "src/lib/google-workspace.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/data-service.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "fiesta",
+      "name": "Fiesta, invitados y confirmaciones",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-06",
+        "commit": "368988b",
+        "hallazgos": 1,
+        "reporte": "codex/auditoria-73-20261006:docs/evidencias/74-matriz-de-cierre.md"
+      },
+      "routeFiles": [
+        "src/app/(app)/calendario/page.tsx",
+        "src/app/(app)/contabilidad/fiestas-historicas/page.tsx",
+        "src/app/(app)/customers/[id]/edit/page.tsx",
+        "src/app/(app)/customers/[id]/page.tsx",
+        "src/app/(app)/customers/new/page.tsx",
+        "src/app/(app)/customers/page.tsx",
+        "src/app/(app)/customers/reporte/page.tsx",
+        "src/app/(app)/empresa/configurador-reunion/page.tsx",
+        "src/app/(app)/empresa/salones/[id]/croquis/page.tsx",
+        "src/app/(app)/empresa/salones/[id]/diseno/page.tsx",
+        "src/app/(app)/empresa/salones/club-uruguay/page.tsx",
+        "src/app/(app)/empresa/salones/experiencia-visual/page.tsx",
+        "src/app/(app)/empresa/salones/page.tsx",
+        "src/app/(app)/eventos/page.tsx",
+        "src/app/(app)/fiestas/[id]/ak-100/page.tsx",
+        "src/app/(app)/fiestas/[id]/centro-de-mando/page.tsx",
+        "src/app/(app)/fiestas/[id]/centro-experiencia/page.tsx",
+        "src/app/(app)/fiestas/[id]/centro/page.tsx",
+        "src/app/(app)/fiestas/[id]/cierre-mundial/page.tsx",
+        "src/app/(app)/fiestas/[id]/comando-total/page.tsx",
+        "src/app/(app)/fiestas/[id]/entretenimiento/control/page.tsx",
+        "src/app/(app)/fiestas/[id]/experiencia-tecnologica-ak/page.tsx",
+        "src/app/(app)/fiestas/[id]/show-control/page.tsx",
+        "src/app/(app)/fiestas/[id]/timeline/page.tsx",
+        "src/app/(app)/fiestas/nueva/accesos-personal/page.tsx",
+        "src/app/(app)/fiestas/nueva/alergias/page.tsx",
+        "src/app/(app)/fiestas/nueva/asistente/page.tsx",
+        "src/app/(app)/fiestas/nueva/barra-tecnologica/page.tsx",
+        "src/app/(app)/fiestas/nueva/buzon/page.tsx",
+        "src/app/(app)/fiestas/nueva/carga-operativa/page.tsx",
+        "src/app/(app)/fiestas/nueva/carga-operativa/pdf/page.tsx",
+        "src/app/(app)/fiestas/nueva/carta-tragos/page.tsx",
+        "src/app/(app)/fiestas/nueva/carteleria/page.tsx",
+        "src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx",
+        "src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx",
+        "src/app/(app)/fiestas/nueva/catering/page.tsx",
+        "src/app/(app)/fiestas/nueva/centro-total/page.tsx",
+        "src/app/(app)/fiestas/nueva/centro/page.tsx",
+        "src/app/(app)/fiestas/nueva/configuracion/page.tsx",
+        "src/app/(app)/fiestas/nueva/decoracion/page.tsx",
+        "src/app/(app)/fiestas/nueva/decoracion/pdf/page.tsx",
+        "src/app/(app)/fiestas/nueva/en-vivo/page.tsx",
+        "src/app/(app)/fiestas/nueva/entretenimiento/page.tsx",
+        "src/app/(app)/fiestas/nueva/fiesta-lista/page.tsx",
+        "src/app/(app)/fiestas/nueva/fotografia/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-documental/contrato-salon/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-documental/page.tsx",
+        "src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx",
+        "src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx",
+        "src/app/(app)/fiestas/nueva/invitados/layout/page.tsx",
+        "src/app/(app)/fiestas/nueva/invitados/numeros-mesa/page.tsx",
+        "src/app/(app)/fiestas/nueva/invitados/page.tsx",
+        "src/app/(app)/fiestas/nueva/itinerario/page.tsx",
+        "src/app/(app)/fiestas/nueva/itinerario/pdf/page.tsx",
+        "src/app/(app)/fiestas/nueva/logistica/page.tsx",
+        "src/app/(app)/fiestas/nueva/menu-mesa/page.tsx",
+        "src/app/(app)/fiestas/nueva/mission-control/page.tsx",
+        "src/app/(app)/fiestas/nueva/modulo-invitado/page.tsx",
+        "src/app/(app)/fiestas/nueva/muro-social/page.tsx",
+        "src/app/(app)/fiestas/nueva/musica/page.tsx",
+        "src/app/(app)/fiestas/nueva/musica/pdf/page.tsx",
+        "src/app/(app)/fiestas/nueva/numeros-mesa/page.tsx",
+        "src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx",
+        "src/app/(app)/fiestas/nueva/page.tsx",
+        "src/app/(app)/fiestas/nueva/pagina-web/page.tsx",
+        "src/app/(app)/fiestas/nueva/pantallas-totem/page.tsx",
+        "src/app/(app)/fiestas/nueva/personal/page.tsx",
+        "src/app/(app)/fiestas/nueva/personal/recibos/page.tsx",
+        "src/app/(app)/fiestas/nueva/plan-pagos/page.tsx",
+        "src/app/(app)/fiestas/nueva/planner-costo-fiesta/page.tsx",
+        "src/app/(app)/fiestas/nueva/playlist-pantalla/page.tsx",
+        "src/app/(app)/fiestas/nueva/portal-cliente/cierre-final/page.tsx",
+        "src/app/(app)/fiestas/nueva/portal-cliente/experiencia-mundial/page.tsx",
+        "src/app/(app)/fiestas/nueva/portal-cliente/page.tsx",
+        "src/app/(app)/fiestas/nueva/post-evento/page.tsx",
+        "src/app/(app)/fiestas/nueva/proveedores-portal/page.tsx",
+        "src/app/(app)/fiestas/nueva/readiness/page.tsx",
+        "src/app/(app)/fiestas/nueva/regalos/page.tsx",
+        "src/app/(app)/fiestas/nueva/resumen-imprimible/page.tsx",
+        "src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx",
+        "src/app/(app)/fiestas/nueva/reunion-organizacion/page.tsx",
+        "src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx",
+        "src/app/(app)/fiestas/nueva/reuniones/page.tsx",
+        "src/app/(app)/fiestas/nueva/servicios-contratados/page.tsx",
+        "src/app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page.tsx",
+        "src/app/(app)/fiestas/nueva/social-fiesta-pro/page.tsx",
+        "src/app/(app)/fiestas/nueva/tareas/page.tsx",
+        "src/app/(app)/fiestas/nueva/video-vida/page.tsx",
+        "src/app/(app)/fiestas/nueva/zona-digital/page.tsx",
+        "src/app/(app)/fiestas/revisar/page.tsx",
+        "src/app/(app)/incidentes/page.tsx",
+        "src/app/(app)/mi-dia/page.tsx",
+        "src/app/(app)/settings/feedback/page.tsx",
+        "src/app/api/fiestas/[fiestaId]/download-recuerdos/route.ts",
+        "src/app/feedback/[fiestaId]/page.tsx",
+        "src/app/post-fiesta/[fiestaId]/page.tsx",
+        "src/app/q/[fiestaId]/page.tsx",
+        "src/app/recepcion/[fiestaId]/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/pregunta-58-rebarrido.test.ts",
+          "status": "passed",
+          "assertions": 20,
+          "directImports": [
+            "src/app/actions/itinerary-templates.ts",
+            "src/app/actions/salon-layout-templates.ts",
+            "src/app/actions/deco-canvas-templates.ts",
+            "src/app/actions/fiesta/decoracion.actions.ts",
+            "src/app/actions/fiesta/live.actions.ts",
+            "src/app/actions/social-interactive.ts",
+            "src/app/actions/social-gallery.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/pregunta-58-rebarrido-plata.test.ts",
+          "status": "passed",
+          "assertions": 14,
+          "directImports": [
+            "src/app/actions/promos.ts",
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts",
+            "src/app/actions/insumos.ts",
+            "src/app/actions/menus-catering.ts",
+            "src/app/actions/accesos-personal.ts",
+            "src/app/actions/activos-fijos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/customers.ts",
+            "src/app/actions/social-gallery.ts",
+            "src/lib/firebase/storage.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/alta-de-cliente-manda-su-intento.test.tsx",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/(app)/customers/new/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-secretario-hace-tres-cosas-mas.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/multiagent.ts",
+            "src/ai/flows/multiagent-flow.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/fiesta/tareas.actions.ts",
+            "src/app/actions/fiesta/invitados.actions.ts",
+            "src/app/actions/incidents.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/49-acciones-fiesta-verifican-guardado.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/fiesta/decoracion.actions.ts",
+            "src/app/actions/fiesta/musica.actions.ts",
+            "src/app/actions/fiesta/social-screen.actions.ts",
+            "src/app/actions/fiesta/configuracion.actions.ts",
+            "src/app/actions/fiesta/live.actions.ts",
+            "src/app/actions/fiesta/regalos.actions.ts",
+            "src/app/actions/fiesta/reuniones.actions.ts",
+            "src/app/actions/fiesta/screen-playlist.actions.ts",
+            "src/app/actions/fiesta/tareas.actions.ts",
+            "src/app/actions/fiesta/video-vida.actions.ts",
+            "src/app/actions/meeting-intelligence.ts",
+            "src/app/actions/multiagent.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/fiesta-actual.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-portal-cuenta-el-dia-en-uruguay.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/fiesta/dia-del-evento.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-invitacion-no-abierta-se-recuerda-sola.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/fiesta/invitados.actions.ts",
+            "src/lib/invitaciones/recordatorio-no-abiertas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/dos-modulos-de-la-fiesta-no-se-pisan.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/fiesta/tareas.actions.ts",
+            "src/app/actions/fiesta/catering.actions.ts",
+            "src/app/actions/fiesta/personal.actions.ts",
+            "src/app/actions/fiesta/decoracion.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-simulador-no-dice-libre-si-no-pudo-leer.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/simulador-v2.ts",
+            "src/lib/fiesta/leer-fiestas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/fiesta/documentos.actions.ts",
+            "src/app/actions/fiesta-actual.ts",
+            "src/lib/client-portal/public-fiesta.ts",
+            "src/app/actions/invoices.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/guardados-de-la-fiesta-no-se-pisan.test.ts",
+          "status": "passed",
+          "assertions": 10,
+          "directImports": [
+            "src/app/actions/fiesta/tareas.actions.ts",
+            "src/app/actions/fiesta/reuniones.actions.ts",
+            "src/app/actions/personal-fiestas.ts",
+            "src/app/actions/fiesta/itinerario.actions.ts",
+            "src/app/actions/fiesta/invitados.actions.ts",
+            "src/app/actions/fiesta/musica.actions.ts",
+            "src/app/actions/fiesta/regalos.actions.ts",
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-equipo-elige-que-ve-el-cliente.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/fiesta/itinerario.actions.ts",
+            "src/lib/client-portal/public-fiesta.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/portal-cancelar-y-cambiar-fecha-no-se-aplican-dos-veces.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/fiesta/portal.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/barrido-de-permisos-personal-y-operador.test.ts",
+          "status": "passed",
+          "assertions": 77,
+          "directImports": [
+            "src/app/actions/whatsapp.ts",
+            "src/app/actions/fiesta/bebidas.actions.ts",
+            "src/app/actions/fiesta/reposteria.actions.ts",
+            "src/app/actions/social-connections.ts",
+            "src/app/actions/salones.ts",
+            "src/app/actions/fiesta-actual.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/fiestas-historicas.ts",
+            "src/app/actions/customers.ts",
+            "src/app/actions/task-templates.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/personal-agenda-server.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/personal.actions.ts",
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/empleados.ts",
+            "src/lib/staff-agenda-conflicts.ts",
+            "src/app/actions/google-workspace.ts",
+            "src/lib/staff-agenda-data.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/auditoria-73-guardado-concurrente.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/una-lectura-que-falla-no-se-muestra-como-vacio.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/app/actions/social-gallery.ts",
+            "src/app/actions/social-interactive.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/app/actions/agenda.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/panel-presencia-digital-cuatro-bloques.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/presencia-digital/publicador.ts",
+            "src/app/actions/presencia-digital.ts",
+            "src/lib/data-service.ts",
+            "src/lib/ai/consumo-servidor.ts",
+            "src/ai/flows/marketing-agent-flow.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/social-gallery.ts",
+            "src/app/actions/social-media.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/frontera-general-de-fiestas.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/orden-86-acciones.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/fiesta/proponer-equipo.actions.ts",
+            "src/app/actions/google-business-resenas.ts",
+            "src/lib/social-media/google-business-resenas.ts",
+            "src/app/actions/touchpix-ai.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/pregunta-58-invitados-y-tareas-reintento-no-duplica.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/invitados.actions.ts",
+            "src/app/actions/fiesta/tareas.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts",
+          "status": "passed",
+          "assertions": 9,
+          "directImports": [
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/rsvp-deduplication.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/fiesta/invitados.actions.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts",
+            "src/data/preguntas-frecuentes-contrato.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/orden-97-actualizar-fiesta-no-pisa-otras-fiestas.test.ts",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/lib/fiesta/actualizar-fiesta.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-salon-se-arma-con-una-frase.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/fiesta/decoracion.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-pantalla-trago-listo.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/itinerario-portal-cliente.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/itinerario.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/entretenimiento.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/fiesta/lectura-completa.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/configurador-reunion-layout-real.test.tsx",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/(app)/empresa/configurador-reunion/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/dos-servidores-no-pierden-invitados.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/invitados.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/borrar-o-cancelar-una-fiesta-pide-permiso.test.ts",
+          "status": "passed",
+          "assertions": 13,
+          "directImports": [
+            "src/lib/auth/session-token.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/entertainment-session-permissions.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/sesion-entretenimiento.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/un-regalo-no-se-reserva-dos-veces.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/fiesta/regalos.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/auditoria-71-campos-y-compras.test.ts",
+          "status": "passed",
+          "assertions": 18,
+          "directImports": [
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/fiesta/catering.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-saldos-usan-el-estado-de-cuenta-oficial.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/fiesta/revisar-fiestas.ts",
+            "src/lib/budget/saldo-con-ajuste.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/lectura-real-fiestas-no-inventa-vacio.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/lib/firebase-sync.ts",
+            "src/lib/fiesta/leer-fiestas.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/app/actions/agenda.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/encargado-no-inventa-guardados.test.ts",
+          "status": "passed",
+          "assertions": 19,
+          "directImports": [
+            "src/lib/multiagent/encargado.ts",
+            "src/lib/multiagent/assistant-crm-actions.ts",
+            "src/ai/genkit.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/crm.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/carga-stock-total-por-origen.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/fiesta/carga-operativa.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/las-preguntas-del-contrato-llegan.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/data/preguntas-frecuentes-contrato.ts",
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-documentos-no-se-dan-por-guardados.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/fiesta/documentos.actions.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/sesion-entretenimiento.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/invoice-deletion-integrity.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/invoices.ts",
+            "src/lib/data-service.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/auth/session-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-duenio-se-entera-de-lo-que-pregunta-el-cliente.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts",
+            "src/app/actions/notifications.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-video-de-vida-no-miente.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/app/actions/fiesta/video-vida.actions.ts",
+            "src/lib/video-vida/tope-de-fotos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/decoracion-no-gasta-de-mas.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/decoracion.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-video-para-cada-invitado.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/videos-invitados.ts",
+            "src/app/actions/public-guest-portal.ts",
+            "src/lib/security/portal-session.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/fiesta/actualizar-fiesta.ts",
+            "src/lib/firebase/storage.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-qr-viejo-no-entra.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/fiesta/invitados.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/entretenimiento-bloque-a.test.tsx",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/evento-en-vivo.ts",
+            "src/app/actions/public-guest-portal.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/social-admin.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/social-admin.ts",
+            "src/lib/data-service.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/organizacion-bloque-b.test.tsx",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/fiesta/preparation-score.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/video-vida-error-de-lectura-no-es-galeria-vacia.test.tsx",
+          "status": "passed",
+          "assertions": 11,
+          "directImports": [
+            "src/app/video-vida/[fiestaId]/page.tsx",
+            "src/app/actions/fiesta/video-vida.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-lista-de-invitados-pide-sesion.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/fiesta/invitados.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-cliente-sube-al-moodboard.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/assets.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-invitado-reserva-un-regalo.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/fiesta/regalos.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/un-pago-a-proveedor-reintentado-no-se-duplica.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/fiesta/pagos.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-concierge-lee-la-fiesta-y-pide-la-credencial.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/concierge.actions.ts",
+            "src/lib/fiesta/lectura-completa.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/portal-session-revocation.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/fiesta/get-fiesta-raw.ts",
+            "src/lib/security/portal-session.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/puesta-al-dia-action.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/puesta-al-dia.ts",
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/lib/commercial-flow/puesta-al-dia.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/guest-counts.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/fiesta/guest-counts.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/espejo-guardada-no-es-publicada.test.ts",
+          "status": "passed",
+          "assertions": 12,
+          "directImports": [
+            "src/app/actions/fiesta/entretenimiento.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/profit-loss-report.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/reportes.ts",
+            "src/app/actions/invoices.ts",
+            "src/app/actions/presupuestos.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/roles.ts",
+            "src/app/actions/gastos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/guardia-de-guardado-de-fiesta.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/fiesta/actualizar-fiesta.ts",
+            "src/app/actions/fiesta/invitados.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/catering.actions.ts",
+            "src/app/actions/fiesta/decoracion.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/actualizar-fiesta-pide-permiso.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/fiesta/actualizar-fiesta.ts",
+            "src/app/actions/fiesta/invitados.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-noche-no-se-maneja-de-costado.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/evento-en-vivo.ts",
+            "src/app/actions/fiesta/video-vida.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/video-vida-cierre-y-reemplazo.test.ts",
+          "status": "passed",
+          "assertions": 9,
+          "directImports": [
+            "src/app/actions/fiesta/video-vida.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/mis-fiestas-en-orden.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/fiesta/revisar-fiestas.ts",
+            "src/lib/automatizaciones-engine.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/portal-cliente-contadores-personas.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/fiesta/guest-counts.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "portal",
+      "name": "Portal del cliente",
+      "registeredStatus": "sin-revisar",
+      "registeredRevision": null,
+      "routeFiles": [
+        "src/app/album/[fiestaId]/page.tsx",
+        "src/app/api/video-vida-photos/[fiestaId]/[filename]/route.ts",
+        "src/app/api/video-vida-photos/[fiestaId]/download/route.ts",
+        "src/app/portal-cliente/[id]/confirmar-invitados/page.tsx",
+        "src/app/portal-cliente/[id]/decoracion/page.tsx",
+        "src/app/portal-cliente/[id]/faq/page.tsx",
+        "src/app/portal-cliente/[id]/fotos-video/page.tsx",
+        "src/app/portal-cliente/[id]/mensajes/page.tsx",
+        "src/app/portal-cliente/[id]/menu/page.tsx",
+        "src/app/portal-cliente/[id]/muro-social/page.tsx",
+        "src/app/portal-cliente/[id]/musica/page.tsx",
+        "src/app/portal-cliente/[id]/page.tsx",
+        "src/app/portal-cliente/[id]/videos-invitados/page.tsx",
+        "src/app/portal-cliente/page.tsx",
+        "src/app/portal/[fiestaId]/[module]/page.tsx",
+        "src/app/portal/[fiestaId]/contrato/page.tsx",
+        "src/app/portal/[fiestaId]/decoracion/page.tsx",
+        "src/app/portal/[fiestaId]/moodboard/page.tsx",
+        "src/app/portal/c/[accessKey]/page.tsx",
+        "src/app/portal/mesas/page.tsx",
+        "src/app/portal/page.tsx",
+        "src/app/video-vida/[fiestaId]/page.tsx",
+        "src/app/video-vida/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/app/api/video-vida-photos/[fiestaId]/download/route.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/decoracion-quiero-cambiar-algo-legible.test.tsx",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/portal/[fiestaId]/decoracion/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/video-vida-error-de-lectura-no-es-galeria-vacia.test.tsx",
+          "status": "passed",
+          "assertions": 11,
+          "directImports": [
+            "src/app/video-vida/[fiestaId]/page.tsx",
+            "src/app/actions/fiesta/video-vida.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-portal-reintenta-la-lectura-del-servidor.test.tsx",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/portal/c/[accessKey]/error.tsx"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "invitado",
+      "name": "Invitación y pantallas del invitado",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-10",
+        "commit": "9a054620",
+        "hallazgos": 2,
+        "reporte": "Auditorías 94-96 de Codex (órdenes 144 a 148)"
+      },
+      "routeFiles": [
+        "src/app/i/[slug]/page.tsx",
+        "src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx",
+        "src/app/invitacion/[fiestaId]/page.tsx",
+        "src/app/invitacion/[fiestaId]/recap/page.tsx",
+        "src/app/invitacion/[fiestaId]/rsvp/page.tsx",
+        "src/app/invitado/[fiestaId]/[invitadoId]/page.tsx",
+        "src/app/portal-invitado/[fiestaId]/[guestId]/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/orden-23-invitaciones-y-red-social.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/components/invitacion/templates/index.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/fase1-fixes.test.ts",
+          "status": "passed",
+          "assertions": 36,
+          "directImports": [
+            "src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx",
+            "src/lib/invitacion-config-defaults.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/external-integrations-consolidated.test.ts",
+          "status": "passed",
+          "assertions": 9,
+          "directImports": [
+            "src/lib/google-workspace.ts",
+            "src/components/invitacion/EventLocationMap.tsx",
+            "src/lib/analytics/marketing-consent.ts",
+            "src/lib/spotify.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "web",
+      "name": "Web pública, blog y simulador",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-09",
+        "commit": "497ee725",
+        "hallazgos": 1,
+        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
+      },
+      "routeFiles": [
+        "src/app/(app)/empresa/creador-anuncios/page.tsx",
+        "src/app/(app)/empresa/landing-editor/page.tsx",
+        "src/app/(app)/empresa/marketing/page.tsx",
+        "src/app/(app)/empresa/page.tsx",
+        "src/app/(app)/empresa/presentacion-led/configuracion/page.tsx",
+        "src/app/(app)/empresa/resenas-google/page.tsx",
+        "src/app/(app)/settings/contenido-publico/page.tsx",
+        "src/app/(app)/settings/promos/page.tsx",
+        "src/app/analytics/page.tsx",
+        "src/app/api/marketing/automation/route.ts",
+        "src/app/api/public-page-assets/[...parts]/route.ts",
+        "src/app/api/v1/marketing/insights/route.ts",
+        "src/app/blog/[slug]/page.tsx",
+        "src/app/blog/page.tsx",
+        "src/app/bodas/page.tsx",
+        "src/app/buscar/page.tsx",
+        "src/app/catalogo/[tipo]/page.tsx",
+        "src/app/catalogo/page.tsx",
+        "src/app/club-uruguay/page.tsx",
+        "src/app/cumpleanos/page.tsx",
+        "src/app/experiencia-ak/page.tsx",
+        "src/app/experiencia/page.tsx",
+        "src/app/galeria-led/page.tsx",
+        "src/app/landing/[slug]/page.tsx",
+        "src/app/landing/bodas/page.tsx",
+        "src/app/landing/eventos/page.tsx",
+        "src/app/landing/page.tsx",
+        "src/app/landing/xv-anos/page.tsx",
+        "src/app/mantenimiento/page.tsx",
+        "src/app/marketing/checklist/page.tsx",
+        "src/app/marketing/demo-tecnologia/page.tsx",
+        "src/app/marketing/page.tsx",
+        "src/app/marketing/plantillas/page.tsx",
+        "src/app/page.tsx",
+        "src/app/presentacion-led/page.tsx",
+        "src/app/presentacion-led/portafolio/fiesta/[id]/page.tsx",
+        "src/app/presentacion-led/portafolio/page.tsx",
+        "src/app/presentacion/page.tsx",
+        "src/app/privacidad/page.tsx",
+        "src/app/public/[eventType]/page.tsx",
+        "src/app/public/blog/[slug]/page.tsx",
+        "src/app/public/blog/page.tsx",
+        "src/app/public/page.tsx",
+        "src/app/quinceaneras/page.tsx",
+        "src/app/recursos-multi-evento/page.tsx",
+        "src/app/simulador-ak/page.tsx",
+        "src/app/simulador-de-presupuesto/page.tsx",
+        "src/app/simulador/page.tsx",
+        "src/app/tecnologia/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/alta-de-promo-manda-su-intento.test.tsx",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/app/(app)/settings/promos/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-privacidad-dice-la-ley-y-la-verdad.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/privacidad/page.tsx",
+            "src/components/public-footer.tsx",
+            "src/app/actions/settings.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/presentacion-catalogo.test.ts",
+          "status": "passed",
+          "assertions": 10,
+          "directImports": [
+            "src/app/presentacion-led/lib/contenido-por-tipo.ts",
+            "src/lib/public-content-defaults.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/auditoria-74-categorias-y-contacto.test.ts",
+          "status": "passed",
+          "assertions": 11,
+          "directImports": [
+            "src/app/privacidad/page.tsx",
+            "src/app/actions/settings.ts",
+            "src/components/landing/gallery-media-utils.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-salon-muestra-lo-que-se-cargo.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/club-uruguay/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/portal-led-calculos.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/presentacion-led/lib/calculos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-promocion-de-la-portada-sale-de-lo-cargado.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/promos.ts",
+            "src/components/landing/CTASection.tsx"
+          ]
+        },
+        {
+          "test": "src/components/landing/landing-media-contract.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/components/landing/GallerySection.tsx",
+            "src/components/landing/VideoSection.tsx",
+            "src/components/landing/SalonDestacadoSection.tsx",
+            "src/components/landing/ServicesSection.tsx",
+            "src/components/landing/event-type-images.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/50-la-app-de-tu-fiesta-recorrido.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/components/landing/LaAppDeTuFiestaSection.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-galeria-clasifica-bien-la-bienvenida.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/components/landing/gallery-media-utils.ts"
+          ]
+        },
+        {
+          "test": "src/components/landing/TestimonialsSection.test.ts",
+          "status": "passed",
+          "assertions": 1,
+          "directImports": [
+            "src/components/landing/TestimonialsSection.tsx"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "redes",
+      "name": "Instagram, YouTube y galería",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-09",
+        "commit": "497ee725",
+        "hallazgos": 2,
+        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
+      },
+      "routeFiles": [
+        "src/app/(app)/empresa/galeria/page.tsx",
+        "src/app/(app)/empresa/presencia-digital/page.tsx",
+        "src/app/(app)/empresa/red-social-eventos/page.tsx",
+        "src/app/(app)/empresa/redes-sociales/ia-marketing/page.tsx",
+        "src/app/(app)/empresa/redes-sociales/page.tsx",
+        "src/app/(app)/settings/biblioteca-visual-ak/page.tsx",
+        "src/app/(app)/settings/social-connections/page.tsx",
+        "src/app/api/social-gallery/[fiestaId]/[filename]/route.ts",
+        "src/app/api/social-gallery/[fiestaId]/download/route.ts",
+        "src/app/api/social-media-assets/[filename]/route.ts"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/pregunta-58-rebarrido.test.ts",
+          "status": "passed",
+          "assertions": 20,
+          "directImports": [
+            "src/app/actions/itinerary-templates.ts",
+            "src/app/actions/salon-layout-templates.ts",
+            "src/app/actions/deco-canvas-templates.ts",
+            "src/app/actions/fiesta/decoracion.actions.ts",
+            "src/app/actions/fiesta/live.actions.ts",
+            "src/app/actions/social-interactive.ts",
+            "src/app/actions/social-gallery.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/customers.ts",
+            "src/app/actions/social-gallery.ts",
+            "src/lib/firebase/storage.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/certificacion-cuatro-hallazgos.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/offline/offline-db.ts",
+            "src/lib/offline/offline-sync-manager.ts",
+            "src/app/actions/social-gallery.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/comentarios-redes-sincronizacion.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/social-media/comments-backfill.ts",
+            "src/lib/data-service.ts",
+            "src/lib/social-media/clasificador-comentarios.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/redes-sociales-error-de-lectura-con-reintento.test.tsx",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/(app)/empresa/redes-sociales/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/instagram-production-integrity.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/social-media.ts",
+            "src/lib/marketing/internal-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/una-lectura-que-falla-no-se-muestra-como-vacio.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/app/actions/social-gallery.ts",
+            "src/app/actions/social-interactive.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/app/actions/agenda.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/panel-presencia-digital-cuatro-bloques.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/presencia-digital/publicador.ts",
+            "src/app/actions/presencia-digital.ts",
+            "src/lib/data-service.ts",
+            "src/lib/ai/consumo-servidor.ts",
+            "src/ai/flows/marketing-agent-flow.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/social-gallery.ts",
+            "src/app/actions/social-media.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/social-media.ts",
+            "src/app/actions/galeria.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-foto-sin-revisar-queda-pendiente-no-rechazada.test.ts",
+          "status": "passed",
+          "assertions": 10,
+          "directImports": [
+            "src/app/actions/social-gallery.ts",
+            "src/lib/social-fiesta/content-review.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/instagram-sync-videos-concurrentes.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/social-media.ts",
+            "src/app/actions/galeria.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/orden-86-acciones.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/fiesta/proponer-equipo.actions.ts",
+            "src/app/actions/google-business-resenas.ts",
+            "src/lib/social-media/google-business-resenas.ts",
+            "src/app/actions/touchpix-ai.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-respuesta-a-comentarios-no-inventa.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/social-media/comments-backfill.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts",
+          "status": "passed",
+          "assertions": 10,
+          "directImports": [
+            "src/lib/instagram/public-feed.ts",
+            "src/lib/commercial/acquisition.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/citas-y-comentarios-fusionan-sobre-lo-actual.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/simulator-agenda.ts",
+            "src/lib/social-media/guardar-comentarios.ts",
+            "src/lib/social-media/comments-backfill.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/ia-flujos-no-fingen-exito.test.ts",
+          "status": "passed",
+          "assertions": 13,
+          "directImports": [
+            "src/app/actions/sales-pitch-ia.actions.ts",
+            "src/app/actions/dj-ia.actions.ts",
+            "src/app/actions/timeline-ia.actions.ts",
+            "src/lib/social-media/clasificador-comentarios.ts",
+            "src/lib/social-media/comments-backfill.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/marketing-automation-integrity.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/blog-ai-generator.ts",
+            "src/app/actions/social-media.ts",
+            "src/lib/marketing-automation.ts",
+            "src/lib/marketing/internal-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/youtube-sube-el-video.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/social-media/youtube-publisher.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/subir-foto-de-mision-suma-puntos.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/social-gallery.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/instagram-no-duplica-al-sincronizar.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/social-media.ts",
+            "src/lib/instagram/public-feed.ts",
+            "src/lib/marketing/internal-token.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/get-social-posts-no-convierte-falla-en-vacio.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/social-media.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/tiktok-no-canta-victoria-antes.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/social-media/tiktok-publisher.ts",
+            "src/lib/presencia-digital/publicador.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/multi-social-publisher.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/social-media/social-one-touch-helper.ts",
+            "src/lib/social-media/unified-gateway-publisher.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/encontrarme-en-google.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/presencia-digital/google-analytics.ts",
+            "src/lib/public-contact.ts",
+            "src/lib/seo/paginas-publicas.ts",
+            "src/lib/presencia-digital/publicador.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/galeria-historial-instagram-completo.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/instagram/public-feed.ts",
+            "src/lib/data-service.ts",
+            "src/lib/social-media/meta-history-backfill.ts",
+            "src/app/actions/social-history.ts",
+            "src/app/actions/conexiones-estado.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/publicador-no-publica-dos-veces.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/presencia-digital/publicador.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/history-import.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/social-media/history-import.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/fase2-completion.test.ts",
+          "status": "passed",
+          "assertions": 18,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/app/actions/invoices.ts",
+            "src/app/actions/social-gallery.ts",
+            "src/app/actions/social-interactive.ts",
+            "src/app/actions/crm.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/resenas-google-borrador-y-publicar.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/social-media/google-business-resenas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-publicacion-manual-no-sale-dos-veces.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/data-service.ts",
+            "src/lib/social-media/meta-publisher.ts",
+            "src/lib/social-media/tiktok-publisher.ts",
+            "src/lib/presencia-digital/publicador.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/volver-a-publicar-copia-y-programa.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/presencia-digital/publicador.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "estaciones",
+      "name": "Entretenimiento: fotocabina, 360, espejo, muro, tótem",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-11",
+        "commit": "755f0707",
+        "hallazgos": 1,
+        "reporte": "Auditoría 98 de Codex (orden 150, PR 1288)"
+      },
+      "routeFiles": [
+        "src/app/api/buzon/[fiestaId]/download/route.ts",
+        "src/app/api/integrations/spotify/search/route.ts",
+        "src/app/api/manifest-estacion/route.ts",
+        "src/app/evento/[id]/video-recuerdo/page.tsx",
+        "src/app/evento/accesos/[fiestaId]/page.tsx",
+        "src/app/evento/actual/checkin/page.tsx",
+        "src/app/evento/actual/mesa/page.tsx",
+        "src/app/evento/actual/page.tsx",
+        "src/app/evento/album/[fiestaId]/page.tsx",
+        "src/app/evento/barra/[fiestaId]/barman/page.tsx",
+        "src/app/evento/barra/[fiestaId]/listo/page.tsx",
+        "src/app/evento/barra/[fiestaId]/page.tsx",
+        "src/app/evento/barra/[fiestaId]/stats/page.tsx",
+        "src/app/evento/barra/page.tsx",
+        "src/app/evento/bienvenida/[fiestaId]/page.tsx",
+        "src/app/evento/bogue/[fiestaId]/page.tsx",
+        "src/app/evento/buzon/[fiestaId]/page.tsx",
+        "src/app/evento/buzon/page.tsx",
+        "src/app/evento/dj/[fiestaId]/page.tsx",
+        "src/app/evento/dj/page.tsx",
+        "src/app/evento/en-vivo/[fiestaId]/invitados/page.tsx",
+        "src/app/evento/en-vivo/[fiestaId]/organizador/page.tsx",
+        "src/app/evento/en-vivo/[fiestaId]/page.tsx",
+        "src/app/evento/en-vivo/[fiestaId]/pantalla/page.tsx",
+        "src/app/evento/espejo-magico/[fiestaId]/page.tsx",
+        "src/app/evento/espejo-magico/page.tsx",
+        "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+        "src/app/evento/fotocabina/page.tsx",
+        "src/app/evento/galeria/[fiestaId]/page.tsx",
+        "src/app/evento/hub/[fiestaId]/page.tsx",
+        "src/app/evento/impresion/[fiestaId]/page.tsx",
+        "src/app/evento/impresion/page.tsx",
+        "src/app/evento/inicio/page.tsx",
+        "src/app/evento/logistica/[fiestaId]/page.tsx",
+        "src/app/evento/mi-mesa/[fiestaId]/page.tsx",
+        "src/app/evento/moderacion/[fiestaId]/page.tsx",
+        "src/app/evento/muro-en-vivo/[fiestaId]/afiche/page.tsx",
+        "src/app/evento/muro-en-vivo/[fiestaId]/page.tsx",
+        "src/app/evento/muro-en-vivo/page.tsx",
+        "src/app/evento/page.tsx",
+        "src/app/evento/plataforma-360/[fiestaId]/page.tsx",
+        "src/app/evento/plataforma-360/page.tsx",
+        "src/app/evento/social/[fiestaId]/page.tsx",
+        "src/app/evento/staff/[fiestaId]/cronograma/page.tsx",
+        "src/app/evento/totem/[fiestaId]/[totemId]/page.tsx",
+        "src/app/evento/totem/page.tsx",
+        "src/app/evento/touchpix/[fiestaId]/page.tsx",
+        "src/app/evento/touchpix/page.tsx",
+        "src/app/evento/video-vida/[fiestaId]/page.tsx",
+        "src/app/evento/video-vida/page.tsx",
+        "src/app/evento/zona-digital/[fiestaId]/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/el-muro-pinta-fotos-si-chat-se-cuelga.test.tsx",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/evento/muro-en-vivo/[fiestaId]/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-trivia-lanzada-se-ve-en-el-celular.test.tsx",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/evento/social/[fiestaId]/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-qr-no-tumba-la-pantalla.test.tsx",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/components/entretenimiento/QrRecuerdo.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-totem-apaga-el-microfono.test.tsx",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/evento/totem/[fiestaId]/[totemId]/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-cronograma-del-personal-marca-el-hito.test.tsx",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/evento/staff/[fiestaId]/cronograma/page.tsx"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "barra",
+      "name": "Barra de tragos",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-06",
+        "commit": "368988b",
+        "hallazgos": 3,
+        "reporte": "codex/auditoria-73-20261006:docs/evidencias/74-matriz-de-cierre.md"
+      },
+      "routeFiles": [],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/pregunta-58-rebarrido-plata.test.ts",
+          "status": "passed",
+          "assertions": 14,
+          "directImports": [
+            "src/app/actions/promos.ts",
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts",
+            "src/app/actions/insumos.ts",
+            "src/app/actions/menus-catering.ts",
+            "src/app/actions/accesos-personal.ts",
+            "src/app/actions/activos-fijos.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/guardados-de-la-fiesta-no-se-pisan.test.ts",
+          "status": "passed",
+          "assertions": 10,
+          "directImports": [
+            "src/app/actions/fiesta/tareas.actions.ts",
+            "src/app/actions/fiesta/reuniones.actions.ts",
+            "src/app/actions/personal-fiestas.ts",
+            "src/app/actions/fiesta/itinerario.actions.ts",
+            "src/app/actions/fiesta/invitados.actions.ts",
+            "src/app/actions/fiesta/musica.actions.ts",
+            "src/app/actions/fiesta/regalos.actions.ts",
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts",
+          "status": "passed",
+          "assertions": 9,
+          "directImports": [
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-pantalla-trago-listo.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/fiesta/barra-tecnologica.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/ultimate-event-system.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/fiesta-defaults.ts",
+            "src/lib/experience-ak/ultimate-event-system.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/auditoria-defectos-tapados.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/fiesta-defaults.ts"
+          ]
+        },
+        {
+          "test": "src/lib/__tests__/barra-tecnologica.test.ts",
+          "status": "passed",
+          "assertions": 11,
+          "directImports": [
+            "src/lib/barra-tecnologica.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/barra/cierre-de-barra.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/fiesta-sync-compat.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/fiesta-sync-utils.ts",
+            "src/lib/fiesta-defaults.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/impresos-con-los-datos-reales.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/fiesta-defaults.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/fiesta-defaults.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "asistente",
+      "name": "Asistente AK y WhatsApp",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-11",
+        "commit": "755f0707",
+        "hallazgos": 2,
+        "reporte": "Auditorías 97-98 de Codex (orden 149, PR 1288)"
+      },
+      "routeFiles": [
+        "src/app/(app)/asistente/page.tsx",
+        "src/app/(app)/contabilidad/crm/agenda/page.tsx",
+        "src/app/(app)/contabilidad/crm/atraccion-fiestas/page.tsx",
+        "src/app/(app)/contabilidad/crm/ciclo-comercial/page.tsx",
+        "src/app/(app)/contabilidad/crm/marketing-ads/page.tsx",
+        "src/app/(app)/contabilidad/crm/outbox/page.tsx",
+        "src/app/(app)/contabilidad/crm/page.tsx",
+        "src/app/(app)/empresa/crm/page.tsx",
+        "src/app/(app)/multiagente/acciones/page.tsx",
+        "src/app/(app)/multiagente/contable/page.tsx",
+        "src/app/(app)/multiagente/equipo/page.tsx",
+        "src/app/(app)/multiagente/fiestas/page.tsx",
+        "src/app/(app)/multiagente/memoria/page.tsx",
+        "src/app/(app)/multiagente/page.tsx",
+        "src/app/(app)/settings/agentes-autonomos/page.tsx",
+        "src/app/(app)/settings/ai-assistant/page.tsx",
+        "src/app/(app)/settings/asistente/page.tsx",
+        "src/app/(app)/settings/asistentes-contextuales/page.tsx",
+        "src/app/(app)/settings/whatsapp-business/conversations/page.tsx",
+        "src/app/(app)/settings/whatsapp-business/page.tsx",
+        "src/app/(app)/settings/whatsapp-templates/page.tsx",
+        "src/app/(app)/settings/whatsapp/page.tsx",
+        "src/app/admin/asistente-ak/page.tsx",
+        "src/app/api/asistente/voz-en-vivo/route.ts",
+        "src/app/api/asistente/voz-parte/route.ts",
+        "src/app/api/multiagent/message/route.ts",
+        "src/app/api/whatsapp/webhook/route.ts",
+        "src/app/prospectos/[prospectId]/page.tsx",
+        "src/app/prospectos/page.tsx",
+        "src/app/secretaria-ak/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/el-secretario-hace-tres-cosas-mas.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/multiagent.ts",
+            "src/ai/flows/multiagent-flow.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/fiesta/tareas.actions.ts",
+            "src/app/actions/fiesta/invitados.actions.ts",
+            "src/app/actions/incidents.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-secretario-hace-lo-del-dia.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/multiagent.ts",
+            "src/lib/google-workspace.ts",
+            "src/app/actions/scheduled-messages.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/49-acciones-fiesta-verifican-guardado.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/fiesta/decoracion.actions.ts",
+            "src/app/actions/fiesta/musica.actions.ts",
+            "src/app/actions/fiesta/social-screen.actions.ts",
+            "src/app/actions/fiesta/configuracion.actions.ts",
+            "src/app/actions/fiesta/live.actions.ts",
+            "src/app/actions/fiesta/regalos.actions.ts",
+            "src/app/actions/fiesta/reuniones.actions.ts",
+            "src/app/actions/fiesta/screen-playlist.actions.ts",
+            "src/app/actions/fiesta/tareas.actions.ts",
+            "src/app/actions/fiesta/video-vida.actions.ts",
+            "src/app/actions/meeting-intelligence.ts",
+            "src/app/actions/multiagent.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/fiesta-actual.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/whatsapp-del-equipo.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/asistente/por-whatsapp.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-multiagente-tiene-tope.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/api/multiagent/message/route.ts",
+            "src/lib/auth/session-token.ts",
+            "src/lib/commercial/public-rate-limit.ts",
+            "src/lib/ai/consumo-servidor.ts",
+            "src/app/actions/multiagent.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-asistente-cuida-la-plata.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/asistente/que-puede-hacer-solo.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/ia-86-tareas-y-exito.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/actions/multiagent.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-voz-en-vivo-ruta.test.ts",
+          "status": "passed",
+          "assertions": 12,
+          "directImports": [
+            "src/app/api/asistente/voz-en-vivo/route.ts",
+            "src/lib/utils.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-voz-de-gemini-tts.test.ts",
+          "status": "passed",
+          "assertions": 12,
+          "directImports": [
+            "src/lib/asistente/voz-gemini.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts",
+            "src/data/preguntas-frecuentes-contrato.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/ia-86-la-voz-parada-no-suena.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/asistente/reproductor-voz.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/las-preguntas-del-contrato-llegan.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/data/preguntas-frecuentes-contrato.ts",
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/asistente-aislamiento-fiestas-y-seguridad.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/asistente-virtual.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-voz-en-vivo-lib.test.ts",
+          "status": "passed",
+          "assertions": 16,
+          "directImports": [
+            "src/lib/asistente/voz-en-vivo.ts",
+            "src/lib/asistente/avisar-al-duenio.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/ia-tarea-sin-fiesta-queda-como-recordatorio.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/app/actions/multiagent.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-duenio-se-entera-de-lo-que-pregunta-el-cliente.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/actions/asistente-virtual.ts",
+            "src/app/actions/fiesta/portal.actions.ts",
+            "src/ai/genkit.ts",
+            "src/app/actions/notifications.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/conversacion-en-vivo-con-voz.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/asistente/que-puede-hacer-solo.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-asistente-se-anticipa.test.ts",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/app/actions/asistente-proactivo.actions.ts",
+            "src/lib/asistente/propuestas-service.ts",
+            "src/lib/asistente/avisar-al-duenio.ts",
+            "src/lib/asistente/clima-de-las-fiestas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-asistente-no-guarda-la-fiesta-como-cita.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/app/actions/multiagent.ts",
+            "src/lib/assistant/tools/executors.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-voz-en-vivo-cancela-y-reintenta.test.ts",
+          "status": "passed",
+          "assertions": 9,
+          "directImports": [
+            "src/lib/asistente/control-voz-en-vivo.ts",
+            "src/lib/asistente/sesion-voz-en-vivo.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-voz-en-vivo-cliente.test.ts",
+          "status": "passed",
+          "assertions": 11,
+          "directImports": [
+            "src/lib/asistente/sesion-voz-en-vivo.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/aceptar-una-propuesta-respeta-la-regla-de-oro.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/asistente/propuestas-service.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "personal",
+      "name": "Personal, llegada y recibos de sueldo",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": null,
+      "routeFiles": [
+        "src/app/(app)/empleados/[id]/editar/page.tsx",
+        "src/app/(app)/empleados/[id]/historial/page.tsx",
+        "src/app/(app)/empleados/nuevo/page.tsx",
+        "src/app/(app)/empleados/page.tsx",
+        "src/app/(app)/empleados/reporte/page.tsx",
+        "src/app/(app)/empleados/roles/page.tsx",
+        "src/app/(app)/empresa/empleados/reporte/page.tsx",
+        "src/app/(app)/empresa/personal/[empleadoId]/historial/page.tsx",
+        "src/app/acceso-personal/[tokenId]/page.tsx",
+        "src/app/personal/[empleadoId]/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/pregunta-58-altas-reintento-no-duplica.test.ts",
+          "status": "passed",
+          "assertions": 15,
+          "directImports": [
+            "src/app/actions/incidents.ts",
+            "src/app/actions/agenda.ts",
+            "src/app/actions/salones.ts",
+            "src/app/actions/invitacion-digital-templates.ts",
+            "src/app/actions/scheduled-messages.ts",
+            "src/app/actions/crm.ts",
+            "src/app/actions/proveedores.ts",
+            "src/app/actions/empleados.ts",
+            "src/app/actions/servicios-empresa.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/personal-agenda-server.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/app/actions/fiesta/personal.actions.ts",
+            "src/lib/auth/require-session.ts",
+            "src/app/actions/fiesta/fiesta.actions.ts",
+            "src/app/actions/empleados.ts",
+            "src/lib/staff-agenda-conflicts.ts",
+            "src/app/actions/google-workspace.ts",
+            "src/lib/staff-agenda-data.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-llegada-con-ubicacion-mide-bien.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/geo/distancia.ts",
+            "src/app/actions/accesos-personal-view.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/personal-vigencia-y-coordenadas-invalidas.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/app/actions/accesos-personal-view.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/resenas-y-plan-equipo.test.ts",
+          "status": "passed",
+          "assertions": 11,
+          "directImports": [
+            "src/app/actions/feedback.ts",
+            "src/app/actions/accesos-personal-view.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    },
+    {
+      "id": "automaticos",
+      "name": "Tareas automáticas y avisos",
+      "registeredStatus": "con-hallazgos",
+      "registeredRevision": {
+        "fecha": "2026-10-09",
+        "commit": "497ee725",
+        "hallazgos": 3,
+        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
+      },
+      "routeFiles": [
+        "src/app/(app)/alertas/page.tsx",
+        "src/app/(app)/playbooks/page.tsx",
+        "src/app/(app)/repaso-diario/page.tsx",
+        "src/app/(app)/settings/backup-final/page.tsx",
+        "src/app/(app)/settings/backup/page.tsx",
+        "src/app/(app)/settings/cierre-global-producto/page.tsx",
+        "src/app/(app)/settings/cierre-operativo-final/page.tsx",
+        "src/app/(app)/settings/datos/page.tsx",
+        "src/app/(app)/settings/instalar-app/page.tsx",
+        "src/app/(app)/settings/lanzamiento-cto/page.tsx",
+        "src/app/(app)/settings/mapa-tecnologico-ak/page.tsx",
+        "src/app/(app)/settings/notifications/page.tsx",
+        "src/app/(app)/settings/page.tsx",
+        "src/app/(app)/settings/sincronizaciones/page.tsx",
+        "src/app/(app)/settings/tareas-automaticas/page.tsx",
+        "src/app/(app)/settings/task-templates/page.tsx",
+        "src/app/(app)/settings/videos-de-ayuda/page.tsx",
+        "src/app/admin/carga-historicos/page.tsx",
+        "src/app/api/backup/download/route.ts",
+        "src/app/api/backup/upload/route.ts",
+        "src/app/api/cron-despachador/route.ts",
+        "src/app/api/cron/asistente-proactivo/route.ts",
+        "src/app/api/cron/avisos-al-cliente/route.ts",
+        "src/app/api/cron/fiesta-proxima-revision/route.ts",
+        "src/app/api/cron/generate-blog-post/route.ts",
+        "src/app/api/cron/metricas-de-redes/route.ts",
+        "src/app/api/cron/posicionamiento-diario/route.ts",
+        "src/app/api/cron/prospectos-seguimiento/route.ts",
+        "src/app/api/cron/publicar-programados/route.ts",
+        "src/app/api/cron/recordar-invitacion-no-abierta/route.ts",
+        "src/app/api/cron/recordatorio-a-los-invitados/route.ts",
+        "src/app/api/cron/recordatorios-de-pago/route.ts",
+        "src/app/api/despertar/route.ts",
+        "src/app/api/health/route.ts",
+        "src/app/api/imports/confirmed-events-29/route.ts",
+        "src/app/api/storage/signed-url/route.ts",
+        "src/app/configuracion/backup-final/page.tsx",
+        "src/app/control-tower/automatizaciones/page.tsx",
+        "src/app/control-tower/comercial/page.tsx",
+        "src/app/control-tower/page.tsx",
+        "src/app/control-tower/post-fiesta/page.tsx",
+        "src/app/control-tower/preparacion/page.tsx"
+      ],
+      "testsWithDirectSourceReferences": [
+        {
+          "test": "src/__tests__/el-recordatorio-al-invitado-no-se-repite.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/app/api/cron/recordatorio-a-los-invitados/route.ts",
+            "src/lib/data-service.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/sincronizaciones-error-de-lectura-e-historial-instagram.test.tsx",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/app/(app)/settings/sincronizaciones/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/revision-web-pide-las-paginas.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/automatico/posicionamiento-diario.ts",
+            "src/lib/seo/paginas-publicas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/el-parte-de-la-manana-no-miente.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/automatico/parte-manana.ts",
+            "src/lib/utils.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/los-documentos-de-plata-piden-permiso.test.ts",
+          "status": "passed",
+          "assertions": 51,
+          "directImports": [
+            "src/app/api/employee-contracts/[filename]/route.ts",
+            "src/app/api/contracts/[filename]/route.ts",
+            "src/app/api/payment-proofs/[filename]/route.ts",
+            "src/app/api/budgets/[filename]/route.ts",
+            "src/app/api/salon-contracts/[filename]/route.ts",
+            "src/app/api/contracts/fiestas/[...parts]/route.ts",
+            "src/app/api/storage/signed-url/route.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/la-hora-de-uruguay-en-agenda-y-recordatorios.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/agenda/horarios-disponibles.ts",
+            "src/lib/experience-ak/post-event-utils.ts",
+            "src/app/api/cron/recordatorio-a-los-invitados/route.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/concurrencia-tareas-automaticas.test.ts",
+          "status": "passed",
+          "assertions": 6,
+          "directImports": [
+            "src/lib/automatico/control-concurrencia.ts",
+            "src/lib/data-service.ts",
+            "src/lib/automatico/al-entrar-a-la-app.ts",
+            "src/lib/automatico/tareas-automaticas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/despliegue-incluye-despertador.test.ts",
+          "status": "passed",
+          "assertions": 4,
+          "directImports": [
+            "src/lib/automatico/tareas-automaticas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/control-tower-fallas-de-lectura-no-son-calma.test.tsx",
+          "status": "passed",
+          "assertions": 8,
+          "directImports": [
+            "src/app/control-tower/comercial/page.tsx",
+            "src/app/control-tower/post-fiesta/page.tsx",
+            "src/app/control-tower/automatizaciones/page.tsx"
+          ]
+        },
+        {
+          "test": "src/__tests__/lo-automatico-que-se-ve-y-panel-dj.test.ts",
+          "status": "passed",
+          "assertions": 7,
+          "directImports": [
+            "src/lib/automatico/tareas-automaticas.ts",
+            "src/app/actions/conexiones-estado.actions.ts",
+            "src/app/actions/tareas-automaticas.actions.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/tareas-no-corren-con-la-base-caida.test.ts",
+          "status": "passed",
+          "assertions": 5,
+          "directImports": [
+            "src/lib/whatsapp/avisos-al-cliente.ts",
+            "src/app/api/cron/asistente-proactivo/route.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/tareas-no-marcan-exito-al-fallar.test.ts",
+          "status": "passed",
+          "assertions": 2,
+          "directImports": [
+            "src/lib/automatico/al-entrar-a-la-app.ts",
+            "src/lib/automatico/control-concurrencia.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/lo-automatico-tiene-que-haber-pasado.test.ts",
+          "status": "passed",
+          "assertions": 14,
+          "directImports": [
+            "src/lib/automatico/tareas-automaticas.ts"
+          ]
+        },
+        {
+          "test": "src/__tests__/hoy-es-uruguay-en-todos-lados.test.ts",
+          "status": "passed",
+          "assertions": 3,
+          "directImports": [
+            "src/lib/utils.ts",
+            "src/lib/automatico/parte-manana.ts",
+            "src/lib/presencia-digital/revision-diaria.ts"
+          ]
+        }
+      ],
+      "evidenceMeaning": "DIRECT_IMPORT_RELEVANCE_ONLY_NOT_PROVEN_FUNCTIONAL_COVERAGE",
+      "fullCurrentAreaAcceptance": false
+    }
+  ]
+}

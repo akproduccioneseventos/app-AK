@@ -1,0 +1,44 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "documentaryHead": "99d53beb22266172e525961041d9ef95b1559c47",
+  "startedAt": "2026-10-15T11:23:31.001Z",
+  "child": 4260,
+  "launcher": 11768,
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/128-jest.json"
+  ],
+  "credentials": "MISSING_SENTINEL_NO_INHERITED_KEYS",
+  "mode": "FULL_EXISTING_JEST_NOT_BUILD_NOT_BROWSER",
+  "status": "finished",
+  "exitCode": 0,
+  "finishedAt": "2026-10-15T11:33:16.665Z",
+  "cleanup": {
+    "restored": [
+      {
+        "file": "src\\data\\notification-preferences.json",
+        "beforeSha256": "faea14978ca2d31280e79fb8fc166c3c90645ca1861726e2b4267329b27785d9",
+        "qaSha256": "eb10b5630140edee9502ffec20d3906672a872f5497049ac516d5ffc85e9ab75"
+      },
+      {
+        "file": "src\\data\\notifications.json",
+        "beforeSha256": "10e60b3cf4d3013dfafc452a2ebe87ed31baa0f2e1c102a122e4af1809ac75a6",
+        "qaSha256": "137bd8993006160e6d2e965b1b39c2e2e271e82a9491b70cdfcbe3e0571b217b"
+      },
+      {
+        "file": "data\\notification-preferences.json",
+        "beforeSha256": "faea14978ca2d31280e79fb8fc166c3c90645ca1861726e2b4267329b27785d9",
+        "qaSha256": "eb10b5630140edee9502ffec20d3906672a872f5497049ac516d5ffc85e9ab75"
+      },
+      {
+        "file": "data\\notifications.json",
+        "beforeSha256": null,
+        "qaSha256": "137bd8993006160e6d2e965b1b39c2e2e271e82a9491b70cdfcbe3e0571b217b"
+      }
+    ],
+    "bytesRestored": true
+  }
+}
