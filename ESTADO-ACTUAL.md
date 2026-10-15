@@ -4,7 +4,8 @@ Codex SOLO AUDITA; Gemini programa, Claude revisa/compila/valida/fusiona.
 No implementar app, compilar ni fusionar por Codex. Conservar dinero/permisos.
 Main a97d33f0e73492a15f9eeacee4373668b059caf6, app igual ce1ac07d.
 PR1308 integrada via1309; NO subir rama129 cerrada. Antes1306 via1307.
-Rama nueva codex/130-auditoria-pendientes-20261015 desde a97; una tanda borrador.
+PR1311 ABIERTA/BORRADOR, codex/130-auditoria-pendientes-20261015 desde a97.
+Snapshot0dc10bbd verificado57blobs remotos; recibo130-entrega-remota.json.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI, HEAD desconocido.
 PR1310c49a231d publica:12fuentes directas167 iguales; no aprobacion de1310.
 165/166 en manos de Gemini; no repetir sondas sin cambio ni reencargar arreglos.

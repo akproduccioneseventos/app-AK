@@ -6,6 +6,8 @@
   Maina97d33f0 incorpora documentos129 via1309, app igual ce1ac07d. PR1308
   integrada por Claude: NO subir a rama129 cerrada. Nueva rama130 desdea97.
   Privados Claude/Gemini NO CONTRASTADOS, HEAD desconocido.
+- Entregada PR1311 ABIERTA/BORRADOR, snapshot0dc10bbd con57blobs remotos
+  identicos. Recibo130-entrega-remota.json. No fusionar documentos solos.
 - Tanda publica1310c49a231d (Gemini165):12fuentes/consumidores de167 iguales
   a main, contraste guardado. No equivalencia transitiva ni aprobacion de1310.
 - P1costos: saveGastoGeneral/getGastosGenerales/getProfitAndLossData REALES
