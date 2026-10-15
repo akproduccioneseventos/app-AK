@@ -1,0 +1,36 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "reason": "Logs byte-exactos, ninguna salida ocultada o convertida en PASS",
+  "files": [
+    {
+      "file": "129-automatizaciones.log",
+      "bytes": 4297,
+      "sha256": "b300ae562776a4b1f59fbc8ad4ed0a71c706e8314721a4203237d246de073001",
+      "archive": "129-automatizaciones.log.gz"
+    },
+    {
+      "file": "129-compras-ampliado.log",
+      "bytes": 1968,
+      "sha256": "e21dca639fced31ca70d5493e4702887ec92e047ac685b1a6e44520d9408dc3d",
+      "archive": "129-compras-ampliado.log.gz"
+    },
+    {
+      "file": "129-compras.log",
+      "bytes": 993,
+      "sha256": "9ee4de95ef263eae286b9edc6a626d6b02a89f6622f238d4ae31b89f0612cfbf",
+      "archive": "129-compras.log.gz"
+    },
+    {
+      "file": "129-personal.log",
+      "bytes": 1882,
+      "sha256": "fdbd1e5a78e006eefa2c805e63e1dcac692e73bb8872e34b822bc6461830e572",
+      "archive": "129-personal.log.gz"
+    },
+    {
+      "file": "129-registro.log",
+      "bytes": 237,
+      "sha256": "26d81c765e5b5c018aa67d4b1762abcd506a741f103834aea3c66094a6aa4064",
+      "archive": "129-registro.log.gz"
+    }
+  ]
+}

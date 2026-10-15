@@ -1,0 +1,26 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "documentaryHead": "f8092c0b62e7212c0bad3512d40622bd75003e61",
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/129-automatizaciones-jest.json",
+    "--testMatch=**/docs/evidencias/129-*.test.ts?(x)",
+    "--runTestsByPath",
+    "docs/evidencias/129-automatizaciones-reales.test.tsx"
+  ],
+  "startedAt": "2026-10-15T12:04:45.386Z",
+  "credentials": "WHITELIST_NO_INHERITED_SERVICE_KEYS_MISSING_ADC_SENTINEL",
+  "scope": "FOCUSED_REAL_MODULES_WITH_FICTITIOUS_DOUBLES_NOT_BUILD_NOT_NATIVE_BROWSER",
+  "status": "finished",
+  "pid": 15792,
+  "exitCode": 1,
+  "signal": null,
+  "finishedAt": "2026-10-15T12:05:20.071Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

@@ -1269,6 +1269,10 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 163 → pregunta 62
 - Orden 164 → pregunta 58
 - Orden 165 → pregunta 13
+- Orden 166 → pregunta 50
+- Auditoria 129 (importe de compras) → pregunta 36
+- Auditoria 129 (recibos y tareas derivados al corregir) → pregunta 9
+- Auditoria 129 (hora de llegada tras reintento) → pregunta 58
 - Auditoria 128 (recibo parcial) → pregunta 9
 - Auditoria 126 (legibilidad del boton de decoracion) → pregunta 63
 - Auditoria 125 (kiosco compartido) → pregunta 63

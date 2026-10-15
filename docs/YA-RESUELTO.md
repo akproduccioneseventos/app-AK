@@ -1,5 +1,35 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Codex129: cinco fallos nuevos COMPROBADOS, PENDIENTES166
+
+- Codex SOLO audito. Fuente appce1ac07d; main nuevo1a717203 tiene el mismo
+  codigo app/dependencias/configuracion, solo integra documentos128 via1307.
+  PR1306 quedo integrada por Claude; no subir mas a esa rama cerrada.
+  Nueva rama documental129 desde1a7, una sola tanda en borrador para integrar
+  con las correcciones de quienes programan, NO fusion documental aislada.
+- Comida/plata: updateShoppingListStatus deja la tarea de pago completada al
+  desmarcar Pagado total, y acepta montoPagado=-500 desde A cuenta. No son
+  los arreglos previos de concurrencia de compras; esos no se reencomiendan.
+  Accionreal con dobles:3PASS/2FAIL, centavos125.50 controlPASS.
+- Automaticos: pagina React+accion reales dicen Revision completa cuando la
+  lectura de fiestas rechazo o un aviso no se guardo. Distinguir de vacio real,
+  silenciado y duplicado, cuyos controles pasan.4PASS/3FAIL; el lote parcial
+  es otro caso del mismo defecto de aviso, no un tercer defecto.
+- Personal: respuesta perdida DESPUES de guardar20:00; reintento20:05 conserva
+  correctamente20:00 en servidor, pero la UI muestra20:05 y al recargar20:00.
+  Pagina/vista/accion reales con dobles:1PASS/1FAIL. No rehacer candado horario.
+- Total14casos nuevos diferentes8PASS/6FAIL, cinco defectos P2. No sumarlos
+  con primera sonda3casos de compras ni con los4819 existentes. Nada corregido
+  por Codex; orden166 con pasos/consumidores/sondas para Gemini/Claude.
+- Dos agentes Luna low acotados de lectura, cerrados. Ningun dato/cuenta/cobro/
+  envio/GPS real; guardia0fixtures alterados, bytes preservados. No build.
+  Reutilizar amplia128 sobre fuente equivalente; no marcar14areas limpias.
+- Informe docs/codex/129-compras-automatizaciones-personal.md. Sondas y salidas
+ 129-*-observado.json/Jest en docs/evidencias, no navegador Next nativo.
+  Privado Claude NO CONTRASTADO. Requisito QA114 vigente, no otra orden igual.
+- Orden165 sigue pendiente de aceptacion, ahora nombrada para Gemini en main.
+  No interpretar estar anotado en YA como estar arreglado ni volver a encargarlo.
+
 ## 15/10/2026 - Codex128: amplia verde, DOS hallazgos NUEVOS PENDIENTES165
 
 - Entrega solo documental en PR1306 BORRADOR, e1a86bcc24blobs verificados;
