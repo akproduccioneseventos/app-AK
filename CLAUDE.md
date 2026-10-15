@@ -1255,6 +1255,12 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Programa Gemini, siempre (15 de octubre de 2026).** Palabras suyas: *"programa gemini siempre"*.
+  Manda sobre todo lo anterior: Claude no escribe código de la app (ni plata, ni arreglos chicos, ni
+  ayudantes que programen). Claude investiga, escribe la orden masticada en `docs/ordenes/`, revisa la
+  entrega con lupa, verifica y fusiona. Codex audita. Única excepción: lo que frene la verificación de
+  una entrega y sea de una línea.
+
 - **Gemini vuelve para lo grande (14 de octubre de 2026).** Palabras suyas: *"para lo próximo a
   programar tenemos a Gemini de nuevo para las cosas grandes"*. Manda sobre la del 10 de octubre:
   lo grande sale como orden masticada en `docs/ordenes/` para Gemini; lo chico y mediano lo

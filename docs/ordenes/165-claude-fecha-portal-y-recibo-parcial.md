@@ -70,6 +70,46 @@ correcta para cliente, contrato subido con recibo fallido avisa lo pendiente,
 recarga conserva el papel y reintento no duplica. SOLO datos sinteticos.
 Claude valida nuevo SHA/compilacion; esta evidencia NO valida el parche futuro.
 
+
+## Camino exacto (Claude, 15/10/2026) — lo programa GEMINI
+
+Una sola propuesta con los dos bloques. Leer antes `docs/ANTES-DE-ENTREGAR.md`. Nombrar el candado de la
+plata (`src/__tests__/el-candado-de-la-plata.test.ts`): no se toca ninguna línea de permisos.
+
+### Bloque 1 — fecha del portal
+- `src/app/portal/[fiestaId]/contrato/page.tsx`, `formatDate` (línea ~28): en vez de `new Date(iso)`, usar
+  `diaCalendario(iso)` de `src/lib/reportes/rango-de-dias.ts` (ya maneja día suelto, hora con zona de Uruguay
+  y medianoche de Greenwich), partir `YYYY-MM-DD` y armar `new Date(anio, mes - 1, dia)` local para el
+  `toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' })`. Vacío o inválido → `'—'`.
+- NO tocar `formatearFechaEvento` ni el recibo impreso: ya están bien.
+
+### Bloque 2 — recibo de seña que no sale
+- `src/types/fiesta.ts` (~línea 1586, junto a `contratoFirmaInfo`): campo nuevo
+  `reciboSenaPendiente?: { motivo: string; fecha: string }`.
+- `src/app/actions/fiesta/documentos.actions.ts`, `dejarLaFiestaContratada` (~línea 320): en el bloque
+  `if (!hasDeposit)`, si `registerBookingDeposit` devuelve `success:false` (usar su `error`) **o** tira
+  excepción (usar `e.message`), guardar `updatedFiesta.reciboSenaPendiente = { motivo, fecha }` **antes**
+  de `saveFiesta`, y devolver `{ success: true, reciboPendiente: motivo }`. Si hay recibo (o ya había),
+  borrar el campo. Tipos de retorno de `dejarLaFiestaContratada` y `uploadPhysicalContract`:
+  agregar `reciboPendiente?: string`. NO deshacer "Contratada", NO crear cobros, NO cambiar montos.
+- `src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx`, `handlePhysicalUpload`
+  (~línea 309): si `result.reciboPendiente`, toast destructivo "Contrato cargado, falta el recibo de seña"
+  con el motivo y "Generalo desde Facturación"; si no, el toast de siempre. Y un cartel persistente
+  (`data-testid="recibo-sena-pendiente"`) arriba del banner de constancia cuando
+  `fiesta?.reciboSenaPendiente` exista, así sobrevive a `loadData`/recarga.
+- Apagar el aviso cuando el recibo por fin se engancha: `addInvoiceId` en
+  `src/app/actions/fiesta/fiesta.actions.ts` (~línea 1275) recibe `opciones?: { esReciboDeSena?: boolean }`
+  y, con eso, saca `reciboSenaPendiente` al guardar (también si el id ya estaba). En
+  `src/app/actions/invoices.ts` las dos llamadas de `registerBookingDeposit` (~líneas 453 y 560) pasan
+  `{ esReciboDeSena: true }`. NO tocar el `requirePermisoAlguno` de esa función.
+
+### Qué tiene que comprobar la prueba
+- Pasar las dos sondas de Codex a `src/__tests__/` (mismo esperado, sin aflojarlo): fecha `2027-08-08` en
+  zona `America/Montevideo` → "08 de agosto de 2027"; recibo con `{success:false}` **y** con excepción →
+  la acción devuelve `reciboPendiente` y la fiesta guardada lleva `reciboSenaPendiente`.
+- Que enganchar el recibo de seña con `esReciboDeSena` borre el aviso, y que enganchar otra factura no.
+- Romperlas a propósito y ver que fallan. Reemplazar las dos líneas `prueba:` de abajo por las rutas reales.
+
 ```comprobar
 archivo: src/app/portal/[fiestaId]/contrato/page.tsx
 usa: formatDate en src/app/portal/[fiestaId]/contrato/page.tsx
