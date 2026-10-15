@@ -115,10 +115,17 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
   const autoSaveRevision = useRef(0);
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
+  const idMenuNuevo = useRef<string>(
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `i${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`,
+  );
   const enqueueMenuSave = useCallback((snapshot: FullMenu) => {
     const pending = saveQueue.current
       .catch(() => undefined)
-      .then(() => saveMenu(snapshot));
+      // Pregunta 58: un menu nuevo lleva siempre la misma identidad mientras el formulario esta abierto:
+      // el autoguardado y el boton Guardar actualizan ESE menu en vez de crear uno por cada toque.
+      .then(() => saveMenu(snapshot, snapshot.id ? undefined : { idIntento: idMenuNuevo.current }));
     saveQueue.current = pending.then(() => undefined, () => undefined);
     return pending;
   }, []);

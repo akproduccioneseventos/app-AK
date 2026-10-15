@@ -1,0 +1,31 @@
+{
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "buildReused": true,
+  "applicationEdited": false,
+  "files": [
+    {
+      "from": "docs/evidencias/125-ejecutar.mjs",
+      "to": "docs/evidencias/126-ejecutar.mjs",
+      "inputSha256": "fb2796db095a2e14e6359624a0f59bb525d161133e1cfdc5569665900708d038",
+      "outputSha256": "4f6e2dae94acc1a3ad408a19119cecc91d4916cf8740f51668bef01de8b67ce9"
+    },
+    {
+      "from": "docs/evidencias/125-fixtures.mjs",
+      "to": "docs/evidencias/126-fixtures.mjs",
+      "inputSha256": "4c4d4fd0b21ded3124cd36551aa8f1be34a219e423fc345a81a31102e53065d3",
+      "outputSha256": "c801652e3e6f823e6a42298fbdebf1a296c5c3cece615a81705d7e8d092bfb9e"
+    },
+    {
+      "from": "docs/evidencias/125-proveedor-doble.mjs",
+      "to": "docs/evidencias/126-proveedor-doble.mjs",
+      "inputSha256": "10f73d493026f3a9e1cce8a222b51321cf3da2c96ce63edc7f146f87fb7ade97",
+      "outputSha256": "98acdbe6ef34338789f4f3a65474ac78340b811d5bbebe3a933fe4e003437864"
+    },
+    {
+      "from": "docs/evidencias/125-detener-entorno.ps1",
+      "to": "docs/evidencias/126-detener-entorno.ps1",
+      "inputSha256": "abe92fd982fd625581408ea16ef0321d3fb81b8519c5d2fef318a17aaae7b98a",
+      "outputSha256": "94c0d2614029a9ace68b527f0e5bd79f7870e2d166f06a3479f3a07d902ac267"
+    }
+  ]
+}

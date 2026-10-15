@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -745,9 +746,13 @@ function MuroSocialContent() {
     const opts = pollOptions.filter(o => o.trim());
     if (!pollQuestion.trim() || opts.length < 2) return;
     setIsCreatingPoll(true);
-    const result = await createPoll(fiestaId, pollQuestion.trim(), opts);
+    // Pregunta 58: reintento de una respuesta perdida = la misma trivia, no dos.
+    const alcance = `trivia:${fiestaId}`;
+    const idIntento = await obtenerIntento(alcance, { q: pollQuestion.trim(), opts });
+    const result = await createPoll(fiestaId, pollQuestion.trim(), opts, { idIntento });
     setIsCreatingPoll(false);
     if (result.success) {
+      terminarIntento(alcance);
       setActivePoll(result.poll ?? null);
       setPollQuestion('');
       setPollOptions(['', '']);

@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState } from 'react';
 import type { InvitacionDigitalConfig, InvitacionPlantillaId, InvitacionSectionId, InvitacionSectionConfig } from '@/types/fiesta';
 import { PLANTILLA_INFO, TIPO_EVENTO_LABELS, DEFAULT_TYPOGRAPHY_CONFIG, DEFAULT_SECTIONS_CONFIG } from '@/lib/invitacion-config-defaults';
@@ -119,8 +120,12 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
       formData.append('file', file);
       formData.append('authorName', 'Organizador');
       formData.append('momentTag', 'galería');
+      // Pregunta 58: reintento de una respuesta perdida = la misma foto, no dos.
+      const alcanceFoto = `foto-galeria:${fiestaId}`;
+      formData.append('idIntento', await obtenerIntento(alcanceFoto, { imageUrl, fiestaId }));
       const result = await uploadSocialPost(formData);
       if (result.success) {
+        terminarIntento(alcanceFoto);
         // Guardada no es publicada: si quedó pendiente de aprobación, se dice tal cual.
         const quedoPendiente = result.post?.moderationStatus === 'pending';
         toast({

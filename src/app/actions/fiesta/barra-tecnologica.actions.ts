@@ -796,9 +796,22 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
     const drink = drinks.find((item) => item.id === input.drinkId);
     if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
 
+    // Pregunta 58: si la respuesta se perdio y el barman reintenta, el pedido ya esta con ese id:
+    // se devuelve ese y NO se vuelven a descontar las botellas.
+    const pedidoId = input.clientRequestId
+      ? `bar_manual_${String(input.clientRequestId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64)}`
+      : '';
+    if (pedidoId) {
+      const yaEsta = await findBarOrder(fiesta, pedidoId);
+      if (yaEsta) {
+        if (yaEsta.fiestaId !== input.fiestaId) return { success: false, error: 'Pedido invalido.' };
+        return { success: true, order: yaEsta };
+      }
+    }
+
     const now = new Date().toISOString();
     const order: BarDrinkOrder = {
-      id: `bar_manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: pedidoId || `bar_manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       fiestaId: input.fiestaId,
       drinkId: drink.id,
       drinkName: drink.nombre,

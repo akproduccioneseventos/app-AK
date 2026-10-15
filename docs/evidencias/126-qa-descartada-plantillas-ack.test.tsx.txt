@@ -1,0 +1,92 @@
+/** ARCHIVED, NOT EXECUTABLE ACCEPTANCE: helper's Jest attempt produced no valid result.
+ * Native Chromium + demo Firestore evidence is in 126-plantillas-native.json.
+ * This draft also assumes incorrect built-in template counts; do not use as a regression gate.
+ */
+import React, { act } from 'react';
+import { createRoot } from 'react-dom/client';
+
+var mockToast: jest.Mock;
+var mockMemory: Map<string, any>;
+var mockReadData: jest.Mock;
+var mockWriteData: jest.Mock;
+var mockRequirePermisoAlguno: jest.Mock;
+var mockRequireAppSession: jest.Mock;
+var mockSaveInvitationTemplate: jest.Mock;
+
+jest.mock('next/link', () => ({ __esModule: true, default: ({ children }: any) => <a>{children}</a> }));
+jest.mock('next/image', () => ({ __esModule: true, default: () => null }));
+jest.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mockToast }) }));
+jest.mock('@/lib/data-service', () => ({ readData: mockReadData, writeData: mockWriteData, deleteDataItem: jest.fn() }));
+jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: mockRequireAppSession, requirePermisoAlguno: mockRequirePermisoAlguno }));
+jest.mock('@/app/actions/invitacion-digital-templates', () => {
+  const real = jest.requireActual('@/app/actions/invitacion-digital-templates');
+  return { ...real, saveInvitationTemplate: (...args: unknown[]) => mockSaveInvitationTemplate(...args) };
+});
+
+mockToast = jest.fn();
+mockMemory = new Map();
+mockReadData = jest.fn(async (key: string, fallback: unknown) => mockMemory.has(key) ? mockMemory.get(key) : fallback);
+mockWriteData = jest.fn(async (key: string, value: unknown) => { mockMemory.set(key, structuredClone(value)); });
+mockRequirePermisoAlguno = jest.fn(async () => undefined);
+mockRequireAppSession = jest.fn(async () => undefined);
+const saveInvitationTemplateReal = jest.requireActual<typeof import('@/app/actions/invitacion-digital-templates')>('@/app/actions/invitacion-digital-templates').saveInvitationTemplate;
+mockSaveInvitationTemplate = jest.fn((...args: unknown[]) => saveInvitationTemplateReal(...args as Parameters<typeof saveInvitationTemplateReal>));
+const InvitationTemplatesPage = require('@/app/(app)/settings/templates/invitaciones/page').default as typeof import('@/app/(app)/settings/templates/invitaciones/page').default;
+const storeKey = 'invitacion-digital-templates.json';
+
+beforeAll(() => { Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true }); });
+afterAll(() => { Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); });
+beforeEach(() => {
+  mockMemory.clear(); mockToast.mockReset(); mockReadData.mockClear(); mockWriteData.mockClear();
+  mockRequirePermisoAlguno.mockClear(); mockRequireAppSession.mockClear();
+});
+
+async function renderScreen() {
+  const host = document.body.appendChild(document.createElement('div'));
+  const root = createRoot(host);
+  await act(async () => { root.render(<InvitationTemplatesPage />); });
+  return { host, root };
+}
+
+async function createClick(host: HTMLElement) {
+  const button = Array.from(host.querySelectorAll('button')).find((item) => item.textContent?.includes('Crear Nueva Plantilla')) as HTMLButtonElement;
+  if (!button) throw new Error('No se encontró el botón visible para crear plantilla.');
+  await act(async () => { button.click(); });
+}
+
+test('respuesta perdida tras persistir: reintento del mismo flujo no duplica plantilla', async () => {
+  mockSaveInvitationTemplate.mockImplementationOnce(async (payload) => {
+      await saveInvitationTemplateReal(payload);
+      throw new Error('respuesta perdida simulada');
+    });
+  const { host, root } = await renderScreen();
+
+  await createClick(host);
+  const firstStore = mockMemory.get(storeKey);
+  expect(mockSaveInvitationTemplate).toHaveBeenCalledTimes(1);
+  expect(mockWriteData).toHaveBeenCalled();
+  expect(firstStore).toHaveLength(1);
+  expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Error', description: expect.stringContaining('respuesta perdida simulada'), variant: 'destructive' }));
+
+  await createClick(host);
+  const retryStore = mockMemory.get(storeKey);
+  expect(retryStore).toHaveLength(1);
+  expect(retryStore[0].id).toBe(firstStore[0].id);
+  expect(retryStore[0]).toEqual(firstStore[0]);
+  expect(mockSaveInvitationTemplate).toHaveBeenCalledTimes(2);
+  expect(mockSaveInvitationTemplate.mock.calls[1][0]).toEqual(mockSaveInvitationTemplate.mock.calls[0][0]);
+
+  act(() => root.unmount()); host.remove();
+});
+
+test('dos creaciones deliberadas en éxito ordinario generan dos plantillas', async () => {
+  const { host, root } = await renderScreen();
+  await createClick(host);
+  await createClick(host);
+
+  const saved = mockMemory.get(storeKey);
+  expect(saved).toHaveLength(2);
+  expect(saved[0].id).not.toBe(saved[1].id);
+  expect(saved.map((item: any) => item.name)).toEqual(['Nueva Plantilla 1', 'Nueva Plantilla 2']);
+  act(() => root.unmount()); host.remove();
+});

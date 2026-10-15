@@ -29,7 +29,7 @@ describe('cross-audit regressions for the client and guest social wall', () => {
     expect(source).toContain("searchParams.get('guestId')");
     expect(source).toContain("searchParams.get('estacion')");
     expect(source).toContain("formData.append('accessToken', stationAccessToken)");
-    expect(source).toContain('addCommentToPost(postId, text, authorName || \'Invitado\', interactionCredentials)');
+    expect(source).toContain('addCommentToPost(postId, text, authorName || \'Invitado\', interactionCredentials, { idIntento })');
   });
 
   it('fails browser routes on any HTTP error and creates the fixture on the Uruguay date', () => {

@@ -1,6 +1,7 @@
 
 'use server';
 
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { createDataItem, deleteDataItem, readData, mutateDataItem } from '@/lib/data-service';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
@@ -31,7 +32,8 @@ export async function getActivoFijoById(id: string): Promise<ServicioEmpresa | n
 }
 
 export async function saveActivoFijo(
-  itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
+  itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
   let inventario = await getActivosFijos();
@@ -77,9 +79,13 @@ export async function saveActivoFijo(
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, el activo ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('activo', opciones?.idIntento);
+    const yaGuardado = idDeLaPantalla ? inventario.find((s) => s.id === idDeLaPantalla) : undefined;
+    if (yaGuardado) return { success: true, id: yaGuardado.id, servicio: yaGuardado };
     const existingItem = inventario.find(s => s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase() && s.categoria === dataWithParsedNumbers.categoria);
     if (existingItem) return { success: false, error: `Ya existe un activo con el nombre "${dataWithParsedNumbers.nombre!.trim()}" en la categoría "${dataWithParsedNumbers.categoria}".` };
-    itemId = `activo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    itemId = idDeLaPantalla ?? `activo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId };
     inventario.push(finalItemData as ServicioEmpresa);
   }

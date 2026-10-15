@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -99,8 +100,12 @@ export default function GestionMenusPage() {
   const handleDuplicateMenu = async (id: string, name: string) => {
     setProcessingId(id);
     try {
-      const result = await conTopeDeEspera(duplicateMenu(id));
+      // Pregunta 58: reintento de una respuesta perdida = la misma copia, no dos.
+      const alcance = `menu-copia:${id}`;
+      const idIntento = await obtenerIntento(alcance, { id });
+      const result = await conTopeDeEspera(duplicateMenu(id, { idIntento }));
       if (result.success) {
+        terminarIntento(alcance);
         toast({ title: 'Menú Duplicado', description: `Se creó una copia de "${name}".` });
         fetchData();
       } else throw new Error(result.error);

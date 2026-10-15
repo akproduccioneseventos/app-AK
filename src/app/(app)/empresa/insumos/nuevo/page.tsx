@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, type FormEvent, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -78,8 +79,11 @@ function NuevoInsumoContent() {
 
 
     try {
-      const result = await saveInsumo(dataToSave);
+      // Pregunta 58: reintento de una respuesta perdida = el mismo insumo, no "ya existe".
+      const idIntento = await obtenerIntento('insumo-nuevo', dataToSave);
+      const result = await saveInsumo(dataToSave, { idIntento });
       if (result.success && result.id) {
+        terminarIntento('insumo-nuevo');
         toast({ title: "¡Ítem Guardado!", description: `El ítem "${dataToSave.nombre}" ha sido añadido.` });
         if (searchParams.get('from') === 'gastronomia') {
             router.push('/empresa/menus');

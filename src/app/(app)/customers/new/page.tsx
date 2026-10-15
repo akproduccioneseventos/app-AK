@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -93,8 +94,12 @@ export default function NewCustomerPage() {
 
 
     try {
-      const result = await saveCustomer(formData); 
+      // Pregunta 58: reintento de una respuesta perdida = el mismo cliente, no dos.
+      const cargaIntento = Array.from(formData.entries()).map(([k, v]) => [k, typeof v === 'string' ? v : `${v.name}:${v.size}`]);
+      const idIntento = await obtenerIntento('cliente-nuevo', cargaIntento);
+      const result = await saveCustomer(formData, { idIntento });
       if (result.success && result.id) {
+        terminarIntento('cliente-nuevo');
         toast({ title: "¡Cliente Guardado!", description: `El cliente "${name.trim() || customerCompanyName.trim() || 'Cliente sin nombre'}" ha sido guardado.` });
         router.push('/customers');
       } else {

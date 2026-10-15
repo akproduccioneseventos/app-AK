@@ -21,7 +21,7 @@ describe('release workflow integrity', () => {
 
   it('creates a real event before navigating from the customer record', () => {
     const page = read('src/app/(app)/customers/[id]/page.tsx');
-    expect(page).toContain('createFiestaVacia(customer.id, customer.name)');
+    expect(page).toContain('createFiestaVacia(customer.id, customer.name, { idIntento })');
     expect(page).toContain('result.newFiestaId');
     expect(page).not.toContain('<Link href="/fiestas/nueva/configuracion">Crear Nuevo Evento</Link>');
   });

@@ -1,4 +1,5 @@
 'use client';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect } from 'react';
@@ -91,8 +92,12 @@ export default function EventoEnVivoPage() {
     const sender = authorName.trim() || 'Familiar a la distancia';
     setSending(true);
     try {
-      const res = await addChatMessage(fiestaId, chatDraft.trim(), sender);
+      // Pregunta 58: si la respuesta se perdio y la persona reintenta, es el mismo mensaje.
+      const alcance = `chat-en-vivo:${fiestaId}`;
+      const idIntento = await obtenerIntento(alcance, { t: chatDraft.trim(), sender });
+      const res = await addChatMessage(fiestaId, chatDraft.trim(), sender, {}, { idIntento });
       if (res.success) {
+        terminarIntento(alcance);
         setChatDraft('');
         const updated = await getChatMessages(fiestaId);
         setMessages(updated);

@@ -1,4 +1,5 @@
 'use server';
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS, puede } from '@/lib/auth/perfiles';
 
@@ -1185,13 +1186,17 @@ export async function deleteAllFiestas(): Promise<{ success: boolean; deletedCou
 
 export async function createFiestaVacia(
   clienteId?: string,
-  clienteNombre?: string
+  clienteNombre?: string,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
     await requireAppSession();
     try {
+        // Pregunta 58: si la respuesta se perdio y la persona reintenta, el evento ya esta con ese id.
+        const idDeLaPantalla = idDelIntento('fiesta', opciones?.idIntento);
+        if (idDeLaPantalla && (await getFiestaById(idDeLaPantalla))) return { success: true, newFiestaId: idDeLaPantalla };
         const newFiesta = {
             ...initialFiestaActualData,
-            id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            id: idDeLaPantalla ?? `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
             estado: 'En Planificación' as const,
             configuracion: {
                 ...initialFiestaActualData.configuracion,
@@ -1246,14 +1251,17 @@ export async function resetFiestaActual(): Promise<{ success: boolean; error?: s
     await requireAppSession();
     return { success: false, error: "Función deshabilitada por seguridad" };
 }
-export async function duplicateFiesta(fiestaId: string): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
+export async function duplicateFiesta(fiestaId: string, opciones?: { idIntento?: string }): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
   await requireAppSession();
   try {
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la copia ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('fiesta_copy', opciones?.idIntento);
+    if (idDeLaPantalla && (await getFiestaById(idDeLaPantalla))) return { success: true, newFiestaId: idDeLaPantalla };
     const original = await getFiestaById(fiestaId);
     if (!original) throw new Error('Evento no encontrado.');
     const newFiesta: FiestaEnPlanificacion = {
       ...original,
-      id: `fiesta_copy_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      id: idDeLaPantalla ?? `fiesta_copy_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       configuracion: { ...original.configuracion, nombreEvento: `[COPIA] ${original.configuracion.nombreEvento}` },
       presupuestoId: undefined, invoiceIds: [], pagosProveedores: [],
     };

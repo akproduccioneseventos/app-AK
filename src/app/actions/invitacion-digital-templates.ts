@@ -1,8 +1,8 @@
 
 'use server';
 
-import { idDelIntento } from '@/lib/intento-en-servidor';
-import { readData, writeData, deleteDataItem } from '@/lib/data-service';
+import { idDelIntento, esIdYaExistente } from '@/lib/intento-en-servidor';
+import { readData, writeData, deleteDataItem, createDataItem } from '@/lib/data-service';
 import type { InvitacionDigitalData } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -58,6 +58,7 @@ export interface InvitacionDigitalTemplate extends InvitacionDigitalData {
 }
 
 const TEMPLATES_FILE = 'invitacion-digital-templates.json';
+const TEMPLATES_COLLECTION = 'invitacion_digital_templates';
 
 const defaultGraziaTemplate: InvitacionDigitalTemplate = {
     ...defaultInvitacionDigitalData,
@@ -132,7 +133,8 @@ async function readSavedTemplates(): Promise<InvitacionDigitalTemplate[]> {
 }
 
 export async function saveInvitationTemplate(
-  templateData: Omit<InvitacionDigitalTemplate, 'id'> | InvitacionDigitalTemplate
+  templateData: Omit<InvitacionDigitalTemplate, 'id'> | InvitacionDigitalTemplate,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; template?: InvitacionDigitalTemplate; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   if (!templateData.name.trim()) {
@@ -159,9 +161,31 @@ export async function saveInvitationTemplate(
       savedTemplates.push(savedTemplate);
     }
   } else {
-    // Create new template
-    savedTemplate = { ...defaultInvitacionDigitalData, ...templateData, id: `tpl_${Date.now()}` };
-    savedTemplates.push(savedTemplate);
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la plantilla ya esta con ese id.
+    // Crear va como "crear este id", dentro de la base: un reintento o dos toques a la vez no hacen dos.
+    const idDeLaPantalla = idDelIntento('tpl', opciones?.idIntento);
+    savedTemplate = {
+      ...defaultInvitacionDigitalData,
+      ...templateData,
+      id: idDeLaPantalla ?? `tpl_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+    };
+    if (idDeLaPantalla) {
+      const yaGuardada = savedTemplates.find((t) => t.id === idDeLaPantalla);
+      if (yaGuardada) return { success: true, template: yaGuardada };
+    }
+    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+      savedTemplates.push(savedTemplate);
+    } else {
+      try {
+        await createDataItem(TEMPLATES_FILE, TEMPLATES_COLLECTION, savedTemplate.id, savedTemplate);
+      } catch (e) {
+        // Dos intentos casi a la vez (otro servidor): el segundo ve la plantilla del primero.
+        if (!idDeLaPantalla || !esIdYaExistente(e)) throw e;
+        const existente = (await readSavedTemplates()).find((t) => t.id === idDeLaPantalla);
+        return { success: true, template: existente ?? savedTemplate };
+      }
+      return { success: true, template: savedTemplate };
+    }
   }
 
   await writeData(TEMPLATES_FILE, savedTemplates);

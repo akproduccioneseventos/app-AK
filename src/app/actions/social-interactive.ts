@@ -22,6 +22,7 @@ import type { SocialGallerySettings } from '@/types/fiesta';
 import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 import admin from 'firebase-admin';
 import { randomUUID } from 'crypto';
+import { idDelIntento, esIdYaExistente } from '@/lib/intento-en-servidor';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import * as logger from '@/lib/logger';
@@ -135,7 +136,8 @@ export async function getActivePoll(fiestaId: string): Promise<SocialPoll | null
 export async function createPoll(
   fiestaId: string,
   question: string,
-  options: string[]
+  options: string[],
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; poll?: SocialPoll; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
@@ -146,6 +148,15 @@ export async function createPoll(
     if (blockedOption) return { success: false, error: blockedOption.message };
 
     const db = await getDb();
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la encuesta ya esta con ese id
+    // (y no se vuelve a desactivar la anterior ni a pisar los votos que ya tenga).
+    const idDeLaPantalla = idDelIntento('poll', opciones?.idIntento);
+    if (idDeLaPantalla) {
+      const previa = await db.collection(POLLS_COLLECTION).doc(idDeLaPantalla).get();
+      if (previa.exists && (previa.data() as SocialPoll).fiestaId === fiestaId) {
+        return { success: true, poll: previa.data() as SocialPoll };
+      }
+    }
     // Deactivate any currently active poll for this event.
     const activeSnap = await db
       .collection(POLLS_COLLECTION)
@@ -158,14 +169,20 @@ export async function createPoll(
     await deactivateBatch.commit();
 
     const newPoll: SocialPoll = {
-      id: `poll_${Date.now()}_${randomUUID()}`,
+      id: idDeLaPantalla ?? `poll_${Date.now()}_${randomUUID()}`,
       fiestaId,
       question: questionReview.sanitizedText || sanitizeSocialText(question),
       options: reviewedOptions.map((review, i) => ({ id: `opt_${i}`, text: review.sanitizedText || sanitizeSocialText(options[i]), votes: 0 })),
       createdAt: new Date().toISOString(),
       active: true,
     };
-    await db.collection(POLLS_COLLECTION).doc(newPoll.id).set(newPoll);
+    try {
+      await (idDeLaPantalla ? db.collection(POLLS_COLLECTION).doc(newPoll.id).create(newPoll) : db.collection(POLLS_COLLECTION).doc(newPoll.id).set(newPoll));
+    } catch (e) {
+      if (!esIdYaExistente(e)) throw e;
+      const previa = await db.collection(POLLS_COLLECTION).doc(newPoll.id).get();
+      return { success: true, poll: (previa.data() as SocialPoll) ?? newPoll };
+    }
     return { success: true, poll: newPoll };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -252,7 +269,8 @@ export async function getSongRequests(fiestaId: string): Promise<SongRequest[]> 
 export async function addSongRequest(
   fiestaId: string,
   song: string,
-  requestedBy: string
+  requestedBy: string,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; request?: SongRequest; error?: string }> {
   try {
     await enforceSocialInteractionRateLimit({
@@ -266,9 +284,17 @@ export async function addSongRequest(
     const review = reviewSocialContent({ type: 'text', text: song, authorName: requestedBy, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
+    // Pregunta 58: si la respuesta se perdio y el invitado reintenta, la cancion ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('song', opciones?.idIntento);
+    if (idDeLaPantalla) {
+      const previa = await db.collection(SONGS_COLLECTION).doc(idDeLaPantalla).get();
+      if (previa.exists && (previa.data() as SongRequest).fiestaId === fiestaId) {
+        return { success: true, request: previa.data() as SongRequest };
+      }
+    }
     const newReq: SongRequest = {
       // Con sólo la hora, dos canciones en el mismo milisegundo se pisaban (Codex, SOCIAL01).
-      id: `song_${Date.now()}_${randomUUID()}`,
+      id: idDeLaPantalla ?? `song_${Date.now()}_${randomUUID()}`,
       fiestaId,
       song: review.sanitizedText || sanitizeSocialText(song),
       requestedBy: sanitizeSocialText(requestedBy) || 'Anónimo',
@@ -276,7 +302,14 @@ export async function addSongRequest(
       played: false,
       votes: 1,
     };
-    await db.collection(SONGS_COLLECTION).doc(newReq.id).set(newReq);
+    try {
+      // `create` rechaza un id que ya existe: si dos intentos llegan casi a la vez, gana uno solo.
+      await (idDeLaPantalla ? db.collection(SONGS_COLLECTION).doc(newReq.id).create(newReq) : db.collection(SONGS_COLLECTION).doc(newReq.id).set(newReq));
+    } catch (e) {
+      if (!esIdYaExistente(e)) throw e;
+      const previa = await db.collection(SONGS_COLLECTION).doc(newReq.id).get();
+      return { success: true, request: (previa.data() as SongRequest) ?? newReq };
+    }
     return { success: true, request: newReq };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -382,7 +415,8 @@ export async function addDedication(
   fiestaId: string,
   message: string,
   authorName: string,
-  audioUrl?: string
+  audioUrl?: string,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; dedication?: Dedication; error?: string }> {
   try {
     await enforceSocialInteractionRateLimit({
@@ -404,8 +438,16 @@ export async function addDedication(
     const review = reviewSocialContent({ type: 'text', text: message, authorName, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
+    // Pregunta 58: si la respuesta se perdio y el invitado reintenta, la dedicatoria ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('ded', opciones?.idIntento);
+    if (idDeLaPantalla) {
+      const previa = await db.collection(DEDICATIONS_COLLECTION).doc(idDeLaPantalla).get();
+      if (previa.exists && (previa.data() as Dedication).fiestaId === fiestaId) {
+        return { success: true, dedication: previa.data() as Dedication };
+      }
+    }
     const newDed: Dedication = {
-      id: `ded_${Date.now()}_${randomUUID()}`,
+      id: idDeLaPantalla ?? `ded_${Date.now()}_${randomUUID()}`,
       fiestaId,
       message: review.sanitizedText || sanitizeSocialText(message),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
@@ -413,7 +455,13 @@ export async function addDedication(
       visibility: fiesta.socialGallerySettings?.privateDedicationsMode ? 'private' : 'public',
       ...(audioUrl ? { audioUrl } : {}),
     };
-    await db.collection(DEDICATIONS_COLLECTION).doc(newDed.id).set(newDed);
+    try {
+      await (idDeLaPantalla ? db.collection(DEDICATIONS_COLLECTION).doc(newDed.id).create(newDed) : db.collection(DEDICATIONS_COLLECTION).doc(newDed.id).set(newDed));
+    } catch (e) {
+      if (!esIdYaExistente(e)) throw e;
+      const previa = await db.collection(DEDICATIONS_COLLECTION).doc(newDed.id).get();
+      return { success: true, dedication: (previa.data() as Dedication) ?? newDed };
+    }
     return { success: true, dedication: newDed };
   } catch (e: any) {
     return { success: false, error: e.message };

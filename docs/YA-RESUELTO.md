@@ -1,5 +1,47 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 164: plantilla nueva sin copia doble, y botón de decoración legible
+
+- **Crear plantilla reintentada:** si se cortaba la señal justo al crear una plantilla de invitación y
+  la persona volvía a tocar, quedaban dos copias. Ahora la pantalla manda un número de intento
+  (`obtenerIntento`, se termina sólo con éxito confirmado) y el servidor crea la plantilla con ese
+  número como id, directo en la base; si ya existe, devuelve la misma. Dos creaciones deliberadas
+  siguen dando dos plantillas. No se deduplica por nombre ni contenido: así se eligió porque el
+  nombre puede repetirse a propósito.
+- **Botón "Quiero cambiar algo":** salía casi invisible (texto claro sobre fondo claro) en el portal de
+  decoración. Ahora lleva fondo oscuro, texto claro y foco explícitos, igual que "Ver tablero completo"
+  y "Subir idea". El barrido del resto de `src/app/portal/**` no encontró otro caso real (el botón de
+  la portada del portal público está sobre la foto oscura y se lee bien).
+
+```comprobar
+archivo: src/app/actions/invitacion-digital-templates.ts
+usa: saveInvitationTemplate en src/app/(app)/settings/templates/invitaciones/page.tsx
+prueba: src/__tests__/plantilla-nueva-reintento-no-duplica.test.ts
+prueba: src/__tests__/decoracion-quiero-cambiar-algo-legible.test.tsx
+```
+
+## 15/10/2026 - Codex126: dos hallazgos comprobados, NO corregidos
+
+- Gemini programa segun ultima orden del dueno; Codex revisa/prueba y Claude
+  compila/fusiona. Esta tanda solo agrega QA/documentacion, no codigo app.
+- Orden164 pendiente: Crear Nueva Plantilla, guardar y perder SOLO HTTP200,
+  reintentar payload IDENTICO deja dos IDs, esperado uno. Chromium real PC y
+  Pixel7 emulado con SDK demo; ambos persisten tras recarga. Dos creaciones
+  deliberadas legitimas SI dejan dos, control PASS. NO tocar copia de plantilla
+  ya protegida ni deduplicar por nombre. No reencomendar este hallazgo otra vez.
+- Decoracion del portal: boton Quiero cambiar algo tiene texto RGB226/232/240
+  sobre252/252/252, contraste1.2016. FAIL PC/mobile. Sugerencia escrita SI se
+  guarda y recupera tras recarga en ambos; no reencomendar guardado como roto.
+- Fuente appb520f7ce sin cambiar; build125 reutilizado, no nueva compilacion.
+  Ocho casos nativos:4PASS/4FAIL; dos defectos, NO cuatro defectos distintos.
+  Main4b y rama abierta27d tienen iguales blobs de esos tres archivos.
+  PrivadoClaude NO CONTRASTADO; Hosting no contrastado por estos recorridos.
+- No se declara cero errores ni auditoria completa. Npm11avisos unicos de163
+  siguen pendientes. Evidencia/limites en126-observaciones.md y orden164.
+- Sonda Jest del ayudante sin resultado, archivada como texto; no prueba app.
+  Capturas con imagenes remotas bloqueadas NO son fallos de galeria reportables.
+  Limpieza126: SDK0, bytes ajenos restaurados y servicios/agentes cerrados.
+
 ## 14/10/2026 - Codex125: entradas faltantes, kiosco accesible y CLI sin tar6
 
 ### Actualizacion125 despues de integrar1299/1300 (prima sobre preparacion anterior)
@@ -14039,4 +14081,34 @@ etiqueta suelta junto a un campo sin nombre deja de publicarse.
 
 ```comprobar
 prueba: src/__tests__/pregunta-63-controles-con-nombre.test.ts
+```
+
+## Pregunta 58, segundo barrido: más altas que no se guardan dos veces (15 de octubre de 2026)
+
+Si la respuesta de un "crear/agregar" se perdía (se cortó la señal) y la persona volvía a tocar el botón,
+se guardaba dos veces. Mismo arreglo que en el primer barrido (la pantalla manda `obtenerIntento` y suelta
+con `terminarIntento` sólo tras el éxito; el servidor usa `idDelIntento` como id del registro y, si ya está,
+devuelve el existente). Ahora cubre: plantilla de itinerario, plano del salón y tablero de decoración
+(las dos pantallas), foto del moodboard, incidente de la fiesta en vivo, trivia, canción pedida, dedicatoria,
+comentario de la galería y mensaje del chat (social y en vivo). En las colecciones de Firestore se usa `create`
+y, si el id ya existe, se devuelve el que estaba. Quedaron sin tocar, por ser idempotentes de por sí, el
+testimonio (se descarta por `feedbackId`), la plantilla de tareas (por nombre), el anuncio guardado y la foto del
+catálogo (el id viene de la pantalla) y las reacciones de aplausos de la pantalla social (son efímeras,
+viven 20 segundos en memoria y cada toque es un aplauso a propósito).
+
+**Parte 2, mismo día.** Mismo arreglo, sólo en la identidad del intento (sin tocar permisos, montos ni
+cuentas de stock): promos nuevas, pedido manual del barman (el reintento devuelve el pedido que ya está y
+**no vuelve a descontar botellas**), insumo nuevo (el reintento ya no dice "ya existe"), menú nuevo (el
+autoguardado del formulario actualiza ese menú en vez de crear uno por cada cambio) y copia de menú, enlace de
+acceso del personal (el token sigue siendo un UUID del servidor: la identidad del intento se guarda aparte,
+nunca es el token), activo fijo nuevo, cliente nuevo (el reintento no repite fiesta, aviso ni WhatsApp), foto
+subida al muro (el reintento no vuelve a subir el archivo), evento nuevo y copia de evento (el reintento no
+pisa con uno en blanco el evento que ya se empezó a cargar), y la consulta del portal del cliente. De paso se
+arregló que copiar un menú llevaba el id del original y actualizaba el original con el nombre "[COPIA]".
+
+```comprobar
+archivo: src/app/actions/itinerary-templates.ts
+prueba: src/__tests__/pregunta-58-rebarrido.test.ts
+prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
+prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```

@@ -18,6 +18,7 @@ import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } fro
 import type { TipoEvento } from '@/types/presupuesto';
 import { sugerirPlantillaPorTipo, ordenarPlantillasPorTipo } from '@/lib/itinerario/sugerir-plantilla';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
 import { generateTimelineAction } from '@/app/actions/timeline-ia.actions';
 import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
@@ -251,8 +252,11 @@ function ItinerarioContent() {
     setIsSavingTemplate(true);
     try {
         const tipoEventoVal = (templateTipoEvento.trim() || undefined) as TipoEvento | undefined;
-        const result = await saveItineraryTemplate(templateName, programa, tipoEventoVal);
+        // Pregunta 58: reintento de una respuesta perdida = la misma plantilla, no otra.
+        const idIntento = await obtenerIntento('plantilla-itinerario', { templateName, programa, tipoEventoVal });
+        const result = await saveItineraryTemplate(templateName, programa, tipoEventoVal, { idIntento });
         if (result.success) {
+          terminarIntento('plantilla-itinerario');
           toast({title: "Plantilla Guardada"});
           setIsSaveTemplateModalOpen(false);
           const fetched = await getItineraryTemplates();

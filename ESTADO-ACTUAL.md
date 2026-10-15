@@ -1,4 +1,27 @@
-# Estado actual - 14/10/2026 (Codex125, fuente congeladab520f7ce)
+# Estado actual - 15/10/2026 (Codex126, app sigue b520f7ce)
+
+REPARTO NUEVO: GEMINI PROGRAMA; Codex revisa/prueba/documenta. Claude compila
+y fusiona. No usar autorizacion antigua para programar app en otra corrida.
+126 no cambio app: reutiliza build125b520 y entrega QA/orden164 en PR1301.
+Snapshot1267dcbcdde subido,42blobs remotos iguales; recibo126-entrega-remota.
+Main4b6d6620, cabeza documental al iniciar27d024e3; PR1301 ABIERTA.
+NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE (HEAD desconocido).
+DOS hallazgos nuevos REPRODUCIDOS tambien en tanda, pendientes Gemini164:
+- Crear plantilla+perder HTTP200 tras commit+retry identico deja2IDs, espera1.
+  PC/Pixel7 FAIL; nuevas creaciones deliberadas conservan2legitimas PASS.
+- Portal decoracion boton Quiero cambiar algo contraste1.2016 (esperado4.5).
+  PC/Pixel7 FAIL; guardar sugerencia/recarga SDK/pantalla SI pasa ambos.
+8casos nativos:4PASS/4FAIL, DOS defectos, NO auditoria global terminada.
+Fuente de los tres archivos identica a main4b, recibo en orden164.
+NO repetir estos casos antes del parche. Gemini debe corregir, Claude validar
+nuevoSHA/build; no usar evidencia b520 como aceptacion de codigo nuevo.
+SDK0/bytesrestaurados/serviciosagentescerrados, 126-entorno-detenido.json.
+Sonda Jest del ayudante sin resultado, borrador .txt, NO evidencia valida.
+Luego brechas funcionales reales109/124, no repetir125 ni inventario=PASS.
+Orden163 sigue vigente:11GHSA/87entradas,0critical, no overrides mayores ciegos.
+Hosting/OAuth/modelo/voz/19originales/hardware NO certificados. NO0errores.
+
+## Evidencia125 reutilizable (sin cambio de app; registro conservado)
 
 CLAUDE FUSIONA siempre. Codex prepara, prueba y registra; no fusiona.
 Base main remoto4b6d6620: Claude integro1297 via1298 y tandas1299/1300.

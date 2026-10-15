@@ -229,7 +229,7 @@ export default function ClientDecoracionPage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowFeedbackForm(!showFeedbackForm)}
-                  className="border-white/20 text-slate-200 hover:bg-white/10 text-xs font-semibold"
+                  className="border-white/30 bg-slate-900 text-slate-100 hover:bg-slate-800 hover:text-white focus-visible:ring-purple-400 disabled:text-slate-400 text-xs font-semibold"
                 >
                   <MessageSquare className="w-4 h-4 mr-2 text-purple-400" />
                   Quiero cambiar algo
@@ -342,7 +342,7 @@ export default function ClientDecoracionPage() {
                 <Heart className="w-5 h-5 text-pink-400" />
                 Tablero de Inspiración
               </h2>
-              <Button asChild variant="outline" size="sm" className="border-white/20 text-xs text-slate-200">
+              <Button asChild variant="outline" size="sm" className="border-white/30 bg-slate-900 text-slate-100 hover:bg-slate-800 hover:text-white focus-visible:ring-purple-400 text-xs">
                 <Link href={`/portal/${fiestaId}/moodboard`}>Ver tablero completo</Link>
               </Button>
             </div>
@@ -419,7 +419,7 @@ export default function ClientDecoracionPage() {
                   size="sm"
                   onClick={() => document.getElementById('file-ideas-decoracion')?.click()}
                   disabled={isSavingIdeas}
-                  className="text-xs border-purple-500/40 text-purple-300 hover:bg-purple-950/50"
+                  className="text-xs border-purple-500/40 bg-slate-900 text-purple-300 hover:bg-purple-950 hover:text-purple-200 focus-visible:ring-purple-400"
                   data-testid="btn-subir-idea-decoracion"
                 >
                   {isSavingIdeas ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Plus className="w-3 h-3 mr-1" />}

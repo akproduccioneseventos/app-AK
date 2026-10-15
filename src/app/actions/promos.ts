@@ -4,6 +4,7 @@ import { readData, writeData } from '@/lib/data-service';
 import type { PromoActiva } from '@/types/promo';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { idDelIntento } from '@/lib/intento-en-servidor';
 
 import { hoyEnUruguay } from '@/lib/utils';
 
@@ -38,7 +39,8 @@ export async function getPromoActiva(ahora: Date = new Date()): Promise<PromoAct
 }
 
 export async function savePromo(
-  data: Omit<PromoActiva, 'id' | 'creadoEn' | 'actualizadoEn'> & { id?: string }
+  data: Omit<PromoActiva, 'id' | 'creadoEn' | 'actualizadoEn'> & { id?: string },
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; error?: string; promo?: PromoActiva }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   try {
@@ -65,9 +67,13 @@ export async function savePromo(
       await writeData(PROMOS_FILE, promos);
       return { success: true, promo: promos[idx] };
     } else {
+      // Pregunta 58: si la respuesta se perdio y la persona reintenta, la promo ya esta con ese id.
+      const idDeLaPantalla = idDelIntento('promo', opciones?.idIntento);
+      const yaGuardada = idDeLaPantalla ? promos.find((p) => p.id === idDeLaPantalla) : undefined;
+      if (yaGuardada) return { success: true, promo: yaGuardada };
       const nueva: PromoActiva = {
         ...data,
-        id: `promo_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        id: idDeLaPantalla ?? `promo_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         creadoEn: now,
         actualizadoEn: now,
       };

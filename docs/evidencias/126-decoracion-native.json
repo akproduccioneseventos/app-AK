@@ -1,0 +1,61 @@
+{
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "results": [
+    {
+      "device": "desktop",
+      "scenario": "CHANGE_BUTTON_TEXT_CONTRAST_DEFAULT_LIGHT_THEME",
+      "status": "FAIL",
+      "required": 4.5,
+      "contrast": 1.2016041726524667,
+      "style": {
+        "text": "rgb(226, 232, 240)",
+        "background": "rgb(252, 252, 252)",
+        "border": "rgba(255, 255, 255, 0.2)",
+        "fontSize": "12px"
+      },
+      "screenshot": "docs/evidencias/126-decoracion-desktop.png"
+    },
+    {
+      "device": "desktop",
+      "scenario": "SUGGESTION_SAVED_AND_VISIBLE_AFTER_RELOAD",
+      "status": "PASS",
+      "saved": {
+        "leGusta": false,
+        "fecha": "2026-10-15T03:29:03.456Z",
+        "comentario": "QA126 sugerencia ficticia desktop: flores blancas."
+      },
+      "session": "FICTITIOUS_OWNER_SESSION_NOT_REAL_CLIENT_AUTH",
+      "realAction": true,
+      "realDemoFirestore": true
+    },
+    {
+      "device": "mobile",
+      "scenario": "CHANGE_BUTTON_TEXT_CONTRAST_DEFAULT_LIGHT_THEME",
+      "status": "FAIL",
+      "required": 4.5,
+      "contrast": 1.2016041726524667,
+      "style": {
+        "text": "rgb(226, 232, 240)",
+        "background": "rgb(252, 252, 252)",
+        "border": "rgba(255, 255, 255, 0.2)",
+        "fontSize": "12px"
+      },
+      "screenshot": "docs/evidencias/126-decoracion-mobile.png"
+    },
+    {
+      "device": "mobile",
+      "scenario": "SUGGESTION_SAVED_AND_VISIBLE_AFTER_RELOAD",
+      "status": "PASS",
+      "saved": {
+        "leGusta": false,
+        "fecha": "2026-10-15T03:29:09.558Z",
+        "comentario": "QA126 sugerencia ficticia mobile: flores blancas."
+      },
+      "session": "FICTITIOUS_OWNER_SESSION_NOT_REAL_CLIENT_AUTH",
+      "realAction": true,
+      "realDemoFirestore": true
+    }
+  ],
+  "allAppCertified": false,
+  "gate": "DEFECT_REPRODUCED"
+}

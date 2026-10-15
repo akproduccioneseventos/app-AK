@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -130,13 +131,17 @@ export default function AccesosPersonalPage() {
       return;
     }
     setIsProcessing(true);
-    const result = await createAccesoPersonal({
+    // Pregunta 58: reintento de una respuesta perdida = el mismo enlace, no dos.
+    const cargaAcceso = {
       nombreAcceso,
       fiestaId: fiestaActual?.id,
       empleadoId: empleadoId || undefined,
       permisos: Array.from(permisos)
-    });
+    };
+    const idIntento = await obtenerIntento('acceso-personal', cargaAcceso);
+    const result = await createAccesoPersonal(cargaAcceso, { idIntento });
     if (result.success) {
+      terminarIntento('acceso-personal');
       toast({ title: "¡Acceso Creado!", description: "El enlace de acceso ha sido generado." });
       setIsModalOpen(false);
       setNombreAcceso('');

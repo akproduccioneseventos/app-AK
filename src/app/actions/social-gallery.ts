@@ -49,6 +49,7 @@ import { verifyPortalSession } from '@/lib/security/portal-session';
 import { sumarMisionDeFoto } from '@/lib/games/misiones-fotos';
 import { idDeMisionDelTag } from '@/lib/games/juegos-en-vivo';
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
+import { idDelIntento, esIdYaExistente } from '@/lib/intento-en-servidor';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -327,6 +328,7 @@ export async function uploadSocialPost(
   const guestId = (formData.get('guestId') as string) || '';
   const guestAccessToken = (formData.get('guestAccessToken') as string) || '';
   const dispositivoId = (formData.get('dispositivoId') as string) || undefined;
+  const idIntentoCrudo = formData.get('idIntento');
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos (ID de fiesta o archivo).' };
 
@@ -387,6 +389,14 @@ export async function uploadSocialPost(
       windowMs: 60_000,
     });
     const db = await getDb();
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la foto ya esta con ese id: se
+    // devuelve esa, sin volver a subir el archivo ni sumar otra vez la mision.
+    const idDeLaPantalla = idDelIntento('post', idIntentoCrudo);
+    if (idDeLaPantalla) {
+      const previa = await db.collection(GALLERY_COLLECTION).doc(idDeLaPantalla).get();
+      const previaData = previa.exists ? (previa.data() as SocialGalleryPost) : null;
+      if (previaData && previaData.fiestaId === fiestaId) return { success: true, post: previaData };
+    }
     const wallEnabled = fiestaData.socialGallerySettings?.enabled !== false;
     const wallActive = fiestaData.socialGallerySettings?.uploadsActive !== false;
     const bypassWallCheck = source === 'entertainment';
@@ -438,7 +448,7 @@ export async function uploadSocialPost(
     }
 
     const fileExtension = path.extname(file.name);
-    const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const postId = idDeLaPantalla ?? `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const storagePath = `social-gallery/${fiestaId}/${postId}${fileExtension}`;
 
     const bytes = await file.arrayBuffer();
@@ -506,7 +516,14 @@ export async function uploadSocialPost(
 
     // Single-document write — zero write conflict even with 200 simultaneous uploads,
     // because every caller writes to its own unique postId document.
-    await db.collection(GALLERY_COLLECTION).doc(postId).set(newPost);
+    try {
+      await (idDeLaPantalla ? db.collection(GALLERY_COLLECTION).doc(postId).create(newPost) : db.collection(GALLERY_COLLECTION).doc(postId).set(newPost));
+    } catch (e) {
+      if (!esIdYaExistente(e)) throw e;
+      // Otro intento con la misma identidad llego primero: es la misma foto.
+      const previa = await db.collection(GALLERY_COLLECTION).doc(postId).get();
+      return { success: true, post: (previa.data() as SocialGalleryPost) ?? newPost };
+    }
 
     // Misión de fotos: la foto ya quedó guardada (aprobada o esperando aprobación). Se suman los
     // puntos una vez por jugador y misión; si esto falla, la foto no se pierde.
@@ -702,6 +719,7 @@ export async function addCommentToPost(
   text: string,
   authorName: string = 'Anónimo',
   credentials: SocialInteractionCredentials = {},
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; comment?: SocialComment; error?: string }> {
   try {
     const db = await getDb();
@@ -723,8 +741,12 @@ export async function addCommentToPost(
     const resolvedAuthorName = context.access.authorName;
     const review = reviewSocialContent({ type: 'text', text, authorName: resolvedAuthorName, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
+    // Pregunta 58: si la respuesta se perdio y el invitado reintenta, el comentario ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('comment', opciones?.idIntento);
+    const comentarioPrevio = idDeLaPantalla ? (currentPost.comments || []).find((c) => c.id === idDeLaPantalla) : undefined;
+    if (comentarioPrevio) return { success: true, comment: comentarioPrevio };
     const newComment: SocialComment = {
-      id: `comment_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: idDeLaPantalla ?? `comment_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       authorName: sanitizeSocialText(resolvedAuthorName) || 'Anónimo',
       text: review.sanitizedText || sanitizeSocialText(text),
       timestamp: new Date().toISOString(),
@@ -897,6 +919,7 @@ export async function addChatMessage(
   text: string,
   authorName: string = 'Anónimo',
   credentials: SocialInteractionCredentials = {},
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; message?: ChatMessage; error?: string }> {
   if (!fiestaId || !text.trim()) {
     return { success: false, error: 'Datos del mensaje incompletos.' };
@@ -917,7 +940,9 @@ export async function addChatMessage(
       windowMs: 60_000,
     });
     const db = await getDb();
-    const msgId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    // Pregunta 58: si la respuesta se perdio y el invitado reintenta, el mensaje ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('chat', opciones?.idIntento);
+    const msgId = idDeLaPantalla ?? `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newMessage: ChatMessage = {
       id: msgId,
       fiestaId,
@@ -926,7 +951,13 @@ export async function addChatMessage(
       timestamp: new Date().toISOString(),
     };
     // Single-document write — safe for many concurrent senders.
-    await db.collection(CHAT_COLLECTION).doc(msgId).set(newMessage);
+    try {
+      await (idDeLaPantalla ? db.collection(CHAT_COLLECTION).doc(msgId).create(newMessage) : db.collection(CHAT_COLLECTION).doc(msgId).set(newMessage));
+    } catch (e) {
+      if (!esIdYaExistente(e)) throw e;
+      const previo = await db.collection(CHAT_COLLECTION).doc(msgId).get();
+      return { success: true, message: (previo.data() as ChatMessage) ?? newMessage };
+    }
     return { success: true, message: newMessage };
   } catch (error: any) {
     return { success: false, error: 'No se pudo guardar el mensaje en el chat.' };
