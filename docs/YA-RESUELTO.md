@@ -24,6 +24,10 @@
   QA114pendiente; excepciondecompilar preguntada, NOautorizada por asumir.
 
 
+## 15/10/2026 - Barrido de la pregunta 50 en pantallas que se actualizan solas (Codex 132)
+
+- Se revisaron unas 20 pantallas con refresco automático. Sólo el chat en vivo del invitado mostraba "sé la primera persona" cuando no pudo leer: entró a la orden 170, bloque 4. Las demás ya avisan (cartel, aviso o tarjeta de error) o conservan lo último leído: falso positivo, no se tocan.
+
 ## 15/10/2026 - Barrido de las preguntas 4 y 9 (Codex 131)
 
 - **Pregunta 4 (botón que dice "desmarcar" y no desmarca):** se revisaron todos los botones de dos estados de la app. El del DJ es el único; galería, cupones, promos, en vivo, agentes y facturas pasan el valor contrario. Falso positivo para el resto.

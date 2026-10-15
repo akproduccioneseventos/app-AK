@@ -50,6 +50,25 @@ vacía dice "Los tragos se están preparando" y siempre "En tiempo real".
   4. Lista vacía confirmada: dice "Los tragos se están preparando", sin aviso.
   Nombrar la ruta `/evento/barra/[fiestaId]/listo`. Podés partir de `docs/evidencias/132-barra-listos.test.tsx`.
 
+### Bloque 4 - Barrido de la pregunta 50: el chat en vivo del invitado
+
+Lo encontró el barrido de Claude sobre las pantallas que se actualizan solas (unas 20 revisadas,
+las demás ya avisan). `src/app/evento/en-vivo/[fiestaId]/page.tsx`, `load` (línea ~51): si
+`getChatMessages` falla (tira error), el `catch` sólo escribe en la consola, `messages` queda vacío y
+el invitado ve "0 mensajes" y "Sé la primera persona en mandar un saludo a la fiesta" (línea ~222).
+
+- Estado nuevo `const [chatSinLeer, setChatSinLeer] = useState(false)`. Leé el chat **aparte** de
+  la fiesta (no en el mismo `Promise.all`), para que una falla de uno no tape al otro.
+- Si falla la lectura del chat (al cargar o en el sondeo de cada 6 s, línea ~67):
+  `setChatSinLeer(true)` y **no** vaciar `messages`. Si anda: `setChatSinLeer(false)`.
+- Con `chatSinLeer` y lista vacía, en lugar del cartel "Sé la primera persona…" mostrá
+  *"No pudimos cargar los saludos. Reintentando…"* (`role="status"`), y no muestres "0 mensajes".
+  Con mensajes en pantalla, una línea chica: *"Reintentando conexión…"*.
+- No toques el envío de mensajes, los corazones ni `getChatMessages`.
+- Prueba: `src/__tests__/chat-en-vivo-avisa-si-no-pudo-leer.test.tsx`. Con `getChatMessages`
+  rechazando, no aparece "Sé la primera persona" y sí el aviso. Cuando vuelve a andar, se ven los
+  mensajes. Nombrar la ruta `/evento/en-vivo/[fiestaId]`.
+
 ---
 
 ## Lo que encontró Codex (auditoría 132)
@@ -123,4 +142,5 @@ usa: getBarPedidosListos en src/app/evento/barra/[fiestaId]/listo/page.tsx
 prueba: docs/evidencias/132-barra-listos.test.tsx
 prueba: PENDIENTE src/__tests__/musica-opcional-visible-dj.test.tsx
 prueba: PENDIENTE src/__tests__/barra-listos-informa-lecturas-fallidas.test.tsx
+prueba: PENDIENTE src/__tests__/chat-en-vivo-avisa-si-no-pudo-leer.test.tsx
 ```
