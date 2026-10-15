@@ -4,6 +4,7 @@ Codex SOLO audita/prueba/documenta; Gemini programa, Claude revisa/compila/fusio
 Mainbbf68006e09b358f8e0869c1d534acdd0863724c, app iguald10f332a.
 PR1315 integrada porClaude via1317: NO subir rama131 cerrada.
 Nueva rama codex/132-portal-musica-y-avisos-barra-20261015 desdebbf.
+PR1318 ABIERTA/BORRADOR snapshotb30a5aea,35blobs remotos identicos; recibo132.
 NoPRcoders abierta alcontraste;169encargada yprivado NO CONTRASTADO HEADdesconocido.
 No reauditar169 ni pisar archivoDJ enentregaactiva; coordinar170con169.
 132portal9casos8PASS1FAIL: paginas+acciones/mapeo reales, datos/sesion ficticios.

@@ -4,6 +4,8 @@
 
 - Basebbf68006, fuenteappd10f332a identica(src/deps/config).1315 integrada
   porClaude1317; no subir rama131. Nueva rama132 desde main, Codexsolo audita.
+- Entregada PR1318 ABIERTA/BORRADOR, snapshotb30a5aea,35blobs remotos identicos;
+  recibo132-entrega-remota.json. No fusionar documentos solos, Claude integra.
 - Portal real/acciones/mapeo+dobles copiados:9casos8PASS1FAIL. Menu/restricciones,
   altasEnter/boton/eliminacion/tres listas/remontado, conservar borrador yError,
   clave/sesion invalida en doblesPASS. NOautorizacion real ni cookiesdeproduccion.
