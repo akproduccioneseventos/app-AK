@@ -42,3 +42,4 @@ Orden del evento y ubicacion sintetica del personal: 4/4 PASS desktop/movil. Age
 Privados Claude/Gemini NO CONTRASTADOS. Ver evidencia133; no declarar auditoria completa ni cero errores.
 Seguimiento en build sintetico: pagos rapidos 2/2 PASS, conflicto de cuotas 2/2 PASS; cocina acceso/impresion 2 PASS, 2 omitidos intencionales y 1 control de consola inconcluso por Firebase SDK con API key falsa. No defecto funcional confirmado; ver `docs/evidencias/133-operacion-cocina-cobros.md`.
 3D focal tampoco concluyente: el canvas se observa dibujado, pero Playwright agota 90 s cerrando contexto/traza con avisos WebGL ReadPixels; Firebase cliente sigue llamando con API key falsa. No reabrir la suite larga; ver `docs/evidencias/133-salon-3d-focal.md`.
+Red social de la fiesta como invitado: 4/4 PASS, escritorio/movil para `Mi mesa`, cronograma, ranking, hub y mensajes tecnicos; no incluye carga real de fotos. Ver `docs/evidencias/133-red-social-invitado.md`.
