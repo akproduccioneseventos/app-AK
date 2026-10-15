@@ -380,6 +380,10 @@ tengan nombre, con **K** por AK.
 **La prueba**: los cuatro asistentes muestran "Asistente AK" y la mascota, ninguno usa el ícono `Bot`.
 
 ```comprobar
+# Bloque 2 — Hablarle a la IA en la reunión
+usa: toggleMicDictado en src/app/(app)/empresa/configurador-reunion/page.tsx
+# Bloque 5 — Que la pantalla gigante muestre TODAS las fotos
+prueba: tests/e2e/la-pantalla-gigante-anda.spec.ts
 # Bloque 7 — vista mágica del salón
 usa: handleVerSalonDecorado en src/app/(app)/empresa/configurador-reunion/page.tsx
 # Bloque 11 — el salón se arma con una frase

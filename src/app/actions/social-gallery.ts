@@ -573,7 +573,7 @@ async function persistSocialMediaPostFromUrl(
       // como si fuera contenido adulto: la foto no llegaba al muro y nadie la veia.
       imageAiSafe: process.env.AK_USE_LOCAL_JSON_ONLY === 'true'
         ? true
-        : imageAiSafeDesde(input.revisionImagen ?? (input.revisionManual === false ? 'segura' : 'sin_revisar')),
+        : imageAiSafeDesde(input.revisionImagen ?? (input.revisionManual !== true && input.revisionManual !== undefined ? 'segura' : 'sin_revisar')),
     });
     if (review.status === 'blocked') return { success: false, error: review.message, bloqueado: true };
     const postId = input.postId || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;

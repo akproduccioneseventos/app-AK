@@ -422,9 +422,10 @@ prueba: src/__tests__/los-avisos-de-dependencias-no-llegan-a-la-app.test.ts
 ```comprobar
 archivo: src/app/actions/activos-fijos.ts
 usa: mutateDataItem en src/app/actions/activos-fijos.ts
-usa: registroId: registroIdReintento ?? idDeLaOperacion() en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
+usa: registroId en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
 prueba: src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
 prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
+```
 
 ## 13 de octubre de 2026 — Guardados de la fiesta por turno: dos personas a la vez ya no se pisan
 
@@ -463,6 +464,7 @@ usa: marcarHitoPrograma en src/app/evento/staff/[fiestaId]/cronograma/page.tsx
 usa: marcarTareaFiestaActual en src/app/(app)/fiestas/nueva/tareas/client.tsx
 usa: ajusteClave en src/app/actions/fiesta/barra-tecnologica.actions.ts
 prueba: src/__tests__/guardados-de-la-fiesta-no-se-pisan.test.ts
+```
 
 ## 13 de octubre de 2026 — Hora de Uruguay, tareas con la base caída, enlaces que no llevaban el dato y guardados que pisaban
 
@@ -1448,12 +1450,13 @@ prueba: tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts
 
 ```comprobar
 archivo: src/lib/asistente/voz-en-vivo.ts
-usa: iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: crearControlVozEnVivo en src/components/multiagent/multiagent-widget.tsx
 usa: vozEnVivoMinutosPorDia en src/app/(app)/settings/asistente/page.tsx
 usa: reservarMinutos en src/app/api/asistente/voz-en-vivo/route.ts
 prueba: src/__tests__/la-voz-en-vivo-ruta.test.ts
 prueba: src/__tests__/la-voz-en-vivo-lib.test.ts
 prueba: src/__tests__/la-voz-en-vivo-cliente.test.ts
+```
 
 ## 10 de octubre de 2026 — La IA de la app tiene que servir (asistente, pitch, DJ, cronograma, comentarios)
 
@@ -1617,6 +1620,7 @@ archivo: src/lib/compras/consolidar-compras.ts
 usa: consolidarCompras en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
 usa: consolidarCompras en src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx
 prueba: src/__tests__/compras-suman-en-la-misma-unidad.test.ts
+```
 
 ## 10/10/2026 - Orden 140: la fotocabina ya no entrega la foto negra
 
@@ -13797,6 +13801,7 @@ que sólo frena abusos. No se le pide ningún dato al invitado.
 ```comprobar
 prueba: src/__tests__/un-voto-por-telefono-sin-trabar-el-wifi.test.ts
 usa: idDelTelefono en src/app/evento/social/[fiestaId]/page.tsx
+```
 
 ## Trivia en vivo y misiones de fotos con puntos de verdad (13 de octubre de 2026)
 
@@ -13863,6 +13868,7 @@ si ya tiene ese registro contesta "listo" con el que existe y no crea otro.
 ```comprobar
 prueba: src/__tests__/un-reintento-no-duplica-plata.test.ts
 prueba: src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts
+```
 
 ## Preguntas 58, 59 y 60 en el resto de la app (13 de octubre de 2026)
 
