@@ -1,0 +1,59 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "mainAtAudit": "a97d33f0e73492a15f9eeacee4373668b059caf6",
+  "groups": [
+    {
+      "tag": "130-costos",
+      "total": 3,
+      "passed": 1,
+      "failed": 2,
+      "skipped": 0
+    },
+    {
+      "tag": "130-reportes",
+      "total": 21,
+      "passed": 14,
+      "failed": 7,
+      "skipped": 0
+    },
+    {
+      "tag": "130-portal",
+      "total": 5,
+      "passed": 3,
+      "failed": 2,
+      "skipped": 0
+    },
+    {
+      "tag": "130-reporte-evento",
+      "total": 4,
+      "passed": 2,
+      "failed": 2,
+      "skipped": 0
+    },
+    {
+      "tag": "130-variantes",
+      "total": 30,
+      "passed": 29,
+      "failed": 1,
+      "skipped": 0
+    }
+  ],
+  "finalCounts": {
+    "total": 63,
+    "passed": 49,
+    "failed": 14,
+    "skipped": 0
+  },
+  "defectCauses": 3,
+  "frictions": 1,
+  "registryPassed": 3,
+  "excluded": [
+    "First finance fixture date/paymentDate mismatch",
+    "Finance income expectations incompatible with prior whole-peso policy",
+    "First AST probe missing context variables"
+  ],
+  "allAppCertified": false,
+  "appChanges": false,
+  "buildRun": false,
+  "realAccountsOrMoneyOrMessagesTouched": false
+}

@@ -1,0 +1,35 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "contrastedMain": "a97d33f0e73492a15f9eeacee4373668b059caf6",
+  "documentaryHead": "a97d33f0e73492a15f9eeacee4373668b059caf6",
+  "sourceGate": "NO_APP_DEPENDENCY_OR_TEST_CONFIG_DIFF_FROM_SOURCE",
+  "startedAt": "2026-10-15T13:47:15.697Z",
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/130-variantes-jest.json",
+    "--testMatch=**/docs/evidencias/130-*.test.ts?(x)",
+    "--testMatch=**/src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts",
+    "--runTestsByPath",
+    "docs/evidencias/130-compartir-variantes.test.ts"
+  ],
+  "credentials": "ENV_WHITELIST_NO_INHERITED_SERVICE_KEYS_MISSING_ADC_SENTINEL",
+  "scope": "FOCUSED_COMPONENT_OR_MODULE_DOUBLES_NOT_BUILD_NOT_NATIVE_BROWSER",
+  "testHashes": [
+    {
+      "file": "docs/evidencias/130-compartir-variantes.test.ts",
+      "sha256": "552f49c103ffba01a75683c1fed9d92b31760088c155275216f04ca98191e724"
+    }
+  ],
+  "status": "finished",
+  "pid": 14488,
+  "exitCode": 1,
+  "signal": null,
+  "finishedAt": "2026-10-15T13:47:23.421Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}
