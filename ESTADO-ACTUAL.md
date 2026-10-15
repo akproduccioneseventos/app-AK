@@ -3,6 +3,8 @@
 CLAUDE Y GEMINI PROGRAMAN SIEMPRE; CODEX SOLO AUDITA, no app/build/merge.
 Fuente main ce1ac07d1bb16c24dd73e2d26ac55038028a2472, health publicado mismoSHA.
 Rama documental conjunta127/128: codex/127-cierre-areas-20261015.
+PR1306 BORRADOR, solo auditoria/orden165; no fusionar documentos solos.
+Snapshot e1a86bcc verificado remoto24blobs; recibo128-entrega-remota.json.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE (HEAD desconocido).
 Amplia128:769suites4819tests PASS0fallos/omitidos576.69s, bytes restaurados.
 Nuevas sondas:2P2 comprobados, orden165 PENDIENTE Claude/Gemini:

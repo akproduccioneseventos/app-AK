@@ -2,6 +2,8 @@
 
 ## 15/10/2026 - Codex128: amplia verde, DOS hallazgos NUEVOS PENDIENTES165
 
+- Entrega solo documental en PR1306 BORRADOR, e1a86bcc24blobs verificados;
+  no se fusiono. Claude/Gemini deben integrar el arreglo, no esta auditoria sola.
 - Claude y Gemini programan siempre; Codex SOLO audita. App sigue maince1ac07d,
   publicado confirmado por health. No se programo app ni compilo en esta tanda.
 -769suites/4819tests existentes PASS,0fallos/omitidos,576.69s; bytes restaurados.

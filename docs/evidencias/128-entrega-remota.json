@@ -1,0 +1,14 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "deliverySnapshotSha": "e1a86bcc664a5914160c7d0cc6c3e04ca7ba43a7",
+  "branch": "codex/127-cierre-areas-20261015",
+  "pullRequest": "https://github.com/akproduccioneseventos/app-AK/pull/1306",
+  "stateObserved": "OPEN",
+  "draft": true,
+  "verifiedRemoteBlobs": 24,
+  "order165Verified": true,
+  "method": "Remote PR HEAD and every changed file blob verified against local git objects; untruncated remote tree",
+  "applicationPatched": false,
+  "merged": false,
+  "scope": "Delivery snapshot; receipt commit is not a new application build or acceptance."
+}
