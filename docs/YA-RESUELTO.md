@@ -1,5 +1,22 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Codex127: reparto aclarado y revision parcial de contrato
+
+- CLAUDE Y GEMINI PROGRAMAN SIEMPRE; CODEX SOLO AUDITA, prueba y registra.
+  Regla permanente en AGENTS; no autoriza programar app ni fusionar a Codex.
+- Main ce1ac07d, GitHub0PR abiertas comprobadas. Orden164 YA corregida segun
+  implementacion y cierre anterior; no reencomendarla como programacion pendiente.
+-8suites/34tests existentes PASS sobre ce1,0fallos/omitidos. Contrato, fechas,
+  marcadores, constancia sin reserva digital ni sena duplicada y regresiones164.
+  Dobles de base/permisos y clases de UI NO son navegador/SDK reales ni color
+  computado. Ver docs/codex/127-contrato-revision-parcial.md y JSONporcaso.
+- Ningun fallo nuevo emitido. Area contrato y portal NO se marcaron limpias:
+  falta ejecucion de recorridos completos con una compilacion QA vigente.
+  Build localb520 no valida ce1;3300 conexion rechazada no es fallo de Hosting.
+-3FAIL iniciales fueron modoQA JSON incompatible con doble Firestore de la
+  suite; archivados. Segunda corrida34PASS sin editar app ni expectativas.
+- No nuevas dependencias, servidores ni SDK; agente cerrado y ajenos intactos.
+
 
 ## 15/10/2026 - La PR 1303 no se fusionó: callaba dos controles cambiando el código
 
