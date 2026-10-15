@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 166: compras, revisión automática y hora de llegada del personal
+
+- **Compras (recordatorio de pago al desmarcar Pagado total):** al cambiar de pagado total a pendiente un pedido,
+  la tarea de pago se reabre (`completada: false`) o se crea si no existía, evitando que quede como pagada cuando el
+  pedido está impago.
+- **Compras (validación de adelanto no negativo):** el importe a cuenta ahora rechaza números menores a 0, NaN o
+  Infinity del lado del servidor antes de guardar. En la interfaz se agregaron `min={0}` y `step="0.01"`, restaurando
+  el valor anterior con aviso claro ante error.
+- **Revisión inteligente (lecturas fallidas y avisos no guardados):** la acción ahora anota las fuentes caídas
+  (`fuentesQueFallaron`) y distingue avisos creados de silenciados, duplicados o fallidos. La pantalla ya no anuncia
+  "Revisión completa" falsamente ante lecturas o avisos caídos, muestra el motivo con alerta visible y botón Reintentar.
+- **Personal (hora de llegada tras reintento):** `registrarLlegadaPersonal` ahora retorna el `checkInTimestamp`
+  persistido por el servidor. La vista del personal utiliza este valor confirmado en lugar de la hora local del celular,
+  mostrando la hora original correcta tras un reintento.
+
+```comprobar
+archivo: src/app/actions/fiesta/catering.actions.ts
+usa: updateShoppingListStatus en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/compras-reversion-y-adelanto.test.ts
+archivo: src/app/actions/smart-automations.ts
+usa: runSmartAutomations en src/app/control-tower/automatizaciones/page.tsx
+prueba: src/__tests__/automatizaciones-revision-inteligente-avisos.test.tsx
+archivo: src/app/acceso-personal/[tokenId]/page.tsx
+usa: registrarLlegadaPersonal en src/app/acceso-personal/[tokenId]/page.tsx
+prueba: src/__tests__/personal-llegada-reintento-hora-original.test.tsx
+```
+
 ## 15/10/2026 - Codex129: cinco fallos nuevos COMPROBADOS, PENDIENTES166
 
 - Codex SOLO audito. Fuente appce1ac07d; main nuevo1a717203 tiene el mismo
@@ -14201,3 +14228,4 @@ prueba: src/__tests__/pregunta-58-rebarrido.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```
+
