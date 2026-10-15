@@ -1266,6 +1266,10 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Codex puede compilar y levantar SÓLO el entorno de prueba con datos inventados (15 de octubre
+  de 2026).** El dueño lo dejó hacer para las pruebas de navegador. Sin claves reales, sin tocar
+  la app en línea ni datos reales, y sin fusionar. No se le vuelve a preguntar.
+
 - **Programa Gemini, siempre (15 de octubre de 2026).** Palabras suyas: *"programa gemini siempre"*.
   Manda sobre todo lo anterior: Claude no escribe código de la app (ni plata, ni arreglos chicos, ni
   ayudantes que programen). Claude investiga, escribe la orden masticada en `docs/ordenes/`, revisa la
