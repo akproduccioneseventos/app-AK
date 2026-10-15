@@ -1,4 +1,8 @@
-# Orden166 - cinco fallos reproducidos; compras, revision automatica y personal
+# Orden166 - Gemini: compras, revision automatica y hora del personal
+
+**PARA GEMINI.** Lo programa Gemini (regla del dueño, 15/10/2026). Arrancar desde `main` actualizado,
+rama nueva, UNA sola propuesta con los cinco arreglos. Si uno se traba, entregar el resto igual y avisar
+cuál faltó. Claude revisa (con lupa lo de plata), verifica y fusiona; Codex audita.
 
 **NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE (HEAD desconocido).**
 Para quienes programan: Gemini/Claude. Codex SOLO audita y conserva evidencia.
@@ -114,6 +118,55 @@ texto antes/despues de recarga. Es prueba de componentes, no GPS fisico/Next.
 - Entorno QA actual para viajes nativos segun requisito114, no abrir otro igual.
 - No datos/cuentas/pagos/mensajes reales. No cambiar funcion comercial sin dueno.
 - Registrar cada resultado y SHA en YA/ESTADO. Codex no fusiona ni declara0errores.
+
+
+## Camino exacto (Claude, 15/10/2026)
+
+Leer antes `docs/ANTES-DE-ENTREGAR.md`. No tocar ninguna línea de permisos (`requireEventPermission`,
+`requireAppSession`, `CAMPOS_DE_PAGO`): lo frena `src/__tests__/el-candado-de-la-plata.test.ts`.
+
+### 1. Corregir "Pagado" reabre el recordatorio
+`src/app/actions/fiesta/catering.actions.ts`, `updateShoppingListStatus` (~línea 45), dentro de
+`actualizarFiesta`, junto al bloque `if (campos.includes('pagado') && resultado.pagado)` (~línea 111):
+agregar el caso contrario `campos.includes('pagado') && !resultado.pagado && resultado.pedido` → la tarea
+con `texto === tareaTexto` vuelve a `completada: false`; si no existe ninguna con ese texto, crearla con el
+mismo armado de la línea ~95. No tocar otras tareas ni crear dos (mirar `yaEsta`).
+
+### 2. Adelanto negativo
+Misma función, ANTES de `actualizarFiesta` (después de `cambiosPedidos`): para cada cambio que traiga
+`montoPagado`, rechazar con `{ success:false, error:'El importe a cuenta tiene que ser un número de 0 o
+más.' }` si no es `Number.isFinite` o es `< 0`. 0 y 125.50 siguen válidos (no redondear). Pantalla
+`src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx`, input `monto-${providerId}`: `min={0}`
+`step="0.01"` y, si la acción devuelve error, mostrarlo y dejar el valor anterior.
+
+### 3 y 4. Revisión inteligente
+`src/app/actions/smart-automations.ts`:
+- `runSmartAutomations` (~línea 129): cambiar los tres `.catch(() => [])` por capturas que anoten la
+  fuente que falló (`fuentesQueFallaron: ('fiestas'|'presupuestos'|'leads')[]`) y sigan con las otras.
+- `notifyOnce` (~línea 105): devolver `'creado' | 'silenciado' | 'duplicado' | 'fallido'` en vez de
+  boolean (`success:false` o excepción = `'fallido'`; `notification` vacío = `'silenciado'`;
+  `isRecentDuplicate`/`isDuplicate` = `'duplicado'`). Contar `created` sólo con `'creado'` (como hoy) y
+  sumar `fallidos`.
+- Devolver `{ success, results, created, fallidos, fuentesQueFallaron }`; `success` sigue `true` si algo
+  se revisó, pero la pantalla decide el cartel con los dos campos nuevos.
+- `src/app/control-tower/automatizaciones/page.tsx`, `run`: si `fuentesQueFallaron.length` → cartel
+  "No se pudieron leer: <fuentes>. La revisión quedó incompleta." con Reintentar; si `fallidos > 0` →
+  "<n> avisos no se pudieron guardar"; sólo sin ninguno de los dos se muestra "Revisión completa".
+  Reintentar no repite avisos (ya lo cuida `isRecentDuplicate`).
+
+### 5. Hora de llegada tras reintento
+- `src/app/actions/accesos-personal-view.ts`, `registrarLlegadaPersonal` (~línea 150): dentro de
+  `actualizarFiesta` guardar en una variable la hora que quedó (`p.checkInTimestamp || nowIso`) y
+  devolverla: `{ success: true, distanciaMetros, checkInTimestamp }`.
+- `src/app/acceso-personal/[tokenId]/page.tsx`, `ejecutarRegistro` (~línea 59): usar
+  `res.checkInTimestamp` en lugar de `new Date().toISOString()`. No tocar ubicación, enlace ni sueldos.
+
+### Qué tiene que comprobar la prueba
+Pasar las tres sondas de Codex a `src/__tests__/` con el MISMO esperado (bases de mentira que devuelven
+copias): ida y vuelta de Pagado deja un recordatorio abierto; -500, NaN e Infinity rechazados y 0/125.50
+aceptados; fuente caída o aviso fallido no muestran "Revisión completa"; reintento de llegada muestra
+20:00. Romper cada arreglo a propósito y ver que la prueba falla. Reemplazar las tres líneas `prueba:`
+de abajo por las rutas reales.
 
 ```comprobar
 archivo: src/app/actions/fiesta/catering.actions.ts
