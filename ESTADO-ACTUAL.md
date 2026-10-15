@@ -1,35 +1,30 @@
-# Estado actual - 15/10/2026 (Codex130)
+# Estado actual - 15/10/2026 (Codex131)
 
-Codex SOLO AUDITA; Gemini programa, Claude revisa/compila/valida/fusiona.
-No implementar app, compilar ni fusionar por Codex. Conservar dinero/permisos.
-Main a97d33f0e73492a15f9eeacee4373668b059caf6, app igual ce1ac07d.
-PR1308 integrada via1309; NO subir rama129 cerrada. Antes1306 via1307.
-PR1311 ABIERTA/BORRADOR, codex/130-auditoria-pendientes-20261015 desde a97.
-Snapshot0dc10bbd verificado57blobs remotos; recibo130-entrega-remota.json.
-NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI, HEAD desconocido.
-PR1310c49a231d publica:12fuentes directas167 iguales; no aprobacion de1310.
-165/166 en manos de Gemini; no repetir sondas sin cambio ni reencargar arreglos.
-130 audita OTROS recorridos: orden167, tres defectos y una friccion pendientes.
-P1: gasto60.30 guardado/releido por acciones reales llega60 al reporte;
-dos60.30 llegan120, no120.60. No cambiar politica de ingresos/cuotas enteros.
-P2: Compartir falla en7reportesReact+1handlerAST con share sin canShare.
-P2: portal fotos-video oculta fallos de fotos/audios como vacio/sin seccion.
-FriccionP2: reporte conID si avisa toast Error, pero cuerpo dice Elegi una fiesta.
-Final63casos distintos49PASS14FAIL; esos14 son variantes, no14defectos.
-BarridoAST9documentos conservan alternativa; no reencargarlos por grep.
-Costos tres acciones reales+dobles; portal pagina+mapeo reales; reportes UIreal.
-NO Next nativo, sistema operativo, datos reales ni integraciones externas.
-Diagnostico inicial de ingresos con centavos: NO regresion exigible, politica
-previa verificada. Archivado; no darlo como bug ni tocar roundMoney global.
-Factura0 de primer fixture date sin paymentDate: error QA conservado, no app.
-Registro/hashes/comandos/salidas en130-evidencias; informe docs/codex/130-*.
-Amplia128769suites4819tests PASS reutilizada para misma fuente, no repetirla.
-Las nuevas sondas NO estaban en esa amplia; no editar esperados para ocultarlas.
-Tras parche: focales del consumidor y validacion amplia congelada por Claude.
-No nuevas dependencias, cambiosapp ni build/grafo completo por documentos.
-1Luna low acotado/cerrado; ningun SDK/servidor propio iniciado, bytes ajenos intactos.
-Requisito114 vigente: artefactoQA actual accesible, SHA/health/datos ficticios.
-Local .nextb520 NO valida ce1; no servidor3300 accesible al ultimo contraste.
-No otra orden114 ni prometer auditoria nativa completa; continuar huecos reales.
-Registro14areas no limpio; inventario421rutas no acredita cada boton/rol.
-No0errores/OAuth/Hosting/modelo-voz/19originales/integraciones/hardware sin evidencia.
+Codex SOLO audita/prueba/documenta; Gemini programa, Claude valida/compila/fusiona.
+Main/publicadoe8cd2c2b114bcda21d153cb406318cc1119d1dc5; no app/build/merge.
+Nueva rama codex/131-cierre-inventario-20261015 desde main nuevo.
+PR1315 ABIERTA/BORRADOR: snapshot a30f0135; entrega131-entrega-remota.json.
+No fusionar documentacion sola; integrar con quienes programan. Claude fusiona.
+PR1311 anterior cerrada: NO volver a subir rama130.
+PR1314 ABIERTA d4b1a84ee6cea662603e00cdea0012854875ee83, Gemini167 activa.
+Orden168 tambien encargada porClaude; no reencargar lo ya indicado.
+NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI: HEAD desconocido.
+165/166 presentes en main. Retest166:3suites14casosPASS0omitidos;
+cierra5defectos129 ENALCANCE, no comida/personal/automaticos enteros.
+131DJ nuevo: pagina+accion reales/dobles;2PASS2FAIL, orden169 paraGemini.
+Desmarcar escribe played:true; al remontar sigue fuera de pendientes.
+Si guardar marca falla, accion retornaerror y pantalla no avisa. Votos NOprobados.
+ControlesPASS: marcar normal; IDcancion de otra fiesta no muta.
+Dos fuentesDJ identicas main/PR1314; no contraste transitivo ni privado.
+Final18casosdistintos16PASS2FAIL, no sumar corridas repetidas.
+Sondas131-retest166/131-dj; guardia0fixturesalterados bytesintactos.
+Inventario131 revalida421rutas y controles/imports, NOaceptacionfuncional.
+AliasWindows inicial omitioimports: errorQA corregido/archivado, no app.
+Maincambio17archivos desdece1; amplia128 NOcertifica fuenteactual entera.
+Healthpublicooke8, build15:35UTC. Menu no ejecutado por timeoutCDP herramienta,
+no bugapp. Requisito114: artefactoQAactual/SHA/health/datosficticios.
+No otra114 ni usar .nextb520 paraaceptare8. No compilarporCodex ni rehacergrafo.
+Reutilizar pruebas por dependencias vigentes; no reiniciar auditoria.
+No convertir inventario en14areaslimpias ni afirmar0errores/todoauditado.
+Hosting/OAuth/proveedores/modelo-voz/19originales/hardware sin evidencia real.
+No archivosajenos/forcepush/dependenciasproduccion; cerrarservicios/agentespropios.

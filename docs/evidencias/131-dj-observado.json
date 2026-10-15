@@ -1,0 +1,64 @@
+{
+  "applicationSourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "scope": "REAL_REACT_DJ_PAGE_REAL_MARK_ACTION_WITH_SYNTHETIC_FIRESTORE_AUTH_READ_DOUBLES_NOT_NATIVE_BROWSER",
+  "observations": [
+    {
+      "case": "marcar",
+      "persisted": {
+        "id": "qa131-cancion",
+        "fiestaId": "qa131-fiesta",
+        "song": "Tema ficticio QA131",
+        "requestedBy": "Invitado ficticio",
+        "votes": 3,
+        "played": true,
+        "timestamp": "2026-10-15T15:59:00Z"
+      },
+      "text": "🎧 Panel DJFiesta ficticia QA131Solo pendientes0 pendientes1 reproducidasActualizado hace menos de un minuto🎛️Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.🎵No hay pedidos pendientesLos pedidos de los invitados aparecen aquí automáticamente.EN VIVO · actualización automática"
+    },
+    {
+      "case": "desmarcar",
+      "persisted": {
+        "id": "qa131-cancion",
+        "fiestaId": "qa131-fiesta",
+        "song": "Tema ficticio QA131",
+        "requestedBy": "Invitado ficticio",
+        "votes": 3,
+        "played": true,
+        "timestamp": "2026-10-15T15:59:00Z"
+      },
+      "text": "🎧 Panel DJFiesta ficticia QA131Ver todas0 pendientes1 reproducidasActualizado hace menos de un minuto🎛️Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.✓Tema ficticio QA131Pedido por Invitado ficticio·hace 1 minuto3EN VIVO · actualización automática",
+      "remainsUnmarkButton": true,
+      "reloadText": "🎧 Panel DJFiesta ficticia QA131Solo pendientes0 pendientes1 reproducidasActualizado hace menos de un minuto🎛️Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.🎵No hay pedidos pendientesLos pedidos de los invitados aparecen aquí automáticamente.EN VIVO · actualización automática"
+    },
+    {
+      "case": "otra-fiesta",
+      "result": {
+        "success": false,
+        "error": "Pedido musical no encontrado para este evento."
+      },
+      "persisted": {
+        "id": "qa131-cancion",
+        "fiestaId": "qa131-otra-fiesta",
+        "song": "Tema ficticio QA131",
+        "requestedBy": "Invitado ficticio",
+        "votes": 3,
+        "played": false,
+        "timestamp": "2026-10-15T15:59:00Z"
+      }
+    },
+    {
+      "case": "guardado-fallido",
+      "persisted": {
+        "id": "qa131-cancion",
+        "fiestaId": "qa131-fiesta",
+        "song": "Tema ficticio QA131",
+        "requestedBy": "Invitado ficticio",
+        "votes": 3,
+        "played": false,
+        "timestamp": "2026-10-15T15:59:00Z"
+      },
+      "text": "🎧 Panel DJFiesta ficticia QA131Solo pendientes1 pendientes0 reproducidasActualizado hace menos de un minuto🎛️Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.1Tema ficticio QA131Pedido por Invitado ficticio·hace 1 minuto3EN VIVO · actualización automática"
+    }
+  ],
+  "realAccountsOrMessagesTouched": false
+}

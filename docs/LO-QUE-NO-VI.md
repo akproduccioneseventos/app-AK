@@ -1272,6 +1272,8 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 166 → pregunta 50
 - Orden 167 → pregunta 36
 - Orden 168 → pregunta 50
+- Orden 169 → pregunta 4
+- Auditoria 131 (fallo de marca DJ no informado) → pregunta 9
 - Auditoria 130 (portal y estado del reporte) → pregunta 50
 - Auditoria 130 (compartir sin canShare) → pregunta 5
 - Auditoria 129 (importe de compras) → pregunta 36

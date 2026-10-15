@@ -1,0 +1,19 @@
+{
+  "main": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "pr": 1314,
+  "head": "d4b1a84ee6cea662603e00cdea0012854875ee83",
+  "files": [
+    {
+      "file": "src/app/evento/dj/[fiestaId]/page.tsx",
+      "mainBlob": "89c88b46d1bc7802cc34b24c276777732b0e5c20",
+      "pr1314Blob": "89c88b46d1bc7802cc34b24c276777732b0e5c20"
+    },
+    {
+      "file": "src/app/actions/social-interactive.ts",
+      "mainBlob": "62859ecf4034d44cc2f350f87d027ee01188c04d",
+      "pr1314Blob": "62859ecf4034d44cc2f350f87d027ee01188c04d"
+    }
+  ],
+  "scope": "DIRECT_FILES_ONLY_NOT_TRANSITIVE_OR_PRIVATE_DELIVERY",
+  "privateDelivery": "NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI"
+}

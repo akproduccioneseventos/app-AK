@@ -1,0 +1,9 @@
+PASS docs/evidencias/131-retest166-automatizaciones-reales.test.tsx
+PASS docs/evidencias/131-retest166-personal-llegada-reintento.test.tsx
+PASS docs/evidencias/131-retest166-compras-reversion.test.ts
+
+Test Suites: 3 passed, 3 total
+Tests:       14 passed, 14 total
+Snapshots:   0 total
+Time:        14.834 s
+Test results written to: docs\evidencias\131-retest166-jest.json

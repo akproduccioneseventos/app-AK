@@ -1,0 +1,22 @@
+{
+  "applicationSourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "scope": "REAL_ACTION_WITH_IN_MEMORY_TRANSACTION_AND_AUTH_DOUBLES_NOT_NATIVE_BROWSER",
+  "input": {
+    "montoPagado": -500
+  },
+  "result": {
+    "success": false,
+    "error": "El importe a cuenta tiene que ser un número de 0 o más."
+  },
+  "persisted": [
+    {
+      "proveedor": "Proveedor QA129",
+      "proveedorId": "qa129-prov",
+      "pedido": true,
+      "pagado": false,
+      "montoPagado": 0
+    }
+  ],
+  "expected": "Rechazo claro sin guardar monto negativo; cero y centavos positivos siguen permitidos",
+  "realAccountsOrMoneyTouched": false
+}

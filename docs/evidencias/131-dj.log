@@ -1,0 +1,40 @@
+FAIL docs/evidencias/131-dj-control-reproduccion.test.tsx
+  ● Marcar como no reproducida devuelve una cancion a pendientes y persiste tras recarga
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+    [0m [90m 77 |[39m   [36mtry[39m {
+     [90m 78 |[39m     observations[33m.[39mpush({ [36mcase[39m[33m:[39m [32m'desmarcar'[39m[33m,[39m [33m...[39mbeforeReload[33m,[39m reloadText[33m:[39m reloaded[33m.[39mhost[33m.[39mtextContent })[33m;[39m
+    [31m[1m>[22m[39m[90m 79 |[39m     expect(mockSong[33m.[39mplayed)[33m.[39mtoBe([36mfalse[39m)[33m;[39m
+     [90m    |[39m                             [31m[1m^[22m[39m
+     [90m 80 |[39m     expect(reloaded[33m.[39mhost[33m.[39mtextContent)[33m.[39mtoContain([32m'Tema ficticio QA131'[39m)[33m;[39m
+     [90m 81 |[39m     expect(reloaded[33m.[39mhost[33m.[39mquerySelector([32m'button[aria-label="Marcar como reproducida"]'[39m))[33m.[39mnot[33m.[39mtoBeNull()[33m;[39m
+     [90m 82 |[39m   } [36mfinally[39m { reloaded[33m.[39mclose()[33m;[39m }[0m
+
+      at Object.toBe (docs/evidencias/131-dj-control-reproduccion.test.tsx:79:29)
+
+  ● si falla guardar la marca, la pantalla informa el error y permite reintentar
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /no (se )?pudo|no pudimos|error|reintent/i
+    Received string:  "🎧 Panel DJFiesta ficticia QA131Solo pendientes1 pendientes0 reproducidasActualizado hace menos de un minuto🎛️Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.1Tema ficticio QA131Pedido por Invitado ficticio·hace 1 minuto3EN VIVO · actualización automática"
+
+    [0m [90m  95 |[39m     observations[33m.[39mpush({ [36mcase[39m[33m:[39m [32m'guardado-fallido'[39m[33m,[39m persisted[33m:[39m mockCopy(mockSong)[33m,[39m text[33m:[39m page[33m.[39mhost[33m.[39mtextContent })[33m;[39m
+     [90m  96 |[39m     expect(mockSong[33m.[39mplayed)[33m.[39mtoBe([36mfalse[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m  97 |[39m     expect(page[33m.[39mhost[33m.[39mtextContent)[33m.[39mtoMatch([35m/no (se )?pudo|no pudimos|error|reintent/i[39m)[33m;[39m
+     [90m     |[39m                                   [31m[1m^[22m[39m
+     [90m  98 |[39m     expect((page[33m.[39mhost[33m.[39mquerySelector([32m'button[aria-label="Marcar como reproducida"]'[39m) [36mas[39m [33mHTMLButtonElement[39m)[33m.[39mdisabled)[33m.[39mtoBe([36mfalse[39m)[33m;[39m
+     [90m  99 |[39m   } [36mfinally[39m { page[33m.[39mclose()[33m;[39m }
+     [90m 100 |[39m })[33m;[39m[0m
+
+      at Object.toMatch (docs/evidencias/131-dj-control-reproduccion.test.tsx:97:35)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 2 passed, 4 total
+Snapshots:   0 total
+Time:        3.795 s, estimated 6 s
+Test results written to: docs\evidencias\131-dj-jest.json
