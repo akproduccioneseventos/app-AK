@@ -1271,6 +1271,7 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 165 → pregunta 13
 - Orden 166 → pregunta 50
 - Orden 167 → pregunta 36
+- Orden 168 → pregunta 50
 - Auditoria 130 (portal y estado del reporte) → pregunta 50
 - Auditoria 130 (compartir sin canShare) → pregunta 5
 - Auditoria 129 (importe de compras) → pregunta 36
