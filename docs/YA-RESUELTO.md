@@ -33,7 +33,7 @@
 ```comprobar
 archivo: src/components/pwa-install-button.tsx
 usa: PwaInstallButton en src/app/(app)/settings/instalar-app/page.tsx
-prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx;7focales y amplia b520 ejecutadas PASS
+prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx
 ```
 
 ### Preparacion anterior125 (historica; leer actualizacion arriba)
@@ -68,7 +68,7 @@ prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx;7focales y amplia 
 ```comprobar
 archivo: src/components/kiosk/kiosk-setup.tsx
 usa: KioskSetup en src/app/evento/barra/page.tsx
-prueba: src/__tests__/kiosk-configuracion-accesible.test.tsx; focal ejecutada543, fuente final586 pendiente
+prueba: src/__tests__/kiosk-configuracion-accesible.test.tsx
 ```
 
 ## 14 de octubre de 2026 - Jest no corre las copias de los ayudantes
