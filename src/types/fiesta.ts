@@ -1584,6 +1584,7 @@ export interface FiestaEnPlanificacion {
   contratoSalonTexto?: string;
   contratoGenerado?: ContratoGeneradoInfo;
   contratoFirmaInfo?: ContratoFirmaInfo;
+  reciboSenaPendiente?: { motivo: string; fecha: string };
   firmaDigitalConstancia?: FirmaDigitalConstancia;
   contratoDatos?: ContratoDatos;
   clientPortalSettings?: ClientPortalSettings;
@@ -2001,4 +2002,5 @@ export interface AjustesEstacionEntretenimiento {
   marcosHabilitados?: string[];
   [key: string]: unknown;
 }
+
 

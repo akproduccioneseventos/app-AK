@@ -1272,12 +1272,24 @@ export async function duplicateFiesta(fiestaId: string, opciones?: { idIntento?:
   }
 }
 
-export async function addInvoiceId(fiestaId: string, invoiceId: string) {
+export async function addInvoiceId(fiestaId: string, invoiceId: string, opciones?: { esReciboDeSena?: boolean }) {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (enganchar facturas y presupuesto)
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
-  if ((f.invoiceIds || []).includes(invoiceId)) return { success: true };
-  return await saveFiesta({ ...f, invoiceIds: [...(f.invoiceIds || []), invoiceId] });
+  const yaExiste = (f.invoiceIds || []).includes(invoiceId);
+  if (yaExiste) {
+    if (opciones?.esReciboDeSena && f.reciboSenaPendiente) {
+      const limpia = { ...f };
+      delete limpia.reciboSenaPendiente;
+      return await saveFiesta(limpia);
+    }
+    return { success: true };
+  }
+  const updated: FiestaEnPlanificacion = { ...f, invoiceIds: [...(f.invoiceIds || []), invoiceId] };
+  if (opciones?.esReciboDeSena) {
+    delete updated.reciboSenaPendiente;
+  }
+  return await saveFiesta(updated);
 }
 
 export async function removeInvoiceId(fiestaId: string, invoiceId: string) {
@@ -1466,4 +1478,5 @@ export async function actualizarClienteYAgasajadoAction(
 
   return await saveFiesta(actualizada);
 }
+
 

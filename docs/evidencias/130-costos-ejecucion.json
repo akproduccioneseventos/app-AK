@@ -1,0 +1,35 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "contrastedMain": "a97d33f0e73492a15f9eeacee4373668b059caf6",
+  "documentaryHead": "a97d33f0e73492a15f9eeacee4373668b059caf6",
+  "sourceGate": "NO_APP_DEPENDENCY_OR_TEST_CONFIG_DIFF_FROM_SOURCE",
+  "startedAt": "2026-10-15T13:36:33.826Z",
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/130-costos-jest.json",
+    "--testMatch=**/docs/evidencias/130-*.test.ts?(x)",
+    "--testMatch=**/src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts",
+    "--runTestsByPath",
+    "docs/evidencias/130-costos-precision-reporte.test.ts"
+  ],
+  "credentials": "ENV_WHITELIST_NO_INHERITED_SERVICE_KEYS_MISSING_ADC_SENTINEL",
+  "scope": "FOCUSED_COMPONENT_OR_MODULE_DOUBLES_NOT_BUILD_NOT_NATIVE_BROWSER",
+  "testHashes": [
+    {
+      "file": "docs/evidencias/130-costos-precision-reporte.test.ts",
+      "sha256": "a630f297a18f66d47225a1f0464822f45da9ad1ecf2c4fde2ab3163a1e1c15fb"
+    }
+  ],
+  "status": "finished",
+  "pid": 17420,
+  "exitCode": 1,
+  "signal": null,
+  "finishedAt": "2026-10-15T13:37:17.179Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

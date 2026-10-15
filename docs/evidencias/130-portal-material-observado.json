@@ -1,0 +1,113 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "REAL_REACT_PORTAL_PAGE_REAL_DTO_MAPPING_WITH_SESSION_AND_DATA_DOUBLES_NOT_NATIVE_BROWSER",
+  "rows": [
+    {
+      "caso": "vacio-real",
+      "visibleText": "📸 Fotos & VideoFiesta ficticia QA130📸 Recuerdos & EntregablesAccedé a todo el material digital de tu fiestaÁlbum Digital OficialTodo el material fotográfico y recuerdos aprobados de tu fiesta listos para ver y compartir con tu familia por WhatsApp.Ver Álbum OficialCompartir con InvitadosTu video de la fiestaMontaje vertical cinematográfico de 60 a 90 segundos con las mejores fotos, música de fondo y efecto Ken Burns.Ver y CompartirDescargar VideoRecuerdos Sociales de InvitadosFotos de los Invitados0 fotos compartidas en el muro DescargarServicios de Fotografía & Filmación OficialAlbum ficticio QA130Entregado completo Descargar archivos oficiales",
+      "links": [
+        {
+          "text": "Ver Álbum Oficial",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": "Compartir con Invitados",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": " Descargar",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": " Descargar archivos oficiales",
+          "href": "https://example.invalid/qa130-album"
+        }
+      ],
+      "sessionKeyRetained": true
+    },
+    {
+      "caso": "contenido-leido",
+      "visibleText": "📸 Fotos & VideoFiesta ficticia QA130📸 Recuerdos & EntregablesAccedé a todo el material digital de tu fiestaÁlbum Digital OficialTodo el material fotográfico y recuerdos aprobados de tu fiesta listos para ver y compartir con tu familia por WhatsApp.Ver Álbum OficialCompartir con InvitadosTu video de la fiestaMontaje vertical cinematográfico de 60 a 90 segundos con las mejores fotos, música de fondo y efecto Ken Burns.Ver y CompartirDescargar VideoRecuerdos Sociales de InvitadosFotos de los Invitados1 fotos compartidas en el muro DescargarDedicatorias & Audios de Recuerdos 🎙️Invitado ficticio QA13015 oct\"Audio ficticio\"Servicios de Fotografía & Filmación OficialAlbum ficticio QA130Entregado completo Descargar archivos oficiales",
+      "links": [
+        {
+          "text": "Ver Álbum Oficial",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": "Compartir con Invitados",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": " Descargar",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": "",
+          "href": "https://example.invalid/qa130-audio.webm"
+        },
+        {
+          "text": " Descargar archivos oficiales",
+          "href": "https://example.invalid/qa130-album"
+        }
+      ],
+      "sessionKeyRetained": true
+    },
+    {
+      "caso": "fotos-lectura-fallida",
+      "visibleText": "📸 Fotos & VideoFiesta ficticia QA130📸 Recuerdos & EntregablesAccedé a todo el material digital de tu fiestaÁlbum Digital OficialTodo el material fotográfico y recuerdos aprobados de tu fiesta listos para ver y compartir con tu familia por WhatsApp.Ver Álbum OficialCompartir con InvitadosTu video de la fiestaMontaje vertical cinematográfico de 60 a 90 segundos con las mejores fotos, música de fondo y efecto Ken Burns.Ver y CompartirDescargar VideoRecuerdos Sociales de InvitadosFotos de los Invitados0 fotos compartidas en el muro DescargarDedicatorias & Audios de Recuerdos 🎙️Invitado ficticio QA13015 oct\"Audio ficticio\"Servicios de Fotografía & Filmación OficialAlbum ficticio QA130Entregado completo Descargar archivos oficiales",
+      "links": [
+        {
+          "text": "Ver Álbum Oficial",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": "Compartir con Invitados",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": " Descargar",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": "",
+          "href": "https://example.invalid/qa130-audio.webm"
+        },
+        {
+          "text": " Descargar archivos oficiales",
+          "href": "https://example.invalid/qa130-album"
+        }
+      ],
+      "sessionKeyRetained": true
+    },
+    {
+      "caso": "audios-lectura-fallida",
+      "visibleText": "📸 Fotos & VideoFiesta ficticia QA130📸 Recuerdos & EntregablesAccedé a todo el material digital de tu fiestaÁlbum Digital OficialTodo el material fotográfico y recuerdos aprobados de tu fiesta listos para ver y compartir con tu familia por WhatsApp.Ver Álbum OficialCompartir con InvitadosTu video de la fiestaMontaje vertical cinematográfico de 60 a 90 segundos con las mejores fotos, música de fondo y efecto Ken Burns.Ver y CompartirDescargar VideoRecuerdos Sociales de InvitadosFotos de los Invitados1 fotos compartidas en el muro DescargarServicios de Fotografía & Filmación OficialAlbum ficticio QA130Entregado completo Descargar archivos oficiales",
+      "links": [
+        {
+          "text": "Ver Álbum Oficial",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": "Compartir con Invitados",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": " Descargar",
+          "href": "/evento/album/qa130-fiesta-ficticia"
+        },
+        {
+          "text": " Descargar archivos oficiales",
+          "href": "https://example.invalid/qa130-album"
+        }
+      ],
+      "sessionKeyRetained": true
+    },
+    {
+      "caso": "sesion-invalida",
+      "visibleText": "La sesión del portal venció o no corresponde a este evento.",
+      "links": [],
+      "sessionKeyRetained": false
+    }
+  ],
+  "realAccountsOrContentTouched": false
+}

@@ -21,13 +21,21 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
+
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
 }
 
 function formatDate(iso?: string) {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' });
+  const dia = diaCalendario(iso);
+  if (!dia) return '—';
+  const [anio, mes, d] = dia.split('-').map(Number);
+  if (!anio || !mes || !d) return '—';
+  const fecha = new Date(anio, mes - 1, d);
+  if (Number.isNaN(fecha.getTime())) return '—';
+  return fecha.toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 export default function ClientContractPage() {
@@ -450,3 +458,4 @@ export default function ClientContractPage() {
     </div>
   );
 }
+

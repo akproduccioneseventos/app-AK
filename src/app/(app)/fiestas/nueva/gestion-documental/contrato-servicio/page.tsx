@@ -58,7 +58,7 @@ function ContratoServicioContent() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [templates, setTemplates] = useState<ContractTemplateItem[]>([]);
   const [selectedType, setSelectedType] = useState<ContractType>('servicios');
-  
+
   const [contractText, setContractText] = useState('');
   // Ultimo texto guardado. Sirve para saber si hay ediciones sin guardar y no
   // pisarlas en silencio al cambiar de plantilla o al salir del modo edicion.
@@ -123,7 +123,7 @@ function ContratoServicioContent() {
         getInvoiceTemplateSettings(),
         getContractTemplates()
       ]);
-      
+
       if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
       setCompanyInfo(companyData);
@@ -285,7 +285,7 @@ function ContratoServicioContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handlePrint = () => window.print();
 
   const handleSaveForEvent = async () => {
@@ -316,7 +316,15 @@ function ContratoServicioContent() {
       try {
           const result = await uploadPhysicalContract(formData);
           if (result.success) {
-              toast({ title: "¡Contrato Físico Cargado!", description: "Se ha registrado la firma física." });
+              if (result.reciboPendiente) {
+                  toast({
+                      title: "Contrato cargado, falta el recibo de seña",
+                      description: `${result.reciboPendiente}. Generalo desde Facturación.`,
+                      variant: "destructive"
+                  });
+              } else {
+                  toast({ title: "¡Contrato Físico Cargado!", description: "Se ha registrado la firma física." });
+              }
               await loadData();
           } else throw new Error(result.error);
       } catch (e: any) {
@@ -329,7 +337,7 @@ function ContratoServicioContent() {
   if (isLoading) {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
-  
+
   if (error) {
     return (
         <div className="max-w-xl mx-auto mt-10 text-center p-6 border-l-4 border-destructive bg-destructive/10">
@@ -348,7 +356,7 @@ function ContratoServicioContent() {
   return (
     <div className="bg-gray-100 min-h-screen pb-20 print:bg-white print:pb-0 font-serif">
       <div className="max-w-4xl mx-auto space-y-6">
-        
+
         {/* BARRA DE HERRAMIENTAS ADM */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 bg-white shadow-sm print:hidden sticky top-0 z-50 rounded-b-xl border-x border-b">
           <div className="flex items-center gap-3">
@@ -357,7 +365,7 @@ function ContratoServicioContent() {
                 <h1 className="text-lg font-black font-headline tracking-tighter">Módulo 4: Firma de Contrato</h1>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{selectedTemplate?.name || 'Contrato'}</p>
                 {firma?.isSigned ? (
-                    <Badge className={cn("text-[9px] uppercase font-black tracking-widest", 
+                    <Badge className={cn("text-[9px] uppercase font-black tracking-widest",
                         firma.method === 'digital' ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
                     )}>
                         {firma.method === 'digital' ? 'FIRMADO DIGITALMENTE' : 'FIRMADO FÍSICO'}
@@ -376,7 +384,7 @@ function ContratoServicioContent() {
                     {isEditing ? <><CheckCircle2 className="w-4 h-4 mr-2"/> Salir sin guardar</> : <><Edit className="w-4 h-4 mr-2"/> Editar Legal</>}
                 </Button>
             )}
-            
+
             {isEditing && (
                 <Button onClick={handleSaveForEvent} variant="default" size="sm" disabled={isSaving}>
                     {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <Save className="w-4 h-4 mr-2"/>}
@@ -402,6 +410,24 @@ function ContratoServicioContent() {
             )}
           </div>
         </div>
+
+        {/* Cartel persistente de recibo de seña pendiente */}
+        {fiesta?.reciboSenaPendiente && (
+          <div className="print:hidden px-4" data-testid="recibo-sena-pendiente">
+            <div className="rounded-xl border border-red-300 bg-red-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-red-900 shadow-sm">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+                <div>
+                  <p className="text-sm font-bold">Contrato cargado, falta el recibo de seña</p>
+                  <p className="text-xs text-red-700 mt-0.5">{fiesta.reciboSenaPendiente.motivo}. Podés generarlo desde Facturación.</p>
+                </div>
+              </div>
+              <Button asChild variant="destructive" size="sm" className="shrink-0 font-bold">
+                <Link href={`/invoices?fiestaId=${fiestaId}`}>Ir a Facturación</Link>
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Banner de constancia digital en el portal: falta el papel */}
         {constancia && !firma?.isSigned && (
@@ -581,7 +607,7 @@ function ContratoServicioContent() {
 
         {/* ALERTA DE FIRMA DIGITAL */}
         {firma?.isSigned && (
-            <Alert className={cn("border-none shadow-lg rounded-2xl", 
+            <Alert className={cn("border-none shadow-lg rounded-2xl",
                 firma.method === 'digital' ? "bg-green-600 text-white" : "bg-blue-600 text-white"
             )}>
                 {firma.method === 'digital' ? <FileSignature className="h-5 w-5 text-white" /> : <CheckCircle2 className="h-5 w-5 text-white" />}
@@ -614,7 +640,7 @@ function ContratoServicioContent() {
                 <h1 className="text-2xl font-black font-headline uppercase tracking-tight text-slate-900">{selectedTemplate?.name || 'Contrato de Prestación de Servicios'}</h1>
                 <p className="text-xs text-slate-400 font-sans tracking-widest uppercase mt-2">Documento de Validez Legal</p>
             </header>
-            
+
             {isEditing ? (
                 <div className="space-y-4 print:hidden">
                     <Alert className="bg-amber-50 border-amber-200">
@@ -624,9 +650,9 @@ function ContratoServicioContent() {
                             Estás personalizando las cláusulas para este evento. Una vez firmado, no podrás editar este texto.
                         </AlertDescription>
                     </Alert>
-                    <Textarea 
-                        value={contractText} 
-                        onChange={(e) => setContractText(e.target.value)} 
+                    <Textarea
+                        value={contractText}
+                        onChange={(e) => setContractText(e.target.value)}
                         className="min-h-[800px] font-serif text-base leading-relaxed p-6 bg-slate-50 border-none rounded-2xl shadow-inner"
                     />
                 </div>
@@ -679,3 +705,4 @@ function ContratoServicioPageContent() {
     const fiestaId = searchParams.get('fiestaId');
     return <ContratoServicioContent />;
 }
+

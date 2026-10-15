@@ -1,0 +1,245 @@
+{
+  "verifiedAt": "2026-10-15T13:54:30.974Z",
+  "snapshotHead": "0dc10bbd80d96265f7019a01f68af0f22ca4d145",
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "baseMain": "a97d33f0e73492a15f9eeacee4373668b059caf6",
+  "pr": {
+    "headRefName": "codex/130-auditoria-pendientes-20261015",
+    "headRefOid": "0dc10bbd80d96265f7019a01f68af0f22ca4d145",
+    "isDraft": true,
+    "number": 1311,
+    "url": "https://github.com/akproduccioneseventos/app-AK/pull/1311"
+  },
+  "verifiedBlobs": 57,
+  "allIdentical": true,
+  "files": [
+    {
+      "path": "ESTADO-ACTUAL.md",
+      "sha": "f7c1b0b654af5656989950847a01e5967a4e09df"
+    },
+    {
+      "path": "docs/LO-QUE-NO-VI.md",
+      "sha": "b50eada8de9a6c2ebd8db8c1db83d40fb30f40a1"
+    },
+    {
+      "path": "docs/YA-RESUELTO.md",
+      "sha": "90c3c01fa66e1799bf49fcadcd3d11401ab27615"
+    },
+    {
+      "path": "docs/codex/130-reportes-y-material-cliente.md",
+      "sha": "b2fd2471dc09d5c6647bef37a22f9a385d4fea27"
+    },
+    {
+      "path": "docs/evidencias/130-antes-contexto-130-compartir-variantes-observado.json.gz",
+      "sha": "509678849a86fc5df9c3f5482ed8de5643bd4966"
+    },
+    {
+      "path": "docs/evidencias/130-antes-contexto-130-compartir-variantes.test.ts.gz",
+      "sha": "40229453471227e78e4069dbaad83c025d357c49"
+    },
+    {
+      "path": "docs/evidencias/130-antes-contexto-130-variantes-ejecucion.json.gz",
+      "sha": "3d0a8780b42e3f6a03b2476818bac1e8ba7f64f5"
+    },
+    {
+      "path": "docs/evidencias/130-antes-contexto-130-variantes-jest.json.gz",
+      "sha": "d5b1427ef08baf38c6fba79b056d6f272750f8d7"
+    },
+    {
+      "path": "docs/evidencias/130-antes-contexto-130-variantes.log.gz",
+      "sha": "afa7eb83ea7d53f56547520a8722cb662dcb10a4"
+    },
+    {
+      "path": "docs/evidencias/130-antes-fixture-130-finanzas-centavos-observado.json.gz",
+      "sha": "f93f6dcb1cee6be22797ee771ed97b9f827adcce"
+    },
+    {
+      "path": "docs/evidencias/130-antes-fixture-130-finanzas-centavos.test.ts.gz",
+      "sha": "8decdfede22703a05a7d43e2ed6cc80468f67525"
+    },
+    {
+      "path": "docs/evidencias/130-antes-fixture-130-finanzas-ejecucion.json.gz",
+      "sha": "633095992ac21fa826aeb9d0e5ac6389163b4fd5"
+    },
+    {
+      "path": "docs/evidencias/130-antes-fixture-130-finanzas-jest.json.gz",
+      "sha": "44d941c11948c6e447986a9996709d7131ddb98e"
+    },
+    {
+      "path": "docs/evidencias/130-antes-fixture-130-finanzas.log.gz",
+      "sha": "01d5db30a2938f09b4df3b63f1e7e62e0fc09439"
+    },
+    {
+      "path": "docs/evidencias/130-archivos-archivados.json",
+      "sha": "1db3ec3e4e14037607ad2fadbe9d66e66904cb01"
+    },
+    {
+      "path": "docs/evidencias/130-compartir-variantes-observado.json",
+      "sha": "22f519ea74adf0a7136b63785f5733b8f7e9e1aa"
+    },
+    {
+      "path": "docs/evidencias/130-compartir-variantes.test.ts",
+      "sha": "b02e261a9696afddeb947d114a94de56e5a5e8f4"
+    },
+    {
+      "path": "docs/evidencias/130-contraste-tanda.json",
+      "sha": "4c8592c963a177db2e5806ed9e47c7a12b0e72aa"
+    },
+    {
+      "path": "docs/evidencias/130-costos-ejecucion.json",
+      "sha": "b0cfa9bbe1e5247295ed55618dfe900aca161675"
+    },
+    {
+      "path": "docs/evidencias/130-costos-jest.json",
+      "sha": "d357be5f6bbf02f298fecbf58d24ef7e501278c4"
+    },
+    {
+      "path": "docs/evidencias/130-costos-precision-observado.json",
+      "sha": "206fd925b24096bcc39ed6ed4956970a826af3b7"
+    },
+    {
+      "path": "docs/evidencias/130-costos-precision-reporte.test.ts",
+      "sha": "071fc2dc25b929a98b9fe8e0a72fe8f3d4f38eb9"
+    },
+    {
+      "path": "docs/evidencias/130-costos.log.gz",
+      "sha": "f6c3ed079a9248312834696df9cb64eba63604f5"
+    },
+    {
+      "path": "docs/evidencias/130-diagnostico-politica-130-finanzas-centavos-observado.json.gz",
+      "sha": "4a5126c6742902af5f7c493d6bf7e1a696cce692"
+    },
+    {
+      "path": "docs/evidencias/130-diagnostico-politica-130-finanzas-centavos.test.ts.gz",
+      "sha": "9d19ab29faa4012e2609805f4278fc0d44d82414"
+    },
+    {
+      "path": "docs/evidencias/130-diagnostico-politica-130-finanzas-ejecucion.json.gz",
+      "sha": "001b6adf943c229c9efbf9f13028ce41905a6cfa"
+    },
+    {
+      "path": "docs/evidencias/130-diagnostico-politica-130-finanzas-jest.json.gz",
+      "sha": "1c50207cfb4d7c1dc41e66a861ad7a97634e3422"
+    },
+    {
+      "path": "docs/evidencias/130-diagnostico-politica-130-finanzas.log.gz",
+      "sha": "32e7b1ac66aa62fc918205f7aad2c74baa531590"
+    },
+    {
+      "path": "docs/evidencias/130-finanzas-centavos-observado.json",
+      "sha": "8dd971bff6b46b031c2259f5091981d45d4f345b"
+    },
+    {
+      "path": "docs/evidencias/130-finanzas-ejecucion.json",
+      "sha": "38d404e9845d0991477664097357140cd9c34910"
+    },
+    {
+      "path": "docs/evidencias/130-finanzas-jest.json",
+      "sha": "833742ca3f7e4ff9bf87b4da770e5e6568c8b3a3"
+    },
+    {
+      "path": "docs/evidencias/130-finanzas-politica-diagnostico.txt",
+      "sha": "7dac809856266b33ff5ad6e64e76332c13b3666b"
+    },
+    {
+      "path": "docs/evidencias/130-finanzas.log.gz",
+      "sha": "32e7b1ac66aa62fc918205f7aad2c74baa531590"
+    },
+    {
+      "path": "docs/evidencias/130-portal-ejecucion.json",
+      "sha": "899ddf946ad0c73807b251dfa176917180c93b9e"
+    },
+    {
+      "path": "docs/evidencias/130-portal-jest.json",
+      "sha": "364b878465d5e689a83977dfe998aa618f19ad13"
+    },
+    {
+      "path": "docs/evidencias/130-portal-material-lecturas.test.tsx",
+      "sha": "8ff63659e9b42dcec3ff5a44c4d6ad3e8341b50b"
+    },
+    {
+      "path": "docs/evidencias/130-portal-material-observado.json",
+      "sha": "4df62aecb1a9974691f914b54a9372745383d02e"
+    },
+    {
+      "path": "docs/evidencias/130-portal.log.gz",
+      "sha": "c0747b4ea7e264b6e106265460ffd3890d9d4c5c"
+    },
+    {
+      "path": "docs/evidencias/130-pr-description.md",
+      "sha": "740a070ad6c706061e36d31799cca7fc7e5d5d96"
+    },
+    {
+      "path": "docs/evidencias/130-registro-ejecucion.json",
+      "sha": "6eb0e747d3698a434500f36ad47cde1e6f552798"
+    },
+    {
+      "path": "docs/evidencias/130-registro-jest.json",
+      "sha": "4d29f7ef87cccdb67eeba20156e4d7d3eed80a9a"
+    },
+    {
+      "path": "docs/evidencias/130-registro.log.gz",
+      "sha": "0ef54a6871e3a0d8694254217205eeb77dcbbe29"
+    },
+    {
+      "path": "docs/evidencias/130-reporte-evento-ejecucion.json",
+      "sha": "5d13b03493050700bcb4ebb48480c23d0413b519"
+    },
+    {
+      "path": "docs/evidencias/130-reporte-evento-error.test.tsx",
+      "sha": "81b4a21ce676bc6ce8f4715ffb633af804a98cd5"
+    },
+    {
+      "path": "docs/evidencias/130-reporte-evento-jest.json",
+      "sha": "ca9aeb5e02a50a49a10261c235c62ddcfafab293"
+    },
+    {
+      "path": "docs/evidencias/130-reporte-evento-observado.json",
+      "sha": "97831b82ee847bedf95015a96bd944dc10cee7f1"
+    },
+    {
+      "path": "docs/evidencias/130-reporte-evento.log.gz",
+      "sha": "e612426b360862329c5908e82ab13abd929a78d4"
+    },
+    {
+      "path": "docs/evidencias/130-reportes-compartir-observado.json",
+      "sha": "8025b91e4168752c6113f81ace9702650164e096"
+    },
+    {
+      "path": "docs/evidencias/130-reportes-compartir.test.tsx",
+      "sha": "c70572b0ecdc435bbeeba6e9fbc5953b07c93b6f"
+    },
+    {
+      "path": "docs/evidencias/130-reportes-ejecucion.json",
+      "sha": "f0d81ebe278e79dc343ec2253041022d4e87456d"
+    },
+    {
+      "path": "docs/evidencias/130-reportes-jest.json",
+      "sha": "6e03d753c790dd0a54c72e645f8b353881ab70b0"
+    },
+    {
+      "path": "docs/evidencias/130-reportes.log.gz",
+      "sha": "22e06009e18cba1b412d544c6e83159b51c5ebf5"
+    },
+    {
+      "path": "docs/evidencias/130-sondas-runner.mjs",
+      "sha": "93f4779c110421b8483d0cc5dd4abc9340a81004"
+    },
+    {
+      "path": "docs/evidencias/130-variantes-ejecucion.json",
+      "sha": "7c47a362604abcb4cb2899e8dd428440c2e61db4"
+    },
+    {
+      "path": "docs/evidencias/130-variantes-jest.json",
+      "sha": "c061e5cfb820436095c3c4690125055ea717bb3d"
+    },
+    {
+      "path": "docs/evidencias/130-variantes.log.gz",
+      "sha": "ce4175574081368d00832e86423f3b8ee0561b44"
+    },
+    {
+      "path": "docs/ordenes/167-reportes-compartir-y-material-del-cliente.md",
+      "sha": "b040739af4c00886a52ea83fbaa744b7f79fdd85"
+    }
+  ]
+}
