@@ -14423,7 +14423,7 @@ prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 
 ## Simulador: test de WhatsApp esperaba un paso que ya no existe (15 de octubre de 2026)
 
-El test historico `tests/e2e/simulador-contacto-oficial.spec.ts` avanzaba una vez de mas y esperaba `Continuar` cuando la pantalla ya estaba en `Paso 5 de 5`; el control real es `Ver Resumen y Propuesta`, con una oferta opcional previa que el prospecto puede rechazar. No era un error confirmado del simulador. La prueba sintetica `tests/e2e/133-simulador-whatsapp-despues-de-oferta.spec.ts` comprobo conservar el paquete, abrir el resumen y que los botones interceptados apuntaran al WhatsApp oficial (1 PASS desktop; movil omitido intencionalmente). El test antiguo sigue pendiente de actualizar segun orden173; no usar su espera de un boton inexistente como defecto de la app.
+El test historico `tests/e2e/simulador-contacto-oficial.spec.ts` avanzaba una vez de mas y esperaba `Continuar` cuando la pantalla ya estaba en `Paso 5 de 5`; el control real es `Ver Resumen y Propuesta`, con una oferta opcional previa que el prospecto puede rechazar. No era un error confirmado del simulador. La prueba sintetica `tests/e2e/133-simulador-whatsapp-despues-de-oferta.spec.ts` comprobo conservar el paquete, abrir el resumen, guardar el prospecto en el CRM con fuente Facebook/campana UTM y que los botones interceptados apuntaran al WhatsApp oficial (1 PASS desktop; movil omitido intencionalmente). El test antiguo sigue pendiente de actualizar segun orden173; no usar su espera de un boton inexistente como defecto de la app.
 
 ```comprobar
 prueba: tests/e2e/133-simulador-whatsapp-despues-de-oferta.spec.ts

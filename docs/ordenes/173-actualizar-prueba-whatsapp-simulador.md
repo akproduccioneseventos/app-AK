@@ -15,7 +15,7 @@ Esto es un desajuste del test, no un defecto confirmado del simulador. No cambia
 ## Criterio de aceptacion
 
 - El test antiguo deja de esperar el paso inexistente y maneja la opcion de conservar el paquete.
-- Completa hasta el resumen y comprueba el numero oficial en la URL interceptada, sin abrir WhatsApp ni enviar mensajes.
+- Completa hasta el resumen, confirma que el prospecto y su origen/campana llegan al CRM y comprueba el numero oficial en la URL interceptada, sin abrir WhatsApp ni enviar mensajes.
 - Solo genera datos sinteticos y se omite fuera del entorno aislado.
 
 ```comprobar
