@@ -1,0 +1,27 @@
+[
+  {
+    "original": "docs/evidencias/131-dj-jest.json",
+    "archive": "docs/evidencias/131-dj-antes-recarga-jest.json.gz",
+    "sha256": "8ac955b6142e69d1f91a2149a9f633ef45fa691ac9555b11c30109141d582935"
+  },
+  {
+    "original": "docs/evidencias/131-dj.log",
+    "archive": "docs/evidencias/131-dj-antes-recarga.log.gz",
+    "sha256": "77faacc131b8c27dc2b4773243e3efec299313e6808736067a2f6e0c3801bdbd"
+  },
+  {
+    "original": "docs/evidencias/131-dj-observado.json",
+    "archive": "docs/evidencias/131-dj-antes-recarga-observado.json.gz",
+    "sha256": "9846855ae12515d3c17a097c04caec5093404f5a9f4c67bb9ebfdf5b2f3f86f3"
+  },
+  {
+    "original": "docs/evidencias/131-dj-ejecucion.json",
+    "archive": "docs/evidencias/131-dj-antes-recarga-ejecucion.json.gz",
+    "sha256": "9b2dd67ea81a77fb63612bc1f098ba421d5dc614f77769b356ba0fa6d6e2c96a"
+  },
+  {
+    "original": "docs/evidencias/131-dj-control-reproduccion.test.tsx",
+    "archive": "docs/evidencias/131-dj-antes-recarga-control-reproduccion.test.tsx.gz",
+    "sha256": "ba1e94354e86d4a9ec5941b9eb28887b51971cd48f7ff9d788c415a8032eef15"
+  }
+]

@@ -1,0 +1,104 @@
+{
+  "applicationSourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "rolesInSourceOnly": {
+    "file": "src/lib/auth/perfiles.ts",
+    "symbol": "Perfil",
+    "values": [
+      "dueno",
+      "secretaria",
+      "operador",
+      "personal",
+      "cliente",
+      "prospecto",
+      "invitado"
+    ],
+    "nativeSessionsTested": false
+  },
+  "batches": [
+    {
+      "tag": "131-retest166",
+      "suites": 3,
+      "tests": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "tag": "131-dj",
+      "suites": 1,
+      "tests": 4,
+      "passed": 2,
+      "failed": 2,
+      "skipped": 0
+    },
+    {
+      "tag": "131-registro",
+      "suites": 1,
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "functionalCases": {
+    "distinct": 18,
+    "passed": 16,
+    "failed": 2,
+    "skipped": 0
+  },
+  "registryCases": 3,
+  "uniqueNewDefects": 2,
+  "order": "169-panel-dj-desmarcar-y-error-de-guardado",
+  "closedPriorDefects": {
+    "order": 166,
+    "count": 5,
+    "scope": "ORIGINAL_PROBES_ONLY_NOT_ENTIRE_AREAS"
+  },
+  "inventory": {
+    "artifact": "131-cierre-inventario",
+    "format": "gzip-compressed-json",
+    "compressedFile": "docs/evidencias/131-inventario-cierre.json.gz",
+    "uncompressedBytes": 2044876,
+    "compressedBytes": 168478,
+    "uncompressedSha256": "c40bb03c4ca811578971e43cb5931b78c5359842ca9aa3676947acef91dd0b46",
+    "source": {
+      "commit": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+      "branchAtCapture": "codex/131-cierre-inventario-20261015",
+      "matrixSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472"
+    },
+    "counts": {
+      "mappedAreas": 14,
+      "routeCount": 421,
+      "actualAppPageAndRouteCount": 421,
+      "unmappedRouteCount": 0,
+      "staleMappedRouteCount": 0,
+      "uniqueRouteFileCount": 421,
+      "uniqueFilesInStaticImportClosures": 1204,
+      "routeFileOccurrencesIncludingSharedImports": 19157,
+      "uniqueAstMatchedControlLocations": 4633,
+      "routeControlOccurrencesIncludingSharedImports": 5516,
+      "uniqueHandlerLocations": 3319,
+      "routeHandlerOccurrencesIncludingSharedImports": 3816,
+      "testSourceFiles": 0,
+      "dataOrAssetSourceFiles": 19
+    },
+    "note": "Full inventory is in the compressed artifact; this manifest prevents a multi-megabyte plain JSON file in the change."
+  },
+  "unrelatedDirtyBytesPreserved": [
+    {
+      "file": "data/notification-preferences.json",
+      "sha256": "faea14978ca2d31280e79fb8fc166c3c90645ca1861726e2b4267329b27785d9"
+    },
+    {
+      "file": "src/data/marketing-checklist.json",
+      "sha256": "f125e01bdf62a2c6251a4410abe37916082b820b30b105edbe9ee918e814f1e5"
+    }
+  ],
+  "scope": "SYNTHETIC_REAL_COMPONENT_ACTION_TESTS_NOT_NEXT_BROWSER_NOT_EXTERNAL_PROVIDERS",
+  "noAppChanges": true,
+  "noBuild": true,
+  "noMerge": true,
+  "allAppAudited": false,
+  "allAppAccepted": false,
+  "nativeBlocker": "EXISTING_REQUIREMENT_114_CURRENT_QA_ARTIFACT_NOT_EXPOSED;MENU_ATTEMPT_TOOL_CDP_TIMEOUT_NOT_APP_DEFECT"
+}

@@ -1,0 +1,33 @@
+{
+  "applicationSourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "documentaryHead": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "startedAt": "2026-10-15T16:51:23.839Z",
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/131-registro-jest.json",
+    "--testMatch=**/docs/evidencias/131-*.test.ts?(x)",
+    "--runTestsByPath",
+    "docs/evidencias/131-registro.test.ts"
+  ],
+  "status": "finished",
+  "scope": "REAL_COMPONENT_ACTION_PROBES_WITH_SYNTHETIC_DOUBLES_NOT_BUILD_OR_NATIVE_BROWSER",
+  "credentials": "WHITELIST_MISSING_ADC_NO_INHERITED_KEYS",
+  "preservedDirty": [],
+  "testHashes": [
+    {
+      "file": "docs/evidencias/131-registro.test.ts",
+      "sha256": "10e72426050a6487e8c40df20bcaa167ac00a909b18fc4b5c4a66255c48f0562"
+    }
+  ],
+  "pid": 9668,
+  "exitCode": 0,
+  "signal": null,
+  "finishedAt": "2026-10-15T16:51:31.045Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

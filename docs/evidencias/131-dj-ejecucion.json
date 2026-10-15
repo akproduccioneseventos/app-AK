@@ -1,0 +1,33 @@
+{
+  "applicationSourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "documentaryHead": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "startedAt": "2026-10-15T16:46:20.312Z",
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/131-dj-jest.json",
+    "--testMatch=**/docs/evidencias/131-*.test.ts?(x)",
+    "--runTestsByPath",
+    "docs/evidencias/131-dj-control-reproduccion.test.tsx"
+  ],
+  "status": "finished",
+  "scope": "REAL_COMPONENT_ACTION_PROBES_WITH_SYNTHETIC_DOUBLES_NOT_BUILD_OR_NATIVE_BROWSER",
+  "credentials": "WHITELIST_MISSING_ADC_NO_INHERITED_KEYS",
+  "preservedDirty": [],
+  "testHashes": [
+    {
+      "file": "docs/evidencias/131-dj-control-reproduccion.test.tsx",
+      "sha256": "021650182741801d4e26f946ca438773c0914cc224fc7c20b49f4c885180a72c"
+    }
+  ],
+  "pid": 10928,
+  "exitCode": 1,
+  "signal": null,
+  "finishedAt": "2026-10-15T16:46:29.275Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}

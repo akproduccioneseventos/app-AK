@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Codex131: 166 comprobada; dos fallos DJ PENDIENTES169
+
+- Main/publicadoe8cd2c2b; cambia17archivos frente ace1. Amplia128 no certifica
+  toda esta fuente. PR1311 cerrada; nueva rama codex/131-cierre-inventario-20261015.
+- Retest166 original14casosPASS0omitidos:5defectos129 cerrados ENALCANCE,
+  no comida/personal/automaticos enteros. Misma expectativa, nueva fuente.
+- DJ real/persistencia ficticia: desmarcar siempre escribe true; despues de
+  remontar sigue sin pendiente. Si guardar falla no informa. Orden169 pendiente.
+  Dos controlesPASS: marcar normal e ID de otra fiesta rechazado. Votos NOprobados.
+- Final18casosdistintos16PASS2FAIL; no sumar primera corridaDJ archivada gzip.
+- PR1314d4b1a84 (167 activa):dos fuentesDJ identicas; no equivalencia transitiva.
+  PrivadosClaude/Gemini NO CONTRASTADOS. No reencargar167/168 activas.
+- Inventario131 revalida421rutas; controles/imports NO son aceptacion. Alias
+  Windows de primera salida fue errorQA corregido/archivado, no app.
+- DosLunalow acotados/cerrados; sin app/build/merge/dependencias/datos reales.
+  Guardia0fixturesalterados/bytesintactos. TimeoutCDP de herramienta impidio
+  probar menu; no llamarlo bugAK. RequisitoQA114 vigente, no nueva ordenigual.
+
+
 ## 15/10/2026 - Orden 165: fecha civil en portal del contrato y aviso de recibo de seña parcial
 
 - **Fecha civil del portal del contrato:** la fecha del evento (ej. "2027-08-08") se convertía con `new Date(string)`

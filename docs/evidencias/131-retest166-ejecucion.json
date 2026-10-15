@@ -1,0 +1,43 @@
+{
+  "applicationSourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "documentaryHead": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+  "startedAt": "2026-10-15T16:40:36.929Z",
+  "args": [
+    "node_modules/jest/bin/jest.js",
+    "--runInBand",
+    "--silent",
+    "--json",
+    "--outputFile=docs/evidencias/131-retest166-jest.json",
+    "--testMatch=**/docs/evidencias/131-*.test.ts?(x)",
+    "--runTestsByPath",
+    "docs/evidencias/131-retest166-compras-reversion.test.ts",
+    "docs/evidencias/131-retest166-automatizaciones-reales.test.tsx",
+    "docs/evidencias/131-retest166-personal-llegada-reintento.test.tsx"
+  ],
+  "status": "finished",
+  "scope": "REAL_COMPONENT_ACTION_PROBES_WITH_SYNTHETIC_DOUBLES_NOT_BUILD_OR_NATIVE_BROWSER",
+  "credentials": "WHITELIST_MISSING_ADC_NO_INHERITED_KEYS",
+  "preservedDirty": [],
+  "testHashes": [
+    {
+      "file": "docs/evidencias/131-retest166-compras-reversion.test.ts",
+      "sha256": "092ac0b1e1b2a2fb59ca2f377a65eab4730c6a806dd3b472ce3a12bb2c74cb05"
+    },
+    {
+      "file": "docs/evidencias/131-retest166-automatizaciones-reales.test.tsx",
+      "sha256": "c04aec66ff22ac91bd64bba2091c7f7402637df8dcd45a6323f66f6bafba08e5"
+    },
+    {
+      "file": "docs/evidencias/131-retest166-personal-llegada-reintento.test.tsx",
+      "sha256": "5e3014de9e59ec67ad6470d4ddfd1b0a08c2a7fa62c3840e31aff4388a0e2c7b"
+    }
+  ],
+  "pid": 8964,
+  "exitCode": 0,
+  "signal": null,
+  "finishedAt": "2026-10-15T16:41:11.371Z",
+  "cleanup": {
+    "restored": [],
+    "bytesRestored": true
+  }
+}
