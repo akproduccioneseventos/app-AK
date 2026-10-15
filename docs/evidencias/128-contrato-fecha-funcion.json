@@ -1,0 +1,11 @@
+{
+  "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "file": "src/app/portal/[fiestaId]/contrato/page.tsx",
+  "blob": "9c72a1385a385ae225c8099be749ae4e742061de",
+  "type": "ACTUAL_FUNCTION_AST_EXTRACTION_NOT_FULL_UI",
+  "timezone": "America/Montevideo",
+  "input": "2027-08-08",
+  "actual": "07 de agosto de 2027",
+  "expectedDay": 8,
+  "status": "FAIL"
+}

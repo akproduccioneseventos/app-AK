@@ -1,0 +1,10 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "type": "REAL_REACT_COMPONENT_AND_REAL_SUMMARY_ACTION_WITH_DATA_AUTH_DOUBLES_NOT_NATIVE_BROWSER",
+  "timezone": "America/Montevideo",
+  "input": "2027-08-08",
+  "observed": "07 de agosto de 2027",
+  "expected": "08 de agosto de 2027",
+  "status": "FAIL",
+  "realDataTouched": false
+}

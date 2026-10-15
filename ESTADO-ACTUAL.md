@@ -1,4 +1,28 @@
-# Estado actual - 15/10/2026 (Codex127, revision de main ce1ac07d)
+# Estado actual - 15/10/2026 (Codex128, main ce1ac07d)
+
+CLAUDE Y GEMINI PROGRAMAN SIEMPRE; CODEX SOLO AUDITA, no app/build/merge.
+Fuente main ce1ac07d1bb16c24dd73e2d26ac55038028a2472, health publicado mismoSHA.
+Rama documental conjunta127/128: codex/127-cierre-areas-20261015.
+NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE (HEAD desconocido).
+Amplia128:769suites4819tests PASS0fallos/omitidos576.69s, bytes restaurados.
+Nuevas sondas:2P2 comprobados, orden165 PENDIENTE Claude/Gemini:
+- Portal contrato muestra07agosto para fecha civil2027-08-08 en Uruguay.
+  UIReact+accion resumen reales/dobles1FAIL; funcionAST confirma. No Nextnativo.
+- Subir papel: recibo automatico devuelve error, guarda Contratada sinrecibo
+  y devuelve solo success:true. Accionreal/dobles1FAIL; controlesito1PASS.
+No cambiar politica de contrato/cobro, solo fecha civil/aviso parcial correcto.
+164 YA corregida,1278suites34PASS historicas sobre misma app; no reencomendar.
+128-matriz-areas.json:421rutas/14areas/0sin-asignar. ImportsNOcoberturafuncional.
+Ningun area se marco limpia. No todos los botones/roles probados en navegador.
+Reporte128 y sondas+comandos porcaso en docs/codex y docs/evidencias.
+Webpublica:5vistasdemo cambianbien trasanimacion; no moduloRSVP/barrareal.
+Health flags no certificanproveedores. Instagram/MP false no es nuevo defecto.
+BuildQA localb520 viejo NOce1,3300inaccesible; usarentorno actualdeClaude.
+No reabrir114 ni compilarporCodex ni repetirsondas antesdelparche.
+Agentes cerrados, ningunSDK/servidor iniciado, ajenos restaurados. Cerrar tabUI.
+No0errores/todaapp/Hostingcompleto/OAuth/modelo/voz/19originales/hardware.
+
+## Historico127 (parcial y ahora complementado por128)
 
 CLAUDE Y GEMINI PROGRAMAN SIEMPRE; CODEX SOLO AUDITA (aclaracion del dueno).
 Claude compila/valida/fusiona; Codex no programa app ni fusiona.

@@ -1,0 +1,12 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "type": "REAL_ACTION_WITH_STORAGE_DATA_AUTH_AND_INVOICE_DOUBLES_NOT_NATIVE_BROWSER",
+  "failureInjected": "registerBookingDeposit returned success:false",
+  "result": {
+    "success": true
+  },
+  "eventState": "Contratada",
+  "invoiceIds": [],
+  "expected": "Error o advertencia explicita de recibo pendiente; no se exige revertir contrato ni cambiar politica de cobro",
+  "realMoneyTouched": false
+}
