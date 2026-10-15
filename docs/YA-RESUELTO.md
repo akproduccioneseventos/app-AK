@@ -14429,3 +14429,9 @@ El test historico `tests/e2e/simulador-contacto-oficial.spec.ts` avanzaba una ve
 prueba: tests/e2e/133-simulador-whatsapp-despues-de-oferta.spec.ts
 usa: boton Ver Resumen y Propuesta y acciones de contacto de /simulador-de-presupuesto
 ```
+
+## Limite de aislamiento de la corrida RSVP, sin resultado funcional (15 de octubre de 2026)
+
+La prueba `tests/e2e/viaje-invitado.spec.ts` se inicio en la copia QA sintética `a635b27071ecea22092eba2a285892c84c6f9d08`, pero Codex la detuvo al observar en el log `Firebase Admin SDK initialized with Application Default Credentials`. El runner no guardo resultado JSON, por lo que la prueba no cuenta como PASS ni FAIL. `AK_USE_LOCAL_JSON_ONLY=true` tomo la rama local y dejo `dbAdmin` nulo; en el log se observaron lecturas por fallback JSON y no se observo una escritura remota. Los archivos de fixture de esa corrida ya no estaban en las dos carpetas de datos locales al comprobarlo.
+
+Este es un limite del entorno de QA, no un defecto demostrado de la aplicacion publicada. La lista de variables permitidas conserva rutas de usuario que permiten descubrir ADC y el navegador ya habia intentado llamar Firebase con la API key ficticia. No volver a ejecutar recorridos autenticados/escrituras de invitado hasta demostrar exclusion de ADC y bloqueo de trafico externo o uso exclusivo de emuladores. Orden 174 queda pendiente.
