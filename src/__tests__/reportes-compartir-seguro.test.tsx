@@ -41,12 +41,12 @@ import Presupuestos from '@/app/(app)/presupuestos/reporte/page';
 import ReporteFiesta from '@/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page';
 
 const paginas: Array<[string, React.ComponentType]> = [
-  ['clientes', Clientes],
-  ['proveedores', Proveedores],
-  ['activos', Activos],
-  ['insumos', Insumos],
-  ['servicios', Servicios],
-  ['menus', Menus],
+  ['/customers/reporte', Clientes],
+  ['/proveedores/reporte', Proveedores],
+  ['/empresa/activos-fijos/reporte', Activos],
+  ['/empresa/insumos/reporte', Insumos],
+  ['/empresa/servicios/reporte', Servicios],
+  ['/empresa/menus/reporte', Menus],
   ['presupuestos', Presupuestos],
   ['fiesta', ReporteFiesta],
 ];
