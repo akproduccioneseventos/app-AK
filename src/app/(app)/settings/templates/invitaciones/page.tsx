@@ -56,8 +56,13 @@ export default function InvitationTemplatesPage() {
         category: 'General',
         plantilla: 'Grazia' // Default to Grazia for new templates
       };
-      const result = await saveInvitationTemplate(newTemplateData);
+      // Pregunta 58: reintento de una respuesta perdida = la misma plantilla, no dos.
+      // La carga es fija (no incluye el numero del nombre) para que el id sobreviva a una recarga.
+      const alcanceIntento = 'plantilla-nueva';
+      const idIntento = await obtenerIntento(alcanceIntento, { crear: 'invitacion-digital' });
+      const result = await saveInvitationTemplate(newTemplateData, { idIntento });
       if (result.success) {
+        terminarIntento(alcanceIntento);
         toast({ title: 'Plantilla Creada', description: 'Ahora puedes personalizarla en el planificador y guardarla como una nueva versión.'});
         await fetchTemplates();
       } else {

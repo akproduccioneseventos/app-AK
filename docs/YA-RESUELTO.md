@@ -1,5 +1,25 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 164: plantilla nueva sin copia doble, y botón de decoración legible
+
+- **Crear plantilla reintentada:** si se cortaba la señal justo al crear una plantilla de invitación y
+  la persona volvía a tocar, quedaban dos copias. Ahora la pantalla manda un número de intento
+  (`obtenerIntento`, se termina sólo con éxito confirmado) y el servidor crea la plantilla con ese
+  número como id, directo en la base; si ya existe, devuelve la misma. Dos creaciones deliberadas
+  siguen dando dos plantillas. No se deduplica por nombre ni contenido: así se eligió porque el
+  nombre puede repetirse a propósito.
+- **Botón "Quiero cambiar algo":** salía casi invisible (texto claro sobre fondo claro) en el portal de
+  decoración. Ahora lleva fondo oscuro, texto claro y foco explícitos, igual que "Ver tablero completo"
+  y "Subir idea". El barrido del resto de `src/app/portal/**` no encontró otro caso real (el botón de
+  la portada del portal público está sobre la foto oscura y se lee bien).
+
+```comprobar
+archivo: src/app/actions/invitacion-digital-templates.ts
+usa: saveInvitationTemplate en src/app/(app)/settings/templates/invitaciones/page.tsx
+prueba: src/__tests__/plantilla-nueva-reintento-no-duplica.test.ts
+prueba: src/__tests__/decoracion-quiero-cambiar-algo-legible.test.tsx
+```
+
 ## 15/10/2026 - Codex126: dos hallazgos comprobados, NO corregidos
 
 - Gemini programa segun ultima orden del dueno; Codex revisa/prueba y Claude

@@ -95,8 +95,8 @@ y dos capturas. Dos fallos de contraste y dos controles de persistencia PASS.
 ```comprobar
 archivo: src/app/actions/invitacion-digital-templates.ts
 usa: saveInvitationTemplate en src/app/(app)/settings/templates/invitaciones/page.tsx
-prueba: docs/evidencias/126-plantillas-native.mjs (ejecutada: 2 FAIL actuales; correccion y regresiones nuevas PENDIENTES)
+prueba: src/__tests__/plantilla-nueva-reintento-no-duplica.test.ts
 archivo: src/app/portal/[fiestaId]/decoracion/page.tsx
 usa: ClientDecoracionPage/showFeedbackForm/handleOpinion en src/app/portal/[fiestaId]/decoracion/page.tsx
-prueba: docs/evidencias/126-decoracion-native.mjs (ejecutada: 2 FAIL contraste y 2 PASS persistencia; correccion PENDIENTE)
+prueba: src/__tests__/decoracion-quiero-cambiar-algo-legible.test.tsx
 ```
