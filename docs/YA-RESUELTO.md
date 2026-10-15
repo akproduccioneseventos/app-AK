@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Codex133: hallazgo abierto, no resuelto
+
+- Contrato del portal en movil: en 390 px, el sello de firma tapa la etiqueta del titular,
+  el titulo ocupa tres lineas y el texto del boton PDF se sale. Reproduccion QA y captura:
+  `docs/evidencias/133-contrato-mobile-layout.md` y `.png`; correccion pendiente, orden171.
+- El subgrupo no 3D del portal aprobo mensajes y cuatro criterios del panel en desktop/movil.
+  La tanda 3D no es concluyente: 15 expiraciones durante el cierre de contexto/trazas,
+  no fallos de asercion atribuibles a la app. No marcar 3D como aprobado ni como bug por esta corrida.
+- Base app `d10f332a`, equivalente al arbol `src` de main `9aa64f99`; copia QA `a635b270`.
+  Privados Claude/Gemini siguen NO CONTRASTADOS.
+
 ## 15/10/2026 - Codex132: portal probado y dos defectos PENDIENTES170
 
 - Basebbf68006, fuenteappd10f332a identica(src/deps/config).1315 integrada

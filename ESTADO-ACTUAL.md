@@ -27,3 +27,14 @@ Se pregunto excepcionasincrona decompilar SOLOQA; NO asumir respuesta concedida.
 Si seautoriza: prepararQAaislado, no prod/datos/cuentas/cargos/mensajesreales.
 No0errores/todoauditado/Hosting/OAuth/19originales/IAvozreal/hardware sin evidencia.
 No grafo/buildpor docs, noforcepush/archivosajenos; cerrar servicios/agentespropios.
+# Estado actual - 15/10/2026 (Codex133)
+
+Codex audita/prueba/documenta; Gemini programa; Claude revisa/compila/fusiona. No fusionar.
+Main observado: `9aa64f991f5ddceefa8d278a3f298be861eb10bb`; arbol `src` equivalente `d10f332a`.
+Sin PR abierta al inicio de esta tanda. PR1318 y PR1319 estaban fusionadas; rama anterior no reutilizable.
+
+QA sintetico aislado, build de app `a635b27071ecea22092eba2a285892c84c6f9d08`; servicios reales deshabilitados.
+Portal/cliente no 3D: mensajes persisten al recargar en desktop y movil; cuatro criterios del panel pasan en ambos.
+Contrato movil: defecto reproducido en 390 px (titulo 3 lineas, sello tapa etiqueta, texto PDF fuera del boton), orden171.
+Salon 3D: tanda de 28 escenarios dio 13 PASS y 15 timeouts durante teardown de Chromium/trazas; no clasificar como 15 errores app ni como area aprobada. Queda prueba 3D focalizada pendiente.
+Privados Claude/Gemini NO CONTRASTADOS. Ver evidencia133; no declarar auditoria completa ni cero errores.
