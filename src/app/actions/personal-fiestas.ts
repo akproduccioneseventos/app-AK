@@ -49,10 +49,8 @@ export async function marcarLlegadaPersonal(
     const persona = personal.find(p => p.empleadoId === empleadoId);
     if (!persona) throw new Error('NO_ASIGNADO');
     // Ya estaba marcado: no se pisa la hora original.
-    if (persona.checkInTimestamp) {
-      timestampGuardado = persona.checkInTimestamp;
-      return fiesta;
-    }
+    timestampGuardado = persona.checkInTimestamp;
+    if (persona.checkInTimestamp) return fiesta;
     const ahora = new Date().toISOString();
     timestampGuardado = ahora;
     return {
