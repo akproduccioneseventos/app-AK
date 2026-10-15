@@ -4,6 +4,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { DecoracionData } from '@/types/fiesta';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 
 export interface SalonLayoutTemplate {
@@ -23,7 +24,8 @@ export async function getSalonLayoutTemplates(): Promise<SalonLayoutTemplate[]> 
 
 export async function saveSalonLayoutTemplate(
   name: string,
-  layoutData: DecoracionData
+  layoutData: DecoracionData,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; template?: SalonLayoutTemplate; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   if (!name.trim()) {
@@ -31,7 +33,11 @@ export async function saveSalonLayoutTemplate(
   }
 
   const templates = await getSalonLayoutTemplates();
-  
+  // Pregunta 58: si la respuesta se perdio y la persona reintenta, la plantilla ya esta con ese id.
+  const idDeLaPantalla = idDelIntento('layout_tpl', opciones?.idIntento);
+  const yaGuardada = idDeLaPantalla ? templates.find((t) => t.id === idDeLaPantalla) : undefined;
+  if (yaGuardada) return { success: true, template: yaGuardada };
+
   const templateDataToSave: SalonLayoutTemplate['layoutData'] = {
     salonWidth: layoutData.salonWidth,
     salonHeight: layoutData.salonHeight,
@@ -47,7 +53,7 @@ export async function saveSalonLayoutTemplate(
   };
 
   const newTemplate: SalonLayoutTemplate = {
-    id: `layout_tpl_${Date.now()}`,
+    id: idDeLaPantalla ?? `layout_tpl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     name: name.trim(),
     layoutData: templateDataToSave,
     createdAt: new Date().toISOString(),

@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { cn } from "@/lib/utils";
 import { useSearchParams } from 'next/navigation';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { addMoodboardItem, deleteMoodboardItem, syncDecoGastosToModule, generarVisualizacionSalonAi } from '@/app/actions/fiesta/decoracion.actions';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -422,8 +423,11 @@ function DecoracionYDisenoEventoContent() {
 
   const handleAddMoodboardPhoto = async (url: string) => {
     if (!fiestaId) return;
-    const res = await addMoodboardItem(fiestaId, url);
-    if (res.success) { loadDecoracionData(false); }
+    // Pregunta 58: reintento de una respuesta perdida = la misma foto, no dos.
+    const alcance = `moodboard:${fiestaId}`;
+    const idIntento = await obtenerIntento(alcance, { url });
+    const res = await addMoodboardItem(fiestaId, url, undefined, { idIntento });
+    if (res.success) { terminarIntento(alcance); loadDecoracionData(false); }
     else toast({ title: "Error al añadir foto", description: res.error || "No se pudo agregar la foto de inspiración. Reintentá nuevamente.", variant: "destructive" });
   };
 

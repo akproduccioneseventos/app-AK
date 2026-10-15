@@ -7,6 +7,7 @@ import { updateGestionCostos } from './costos.actions';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
@@ -58,7 +59,7 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
   }
 }
 
-export async function addMoodboardItem(fiestaId: string, url: string, description?: string): Promise<{ success: boolean; error?: string }> {
+export async function addMoodboardItem(fiestaId: string, url: string, description?: string, opciones?: { idIntento?: string }): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
     try {
         const fiesta = await getFiestaById(fiestaId);
@@ -67,8 +68,12 @@ export async function addMoodboardItem(fiestaId: string, url: string, descriptio
         const decoracion = fiesta.decoracion || {};
         const items = decoracion.moodboardItems || [];
 
+        // Pregunta 58: si la respuesta se perdio y la persona reintenta, la imagen ya esta con ese id.
+        const idDeLaPantalla = idDelIntento('mood', opciones?.idIntento);
+        if (idDeLaPantalla && items.some((i) => i.id === idDeLaPantalla)) return { success: true };
+
         const newItem: MoodboardItem = {
-            id: `mood_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+            id: idDeLaPantalla ?? `mood_${Date.now()}_${Math.random().toString(36).substring(7)}`,
             url,
             description,
             likedByClient: false,

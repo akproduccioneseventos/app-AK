@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { useCallback, useEffect, useState } from 'react';
 import NextImage from 'next/image';
 import { Loader2, Trash2 } from 'lucide-react';
@@ -63,11 +64,15 @@ export default function DecoTemplateGallery({
     const nombre = templateName.trim();
     if (!nombre || currentElementos.length === 0) return;
     setIsSaving(true);
+    // Pregunta 58: reintento de una respuesta perdida = la misma plantilla, no otra.
+    const idIntento = await obtenerIntento('plantilla-deco-galeria', { nombre, currentElementos, currentFondoColor, f: currentFondoImagenUrl || null });
     const result = await saveDecoCanvasTemplate(
       nombre,
       currentElementos,
       currentFondoColor,
-      currentFondoImagenUrl || undefined
+      currentFondoImagenUrl || undefined,
+      undefined,
+      { idIntento },
     );
     setIsSaving(false);
 
@@ -80,6 +85,7 @@ export default function DecoTemplateGallery({
       return;
     }
 
+    terminarIntento('plantilla-deco-galeria');
     setTemplateName('');
     toast({ title: 'Plantilla guardada', description: 'El diseño actual se guardó como plantilla reutilizable.' });
     await loadTemplates();

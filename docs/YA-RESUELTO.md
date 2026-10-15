@@ -14082,3 +14082,20 @@ etiqueta suelta junto a un campo sin nombre deja de publicarse.
 ```comprobar
 prueba: src/__tests__/pregunta-63-controles-con-nombre.test.ts
 ```
+
+## Pregunta 58, segundo barrido: más altas que no se guardan dos veces (15 de octubre de 2026)
+
+Si la respuesta de un "crear/agregar" se perdía (se cortó la señal) y la persona volvía a tocar el botón,
+se guardaba dos veces. Mismo arreglo que en el primer barrido (la pantalla manda `obtenerIntento` y suelta
+con `terminarIntento` sólo tras el éxito; el servidor usa `idDelIntento` como id del registro y, si ya está,
+devuelve el existente). Ahora cubre: plantilla de itinerario, plano del salón y tablero de decoración
+(las dos pantallas), foto del moodboard, incidente de la fiesta en vivo, trivia, canción pedida, dedicatoria,
+comentario de la galería y mensaje del chat (social y en vivo). En las colecciones de Firestore se usa `create`
+y, si el id ya existe, se devuelve el que estaba. Quedaron sin tocar, por ser idempotentes de por sí, el
+testimonio (se descarta por `feedbackId`), la plantilla de tareas (por nombre), el anuncio guardado y la foto del
+catálogo (el id viene de la pantalla). Plata, comida y permisos quedan para su propio barrido.
+
+```comprobar
+archivo: src/app/actions/itinerary-templates.ts
+prueba: src/__tests__/pregunta-58-rebarrido.test.ts
+```

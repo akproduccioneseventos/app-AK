@@ -25,6 +25,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { saveSalonLayoutTemplate, getSalonLayoutTemplates, type SalonLayoutTemplate, deleteSalonLayoutTemplate } from '@/app/actions/salon-layout-templates';
 import { autoAssignTables } from '@/app/actions/salon-ia.actions';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -512,8 +513,11 @@ function SalonLayoutContent() {
     if (!templateName.trim() || !decoracion) return;
     setIsTemplateActionLoading(true);
     try {
-        const result = await saveSalonLayoutTemplate(templateName, decoracion);
+        // Pregunta 58: reintento de una respuesta perdida = la misma plantilla, no otra.
+        const idIntento = await obtenerIntento('plantilla-salon', { templateName, decoracion });
+        const result = await saveSalonLayoutTemplate(templateName, decoracion, { idIntento });
         if (result.success) {
+            terminarIntento('plantilla-salon');
             toast({title: "Plantilla Guardada"});
             setIsSaveTemplateModalOpen(false);
         } else throw new Error(result.error);

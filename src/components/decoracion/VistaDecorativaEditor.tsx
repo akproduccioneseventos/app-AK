@@ -1,5 +1,6 @@
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Download, Save, Loader2, FolderUp, FolderDown } from 'lucide-react';
@@ -157,7 +158,9 @@ export default function VistaDecorativaEditor({
     if (!templateName.trim()) return;
     setIsSavingTemplate(true);
     try {
-      const result = await saveDecoCanvasTemplate(templateName.trim(), elementos, fondoColor, fondoImagenUrl || undefined);
+      // Pregunta 58: reintento de una respuesta perdida = la misma plantilla, no otra.
+      const idIntento = await obtenerIntento('plantilla-deco', { n: templateName.trim(), elementos, fondoColor, fondoImagenUrl: fondoImagenUrl || null });
+      const result = await saveDecoCanvasTemplate(templateName.trim(), elementos, fondoColor, fondoImagenUrl || undefined, undefined, { idIntento });
       if (!result.success) {
         toast({
           title: 'No se pudo guardar la plantilla',
@@ -166,6 +169,7 @@ export default function VistaDecorativaEditor({
         });
         return;
       }
+      terminarIntento('plantilla-deco');
       toast({ title: 'Plantilla guardada', description: 'Tu diseño ha sido guardado como plantilla.' });
       setTemplateName('');
     } finally {

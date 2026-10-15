@@ -4,6 +4,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { DECO_PREBUILT_TEMPLATES } from '@/lib/deco-prebuilt-templates';
 import type { DecoCanvasTemplate, ElementoDecorativo } from '@/types/fiesta';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
 
 const TEMPLATES_FILE = 'deco-canvas-templates.json';
@@ -27,12 +28,17 @@ export async function saveDecoCanvasTemplate(
   fondoColor: string,
   fondoImagenUrl?: string,
   miniatura?: string,
+  opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; template?: DecoCanvasTemplate; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION, PERMISOS.ORGANIZACION);
   try {
     const templates = await getUserDecoCanvasTemplates();
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, la plantilla ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('deco_tpl', opciones?.idIntento);
+    const yaGuardada = idDeLaPantalla ? templates.find((t) => t.id === idDeLaPantalla) : undefined;
+    if (yaGuardada) return { success: true, template: yaGuardada };
     const template: DecoCanvasTemplate = {
-      id: `deco_tpl_${crypto.randomUUID()}`,
+      id: idDeLaPantalla ?? `deco_tpl_${crypto.randomUUID()}`,
       nombre,
       elementos,
       fondoColor,

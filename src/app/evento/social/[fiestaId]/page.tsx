@@ -1,4 +1,5 @@
 'use client';
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import { idDelTelefono } from '@/lib/social-fiesta/id-del-telefono';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
@@ -774,7 +775,11 @@ export default function SocialEventPage() {
   };
 
   const commentPost = async (postId: string, text: string) => {
-    const result = await addCommentToPost(postId, text, authorName || 'Invitado', interactionCredentials);
+    // Pregunta 58: si la respuesta se perdio y el invitado reintenta, es el mismo comentario.
+    const alcance = `comentario:${postId}`;
+    const idIntento = await obtenerIntento(alcance, { text, a: authorName });
+    const result = await addCommentToPost(postId, text, authorName || 'Invitado', interactionCredentials, { idIntento });
+    if (result.success) terminarIntento(alcance);
     if (!result.success) toast({ title: 'No se pudo comentar', description: result.error, variant: 'destructive' });
     await loadCore();
   };
@@ -799,8 +804,12 @@ export default function SocialEventPage() {
 
     setSubmitting(true);
     try {
-      const result = await conTopeDeEspera(addSongRequest(fiestaId, songDraft.trim(), authorName || 'Invitado'));
+      // Pregunta 58: si la respuesta se perdio y el invitado reintenta, es la misma cancion.
+      const alcance = `cancion:${fiestaId}`;
+      const idIntento = await obtenerIntento(alcance, { s: songDraft.trim(), a: authorName });
+      const result = await conTopeDeEspera(addSongRequest(fiestaId, songDraft.trim(), authorName || 'Invitado', { idIntento }));
       if (result.success) {
+        terminarIntento(alcance);
         setSongDraft('');
         if (typeof window !== 'undefined') {
           sessionStorage.setItem(requestedCountKey, String(currentRequestedCount + 1));
@@ -889,8 +898,12 @@ export default function SocialEventPage() {
         }
         audioUrl = upload.audioUrl;
       }
-      const result = await conTopeDeEspera(addDedication(fiestaId, dedicationDraft.trim() || 'Mensaje de voz', authorName || 'Invitado', audioUrl));
+      // Pregunta 58: si la respuesta se perdio y el invitado reintenta, es la misma dedicatoria.
+      const alcance = `dedicatoria:${fiestaId}`;
+      const idIntento = await obtenerIntento(alcance, { m: dedicationDraft.trim(), a: authorName, audioUrl: audioUrl ?? null });
+      const result = await conTopeDeEspera(addDedication(fiestaId, dedicationDraft.trim() || 'Mensaje de voz', authorName || 'Invitado', audioUrl, { idIntento }));
       if (result.success) {
+        terminarIntento(alcance);
         setDedicationDraft('');
         clearAudio();
         toast({ title: settings.privateDedicationsMode ? 'Mensaje privado enviado' : 'Mensaje compartido' });
@@ -909,8 +922,12 @@ export default function SocialEventPage() {
     if (!text || submitting) return;
     setSubmitting(true);
     try {
-      const result = await conTopeDeEspera(addChatMessage(fiestaId, text, authorName || 'Invitado', interactionCredentials));
+      // Pregunta 58: si la respuesta se perdio y el invitado reintenta, es el mismo mensaje.
+      const alcance = `chat:${fiestaId}`;
+      const idIntento = await obtenerIntento(alcance, { text, a: authorName });
+      const result = await conTopeDeEspera(addChatMessage(fiestaId, text, authorName || 'Invitado', interactionCredentials, { idIntento }));
       if (result.success) {
+        terminarIntento(alcance);
         setChatDraft('');
         await loadSection('chat');
       } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });

@@ -5,6 +5,7 @@ import type { LiveEventState, CargaOperativaItem } from '@/types/fiesta';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 
 import { requireAppSession } from '@/lib/auth/require-session';
+import { idDelIntento } from '@/lib/intento-en-servidor';
 const initialLiveState: LiveEventState = {
     llegadaProtagonistas: {
         enCamino: false,
@@ -99,15 +100,20 @@ export async function resetArrivalRadar(fiestaId: string): Promise<{ success: bo
     }));
 }
 
-export async function addIncidente(fiestaId: string, descripcion: string): Promise<{ success: boolean; error?: string }> {
+export async function addIncidente(fiestaId: string, descripcion: string, opciones?: { idIntento?: string }): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-    return updateLiveState(fiestaId, state => ({
-        ...state,
-        incidentes: [
-            ...(state.incidentes || []),
-            { id: `inc_${Date.now()}`, hora: new Date().toISOString(), descripcion, resuelto: false }
-        ]
-    }));
+    // Pregunta 58: si la respuesta se perdio y la persona reintenta, el incidente ya esta con ese id.
+    const idDeLaPantalla = idDelIntento('inc', opciones?.idIntento);
+    return updateLiveState(fiestaId, state => {
+        if (idDeLaPantalla && (state.incidentes || []).some((i) => i.id === idDeLaPantalla)) return state;
+        return {
+            ...state,
+            incidentes: [
+                ...(state.incidentes || []),
+                { id: idDeLaPantalla ?? `inc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`, hora: new Date().toISOString(), descripcion, resuelto: false }
+            ]
+        };
+    });
 }
 
 export async function resolveIncidente(fiestaId: string, incidenteId: string): Promise<{ success: boolean; error?: string }> {

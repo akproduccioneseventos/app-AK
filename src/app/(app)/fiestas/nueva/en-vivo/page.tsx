@@ -1,6 +1,7 @@
 
 'use client';
 
+import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -131,8 +132,11 @@ function LiveEventDashboardContent() {
 
     const handleAddIncidente = async () => {
         if (!fiestaId || !incidenteInput.trim()) return;
-        const res = await addIncidente(fiestaId, incidenteInput);
-        if (res.success) { setIncidenteInput(''); await loadData(false); }
+        // Pregunta 58: reintento de una respuesta perdida = el mismo incidente, no dos.
+        const alcance = `incidente-en-vivo:${fiestaId}`;
+        const idIntento = await obtenerIntento(alcance, { incidenteInput });
+        const res = await addIncidente(fiestaId, incidenteInput, { idIntento });
+        if (res.success) { terminarIntento(alcance); setIncidenteInput(''); await loadData(false); }
     };
 
     const handleToggleReturn = async (catId: string, itemId: string) => {
