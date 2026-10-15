@@ -25,6 +25,7 @@ export default function DJPage() {
   const [showPlayed, setShowPlayed] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const fetchData = useCallback(async (showLoader = false) => {
     if (showLoader) setIsLoading(true);
@@ -58,18 +59,36 @@ export default function DJPage() {
 
   const handleMarkPlayed = async (req: SongRequest) => {
     setActionLoading(req.id);
-    // no-mira-el-resultado: marca visual del DJ; la lista se refresca sola en el proximo pedido
-    await markSongPlayed(params.fiestaId, req.id);
-    await fetchData(false);
-    setActionLoading(null);
+    setActionError(null);
+    try {
+      const result = await markSongPlayed(params.fiestaId, req.id, !req.played);
+      if (!result?.success) {
+        setActionError('No se pudo guardar la marca. Tocá de nuevo.');
+      } else {
+        await fetchData(false);
+      }
+    } catch {
+      setActionError('No se pudo guardar la marca. Tocá de nuevo.');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const handleVote = async (req: SongRequest) => {
     setActionLoading(req.id + '_vote');
-    // no-mira-el-resultado: voto de un invitado a una cancion; si no entra, vuelve a tocar
-    await voteSongRequest(params.fiestaId, req.id);
-    await fetchData(false);
-    setActionLoading(null);
+    setActionError(null);
+    try {
+      const result = await voteSongRequest(params.fiestaId, req.id);
+      if (!result?.success) {
+        setActionError(result?.error || 'No se pudo registrar el voto. Tocá de nuevo.');
+      } else {
+        await fetchData(false);
+      }
+    } catch {
+      setActionError('No se pudo registrar el voto. Tocá de nuevo.');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const unplayed = requests.filter(r => !r.played);
@@ -315,6 +334,17 @@ export default function DJPage() {
 
       {/* Song list */}
       <main className="max-w-2xl mx-auto px-4 pb-10 space-y-2">
+        {actionError && (
+          <div role="alert" className="rounded-xl border border-red-500/40 bg-red-950/70 p-3 text-sm text-red-200 flex items-center justify-between gap-2 shadow-lg">
+            <span>{actionError}</span>
+            <button
+              onClick={() => setActionError(null)}
+              className="text-xs text-red-300 hover:text-white px-2 py-0.5 rounded border border-red-500/30"
+            >
+              Cerrar
+            </button>
+          </div>
+        )}
         {isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3, 4].map(i => (
@@ -439,3 +469,4 @@ export default function DJPage() {
     </div>
   );
 }
+

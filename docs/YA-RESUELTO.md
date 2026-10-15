@@ -1,5 +1,13 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 169: Panel DJ, desmarcar canciones y errores de guardado visibles
+
+- **Panel DJ (estado explícito y desmarcar canciones):** en `src/app/actions/social-interactive.ts`, `markSongPlayed` ahora recibe `reproducida: boolean` y persiste `{ played: reproducida }` explícito en vez de un toggle ciego o escribir siempre `true`. Valida `typeof reproducida === 'boolean'` y preserva permisos de noche y control de evento.
+- **Panel DJ (aviso visual de error):** en `src/app/evento/dj/[fiestaId]/page.tsx`, `handleMarkPlayed` pasa el estado inverso `!req.played`. Si la acción falla o lanza excepción, expone `actionError` accesible con `role="alert"` y libera el loading en bloque `finally`. Misma verificación y resguardo aplicados a `handleVote`. Eliminadas las marcas `no-mira-el-resultado`.
+- **Pedido de reseña digital:** en `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, `handleMarcarResenaSolicitada` verifica `result.success`. Si falla o lanza error, emite toast destructivo y no altera contadores ni marca la fiesta como pedida. Eliminado `no-mira-el-resultado`.
+- **WhatsApp a prospecto CRM:** en `src/components/crm/CrmLeadCard.tsx`, `handleWhatsApp` valida `result.success` de `recordWhatsAppOpened`. Si falla o tira excepción, notifica que WhatsApp se abrió pero no se pudo anotar en la ficha. Eliminado `no-mira-el-resultado`.
+- **Carga de evento histórico:** en `src/app/actions/historicos.ts`, `processHistoricRecord` verifica `saveFiestaResult.success`. Ante fallo, interrumpe con mensaje explicativo sin crear notificación y preservando el presupuesto y factura creados sin romper el balance contable.
+
 ## 15/10/2026 - Codex132: portal probado y dos defectos PENDIENTES170
 
 - Basebbf68006, fuenteappd10f332a identica(src/deps/config).1315 integrada
@@ -14399,6 +14407,7 @@ prueba: src/__tests__/pregunta-58-rebarrido.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```
+
 
 
 

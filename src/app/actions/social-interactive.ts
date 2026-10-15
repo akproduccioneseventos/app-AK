@@ -348,8 +348,12 @@ export async function voteSongRequest(
 
 export async function markSongPlayed(
   fiestaId: string,
-  requestId: string
+  requestId: string,
+  reproducida: boolean
 ): Promise<{ success: boolean; error?: string }> {
+  if (typeof reproducida !== 'boolean') {
+    return { success: false, error: 'Estado inválido.' };
+  }
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const db = await getDb();
@@ -358,7 +362,7 @@ export async function markSongPlayed(
     if (!snapshot.exists || snapshot.data()?.fiestaId !== fiestaId) {
       return { success: false, error: 'Pedido musical no encontrado para este evento.' };
     }
-    await ref.update({ played: true });
+    await ref.update({ played: reproducida });
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -665,3 +669,4 @@ export async function getPublicLiveReactions(fiestaId: string, sinceTimestamp = 
     return [];
   }
 }
+

@@ -88,7 +88,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             clienteNombre: clienteNombre,
             eventoTipo: 'Histórico',
             eventoFecha: eventoFecha,
-            invitadosCantidad: 1, 
+            invitadosCantidad: 1,
             salonFiestas: 'N/A (Histórico)',
             itemsPresupuestados: items,
             costoTotalEstimado: montoTotal,
@@ -106,7 +106,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             timestamp: new Date().toISOString(),
             notas: `Registro histórico cargado el ${new Date().toLocaleDateString()}. Contrato adjunto.`
         };
-        
+
         const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
         presupuestos.push(newPresupuesto);
         await writeData(PRESUPUESTOS_FILE, presupuestos);
@@ -173,6 +173,12 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             invoiceIds: [invoiceResult.id]
         };
         const saveFiestaResult = await saveFiesta(newFiesta);
+        if (!saveFiestaResult.success) {
+          return {
+            success: false,
+            error: 'Se guardaron el presupuesto y la factura, pero no la fiesta. No vuelvas a cargarlo: avisale al administrador.',
+          };
+        }
 
         // 7. Notification
         // no-mira-el-resultado: notificacion accesoria para el equipo, la fiesta historica ya se guardo
@@ -188,3 +194,4 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         return { success: false, error: error.message || "Un error desconocido ocurrió durante el proceso." };
     }
 }
+
