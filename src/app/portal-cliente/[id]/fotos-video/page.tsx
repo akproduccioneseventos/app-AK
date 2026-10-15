@@ -55,6 +55,10 @@ export default function FotosVideoPortalPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorFotos, setErrorFotos] = useState(false);
+  const [errorAudios, setErrorAudios] = useState(false);
+  const [reintentandoFotos, setReintentandoFotos] = useState(false);
+  const [reintentandoAudios, setReintentandoAudios] = useState(false);
   const [videoModalAbierto, setVideoModalAbierto] = useState(false);
 
   const fotosParaVideo = posts
@@ -67,6 +71,32 @@ export default function FotosVideoPortalPage() {
       timestamp: p.timestamp,
     }));
 
+  const handleReintentarFotos = async () => {
+    setReintentandoFotos(true);
+    try {
+      const postsData = await getSocialPosts(fiestaId);
+      setPosts(postsData || []);
+      setErrorFotos(false);
+    } catch {
+      setErrorFotos(true);
+    } finally {
+      setReintentandoFotos(false);
+    }
+  };
+
+  const handleReintentarAudios = async () => {
+    setReintentandoAudios(true);
+    try {
+      const dedsData = await getDedications(fiestaId);
+      setDedications(dedsData || []);
+      setErrorAudios(false);
+    } catch {
+      setErrorAudios(true);
+    } finally {
+      setReintentandoAudios(false);
+    }
+  };
+
   useEffect(() => {
     const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
     if (!accessKey) {
@@ -77,8 +107,24 @@ export default function FotosVideoPortalPage() {
 
     Promise.all([
       initializePortalSession(fiestaId, accessKey).then(session => session.success ? getFiestaForPortalSession(fiestaId) : null),
-      getSocialPosts(fiestaId).catch(() => []),
-      getDedications(fiestaId).catch(() => [])
+      getSocialPosts(fiestaId)
+        .then((data) => {
+          setErrorFotos(false);
+          return data || [];
+        })
+        .catch(() => {
+          setErrorFotos(true);
+          return [];
+        }),
+      getDedications(fiestaId)
+        .then((data) => {
+          setErrorAudios(false);
+          return data || [];
+        })
+        .catch(() => {
+          setErrorAudios(true);
+          return [];
+        })
     ])
       .then(([fiestaData, postsData, dedsData]) => {
         if (!fiestaData) {
@@ -211,24 +257,50 @@ export default function FotosVideoPortalPage() {
 
           {/* Fotos Muro */}
           {downloads.invitadoPhotos && (
-            <Card className="rounded-2xl border-slate-100 shadow-sm">
-              <CardContent className="p-4 flex items-center justify-between gap-4">
-                <div className="flex gap-3 items-center min-w-0">
-                  <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 shrink-0">
-                    <Camera className="w-5 h-5" />
+            errorFotos ? (
+              <Card className="rounded-2xl border-amber-200 bg-amber-50/50 shadow-sm">
+                <CardContent className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex gap-3 items-center min-w-0">
+                    <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                      <Camera className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm text-slate-900 truncate">Fotos de los Invitados</p>
+                      <p className="text-xs text-amber-700">No pudimos cargar las fotos ahora. Reintentar.</p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-sm text-slate-900 truncate">Fotos de los Invitados</p>
-                    <p className="text-xs text-slate-400 truncate">{totalPhotos} fotos compartidas en el muro</p>
-                  </div>
-                </div>
-                <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleReintentarFotos}
+                    disabled={reintentandoFotos}
+                    className="rounded-xl border-amber-300 text-amber-900 font-bold shrink-0 hover:bg-amber-100"
+                  >
+                    {reintentandoFotos ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                    Reintentar
                   </Button>
-                </a>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="rounded-2xl border-slate-100 shadow-sm">
+                <CardContent className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex gap-3 items-center min-w-0">
+                    <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 shrink-0">
+                      <Camera className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm text-slate-900 truncate">Fotos de los Invitados</p>
+                      <p className="text-xs text-slate-400 truncate">{totalPhotos} fotos compartidas en el muro</p>
+                    </div>
+                  </div>
+                  <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                    <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
+                      <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    </Button>
+                  </a>
+                </CardContent>
+              </Card>
+            )
           )}
 
           {/* Videos Muro */}
@@ -299,37 +371,66 @@ export default function FotosVideoPortalPage() {
         </div>
 
         {/* --- DEDICATORIAS / AUDIOS DEL BUZÓN --- */}
-        {downloads.recuerdosAudio && audioDeds.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Dedicatorias & Audios de Recuerdos 🎙️</h2>
-            <div className="space-y-3">
-              {audioDeds.map(ded => (
-                <Card key={ded.id} className="rounded-2xl border-slate-100 shadow-sm bg-white">
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-black text-slate-800">{ded.authorName}</p>
-                      <span className="text-[10px] text-slate-400 font-medium">
-                        {new Date(ded.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
-                      </span>
+        {downloads.recuerdosAudio && (
+          errorAudios ? (
+            <div className="space-y-4">
+              <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Dedicatorias & Audios de Recuerdos 🎙️</h2>
+              <Card className="rounded-2xl border-amber-200 bg-amber-50/50 shadow-sm">
+                <CardContent className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex gap-3 items-center min-w-0">
+                    <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                      <Volume2 className="w-5 h-5" />
                     </div>
-                    {ded.message && ded.message !== "🎙️ Mensaje de voz" && (
-                      <p className="text-xs text-slate-500 leading-relaxed italic">"{ded.message}"</p>
-                    )}
-                    {ded.audioUrl && (
-                      <div className="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                        <audio src={ded.audioUrl} controls className="h-8 flex-1 max-w-full outline-none" />
-                        <a href={ded.audioUrl} download={`audio-${ded.authorName}-${ded.id}.webm`} className="shrink-0">
-                          <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-500 hover:text-purple-600">
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </a>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm text-slate-900 truncate">Dedicatorias de Audio</p>
+                      <p className="text-xs text-amber-700">No pudimos cargar los audios ahora. Reintentar.</p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleReintentarAudios}
+                    disabled={reintentandoAudios}
+                    className="rounded-xl border-amber-300 text-amber-900 font-bold shrink-0 hover:bg-amber-100"
+                  >
+                    {reintentandoAudios ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                    Reintentar
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
-          </div>
+          ) : audioDeds.length > 0 ? (
+            <div className="space-y-4">
+              <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Dedicatorias & Audios de Recuerdos 🎙️</h2>
+              <div className="space-y-3">
+                {audioDeds.map(ded => (
+                  <Card key={ded.id} className="rounded-2xl border-slate-100 shadow-sm bg-white">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-black text-slate-800">{ded.authorName}</p>
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {new Date(ded.timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                        </span>
+                      </div>
+                      {ded.message && ded.message !== "🎙️ Mensaje de voz" && (
+                        <p className="text-xs text-slate-500 leading-relaxed italic">"{ded.message}"</p>
+                      )}
+                      {ded.audioUrl && (
+                        <div className="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                          <audio src={ded.audioUrl} controls className="h-8 flex-1 max-w-full outline-none" />
+                          <a href={ded.audioUrl} download={`audio-${ded.authorName}-${ded.id}.webm`} className="shrink-0">
+                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-500 hover:text-purple-600">
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          </a>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ) : null
         )}
 
         {/* --- ENTREGAS FORMALES DE FOTOGRAFÍA & FILMACIÓN --- */}
@@ -396,3 +497,4 @@ export default function FotosVideoPortalPage() {
     </div>
   );
 }
+

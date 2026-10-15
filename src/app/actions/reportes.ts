@@ -59,6 +59,12 @@ function roundMoney(value: unknown): number {
   return Math.max(0, Math.round(parsed));
 }
 
+function montoCosto(value: unknown): number {
+  const parsed = Number(value ?? 0);
+  if (!Number.isFinite(parsed) || parsed < 0) return 0;
+  return Math.round(parsed * 100) / 100;
+}
+
 function isFirmBudgetStatus(estado?: string) {
   return estado === 'Aceptado' || estado === 'Facturado';
 }
@@ -160,7 +166,7 @@ export async function getProfitAndLossData(
     if (!targetFiesta) {
       gastosGenerales.forEach(gasto => {
         if (!inRange(gasto.fecha, from, to)) return;
-        const monto = roundMoney(gasto.monto);
+        const monto = montoCosto(gasto.monto);
         if (monto <= 0) return;
         costosDetalle.push({
           id: gasto.id,
@@ -182,12 +188,12 @@ export async function getProfitAndLossData(
       const pagosPorCosto = pagosProveedores.reduce((totals, pago) => {
         const costoId = pago.costoAsociadoId?.trim();
         if (!costoId) return totals;
-        totals.set(costoId, (totals.get(costoId) || 0) + roundMoney(pago.monto));
+        totals.set(costoId, (totals.get(costoId) || 0) + montoCosto(pago.monto));
         return totals;
       }, new Map<string, number>());
 
       pagosProveedores.forEach(pago => {
-        const monto = roundMoney(pago.monto);
+        const monto = montoCosto(pago.monto);
         if (monto <= 0) return;
         const concepto = fiesta.gestionCostos?.costosItems?.find(c => c.id === pago.costoAsociadoId)?.nombre || 'Pago Proveedor';
         costosDetalle.push({
@@ -205,21 +211,21 @@ export async function getProfitAndLossData(
       const otros = fiesta.gestionCostos?.others || {};
       const personalCalculado = (fiesta.personalAsignado ?? []).reduce((sum, pa) => {
         const rol = roles.find(r => r.id === pa.rolId);
-        const sueldo = roundMoney(pa.eventSalary || rol?.sueldoPorEvento || 0);
+        const sueldo = montoCosto(pa.eventSalary || rol?.sueldoPorEvento || 0);
         const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
         return sum + sueldo + aportes;
       }, 0);
       const costosPlanificados = [
         ...costosSinMermaDuplicada.map(item => ({
           id: item.id,
-          monto: roundMoney(item.montoEstimado),
+          monto: montoCosto(item.montoEstimado),
         })),
-        { id: 'cat_catering', monto: roundMoney(otros.totalCateringCost) },
-        { id: 'cat_bebidas', monto: roundMoney(otros.totalBebidasCost) },
-        { id: 'cat_reposteria', monto: roundMoney(otros.totalReposteriaCost) },
+        { id: 'cat_catering', monto: montoCosto(otros.totalCateringCost) },
+        { id: 'cat_bebidas', monto: montoCosto(otros.totalBebidasCost) },
+        { id: 'cat_reposteria', monto: montoCosto(otros.totalReposteriaCost) },
         {
           id: 'cat_personal',
-          monto: Math.max(roundMoney(otros.totalPersonalCost), personalCalculado),
+          monto: Math.max(montoCosto(otros.totalPersonalCost), personalCalculado),
         },
       ];
       const restantePlanificado = costosPlanificados.reduce((sum, costo) => {
@@ -239,7 +245,8 @@ export async function getProfitAndLossData(
 
     }
 
-    const gananciaNeta = totalIngresos - totalCostos;
+    totalCostos = Math.round(totalCostos * 100) / 100;
+    const gananciaNeta = Math.round((totalIngresos - totalCostos) * 100) / 100;
     const margen = totalIngresos > 0 ? (gananciaNeta / totalIngresos) * 100 : 0;
 
     return {
@@ -285,3 +292,4 @@ export async function getEmailContador(): Promise<string | undefined> {
   const company = await getCompanyInfo().catch(() => null);
   return company?.emailContador;
 }
+

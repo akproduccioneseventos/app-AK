@@ -58,11 +58,20 @@ export default function ReporteActivosFijosPage() {
       text: `Reporte de inventario de equipamiento y activos.`,
       url: window.location.href,
     };
-    if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
-        navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
-    } else {
+    if (
+      typeof navigator.share === 'function'
+      && (typeof navigator.canShare !== 'function' || navigator.canShare(shareData))
+    ) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as { name?: string })?.name === 'AbortError') return;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
         window.open(whatsappUrl, '_blank');
+      }
+    } else {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+      window.open(whatsappUrl, '_blank');
     }
   };
 
@@ -76,7 +85,7 @@ export default function ReporteActivosFijosPage() {
   }, [allItems]);
 
   const categoriasOrdenadas = Object.keys(itemsAgrupadosPorCategoria).sort();
-  
+
   const capitalTotalGeneral = useMemo(() => {
     return allItems.reduce((sum, item) => {
       return sum + ((item.cantidadDisponible || 0) * (item.valorUnitarioEstimado || 0));
@@ -86,7 +95,7 @@ export default function ReporteActivosFijosPage() {
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
-  
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
@@ -170,3 +179,4 @@ export default function ReporteActivosFijosPage() {
     </div>
   );
 }
+

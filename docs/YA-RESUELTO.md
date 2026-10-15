@@ -1,5 +1,38 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 167: costos con centavos, compartir seguro y material del cliente
+
+- **Reportes (costos con centavos):** en `src/app/actions/reportes.ts` se introdujo `montoCosto(value)` con precisión
+  de 2 decimales para gastos generales, pagos a proveedores y costos planificados, sumándolos en `totalCostos` y reflejándolos
+  en `gananciaNeta`. Los ingresos se preservaron en pesos enteros (`roundMoney`), respetando la política comercial vigente.
+- **Compartir sin `canShare` (8 pantallas):** se actualizó la comprobación de compartir para admitir entornos donde
+  `navigator.share` existe pero `navigator.canShare` no está definido, invocando nativo sin `TypeError` y manteniendo la
+  alternativa de WhatsApp. Ante `AbortError` (cancelación del usuario), no se abre WhatsApp ni se muestra alerta de error.
+- **Portal del cliente (fotos y audios ante fallos):** en `src/app/portal-cliente/[id]/fotos-video/page.tsx` se separó
+  el vacío legítimo del error de lectura (`errorFotos`, `errorAudios`). Ante un fallo de red o servidor se muestra
+  "No pudimos cargar las fotos (o los audios) ahora. Reintentar." con botón que reintenta sólo esa fuente, sin falsear "0 fotos".
+- **Reporte de fiesta ya elegida:** en `src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx` se separó
+  el estado sin `fiestaId` ("Elegí una fiesta...") del estado de error cuando ya se seleccionó una fiesta, mostrando
+  "No pudimos armar el reporte de esta fiesta: <error>." con botón "Reintentar" que invoca `fetchReportData()`.
+
+```comprobar
+archivo: src/app/actions/reportes.ts
+usa: getProfitAndLossData en src/app/(app)/empresa/contabilidad/reportes/page.tsx
+prueba: src/__tests__/costos-precision-reporte.test.ts
+archivo: src/app/(app)/customers/reporte/page.tsx
+usa: handleShare en src/app/(app)/customers/reporte/page.tsx
+prueba: src/__tests__/reportes-compartir-seguro.test.tsx
+archivo: src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
+usa: handleShare en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
+prueba: src/__tests__/reportes-compartir-seguro.test.tsx
+archivo: src/app/portal-cliente/[id]/fotos-video/page.tsx
+usa: getSocialPosts en src/app/portal-cliente/[id]/fotos-video/page.tsx
+prueba: src/__tests__/portal-material-fotos-audios-error.test.tsx
+archivo: src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
+usa: getProfitAndLossData en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
+prueba: src/__tests__/reporte-evento-error-reintento.test.tsx
+```
+
 ## 15/10/2026 - Orden 166: compras, revisión automática y hora de llegada del personal
 
 - **Compras (recordatorio de pago al desmarcar Pagado total):** al cambiar de pagado total a pendiente un pedido,
@@ -14291,4 +14324,5 @@ prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 =======
 
 >>>>>>> origin/claude/app-debug-stabilize-m70e6z
+
 
