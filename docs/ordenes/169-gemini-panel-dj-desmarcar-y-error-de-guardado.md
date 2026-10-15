@@ -52,6 +52,44 @@ que tocaste. Arrancá desde la versión principal de hoy (`git fetch origin main
 La prueba tiene que nombrar la ruta `/evento/dj/[fiestaId]` (lo exige el control de pantallas).
 Podés partir de `docs/evidencias/131-dj-control-reproduccion.test.tsx`, que ya monta la pantalla real.
 
+### Bloque 4 - Barrido de la pregunta 9: tres pantallas más que dicen "listo" sin mirar
+
+Lo encontró el barrido de Claude sobre las 66 marcas `no-mira-el-resultado`; estos tres los
+confirmó Claude abriendo el archivo. Las otras 63 están bien (avisos secundarios después de un
+guardado que sí se mira): **no las toques**.
+
+**4a. Pedido de reseña** - `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`,
+`handleMarcarResenaSolicitada` (línea ~337). Hoy, si `marcarResenaSolicitadaAction(fiestaId)`
+devuelve `success:false`, la pantalla igual marca la fiesta como "reseña pedida", suma a
+`pedidas` y resta a `pendientes`. Al recargar vuelve a figurar como pendiente.
+- Guardá el resultado. Sólo si `result.success` hacé el `setResenasData(...)` de hoy.
+- Si no, `toast({ variant: 'destructive', description: 'Se abrió WhatsApp, pero no se pudo anotar que pediste la reseña. Tocá de nuevo para que quede anotado.' })`
+  y dejá la fiesta como pendiente. El `catch` vacío pasa a mostrar el mismo aviso.
+- Sacá el comentario `no-mira-el-resultado` de esa línea.
+
+**4b. WhatsApp al prospecto** - `src/components/crm/CrmLeadCard.tsx` (línea ~146). El toast dice
+"Se registró como mensaje preparado" aunque `recordWhatsAppOpened` haya fallado.
+- Mirá `result.success`. Si es `true`, el toast de hoy. Si es `false` o tira excepción:
+  `WhatsApp abierto para ${lead.name}, pero no se pudo anotar en la ficha.` (WhatsApp se abre igual,
+  como hoy). Sacá el comentario `no-mira-el-resultado`.
+
+**4c. Carga de evento histórico (toca plata: Claude lo revisa con lupa)** - `src/app/actions/historicos.ts`,
+`processHistoricRecord`, línea ~175: `const saveFiestaResult = await saveFiesta(newFiesta);` no se
+mira, y la función avisa "Se cargó el evento histórico" y devuelve `{ success: true }` aunque la
+fiesta no se haya guardado.
+- Después de esa línea: `if (!saveFiestaResult.success) return { success: false, error: 'Se guardaron el presupuesto y la factura, pero no la fiesta. No vuelvas a cargarlo: avisale al administrador.' };`
+- **No borres** el presupuesto ni la factura ya creados, y no cambies montos, estados, permisos ni
+  el resto de la función. La notificación sale sólo si la fiesta se guardó.
+- La pantalla que lo llama es `src/app/admin/carga-historicos/page.tsx`; verificá que ya muestre
+  `error` cuando `success` es `false` (si no lo muestra, mostralo).
+
+**Prueba del bloque 4** - `src/__tests__/orden-169-pantallas-que-dicen-listo.test.tsx`:
+1. Reseña: la acción devuelve `success:false`, la fiesta sigue pendiente y los contadores no cambian.
+2. Prospecto: la acción devuelve `success:false`, el toast no dice "Se registró".
+3. Histórico: `saveFiesta` devuelve `success:false`, la acción devuelve `success:false`, no se crea la
+   notificación y el presupuesto y la factura no se borran.
+Tiene que nombrar las rutas `/empresa/presencia-digital` y `/admin/carga-historicos`.
+
 ### Qué NO tocar
 
 Votos de invitados, la pantalla social (`src/app/evento/social/[fiestaId]/page.tsx`), permisos,
@@ -115,4 +153,7 @@ usa: handleMarkPlayed en src/app/evento/dj/[fiestaId]/page.tsx
 prueba: docs/evidencias/131-dj-control-reproduccion.test.tsx
 prueba: PENDIENTE src/__tests__/dj-estado-explicito-y-error-de-marca.test.tsx
 no-usa: no-mira-el-resultado: marca visual del DJ en src/app/evento/dj/[fiestaId]/page.tsx
+no-usa: no-mira-el-resultado: anota que ya se pidio la resena en src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx
+usa: saveFiestaResult.success en src/app/actions/historicos.ts
+prueba: PENDIENTE src/__tests__/orden-169-pantallas-que-dicen-listo.test.tsx
 ```

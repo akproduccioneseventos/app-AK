@@ -1,5 +1,10 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Barrido de las preguntas 4 y 9 (Codex 131)
+
+- **Pregunta 4 (botón que dice "desmarcar" y no desmarca):** se revisaron todos los botones de dos estados de la app. El del DJ es el único; galería, cupones, promos, en vivo, agentes y facturas pasan el valor contrario. Falso positivo para el resto.
+- **Pregunta 9 (`no-mira-el-resultado`):** de las 66 marcas, 63 son avisos secundarios después de un guardado que sí se mira, o estado de la estación después de guardar la foto: están bien y no se tocan. Tres pantallas decían "listo" sin mirar (pedido de reseña, ficha del prospecto y carga de evento histórico) y entraron a la orden 169, bloque 4. Las reacciones del invitado y el giro de la rueda en la pantalla gigante quedan como están: no pierden nada.
+
 ## 15/10/2026 - Orden 167: costos con centavos, compartir seguro y material del cliente
 
 - **Reportes (costos con centavos):** en `src/app/actions/reportes.ts` se introdujo `montoCosto(value)` con precisión
