@@ -1,0 +1,17 @@
+[
+  {
+    "original": "docs/evidencias/132-portal.log",
+    "archive": "docs/evidencias/132-portal-antes-doble-mutacion.log.gz",
+    "sha256": "7f8ee5e50fb054ac4faed09f537a669d6b45f4aa08f3e65155d3bc985a93e4d9"
+  },
+  {
+    "original": "docs/evidencias/132-portal-jest.json",
+    "archive": "docs/evidencias/132-portal-antes-doble-mutacion-jest.json.gz",
+    "sha256": "a21e8024a2579b7b4d96583818c83f9ef963dab98557f225816309edef56c541"
+  },
+  {
+    "original": "docs/evidencias/132-portal-ejecucion.json",
+    "archive": "docs/evidencias/132-portal-antes-doble-mutacion-ejecucion.json.gz",
+    "sha256": "7dd1c4e353851fc09ae7e8884e08291d2e877ad6a17e2f00e2682b6548237708"
+  }
+]

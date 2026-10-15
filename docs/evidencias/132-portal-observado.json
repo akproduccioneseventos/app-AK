@@ -1,0 +1,970 @@
+{
+  "applicationSourceSha": "d10f332a17241de5a4705a560336585853073a76",
+  "scope": "REAL_PORTAL_PAGES_AND_ACTIONS_WITH_COPIED_IN_MEMORY_FIESTA_COOKIE_SESSION_AND_NOTIFICATION_DOUBLES_NOT_NEXT_BROWSER_OR_REAL_AUTH",
+  "observations": [
+    {
+      "caso": "sesion-valida-mapper",
+      "visibleText": "",
+      "toasts": [],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "result": {
+        "success": true
+      },
+      "dto": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true
+        },
+        "clientChecklist": [],
+        "clientNotes": "",
+        "faqPortal": [],
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        },
+        "timeline": [],
+        "invitados": [],
+        "reuniones": [],
+        "programa": [],
+        "videoVida": {},
+        "fotografiaYFilmacion": {},
+        "clientMenuChangeRequests": [],
+        "clientServiceChangeRequests": [],
+        "clienteDebeLlevar": [],
+        "contratoFirmaInfo": {},
+        "contratoServicioTexto": "",
+        "documentos": [],
+        "otrosDocumentos": [],
+        "othersDocumentos": [],
+        "clientPaymentNotifications": [],
+        "personalAsignado": []
+      }
+    },
+    {
+      "caso": "menu-edicion",
+      "visibleText": "🍽️ Selección de MenúFiesta ficticia QA132Menú del EventoEntrada: Bruschetta ficticiaPlato principal: Pasta ficticiaTu confirmaciónRestricciones alimentariasSin gluten original QA132Confirmar selecciónUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toast": [],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "menu-guardado",
+      "visibleText": "🍽️ Selección de MenúFiesta ficticia QA132Menú del EventoEntrada: Bruschetta ficticiaPlato principal: Pasta ficticiaTu confirmaciónRestricciones alimentariasAlergia ficticia a nueces QA132Confirmar selecciónUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toasts": [
+        [
+          {
+            "title": "✅ Menú guardado",
+            "description": "Tu selección de menú fue enviada."
+          }
+        ]
+      ],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Alergia ficticia a nueces QA132",
+          "confirmado": true,
+          "fechaConfirmacion": "2026-10-15T17:04:26.632Z"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "campo": "Alergia ficticia a nueces QA132"
+    },
+    {
+      "caso": "menu-remontado",
+      "visibleText": "🍽️ Selección de MenúFiesta ficticia QA132Menú del EventoEntrada: Bruschetta ficticiaPlato principal: Pasta ficticiaTu confirmaciónRestricciones alimentariasAlergia ficticia a nueces QA132Confirmar selección✓ Confirmado el 15/10/2026Usamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toast": [
+        [
+          {
+            "title": "✅ Menú guardado",
+            "description": "Tu selección de menú fue enviada."
+          }
+        ]
+      ],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ],
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Alergia ficticia a nueces QA132",
+          "confirmado": true,
+          "fechaConfirmacion": "2026-10-15T17:04:26.632Z"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "menu-remontado",
+      "visibleText": "🍽️ Selección de MenúFiesta ficticia QA132Menú del EventoEntrada: Bruschetta ficticiaPlato principal: Pasta ficticiaTu confirmaciónRestricciones alimentariasAlergia ficticia a nueces QA132Confirmar selección✓ Confirmado el 15/10/2026Usamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toasts": [
+        [
+          {
+            "title": "✅ Menú guardado",
+            "description": "Tu selección de menú fue enviada."
+          }
+        ]
+      ],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ],
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Alergia ficticia a nueces QA132",
+          "confirmado": true,
+          "fechaConfirmacion": "2026-10-15T17:04:26.632Z"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      }
+    },
+    {
+      "caso": "menu-fallo-guardado",
+      "visibleText": "🍽️ Selección de MenúFiesta ficticia QA132Menú del EventoEntrada: Bruschetta ficticiaPlato principal: Pasta ficticiaTu confirmaciónRestricciones alimentariasSin gluten original QA132Confirmar selecciónUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toast": [],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "menu-fallo-guardado",
+      "visibleText": "🍽️ Selección de MenúFiesta ficticia QA132Menú del EventoEntrada: Bruschetta ficticiaPlato principal: Pasta ficticiaTu confirmaciónRestricciones alimentariasBorrador sin persistir QA132Confirmar selecciónUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toasts": [
+        [
+          {
+            "title": "Error",
+            "description": "Fallo ficticio QA132 al persistir.",
+            "variant": "destructive"
+          }
+        ]
+      ],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      }
+    },
+    {
+      "caso": "sesion-invalida",
+      "visibleText": "La sesión del portal venció o no corresponde a este evento.",
+      "toast": [],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "sesion-invalida",
+      "visibleText": "La sesión del portal venció o no corresponde a este evento.",
+      "toasts": [],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      }
+    },
+    {
+      "caso": "evento-cruzado",
+      "visibleText": "La sesión del portal venció o no corresponde a este evento.",
+      "toast": [],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "evento-cruzado",
+      "visibleText": "La sesión del portal venció o no corresponde a este evento.",
+      "toasts": [],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      }
+    },
+    {
+      "caso": "musica-edicion",
+      "visibleText": "🎵 Lista de MúsicaFiesta ficticia QA132Guardar🎵 Tu Lista MusicalArmá la banda de sonido perfecta para tu evento🎯 ImprescindiblesLas canciones que SÍ o SÍ deben sonarTema inicial QA132🎶 Si es posibleCanciones que te gustaría escucharSin canciones aún🚫 No quieroCanciones que preferís que no suenenSin canciones aúnUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toast": [],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "musica-guardada",
+      "visibleText": "🎵 Lista de MúsicaFiesta ficticia QA132Guardar🎵 Tu Lista MusicalArmá la banda de sonido perfecta para tu evento🎯 ImprescindiblesLas canciones que SÍ o SÍ deben sonarArtista - Enter QA132🎶 Si es posibleCanciones que te gustaría escucharArtista - Botón QA132🚫 No quieroCanciones que preferís que no suenenArtista - Vetada QA132Usamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toasts": [
+        [
+          {
+            "title": "✅ Lista guardada",
+            "description": "Tu lista de música fue enviada al DJ."
+          }
+        ]
+      ],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Artista - Enter QA132"
+          ],
+          "siEsPosible": [
+            "Artista - Botón QA132"
+          ],
+          "noQuiero": [
+            "Artista - Vetada QA132"
+          ],
+          "fechaActualizacion": "2026-10-15T17:04:27.399Z"
+        }
+      }
+    },
+    {
+      "caso": "musica-recarga",
+      "visibleText": "🎵 Lista de MúsicaFiesta ficticia QA132Guardar🎵 Tu Lista MusicalArmá la banda de sonido perfecta para tu evento🎯 ImprescindiblesLas canciones que SÍ o SÍ deben sonarArtista - Enter QA132🎶 Si es posibleCanciones que te gustaría escucharArtista - Botón QA132🚫 No quieroCanciones que preferís que no suenenArtista - Vetada QA132Última actualización: 15/10/2026Usamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toast": [
+        [
+          {
+            "title": "✅ Lista guardada",
+            "description": "Tu lista de música fue enviada al DJ."
+          }
+        ]
+      ],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ],
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Artista - Enter QA132"
+          ],
+          "siEsPosible": [
+            "Artista - Botón QA132"
+          ],
+          "noQuiero": [
+            "Artista - Vetada QA132"
+          ],
+          "fechaActualizacion": "2026-10-15T17:04:27.399Z"
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "musica-recarga",
+      "visibleText": "🎵 Lista de MúsicaFiesta ficticia QA132Guardar🎵 Tu Lista MusicalArmá la banda de sonido perfecta para tu evento🎯 ImprescindiblesLas canciones que SÍ o SÍ deben sonarArtista - Enter QA132🎶 Si es posibleCanciones que te gustaría escucharArtista - Botón QA132🚫 No quieroCanciones que preferís que no suenenArtista - Vetada QA132Última actualización: 15/10/2026Usamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toasts": [
+        [
+          {
+            "title": "✅ Lista guardada",
+            "description": "Tu lista de música fue enviada al DJ."
+          }
+        ]
+      ],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ],
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Artista - Enter QA132"
+          ],
+          "siEsPosible": [
+            "Artista - Botón QA132"
+          ],
+          "noQuiero": [
+            "Artista - Vetada QA132"
+          ],
+          "fechaActualizacion": "2026-10-15T17:04:27.399Z"
+        }
+      }
+    },
+    {
+      "caso": "musica-fallo-guardado",
+      "visibleText": "🎵 Lista de MúsicaFiesta ficticia QA132Guardar🎵 Tu Lista MusicalArmá la banda de sonido perfecta para tu evento🎯 ImprescindiblesLas canciones que SÍ o SÍ deben sonarTema inicial QA132🎶 Si es posibleCanciones que te gustaría escucharSin canciones aún🚫 No quieroCanciones que preferís que no suenenSin canciones aúnUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toast": [],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "musica-fallo-guardado",
+      "visibleText": "🎵 Lista de MúsicaFiesta ficticia QA132Guardar🎵 Tu Lista MusicalArmá la banda de sonido perfecta para tu evento🎯 ImprescindiblesLas canciones que SÍ o SÍ deben sonarTema inicial QA132Borrador música QA132🎶 Si es posibleCanciones que te gustaría escucharSin canciones aún🚫 No quieroCanciones que preferís que no suenenSin canciones aúnUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toasts": [
+        [
+          {
+            "title": "Error",
+            "description": "Fallo ficticio QA132 al persistir.",
+            "variant": "destructive"
+          }
+        ]
+      ],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      }
+    },
+    {
+      "caso": "musica-opcional-al-dj",
+      "visibleText": "🎵 Lista de MúsicaFiesta ficticia QA132Guardar🎵 Tu Lista MusicalArmá la banda de sonido perfecta para tu evento🎯 ImprescindiblesLas canciones que SÍ o SÍ deben sonarTema inicial QA132🎶 Si es posibleCanciones que te gustaría escucharSin canciones aún🚫 No quieroCanciones que preferís que no suenenSin canciones aúnUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toast": [],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "opcional-guardada-portal",
+      "visibleText": "🎵 Lista de MúsicaFiesta ficticia QA132Guardar🎵 Tu Lista MusicalArmá la banda de sonido perfecta para tu evento🎯 ImprescindiblesLas canciones que SÍ o SÍ deben sonarTema inicial QA132🎶 Si es posibleCanciones que te gustaría escucharCanción opcional QA132🚫 No quieroCanciones que preferís que no suenenSin canciones aúnUsamos tus datos sólo para contestarte y para tu evento (Ley 18.331). Privacidad",
+      "toasts": [
+        [
+          {
+            "title": "✅ Lista guardada",
+            "description": "Tu lista de música fue enviada al DJ."
+          }
+        ]
+      ],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [
+            "Canción opcional QA132"
+          ],
+          "noQuiero": [],
+          "fechaActualizacion": "2026-10-15T17:04:27.554Z"
+        }
+      }
+    },
+    {
+      "caso": "dj-cancion-opcional",
+      "visibleText": "🎧 Panel DJFiesta ficticia QA132Solo pendientes0 pendientes0 reproducidasActualizado hace menos de un minuto⭐INFALTABLES DEL CLIENTE1 obligatorias1Tema inicial QA132🎛️Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.🎵No hay pedidos pendientesLos pedidos de los invitados aparecen aquí automáticamente.EN VIVO · actualización automática",
+      "toast": [
+        [
+          {
+            "title": "✅ Lista guardada",
+            "description": "Tu lista de música fue enviada al DJ."
+          }
+        ]
+      ],
+      "sessionCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [
+            "Canción opcional QA132"
+          ],
+          "noQuiero": [],
+          "fechaActualizacion": "2026-10-15T17:04:27.554Z"
+        }
+      },
+      "menuPayloads": [],
+      "musicPayloads": []
+    },
+    {
+      "caso": "dj-cancion-opcional",
+      "visibleText": "🎧 Panel DJFiesta ficticia QA132Solo pendientes0 pendientes0 reproducidasActualizado hace menos de un minuto⭐INFALTABLES DEL CLIENTE1 obligatorias1Tema inicial QA132🎛️Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.🎵No hay pedidos pendientesLos pedidos de los invitados aparecen aquí automáticamente.EN VIVO · actualización automática",
+      "toasts": [
+        [
+          {
+            "title": "✅ Lista guardada",
+            "description": "Tu lista de música fue enviada al DJ."
+          }
+        ]
+      ],
+      "cookieCalls": [
+        [
+          "qa132-fiesta-ficticia",
+          "llave-ficticia-132"
+        ]
+      ],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [
+            "Canción opcional QA132"
+          ],
+          "noQuiero": [],
+          "fechaActualizacion": "2026-10-15T17:04:27.554Z"
+        }
+      },
+      "songRequests": [
+        {}
+      ]
+    },
+    {
+      "caso": "clave-incorrecta",
+      "visibleText": "",
+      "toasts": [],
+      "cookieCalls": [],
+      "savedFiesta": {
+        "id": "qa132-fiesta-ficticia",
+        "configuracion": {
+          "nombreEvento": "Fiesta ficticia QA132"
+        },
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "llave-ficticia-132"
+        },
+        "menuMesa": {
+          "entrada": "Bruschetta ficticia",
+          "platoPrincipal": "Pasta ficticia"
+        },
+        "menuSeleccionPortal": {
+          "restriccionesAlimentarias": "Sin gluten original QA132"
+        },
+        "listaMusicaPortal": {
+          "imprescindibles": [
+            "Tema inicial QA132"
+          ],
+          "siEsPosible": [],
+          "noQuiero": []
+        }
+      },
+      "result": {
+        "success": false,
+        "error": "Acceso denegado."
+      }
+    }
+  ],
+  "realAccountsOrMessagesTouched": false
+}

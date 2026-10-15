@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Codex132: portal probado y dos defectos PENDIENTES170
+
+- Basebbf68006, fuenteappd10f332a identica(src/deps/config).1315 integrada
+  porClaude1317; no subir rama131. Nueva rama132 desde main, Codexsolo audita.
+- Portal real/acciones/mapeo+dobles copiados:9casos8PASS1FAIL. Menu/restricciones,
+  altasEnter/boton/eliminacion/tres listas/remontado, conservar borrador yError,
+  clave/sesion invalida en doblesPASS. NOautorizacion real ni cookiesdeproduccion.
+- Unica falla portal: opcional Si es posible se persiste, la vistaDJ no la
+  muestra pese a recibir la misma fiesta. No guardado perdido. Orden170P2.
+- Pantalla listosbarra real/acciondoble:6casos3PASS3FAIL. Errorinicial falso
+  preparando y sondeo caido sin aviso de desactualizacion sonUNAcausaP2.
+  Vacio/pedidolisto/recuperacionPASS. No reabrir motor/stock/barraanteriores.
+- Total15casosdistintos11PASS4FAIL0omitidos,dosdefectos;169encargada, no duplicar.
+  PrivadosClaude/Gemini NO CONTRASTADOS. Coordinar archivoDJ con169, no pisarlo.
+- Snapshotgitd10 TS-jest, redHTTP/HTTPS/fetch denegada, sin claves/.env;
+  noapp/build/merge.0fixturesalterados/bytesintactos/snapshotsretirados.
+- DosLunalow acotados/cerrados. FallosQAserver-only y contador.mock archivados
+  conhashes, noapp; revisioncorrigio selectores/eventos, mismas politicas.
+- Informe132/observados/raw/hashesejecutados. No0errores/todaappauditada.
+  QA114pendiente; excepciondecompilar preguntada, NOautorizada por asumir.
+
+
 ## 15/10/2026 - Barrido de las preguntas 4 y 9 (Codex 131)
 
 - **Pregunta 4 (botón que dice "desmarcar" y no desmarca):** se revisaron todos los botones de dos estados de la app. El del DJ es el único; galería, cupones, promos, en vivo, agentes y facturas pasan el valor contrario. Falso positivo para el resto.

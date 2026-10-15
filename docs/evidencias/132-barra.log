@@ -1,0 +1,57 @@
+FAIL docs/evidencias/132-barra-listos.test.tsx
+  ● respuesta inicial success false anuncia que no se pudieron cargar los pedidos
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /no se pudieron cargar|error al cargar|problema de conexión/i
+    Received string:  "¡Tu trago está listo!Pasá por la barra a retirarloAK ProduccionesLos tragos se están preparandoEn instantes vas a ver tu nombre en esta pantalla cuando el barman termine tu pedido.Pantalla de avisos en vivo · Barra de tragosEn tiempo real"
+
+    [0m [90m 127 |[39m     [36mawait[39m flush()[33m;[39m
+     [90m 128 |[39m     page[33m.[39mcapture([32m'success-false-sin-aviso-es-fallo'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 129 |[39m     expect(page[33m.[39mhost[33m.[39mtextContent)[33m.[39mtoMatch([35m/no se pudieron cargar|error al cargar|problema de conexión/i[39m)[33m;[39m
+     [90m     |[39m                                   [31m[1m^[22m[39m
+     [90m 130 |[39m     expect(page[33m.[39mhost[33m.[39mtextContent)[33m.[39mnot[33m.[39mtoContain([32m'Los tragos se están preparando'[39m)[33m;[39m
+     [90m 131 |[39m   } [36mfinally[39m {
+     [90m 132 |[39m     [36mawait[39m page[33m.[39mclose()[33m;[39m[0m
+
+      at Object.<anonymous> (docs/evidencias/132-barra-listos.test.tsx:129:35)
+
+  ● rechazo inicial anuncia que no se pudieron cargar los pedidos
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /no se pudieron cargar|error al cargar|problema de conexión/i
+    Received string:  "¡Tu trago está listo!Pasá por la barra a retirarloAK ProduccionesLos tragos se están preparandoEn instantes vas a ver tu nombre en esta pantalla cuando el barman termine tu pedido.Pantalla de avisos en vivo · Barra de tragosEn tiempo real"
+
+    [0m [90m 140 |[39m     [36mawait[39m flush()[33m;[39m
+     [90m 141 |[39m     page[33m.[39mcapture([32m'rechazo-sin-aviso-es-fallo'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 142 |[39m     expect(page[33m.[39mhost[33m.[39mtextContent)[33m.[39mtoMatch([35m/no se pudieron cargar|error al cargar|problema de conexión/i[39m)[33m;[39m
+     [90m     |[39m                                   [31m[1m^[22m[39m
+     [90m 143 |[39m     expect(page[33m.[39mhost[33m.[39mtextContent)[33m.[39mnot[33m.[39mtoContain([32m'Los tragos se están preparando'[39m)[33m;[39m
+     [90m 144 |[39m   } [36mfinally[39m {
+     [90m 145 |[39m     [36mawait[39m page[33m.[39mclose()[33m;[39m[0m
+
+      at Object.<anonymous> (docs/evidencias/132-barra-listos.test.tsx:142:35)
+
+  ● fallo de sondeo tras mostrar pedidos comunica que la lista puede estar desactualizada
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /no se pudo actualizar|lista desactualizada|problema de conexión|sin conexión/i
+    Received string:  "¡Tu trago está listo!Pasá por la barra a retirarloAK Producciones Listo para retirarMesa QAInvitada Ficticia QALimonada QAPedido #0042¡Salud! 🥂Pantalla de avisos en vivo · Barra de tragosEn tiempo real"
+
+    [0m [90m 159 |[39m     page[33m.[39mcapture([32m'despues-de-sondeo-fallido'[39m)[33m;[39m
+     [90m 160 |[39m     expect(mockGetBarPedidosListos)[33m.[39mtoHaveBeenCalledTimes([35m2[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 161 |[39m     expect(page[33m.[39mhost[33m.[39mtextContent)[33m.[39mtoMatch([35m/no se pudo actualizar|lista desactualizada|problema de conexión|sin conexión/i[39m)[33m;[39m
+     [90m     |[39m                                   [31m[1m^[22m[39m
+     [90m 162 |[39m     expect(page[33m.[39mhost[33m.[39mtextContent)[33m.[39mtoContain([32m'Invitada Ficticia QA'[39m)[33m;[39m
+     [90m 163 |[39m     expect(page[33m.[39mhost[33m.[39mtextContent)[33m.[39mnot[33m.[39mtoContain([32m'Los tragos se están preparando'[39m)[33m;[39m
+     [90m 164 |[39m   } [36mfinally[39m {[0m
+
+      at Object.<anonymous> (docs/evidencias/132-barra-listos.test.tsx:161:35)
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 3 passed, 6 total
+Snapshots:   0 total
+Time:        4.33 s
+Test results written to: docs\evidencias\132-barra-jest.json
