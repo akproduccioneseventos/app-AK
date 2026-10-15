@@ -186,4 +186,6 @@ usa: atenderAlEquipo en src/app/api/whatsapp/webhook/route.ts
 prueba: src/__tests__/whatsapp-del-equipo.test.ts
 no-usa: speechSynthesis en src/components/mi-dia/ParteDeLaMananaPlayer.tsx
 usa: nivelDeRiesgo en src/lib/asistente/por-whatsapp.ts
+# Bloque 7 — armado rápido y simulador desde el asistente
+usa: generateBudgetAndLeadFromSimulator en src/lib/asistente/por-whatsapp.ts
 ```

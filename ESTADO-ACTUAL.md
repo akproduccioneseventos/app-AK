@@ -63,7 +63,7 @@ Entrega919d47df contrastada porAPI:22blobs iguales; recibo125-entrega-remota.
 ## Registro previo de Claude (conservado; no es el estado remoto actual)
 ### Estado de Claude - 14/10/2026
 
-Rama `claude/app-debug-stabilize-m70e6z`. main = a4b609a00 (PR 1299 fusionada).
+Rama `claude/app-debug-stabilize-m70e6z`. main = 6fd2ea415 (PR 1304 fusionada).
 Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con la puerta en verde.
 
 ## Qué trae esta tanda
@@ -111,6 +111,13 @@ Se juntó la rama de Codex hasta d4c05d08 (órdenes 157-160), para publicar con 
   queda pide versiones mayores (genkit/OpenTelemetry 2, next-pwa, tailwind 4, jest).
 - Jest ignora `.claude/` (copias de los ayudantes); antes daba 53 fallas falsas.
 - Orden 163 cerrada: basic-ftp 6.2.3; los 12 avisos que quedan no llegan a la app publicada (prueba los-avisos-de-dependencias-no-llegan-a-la-app).
+
+## 15/10: Codex 125/126, pregunta 63 y segundo barrido de la 58 (PR 1302 y 1304)
+- Kiosco legible y accesible, instalación con respuesta real; 85 etiquetas unidas a su campo.
+- Plantilla nueva sin copia doble; botones del portal de decoración legibles.
+- 20 altas con identidad de intento (incluye barman sin doble descuento, promos, menús, fiesta).
+- PR 1303 cerrada: callaba controles con código; se juntaron sus documentos y se corrigieron las líneas.
+- Gemini vuelve para lo grande (regla del dueño, 14/10).
 
 ## Límites aceptados
 - El candado de crear fiesta desde presupuesto cuida un solo servidor.
