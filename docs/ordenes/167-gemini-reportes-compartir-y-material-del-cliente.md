@@ -197,17 +197,18 @@ Romper cada arreglo y ver que falla. Reemplazar las líneas `prueba:` de abajo p
 ```comprobar
 archivo: src/app/actions/reportes.ts
 usa: getProfitAndLossData en src/app/(app)/empresa/contabilidad/reportes/page.tsx
-prueba: docs/evidencias/130-costos-precision-reporte.test.ts (EJECUTADA 1PASS2FAIL; arreglo PENDIENTE)
+prueba: src/__tests__/costos-precision-reporte.test.ts
 archivo: src/app/(app)/customers/reporte/page.tsx
 usa: handleShare en src/app/(app)/customers/reporte/page.tsx
-prueba: docs/evidencias/130-reportes-compartir.test.tsx (EJECUTADA 14PASS7FAIL; arreglo PENDIENTE)
+prueba: src/__tests__/reportes-compartir-seguro.test.tsx
 archivo: src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
 usa: handleShare en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
-prueba: docs/evidencias/130-compartir-variantes.test.ts (EJECUTADA 29PASS1FAIL; no volver a encargar9variantes que ya pasan)
+prueba: src/__tests__/reportes-compartir-seguro.test.tsx
 archivo: src/app/portal-cliente/[id]/fotos-video/page.tsx
 usa: getSocialPosts en src/app/portal-cliente/[id]/fotos-video/page.tsx
-prueba: docs/evidencias/130-portal-material-lecturas.test.tsx (EJECUTADA 3PASS2FAIL; arreglo PENDIENTE)
+prueba: src/__tests__/portal-material-fotos-audios-error.test.tsx
 archivo: src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
 usa: getProfitAndLossData en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
-prueba: docs/evidencias/130-reporte-evento-error.test.tsx (EJECUTADA 2PASS2FAIL; ajuste PENDIENTE)
+prueba: src/__tests__/reporte-evento-error-reintento.test.tsx
 ```
+

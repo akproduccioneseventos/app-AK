@@ -1,5 +1,64 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 167: costos con centavos, compartir seguro y material del cliente
+
+- **Reportes (costos con centavos):** en `src/app/actions/reportes.ts` se introdujo `montoCosto(value)` con precisión
+  de 2 decimales para gastos generales, pagos a proveedores y costos planificados, sumándolos en `totalCostos` y reflejándolos
+  en `gananciaNeta`. Los ingresos se preservaron en pesos enteros (`roundMoney`), respetando la política comercial vigente.
+- **Compartir sin `canShare` (8 pantallas):** se actualizó la comprobación de compartir para admitir entornos donde
+  `navigator.share` existe pero `navigator.canShare` no está definido, invocando nativo sin `TypeError` y manteniendo la
+  alternativa de WhatsApp. Ante `AbortError` (cancelación del usuario), no se abre WhatsApp ni se muestra alerta de error.
+- **Portal del cliente (fotos y audios ante fallos):** en `src/app/portal-cliente/[id]/fotos-video/page.tsx` se separó
+  el vacío legítimo del error de lectura (`errorFotos`, `errorAudios`). Ante un fallo de red o servidor se muestra
+  "No pudimos cargar las fotos (o los audios) ahora. Reintentar." con botón que reintenta sólo esa fuente, sin falsear "0 fotos".
+- **Reporte de fiesta ya elegida:** en `src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx` se separó
+  el estado sin `fiestaId` ("Elegí una fiesta...") del estado de error cuando ya se seleccionó una fiesta, mostrando
+  "No pudimos armar el reporte de esta fiesta: <error>." con botón "Reintentar" que invoca `fetchReportData()`.
+
+```comprobar
+archivo: src/app/actions/reportes.ts
+usa: getProfitAndLossData en src/app/(app)/empresa/contabilidad/reportes/page.tsx
+prueba: src/__tests__/costos-precision-reporte.test.ts
+archivo: src/app/(app)/customers/reporte/page.tsx
+usa: handleShare en src/app/(app)/customers/reporte/page.tsx
+prueba: src/__tests__/reportes-compartir-seguro.test.tsx
+archivo: src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
+usa: handleShare en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
+prueba: src/__tests__/reportes-compartir-seguro.test.tsx
+archivo: src/app/portal-cliente/[id]/fotos-video/page.tsx
+usa: getSocialPosts en src/app/portal-cliente/[id]/fotos-video/page.tsx
+prueba: src/__tests__/portal-material-fotos-audios-error.test.tsx
+archivo: src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
+usa: getProfitAndLossData en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx
+prueba: src/__tests__/reporte-evento-error-reintento.test.tsx
+```
+
+## 15/10/2026 - Orden 166: compras, revisión automática y hora de llegada del personal
+
+- **Compras (recordatorio de pago al desmarcar Pagado total):** al cambiar de pagado total a pendiente un pedido,
+  la tarea de pago se reabre (`completada: false`) o se crea si no existía, evitando que quede como pagada cuando el
+  pedido está impago.
+- **Compras (validación de adelanto no negativo):** el importe a cuenta ahora rechaza números menores a 0, NaN o
+  Infinity del lado del servidor antes de guardar. En la interfaz se agregaron `min={0}` y `step="0.01"`, restaurando
+  el valor anterior con aviso claro ante error.
+- **Revisión inteligente (lecturas fallidas y avisos no guardados):** la acción ahora anota las fuentes caídas
+  (`fuentesQueFallaron`) y distingue avisos creados de silenciados, duplicados o fallidos. La pantalla ya no anuncia
+  "Revisión completa" falsamente ante lecturas o avisos caídos, muestra el motivo con alerta visible y botón Reintentar.
+- **Personal (hora de llegada tras reintento):** `registrarLlegadaPersonal` ahora retorna el `checkInTimestamp`
+  persistido por el servidor. La vista del personal utiliza este valor confirmado en lugar de la hora local del celular,
+  mostrando la hora original correcta tras un reintento.
+
+```comprobar
+archivo: src/app/actions/fiesta/catering.actions.ts
+usa: updateShoppingListStatus en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/compras-reversion-y-adelanto.test.ts
+archivo: src/app/actions/smart-automations.ts
+usa: runSmartAutomations en src/app/control-tower/automatizaciones/page.tsx
+prueba: src/__tests__/automatizaciones-revision-inteligente-avisos.test.tsx
+archivo: src/app/acceso-personal/[tokenId]/page.tsx
+usa: registrarLlegadaPersonal en src/app/acceso-personal/[tokenId]/page.tsx
+prueba: src/__tests__/personal-llegada-reintento-hora-original.test.tsx
+```
 ## 15/10/2026 - Orden 165: fecha civil en portal del contrato y aviso de recibo de seña parcial
 
 - **Fecha civil del portal del contrato:** la fecha del evento (ej. "2027-08-08") se convertía con `new Date(string)`
@@ -14286,6 +14345,9 @@ prueba: src/__tests__/pregunta-58-rebarrido.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```
+
+
+
 
 
 

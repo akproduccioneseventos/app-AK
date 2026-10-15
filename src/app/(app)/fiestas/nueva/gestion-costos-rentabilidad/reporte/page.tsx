@@ -25,7 +25,6 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
 
   const fetchReportData = useCallback(async () => {
     if (!fiestaId) {
-        setError("Falta el ID del evento.");
         setIsLoading(false);
         return;
     }
@@ -48,8 +47,9 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
       setLogoUrl(settings.logoUrl ?? null);
 
     } catch (err: any) {
-      setError(err.message);
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      const message = err?.message || "No se pudo generar el reporte.";
+      setError(message);
+      toast({ title: "Error", description: message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +69,10 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
       text: `Resumen financiero para el evento ${reportData?.nombreEvento}.`,
       url: window.location.href,
     };
-    if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
+    if (
+      typeof navigator.share === 'function'
+      && (typeof navigator.canShare !== 'function' || navigator.canShare(shareData))
+    ) {
         // Se espera el resultado: antes el aviso de compartir se mandaba y nadie miraba si
         // habia salido, asi que con el compartir bloqueado no pasaba nada y el que lo usaba
         // se quedaba mirando un boton que no hizo nada. Si no sale, se abre WhatsApp, que es
@@ -93,7 +96,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   }
 
-  if (error || !reportData) {
+  if (!fiestaId) {
     return (
       <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border shadow-sm my-12 space-y-4">
         <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-2" />
@@ -103,8 +106,32 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
         </p>
         <div className="pt-2">
           <Button asChild>
-            <Link href={fiestaId ? `/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}` : "/eventos"}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> {fiestaId ? "Volver a la fiesta" : "Ir al listado de eventos"}
+            <Link href="/eventos">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de eventos
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !reportData) {
+    return (
+      <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border border-red-200 bg-red-50/50 shadow-sm my-12 space-y-4">
+        <AlertTriangle className="w-12 h-12 mx-auto text-red-500 mb-2" />
+        <h2 className="text-xl font-bold text-foreground">
+          No pudimos armar el reporte de esta fiesta{error ? `: ${error}.` : '.'}
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Ocurrió un problema al cargar los datos del evento. Podés reintentar o volver a la gestión de costos.
+        </p>
+        <div className="pt-2 flex flex-wrap gap-2 justify-center">
+          <Button onClick={fetchReportData}>
+            Reintentar
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={`/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}`}>
+              <ArrowLeft className="w-4 h-4 mr-2" /> Volver a la fiesta
             </Link>
           </Button>
         </div>
@@ -187,3 +214,4 @@ export default function ReporteEventoPageWrapper() {
         </Suspense>
     )
 }
+

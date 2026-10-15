@@ -62,11 +62,20 @@ export default function ReporteMenusPage() {
       text: 'Resumen de menús, repostería y bebidas.',
       url: window.location.href,
     };
-    if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
-        navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
-    } else {
+    if (
+      typeof navigator.share === 'function'
+      && (typeof navigator.canShare !== 'function' || navigator.canShare(shareData))
+    ) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as { name?: string })?.name === 'AbortError') return;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
         window.open(whatsappUrl, '_blank');
+      }
+    } else {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+      window.open(whatsappUrl, '_blank');
     }
   };
 
@@ -81,7 +90,7 @@ export default function ReporteMenusPage() {
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
-  
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
@@ -137,7 +146,7 @@ export default function ReporteMenusPage() {
                 </ul>
               </section>
             ))}
-            
+
             {reposteria && (
                  <section className="mb-4 print:mb-2 print:break-inside-avoid">
                     <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Cake className="w-5 h-5"/>Repostería</h2>
@@ -171,3 +180,4 @@ export default function ReporteMenusPage() {
     </div>
   );
 }
+
