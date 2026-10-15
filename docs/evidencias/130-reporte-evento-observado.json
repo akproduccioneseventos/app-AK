@@ -1,0 +1,81 @@
+{
+  "applicationSourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "scope": "REAL_REACT_EVENT_REPORT_WITH_QUERY_AND_ACTION_RESPONSE_DOUBLES_NOT_NATIVE_BROWSER",
+  "rows": [
+    {
+      "caso": "sin-id",
+      "fiestaId": null,
+      "text": "Elegí una fiesta para ver el reporte de rentabilidadPara ver o imprimir el análisis de ingresos, costos directos y margen de ganancia, seleccioná primero la fiesta correspondiente desde el listado general de eventos. Ir al listado de eventos",
+      "toastCalls": [],
+      "reportCalls": []
+    },
+    {
+      "caso": "id-y-reporte-validos",
+      "fiestaId": "qa130-fiesta-ficticia",
+      "text": "VolverCompartir por WhatsAppImprimir / PDFReporte Financiero de EventoFiesta ficticia QA130Generado el: 15/10/2026Resumen GeneralIngresos$ 0Costos$ 0Ganancia$ 0Margen0.00%Detalle de IngresosNo hay ingresos definidos.Detalle de CostosNo hay costos definidos.Reporte interno de AK Producciones.",
+      "toastCalls": [],
+      "reportCalls": [
+        [
+          {
+            "from": "2000-01-01T00:00:00.000Z",
+            "to": "2100-12-31T23:59:59.999Z"
+          },
+          {
+            "fiestaId": "qa130-fiesta-ficticia"
+          }
+        ]
+      ]
+    },
+    {
+      "caso": "error-devuelto",
+      "fiestaId": "qa130-fiesta-ficticia",
+      "text": "Elegí una fiesta para ver el reporte de rentabilidadPara ver o imprimir el análisis de ingresos, costos directos y margen de ganancia, seleccioná primero la fiesta correspondiente desde el listado general de eventos. Volver a la fiesta",
+      "toastCalls": [
+        [
+          {
+            "title": "Error",
+            "description": "QA130 no se pudo leer el reporte",
+            "variant": "destructive"
+          }
+        ]
+      ],
+      "reportCalls": [
+        [
+          {
+            "from": "2000-01-01T00:00:00.000Z",
+            "to": "2100-12-31T23:59:59.999Z"
+          },
+          {
+            "fiestaId": "qa130-fiesta-ficticia"
+          }
+        ]
+      ]
+    },
+    {
+      "caso": "error-de-red",
+      "fiestaId": "qa130-fiesta-ficticia",
+      "text": "Elegí una fiesta para ver el reporte de rentabilidadPara ver o imprimir el análisis de ingresos, costos directos y margen de ganancia, seleccioná primero la fiesta correspondiente desde el listado general de eventos. Volver a la fiesta",
+      "toastCalls": [
+        [
+          {
+            "title": "Error",
+            "description": "QA130 red no disponible",
+            "variant": "destructive"
+          }
+        ]
+      ],
+      "reportCalls": [
+        [
+          {
+            "from": "2000-01-01T00:00:00.000Z",
+            "to": "2100-12-31T23:59:59.999Z"
+          },
+          {
+            "fiestaId": "qa130-fiesta-ficticia"
+          }
+        ]
+      ]
+    }
+  ],
+  "realMoneyOrAccountsTouched": false
+}

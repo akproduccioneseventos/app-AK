@@ -1,0 +1,148 @@
+{
+  "checkedAt": "2026-10-15T13:49:28.308Z",
+  "main": "a97d33f0e73492a15f9eeacee4373668b059caf6",
+  "appSource": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+  "openPr": {
+    "files": [
+      {
+        "path": "docs/YA-RESUELTO.md",
+        "additions": 22,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "docs/ordenes/165-gemini-fecha-portal-y-recibo-parcial.md",
+        "additions": 3,
+        "deletions": 2,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "src/__tests__/contrato-fecha-portal-dia-civil.test.tsx",
+        "additions": 75,
+        "deletions": 0,
+        "changeType": "ADDED"
+      },
+      {
+        "path": "src/__tests__/contrato-recibo-parcial-aviso.test.ts",
+        "additions": 161,
+        "deletions": 0,
+        "changeType": "ADDED"
+      },
+      {
+        "path": "src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx",
+        "additions": 40,
+        "deletions": 13,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "src/app/actions/fiesta/documentos.actions.ts",
+        "additions": 35,
+        "deletions": 9,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "src/app/actions/fiesta/fiesta.actions.ts",
+        "additions": 16,
+        "deletions": 3,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "src/app/actions/invoices.ts",
+        "additions": 3,
+        "deletions": 2,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "src/app/portal/[fiestaId]/contrato/page.tsx",
+        "additions": 10,
+        "deletions": 1,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "src/types/fiesta.ts",
+        "additions": 2,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefName": "feat/orden-165-gemini-fecha-portal-y-recibo-parcial",
+    "headRefOid": "c49a231de42860aaf548fbc3c3de7933b395c859",
+    "state": "OPEN"
+  },
+  "rows": [
+    {
+      "path": "src/app/actions/reportes.ts",
+      "mainBlob": "731d8a59d08469ef6f2047612b3cdf943a2e629f",
+      "openBranchBlob": "731d8a59d08469ef6f2047612b3cdf943a2e629f",
+      "identical": true
+    },
+    {
+      "path": "src/app/actions/gastos.ts",
+      "mainBlob": "13a44b63b5cd2731475c852c16ef13947c665d0b",
+      "openBranchBlob": "13a44b63b5cd2731475c852c16ef13947c665d0b",
+      "identical": true
+    },
+    {
+      "path": "src/lib/client-portal/public-fiesta.ts",
+      "mainBlob": "cea7b078a75ddf0174201d4d108d6bd9f754234c",
+      "openBranchBlob": "cea7b078a75ddf0174201d4d108d6bd9f754234c",
+      "identical": true
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/fotos-video/page.tsx",
+      "mainBlob": "3d198b6512e14983268d784fc90c35f4b257f2ec",
+      "openBranchBlob": "3d198b6512e14983268d784fc90c35f4b257f2ec",
+      "identical": true
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx",
+      "mainBlob": "43359cdf8591b99e210558ea2b9350737d1c6b22",
+      "openBranchBlob": "43359cdf8591b99e210558ea2b9350737d1c6b22",
+      "identical": true
+    },
+    {
+      "path": "src/app/(app)/customers/reporte/page.tsx",
+      "mainBlob": "6bc2043e3d4ce65fc92f84619f44f8223d31894f",
+      "openBranchBlob": "6bc2043e3d4ce65fc92f84619f44f8223d31894f",
+      "identical": true
+    },
+    {
+      "path": "src/app/(app)/proveedores/reporte/page.tsx",
+      "mainBlob": "42777c044555196351ac68305dd060a7a38dd335",
+      "openBranchBlob": "42777c044555196351ac68305dd060a7a38dd335",
+      "identical": true
+    },
+    {
+      "path": "src/app/(app)/empresa/activos-fijos/reporte/page.tsx",
+      "mainBlob": "773093d87aad2b37fad9e6b645d45ee7ede1a0eb",
+      "openBranchBlob": "773093d87aad2b37fad9e6b645d45ee7ede1a0eb",
+      "identical": true
+    },
+    {
+      "path": "src/app/(app)/empresa/insumos/reporte/page.tsx",
+      "mainBlob": "747fa9ce5ac2aecafd7e7a80a03bc4e2b57ad2e8",
+      "openBranchBlob": "747fa9ce5ac2aecafd7e7a80a03bc4e2b57ad2e8",
+      "identical": true
+    },
+    {
+      "path": "src/app/(app)/empresa/servicios/reporte/page.tsx",
+      "mainBlob": "5aeacc1565f0c903c5162da4175a788d6c292714",
+      "openBranchBlob": "5aeacc1565f0c903c5162da4175a788d6c292714",
+      "identical": true
+    },
+    {
+      "path": "src/app/(app)/empresa/menus/reporte/page.tsx",
+      "mainBlob": "27c59fb0abf58ebd96614e621c4a49aa80598a9f",
+      "openBranchBlob": "27c59fb0abf58ebd96614e621c4a49aa80598a9f",
+      "identical": true
+    },
+    {
+      "path": "src/app/(app)/presupuestos/reporte/page.tsx",
+      "mainBlob": "17767d78d956039738f2eacb8da5f6048e43f9ce",
+      "openBranchBlob": "17767d78d956039738f2eacb8da5f6048e43f9ce",
+      "identical": true
+    }
+  ],
+  "allDirectConsumersIdentical": true,
+  "limits": "Direct consumer contrast only; not all transitive dependencies, not private Claude/Gemini HEAD"
+}

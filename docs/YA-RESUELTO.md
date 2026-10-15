@@ -1,5 +1,40 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Codex130: otros recorridos, tres defectos y una friccion PENDIENTES167
+
+- Trabajo fuera de165/166 que Gemini esta programando. Codex SOLO audito.
+  Maina97d33f0 incorpora documentos129 via1309, app igual ce1ac07d. PR1308
+  integrada por Claude: NO subir a rama129 cerrada. Nueva rama130 desdea97.
+  Privados Claude/Gemini NO CONTRASTADOS, HEAD desconocido.
+- Tanda publica1310c49a231d (Gemini165):12fuentes/consumidores de167 iguales
+  a main, contraste guardado. No equivalencia transitiva ni aprobacion de1310.
+- P1costos: saveGastoGeneral/getGastosGenerales/getProfitAndLossData REALES
+  guardan60.30, releen60.30 y reportan60; dos gastos60.30 reportan120, no120.60.
+  Un control enteroPASS, dosFAIL. No es solo formato ni se cambio la app.
+- Limite/rectificacion: ingresos/cuotas en enteros son politica previa. La
+  sonda inicial que esperaba centavos ahi queda como DIAGNOSTICO, no defecto
+  ni mandato de cambiar politica. No tocar roundMoney global (tambien invitados).
+  Primer fixture de factura date sin paymentDate fue error QA, conservado.
+- Compartir: siete reportes reales fallan con share disponible/canShare ausente,
+  sin camino alternativo.14PASS7FAIL con dobles de capacidades, no OS real.
+  Es una causa en siete paginas, no siete bugs. Cargaoperativa ya tiene guardia.
+- Barrido adicionalAST:10handlers originales y enlaceonClick verificado,
+  29PASS1FAIL;9documentos conservan alternativa, NO rotos por grep. Solo
+  reporte de rentabilidad falla, octava ubicacion de la MISMA causa. No UI.
+  Contexto inicial incompleto produjo8fallosQA, archivados, no erroresapp.
+- Portal fotos-video: error de fotos se muestra como0, error de audios oculta
+  seccion, sin aviso. Pagina/mapeo reales, sesion/datos ficticios:3PASS2FAIL.
+  No reencargar el mapeo86 ni ZIP141, son otros criterios ya corregidos.
+- Reporte de fiesta: error SI lanza toast, pero cuerpo manda elegir fiesta
+  aun conID. FriccionP2, no silencio total ni error de calculo nuevo.2PASS2FAIL.
+- Aceptacion final13063casos distintos49PASS14FAIL:3defectos+1friccion, no14bugs.
+  No sumar diagnostico de ingresos ni fixture inicial; todos se conservaron.
+  Orden167 exige contrastar tanda, corregir solo lo comprobado y preservar politicas.
+- Un Luna low acotado/cerrado; cero pagos/envios/cuentas/archivos del negocio.
+  Guardia0fixtures alterados; fuente app intacta. No build/grafo completo.
+  Informe docs/codex/130-reportes-y-material-cliente.md, resultados130 en evidencias.
+  Reusar amplia128 solo misma app; sin certificado de0errores ni14areas limpias.
+
 ## 15/10/2026 - Codex129: cinco fallos nuevos COMPROBADOS, PENDIENTES166
 
 - Codex SOLO audito. Fuente appce1ac07d; main nuevo1a717203 tiene el mismo
