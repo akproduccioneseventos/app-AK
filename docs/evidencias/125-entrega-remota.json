@@ -1,0 +1,125 @@
+{
+  "checkedAt": "2026-10-14T19:40:48.132Z",
+  "number": 1301,
+  "url": "https://github.com/akproduccioneseventos/app-AK/pull/1301",
+  "state": "open",
+  "draft": false,
+  "localHead": "919d47df2e9f6d3663050b2969599639283fe616",
+  "remoteHead": "919d47df2e9f6d3663050b2969599639283fe616",
+  "branch": "codex/125-kiosco-auditoria-main-20261014",
+  "main": "4b6d66201cf9828f7a5328a8640e82f8eb291f5a",
+  "mergeOwner": "Claude",
+  "blobs": [
+    {
+      "path": "AGENTS.md",
+      "sha": "a7ae23aa7971ecc7e8fafca8b7152f26e22a9740",
+      "verified": true
+    },
+    {
+      "path": "ESTADO-ACTUAL.md",
+      "sha": "30d306a0b67903b62e7fb93d0c01de19206de4c0",
+      "verified": true
+    },
+    {
+      "path": "docs/YA-RESUELTO.md",
+      "sha": "055fa90e236d6584c73694d6c8ec062d5b63ab57",
+      "verified": true
+    },
+    {
+      "path": "docs/LO-QUE-NO-VI.md",
+      "sha": "9c5fcf4bf25c8c71bbd4e0e36c4834e7ef22b477",
+      "verified": true
+    },
+    {
+      "path": "docs/COMO-AUDITAR.md",
+      "sha": "95de98564ee133d3e7d38c59cf6a06ef671c0b84",
+      "verified": true
+    },
+    {
+      "path": "docs/ordenes/163-claude-dependencias-residuales-sin-force.md",
+      "sha": "e5617a102404b07d165fddab4ba44f6902f3e6bc",
+      "verified": true
+    },
+    {
+      "path": "package.json",
+      "sha": "6db5bc46eeee14c17449f68e292e248689a5c902",
+      "verified": true
+    },
+    {
+      "path": "package-lock.json",
+      "sha": "0d26164ac740aeada5e9ab80f475a496471c420e",
+      "verified": true
+    },
+    {
+      "path": "src/components/kiosk/kiosk-setup.tsx",
+      "sha": "1e4f0b31ddda047a1c7e90099caba70cd894beaa",
+      "verified": true
+    },
+    {
+      "path": "src/__tests__/kiosk-configuracion-accesible.test.tsx",
+      "sha": "f968dfa2db32572bf9ed50933600912d8a319f48",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-aceptacion.json",
+      "sha": "8354d53c64c22ac388b021f3176832e8de26bc8c",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-pr-description.md",
+      "sha": "f321228243508c6fa3ad0027faac368fe1ef6376",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-alias-candidatos.json",
+      "sha": "e8405ec46f13eeedbe609cc8001593a33adfd6ca",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-alias-browser.json",
+      "sha": "546786b8780269e8b82ba6b0636965ac352d68fa",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-entradas-browser-adicionales.json",
+      "sha": "b762490eed1aeae62c456f7b2e70737ceb84d36f",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-http-entradas.json",
+      "sha": "e71f67334df0d93ff5de3eb5085079e5f77a92be",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-build-execution.json",
+      "sha": "dd2fdfbd0679eb518abe7b259eb9fe6922b5ae3b",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-jest.json.gz",
+      "sha": "e3bf15c8321930192ff442a6ffad4731cb5f6dd3",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-deps-smoke.json",
+      "sha": "46304d4ec866fba393385bfdf2dccad7ffe26792",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-rules-execution.json",
+      "sha": "c0c009869f3ca3d52ff376e1cd4ed89d2013400e",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-npm-audit-resumen.json",
+      "sha": "635216607b88ae2b0f2b6d856587461a9160d891",
+      "verified": true
+    },
+    {
+      "path": "docs/evidencias/125-kiosk-native.json",
+      "sha": "d0f9f8f1f0c39d448e220885d4800ab94538d0e5",
+      "verified": true
+    }
+  ],
+  "tree": "3eb4906f3a02f08554ea14a358255bcf1c54fe46"
+}

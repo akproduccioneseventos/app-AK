@@ -1,0 +1,9 @@
+{
+  "removedOwnedStartupCaches": {
+    "automatico": 2,
+    "backup_snapshots_v2": 1,
+    "backup_system": 1,
+    "json_documents": 7
+  },
+  "externalDataChanged": false
+}

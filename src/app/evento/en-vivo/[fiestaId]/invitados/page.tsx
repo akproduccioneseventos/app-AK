@@ -316,7 +316,7 @@ export default function InvitadosPage() {
                     )}
                   </div>
                   <div>
-                    <Label className="text-purple-200 text-sm">Foto *</Label>
+                    <Label htmlFor="p63-page-1" className="text-purple-200 text-sm">Foto *</Label>
                     <div
                       className="mt-1 border-2 border-dashed border-purple-600 rounded-lg p-4 text-center cursor-pointer hover:border-purple-400 transition-colors"
                       onClick={() => fileInputRef.current?.click()}
@@ -332,7 +332,7 @@ export default function InvitadosPage() {
                         </div>
                       )}
                     </div>
-                    <input
+                    <input id="p63-page-1"
                       ref={fileInputRef}
                       type="file"
                       accept="image/*"
@@ -342,8 +342,8 @@ export default function InvitadosPage() {
                     />
                   </div>
                   <div>
-                    <Label className="text-purple-200 text-sm">Mensaje (opcional)</Label>
-                    <Input
+                    <Label htmlFor="p63-page-2" className="text-purple-200 text-sm">Mensaje (opcional)</Label>
+                    <Input id="p63-page-2"
                       value={fotoMensaje}
                       onChange={e => setFotoMensaje(e.target.value)}
                       placeholder="Un mensaje para la foto..."
@@ -386,8 +386,8 @@ export default function InvitadosPage() {
               <CardContent>
                 <form onSubmit={handleSongSubmit} className="space-y-3">
                   <div>
-                    <Label className="text-purple-200 text-sm">Tu nombre *</Label>
-                    <Input
+                    <Label htmlFor="p63-page-3" className="text-purple-200 text-sm">Tu nombre *</Label>
+                    <Input id="p63-page-3"
                       value={songNombre}
                       onChange={e => setSongNombre(e.target.value)}
                       placeholder="¿Cómo te llamás?"
@@ -395,8 +395,8 @@ export default function InvitadosPage() {
                     />
                   </div>
                   <div>
-                    <Label className="text-purple-200 text-sm">Canción *</Label>
-                    <Input
+                    <Label htmlFor="p63-page-4" className="text-purple-200 text-sm">Canción *</Label>
+                    <Input id="p63-page-4"
                       value={songCancion}
                       onChange={e => setSongCancion(e.target.value)}
                       placeholder="Nombre de la canción"
@@ -404,8 +404,8 @@ export default function InvitadosPage() {
                     />
                   </div>
                   <div>
-                    <Label className="text-purple-200 text-sm">Artista (opcional)</Label>
-                    <Input
+                    <Label htmlFor="p63-page-5" className="text-purple-200 text-sm">Artista (opcional)</Label>
+                    <Input id="p63-page-5"
                       value={songArtista}
                       onChange={e => setSongArtista(e.target.value)}
                       placeholder="Nombre del artista"
@@ -450,8 +450,8 @@ export default function InvitadosPage() {
               <CardContent>
                 <form onSubmit={handleMsgSubmit} className="space-y-3">
                   <div>
-                    <Label className="text-purple-200 text-sm">Tu nombre *</Label>
-                    <Input
+                    <Label htmlFor="p63-page-6" className="text-purple-200 text-sm">Tu nombre *</Label>
+                    <Input id="p63-page-6"
                       value={msgAutor}
                       onChange={e => setMsgAutor(e.target.value)}
                       placeholder="¿Cómo te llamás?"
@@ -459,8 +459,8 @@ export default function InvitadosPage() {
                     />
                   </div>
                   <div>
-                    <Label className="text-purple-200 text-sm">Mensaje *</Label>
-                    <Textarea
+                    <Label htmlFor="p63-page-7" className="text-purple-200 text-sm">Mensaje *</Label>
+                    <Textarea id="p63-page-7"
                       value={msgTexto}
                       onChange={e => setMsgTexto(e.target.value)}
                       placeholder="Escribí tu mensaje para el festejado/a..."
@@ -576,7 +576,7 @@ export default function InvitadosPage() {
                     <div>
                       <Label className="text-purple-200 text-sm">Tu Nombre *</Label>
                       {guestId ? (
-                        <Input disabled placeholder="Tu nombre se agrega automáticamente" className="bg-purple-950/60 border-purple-500/50 text-purple-300 mt-1 h-12 rounded-xl opacity-50" />
+                        <Input id="p63-page-10" disabled placeholder="Tu nombre se agrega automáticamente" className="bg-purple-950/60 border-purple-500/50 text-purple-300 mt-1 h-12 rounded-xl opacity-50" />
                       ) : (
                         <Input
                           value={crmNombre}
@@ -587,8 +587,8 @@ export default function InvitadosPage() {
                       )}
                     </div>
                     <div>
-                      <Label className="text-purple-200 text-sm">Celular para avisarte si ganas *</Label>
-                      <Input
+                      <Label htmlFor="p63-page-8" className="text-purple-200 text-sm">Celular para avisarte si ganas *</Label>
+                      <Input id="p63-page-8"
                         value={crmPhone}
                         onChange={e => setCrmPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
                         inputMode="numeric"
@@ -597,15 +597,15 @@ export default function InvitadosPage() {
                       />
                     </div>
                     <div>
-                      <Label className="text-purple-200 text-sm">Fecha de cumpleanos (opcional)</Label>
-                      <Input
+                      <Label htmlFor="p63-page-9" className="text-purple-200 text-sm">Fecha de cumpleanos (opcional)</Label>
+                      <Input id="p63-page-9"
                         type="date"
                         value={crmFecha}
                         onChange={e => setCrmFecha(e.target.value)}
                         className="bg-purple-950/60 border-purple-500/50 text-white mt-1 h-12 rounded-xl block [color-scheme:dark]"
                       />
                     </div>
-                    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-purple-500/40 bg-purple-950/40 p-3">
+                    <label htmlFor="p63-page-10" className="flex cursor-pointer items-start gap-3 rounded-xl border border-purple-500/40 bg-purple-950/40 p-3">
                       <Checkbox
                         checked={crmConsent}
                         onCheckedChange={value => setCrmConsent(Boolean(value))}

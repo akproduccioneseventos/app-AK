@@ -165,16 +165,16 @@ export const CorporativoTemplate: React.FC<TemplateProps> = ({
           </DialogHeader>
           <form onSubmit={handleRsvpSubmit} className="space-y-4 pt-2">
             <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-300">Nombre y Apellido</Label>
-              <Input value={rsvpName} onChange={(e) => setRsvpName(e.target.value)} required className="bg-slate-800 border-slate-700 text-white" />
+              <Label htmlFor="p63-CorporativoTemplat-1" className="text-xs font-bold text-slate-300">Nombre y Apellido</Label>
+              <Input id="p63-CorporativoTemplat-1" value={rsvpName} onChange={(e) => setRsvpName(e.target.value)} required className="bg-slate-800 border-slate-700 text-white" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-300">Empresa / Institución (opcional)</Label>
-              <Input value={rsvpCompany} onChange={(e) => setRsvpCompany(e.target.value)} className="bg-slate-800 border-slate-700 text-white" />
+              <Label htmlFor="p63-CorporativoTemplat-2" className="text-xs font-bold text-slate-300">Empresa / Institución (opcional)</Label>
+              <Input id="p63-CorporativoTemplat-2" value={rsvpCompany} onChange={(e) => setRsvpCompany(e.target.value)} className="bg-slate-800 border-slate-700 text-white" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs font-bold text-slate-300">Cantidad de asistentes</Label>
-              <Input type="number" min={1} max={10} value={rsvpCount} onChange={(e) => setRsvpCount(Number(e.target.value) || 1)} className="bg-slate-800 border-slate-700 text-white" />
+              <Label htmlFor="p63-CorporativoTemplat-3" className="text-xs font-bold text-slate-300">Cantidad de asistentes</Label>
+              <Input id="p63-CorporativoTemplat-3" type="number" min={1} max={10} value={rsvpCount} onChange={(e) => setRsvpCount(Number(e.target.value) || 1)} className="bg-slate-800 border-slate-700 text-white" />
             </div>
             <Button type="submit" disabled={isSubmitting || !rsvpName.trim()} className="w-full h-11 rounded-md bg-blue-600 text-white font-bold text-xs uppercase">
               {isSubmitting ? 'Procesando...' : 'Confirmar Acreditación'}

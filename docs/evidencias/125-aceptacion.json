@@ -1,0 +1,79 @@
+{
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "checkedAt": "2026-10-14T19:36:25.308Z",
+  "gate": "PASS_DELTA125_ONLY",
+  "buildExit": 0,
+  "suites": 759,
+  "tests": 4765,
+  "nativeCases": 6,
+  "dependencySmokes": 4,
+  "textContrast": [
+    {
+      "name": "desktop-named-totem-error-announced-no-launch",
+      "text": 18.413990730203857,
+      "placeholder": 7.867596661581724
+    },
+    {
+      "name": "mobile-named-totem-error-announced-no-launch",
+      "text": 18.413990730203857,
+      "placeholder": 7.867596661581724
+    }
+  ],
+  "uniqueAdvisories": 11,
+  "vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 72,
+    "high": 15,
+    "critical": 0,
+    "total": 87
+  },
+  "dependencyEvidenceSource": "42a25a319fe06a9fec40e75e5b23c01addef8ce2",
+  "dependencyLockReuseVerified": true,
+  "sdkTotal": 0,
+  "cleanup": {
+    "stopped": [
+      {
+        "file": "125-start-execution.json",
+        "priorStop": {
+          "stoppedAt": "2026-10-14T19:31:22.366901Z",
+          "file": "125-start-execution.json",
+          "pid": 6136,
+          "parent": 64044,
+          "command": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3301",
+          "intentionalTermination": true
+        },
+        "intentionalTermination": true
+      },
+      {
+        "file": "125-emulator-execution.json",
+        "processTree": [
+          {
+            "ProcessId": 33428,
+            "ParentProcessId": 61580,
+            "Name": "node.exe",
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.125-61580.generated.json --only firestore --project demo-ak-producciones"
+          },
+          {
+            "ProcessId": 57020,
+            "ParentProcessId": 33428,
+            "Name": "java.exe",
+            "CommandLine": "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.22.0.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --database-edition standard --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\firestore.rules --single_project_mode true"
+          }
+        ],
+        "stoppedAt": "2026-10-14T19:31:31.3607452Z",
+        "intentionalTermination": true
+      }
+    ],
+    "listeners": [],
+    "appFailure": false
+  },
+  "allAppCertified": false,
+  "realOsPwaInstallCertified": false,
+  "limits": [
+    "beforeinstallprompt/appinstalled simulated in focused tests, not real OS installation",
+    "Earlier95 entry inventory is not95 full module approvals",
+    "No real OAuth/Hosting/Gemini/voice/hardware/original19-record validation",
+    "Remaining dependencies and private Claude source not fully certified"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "applicationSourceSha": "74258c9ffa3c8926327f1d8da74f0fffb0100e60",
+  "status": 503,
+  "contentType": "application/json",
+  "body": "{\"error\":\"API de marketing no configurada. Definí MARKETING_API_SECRET_KEY en las variables de entorno.\"}",
+  "realIntegrationTested": false
+}

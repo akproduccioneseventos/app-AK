@@ -1267,6 +1267,7 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 161 → pregunta 58
 - Orden 162 → pregunta 58
 - Orden 163 → pregunta 62
+- Auditoria 125 (kiosco compartido) → pregunta 63
 - Devolución 76b (importación en el celular) → pregunta 61
 
 ```comprobar

@@ -421,8 +421,8 @@ export default function OrganizadorPage() {
               <CardContent>
                 <form onSubmit={handleCrearVotacion} className="space-y-3">
                   <div>
-                    <Label className="text-slate-300 text-xs">Pregunta *</Label>
-                    <Input
+                    <Label htmlFor="p63-page-1" className="text-slate-300 text-xs">Pregunta *</Label>
+                    <Input id="p63-page-1"
                       value={nuevaPregunta}
                       onChange={e => setNuevaPregunta(e.target.value)}
                       placeholder="¿Qué quieren que pongamos?"

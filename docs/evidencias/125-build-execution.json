@@ -1,0 +1,59 @@
+{
+  "sha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "mode": "build",
+  "args": [
+    "scripts/build-next-with-memory.mjs"
+  ],
+  "launcher": 66672,
+  "child": 60464,
+  "started": "2026-10-14T19:18:27.881Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T19:28:00.693Z",
+  "cleanup": {
+    "restored": [
+      {
+        "file": "src\\data\\agentes-configuracion.json",
+        "beforeSha256": "5161ae6a1ebdaad076ce2b4b57c788b7d35135081df89b890686edb777acaf29",
+        "qaSha256": "0860c184e2393a2ed62e45aed9e6479209a588127c7c1e96658c35bd8075e6f0"
+      },
+      {
+        "file": "src\\data\\agentes-historial.json",
+        "beforeSha256": "d20b54e907971123f3a87ff91770998fa231f685764ba698d7e593aada42d261",
+        "qaSha256": "b0ad7eb9d75c4d39b131ed84c3372c4d4c1267db45094211543a06535108ba3d"
+      },
+      {
+        "file": "src\\data\\tareas-al-entrar-estado.json",
+        "beforeSha256": "6239c24a7e8bd2157781c985c257c8371c5540faae772e683fda2ec59b52eb3b",
+        "qaSha256": "5fe7f9b3dd54a44aa85fe1b62e5e543a6432c7c647e14caa3136c26d15bb1858"
+      },
+      {
+        "file": "src\\data\\tareas-automaticas.json",
+        "beforeSha256": "31ca1391d449b67944a895fdc6f562521c3b99933e1aa1dee639bf260f276b83",
+        "qaSha256": "15ad2847967bb94d9c5026ce054f565c3ac8e5fef002f199c1705e3862de1a95"
+      },
+      {
+        "file": "data\\agentes-configuracion.json",
+        "beforeSha256": "5161ae6a1ebdaad076ce2b4b57c788b7d35135081df89b890686edb777acaf29",
+        "qaSha256": "0860c184e2393a2ed62e45aed9e6479209a588127c7c1e96658c35bd8075e6f0"
+      },
+      {
+        "file": "data\\agentes-historial.json",
+        "beforeSha256": "d20b54e907971123f3a87ff91770998fa231f685764ba698d7e593aada42d261",
+        "qaSha256": "b0ad7eb9d75c4d39b131ed84c3372c4d4c1267db45094211543a06535108ba3d"
+      },
+      {
+        "file": "data\\tareas-al-entrar-estado.json",
+        "beforeSha256": "6239c24a7e8bd2157781c985c257c8371c5540faae772e683fda2ec59b52eb3b",
+        "qaSha256": "5fe7f9b3dd54a44aa85fe1b62e5e543a6432c7c647e14caa3136c26d15bb1858"
+      },
+      {
+        "file": "data\\tareas-automaticas.json",
+        "beforeSha256": "31ca1391d449b67944a895fdc6f562521c3b99933e1aa1dee639bf260f276b83",
+        "qaSha256": "15ad2847967bb94d9c5026ce054f565c3ac8e5fef002f199c1705e3862de1a95"
+      }
+    ],
+    "bytesRestored": true
+  }
+}

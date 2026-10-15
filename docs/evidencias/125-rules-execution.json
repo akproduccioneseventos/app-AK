@@ -1,0 +1,22 @@
+{
+  "sha": "543b7f831f1e8fd82289e3488d1a9164de301818",
+  "applicationSourceSha": "543b7f831f1e8fd82289e3488d1a9164de301818",
+  "mode": "rules",
+  "args": [
+    "node_modules/firebase-tools/lib/bin/firebase.js",
+    "emulators:exec",
+    "--config",
+    "firebase.pruebas.json",
+    "--only",
+    "firestore,storage",
+    "--project",
+    "demo-ak-producciones",
+    "node node_modules/jest/bin/jest.js --runInBand --config jest.rules.config.js"
+  ],
+  "launcher": 33768,
+  "child": 56520,
+  "started": "2026-10-14T16:09:12.322Z",
+  "status": "finished",
+  "exitCode": 0,
+  "finished": "2026-10-14T16:10:07.987Z"
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { InstalarEstaEstacion } from './instalar-esta-estacion';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getFiestaActivaDeHoy, getFiestas } from '@/app/actions/fiesta-actual';
 
@@ -63,6 +63,9 @@ const ETIQUETAS_DE_ESTACION: Record<string, string> = {
 
 export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const router = useRouter();
+  const fiestaSelectId = useId();
+  const rolesGroupId = useId();
+  const totemInputId = useId();
   
   // Loading and State
   const [status, setStatus] = useState<'checking' | 'setup' | 'redirecting'>('checking');
@@ -272,7 +275,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
             <div className="mx-auto w-16 h-16 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center mb-4">
               <Settings className="w-8 h-8 text-purple-400 animate-pulse" />
             </div>
-            <CardTitle className="text-3xl font-black tracking-tight text-white">Configuración de Kiosco</CardTitle>
+            <h1 data-slot="card-title" className="text-3xl font-black leading-tight tracking-tight text-white">Configuración de Kiosco</h1>
             <CardDescription className="text-slate-400 text-sm">
               Vincula esta tablet o pantalla a un rol específico del salón y bloquéala de forma segura.
             </CardDescription>
@@ -283,6 +286,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
+                role="alert"
                 className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2"
               >
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -292,9 +296,10 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
 
             {/* Step 1: Select Fiesta */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">1. Seleccionar Evento / Fiesta</label>
+              <label htmlFor={fiestaSelectId} className="text-xs font-bold uppercase tracking-wider text-slate-400">1. Seleccionar Evento / Fiesta</label>
               {fiestas.length > 0 ? (
                 <select
+                  id={fiestaSelectId}
                   value={selectedFiestaId}
                   onChange={(e) => setSelectedFiestaId(e.target.value)}
                   className="w-full h-12 px-3 rounded-lg bg-slate-950 border border-slate-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all text-sm font-medium"
@@ -312,8 +317,9 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
 
             {/* Step 2: Choose Kiosk Role */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">2. Rol del Dispositivo</label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto pr-1">
+              <div role="group" aria-labelledby={rolesGroupId} className="space-y-2">
+                <label id={rolesGroupId} className="text-xs font-bold uppercase tracking-wider text-slate-400">2. Rol del Dispositivo</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto pr-1">
                 {[
                   { id: 'barra', label: 'Barra de Tragos', icon: Wine, color: 'hover:border-rose-500/50 hover:bg-rose-500/5' },
                   { id: 'muro-en-vivo', label: 'Muro Social', icon: Tv, color: 'hover:border-blue-500/50 hover:bg-blue-500/5' },
@@ -333,6 +339,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                     <button
                       key={role.id}
                       type="button"
+                      aria-pressed={isSelected}
                       onClick={() => {
                         setSelectedRole(role.id as KioskRole);
                         setErrorMessage('');
@@ -348,6 +355,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                     </button>
                   );
                 })}
+                </div>
               </div>
             </div>
 
@@ -358,12 +366,13 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                 animate={{ opacity: 1, height: 'auto' }}
                 className="space-y-2"
               >
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Identificador del Tótem</label>
+                <label htmlFor={totemInputId} className="text-xs font-bold uppercase tracking-wider text-slate-400">Identificador del Tótem</label>
                 <Input
+                  id={totemInputId}
                   value={totemId}
                   onChange={(e) => setTotemId(e.target.value)}
                   placeholder="ej. totem-principal o totem-entrada"
-                  className="bg-slate-950 border-slate-800 text-sm h-12"
+                  className="bg-slate-950 border-slate-800 text-sm h-12 text-slate-100 placeholder:text-slate-400"
                 />
               </motion.div>
             )}

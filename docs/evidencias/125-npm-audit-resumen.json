@@ -1,0 +1,15 @@
+{
+  "applicationSourceSha": "42a25a319fe06a9fec40e75e5b23c01addef8ce2",
+  "checkedAt": "2026-10-14T18:32:40.443Z",
+  "exitCode": 1,
+  "vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 72,
+    "high": 15,
+    "critical": 0,
+    "total": 87
+  },
+  "uniqueAdvisories": 11,
+  "securityCertified": false
+}

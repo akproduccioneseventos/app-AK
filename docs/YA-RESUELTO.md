@@ -1,5 +1,76 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 14/10/2026 - Codex125: entradas faltantes, kiosco accesible y CLI sin tar6
+
+### Actualizacion125 despues de integrar1299/1300 (prima sobre preparacion anterior)
+- Entrega en PR1301 ABIERTA; rama codex/125-kiosco-auditoria-main-20261014,
+  fuente compilada b520f7ce. Claude fusiona; no es despliegue verificado.
+-Fuente FINAL posterior del color:b520f7ce. Antes REAL42: input con valor
+  qa125-totem, RGB3/7/17 sobre2/6/23,contraste1.0013; captura lo parecia vacio.
+  Se corrige SOLO ese consumidor Input con slate100/placeholder400, no tema
+  ni libraryInput global.9focalesPASS y759suites4765tests amplia b520PASS;
+  build tipos/lint exit0;6nativos PC/Pixel7 PASS. Texto18.414/placeholder7.868,
+  captura despues visible. SDK0/servicios/agentescerrados ybytesrestaurados.
+  Gate125 PASS_DELTA125_ONLY, no todaapp. Grafo15117/44629/1008,0LLM local.
+  42amplia/build/6nativos
+  PASARON controles acotados, pero no detectaban legibilidad: son historicos.
+- Main4b6d6620 integrado, fuente final42a25a31 congelada. CLI15/UUID11/FTP6
+  YA estan en main de Claude; no entregarlos ni encomendarlos otra vez.
+- RE21.27 candidato nativo corriaNode24, pero requiere22.22.2/24.15+;
+  workflowNode20. Rechazado antes de entregar;1.24restaurado/siguevulnerable.
+- Delta REAL frente a main1300: kiosco accesible y PWA, selector6.1.4/lock.
+- InstalacionPWA: antes real4fallos/2PASS (sin catch/doble click/fallo tardio/
+  respuesta vieja consume nuevo). Fix guardia sincrona/estado/catch/refs,
+  solo appinstalled confirma instalada;7focales PASS. Sin cambios de negocio.
+- Npm42:11GHSA/87entradas15high72moderate0critical. Un GHSA menos que main1300,
+  no0seguridad. Smokes4PASS fuente42, RE21.24es comportamiento no parche.
+- Amplia586751/4728 historica; build586 fallo displayName del mock,
+  focal2/ESLintcorregidos; buildd200 interrumpido por main1299. Amplia42
+  historica; conjunto b520 comprobado arriba. No copiar certificados.
+- PWAante6fallos por matchMedia inexistente era QA, archivado; no app.
+  Antes real separado. No se certifica instalacion real en OS ni hardware.
+
+```comprobar
+archivo: src/components/pwa-install-button.tsx
+usa: PwaInstallButton en src/app/(app)/settings/instalar-app/page.tsx
+prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx;7focales y amplia b520 ejecutadas PASS
+```
+
+### Preparacion anterior125 (historica; leer actualizacion arriba)
+
+- Base main d8800936: Claude integro1297 mediante1298. Nueva rama
+  codex/125-kiosco-auditoria-main-20261014; Claude fusiona, Codex no.
+- NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE: su HEAD se desconoce.
+- Defecto reproducido en navegador sobre742: selector de fiesta e input de
+  totem sin nombre accesible y rol solo identificado por color. Comparte
+  componente en11entradas. Delta125 labels/useId, grupo nombrado/aria-pressed,
+  h1 real y error anunciado. SIN cambiar handlers, permisos, roles ni SIN PIN.
+- Se preservo tambien separacion visual original del grupo. Fuente final125
+  58691f22; validacion amplia y navegador nuevos PENDIENTES al escribir esto.
+- Focales543:4suites17tests PASS. Smokes4PASS: CLI15.33, tar7.5.21,
+  RE2nativo1.27 Node24, selector6.1.4.3suites29tests Firestore/Storage PASS.
+  Java21portable verificadoSHA256, solo QA; global17 no modificado. CI ya21.
+- Npm543:30->9avisos unicos, critical1->0;104entradas agregadas restantes
+  19high/85moderate. Lock no cambio al preservar separacion en586. Pendientes
+  OT/FTP/braces/selector7/sprintf/uuid en orden163 ACTUALIZADA, no duplicada.
+- Inventario95seguimientos contrastado:32redirects+7wrappers destinos reales,
+  3reexports/11roles de kiosco entradas observadas;94GET+1import excluido.
+  Entidades inexistentes NO prueban guardar. No declarar95modulos aprobados.
+-503marketing es guardia esperada sinMARKETING_API_SECRET_KEY. Pie del blog
+  Catering llega al target real; falso positivo descartado. No reencargar.
+- QA125previa SDK0, servicios apagados y bytes originales restaurados. Sondas
+  propias fallidas guardadas en125-qa-incidencias; no ocultarlas ni llamar
+  defecto a mock de router inestable, inicializacion o guardia de Java17.
+- Limites: no modelo/voz externos, OAuth/Hosting,19originales, hardware,
+  acciones completas de otros roles ni todaapp0errores. No mas pruebas reales
+  de cuentas/datos/mensajes/cargos. Evidencia en docs/evidencias/125-*.
+
+```comprobar
+archivo: src/components/kiosk/kiosk-setup.tsx
+usa: KioskSetup en src/app/evento/barra/page.tsx
+prueba: src/__tests__/kiosk-configuracion-accesible.test.tsx; focal ejecutada543, fuente final586 pendiente
+```
+
 ## 14 de octubre de 2026 - Jest no corre las copias de los ayudantes
 
 - **Qué pasaba:** los ayudantes trabajan en copias dentro de `.claude/worktrees/` y Jest las
@@ -13953,4 +14024,19 @@ avisos no se duplican al reintentar porque el servidor ya descarta los repetidos
 ```comprobar
 prueba: src/__tests__/control-tower-fallas-de-lectura-no-son-calma.test.tsx
 prueba: src/__tests__/borrar-plantilla-base-no-anuncia-exito.test.tsx
+```
+
+## Pregunta 63: los nombres de los campos los reconoce el navegador (15 de octubre de 2026)
+
+Barrido de invitados, estaciones y formularios públicos. Cada etiqueta que se veía junto a un campo
+(RSVP de la invitación pública y de las ocho plantillas, buzón de mensajes, votaciones y canciones del
+salón, apodo de la zona digital) ahora está unida a su campo con `htmlFor`/`id`, así el lector de
+pantalla y el toque sobre el texto funcionan. Los botones de elección que sólo se distinguían por color
+(caras de la galería, días y horarios del simulador, momentos de la portada, nota de la encuesta,
+filtro del cronograma, secciones de la pantalla social) llevan `aria-pressed`. No cambió ningún texto,
+estilo ni lógica. Se eligió un candado en Jest que mira el árbol del código de esas carpetas: una
+etiqueta suelta junto a un campo sin nombre deja de publicarse.
+
+```comprobar
+prueba: src/__tests__/pregunta-63-controles-con-nombre.test.ts
 ```

@@ -1,0 +1,114 @@
+FAIL src/__tests__/pwa-instalacion-respuesta-real.test.tsx
+  ● PwaInstallButton: respuestas reales del navegador › muestra rechazo y permite un nuevo evento deliberado
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      106 |     clickButton();
+      107 |     await act(async () => { await Promise.resolve(); });
+    > 108 |     expect(container.querySelector('[role="alert"]')).not.toBeNull();
+          |                                                           ^
+      109 |     expect(first.event.defaultPrevented).toBe(true);
+      110 |     installEvent();
+      111 |     expect(button()).toBeEnabled();
+
+      at Object.toBeNull (src/__tests__/pwa-instalacion-respuesta-real.test.tsx:108:59)
+
+  ● PwaInstallButton: respuestas reales del navegador › muestra rechazo y permite un nuevo evento deliberado
+
+    prompt denied
+
+      103 |     renderButton();
+      104 |     const first = installEvent();
+    > 105 |     first.prompt.mockRejectedValueOnce(new Error('prompt denied'));
+          |                                        ^
+      106 |     clickButton();
+      107 |     await act(async () => { await Promise.resolve(); });
+      108 |     expect(container.querySelector('[role="alert"]')).not.toBeNull();
+
+      at Object.<anonymous> (src/__tests__/pwa-instalacion-respuesta-real.test.tsx:105:40)
+
+  ● PwaInstallButton: respuestas reales del navegador › muestra rechazo y permite un nuevo evento deliberado
+
+    prompt denied
+
+      103 |     renderButton();
+      104 |     const first = installEvent();
+    > 105 |     first.prompt.mockRejectedValueOnce(new Error('prompt denied'));
+          |                                        ^
+      106 |     clickButton();
+      107 |     await act(async () => { await Promise.resolve(); });
+      108 |     expect(container.querySelector('[role="alert"]')).not.toBeNull();
+
+      at Object.<anonymous> (src/__tests__/pwa-instalacion-respuesta-real.test.tsx:105:40)
+
+  ● PwaInstallButton: respuestas reales del navegador › bloquea doble click sincronicamente y deshabilita mientras espera
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 2
+
+      119 |     clickButton();
+      120 |     clickButton();
+    > 121 |     expect(prompt).toHaveBeenCalledTimes(1);
+          |                    ^
+      122 |     expect(target).toBeDisabled();
+      123 |     await act(async () => { promptGate.resolve(); });
+      124 |   });
+
+      at Object.toHaveBeenCalledTimes (src/__tests__/pwa-instalacion-respuesta-real.test.tsx:121:20)
+
+  ● PwaInstallButton: respuestas reales del navegador › conserva appinstalled ante fallo y respuesta antigua pendiente
+
+    late failure
+
+      130 |     act(() => { window.dispatchEvent(new Event('appinstalled')); });
+      131 |     expect(hasText(/ya esta instalada/i)).toBe(true);
+    > 132 |     first.choice.reject(new Error('late failure'));
+          |                         ^
+      133 |     await act(async () => { await Promise.resolve(); });
+      134 |     expect(hasText(/ya esta instalada/i)).toBe(true);
+      135 |     expect(container.querySelector('[role="alert"]')).toBeNull();
+
+      at Object.<anonymous> (src/__tests__/pwa-instalacion-respuesta-real.test.tsx:132:25)
+
+  ● PwaInstallButton: respuestas reales del navegador › conserva appinstalled ante fallo y respuesta antigua pendiente
+
+    late failure
+
+      130 |     act(() => { window.dispatchEvent(new Event('appinstalled')); });
+      131 |     expect(hasText(/ya esta instalada/i)).toBe(true);
+    > 132 |     first.choice.reject(new Error('late failure'));
+          |                         ^
+      133 |     await act(async () => { await Promise.resolve(); });
+      134 |     expect(hasText(/ya esta instalada/i)).toBe(true);
+      135 |     expect(container.querySelector('[role="alert"]')).toBeNull();
+
+      at Object.<anonymous> (src/__tests__/pwa-instalacion-respuesta-real.test.tsx:132:25)
+
+  ● PwaInstallButton: respuestas reales del navegador › no deja que una respuesta vieja consuma un evento nuevo
+
+    expect(received).toBeEnabled()
+
+    received value must be an HTMLElement or an SVGElement.
+    Received has value: null
+
+      142 |     const fresh = installEvent();
+      143 |     await act(async () => { old.choice.resolve({ outcome: 'dismissed', platform: 'web' }); });
+    > 144 |     expect(button()).toBeEnabled();
+          |                      ^
+      145 |     clickButton();
+      146 |     expect(fresh.prompt).toHaveBeenCalledTimes(1);
+      147 |   });
+
+      at __EXTERNAL_MATCHER_TRAP__ (node_modules/@jest/expect/node_modules/expect/build/index.js:2240:22)
+      at Object.throwingMatcher [as toBeEnabled] (node_modules/@jest/expect/node_modules/expect/build/index.js:2241:6)
+      at Object.toBeEnabled (src/__tests__/pwa-instalacion-respuesta-real.test.tsx:144:22)
+
+Test Suites: 1 failed, 1 total
+Tests:       4 failed, 2 passed, 6 total
+Snapshots:   0 total
+Time:        2.99 s
+Test results written to: docs\evidencias\125-pwa-antes.json
