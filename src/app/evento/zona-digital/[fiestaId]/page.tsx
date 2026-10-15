@@ -200,8 +200,8 @@ export default function ZonaDigitalPublicPage() {
               </div>
             </div>
             <div className="rounded-lg bg-white p-4 text-slate-950 shadow-xl">
-              <Label className="text-xs font-black uppercase text-slate-400">Tu apodo</Label>
-              <Input value={nickname} onChange={event => setNickname(event.target.value)} placeholder="Ej: Mesa 7, Sofi, Team XV" className="mt-2" />
+              <Label htmlFor="p63-page-1" className="text-xs font-black uppercase text-slate-400">Tu apodo</Label>
+              <Input id="p63-page-1" value={nickname} onChange={event => setNickname(event.target.value)} placeholder="Ej: Mesa 7, Sofi, Team XV" className="mt-2" />
               <p className="mt-2 text-xs text-slate-500">Solo se usa para retos y ranking de esta fiesta.</p>
             </div>
           </div>

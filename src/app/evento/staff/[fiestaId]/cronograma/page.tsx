@@ -153,6 +153,7 @@ export default function StaffCronogramaPage() {
                 key={r.id}
                 type="button"
                 onClick={() => setSelectedRole(r.id)}
+                aria-pressed={isSelected}
                 className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
                   isSelected
                     ? 'bg-amber-500 text-slate-950 shadow-md font-black'

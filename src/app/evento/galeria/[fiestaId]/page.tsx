@@ -473,6 +473,7 @@ export default function GaleriaPage() {
                         key={persona.id}
                         onClick={() => setSelectedPersonaId(isSelected ? null : persona.id)}
                         aria-label="Ver fotos de esta cara"
+                        aria-pressed={isSelected}
                         className={`relative flex-shrink-0 rounded-full transition-all duration-200 focus:outline-none ${
                           isSelected
                             ? 'ring-4 ring-rose-500 scale-110 shadow-lg shadow-rose-500/30'

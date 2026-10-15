@@ -189,6 +189,7 @@ export function LaAppDeTuFiestaSection({
                   // tambien los de la demo, y contarlos todos la volvia fragil.
                   data-testid="momento-de-la-app"
                   onClick={() => setMomentoActivo(m.id)}
+                  aria-pressed={activo}
                   className={cn(
                     "flex flex-shrink-0 items-center gap-2.5 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200 sm:flex-col sm:items-start sm:gap-2 sm:p-4",
                     activo

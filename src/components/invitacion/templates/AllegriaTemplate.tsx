@@ -631,18 +631,18 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                     </DialogHeader>
                     <form onSubmit={handleRsvpFormSubmit} className="space-y-8 pt-6">
                         <div className="space-y-3">
-                            <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
-                            <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border-none text-base sm:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
+                            <Label htmlFor="p63-AllegriaTemplate-1" className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
+                            <Input id="p63-AllegriaTemplate-1" value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border-none text-base sm:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-3">
-                                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
-                                <Input type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border-none text-base sm:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
+                                <Label htmlFor="p63-AllegriaTemplate-2" className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">¿Cuántos vienen?</Label>
+                                <Input id="p63-AllegriaTemplate-2" type="number" value={rsvpGuests} onChange={e => setRsvpGuests(Number(e.target.value))} className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border-none text-base sm:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} min={1} required />
                             </div>
                             <div className="space-y-3">
-                                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Categoría</Label>
+                                <Label htmlFor="p63-AllegriaTemplate-3" className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Categoría</Label>
                                 <Select value={rsvpCategory} onValueChange={(v) => setRsvpCategory(v as any)}>
-                                    <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none font-bold">
+                                    <SelectTrigger id="p63-AllegriaTemplate-3" className="h-14 rounded-2xl bg-slate-50 border-none font-bold">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -655,9 +655,9 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
 
                         {invitacionData.confirmacion.showRelationshipTags && (
                             <div className="space-y-3">
-                                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Relación / Grupo</Label>
+                                <Label htmlFor="p63-AllegriaTemplate-4" className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Relación / Grupo</Label>
                                 <Select value={rsvpTag} onValueChange={setRsvpTag}>
-                                    <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-none font-bold">
+                                    <SelectTrigger id="p63-AllegriaTemplate-4" className="h-14 rounded-2xl bg-slate-50 border-none font-bold">
                                         <SelectValue placeholder="Selecciona tu relación..." />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -678,8 +678,8 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         </div>
                         {companionNames.map((name, i) => (
                             <div key={i} className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                                <Label className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nombre Acompañante {i+1}</Label>
-                                <Input value={name} onChange={e => {
+                                <Label htmlFor={`acompanante-nombre-${i}`} className="text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nombre Acompañante {i+1}</Label>
+                                <Input id={`acompanante-nombre-${i}`} value={name} onChange={e => {
                                     const n = [...companionNames]; n[i] = e.target.value; setCompanionNames(n);
                                 }} className="h-12 rounded-xl bg-slate-50 border-none text-sm" />
                             </div>

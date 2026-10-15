@@ -300,8 +300,8 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 className="space-y-4"
               >
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">Nombre completo *</label>
-                  <Input
+                  <label htmlFor="p63-invitacionpublicac-1" className="mb-1.5 block text-xs font-semibold text-gray-600">Nombre completo *</label>
+                  <Input id="p63-invitacionpublicac-1"
                     value={nombre}
                     onChange={e => setNombre(e.target.value)}
                     required
@@ -311,8 +311,8 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">WhatsApp / Celular (opcional)</label>
-                  <Input
+                  <label htmlFor="p63-invitacionpublicac-2" className="mb-1.5 block text-xs font-semibold text-gray-600">WhatsApp / Celular (opcional)</label>
+                  <Input id="p63-invitacionpublicac-2"
                     value={contacto}
                     onChange={e => setContacto(e.target.value)}
                     placeholder="Ej: 099 123 456"
@@ -362,8 +362,8 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 className="space-y-4"
               >
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">¿Cuántas personas asisten?</label>
-                  <Input
+                  <label htmlFor="p63-invitacionpublicac-3" className="mb-1.5 block text-xs font-semibold text-gray-600">¿Cuántas personas asisten?</label>
+                  <Input id="p63-invitacionpublicac-3"
                     type="number"
                     min="1"
                     max="20"
@@ -377,10 +377,10 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     equipo no sabe cuántos menús infantiles preparar ni a qué
                     lugar de la mesa llevarlos. */}
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                  <label htmlFor="p63-invitacionpublicac-4" className="mb-1.5 block text-xs font-semibold text-gray-600">
                     ¿Cuántos de ellos son niños o adolescentes?
                   </label>
-                  <Input
+                  <Input id="p63-invitacionpublicac-4"
                     type="number"
                     min="0"
                     max={parseInt(personas, 10) || 1}
@@ -399,8 +399,8 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     animate={{ opacity: 1, height: 'auto' }}
                     className="space-y-1"
                   >
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">Nombres de acompañantes</label>
-                    <Input
+                    <label htmlFor="p63-invitacionpublicac-5" className="mb-1.5 block text-xs font-semibold text-gray-600">Nombres de acompañantes</label>
+                    <Input id="p63-invitacionpublicac-5"
                       value={acompanantes}
                       onChange={e => setAcompanantes(e.target.value)}
                       placeholder="Separados por coma: ej. María, Juan"
@@ -410,8 +410,8 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 )}
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">Restricción alimentaria</label>
-                  <select
+                  <label htmlFor="p63-invitacionpublicac-6" className="mb-1.5 block text-xs font-semibold text-gray-600">Restricción alimentaria</label>
+                  <select id="p63-invitacionpublicac-6"
                     value={dietaryRestriction}
                     onChange={e => setDietaryRestriction(e.target.value as typeof dietaryRestriction)}
                     className="h-11 w-full rounded-lg border border-gray-200 bg-white p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--inv-primary)]"
@@ -430,8 +430,8 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                   >
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">Detalla tu restricción o alergia</label>
-                    <Input
+                    <label htmlFor="p63-invitacionpublicac-7" className="mb-1.5 block text-xs font-semibold text-gray-600">Detalla tu restricción o alergia</label>
+                    <Input id="p63-invitacionpublicac-7"
                       value={alergiasEspecificas}
                       onChange={e => setAlergiasEspecificas(e.target.value)}
                       placeholder="Ej. alergia al maní, intolerancia..."
@@ -453,8 +453,8 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
               >
                 {!isNoAsiste && (
                   <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Sugerencia para el DJ (opcional)</label>
-                    <Input
+                    <label htmlFor="p63-invitacionpublicac-8" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Sugerencia para el DJ (opcional)</label>
+                    <Input id="p63-invitacionpublicac-8"
                       value={cancion}
                       onChange={e => setCancion(e.target.value)}
                       placeholder="Artista - Nombre de canción"
@@ -464,8 +464,8 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Mensaje para la familia (opcional)</label>
-                  <textarea
+                  <label htmlFor="p63-invitacionpublicac-9" className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Mensaje para la familia (opcional)</label>
+                  <textarea id="p63-invitacionpublicac-9"
                     value={mensaje}
                     onChange={e => setMensaje(e.target.value)}
                     className="w-full rounded-xl border border-gray-200 p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--inv-primary)]"

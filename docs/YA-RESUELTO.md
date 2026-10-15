@@ -14025,3 +14025,18 @@ avisos no se duplican al reintentar porque el servidor ya descarta los repetidos
 prueba: src/__tests__/control-tower-fallas-de-lectura-no-son-calma.test.tsx
 prueba: src/__tests__/borrar-plantilla-base-no-anuncia-exito.test.tsx
 ```
+
+## Pregunta 63: los nombres de los campos los reconoce el navegador (15 de octubre de 2026)
+
+Barrido de invitados, estaciones y formularios públicos. Cada etiqueta que se veía junto a un campo
+(RSVP de la invitación pública y de las ocho plantillas, buzón de mensajes, votaciones y canciones del
+salón, apodo de la zona digital) ahora está unida a su campo con `htmlFor`/`id`, así el lector de
+pantalla y el toque sobre el texto funcionan. Los botones de elección que sólo se distinguían por color
+(caras de la galería, días y horarios del simulador, momentos de la portada, nota de la encuesta,
+filtro del cronograma, secciones de la pantalla social) llevan `aria-pressed`. No cambió ningún texto,
+estilo ni lógica. Se eligió un candado en Jest que mira el árbol del código de esas carpetas: una
+etiqueta suelta junto a un campo sin nombre deja de publicarse.
+
+```comprobar
+prueba: src/__tests__/pregunta-63-controles-con-nombre.test.ts
+```

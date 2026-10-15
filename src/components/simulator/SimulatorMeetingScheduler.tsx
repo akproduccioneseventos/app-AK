@@ -199,6 +199,7 @@ export function SimulatorMeetingScheduler({
                     key={day.date}
                     type="button"
                     onClick={() => handleDaySelect(idx)}
+                    aria-pressed={isSelected}
                     className={`rounded-xl p-2.5 text-left border transition-all ${
                       isSelected
                         ? 'border-red-600 bg-red-600 text-white shadow-md'
@@ -231,6 +232,7 @@ export function SimulatorMeetingScheduler({
                       key={slot.time}
                       type="button"
                       onClick={() => setSelectedSlot(slot)}
+                      aria-pressed={isSelected}
                       className={`min-h-10 rounded-xl px-3 py-2 text-center text-xs font-bold border transition-all ${
                         isSelected
                           ? 'border-slate-950 bg-slate-950 text-white shadow-md'

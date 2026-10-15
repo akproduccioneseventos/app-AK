@@ -1132,7 +1132,7 @@ export default function SocialEventPage() {
           {availableSections.map((item) => {
             const Icon = item.icon;
             const selected = section === item.id;
-            return <button key={item.id} type="button" onClick={() => chooseSection(item.id)} className="relative flex min-h-11 shrink-0 items-center gap-2 rounded-md px-4 text-sm font-bold transition hover:bg-slate-100" style={selected ? { color: accentColor, backgroundColor: `${accentColor}0d` } : { color: '#475569' }}><Icon className="h-5 w-5" />{item.label}{selected && <span className="absolute inset-x-2 bottom-0 h-0.5" style={{ backgroundColor: accentColor }} />}</button>;
+            return <button key={item.id} type="button" aria-pressed={selected} onClick={() => chooseSection(item.id)} className="relative flex min-h-11 shrink-0 items-center gap-2 rounded-md px-4 text-sm font-bold transition hover:bg-slate-100" style={selected ? { color: accentColor, backgroundColor: `${accentColor}0d` } : { color: '#475569' }}><Icon className="h-5 w-5" />{item.label}{selected && <span className="absolute inset-x-2 bottom-0 h-0.5" style={{ backgroundColor: accentColor }} />}</button>;
           })}
         </div>
       </nav>
