@@ -2,7 +2,8 @@
 
 REPARTO NUEVO: GEMINI PROGRAMA; Codex revisa/prueba/documenta. Claude compila
 y fusiona. No usar autorizacion antigua para programar app en otra corrida.
-126 no cambio app: reutiliza build125b520 y entregara QA/orden164 en PR1301.
+126 no cambio app: reutiliza build125b520 y entrega QA/orden164 en PR1301.
+Snapshot1267dcbcdde subido,42blobs remotos iguales; recibo126-entrega-remota.
 Main4b6d6620, cabeza documental al iniciar27d024e3; PR1301 ABIERTA.
 NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE (HEAD desconocido).
 DOS hallazgos nuevos REPRODUCIDOS tambien en tanda, pendientes Gemini164:
