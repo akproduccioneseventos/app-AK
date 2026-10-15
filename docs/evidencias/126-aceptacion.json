@@ -1,0 +1,42 @@
+{
+  "applicationSourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+  "mainSha": "4b6d66201cf9828f7a5328a8640e82f8eb291f5a",
+  "blobs": [
+    {
+      "file": "src/app/actions/invitacion-digital-templates.ts",
+      "mainBlob": "2990ba436d5eaa0277bfc23d4f3a3001f735e2a4",
+      "sourceBlob": "2990ba436d5eaa0277bfc23d4f3a3001f735e2a4"
+    },
+    {
+      "file": "src/app/(app)/settings/templates/invitaciones/page.tsx",
+      "mainBlob": "c9894ea4025d0fa2c7c117ed8c447c10878f2626",
+      "sourceBlob": "c9894ea4025d0fa2c7c117ed8c447c10878f2626"
+    },
+    {
+      "file": "src/app/portal/[fiestaId]/decoracion/page.tsx",
+      "mainBlob": "c73a29aa0c9945510b077b32158f78b66ea8adf0",
+      "sourceBlob": "c73a29aa0c9945510b077b32158f78b66ea8adf0"
+    }
+  ],
+  "gate": "AUDIT_126_TWO_OPEN_DEFECTS",
+  "allAppCertified": false,
+  "applicationEdited": false,
+  "fixVerified": false,
+  "nativeScenarios": 8,
+  "passed": 4,
+  "failed": 4,
+  "uniqueDefects": 2,
+  "registryTestsPassed": 3,
+  "acentos": {
+    "exitCode": 0,
+    "filesReviewed": 2906
+  },
+  "buildReusedFrom125": true,
+  "privateClaudeHead": "NO_CONTRASTADO",
+  "realAccounts": false,
+  "hardware": false,
+  "dataRestored": true,
+  "sdkRemaining": 0,
+  "ownedListenersRemaining": [],
+  "next": "Gemini implementa orden164, Claude valida nuevo SHA y fusiona; orden163 residual sigue vigente."
+}
