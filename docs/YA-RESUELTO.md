@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+
+## 15/10/2026 - La PR 1303 no se fusionó: callaba dos controles cambiando el código
+
+- Traía una función que nadie llama (`terminarMenusPendientes`) y una condición reescrita que hace lo mismo
+  (`revisionManual`), sólo para que dos líneas de `comprobar` dieran verde. Lo roto eran las líneas: la función
+  se había renombrado (`aplicarInsumoEnMenus`) y el `no-usa` apuntaba a la forma nueva y correcta en vez de a la
+  vieja (`imageAiSafe: input.revisionManual === false`). Se corrigieron las líneas y se juntaron sus documentos.
+- **Regla:** cuando una línea de `comprobar` falla, primero se mira si la línea está bien escrita; nunca se agrega
+  código para que la encuentre.
+
 ## 15/10/2026 - Orden 164: plantilla nueva sin copia doble, y botón de decoración legible
 
 - **Crear plantilla reintentada:** si se cortaba la señal justo al crear una plantilla de invitación y
@@ -75,7 +85,7 @@ prueba: src/__tests__/decoracion-quiero-cambiar-algo-legible.test.tsx
 ```comprobar
 archivo: src/components/pwa-install-button.tsx
 usa: PwaInstallButton en src/app/(app)/settings/instalar-app/page.tsx
-prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx;7focales y amplia b520 ejecutadas PASS
+prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx
 ```
 
 ### Preparacion anterior125 (historica; leer actualizacion arriba)
@@ -110,7 +120,7 @@ prueba: src/__tests__/pwa-instalacion-respuesta-real.test.tsx;7focales y amplia 
 ```comprobar
 archivo: src/components/kiosk/kiosk-setup.tsx
 usa: KioskSetup en src/app/evento/barra/page.tsx
-prueba: src/__tests__/kiosk-configuracion-accesible.test.tsx; focal ejecutada543, fuente final586 pendiente
+prueba: src/__tests__/kiosk-configuracion-accesible.test.tsx
 ```
 
 ## 14 de octubre de 2026 - Jest no corre las copias de los ayudantes
@@ -535,9 +545,10 @@ prueba: src/__tests__/los-avisos-de-dependencias-no-llegan-a-la-app.test.ts
 ```comprobar
 archivo: src/app/actions/activos-fijos.ts
 usa: mutateDataItem en src/app/actions/activos-fijos.ts
-usa: registroId: registroIdReintento ?? idDeLaOperacion() en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
+usa: registroId en src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx
 prueba: src/__tests__/mantenimiento-sin-duplicar-ni-perder.test.ts
 prueba: tests/e2e/mantenimiento-sin-duplicar.spec.ts
+```
 
 ## 13 de octubre de 2026 — Guardados de la fiesta por turno: dos personas a la vez ya no se pisan
 
@@ -576,6 +587,7 @@ usa: marcarHitoPrograma en src/app/evento/staff/[fiestaId]/cronograma/page.tsx
 usa: marcarTareaFiestaActual en src/app/(app)/fiestas/nueva/tareas/client.tsx
 usa: ajusteClave en src/app/actions/fiesta/barra-tecnologica.actions.ts
 prueba: src/__tests__/guardados-de-la-fiesta-no-se-pisan.test.ts
+```
 
 ## 13 de octubre de 2026 — Hora de Uruguay, tareas con la base caída, enlaces que no llevaban el dato y guardados que pisaban
 
@@ -1461,7 +1473,7 @@ usa: imageAiSafeDesde en src/app/actions/social-gallery.ts
 usa: revisionImagen en src/app/actions/fiesta/entretenimiento.actions.ts
 usa: revisionImagen en src/app/actions/fiesta/barra-tecnologica.actions.ts
 usa: avisoDelMuro en src/app/evento/espejo-magico/[fiestaId]/page.tsx
-no-usa: revisionManual === false en src/app/actions/social-gallery.ts
+no-usa: imageAiSafe: input.revisionManual === false en src/app/actions/social-gallery.ts
 prueba: src/__tests__/las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts
 prueba: src/__tests__/la-foto-sin-revisar-queda-pendiente-no-rechazada.test.ts
 prueba: src/__tests__/espejo-guardada-no-es-publicada.test.ts
@@ -1561,12 +1573,13 @@ prueba: tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts
 
 ```comprobar
 archivo: src/lib/asistente/voz-en-vivo.ts
-usa: iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: crearControlVozEnVivo en src/components/multiagent/multiagent-widget.tsx
 usa: vozEnVivoMinutosPorDia en src/app/(app)/settings/asistente/page.tsx
 usa: reservarMinutos en src/app/api/asistente/voz-en-vivo/route.ts
 prueba: src/__tests__/la-voz-en-vivo-ruta.test.ts
 prueba: src/__tests__/la-voz-en-vivo-lib.test.ts
 prueba: src/__tests__/la-voz-en-vivo-cliente.test.ts
+```
 
 ## 10 de octubre de 2026 — La IA de la app tiene que servir (asistente, pitch, DJ, cronograma, comentarios)
 
@@ -1730,6 +1743,7 @@ archivo: src/lib/compras/consolidar-compras.ts
 usa: consolidarCompras en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
 usa: consolidarCompras en src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx
 prueba: src/__tests__/compras-suman-en-la-misma-unidad.test.ts
+```
 
 ## 10/10/2026 - Orden 140: la fotocabina ya no entrega la foto negra
 
@@ -12044,7 +12058,7 @@ presupuesto.
 
 ```comprobar
 archivo: src/app/actions/insumos.ts
-usa: terminarMenusPendientes en src/app/actions/insumos.ts
+usa: aplicarInsumoEnMenus en src/app/actions/insumos.ts
 prueba: src/__tests__/el-ajuste-de-costos-no-miente.test.ts
 ```
 
@@ -13910,6 +13924,7 @@ que sólo frena abusos. No se le pide ningún dato al invitado.
 ```comprobar
 prueba: src/__tests__/un-voto-por-telefono-sin-trabar-el-wifi.test.ts
 usa: idDelTelefono en src/app/evento/social/[fiestaId]/page.tsx
+```
 
 ## Trivia en vivo y misiones de fotos con puntos de verdad (13 de octubre de 2026)
 
@@ -13976,6 +13991,7 @@ si ya tiene ese registro contesta "listo" con el que existe y no crea otro.
 ```comprobar
 prueba: src/__tests__/un-reintento-no-duplica-plata.test.ts
 prueba: src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts
+```
 
 ## Preguntas 58, 59 y 60 en el resto de la app (13 de octubre de 2026)
 

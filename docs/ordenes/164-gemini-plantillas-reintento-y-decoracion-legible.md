@@ -97,6 +97,6 @@ archivo: src/app/actions/invitacion-digital-templates.ts
 usa: saveInvitationTemplate en src/app/(app)/settings/templates/invitaciones/page.tsx
 prueba: src/__tests__/plantilla-nueva-reintento-no-duplica.test.ts
 archivo: src/app/portal/[fiestaId]/decoracion/page.tsx
-usa: ClientDecoracionPage/showFeedbackForm/handleOpinion en src/app/portal/[fiestaId]/decoracion/page.tsx
+usa: showFeedbackForm en src/app/portal/[fiestaId]/decoracion/page.tsx
 prueba: src/__tests__/decoracion-quiero-cambiar-algo-legible.test.tsx
 ```
