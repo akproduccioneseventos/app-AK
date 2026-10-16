@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex145: recuento y correcciones nuevas presentes en1328
+
+-145-recuento-integral.md consolida14areas, pruebas previas/limites y estado
+  de137/139/171/172/178/179/180/184/144, sin repetir tests ni inventar cobertura.
+-NUEVA1328HEADade94f83b8820ed43eff23227aaecb77776a042b contiene arreglos179
+  (toWhatsAppDigits URL/text-white titulo) y180(hasOwnProperty.call). Fuente
+  inspeccionada API paginada: presentes, NO retest Codex ni despliegue verificado.
+  No volver a llamarlos no implementados ni reemitirlos; revalidar eseSHA.
+-1329HEADb8491bda/1330HEADc7f9e3e6 nuevas solo metadatos vistos. Contrastar antes
+  de afirmar vigencia/fix de171/172/184. Main sigue7230. No toda app aceptada.
+
 ## 16/10/2026 - Codex144: contenido del delta nuevo de tres pruebas
 
 -Diff17d->a98 en50-tecnologia-app-fiesta-demo, pantallas-con-iconos-react19 y

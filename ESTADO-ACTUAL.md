@@ -1,4 +1,4 @@
-# Estado actual - Codex144,16/10/2026
+# Estado actual - Codex145,16/10/2026
 
 Codex SOLO audita/prueba/documenta; Gemini programa; Claude dinero/permisos/comida,
 valida/compila/fusiona. Excepcion dueno SOLO build/servidorQA ficticio aislado.
@@ -27,12 +27,12 @@ borrados,0diffQAtracked. Nadie paro procesos deGemini. No sesiones reales.
 136CRM-agenda telefono/sinemail/cita/horaUy/timeline persisten; enlace099sin598FAIL.
 AK-CODEX-136-WA099-COST=179-gemini-agenda-recordatorio-whatsapp-local.md;
 AK-CODEX-138-PERFIL-PROPIO=180-claude-perfiles-solo-claves-propias.md.
-Agenda/catalogo/perfiles mismosblobs17d que7230. No confundir otras179/180 deGemini.
-180 aunpendiente,1381causa3clavesheredadasTypeError; no escalada demostrada.
+NUEVA1328HEADade94f83:179/180 correccion PRESENTE, retest Codex PENDIENTE.
+145-recuento-integral14areas/limites;1329b8491bda/1330c7f9e3e6 solo metadata vista.
 140 controles180 ahora3PASS4FAILesperados; inventario no prueba regresion.
 Claudeprivadoactual NO CONTRASTADO. Contrastar cada entrega antes de ordenar.
 1353D/agenda/DJ6PASS y42unidades focales vigentes por alcance; no repetir.
 134421rutas/14areas/7perfiles/6401AST es inventario, no aceptacion por boton.
 19originales dueno sigue buscando, no insistir ni sustituir por JSONmigrados/QA.
 Hosting/OAuth/modelo-voz/cuentas/hardware/integraciones reales NO certificados.
-Siguiente: coders171/172/179/180/184; retest solo delta entregado. No0errores.
+Siguiente: contrastar1329/1330 yrevalidar1328;171/172/184 ultimoensayo falla. No0errores.
