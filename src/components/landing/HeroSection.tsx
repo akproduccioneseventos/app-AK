@@ -72,6 +72,7 @@ export function HeroSection({
         entries.forEach((entry) => {
           if (videoRef.current) {
             if (entry.isIntersecting) {
+              // no pasa nada si falla: el navegador puede bloquear la reproduccion automatica; queda la imagen de fondo
               videoRef.current.play().catch(() => {});
             } else {
               videoRef.current.pause();
