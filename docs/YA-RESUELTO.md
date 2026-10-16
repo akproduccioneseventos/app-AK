@@ -1,5 +1,13 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Auditoría integral de la IA avanzada de Gemini (`docs/evidencias/135-auditoria-integral-gemini-avanzada.md`)
+
+Verificado por Claude contra el código, de sus siete hallazgos de roles y portal:
+- **Reales y ya arreglados:** el botón Documentos del portal iba al menú, y los atajos `/portal/[fiestaId]/[modulo]` mandaban al cliente a pantallas del equipo.
+- **Ya estaba bien:** Lista de Regalos va a `/invitacion/[id]#regalos`; el contrato ya no adivina el firmante cortando el nombre del evento por " de ".
+- **Falso positivo:** "Mesas del portal sin llave": la pantalla abre, pero los guardados (`updateDecoracion` con `allowPortal`, `addInvitado` con sesión) piden sesión del equipo o la clave del cliente en el servidor. "El chat le da plata al operador": `getDashboardKpiData` ya pone en cero lo de plata si no hay permiso de contabilidad (`veLaPlata`, `src/app/actions/dashboard.ts` ~100).
+- **Propuesta, no defecto:** unificar perfiles y casillas viejas en `/admin/usuarios`, y destacar cuotas y bonificados en la vista del presupuesto. Las decide el dueño.
+
 ## 16/10/2026 - Entrega de Gemini 176/177 y PR 1325 del portal
 
 - Entraron la portada nueva (plan Argon), "Vogue" y la ortografía (órdenes 176 y 177), y el arreglo del portal del cliente: el botón **Documentos** abre el contrato y los atajos viejos del portal ya no mandan al cliente a pantallas del equipo.
