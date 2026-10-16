@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Continua la misma propuesta documental de auditorias134-135 con evidencia136.
+Continua la misma propuesta documental de auditorias134-138 con evidencia nueva.
 **No fusionar documentos solos. Codex no cambia codigo app ni fusiona.**
 
 -134: conciliacion421rutas/14areas/7perfiles, sin convertir inventario en pruebas.
@@ -13,11 +13,18 @@ Continua la misma propuesta documental de auditorias134-135 con evidencia136.
   en catalogo, sin cambiar formulas/permisos.
 -Sondas, capturas, datos ficticios, erroresQA descartados y versiones de tests
   conservados. Emulador Firestore local vaciado y servicios propios cerrados.
+-138/orden180Claude: tres perfiles heredados provocan TypeError; sonda real y
+  HTTP compilado concuerdan (control404, tres500). Una sola causa, no escalada
+  demostrada. Correccion y ampliacion Jest PENDIENTES, no codigo implementado.
+-137: alta cliente inconclusa por espera; salon conserva documento/ID/campos y
+  aparece tras recarga. Runner0PASS/2noPASS, no aceptacion completa ni prueba de
+  perdida. Artefactos crudos conservados, timeouts de QA no aislados; ver cierre.
 -19originales: dueno buscando ubicacion; integraciones reales, Hosting, modelo/
   voz y hardware no certificados. **No representa toda app sin errores.**
 
 Fuente congelada de aplicacion:7230f9d02b32805952a185f704a0208bd5d643e6.
 Contraste consumidores179:1325HEAD5f704e68 y1326HEADa21d0b69 sin esos arreglos.
+Igual contraste para perfiles.ts/auth.ts de180: sin cambios en ambas ramas.
 NO CONTRASTADO CON LA TANDA PRIVADA deClaude/Gemini, HEAD desconocido.
 
 ## Tipo de Cambio

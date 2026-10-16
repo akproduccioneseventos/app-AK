@@ -1,0 +1,233 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "execution": {
+    "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+    "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+    "health": {
+      "status": "ok",
+      "timestamp": "2026-10-16T16:05:47.053Z",
+      "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+      "services": {
+        "firebase": false,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      },
+      "environment": "production",
+      "uptime": 61
+    },
+    "args": [
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "137-playwright.config.ts",
+      "137-maestros.spec.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\137-artifacts"
+    ],
+    "exitCode": 1,
+    "finishedAt": "2026-10-16T16:10:01.885Z",
+    "testSha256": "49df105c14c01d5e5059f51745c23122e6a751a5b8a37896137b9fa8c57f880d"
+  },
+  "stats": {
+    "startTime": "2026-10-16T16:05:53.313Z",
+    "duration": 248312.08800000002,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "checks": [
+    {
+      "title": "maestros: alta de cliente desde enlace visible y persistencia tras recarga",
+      "runnerStatus": "failed",
+      "durationMs": 50356,
+      "error": "Error: expect(page).toHaveURL(expected) failed\n\nExpected pattern: /\\/customers(?:\\?|$)/\nReceived string:  \"http://127.0.0.1:3300/customers/new\"\nTimeout: 25000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 25000ms\n    13 × unexpected value \"http://127.0.0.1:3300/customers/new\"\n",
+      "storeChecks": [],
+      "storeStable": false,
+      "finalTextSha256": "7a546c56b8046f788fdace6a764d53c4ecec63c492c79e78eced32a0a21f21d9",
+      "finalText": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAñadir Nuevo Cliente\nIngreso/Egreso Rápido\nAbrir notificaciones\nAñadir Nuevo Cliente\nVolver a Clientes\nInformación del Cliente\nCompleta la información que tengas disponible. Puedes editarla más tarde.\nNombre Completo\nEmpresa\nDomicilio\nTeléfono\nCédula / RUT\nInformación de la Fiesta Contratada (Opcional)\nEstos campos se pueden completar ahora o más tarde.\nFecha de la Fiesta\nSelecciona una fecha\nHorario del Evento\nTipo de Fiesta\nSeleccioná un tipo\nBoda\nXV años\nCumpleaños\nEvento corporativo\nCumpleaños infantil\nOtro\nCantidad de Invitados\nPara quién es la Fiesta\nSalón de Fiestas / Lugar\nContrato de Servicio (PDF)\nPresupuesto Firmado (PDF)\nContrato del Salón (PDF)\nGuardando...\nSofia\nSecretaria, agenda y recordatorios"
+    },
+    {
+      "title": "maestros: alta de salon desde enlace visible y persistencia tras recarga",
+      "runnerStatus": "timedOut",
+      "durationMs": 128198,
+      "error": "Test timeout of 90000ms exceeded.",
+      "storeChecks": [
+        {
+          "name": "salon-store-antes.json",
+          "value": [
+            {
+              "name": "projects/demo-ak-producciones/databases/(default)/documents/salones/salon_bce1c2cb-5af2-4a3f-aaf3-3153b53dcb15",
+              "fields": {
+                "nombre": {
+                  "stringValue": "QA137_8436_1792166871839_Salon"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "googleMapsUrl": {
+                  "stringValue": ""
+                },
+                "capacidad": {
+                  "integerValue": "80"
+                },
+                "estacionamiento": {
+                  "stringValue": ""
+                },
+                "accesibilidad": {
+                  "stringValue": ""
+                },
+                "descripcion": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "esClubUruguay": {
+                  "booleanValue": false
+                },
+                "id": {
+                  "stringValue": "salon_bce1c2cb-5af2-4a3f-aaf3-3153b53dcb15"
+                },
+                "_syncedAt": {
+                  "stringValue": "2026-10-16T16:08:00.224Z"
+                }
+              },
+              "createTime": "2026-10-16T16:08:00.235693Z",
+              "updateTime": "2026-10-16T16:08:00.235693Z"
+            }
+          ]
+        },
+        {
+          "name": "salon-store-despues.json",
+          "value": [
+            {
+              "name": "projects/demo-ak-producciones/databases/(default)/documents/salones/salon_bce1c2cb-5af2-4a3f-aaf3-3153b53dcb15",
+              "fields": {
+                "nombre": {
+                  "stringValue": "QA137_8436_1792166871839_Salon"
+                },
+                "direccion": {
+                  "stringValue": ""
+                },
+                "googleMapsUrl": {
+                  "stringValue": ""
+                },
+                "capacidad": {
+                  "integerValue": "80"
+                },
+                "estacionamiento": {
+                  "stringValue": ""
+                },
+                "accesibilidad": {
+                  "stringValue": ""
+                },
+                "descripcion": {
+                  "stringValue": ""
+                },
+                "fotos": {
+                  "arrayValue": {}
+                },
+                "esClubUruguay": {
+                  "booleanValue": false
+                },
+                "id": {
+                  "stringValue": "salon_bce1c2cb-5af2-4a3f-aaf3-3153b53dcb15"
+                },
+                "_syncedAt": {
+                  "stringValue": "2026-10-16T16:08:00.224Z"
+                }
+              },
+              "createTime": "2026-10-16T16:08:00.235693Z",
+              "updateTime": "2026-10-16T16:08:00.235693Z"
+            }
+          ]
+        }
+      ],
+      "storeStable": true,
+      "finalTextSha256": "81e642bb46dd85fa805989823b8f02075a6307eed33fd45f19c40fb2798b2013",
+      "finalText": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\n1\nGestor de Salones\nIngreso/Egreso Rápido\nAbrir notificaciones\nGestor de Salones\nAgregar Salón\nClub Uruguay\nVolver\nGestioná los salones con los que trabajás. Al crear un evento podés seleccionar un salón y sus datos se sincronizarán automáticamente.\nTodos los Salones (1)\nSalones Guardados (1)\nQA137_8436_1792166871839_Salon\n80 personas\nVer/Editar Diseño del Salón\nExperiencia Visual 3D\nLuna\nSalones, 2D/3D y decoracion"
+    }
+  ],
+  "archives": [
+    {
+      "original": "137-results-inicial.json",
+      "archive": "137-results-inicial.json.gz",
+      "sha256": "bc04e24e2c9ad0ed806c72f2c715ce3b1ae93b2ed4e1687ad27e635a437e034d",
+      "bytes": 15021
+    },
+    {
+      "original": "137-execution-inicial.json",
+      "archive": "137-execution-inicial.json.gz",
+      "sha256": "096a566e550a93576a52a75348cf0042311a4e12790dbd1b800ea4f365792444",
+      "bytes": 1015
+    },
+    {
+      "original": "137-inicial.log",
+      "archive": "137-inicial.log.gz",
+      "sha256": "9b78ea23f0b4df76d2a319086b9b1b9f7e9b5bdec8a60f223c14266bb806c5b9",
+      "bytes": 3562
+    },
+    {
+      "original": "137-runtime-emulator.log",
+      "archive": "137-runtime-emulator.log.gz",
+      "sha256": "e734915aebfe2d5354c872fd334e6c8472f6cb806c6a43fda6275d593ee3c827",
+      "bytes": 836
+    },
+    {
+      "original": "137-runtime-serve.log",
+      "archive": "137-runtime-serve.log.gz",
+      "sha256": "d45bab90475757c16a799bdbcbafa6562928cf38261ca608d8848a3882563f31",
+      "bytes": 12622
+    },
+    {
+      "original": "137-results.json",
+      "archive": "137-results.json.gz",
+      "sha256": "e226376375159d65625e8c2f9d63d95f77e2df72de44e881c9d1010199542fb9",
+      "bytes": 169684
+    },
+    {
+      "original": "137.log",
+      "archive": "137.log.gz",
+      "sha256": "56f9286183da3d6f2fa630b0997f6e58a2c5a230e11ee84625006c724c9e5b78",
+      "bytes": 4568
+    },
+    {
+      "original": "136-sdk-emulator.log",
+      "archive": "137-diagnostico-emulator.log.gz",
+      "sha256": "82d2ef8b6ecb22b4f80e837d303561144811d3cc02e7b16e92638157053029e2",
+      "bytes": 1243
+    },
+    {
+      "original": "136-sdk-serve.log",
+      "archive": "137-diagnostico-serve.log.gz",
+      "sha256": "5cfd8c2b4b63f66b20a16ee97c3c0baabf24db107ee5a8c2fd3485ee1d60dd0e",
+      "bytes": 43122
+    }
+  ],
+  "restored": [
+    {
+      "path": "docs/evidencias/135-entorno.json",
+      "sha256": "f750448556c3013b844ce4bc124cc407ccf6757e4448da29821d21b248bd2634"
+    },
+    {
+      "path": "docs/evidencias/136-sdk-emulator-execution.json",
+      "sha256": "c8db197f27e782252deb361f5e611eab5acc3316835cf3f38be992024fbe431e"
+    },
+    {
+      "path": "docs/evidencias/136-sdk-serve-execution.json",
+      "sha256": "c987c5ef06d548faf8dc8b0823d233b0c1d00ef0da28c1739797fc2542676965"
+    }
+  ],
+  "scope": "Native desktop only. Runner0PASS/2nonPASS. Salon durable+UI reload checkpoints observed; client incomplete. No new application defect established.",
+  "cleanup": {
+    "portsListening": [],
+    "sourceDiff": [],
+    "emulator": "in-memory process stopped",
+    "ownProcessesStopped": true
+  }
+}

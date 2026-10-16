@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex137: cliente inconcluso, salon no perdio datos
+
+- Fuente/build7230/135 sin modificar app. Dos viajes nuevos de alta cliente y
+  salon: runner inicial0PASS/2FAIL, NO prueba de perdida. Cliente seguia cargando.
+- Contraste posterior conserva evidencia original y agrega lectura REST del
+  emulador: salon mantiene UN ID/capacidad80/campos/timestamps tras recarga y
+  aparece en UI; captura revisada. Runner0PASS/2noPASS porque cliente no termino
+  de salir del guardado y salon agoto90s en captura/finalizacion. No falsear verde.
+- Cliente: log guardado exitoso, pero no lectura durable ni recarga completadas;
+  INCONCLUSO. Health/consultas/respaldo local con timeouts; causa no aislada.
+  No emitir orden de perdida de datos ni invalidar8altas136 por estos limites.
+- Ver137-cierre/137-consolidado, pruebas y logs comprimidos; servicios locales
+  cerrados, puertos libres, diff de fuentes QA0 y recibos historicos restaurados.
+  Pendiente aislar guardado cliente; movil/edicion/fotos no aceptados por137.
+
 ## 16/10/2026 - Codex138: perfiles heredados, orden180 abierta
 
 - Fuente7230f9d0, sonda pura del archivo real `src/lib/auth/perfiles.ts`, hash
@@ -11,6 +26,10 @@
 - ABIERTA180/CLAUDE: pertenencia propia a los siete perfiles, conservar prioridad
   y conversion historica aprobadas. Ampliacion Jest y prueba login/accion con
   usuario corrupto PENDIENTES; la sonda no equivale a esas pruebas.
+- Confirmacion HTTP138 posterior, build135 de7230: cookie ficticia roleuser,
+  PDFsintetico inexistente. Controlinventado404, tresheredados500 con cuerpo0bytes.
+ 1PASS/3FAIL adicionales, misma causa. No cuentas cambiadas ni archivos reales
+  recuperados, no escalada demostrada. Ver138-perfiles-http-results.json.
 - Fuente de auth.ts usa el predicado en login/listUsers/createUser/updateUserModules;
   no se modifico ningun usuario. Archivos iguales en1325HEAD5f704e68/1326a21d0b69;
   NO CONTRASTADO CON LA TANDA PRIVADA. No se programa ni fusiona por Codex.

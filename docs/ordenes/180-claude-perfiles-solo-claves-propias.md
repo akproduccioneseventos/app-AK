@@ -39,9 +39,19 @@ contrastar el consumidor de autenticacion con datos ficticios. Esta ampliacion
 de Jest esta PENDIENTE: Codex ejecuto la sonda pura138, no una sesion/login de
 usuario corrupto ni la accion de modificar un usuario en base real.
 
-Evidencia: `docs/evidencias/138-perfiles-heredados-results.json`,1controlPASS/
-3entradasFAIL. No invalida las50fronteras HTTP ni11denegaciones de prospecto136;
-es un caso diferente fuera de esos dominios de entrada.
+Evidencia pura: `docs/evidencias/138-perfiles-heredados-results.json`,1controlPASS/
+3entradasFAIL.
+
+Confirmacion HTTP posterior: `138-perfiles-http-results.json`, misma compilacion
+135 de7230, servidor aislado y cookie firmada de usuario FICTICIO `role=user`.
+GET de un nombre sintetico de PDF que NO existe: control `inventado` llega a404,
+los otros tres producen500, cuerpo0bytes. Es coherente con el TypeError del
+ayudante en la ruta real `/api/budgets/[filename]`. No se creo archivo, cambio
+una cuenta ni recupero documento real; no se afirma acceso indebido.
+El login con un registro corrupto y la ampliacion Jest siguen pendientes.
+
+No invalida las50fronteras HTTP ni11denegaciones de prospecto136: se trata de
+entradas distintas a los siete perfiles validos, antes no ejecutadas.
 Claude implementa/valida; Codex solo documenta. Una sola tanda con las otras
 correcciones, no otra PR por este ayudante.
 
