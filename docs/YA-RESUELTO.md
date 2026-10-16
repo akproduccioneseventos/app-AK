@@ -1,5 +1,13 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Plan "Argon" de la portada y ortografía de toda la app
+
+- **El dueño aprobó todo el plan de la otra IA ("hacé todo")**, salvo lo que contradice sus decisiones: las cifras quedan "+200", "+7" y "Clientes satisfechos" sin porcentaje, y no se usa "congelar". Va a Gemini en la orden 177; los textos rotos, en la 176.
+- **Falsos positivos del plan, verificados por Claude**: los contadores no muestran "+0" (el servidor ya entrega la cifra final y la animación arranca al verse); los títulos de "Equipo y Método" no se repiten (el segundo es el texto alternativo de la imagen); la categoría y el título de la galería no están pegados (van en esquinas distintas); el título de los videos se ve una sola vez; "María Rosario Volpi" tiene dos reseñas distintas, no una repetida; la clave de Gemini nunca llega al navegador; el tótem con IA ya pide código de la fiesta, tiene tope por foto, por hora y de gasto mensual; la demo de los cinco pasos ya cambia de vista con cada paso; la galería ya carga de a 12 con "Ver más".
+- **"Bogue" pasa a "Vogue"** (decisión del dueño, como se lo llama en el rubro): sólo cambia el nombre que se lee; la dirección `/evento/bogue/` y las claves quedan, porque hay QR impresos.
+- **Ortografía**: tres ayudantes confirmaron unos 230 textos visibles sin tilde o sin eñe. Las reseñas de clientes no se corrigen: son sus palabras. Los valores sin tilde que se usan como clave (`categoria` de la galería, `'Organizacion'`, `'XV anos'`, ids) se quedan y se muestran con tilde por su función.
+- El tope de gasto de la IA deja pasar si no puede leer el gasto: es a propósito (`hayPresupuestoParaIA`, "quedarse sin efectos en medio de una fiesta es peor"), y lo acotan los topes por hora. Falso positivo.
+
 ## 15/10/2026 - Orden 170: Lista "Si es posible" en DJ, tragos listos y chat en vivo ante fallos
 
 - **Panel DJ (canciones "Si es posible"):** en `src/app/evento/dj/[fiestaId]/page.tsx` se agregó la sección "Si es posible" entre las obligatorias (`imprescindibles`) y prohibidas (`noQuiero`). Lee `fiesta.listaMusicaPortal.siEsPosible` con contador "N sugeridas", estilo cielo (`sky`) y leyenda explicativa "Sugerencias del cliente: pasalas si encajan." sin mezclarlas con pedidos ni alterar prioridades. Si la lista está vacía, no se muestra.
@@ -13,6 +21,21 @@
 - **Pedido de reseña digital:** en `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, `handleMarcarResenaSolicitada` verifica `result.success`. Si falla o lanza error, emite toast destructivo y no altera contadores ni marca la fiesta como pedida. Eliminado `no-mira-el-resultado`.
 - **WhatsApp a prospecto CRM:** en `src/components/crm/CrmLeadCard.tsx`, `handleWhatsApp` valida `result.success` de `recordWhatsAppOpened`. Si falla o tira excepción, notifica que WhatsApp se abrió pero no se pudo anotar en la ficha. Eliminado `no-mira-el-resultado`.
 - **Carga de evento histórico:** en `src/app/actions/historicos.ts`, `processHistoricRecord` verifica `saveFiestaResult.success`. Ante fallo, interrumpe con mensaje explicativo sin crear notificación y preservando el presupuesto y factura creados sin romper el balance contable.
+## 15/10/2026 - Codex133: hallazgo abierto, no resuelto
+
+- Contrato del portal en movil: en 390 px, el sello de firma tapa la etiqueta del titular,
+  el titulo ocupa tres lineas y el texto del boton PDF se sale. Reproduccion QA y captura:
+  `docs/evidencias/133-contrato-mobile-layout.md` y `.png`; correccion pendiente, orden171.
+- Panel social movil: el `ModuleNavigationDock` cubre aproximadamente 1455 px2 del encabezado
+  `Evento` de la tabla a 390 x 844; el ancho horizontal no desborda. Correccion pendiente, orden172.
+- El subgrupo no 3D del portal aprobo mensajes y cuatro criterios del panel en desktop/movil.
+  La tanda 3D no es concluyente: 15 expiraciones durante el cierre de contexto/trazas,
+  no fallos de asercion atribuibles a la app. No marcar 3D como aprobado ni como bug por esta corrida.
+- Pruebas operativas sintéticas: orden del evento y permiso de ubicacion 4/4 PASS.
+  Agenda respondio, pero el test de consola fallo por una llamada del Firebase SDK con clave QA invalida;
+  el runner no bloquea toda salida externa. Es limite de aislamiento, no bug confirmado del producto.
+- Base app `d10f332a`, equivalente al arbol `src` de main `9aa64f99`; copia QA `a635b270`.
+  Privados Claude/Gemini siguen NO CONTRASTADOS.
 
 ## 15/10/2026 - Codex132: portal probado y dos defectos PENDIENTES170
 
@@ -14452,3 +14475,25 @@ prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 
 
 
+## Simulador: test de WhatsApp esperaba un paso que ya no existe (15 de octubre de 2026)
+
+El test historico `tests/e2e/simulador-contacto-oficial.spec.ts` avanzaba una vez de mas y esperaba `Continuar` cuando la pantalla ya estaba en `Paso 5 de 5`; el control real es `Ver Resumen y Propuesta`, con una oferta opcional previa que el prospecto puede rechazar. No era un error confirmado del simulador. La prueba sintetica `tests/e2e/133-simulador-whatsapp-despues-de-oferta.spec.ts` comprobo conservar el paquete, abrir el resumen, guardar el prospecto en el CRM con fuente Facebook/campana UTM y que los botones interceptados apuntaran al WhatsApp oficial (1 PASS desktop; movil omitido intencionalmente). El test antiguo sigue pendiente de actualizar segun orden173; no usar su espera de un boton inexistente como defecto de la app.
+
+```comprobar
+prueba: docs/evidencias/133-simulador-whatsapp-despues-de-oferta.spec.ts
+usa: Ver Resumen y Propuesta en src/app/simulador-de-presupuesto/page.tsx
+```
+
+## Limite de aislamiento de la corrida RSVP, sin resultado funcional (15 de octubre de 2026)
+
+La prueba `tests/e2e/viaje-invitado.spec.ts` se inicio en la copia QA sintética `a635b27071ecea22092eba2a285892c84c6f9d08`, pero Codex la detuvo al observar en el log `Firebase Admin SDK initialized with Application Default Credentials`. El runner no guardo resultado JSON, por lo que la prueba no cuenta como PASS ni FAIL. `AK_USE_LOCAL_JSON_ONLY=true` tomo la rama local y dejo `dbAdmin` nulo; en el log se observaron lecturas por fallback JSON y no se observo una escritura remota. Los archivos de fixture de esa corrida ya no estaban en las dos carpetas de datos locales al comprobarlo.
+
+RECTIFICACION: el mensaje ADC no demuestra que el SDK descubriera o usara credenciales reales. La dependencia instalada construye el objeto de credenciales de forma diferida; busca el cliente y solicita el token en `getAccessToken()`. `dbAdmin`/`authAdmin` permanecieron nulos en modo local. La interrupcion basada solo en ese mensaje fue una conclusion excesiva de Codex. Se retira el defecto de credenciales y la prohibicion de reanudar RSVP. La llamada del navegador a Firebase con clave ficticia si esta observada y debe interceptarse en QA para evitar falsos fallos de consola. Orden 174 rectificada; ninguna correccion de produccion es necesaria por el log ADC.
+
+## Blog publico: articulo de bebidas necesita contexto y respaldo (15 de octubre de 2026)
+
+En una lectura GET de solo lectura de `https://akproducciones.uy/public/blog/como-calcular-bebida-evento-salto`, el articulo rotula "El calculo exacto", afirma que en Salto la gente consume el doble de agua/refrescos en calor y recomienda estimar 3 a 4 tragos alcoholicos por adulto. No muestra fuente para las afirmaciones locales ni aclara que esas cantidades son una estimacion de compra, no una recomendacion de consumo; el sitio promociona tambien fiestas de 15 anos. La JND pide ajustar la comunicacion a eventos +18, Plus 15 o familiares y fomentar dispensacion responsable; su informacion oficial indica que el menor riesgo es no consumir y que para adolescentes el consumo debe ser cero. OMS indica que no existe consumo de alcohol sin riesgo.
+
+Esto no prueba incumplimiento legal ni que el calculo de stock sea matematicamente incorrecto. Es un riesgo editorial/de confianza, registrado en orden 175 para revision por Gemini. La pagina se leyo via HTML publico; no se probo visualmente, no se enviaron formularios ni se contacto a AK.
+
+Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-nacional-drogas/comunicacion/publicaciones/eventos-cuidados), [Junta Nacional de Drogas, alcohol y riesgos](https://www.gub.uy/junta-nacional-drogas/comunicacion/comunicados/alcohol-conocer-sus-efectos-tambien-es-forma-prevenir), [OMS, Alcohol](https://www.who.int/en/news-room/fact-sheets/detail/alcohol).

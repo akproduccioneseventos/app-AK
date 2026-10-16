@@ -1266,6 +1266,12 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **La portada se rehace con el plan "Argon", y la estación se llama "Vogue" (16 de octubre de 2026).**
+  Palabras suyas: *"hacé todo"* y *"creo que se escribe Vogue"*. Va en las órdenes 176 y 177 para
+  Gemini. Lo que NO entra, porque contradice decisiones suyas: cifras distintas de "+200", "+7" y
+  "Clientes satisfechos" sin porcentaje, y la palabra "congelar". "Bogue" cambia sólo en lo que se lee;
+  la dirección `/evento/bogue/` y las claves quedan por los QR impresos.
+
 - **Codex puede compilar y levantar SÓLO el entorno de prueba con datos inventados (15 de octubre
   de 2026).** El dueño lo dejó hacer para las pruebas de navegador. Sin claves reales, sin tocar
   la app en línea ni datos reales, y sin fusionar. No se le vuelve a preguntar.
