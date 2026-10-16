@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowDown, ArrowRight, Calendar, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { canUseNextImage } from "@/lib/next-image-url";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
@@ -37,16 +37,23 @@ export function HeroSection({
   backgroundImageUrl = "/media/catalogo-servicios/quinceanera_hero.png",
   backgroundVideoUrl,
   promoActiva,
-  whatsappMessage = "Hola AK Producciones, quisiera cotizar mi fiesta.",
-  ctaLabel = "Hablar con AK",
+  whatsappMessage = "Hola AK Producciones, quisiera consultar disponibilidad para mi fiesta.",
+  ctaLabel = "Consultar disponibilidad por WhatsApp",
   simulatorHref = "/simulador-de-presupuesto",
-  simulatorLabel = "Cotizar mi fiesta",
+  simulatorLabel = "Simular mi presupuesto",
   backgroundImageAlt = "Fiesta de quince años producida por AK Producciones",
 }: HeroSectionProps) {
   const reduceMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
   const [shouldPlayVideo, setShouldPlayVideo] = useState(false);
+  const [tipoEvento, setTipoEvento] = useState("15 Años");
+  const [mesEstimado, setMesEstimado] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 2);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
+  const [invitadosEstimados, setInvitadosEstimados] = useState("100");
 
   // Detección segura de conexión y viewport
   useEffect(() => {
@@ -232,10 +239,75 @@ export function HeroSection({
             ))}
           </motion.div>
 
+          {/* BARRA VERIFICADOR DE FECHA (Plan Argon) */}
           <motion.div
             {...reveal}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-9 flex flex-col gap-3.5 sm:flex-row"
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-6 w-full max-w-4xl rounded-2xl border border-white/20 bg-black/60 p-3 sm:p-4 backdrop-blur-md shadow-2xl"
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex flex-col text-left">
+                <label htmlFor="hero-verificador-tipo" className="text-[10px] font-bold uppercase tracking-wider text-stone-300 mb-1">
+                  Tipo de evento
+                </label>
+                <select
+                  id="hero-verificador-tipo"
+                  value={tipoEvento}
+                  onChange={(e) => setTipoEvento(e.target.value)}
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-xs sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none"
+                >
+                  <option value="15 Años">15 Años</option>
+                  <option value="Bodas">Bodas</option>
+                  <option value="Sociales">Sociales</option>
+                  <option value="Empresariales">Empresariales</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col text-left">
+                <label htmlFor="hero-verificador-mes" className="text-[10px] font-bold uppercase tracking-wider text-stone-300 mb-1">
+                  Mes y año estimado
+                </label>
+                <input
+                  id="hero-verificador-mes"
+                  type="month"
+                  value={mesEstimado}
+                  onChange={(e) => setMesEstimado(e.target.value)}
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-xs sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none [color-scheme:dark]"
+                />
+              </div>
+
+              <div className="flex flex-col text-left">
+                <label htmlFor="hero-verificador-invitados" className="text-[10px] font-bold uppercase tracking-wider text-stone-300 mb-1">
+                  Invitados aprox.
+                </label>
+                <input
+                  id="hero-verificador-invitados"
+                  type="number"
+                  min="20"
+                  max="600"
+                  value={invitadosEstimados}
+                  onChange={(e) => setInvitadosEstimados(e.target.value)}
+                  placeholder="Ej: 100"
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-xs sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-end">
+                <Link
+                  href={`/simulador-de-presupuesto?tipo=${encodeURIComponent(tipoEvento)}&guests=${encodeURIComponent(invitadosEstimados || '100')}&mes=${encodeURIComponent(mesEstimado)}&entry=hero-fecha`}
+                  className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 px-3 text-xs font-black text-white shadow-lg transition-all hover:brightness-110"
+                >
+                  <Calendar className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span>Consultar disponibilidad de fecha</span>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            {...reveal}
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-8 flex flex-col gap-3.5 sm:flex-row"
           >
             <motion.div
               whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}

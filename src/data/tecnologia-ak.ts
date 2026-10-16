@@ -38,7 +38,7 @@ export const GRUPOS_TECNOLOGIA: Record<GrupoTecnologia, { nombre: string; descri
   },
   entretenimiento: {
     nombre: 'Entretenimiento',
-    descripcion: 'Fotocabina, plataforma 360, espejo mágico, Bogue y buzón de recuerdos.',
+    descripcion: 'Fotocabina, plataforma 360, espejo mágico, Vogue y buzón de recuerdos.',
   },
   recuerdos: {
     nombre: 'Los recuerdos',

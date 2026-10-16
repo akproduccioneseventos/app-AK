@@ -226,7 +226,7 @@ export default function DJPage() {
               <div className="flex items-center gap-2">
                 <span className="text-xl">🎧</span>
                 <h2 className="text-base sm:text-lg font-black text-emerald-300 tracking-tight">
-                  LA MUSICA DE LA FIESTA
+                  LA MÚSICA DE LA FIESTA
                 </h2>
               </div>
               <span className="text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">

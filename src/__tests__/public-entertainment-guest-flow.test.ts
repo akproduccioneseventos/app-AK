@@ -92,7 +92,7 @@ describe('public entertainment guest flows', () => {
       expect(source).toContain('PublicEntertainmentEventStatus');
       expect(source).toContain('waitForInitialPublicLoad(loadTask)');
       expect(source).toContain('aria-label="Volver"');
-      expect(source).toContain('aria-label="Cambiar camara"');
+      expect(source).toMatch(/aria-label="Cambiar c[aá]mara"/);
       expect(source).toContain('h-11 w-11');
     }
   });

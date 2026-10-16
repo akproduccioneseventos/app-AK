@@ -78,7 +78,7 @@ export function PwaInstallButton() {
       await event.userChoice;
     } catch {
       if (!mountedRef.current || attempt !== attemptRef.current || installedRef.current) return;
-      setInstallError('No se pudo iniciar la instalacion. Espera e intenta de nuevo cuando el navegador vuelva a ofrecerla.');
+      setInstallError('No se pudo iniciar la instalación. Espera e intenta de nuevo cuando el navegador vuelva a ofrecerla.');
     } finally {
       if (mountedRef.current && attempt === attemptRef.current) {
         pendingRef.current = false;
@@ -118,7 +118,7 @@ export function PwaInstallButton() {
       {installError && <p role="alert" className="mb-3 text-sm text-red-700">{installError}</p>}
       <Button onClick={handleInstall} disabled={isPending} className="h-11 w-full rounded-2xl bg-red-600 font-black hover:bg-red-700 sm:w-auto">
         <Download className="mr-2 h-4 w-4" />
-        {isPending ? 'Abriendo instalacion...' : 'Instalar AK Producciones'}
+        {isPending ? 'Abriendo instalación...' : 'Instalar AK Producciones'}
       </Button>
     </div>
   );

@@ -37,8 +37,8 @@ export function CTASection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
   headline = '¿Listo para tu\nEvento Soñado?',
   subheadline = 'Escribinos hoy y recibí una propuesta personalizada sin costo. Estamos listos para hacer realidad tu celebración.',
-  ctaLabel = '¡Cotizá tu evento!',
-  whatsappMessage = 'Hola AK Producciones, me gustaría cotizar mi evento.',
+  ctaLabel = 'Consultar disponibilidad por WhatsApp',
+  whatsappMessage = 'Hola AK Producciones, me gustaría consultar disponibilidad para mi evento.',
   instagramUrl = AK_SOCIAL_LINKS.instagram,
   promo,
 }: CTASectionProps) {
@@ -163,7 +163,7 @@ export function CTASection({
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Cotizar evento por WhatsApp"
+            aria-label="Consultar disponibilidad por WhatsApp"
             whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
             whileTap={reduceMotion ? undefined : { scale: 0.98 }}
             className={cn(

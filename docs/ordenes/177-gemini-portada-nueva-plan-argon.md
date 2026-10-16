@@ -183,6 +183,6 @@ no-usa: Guías útiles y consejos en src/components/landing/AkTeamStorySection.t
 no-usa: Proyectar mi fiesta en src/app/page.tsx
 no-usa: Acceso Staff & Equipo AK en src/components/public-footer.tsx
 usa: +200 en src/components/landing/StatsSection.tsx
-prueba: PENDIENTE tests/e2e/la-portada-nueva.spec.ts
-prueba: PENDIENTE src/__tests__/datos-para-google-de-la-portada.test.ts
+prueba: LISTA tests/e2e/la-portada-nueva.spec.ts
+prueba: LISTA src/__tests__/datos-para-google-de-la-portada.test.ts
 ```

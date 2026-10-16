@@ -158,8 +158,8 @@ export const defaultLandingSettings: LandingSettings = {
   ],
   cta: {
     headline: '¿Listo para crear algo increíble?',
-    subheadline: 'Cotizá tu evento sin compromiso. Respondemos a la brevedad.',
-    ctaLabel: 'Hablar con un asesor',
+    subheadline: 'Consultá tu fecha sin compromiso. Respondemos a la brevedad.',
+    ctaLabel: 'Consultar disponibilidad por WhatsApp',
     whatsappNumber: '59898355530',
   },
   gallery: [],

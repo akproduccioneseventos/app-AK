@@ -151,7 +151,7 @@ function withScreenDefaults(settings: SocialGallerySettings): SocialGallerySetti
     audioRhythm: {
       enabled: settings.audioRhythm?.enabled ?? true,
       title: settings.audioRhythm?.title ?? 'Modo discoteca',
-      subtitle: settings.audioRhythm?.subtitle ?? 'Luces, fotos y energia en vivo.',
+      subtitle: settings.audioRhythm?.subtitle ?? 'Luces, fotos y energía en vivo.',
       visualStyle: settings.audioRhythm?.visualStyle ?? 'neon-bars',
       accentColor: settings.audioRhythm?.accentColor ?? '#dc2626',
       secondaryColor: settings.audioRhythm?.secondaryColor ?? '#06b6d4',
@@ -199,7 +199,7 @@ function MuroSocialContent() {
     audioRhythm: {
       enabled: true,
       title: 'Modo discoteca',
-      subtitle: 'Luces, fotos y energia en vivo.',
+      subtitle: 'Luces, fotos y energía en vivo.',
       visualStyle: 'neon-bars',
       accentColor: '#dc2626',
       secondaryColor: '#06b6d4',
@@ -2028,7 +2028,7 @@ function MuroSocialContent() {
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-1">
-                <Label className="text-xs font-semibold">Titulo</Label>
+                <Label className="text-xs font-semibold">Título</Label>
                 <Input value={settings.audioRhythm?.title ?? ''} onChange={(e) => updateAudioRhythmSettings({ title: e.target.value })} />
               </div>
               <div className="space-y-1">

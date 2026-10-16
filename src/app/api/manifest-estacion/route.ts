@@ -23,7 +23,7 @@ import { NextResponse } from 'next/server';
 const NOMBRES: Record<string, string> = {
   fotocabina: 'Fotocabina',
   'plataforma-360': 'Plataforma 360',
-  bogue: 'Bogue',
+  bogue: 'Vogue',
   'espejo-magico': 'Espejo Mágico',
   touchpix: 'Touchpix',
   buzon: 'Buzón de saludos',
