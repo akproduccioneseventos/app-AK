@@ -18,6 +18,7 @@ const PALABRAS_PROHIBIDAS = [
 
 const PALABRAS_QUE_SON_CLAVE = new Set([
   'galeria',
+  'cumpleanos', // tipo de fiesta usado como clave (FiestaEventPreset)
   'camara',
   'musica',
   'decoracion',
@@ -43,6 +44,9 @@ const ARCHIVOS_A_CONTROLAR = [
   'src/app/evento/dj/[fiestaId]/page.tsx',
   'src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx',
   'src/app/(app)/settings/account/page.tsx',
+  'src/app/(app)/fiestas/nueva/portal-cliente/cierre-final/page.tsx',
+  'src/app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page.tsx',
+  'src/app/(app)/fiestas/nueva/social-fiesta-pro/page.tsx',
   'src/components/presupuestos/BudgetPrintTemplate.tsx',
   'src/components/payments/mercadopago-result-client.tsx',
   'src/components/pwa-install-button.tsx',
@@ -180,5 +184,15 @@ describe('Ortografía de la app con tildes y eñes (Orden 176)', () => {
     }
 
     expect(fallas).toHaveLength(0);
+  });
+
+  // Las pantallas que se corrigieron en la orden 176 quedan dentro del control, por su ruta.
+  it.each([
+    ['/settings/account', 'src/app/(app)/settings/account/page.tsx'],
+    ['/fiestas/nueva/portal-cliente/cierre-final', 'src/app/(app)/fiestas/nueva/portal-cliente/cierre-final/page.tsx'],
+    ['/fiestas/nueva/social-fiesta-pro/cierre-final', 'src/app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page.tsx'],
+    ['/fiestas/nueva/social-fiesta-pro', 'src/app/(app)/fiestas/nueva/social-fiesta-pro/page.tsx'],
+  ])('la pantalla %s está dentro del control de tildes', (_ruta, archivo) => {
+    expect(ARCHIVOS_A_CONTROLAR).toContain(archivo);
   });
 });
