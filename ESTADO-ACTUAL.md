@@ -1,48 +1,33 @@
-# Estado actual - 15/10/2026 (Codex132)
+# Estado actual - Codex134, 15/10/2026
 
-Codex SOLO audita/prueba/documenta; Gemini programa, Claude revisa/compila/fusiona.
-Mainbbf68006e09b358f8e0869c1d534acdd0863724c, app iguald10f332a.
-PR1315 integrada porClaude via1317: NO subir rama131 cerrada.
-Nueva rama codex/132-portal-musica-y-avisos-barra-20261015 desdebbf.
-PR1318 ABIERTA/BORRADOR snapshotb30a5aea,35blobs remotos identicos; recibo132.
-NoPRcoders abierta alcontraste;169encargada yprivado NO CONTRASTADO HEADdesconocido.
-No reauditar169 ni pisar archivoDJ enentregaactiva; coordinar170con169.
-132portal9casos8PASS1FAIL: paginas+acciones/mapeo reales, datos/sesion ficticios.
-Menu ylistas musicales guardan/remontan, borrador/error yclaveinvalidaPASS.
-FalloP2: Si es posible persistida porUI no visibleDJ, mismoFiesta recibido.
-132barra/listo6casos3PASS3FAIL: pagina real/acciondoble. Errorinicial falso
-preparando ysondeocaido sin aviso de desactualizacion son UNAcausaP2.
-Vacio/pedidolisto/recuperacionPASS. Motor/stock/barman anteriores NOreabiertos.
-Orden170 con2defectos,15casosdistintos11PASS4FAIL0omitidos; registro3PASSaparte.
-Fuente congelada Gitarchive d10, TS-jest NO Nextbuild/tsc/navegador.
-RedHTTP/HTTPS/fetchbloqueada, envsinclaves, ADCinexistente;0fixturesalterados.
-Temporalesretirados alterminar, datosajenosbytespreservados; dosLunalowcerrados.
-FallosQAserver-only/contador.mock conservadosgzip; no fallosappni casosnuevos.
-No app/compilacion/fusion/dependenciasproduccion. Checkacentos2957PASS.
-13116614casosPASS cierra5defectos129ENALCANCE; fuentee8historica, reutilizarporconsumidor.
-167presentemain;169pendiente; no alterar politicaingresoscuotasenteros.
-Inventario131421rutas/4633ASTcontroles NOaceptacionfuncional ni14areaslimpias.
-Requisito114vigente: artefactoQAactualSHA/health/ficticio para viajesnativos.
-Se pregunto excepcionasincrona decompilar SOLOQA; NO asumir respuesta concedida.
-Si seautoriza: prepararQAaislado, no prod/datos/cuentas/cargos/mensajesreales.
-No0errores/todoauditado/Hosting/OAuth/19originales/IAvozreal/hardware sin evidencia.
-No grafo/buildpor docs, noforcepush/archivosajenos; cerrar servicios/agentespropios.
-# Estado actual - 15/10/2026 (Codex133)
-
-Codex audita/prueba/documenta; Gemini programa; Claude revisa/compila/fusiona. No fusionar.
-Main observado: `9aa64f991f5ddceefa8d278a3f298be861eb10bb`; arbol `src` equivalente `d10f332a`.
-Sin PR abierta al inicio de esta tanda. PR1318 y PR1319 estaban fusionadas; rama anterior no reutilizable.
-
-QA sintetico aislado, build de app `a635b27071ecea22092eba2a285892c84c6f9d08`; servicios reales deshabilitados.
-Portal/cliente no 3D: mensajes persisten al recargar en desktop y movil; cuatro criterios del panel pasan en ambos.
-Contrato movil: defecto reproducido en 390 px (titulo 3 lineas, sello tapa etiqueta, texto PDF fuera del boton), orden171.
-Panel social: ruta 200, contenido visible y 0px de desborde, pero el dock tapa el encabezado de columna Evento por 1455px2 a 390x844; orden172.
-Salon 3D: tanda de 28 escenarios dio 13 PASS y 15 timeouts durante teardown de Chromium/trazas; no clasificar como 15 errores app ni como area aprobada. Corrida duro 1.1 h; no repetir este bloque. Queda prueba 3D focalizada pendiente.
-Orden del evento y ubicacion sintetica del personal: 4/4 PASS desktop/movil. Agenda respondio, pero su prueba no aprueba por Firebase SDK con API key falsa; runner informa Firebase apagado pero permite intento desde browser. Limite QA, no defecto app confirmado; bloquear salida externa antes de repetir.
-Privados Claude/Gemini NO CONTRASTADOS. Ver evidencia133; no declarar auditoria completa ni cero errores.
-RSVP quedo sin resultado por interrupcion de Codex. RECTIFICACION174: log ADC no prueba descubrimiento/uso de credenciales reales; SDK las busca al solicitar token, no al construir el objeto. Modo local sin emulador dejo dbAdmin/authAdmin nulos y uso JSON local. Retirado el supuesto defecto de credenciales y su bloqueo de auditoria. La llamada cliente a Firebase con clave ficticia sigue siendo ruido QA: interceptar salida en el arnes antes de aserciones de consola.
-Lectura publica de `/public/blog/como-calcular-bebida-evento-salto`: contenido observable, no prueba visual ni de interaccion. El texto presenta como exacta una estimacion general, afirma sin fuente que en Salto se consume el doble y propone 3-4 tragos alcoholicos por adulto en una pagina que tambien promociona fiestas de 15. Se registro orden175 para Gemini: separar calculo logistico de recomendacion de consumo, revisar evidencia y explicitar publico adulto/dispensacion responsable. Referencias oficiales: JND `Eventos Cuidados` y guia de alcohol; OMS ficha sobre alcohol. No es conclusion legal ni consejo medico.
-Seguimiento en build sintetico: pagos rapidos 2/2 PASS, conflicto de cuotas 2/2 PASS, flujo de caja 2/2 PASS; cocina acceso/impresion 2 PASS, 2 omitidos intencionales y 1 control de consola inconcluso por Firebase SDK con API key falsa. No defecto funcional confirmado; ver `docs/evidencias/133-operacion-cocina-cobros.md`.
-3D focal tampoco concluyente: el canvas se observa dibujado, pero Playwright agota 90 s cerrando contexto/traza con avisos WebGL ReadPixels; Firebase cliente sigue llamando con API key falsa. No reabrir la suite larga; ver `docs/evidencias/133-salon-3d-focal.md`.
-Red social de la fiesta como invitado: 4/4 PASS, escritorio/movil para `Mi mesa`, cronograma, ranking, hub y mensajes tecnicos; no incluye carga real de fotos. Ver `docs/evidencias/133-red-social-invitado.md`.
-Ventas/CRM: origen UTM/galeria publica 4/4 PASS; flujo sintetico con UTM Facebook llega al CRM con etiquetas Simulador/Facebook, conserva campana y budgetId, y botones apuntan al WhatsApp oficial (PASS escritorio, movil omitido). La prueba antigua esperaba un `Continuar` inexistente en el paso 5; orden173 pide actualizar solo ese E2E. Ver evidencia133-simulador-whatsapp.
+Codex audita/prueba/documenta; Gemini programa; Claude valida/compila/fusiona. Codex no fusiona.
+Dueno autorizo compilar SOLO QA aislado sin claves/datos reales; no volver a pedir esa excepcion.
+Tarea4: conciliacion documental/estructural COMPLETA; NO auditoria funcional completa ni cero errores.
+Main contrastado7230f9d02b32805952a185f704a0208bd5d643e6; nueva rama codex/134-conciliacion-cobertura-20261015.
+PR1320 cerrada sin fusion directa; parte integrada porClaude en1323. No subir a rama133 cerrada.
+1321/1322 cerradas/integradas en historia de main;169/170 presentes, retest Codex aun no incluido.
+Tandas privadas Claude/Gemini NO CONTRASTADAS: HEAD privado desconocido.
+Recuperados recibos finales RSVP/QR133 y sondas desde d558175d que faltaban en main, sin codigoapp.
+Fuente nativa133 a635b27071ecea22092eba2a285892c84c6f9d08 equivalente runtime9aa anterior, NO723nuevo.
+RSVP13310/10PASS y QR1334/4PASS desktop/Pixel7 EN ALCANCE; camara simulada, no offline/hardware.
+Firma/mensajes/menu/musica/CRM/UTM tienen evidencia parcial anterior; no llamarlos nunca auditados.
+134 inventaria421rutas/14areas/7perfiles,0sin asignar;8pertenencias compartidas sin duplicar.
+1412archivos estructurales,6401ubicaciones AST candidatas; no equivalen a botones probados.
+2026artefactos historicos indexados,0sin expandir,10815referencias ruta/documento NOaceptaciones.
+29corridas nativas,216ejecuciones,168firmas titulo/prueba/proyecto distintas; conservar repeticiones.
+Estados historicos160passed/13failed/19timedOut/24skipped; NO32bugs.164casos con fuentetestexacta.
+68rutas con enlaces nativos historicos; sin nuevas pruebas723, no promover a aceptacion actual.
+Cero aceptaciones individuales de controles significa falta de ledger, NO cero botones usados.
+Barra tiene8rutas UI asociadas a otras areas;0rutas propias del registro NO significa no auditada.
+Leer docs/evidencias/134-conciliacion.md, CSV y JSONgzip antes de otro recorrido.
+Reutilizar124/125/126/128-133 y comparar consumerDifferences; no reiniciar todaslas421rutas.
+134-validar-conciliacion.mjs PASS_RECONCILIATION_134_ONLY: hashes/rutas/dependencias/casos/roles.
+Sin app/build/grafo/lint/typecheck nuevo; no certificar723 con compilaciona635.
+Pendientes verificables: contraste delta723,3Dfocal inconcluso,agenda consola y cocina con datos/salida real.
+171contratomovil y172docksocial: retest cuando entreguen arreglo; no duplicar ordenes.
+173mantenimiento E2E,174ADC retractado como defecto,175propuesta editorial; no3bugs.
+Ingreso/cuotas enteros decision previa; no cambiar roundMoney global ni politica por fixtures antiguos.
+Hosting/OAuth/modelo-voz reales/19originales/integraciones/hardware separados, no certificados.
+QA solo ficticio; no datos/cuentas/cargos/mensajes reales, archivos ajenos ni forcepush.
+Sin servicios app/agentes propios activos al cierre; ayudante134 cerrado.
+Siguiente Codex: solo huecos comprobables/delta nuevo; Claude/Gemini corrigen, registrar SHA y alcance.
