@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex138: perfiles heredados, orden180 abierta
+
+- Fuente7230f9d0, sonda pura del archivo real `src/lib/auth/perfiles.ts`, hash
+  `0ca6892f2f9e8133e00efbc090115937bfc8d4fa61d709e6680d3db17e6a2ea7`.
+- `constructor`, `toString` y `__proto__` pasan esPerfilValido por usar `in` y
+  luego puede lanza TypeError. Control `inventado` false y conversion vigente
+  sin error.1PASS/3FAIL, una causa. NO escalada de permisos demostrada ni cuenta
+  real afectada. No son fallos de las50fronteras HTTP de136, son otras entradas.
+- ABIERTA180/CLAUDE: pertenencia propia a los siete perfiles, conservar prioridad
+  y conversion historica aprobadas. Ampliacion Jest y prueba login/accion con
+  usuario corrupto PENDIENTES; la sonda no equivale a esas pruebas.
+- Fuente de auth.ts usa el predicado en login/listUsers/createUser/updateUserModules;
+  no se modifico ningun usuario. Archivos iguales en1325HEAD5f704e68/1326a21d0b69;
+  NO CONTRASTADO CON LA TANDA PRIVADA. No se programa ni fusiona por Codex.
+
 ## 16/10/2026 - Codex136: permisos HTTP y altas reales en QA
 
 -Fuente congelada7230f9d02b32805952a185f704a0208bd5d643e6 y build135 reutilizados,

@@ -1,0 +1,52 @@
+# 180 - Claude: validar solo los siete perfiles propios
+
+NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI: HEAD desconocido.
+Fuente ejecutada7230f9d02b32805952a185f704a0208bd5d643e6. En PR1325
+`5f704e68ffc65796d74bbe5d11046bf1c0413004` y PR1326
+`a21d0b6987bb55757be217bdadf63f8ca67a6cb6`, `src/lib/auth/perfiles.ts` y su
+consumidor `src/app/actions/auth.ts` no cambian. Reconfirmar al implementar.
+No hay orden previa de este caso en YA-RESUELTO ni en ordenes consultadas.
+
+## P2 - Validacion de perfil invalido y fallo interno
+
+`esPerfilValido` usa `valor in PERMISOS_POR_PERFIL`, que incluye propiedades
+heredadas de Object, no solo dueno/secretaria/operador/personal/cliente/
+prospecto/invitado. La sonda138 ejecuta el archivo real, transpila TypeScript
+a CommonJS y conserva SHA256 del archivo y SHA de app.
+
+- `constructor`, `toString` y `__proto__` devuelven **true**, aunque no son perfiles.
+- Con cada uno, `puede({role:'user', perfil}, ORGANIZACION)` lanza
+  `TypeError: ...includes is not a function`, en vez de aplicar la politica
+  existente para un perfil desconocido.
+- Control `inventado`: false y conversion historica a secretaria, sin excepcion.
+
+Tres entradas fallidas, **una sola causa**, no tres vulnerabilidades distintas.
+La traza real del consumidor: `loginUser`, `listUsers`, `createUser` y
+`updateUserModules` usan el mismo predicado para mapear/guardar el perfil.
+El formulario normal no ofrece esos tres valores: no se afirma que haya una
+cuenta afectada hoy, que un invitado pueda escribirlos ni que se hayan ganado
+permisos. No se actualizo usuario alguno y no se probaron claves reales.
+
+## Correccion acotada
+
+Comprobar pertenencia **propia** a la lista/mapa, no heredada. Preservar:
+los siete perfiles validos, la prioridad del perfil sobre role y la conversion
+historica aprobada de cuentas sin perfil. No aprovechar para cambiar politica
+de permisos o dar nuevas autorizaciones a un perfil desconocido.
+
+Incluir los tres nombres heredados en `src/__tests__/perfiles.test.ts` y
+contrastar el consumidor de autenticacion con datos ficticios. Esta ampliacion
+de Jest esta PENDIENTE: Codex ejecuto la sonda pura138, no una sesion/login de
+usuario corrupto ni la accion de modificar un usuario en base real.
+
+Evidencia: `docs/evidencias/138-perfiles-heredados-results.json`,1controlPASS/
+3entradasFAIL. No invalida las50fronteras HTTP ni11denegaciones de prospecto136;
+es un caso diferente fuera de esos dominios de entrada.
+Claude implementa/valida; Codex solo documenta. Una sola tanda con las otras
+correcciones, no otra PR por este ayudante.
+
+```comprobar
+archivo: src/lib/auth/perfiles.ts
+usa: esPerfilValido en src/app/actions/auth.ts
+prueba: src/__tests__/perfiles.test.ts
+```
