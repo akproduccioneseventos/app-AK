@@ -1281,11 +1281,15 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 175 → pregunta 4
 - Orden 176 → pregunta 56
 - Orden 177 → pregunta 41
-- Orden 178 → pregunta 52
+- Orden 178 → pregunta 64
 - Orden 179 → pregunta 7
-- Orden 180 → pregunta 4
+- Orden 180 → pregunta 65
 - Orden 181 → pregunta 58
-- Orden 182 → pregunta 4
+- Orden 182 → pregunta 67
+- Auditoria Gemini 16/10 (encabezados impresos) → pregunta 64
+- Auditoria Gemini 16/10 (menu con puertas cerradas) → pregunta 65
+- Auditoria Gemini 16/10 (galeria sin Vogue) → pregunta 66
+- Auditoria Gemini 16/10 (botones repetidos) → pregunta 67
 - Auditoria 132 (lista de pedidos listos desconocida) → pregunta 50
 - Auditoria 131 (fallo de marca DJ no informado) → pregunta 9
 - Auditoria 130 (portal y estado del reporte) → pregunta 50
