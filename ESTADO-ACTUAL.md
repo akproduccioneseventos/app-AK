@@ -1,4 +1,4 @@
-# Estado actual - Codex136/138, 16/10/2026
+# Estado actual - Codex139, 16/10/2026
 
 Codex SOLO audita/prueba/documenta; Gemini programa; Claude valida/compila/fusiona.
 Excepcion autorizada: compilar/levantar SOLO QA aislado. Codex no fusiona.
@@ -34,7 +34,7 @@ inventario134 requieren viajes concretos, no otra ronda de listas ni humo de rut
 138NUEVO180/Claude: validador acepta3claves heredadas y puede daTypeError;1controlPASS.
 HTTP138 confirma3x500/controldesconocido404 con cookie ficticia yPDFinexistente.
 No escalada/login real probado; mantener politica vigente. Verorden180.
-137: clienteINCONCLUSO; salon conserva1ID/capacidad80 y se ve trasrecarga, runner noPASS.
-No perdida demostrada: timeouts QA/respaldo sin causa aislada. Ver137-consolidado/cierre.
-137servicios/agente cerrados, puertos libres/diffQA0; pendiente aislar cliente, no repetir136.
+139: clienteJSON PC/movil2viajesPASS contelefono/sinemail/lista/recarga/mismoID; NO SDK.
+137salon persiste; clienteSDKINCONCLUSO.139SDKpreflight sin tests; no causa aislada.
+139-cierre/limites:180+SDK+integraciones+19originales+hardware pendientes; servicios cerrados.
 No certificar Hosting/OAuth/modelo-voz/19originales/hardware/integraciones reales sin prueba.

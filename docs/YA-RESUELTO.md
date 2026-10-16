@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex139: alta cliente local PC/movil y limites externos
+
+-7230/build135 reutilizados sin cambio app. DOS viajesPASS de alta cliente con
+  telefono sinemail/lista/busqueda/recarga/mismoID-nombre-telefono, modo JSON
+  aislado. PC58.356s y movil corrida59.2s; capturas revisadas. No aceptar SDK.
+-PreflightSDK139 agoto arranque/health antes de tests, no causa de137 aislada.
+  Primera JSON1PASSPC/1timeoutMovil por no abrir menu, corregido en sonda y
+  rerun SOLO movil1PASS. Originales/resultados/recibos conservados; no appbug.
+-GETpublico health200 misma fuente7230; indicadores Gemini/Workspace/mailtrue,
+  Instagram/MercadoPagofalse, no prueba de integraciones. No operaciones reales.
+-Ver139-cierre/consolidado/limites-externos. Sigue pendiente clienteSDK/180,
+  servicios reales/19originales/hardware; no reemitir orden180 ni declarar0errores.
+  Datos restaurados, servicios/agente cerrados, puertos libres/diffQAfuentes0.
+
 ## 16/10/2026 - Codex137: cliente inconcluso, salon no perdio datos
 
 - Entrega137/138: PR1324 ABIERTA/BORRADOR, commitca5169c10, arbol remoto/local

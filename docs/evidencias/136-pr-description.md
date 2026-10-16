@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Continua la misma propuesta documental de auditorias134-138 con evidencia nueva.
+Continua la misma propuesta documental de auditorias134-139 con evidencia nueva.
 **No fusionar documentos solos. Codex no cambia codigo app ni fusiona.**
 
 -134: conciliacion421rutas/14areas/7perfiles, sin convertir inventario en pruebas.
@@ -19,6 +19,11 @@ Continua la misma propuesta documental de auditorias134-138 con evidencia nueva.
 -137: alta cliente inconclusa por espera; salon conserva documento/ID/campos y
   aparece tras recarga. Runner0PASS/2noPASS, no aceptacion completa ni prueba de
   perdida. Artefactos crudos conservados, timeouts de QA no aislados; ver cierre.
+-139: cliente2viajesPASS PC/movil contelefono sinemail y persistencia SOLO modo
+  JSON aislado. SDK sigue inconcluso; preflight139 no llego a tests. Se conservo
+  el timeout de menu movil de la sonda y se corrigio/retesteo solo ese recorrido.
+-Health publico200 misma fuente7230, indicadores Instagram/MercadoPagofalse;
+  configuracion mail/Gemini/Workspace no equivale a conexion probada.
 -19originales: dueno buscando ubicacion; integraciones reales, Hosting, modelo/
   voz y hardware no certificados. **No representa toda app sin errores.**
 
