@@ -139,7 +139,7 @@ const portalModules: PortalModule[] = [
   { id: 'musica', label: 'Sugerencias Musicales', icon: Music, href: (id) => `/portal-cliente/${id}/musica` },
   { id: 'videoVida', label: 'Video de Vida', icon: Video, href: (id) => `/portal-cliente/${id}/fotos-video` },
   { id: 'listaRegalos', label: 'Regalos', icon: Gift, href: (id) => `/invitacion/${id}#regalos` },
-  { id: 'documentos', label: 'Documentos', icon: FileText, href: (id) => `/portal-cliente/${id}/menu` },
+  { id: 'documentos', label: 'Documentos', icon: FileText, href: (id) => `/portal/${id}/contrato` },
   { id: 'notasCliente', label: 'Notas', icon: NotebookText },
   { id: 'paginaPublica', label: 'Invitación Web', icon: Globe, href: (id) => `/invitacion/${id}` },
   { id: 'fotografiaYFilmacion', label: 'Fotografía', icon: Sparkles, href: (id) => `/portal-cliente/${id}/fotos-video` },
