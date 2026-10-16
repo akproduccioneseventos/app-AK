@@ -35,7 +35,7 @@ function CheckinScannerContent() {
 
   const [allGuests, setAllGuests] = useState<Invitado[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
@@ -55,14 +55,14 @@ function CheckinScannerContent() {
       if(showLoading) setIsLoading(false);
     }
   }, [toast, fiestaId]);
-  
+
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
 
   const processCheckIn = useCallback(async (guestId: string, qr?: { token: string | null }) => {
     if (isProcessingCheckin || !fiestaId) return;
-    
+
     setIsProcessingCheckin(guestId);
 
     const guestToCheck = allGuests.find(g => g.id === guestId);
@@ -71,7 +71,7 @@ function CheckinScannerContent() {
         setIsProcessingCheckin(null);
         return;
     }
-    
+
     if (guestToCheck.checkedIn) {
          toast({
             title: "Ya Registrado",
@@ -105,9 +105,9 @@ function CheckinScannerContent() {
       const bruto = String(e?.message ?? '');
       const esDeRed = /failed to fetch|networkerror|load failed|fetch failed|timeout/i.test(bruto);
       toast({
-        title: esDeRed ? 'Sin conexion' : 'No se pudo registrar la entrada',
+        title: esDeRed ? 'Sin conexión' : 'No se pudo registrar la entrada',
         description: esDeRed
-          ? 'El celular perdio la senal del salon. El ingreso no quedo guardado: volve a escanear el QR en unos segundos.'
+          ? 'El celular perdió la señal del salón. El ingreso no quedó guardado: volvé a escanear el QR en unos segundos.'
           : bruto || 'Proba de nuevo. Si sigue fallando, anotalo a mano desde la lista.',
         variant: 'destructive',
       });
@@ -149,7 +149,7 @@ function CheckinScannerContent() {
         }, 3000);
     }
   }, [fiestaId, processCheckIn, toast]);
-  
+
   const onScanFailure = (error: any) => {};
 
   // Bandera de desmontado: si se sale de la pantalla mientras se pide el permiso o se carga el
@@ -199,7 +199,7 @@ function CheckinScannerContent() {
       scannerRef.current = null;
     }
   };
-  
+
   const handleTabChange = (value: string) => {
     if (value === 'scanner') {
         startScanner();
@@ -207,7 +207,7 @@ function CheckinScannerContent() {
         stopScanner();
     }
   };
-  
+
   useEffect(() => {
     return () => {
       stopScanner();
@@ -249,7 +249,7 @@ function CheckinScannerContent() {
             </Badge>
         </CardHeader>
       </Card>
-      
+
       <Tabs defaultValue="list" className="w-full" onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="list">Lista de Invitados</TabsTrigger>

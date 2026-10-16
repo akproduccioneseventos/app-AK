@@ -32,7 +32,7 @@ const MAX_ENTERTAINMENT_VIDEO_SIZE = 60 * 1024 * 1024;
 const MODULE_MOMENT_TAGS: Record<string, string> = {
   fotocabina: 'Fotocabina',
   plataforma360: 'Plataforma 360',
-  bogue: 'Bogue',
+  bogue: 'Vogue',
   espejoMagico: 'Espejo Magico',
   espejoMagicoFoto: 'Espejo Mágico Foto',
   espejoMagicoFirma: 'Espejo Mágico Firma',

@@ -137,7 +137,7 @@ export default function VideoVidaAdminPage() {
         photoCount: clampedCount,
       };
       setVideoVidaData(currentVideoVidaDataClamped);
-      
+
       const lectura = await getLifeStoryVideoPhotos(fiestaData.id);
       // Orden 148: un error de lectura no se muestra como galería vacía.
       if (lectura.estado === 'error') throw new Error(lectura.error);
@@ -145,7 +145,7 @@ export default function VideoVidaAdminPage() {
       if (lectura.estado === 'parcial') {
         toast({ title: 'Faltan fotos por mostrar', description: `No pudimos leer ${lectura.fallidas} foto(s) ahora; no se perdieron. Recargá en un rato.`, variant: 'destructive' });
       }
-      
+
       const slotCount = clampedCount;
       const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
         const photoNumber = index + 1;
@@ -168,7 +168,7 @@ export default function VideoVidaAdminPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handleSettingsChange = (field: keyof VideoVidaData, value: any) => {
     let finalValue = value;
     if (field === 'photoCount') {
@@ -177,7 +177,7 @@ export default function VideoVidaAdminPage() {
     }
     setVideoVidaData(prev => prev ? ({...prev, [field]: finalValue}) : null);
   };
-  
+
   const handleSaveSettings = async () => {
     if (!videoVidaData || !fiesta?.id) return;
     if (Number(videoVidaData.photoCount) > TOPE_DE_FOTOS) {
@@ -200,14 +200,14 @@ export default function VideoVidaAdminPage() {
     }
     setIsSaving(false);
   }
-  
+
   const getPublicLink = () => {
     if (typeof window !== 'undefined' && fiesta) {
       return `${window.location.origin}/video-vida/${fiesta.id}`;
     }
     return '';
   };
-  
+
   const handleCopyLink = async () => {
       // Antes decia "Enlace Copiado" sin mirar si se habia copiado: si el navegador no da
       // permiso, el que lo usa pega cualquier cosa. Se avisa y se deja el enlace a la vista.
@@ -217,7 +217,7 @@ export default function VideoVidaAdminPage() {
       } catch {
         toast({
           title: "No se pudo copiar solo",
-          description: `Copialo de aca: ${getPublicLink()}`,
+          description: `Copialo de acá: ${getPublicLink()}`,
           variant: "destructive",
         });
       }
@@ -301,7 +301,7 @@ export default function VideoVidaAdminPage() {
       />
     );
   }
-  
+
   const photosUploadedCount = photoSlots.filter(s => s.imageUrl).length;
 
   return (
@@ -371,7 +371,7 @@ export default function VideoVidaAdminPage() {
             </Button>
         </CardFooter>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Galería de Fotos Subidas ({photosUploadedCount} de {videoVidaData.photoCount || 50})</CardTitle>

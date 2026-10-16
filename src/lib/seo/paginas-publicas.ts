@@ -28,6 +28,7 @@ export const PAGINAS_PARA_GOOGLE = [
   '/catalogo',
   '/experiencia-ak',
   '/simulador-de-presupuesto',
+  '/simulador-ak',
   '/privacidad',
   '/public/bodas',
   '/public/xv-anos',

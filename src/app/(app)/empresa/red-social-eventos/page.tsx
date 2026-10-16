@@ -199,7 +199,7 @@ export default function RedSocialEventosPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_450px] gap-6">
 
         {/* Main section: Feeds list */}
-        <Card className="min-w-0 rounded-[2rem] border-none shadow-sm bg-white p-6">
+        <Card className="min-w-0 rounded-[2rem] border-none shadow-sm bg-white p-6 pb-20 md:pb-6">
           <CardHeader className="px-0 pt-0">
             <CardTitle className="text-xl font-black tracking-tight">Feeds de Eventos</CardTitle>
             <CardDescription>Ciclo de vida automático (activación 30 días antes y desactivación 30 días después).</CardDescription>

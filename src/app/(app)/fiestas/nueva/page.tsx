@@ -87,7 +87,7 @@ const modules: ModuleDefinition[] = [
 
   // 4. PRODUCCIÓN MULTIMEDIA
   { id: 'fotografia', title: "Foto y Video", href: "/fiestas/nueva/fotografia", icon: Camera, description: "Seguimiento, entregas y material fotográfico.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-600", badge: 'Interno' },
-  { id: 'entretenimiento', title: "Entretenimiento", href: "/fiestas/nueva/entretenimiento", icon: Sparkles, description: "Fotocabina, 360, Bogue y Espejo Mágico conectados al QR, galería y muro social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-blue-100 text-blue-700", badge: 'Invitado' },
+  { id: 'entretenimiento', title: "Entretenimiento", href: "/fiestas/nueva/entretenimiento", icon: Sparkles, description: "Fotocabina, 360, Vogue y Espejo Mágico conectados al QR, galería y muro social.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-blue-100 text-blue-700", badge: 'Invitado' },
   { id: 'regalos', title: "Regalos", href: "/fiestas/nueva/regalos", icon: Gift, description: "Mesa de regalos digital para invitados.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
   { id: 'buzon', title: "Buzón de Recuerdos", href: "/fiestas/nueva/buzon", icon: Mic, description: "Descarga de audios/videos del buzón y bienvenida.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-purple-100 text-purple-700", badge: 'Cliente' },
   { id: 'postEvento', title: "Post-Evento", href: "/fiestas/nueva/post-evento", icon: Star, description: "NPS, galería y referidos post fiesta.", category: 'PRODUCCIÓN MULTIMEDIA', color: "bg-amber-100 text-amber-700", badge: 'Interno' },

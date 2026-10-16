@@ -92,7 +92,7 @@ export const QUE_HACE_CADA_PERFIL: Record<Perfil, string> = {
 export const PERFILES_DEL_EQUIPO: readonly Perfil[] = ['dueno', 'secretaria', 'operador', 'personal'];
 
 export function esPerfilValido(valor: unknown): valor is Perfil {
-  return typeof valor === 'string' && valor in PERMISOS_POR_PERFIL;
+  return typeof valor === 'string' && Object.prototype.hasOwnProperty.call(PERMISOS_POR_PERFIL, valor);
 }
 
 /**

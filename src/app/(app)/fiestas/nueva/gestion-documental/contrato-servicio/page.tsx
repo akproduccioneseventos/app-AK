@@ -263,7 +263,7 @@ function ContratoServicioContent() {
     if (type === selectedType) return;
     if (hayCambiosSinGuardar) {
       const seguir = window.confirm(
-        'Tenes cambios sin guardar en el contrato. Si cambias de plantilla se pierden. ¿Cambiar igual?'
+        'Tenés cambios sin guardar en el contrato. Si cambias de plantilla se pierden. ¿Cambiar igual?'
       );
       if (!seguir) return;
     }
@@ -274,7 +274,7 @@ function ContratoServicioContent() {
   const handleToggleEdicion = () => {
     if (isEditing && hayCambiosSinGuardar) {
       const descartar = window.confirm(
-        'Tenes cambios sin guardar. Si salis del modo edicion se pierden. ¿Salir igual?'
+        'Tenés cambios sin guardar. Si salis del modo edicion se pierden. ¿Salir igual?'
       );
       if (!descartar) return;
       setContractText(textoGuardado);
@@ -631,7 +631,7 @@ function ContratoServicioContent() {
         )}
 
         <div className="bg-white shadow-2xl print:shadow-none p-10 md:p-16 print:p-2 min-h-[1000px] rounded-[2.5rem] border border-slate-100">
-            <header className="mb-12 print:mb-8 text-center">
+            <header className="cabecera-documento mb-12 print:mb-8 text-center">
                 {logoUrl && (
                     <div className="w-full h-24 print:h-20 mb-6 relative">
                         <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>

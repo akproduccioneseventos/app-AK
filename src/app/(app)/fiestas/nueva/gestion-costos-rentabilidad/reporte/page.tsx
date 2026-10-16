@@ -153,7 +153,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
           </div>
         </div>
 
-        <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
+        <header className="cabecera-documento mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
           <h1 className="text-xl font-bold text-primary print:text-lg">Reporte Financiero de Evento</h1>
           <p className="text-md text-gray-700 print:text-sm mt-1">{reportData.nombreEvento}</p>
           <p className="text-xs text-gray-500 print:text-[8pt]">Generado el: {new Date().toLocaleDateString('es-ES')}</p>

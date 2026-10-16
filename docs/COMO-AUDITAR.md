@@ -1114,3 +1114,42 @@ Tampoco alcanza con que inputValue sea correcto: mirar la captura con texto
 escrito y medir color/fondo reales. Un Input text-foreground en tema claro
 sobre un fondo oscuro daba contraste1.0013 y parecia vacio. Probar lectura y
 placeholder en PC/celular (texto normal, umbral4.5), no solo clases de jsdom.
+
+## Preguntas 64 a 67 - auditoría de Gemini (16/10/2026)
+
+Las sumó la auditoría "con lupa" de Gemini: cuatro formas que ninguna pregunta anterior miraba.
+
+### 64. Lo que se imprime, ¿sale entero?
+
+Una regla general de impresión (`@media print` en `globals.css`) escondía todo `header` para sacar la
+barra de la app, y se llevaba la cabecera de 21 documentos: contratos y recibos de sueldo salían sin logo,
+título ni cliente. Codex lo vio en uno solo. Se mira con `page.emulateMedia({ media: 'print' })` en cada
+documento imprimible, no en uno, y se lee qué quedó: el nombre del cliente, el título y la fecha tienen que
+estar. Toda regla `display:none` de impresión se recorre contra todos los que imprimen.
+
+### 65. Lo que la pantalla ofrece, ¿lo puede usar quien la está viendo?
+
+El menú le mostraba a un operador "Pagos Rápidos", "Panel Contable" y "Facturas"; al tocarlos, el servidor
+lo rechazaba. El servidor estaba bien: el defecto es ofrecer una puerta cerrada. Para cada perfil
+(`PERMISOS_POR_PERFIL`), cada botón visible tiene que llevar a algo que ese perfil puede abrir. Es la
+pregunta 41 (lo que la pantalla ofrece, el servidor lo acepta) mirada por perfil.
+
+### 66. Cuando se suma una opción nueva (una estación, una categoría), ¿la tienen todas las listas que filtran por ella?
+
+El álbum filtraba por Vogue y la galería del invitado no; el portal ofrecía cuatro extras y no las tres
+estaciones más nuevas. Se busca el `id` de la opción (`'bogue'`, `'touchpix'`) en todos los lugares que
+arman pestañas, filtros o listas de opciones, y se compara con una lista que ya la tiene.
+
+### 67. ¿Dos botones llevan al mismo lugar?
+
+En el portal del cliente "Documentos" y "Contrato" abrían la misma pantalla, igual que "Video de Vida" y
+"Fotografía"; en el tablero, "Nuevo Lead" y "CRM". No rompe nada, pero confunde. En cada grilla o menú se
+listan los `href` y se buscan repetidos.
+
+### 68. Lo que una pantalla le esconde a un perfil, ¿viaja igual adentro de un objeto más grande?
+
+La lista de empleados le escondía los sueldos a la secretaria, pero la fiesta viajaba entera con lo que
+cobra cada persona (`personalAsignado[].eventSalary`), y la pantalla de recibos se los mostraba. Para cada
+dato protegido por un permiso, se busca **en qué objetos más grandes va metido** (la fiesta, el
+presupuesto, el cliente) y se mira qué perfiles reciben ese objeto entero. Y al revés: si se lo saca al
+leer, **al guardar** el objeto sin ese dato no tiene que borrarlo (pregunta 38).

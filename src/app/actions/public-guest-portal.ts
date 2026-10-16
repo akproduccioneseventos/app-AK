@@ -43,7 +43,7 @@ const GUEST_ENTERTAINMENT_MODULES: Array<{ id: EntertainmentModuleId; label: str
   { id: 'espejoMagicoFoto', label: 'Espejo mágico' },
   { id: 'espejoMagicoFirma', label: 'Espejo con firma' },
   { id: 'espejoMagicoIA', label: 'Espejo IA' },
-  { id: 'bogue', label: 'Bogue' },
+  { id: 'bogue', label: 'Vogue' },
   { id: 'capsulaTiempo', label: 'Buzón de recuerdos' },
 ];
 

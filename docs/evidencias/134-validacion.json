@@ -1,0 +1,29 @@
+{
+  "gate": "PASS_RECONCILIATION_134_ONLY",
+  "sourceSha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "counts": {
+    "areas": 14,
+    "routes": 421,
+    "unmappedRoutes": 0,
+    "staleMappedRoutes": 0,
+    "uniqueStructuralFiles": 1412,
+    "uniqueAstInteractiveLocations": 6401,
+    "prior131AstLocations": 4633,
+    "nativeRunsIndexed": 29,
+    "nativeCaseExecutions": 216,
+    "distinctNamedNativeCases": 168,
+    "routesWithLinkedPassingPartialScenarios": 0,
+    "routesWithoutLinkedPassingPartialScenarios": 421,
+    "routesWithHistoricalNativeScenarioLinks": 68,
+    "individuallyAcceptedControls": 0,
+    "fullRoutesAccepted": 0,
+    "fullAreasAccepted": 0,
+    "profiles": 7,
+    "historicalArtifactsIndexed": 2026,
+    "historicalArtifactsNotExpanded": 0,
+    "historicalRouteReferenceLinks": 10815,
+    "multiplyDeclaredRoutes": 8
+  },
+  "applicationTestsRun": false,
+  "applicationCertified": false
+}

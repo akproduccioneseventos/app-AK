@@ -336,11 +336,11 @@ export default function FotocabinaPage() {
           setFiesta(result.event);
           setErrorMsg(null);
         } else {
-          setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+          setErrorMsg(result.error || 'No se pudo abrir esta estación.');
         }
       })
       .catch(() => {
-        if (active) setErrorMsg('No se pudo abrir esta estacion.');
+        if (active) setErrorMsg('No se pudo abrir esta estación.');
       });
 
     void waitForInitialPublicLoad(loadTask).then((result) => {
@@ -615,12 +615,12 @@ export default function FotocabinaPage() {
     try {
       await asegurarCuadroDeVideo(videoRef.current);
     } catch {
-      setErrorMsg('La camara no esta entregando imagen. Toca "Reintentar camara" para volver a intentarlo.');
+      setErrorMsg('La cámara no está entregando imagen. Toca "Reintentar cámara" para volver a intentarlo.');
       setLocalStatus('idle');
       return;
     }
     if (!videoRef.current || !canvasRef.current || !isVideoFrameReady(videoRef.current)) {
-      setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
+      setErrorMsg('La cámara todavía se está preparando. Intenta nuevamente en un instante.');
       setLocalStatus('idle');
       return;
     }
@@ -987,7 +987,7 @@ export default function FotocabinaPage() {
             /quota|space|storage/i.test(String(errorAlGuardar?.message || ''));
           setErrorMsg(
             sinEspacio
-              ? 'Esta computadora se quedo sin lugar para guardar fotos. Avisale al encargado: hay que subir las que estan esperando antes de sacar mas.'
+              ? 'Esta computadora se quedó sin lugar para guardar fotos. Avisale al encargado: hay que subir las que están esperando antes de sacar más.'
               : 'No se pudo guardar la foto en esta computadora. Avisale al encargado antes de seguir.'
           );
           setLocalStatus('idle');
@@ -1100,7 +1100,7 @@ export default function FotocabinaPage() {
             if (!isLiveSession()) return;
             setErrorMsg(
               sinEspacio
-                ? 'Esta computadora se quedo sin lugar para guardar fotos. Avisale al encargado: hay que subir las que estan esperando antes de sacar mas.'
+                ? 'Esta computadora se quedó sin lugar para guardar fotos. Avisale al encargado: hay que subir las que están esperando antes de sacar más.'
                 : 'No se pudo guardar la foto en esta computadora. Avisale al encargado antes de seguir.'
             );
             setLocalStatus('idle');
@@ -1393,7 +1393,7 @@ export default function FotocabinaPage() {
               >
                 <FileImage className="w-5 h-5" />
               </button>
-              <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
+              <button type="button" onClick={toggleCamera} aria-label="Cambiar cámara" title="Cambiar cámara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
                 <SwitchCamera className="w-5 h-5" />
               </button>
             </>
@@ -1767,7 +1767,7 @@ export default function FotocabinaPage() {
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">
                   {qrCodeUrl
-                    ? 'Tu recuerdo esta listo'
+                    ? 'Tu recuerdo está listo'
                     : guardadaEnEsteEquipo
                       ? 'Foto guardada en este equipo'
                       : errorMsg
@@ -1780,7 +1780,7 @@ export default function FotocabinaPage() {
                     : guardadaEnEsteEquipo
                       ? 'Tu foto quedó guardada en este equipo y se subirá automáticamente apenas vuelva internet.'
                       : errorMsg
-                        ? 'Tu foto no llego al muro. Podes imprimirla o volver a intentar.'
+                        ? 'Tu foto no llegó al muro. Podés imprimirla o volver a intentar.'
                         : 'Imprimila para llevartela, o repetí la tanda si alguna no te gustó.'}
                 </p>
                 {guardadaEnEsteEquipo && (

@@ -16,7 +16,7 @@ describe("AK YouTube channel", () => {
         }),
         expect.objectContaining({
           youtubeId: "hL0Mb5dejIw",
-          categoria: "XV Anos",
+          categoria: "XV Años",
         }),
       ]),
     );

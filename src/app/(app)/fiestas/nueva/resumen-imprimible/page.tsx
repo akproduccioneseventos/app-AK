@@ -232,7 +232,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
         </div>
 
         <div className="bg-white shadow-xl print:shadow-none p-6 md:p-10 print:p-2" ref={printRef}>
-            <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
+            <header className="cabecera-documento mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
             {logoUrl && (
                     <div className="w-24 h-24 mx-auto mb-2 print:w-20 print:h-20">
                         <Image src={logoUrl} alt={`${companyName} Logo`} width={96} height={96} className="object-contain" data-ai-hint="company logo"/>

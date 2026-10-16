@@ -100,7 +100,17 @@ function HojaDeCocinaContenido() {
     );
   }
 
-  const fecha = hoja.fecha ? new Date(hoja.fecha).toLocaleDateString('es-UY') : '';
+  const fecha = hoja.fecha
+    ? (() => {
+        const match = hoja.fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) {
+          const [, anio, mes, dia] = match;
+          return `${Number(dia)}/${Number(mes)}/${anio}`;
+        }
+        const d = new Date(hoja.fecha);
+        return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('es-UY');
+      })()
+    : '';
 
   return (
     <div className="mx-auto max-w-4xl p-6 print:p-0">
@@ -115,7 +125,7 @@ function HojaDeCocinaContenido() {
         </Button>
       </div>
 
-      <header className="mb-6 border-b-2 border-slate-900 pb-4">
+      <header className="cabecera-documento mb-6 border-b-2 border-slate-900 pb-4">
         <p className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
           <ChefHat className="h-4 w-4" /> Hoja de cocina
         </p>

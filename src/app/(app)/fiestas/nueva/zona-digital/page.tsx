@@ -160,7 +160,7 @@ function ZonaDigitalPageContent() {
       return;
     }
     setSettings(withZonaDigitalDefaults(result.settings));
-    toast({ title: 'Zona Digital AK guardada', description: 'Los adolescentes veran solo lo que este activo.' });
+    toast({ title: 'Zona Digital AK guardada', description: 'Los adolescentes verán solo lo que este activo.' });
   };
 
   if (isLoading) {
@@ -264,7 +264,7 @@ function ZonaDigitalPageContent() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Titulo publico</Label>
+                <Label>Título público</Label>
                 <Input value={settings.title} onChange={event => updateSettings({ title: event.target.value })} />
               </div>
               <div className="space-y-2">
@@ -280,7 +280,7 @@ function ZonaDigitalPageContent() {
                 <Input type="color" value={settings.primaryColor} onChange={event => updateSettings({ primaryColor: event.target.value })} className="h-11" />
               </div>
               <div className="space-y-2">
-                <Label>Color de energia</Label>
+                <Label>Color de energía</Label>
                 <Input type="color" value={settings.accentColor} onChange={event => updateSettings({ accentColor: event.target.value })} className="h-11" />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -322,7 +322,7 @@ function ZonaDigitalPageContent() {
                   ['Barra emojis', settings.showEmojiBar, 'showEmojiBar'],
                   ['Pedir follow', settings.showSocialFollowGate, 'showSocialFollowGate'],
                   ['Dedicatorias', settings.allowDedications, 'allowDedications'],
-                  ['Votos musica', settings.allowSongVotes, 'allowSongVotes'],
+                  ['Votos música', settings.allowSongVotes, 'allowSongVotes'],
                 ].map(([label, checked, key]) => (
                   <div key={String(key)} className="flex items-center justify-between rounded-2xl border bg-white p-3">
                     <Label className="font-bold">{label}</Label>

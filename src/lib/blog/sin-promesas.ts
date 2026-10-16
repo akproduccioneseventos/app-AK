@@ -1,7 +1,7 @@
 import { applyAutomaticStaffByGuests } from '@/lib/commercial/live-budget-editor';
 import type { BlogPost } from '@/types/blog';
 
-const REGEX_PROMESAS = /garant|24\/7|cero fallas|segur[oa]s? para interiores|te aseguramos|la mayor[ií]a de (?:los )?clientes|opci[oó]n preferida|sin riesgos|base exacta|precio exacto/i;
+const REGEX_PROMESAS = /garant|24\/7|cero fallas|segur[oa]s? para interiores|te aseguramos|la mayor[ií]a de (?:los )?clientes|opci[oó]n preferida|sin riesgos|base exacta|precio exacto|cálculo exacto|\bexact[oa]s?\b/i;
 
 /**
  * Devuelve la coincidencia encontrada si el texto tiene promesas no verificables,
@@ -100,13 +100,43 @@ export function corregirPromesasDelBlog(posts: BlogPost[]): BlogPost[] {
     }
 
     if (post.slug === 'como-calcular-bebida-evento-salto') {
+      const reemplazarPromesasBebida = (texto: string) => {
+        if (!texto) return texto;
+        return texto
+          .replace(/cálculo exacto/gi, 'cálculo estimado')
+          .replace(/calculo exacto/gi, 'cálculo estimado')
+          .replace(/\bexacto\b/gi, 'estimado')
+          .replace(/\bexacta\b/gi, 'estimada')
+          .replace(/La gente consume el doble de agua y refrescos/gi, 'con calor conviene tener más agua y refrescos disponibles')
+          .replace(/el doble de agua y refrescos/gi, 'con calor conviene tener más agua y refrescos disponibles')
+          .replace(/calcular de 3 a 4 tragos promedio por adulto/gi, 'estimar una compra de 3 a 4 tragos para adultos mayores de 18')
+          .replace(/Estimar 3 a 4 tragos con alcohol por adulto promedio/gi, 'Estimación de compra de 3 a 4 tragos con alcohol para adultos mayores de 18')
+          .replace(/3 a 4 tragos promedio por adulto/gi, '3 a 4 tragos como estimación de compra para adultos mayores de 18')
+          .replace(/por adulto promedio/gi, 'para adultos mayores de 18');
+      };
+
+      if (post.title) post.title = reemplazarPromesasBebida(post.title);
+      if (post.excerpt) post.excerpt = reemplazarPromesasBebida(post.excerpt);
+      if (post.takeaway) post.takeaway = reemplazarPromesasBebida(post.takeaway);
+      if (post.checklist) post.checklist = post.checklist.map(reemplazarPromesasBebida);
+
       const antesBebida = /Si contratás una barra tecnológica de AK Producciones, el cálculo del stock ya está cubierto, pero si/gi;
       const despuesBebida = 'Si contratás la barra de AK Producciones, el cálculo lo hacemos con vos; si';
 
-      post.sections = post.sections.map((sec) => ({
-        ...sec,
-        body: sec.body.map((b) => b.replace(antesBebida, despuesBebida)),
-      }));
+      const aclaracionResponsable = 'Es una estimación para calcular la compra, no una recomendación de consumo. En fiestas de 15, los menores van con barra sin alcohol; siempre agua disponible y servicio responsable.';
+
+      post.sections = post.sections.map((sec) => {
+        let body = sec.body.map((b) => reemplazarPromesasBebida(b.replace(antesBebida, despuesBebida)));
+        if (sec.heading.toLowerCase().includes('barra')) {
+          if (!body.some((p) => p.includes(aclaracionResponsable))) {
+            body.push(aclaracionResponsable);
+          }
+        }
+        return {
+          ...sec,
+          body,
+        };
+      });
 
       if (post.takeaway && /^El promedio ideal es 1\.5 litros/i.test(post.takeaway.trim())) {
         post.takeaway = 'Como referencia orientativa, ' + post.takeaway.charAt(0).toLowerCase() + post.takeaway.slice(1);
