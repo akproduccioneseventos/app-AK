@@ -54,6 +54,20 @@ y los importes de los pedidos del cliente, `montoAdicional`): los organizadores 
    los organizadores, ni los permisos de cada perfil. Nombrá lo nuevo en el candado de la plata
    (`src/__tests__/el-candado-de-la-plata.test.ts`) si corresponde.
 
+## Bloque 2 - Lo mismo en presupuestos y en el panel (barrido de presupuestos, confirmado por Claude)
+
+- `sinCobros` (`src/app/actions/presupuestos.ts` ~89-91) le saca a los organizadores sólo `pagosCliente`;
+  les siguen llegando **`senia` y `saldo`** (los escribe el cobro del contrato, que es de contabilidad).
+  Sacalos también. El total del presupuesto queda (decisión del dueño).
+- `getDashboardKpiData` (`src/app/actions/dashboard.ts` ~186-195) arma el aviso **"Saldo pendiente: Faltan
+  X UYU"** también para quien no tiene contabilidad, y como sus presupuestos vienen sin cobros, **el
+  monto sale mal** (dice que falta todo aunque ya esté cobrado). Ese aviso va sólo si `veLaPlata` (~100).
+- **Borrar presupuestos y facturas mira el rol viejo**: `deletePresupuesto` (~594) y `deleteInvoiceInner`
+  (`src/app/actions/invoices.ts` ~580) piden `role === 'admin'`. Un usuario creado con perfil "dueño" y rol
+  viejo distinto no puede, y uno con rol "admin" pero perfil "secretaria" sí. Cambialo por
+  `puede(auth.user, PERMISOS.ADMINISTRACION)` (perfil nuevo, `src/lib/auth/perfiles.ts`). Buscá otros
+  `role === 'admin'` en `src/app/actions/` y hacé lo mismo, avisando cuáles eran.
+
 ## Pruebas (datos de la forma real, pregunta 37; base de mentira que devuelve copia, regla 11)
 
 `src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts`:
@@ -64,10 +78,14 @@ y los importes de los pedidos del cliente, `montoAdicional`): los organizadores 
    siguen iguales; si manda un `eventSalary` distinto, no se acepta.
 5. **Operador guarda**: `planDePagos`, `contratoDatos` y `pagosProveedores` siguen iguales.
 6. Operador llama `updateGestionCostos`: rechazado. La sincronización automática del menú sigue actualizando costos.
+7. Operador lee presupuestos: sin `senia`, `saldo` ni `pagosCliente`; con el total. Y su panel no trae avisos de "Saldo pendiente".
+8. Un usuario con perfil `dueno` (rol viejo `user`) puede borrar un presupuesto sin contrato; uno con rol `admin` y perfil `secretaria`, no.
 
 ```comprobar
 usa: recortarFiestaPorPerfil en src/app/actions/fiesta/fiesta.actions.ts
 usa: PERMISOS.GANANCIAS en src/app/actions/fiesta/costos.actions.ts
+no-usa: role !== 'admin' en src/app/actions/presupuestos.ts
+no-usa: role !== 'admin' en src/app/actions/invoices.ts
 usa: PERMISOS.SUELDOS en src/app/(app)/fiestas/nueva/personal/recibos/page.tsx
 prueba: PENDIENTE src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts
 ```
