@@ -1,0 +1,93 @@
+{
+  "phase": "despues",
+  "observed": "2026-10-16T17:42:48.531Z",
+  "appSource": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "candidate": "4d845b921d3b579515de7937fd7d209cbab71f3b",
+  "comparisons": [
+    {
+      "file": "src/lib/auth/perfiles.ts",
+      "baseline": "7614bf0ca1f265250fbc971bd0beab823b68bffd",
+      "candidate": "7614bf0ca1f265250fbc971bd0beab823b68bffd",
+      "identical": true
+    },
+    {
+      "file": "src/app/(app)/contabilidad/crm/agenda/page.tsx",
+      "baseline": "a2c8eb5db82133ca1b99742fc2e910367b6d8db7",
+      "candidate": "a2c8eb5db82133ca1b99742fc2e910367b6d8db7",
+      "identical": true
+    },
+    {
+      "file": "src/app/(app)/empresa/servicios/page.tsx",
+      "baseline": "9a3a5ea4fd43ab90d40b93762cdf7857357799db",
+      "candidate": "9a3a5ea4fd43ab90d40b93762cdf7857357799db",
+      "identical": true
+    }
+  ],
+  "collisions": [
+    {
+      "number": "179",
+      "ours": "179-gemini-agenda-recordatorio-whatsapp-local.md",
+      "theirs": "179-gemini-devolucion-176-177-y-ia-gratis-mas-nueva.md",
+      "ourBlobAtAuditHead": "ef63802b91e8052176348b6200789e37c5a47ad4",
+      "otherBlobAtCandidate": "a004be345a74f79c35e848a782c74ba8b2013efd"
+    },
+    {
+      "number": "180",
+      "ours": "180-claude-perfiles-solo-claves-propias.md",
+      "theirs": "180-gemini-menu-por-perfil-y-galeria-vogue.md",
+      "ourBlobAtAuditHead": "895f7dc671b60db0846b0b0eec46c4309205cc2d",
+      "otherBlobAtCandidate": "0d306022c32d1a70bea23abec25a949afc6c4855"
+    }
+  ],
+  "checkerSha256": "f47b32a731ea2799014ddd8a94fdc6d33aa86e4331efc4bd93860f7fbd7978b0",
+  "orderSha256": "c2c9972ed54765714d41d94ad717135c05724cc19cf0e4a7e8251903b2159b9d",
+  "structural": {
+    "checks": [
+      {
+        "tipo": "archivo",
+        "valor": "src/lib/auth/perfiles.ts",
+        "linea": "archivo: src/lib/auth/perfiles.ts",
+        "pass": true
+      },
+      {
+        "tipo": "usa",
+        "valor": "esPerfilValido en src/app/actions/auth.ts",
+        "linea": "usa: esPerfilValido en src/app/actions/auth.ts",
+        "pass": true
+      },
+      {
+        "tipo": "prueba",
+        "valor": "src/__tests__/perfiles.test.ts",
+        "linea": "prueba: src/__tests__/perfiles.test.ts",
+        "pass": true
+      },
+      {
+        "tipo": "no-usa",
+        "valor": "valor in PERMISOS_POR_PERFIL en src/lib/auth/perfiles.ts",
+        "linea": "no-usa: valor in PERMISOS_POR_PERFIL en src/lib/auth/perfiles.ts",
+        "pass": false
+      },
+      {
+        "tipo": "usa",
+        "valor": "constructor en src/__tests__/perfiles.test.ts",
+        "linea": "usa: constructor en src/__tests__/perfiles.test.ts",
+        "pass": false
+      },
+      {
+        "tipo": "usa",
+        "valor": "toString en src/__tests__/perfiles.test.ts",
+        "linea": "usa: toString en src/__tests__/perfiles.test.ts",
+        "pass": false
+      },
+      {
+        "tipo": "usa",
+        "valor": "__proto__ en src/__tests__/perfiles.test.ts",
+        "linea": "usa: __proto__ en src/__tests__/perfiles.test.ts",
+        "pass": false
+      }
+    ],
+    "missingBlocks": []
+  },
+  "applicationEdited": false,
+  "scope": "Read-only Git blobs and real structural checker functions. NOT application runtime, build, permission approval or provider test."
+}

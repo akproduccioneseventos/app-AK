@@ -1,0 +1,14 @@
+[
+  {
+    "file": "data/notifications.json",
+    "syntheticAdded": 1,
+    "cappedRowsRestored": 1,
+    "baselineSha256": "6f78822968bb7dd5eeb32e6e2574358ac05b398744a83b78cbd3d404b43a2e7c"
+  },
+  {
+    "file": "src/data/notifications.json",
+    "syntheticAdded": 1,
+    "cappedRowsRestored": 1,
+    "baselineSha256": "6f78822968bb7dd5eeb32e6e2574358ac05b398744a83b78cbd3d404b43a2e7c"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "applicationSourceSha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "deliveryCommit": "9dc6e78408963dc592d74750b45b7568119fb290",
+  "branch": "codex/134-conciliacion-cobertura-20261015",
+  "pullRequest": 1324,
+  "pullRequestStateObserved": "open",
+  "merged": false,
+  "remoteAndLocalTree": "b25e6d37c4ecf48c92cf4ddb0e25827aef67bc4a",
+  "order179RemoteAndLocalBlob": "ef63802b91e8052176348b6200789e37c5a47ad4",
+  "verification": "Git push completed; remote PR head, commit tree and order blob match local Git objects. This is delivery, not deployment or app acceptance."
+}

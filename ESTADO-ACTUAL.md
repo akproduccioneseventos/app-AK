@@ -1,48 +1,38 @@
-# Estado actual - 15/10/2026 (Codex132)
+# Estado actual - Codex147,16/10/2026
 
-Codex SOLO audita/prueba/documenta; Gemini programa, Claude revisa/compila/fusiona.
-Mainbbf68006e09b358f8e0869c1d534acdd0863724c, app iguald10f332a.
-PR1315 integrada porClaude via1317: NO subir rama131 cerrada.
-Nueva rama codex/132-portal-musica-y-avisos-barra-20261015 desdebbf.
-PR1318 ABIERTA/BORRADOR snapshotb30a5aea,35blobs remotos identicos; recibo132.
-NoPRcoders abierta alcontraste;169encargada yprivado NO CONTRASTADO HEADdesconocido.
-No reauditar169 ni pisar archivoDJ enentregaactiva; coordinar170con169.
-132portal9casos8PASS1FAIL: paginas+acciones/mapeo reales, datos/sesion ficticios.
-Menu ylistas musicales guardan/remontan, borrador/error yclaveinvalidaPASS.
-FalloP2: Si es posible persistida porUI no visibleDJ, mismoFiesta recibido.
-132barra/listo6casos3PASS3FAIL: pagina real/acciondoble. Errorinicial falso
-preparando ysondeocaido sin aviso de desactualizacion son UNAcausaP2.
-Vacio/pedidolisto/recuperacionPASS. Motor/stock/barman anteriores NOreabiertos.
-Orden170 con2defectos,15casosdistintos11PASS4FAIL0omitidos; registro3PASSaparte.
-Fuente congelada Gitarchive d10, TS-jest NO Nextbuild/tsc/navegador.
-RedHTTP/HTTPS/fetchbloqueada, envsinclaves, ADCinexistente;0fixturesalterados.
-Temporalesretirados alterminar, datosajenosbytespreservados; dosLunalowcerrados.
-FallosQAserver-only/contador.mock conservadosgzip; no fallosappni casosnuevos.
-No app/compilacion/fusion/dependenciasproduccion. Checkacentos2957PASS.
-13116614casosPASS cierra5defectos129ENALCANCE; fuentee8historica, reutilizarporconsumidor.
-167presentemain;169pendiente; no alterar politicaingresoscuotasenteros.
-Inventario131421rutas/4633ASTcontroles NOaceptacionfuncional ni14areaslimpias.
-Requisito114vigente: artefactoQAactualSHA/health/ficticio para viajesnativos.
-Se pregunto excepcionasincrona decompilar SOLOQA; NO asumir respuesta concedida.
-Si seautoriza: prepararQAaislado, no prod/datos/cuentas/cargos/mensajesreales.
-No0errores/todoauditado/Hosting/OAuth/19originales/IAvozreal/hardware sin evidencia.
-No grafo/buildpor docs, noforcepush/archivosajenos; cerrar servicios/agentespropios.
-# Estado actual - 15/10/2026 (Codex133)
-
-Codex audita/prueba/documenta; Gemini programa; Claude revisa/compila/fusiona. No fusionar.
-Main observado: `9aa64f991f5ddceefa8d278a3f298be861eb10bb`; arbol `src` equivalente `d10f332a`.
-Sin PR abierta al inicio de esta tanda. PR1318 y PR1319 estaban fusionadas; rama anterior no reutilizable.
-
-QA sintetico aislado, build de app `a635b27071ecea22092eba2a285892c84c6f9d08`; servicios reales deshabilitados.
-Portal/cliente no 3D: mensajes persisten al recargar en desktop y movil; cuatro criterios del panel pasan en ambos.
-Contrato movil: defecto reproducido en 390 px (titulo 3 lineas, sello tapa etiqueta, texto PDF fuera del boton), orden171.
-Panel social: ruta 200, contenido visible y 0px de desborde, pero el dock tapa el encabezado de columna Evento por 1455px2 a 390x844; orden172.
-Salon 3D: tanda de 28 escenarios dio 13 PASS y 15 timeouts durante teardown de Chromium/trazas; no clasificar como 15 errores app ni como area aprobada. Corrida duro 1.1 h; no repetir este bloque. Queda prueba 3D focalizada pendiente.
-Orden del evento y ubicacion sintetica del personal: 4/4 PASS desktop/movil. Agenda respondio, pero su prueba no aprueba por Firebase SDK con API key falsa; runner informa Firebase apagado pero permite intento desde browser. Limite QA, no defecto app confirmado; bloquear salida externa antes de repetir.
-Privados Claude/Gemini NO CONTRASTADOS. Ver evidencia133; no declarar auditoria completa ni cero errores.
-RSVP quedo sin resultado por interrupcion de Codex. RECTIFICACION174: log ADC no prueba descubrimiento/uso de credenciales reales; SDK las busca al solicitar token, no al construir el objeto. Modo local sin emulador dejo dbAdmin/authAdmin nulos y uso JSON local. Retirado el supuesto defecto de credenciales y su bloqueo de auditoria. La llamada cliente a Firebase con clave ficticia sigue siendo ruido QA: interceptar salida en el arnes antes de aserciones de consola.
-Lectura publica de `/public/blog/como-calcular-bebida-evento-salto`: contenido observable, no prueba visual ni de interaccion. El texto presenta como exacta una estimacion general, afirma sin fuente que en Salto se consume el doble y propone 3-4 tragos alcoholicos por adulto en una pagina que tambien promociona fiestas de 15. Se registro orden175 para Gemini: separar calculo logistico de recomendacion de consumo, revisar evidencia y explicitar publico adulto/dispensacion responsable. Referencias oficiales: JND `Eventos Cuidados` y guia de alcohol; OMS ficha sobre alcohol. No es conclusion legal ni consejo medico.
-Seguimiento en build sintetico: pagos rapidos 2/2 PASS, conflicto de cuotas 2/2 PASS, flujo de caja 2/2 PASS; cocina acceso/impresion 2 PASS, 2 omitidos intencionales y 1 control de consola inconcluso por Firebase SDK con API key falsa. No defecto funcional confirmado; ver `docs/evidencias/133-operacion-cocina-cobros.md`.
-3D focal tampoco concluyente: el canvas se observa dibujado, pero Playwright agota 90 s cerrando contexto/traza con avisos WebGL ReadPixels; Firebase cliente sigue llamando con API key falsa. No reabrir la suite larga; ver `docs/evidencias/133-salon-3d-focal.md`.
-Red social de la fiesta como invitado: 4/4 PASS, escritorio/movil para `Mi mesa`, cronograma, ranking, hub y mensajes tecnicos; no incluye carga real de fotos. Ver `docs/evidencias/133-red-social-invitado.md`.
-Ventas/CRM: origen UTM/galeria publica 4/4 PASS; flujo sintetico con UTM Facebook llega al CRM con etiquetas Simulador/Facebook, conserva campana y budgetId, y botones apuntan al WhatsApp oficial (PASS escritorio, movil omitido). La prueba antigua esperaba un `Continuar` inexistente en el paso 5; orden173 pide actualizar solo ese E2E. Ver evidencia133-simulador-whatsapp.
+Codex SOLO audita/prueba/documenta; Gemini programa; Claude dinero/permisos/comida,
+valida/compila/fusiona. Excepcion dueno SOLO build/servidorQA ficticio aislado.
+Repo ak-auditoria-133-portal-responsive, rama codex/134-conciliacion-cobertura-20261015.
+PR1324 BORRADOR ABIERTA;143 entregada6b0d67038, arbol/blob184 remoto igual, verrecibo.
+No fusionar documentos solos. No cambiar app ni datos reales, no forcepush.
+Main7230f9d02b32805952a185f704a0208bd5d643e6; build135 reutilizable por alcance.
+141 clienteSDK real emulador demo:2PASS PC/Pixel7 telefono sinemail/lista/recarga,
+ID/campos/timestamps iguales por REST. Cierra viaje inconcluso137/139, no area.
+142 nuevoQA compilado17d26a631f500a263c48c4973d9c6f57d56ba421, exit0 tipos/lint.
+PR1327 avanzoa98a4b25009f9994d7a9cbd3025972a4142634c2: solo4E2Ecambiados,
+runtime/config/deps identicos17d. NO recompilar ni repetir mismoalcance por esto.
+142178 cabecera cocina2PASS PC/Pixel7,2PDF1pagina renderizados/revisados.
+171 PARCIAL: sello/boton mejoraron; titulo3lineas. Caso completo timedOut,
+asercion3>2 y metricas archivadas, noPASS.172 FAIL dock tapa Evento2247.17px2.
+Ordenes171/172 actualizadas, no reemitir ni deshacer178 para corregir fecha.
+143 NUEVO184/Claude AK-CODEX-143-COCINA-FECHA-CIVIL:2027-08-08 se muestra7/8
+enUruguay,8/8UTC.1PASScontrol/1FAILUy pantalla/print, NO corregido. Fecha guardada
+no se cambia.143padding inicial errorQA archivado, no otrobug de produccion.
+144:3diffsQA sin aserciones quitadas/skips nuevos;120/180seg no prueban rapidez.
+QA142Temp ak-qa-142-Ti9Igx mantiene build17d: reutilizar si mismo runtime.
+Servicios propios cerrados,58JSON primer nivel restaurados,fixtures propios
+borrados,0diffQAtracked. Nadie paro procesos deGemini. No sesiones reales.
+141Luna low read-only cerrado. No heredar credenciales/env; HOME/config aislados.
+13650HTTP permisosPASS,11prospectoPASS/11deseleccionadas,8altasSDKmaestrosPASS.
+136CRM-agenda telefono/sinemail/cita/horaUy/timeline persisten; enlace099sin598FAIL.
+AK-CODEX-136-WA099-COST=179-gemini-agenda-recordatorio-whatsapp-local.md;
+AK-CODEX-138-PERFIL-PROPIO=180-claude-perfiles-solo-claves-propias.md.
+1328HEADef0e9402 fixes171/172/179/180/184presentes;14634PASSsolo ligeros, noUI.
+147NUEVO185Claude: proveedorIDB200 reponeA60.30 siigualnombre;helper2PASS2FAIL/rama.
+140 controles180 ahora3PASS4FAILesperados; inventario no prueba regresion.
+Claudeprivadoactual NO CONTRASTADO. Contrastar cada entrega antes de ordenar.
+1353D/agenda/DJ6PASS y42unidades focales vigentes por alcance; no repetir.
+134421rutas/14areas/7perfiles/6401AST es inventario, no aceptacion por boton.
+19originales dueno sigue buscando, no insistir ni sustituir por JSONmigrados/QA.
+Hosting/OAuth/modelo-voz/cuentas/hardware/integraciones reales NO certificados.
+Siguiente:185Claude yUI171/172/179/184 contraef0 conbuildnuevo;RAM380272KiB noahora.

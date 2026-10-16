@@ -1,0 +1,280 @@
+{
+  "source": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+  "candidatePR": 1327,
+  "build": {
+    "sourceSha": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+    "candidatePR": 1327,
+    "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-142-Ti9Igx",
+    "preparedAt": "2026-10-16T19:16:14.170Z",
+    "realServicesEnabled": false,
+    "applicationEdited": false,
+    "phase": "built",
+    "buildExit": 0,
+    "buildPid": 14416,
+    "buildFinishedAt": "2026-10-16T19:26:20.462Z",
+    "sourceDiff": ""
+  },
+  "execution": {
+    "source": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+    "buildFinishedAt": "2026-10-16T19:26:20.462Z",
+    "started": "2026-10-16T22:54:32.497Z",
+    "snapshots": 58,
+    "realServices": false,
+    "tests": [
+      {
+        "file": "135-cocina-agenda-3d.spec.ts",
+        "sha256": "045cb39c89271c4db140ffd8a5ab744ff9dcd7c6655616db84fa8014fb47b68c"
+      },
+      {
+        "file": "135-mobile-contrato-social.spec.ts",
+        "sha256": "0461b9583ef3990a430c1bf60b2e20e03d21e721ac3dfd88dc25d88b80f1eef2"
+      }
+    ],
+    "serverPid": 3928,
+    "health": {
+      "status": "ok",
+      "timestamp": "2026-10-16T22:54:39.245Z",
+      "version": "17d26a631f500a263c48c4973d9c6f57d56ba421 · compilada 2026-10-16T19:16:14.283Z",
+      "services": {
+        "firebase": false,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      },
+      "environment": "production",
+      "uptime": 0
+    },
+    "142-kitchen": {
+      "pid": 3524,
+      "exitCode": 0
+    },
+    "142-mobile": {
+      "pid": 844,
+      "exitCode": 1
+    },
+    "restored": [
+      "src\\data\\notifications.json",
+      "data\\notifications.json"
+    ],
+    "sourceDiff": "",
+    "finished": "2026-10-16T22:57:47.501Z"
+  },
+  "checkpoints": [
+    {
+      "prefix": "142-kitchen",
+      "title": "cocina: evento y porciones reales, recarga y salida de impresion",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "durationMs": 26115,
+      "errors": [],
+      "attachments": [
+        {
+          "name": "hoja-cocina.pdf",
+          "file": "142-kitchen-chromium-desktop.pdf"
+        },
+        {
+          "name": "cabecera-impresion.json",
+          "value": {
+            "text": "AK Producciones",
+            "headerDisplay": "none",
+            "headingBox": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "printMode": true
+          }
+        }
+      ],
+      "metrics": []
+    },
+    {
+      "prefix": "142-kitchen",
+      "title": "cocina: evento y porciones reales, recarga y salida de impresion",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "durationMs": 7101,
+      "errors": [],
+      "attachments": [
+        {
+          "name": "hoja-cocina.pdf",
+          "file": "142-kitchen-chromium-mobile.pdf"
+        },
+        {
+          "name": "cabecera-impresion.json",
+          "value": {
+            "text": "AK Producciones",
+            "headerDisplay": "none",
+            "headingBox": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "printMode": true
+          }
+        }
+      ],
+      "metrics": []
+    },
+    {
+      "prefix": "142-mobile",
+      "title": "171 contrato: conserva título, firma y texto del botón PDF dentro del celular",
+      "project": "chromium-mobile",
+      "status": "timedOut",
+      "durationMs": 112582,
+      "errors": [
+        "Test timeout of 90000ms exceeded.",
+        "Error: El título no debe fragmentarse en tres líneas en celular\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= 2\nReceived:    3\n\n  102 |\n  103 |   expect(metrics.documentWidth, 'No debe exigir desplazamiento horizontal').toBeLessThanOrEqual(metrics.viewportWidth + 2);\n> 104 |   expect(metrics.titleLines, 'El título no debe fragmentarse en tres líneas en celular').toBeLessThanOrEqual(2);\n      |                                                                                          ^\n  105 |   const name = metrics.signatureName;\n  106 |   const label = metrics.titularLabel;\n  107 |   expect(name, 'La firma debe existir para medirla').not.toBeNull();\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-142-Ti9Igx\\tests\\e2e\\135-mobile-contrato-social.spec.ts:104:90"
+      ],
+      "attachments": [
+        {
+          "name": "error-context",
+          "file": "142-mobile-artifacts/135-mobile-contrato-social-656cf-otón-PDF-dentro-del-celular-chromium-mobile/error-context.md"
+        }
+      ],
+      "metrics": [
+        {
+          "name": "QA135_CONTRATO_MOBILE_LAYOUT",
+          "value": {
+            "viewportWidth": 390,
+            "documentWidth": 390,
+            "titleText": "Contrato de Servicio",
+            "titleLines": 3,
+            "signatureName": {
+              "left": 209.31504821777344,
+              "right": 345.2445983886719,
+              "top": 633.224365234375,
+              "bottom": 751.8822021484375,
+              "width": 135.92955017089844,
+              "height": 118.6578369140625
+            },
+            "titularLabel": {
+              "x": 215.796875,
+              "y": 802.5,
+              "width": 125.40625,
+              "height": 16,
+              "top": 802.5,
+              "right": 341.203125,
+              "bottom": 818.5,
+              "left": 215.796875
+            },
+            "button": {
+              "x": 73,
+              "y": 1032.5,
+              "width": 244,
+              "height": 64,
+              "top": 1032.5,
+              "right": 317,
+              "bottom": 1096.5,
+              "left": 73
+            },
+            "buttonText": {
+              "x": 112.5,
+              "y": 1045.5,
+              "width": 165,
+              "height": 37,
+              "top": 1045.5,
+              "right": 277.5,
+              "bottom": 1082.5,
+              "left": 112.5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "prefix": "142-mobile",
+      "title": "172 red social: el dock no tapa el encabezado Evento al abrir en celular",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "durationMs": 15541,
+      "errors": [
+        "Error: El dock no debe cubrir el encabezado Evento\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: 0\nReceived: 2247.174666168634\n\n  148 |   const overlapWidth = Math.max(0, Math.min(header.right, dock.right) - Math.max(header.left, dock.left));\n  149 |   const overlapHeight = Math.max(0, Math.min(header.bottom, dock.bottom) - Math.max(header.top, dock.top));\n> 150 |   expect(overlapWidth * overlapHeight, 'El dock no debe cubrir el encabezado Evento').toBe(0);\n      |                                                                                       ^\n  151 | });\n  152 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-142-Ti9Igx\\tests\\e2e\\135-mobile-contrato-social.spec.ts:150:87"
+      ],
+      "attachments": [
+        {
+          "name": "screenshot",
+          "file": "142-mobile-artifacts/135-mobile-contrato-social-8dba0--Evento-al-abrir-en-celular-chromium-mobile/test-failed-1.png"
+        },
+        {
+          "name": "error-context",
+          "file": "142-mobile-artifacts/135-mobile-contrato-social-8dba0--Evento-al-abrir-en-celular-chromium-mobile/error-context.md"
+        }
+      ],
+      "metrics": [
+        {
+          "name": "QA135_SOCIAL_DOCK_LAYOUT",
+          "value": {
+            "viewportWidth": 390,
+            "documentWidth": 390,
+            "header": {
+              "left": 64.01729583740234,
+              "right": 148.61550903320312,
+              "top": 746.4686279296875,
+              "bottom": 818.9590454101562,
+              "width": 84.59821319580078,
+              "height": 72.49041748046875
+            },
+            "dock": {
+              "left": 12,
+              "right": 114,
+              "top": 774,
+              "bottom": 828,
+              "width": 102,
+              "height": 54
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "archives": [
+    {
+      "file": "142-kitchen-results.json.gz",
+      "sha256Uncompressed": "c3337ba61740af229d2e15b8908b7edf00bc1526817d4689c85eb3af9ecc64ab",
+      "stats": {
+        "startTime": "2026-10-16T22:54:40.999Z",
+        "duration": 45094.183,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "file": "142-mobile-results.json.gz",
+      "sha256Uncompressed": "94736d203873c716d817552de7fa9838fa623fcaebefdeacb7b15972dc8f32be",
+      "stats": {
+        "startTime": "2026-10-16T22:55:27.895Z",
+        "duration": 137925.545,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      }
+    }
+  ],
+  "acceptance": {
+    "kitchen2Native": true,
+    "mobile171And172": false,
+    "completeApp": false,
+    "physicalHardware": false,
+    "productionDeployment": false
+  },
+  "cleanup": {
+    "portsListening": [],
+    "trackedSourceDiff": ""
+  }
+}

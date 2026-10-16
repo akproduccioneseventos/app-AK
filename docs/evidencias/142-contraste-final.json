@@ -1,0 +1,14 @@
+{
+  "executed": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+  "latestObservedPR1327": "a98a4b25009f9994d7a9cbd3025972a4142634c2",
+  "changedFiles": [
+    "tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts",
+    "tests/e2e/layout-baseline.json",
+    "tests/e2e/pantallas-con-iconos-react19.spec.ts",
+    "tests/e2e/public-smoke.spec.ts"
+  ],
+  "runtimeChanges": [],
+  "wholePRApproved": false,
+  "privateClaude": "NO CONTRASTADO",
+  "interpretation": "Same committed runtime/config/dependencies, only4QA files changed. Reuse targeted runtime evidence, not whole-app acceptance."
+}

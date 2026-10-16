@@ -1,0 +1,22 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "mode": "serve",
+  "child": 11420,
+  "command": "C:\\Program Files\\nodejs\\node.exe",
+  "args": [
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+    "start",
+    "--hostname",
+    "127.0.0.1",
+    "--port",
+    "3300"
+  ],
+  "started": "2026-10-16T11:41:59.895Z",
+  "emulator": "127.0.0.1:8085",
+  "project": "demo-ak-producciones",
+  "credentials": "none; isolated HOME/config, localhost emulator only",
+  "status": "stopped",
+  "code": 4294967295,
+  "finished": "2026-10-16T11:57:28.353Z"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "project": "chromium-desktop",
+    "pdf": "142-kitchen-chromium-desktop.pdf",
+    "pages": 1,
+    "text": "HOJA DE COCINA\nCocina y salon QA135\n15/10/2026 \u00b7 80 adultos y 20 chicos \u2014 100 personas \u00b7 5 confirmaron\nQU\u00c9 SALE, Y CU\u00c1NTO\nMOMENTO PLATO PORCIONES\nEntrada Entrada QA135 100 todos\nPlato Principal Principal QA135 80 adultos\nMen\u00fa Infantil Infantil QA135 20 chicos\nPostre Postre QA135 100 todos\nPLATOS ESPECIALES, APARTE\nCeliaco 5",
+    "missing": [],
+    "renders": [
+      "142-kitchen-chromium-desktop-page-1.png"
+    ]
+  },
+  {
+    "project": "chromium-mobile",
+    "pdf": "142-kitchen-chromium-mobile.pdf",
+    "pages": 1,
+    "text": "HOJA DE COCINA\nCocina y salon QA135\n15/10/2026 \u00b7 80 adultos y 20 chicos \u2014 100 personas \u00b7 5 confirmaron\nQU\u00c9 SALE, Y CU\u00c1NTO\nMOMENTO PLATO PORCIONES\nEntrada Entrada QA135 100 todos\nPlato Principal Principal QA135 80 adultos\nMen\u00fa Infantil Infantil QA135 20 chicos\nPostre Postre QA135 100 todos\nPLATOS ESPECIALES, APARTE\nCeliaco 5",
+    "missing": [],
+    "renders": [
+      "142-kitchen-chromium-mobile-page-1.png"
+    ]
+  }
+]

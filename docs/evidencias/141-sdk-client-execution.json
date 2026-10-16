@@ -1,0 +1,82 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "started": "2026-10-16T19:07:41.238Z",
+  "fixture": "Firestore demo local. backup_system/auto_backup con ultimo respaldo ficticio reciente para aislar alta; NO prueba respaldo.",
+  "children": [
+    {
+      "label": "emulator",
+      "pid": 6204,
+      "command": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools/java21/jdk-21.0.12.1+1/bin/java.exe",
+      "args": [
+        "-Xmx512m",
+        "-jar",
+        "C:/Users/Usuario/.cache/firebase/emulators/cloud-firestore-emulator-v1.22.0.jar",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8085",
+        "--project_id",
+        "demo-ak-producciones",
+        "--single_project_mode",
+        "true",
+        "--single_project_mode_error",
+        "true",
+        "--rules",
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\firestore.rules"
+      ]
+    },
+    {
+      "label": "serve",
+      "pid": 3572,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+        "start",
+        "--hostname",
+        "127.0.0.1",
+        "--port",
+        "3300"
+      ]
+    },
+    {
+      "label": "playwright",
+      "pid": 11348,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "139-playwright.config.ts",
+        "139-cliente-persistencia.spec.ts",
+        "--output",
+        "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\141-sdk-client-artifacts"
+      ]
+    }
+  ],
+  "realServices": false,
+  "snapshots": 61,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T19:08:14.815Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 14
+  },
+  "testSha256": "8586ec3faf03cfaa4e943dbc920dfcc3391df4962e5006098aa1d01961d7b369",
+  "exitCode": 0,
+  "restored": [
+    "src\\data\\customers.json",
+    "data\\customers.json"
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-16T19:08:39.086Z"
+}

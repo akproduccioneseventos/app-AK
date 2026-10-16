@@ -1,0 +1,17 @@
+{
+  "repository": "akproduccioneseventos/app-AK",
+  "pullRequest": 1324,
+  "state": "open",
+  "draft": true,
+  "branch": "codex/134-conciliacion-cobertura-20261015",
+  "deliveredCommit": "ca5169c107d82e8d3f924a6acf5e70ff2ff76533",
+  "localTree": "83c960727b6e9e9fbc330254397943a9f3d0e262",
+  "remoteTree": "83c960727b6e9e9fbc330254397943a9f3d0e262",
+  "order180LocalBlob": "895f7dc671b60db0846b0b0eec46c4309205cc2d",
+  "order180RemoteBlob": "895f7dc671b60db0846b0b0eec46c4309205cc2d",
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "applicationEdited": false,
+  "merged": false,
+  "observedAt": "2026-10-16T16:15:56Z",
+  "scope": "Receipt covers all30files of137/138 delivery. Documenting failure is not implementation or full application acceptance."
+}

@@ -1,0 +1,729 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "mode": "JSON local ficticio, no acepta SDK ni integraciones reales",
+  "sdkPreflight": {
+    "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+    "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+    "started": "2026-10-16T16:49:33.845Z",
+    "fixture": "Firestore demo local. backup_system/auto_backup con ultimo respaldo ficticio reciente para aislar alta; NO prueba respaldo.",
+    "children": [
+      {
+        "label": "emulator",
+        "pid": 13988,
+        "command": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools/java21/jdk-21.0.12.1+1/bin/java.exe",
+        "args": [
+          "-Xmx512m",
+          "-jar",
+          "C:/Users/Usuario/.cache/firebase/emulators/cloud-firestore-emulator-v1.22.0.jar",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "8085",
+          "--project_id",
+          "demo-ak-producciones",
+          "--single_project_mode",
+          "true",
+          "--single_project_mode_error",
+          "true",
+          "--rules",
+          "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\firestore.rules"
+        ]
+      },
+      {
+        "label": "serve",
+        "pid": 14156,
+        "command": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+          "start",
+          "--hostname",
+          "127.0.0.1",
+          "--port",
+          "3300"
+        ]
+      }
+    ],
+    "realServices": false,
+    "snapshots": 61,
+    "error": "TimeoutError: The operation was aborted due to timeout",
+    "restored": [],
+    "sourceDiff": "",
+    "finished": "2026-10-16T16:50:46.000Z"
+  },
+  "publicStatus": {
+    "started": "2026-10-16T16:50:46.051Z",
+    "method": "GET",
+    "url": "https://akproducciones.uy/api/health",
+    "scope": "Public health only, no authentication, provider calls, accounts, messages or charges. Flags are configuration indicators, not proof of integrations.",
+    "status": 200,
+    "elapsedMs": 10140,
+    "health": {
+      "status": "ok",
+      "timestamp": "2026-10-16T16:50:56.748Z",
+      "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:13:49.391Z",
+      "services": {
+        "firebase": true,
+        "gemini": true,
+        "googleWorkspace": true,
+        "mail": true,
+        "instagram": false,
+        "mercadoPago": false
+      }
+    }
+  },
+  "runs": [
+    {
+      "prefix": "139-json",
+      "stats": {
+        "startTime": "2026-10-16T16:53:09.883Z",
+        "duration": 213675.411,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "execution": {
+        "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+        "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+        "started": "2026-10-16T16:52:22.296Z",
+        "fixture": "Modo JSON local autorizado; NO acepta el guardado SDK de produccion.",
+        "children": [
+          {
+            "label": "serve",
+            "pid": 3240,
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+              "start",
+              "--hostname",
+              "127.0.0.1",
+              "--port",
+              "3300"
+            ]
+          },
+          {
+            "label": "playwright",
+            "pid": 4612,
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+              "test",
+              "--config",
+              "139-playwright.config.ts",
+              "139-cliente-persistencia.spec.ts",
+              "--output",
+              "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\139-json-artifacts"
+            ]
+          }
+        ],
+        "realServices": false,
+        "snapshots": 61,
+        "health": {
+          "status": "ok",
+          "timestamp": "2026-10-16T16:52:59.195Z",
+          "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+          "services": {
+            "firebase": false,
+            "gemini": false,
+            "googleWorkspace": false,
+            "mail": false,
+            "instagram": false,
+            "mercadoPago": false
+          },
+          "environment": "production",
+          "uptime": 0
+        },
+        "testSha256": "043915e53a984e5a524cfa84374a335e78c8122e003dc62befb0244cfe527774",
+        "exitCode": 1,
+        "restored": [
+          "data\\notifications.json",
+          "src\\data\\customers.json",
+          "src\\data\\notifications.json",
+          "data\\customers.json"
+        ],
+        "sourceDiff": "",
+        "finished": "2026-10-16T16:56:46.073Z"
+      }
+    },
+    {
+      "prefix": "139-json-mobile",
+      "stats": {
+        "startTime": "2026-10-16T16:58:59.211Z",
+        "duration": 59249.068999999996,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "execution": {
+        "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+        "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+        "started": "2026-10-16T16:58:38.016Z",
+        "fixture": "Modo JSON local autorizado; NO acepta el guardado SDK de produccion.",
+        "children": [
+          {
+            "label": "serve",
+            "pid": 13928,
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+              "start",
+              "--hostname",
+              "127.0.0.1",
+              "--port",
+              "3300"
+            ]
+          },
+          {
+            "label": "playwright",
+            "pid": 8836,
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+              "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+              "test",
+              "--config",
+              "139-playwright.config.ts",
+              "139-cliente-persistencia.spec.ts",
+              "--project=chromium-mobile",
+              "--output",
+              "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\139-json-mobile-artifacts"
+            ]
+          }
+        ],
+        "realServices": false,
+        "snapshots": 61,
+        "health": {
+          "status": "ok",
+          "timestamp": "2026-10-16T16:58:54.703Z",
+          "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+          "services": {
+            "firebase": false,
+            "gemini": false,
+            "googleWorkspace": false,
+            "mail": false,
+            "instagram": false,
+            "mercadoPago": false
+          },
+          "environment": "production",
+          "uptime": 0
+        },
+        "testSha256": "8586ec3faf03cfaa4e943dbc920dfcc3391df4962e5006098aa1d01961d7b369",
+        "exitCode": 0,
+        "restored": [
+          "data\\notifications.json",
+          "src\\data\\customers.json",
+          "src\\data\\notifications.json",
+          "data\\customers.json"
+        ],
+        "sourceDiff": "",
+        "finished": "2026-10-16T17:00:00.135Z"
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "prefix": "139-json",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "durationMs": 58356,
+      "screenshot": "139-json-chromium-desktop-cliente.jpeg",
+      "docs": [
+        {
+          "name": "store-antes.json",
+          "value": [
+            {
+              "name": "cust_6e7b0666-1fa0-45b1-a141-1eb1d6d6bc15",
+              "fields": {
+                "name": {
+                  "stringValue": "Auditoria Cliente Qa139 11572 1792169615695"
+                },
+                "phone": {
+                  "stringValue": "099011572"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "store-despues.json",
+          "value": [
+            {
+              "name": "cust_6e7b0666-1fa0-45b1-a141-1eb1d6d6bc15",
+              "fields": {
+                "name": {
+                  "stringValue": "Auditoria Cliente Qa139 11572 1792169615695"
+                },
+                "phone": {
+                  "stringValue": "099011572"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "diagnostico.json",
+          "value": {
+            "name": "Auditoria Cliente Qa139 11572 1792169615695",
+            "phone": "099011572",
+            "elapsedMs": 9764,
+            "url": "http://127.0.0.1:3300/customers",
+            "current": [
+              {
+                "name": "cust_6e7b0666-1fa0-45b1-a141-1eb1d6d6bc15",
+                "fields": {
+                  "name": {
+                    "stringValue": "Auditoria Cliente Qa139 11572 1792169615695"
+                  },
+                  "phone": {
+                    "stringValue": "099011572"
+                  }
+                }
+              }
+            ],
+            "timings": [
+              {
+                "url": "/empresa",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/empresa",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/v1/projects/demo-ak-producciones/installations",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/empresa",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "prefix": "139-json",
+      "project": "chromium-mobile",
+      "status": "timedOut",
+      "durationMs": 120643,
+      "error": "Test timeout of 120000ms exceeded.",
+      "screenshot": null,
+      "docs": []
+    },
+    {
+      "prefix": "139-json-mobile",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "durationMs": 48118,
+      "screenshot": "139-json-mobile-chromium-mobile-cliente.jpeg",
+      "docs": [
+        {
+          "name": "store-antes.json",
+          "value": [
+            {
+              "name": "cust_299dce67-13ca-471f-b1d6-6bd491f3e4e6",
+              "fields": {
+                "name": {
+                  "stringValue": "Auditoria Cliente Qa139 7640 1792169958041"
+                },
+                "phone": {
+                  "stringValue": "099007640"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "store-despues.json",
+          "value": [
+            {
+              "name": "cust_299dce67-13ca-471f-b1d6-6bd491f3e4e6",
+              "fields": {
+                "name": {
+                  "stringValue": "Auditoria Cliente Qa139 7640 1792169958041"
+                },
+                "phone": {
+                  "stringValue": "099007640"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "diagnostico.json",
+          "value": {
+            "name": "Auditoria Cliente Qa139 7640 1792169958041",
+            "phone": "099007640",
+            "elapsedMs": 8429,
+            "url": "http://127.0.0.1:3300/customers",
+            "current": [
+              {
+                "name": "cust_299dce67-13ca-471f-b1d6-6bd491f3e4e6",
+                "fields": {
+                  "name": {
+                    "stringValue": "Auditoria Cliente Qa139 7640 1792169958041"
+                  },
+                  "phone": {
+                    "stringValue": "099007640"
+                  }
+                }
+              }
+            ],
+            "timings": [
+              {
+                "url": "/empresa",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/empresa",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/v1/projects/demo-ak-producciones/installations",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/empresa",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers/new",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              },
+              {
+                "url": "/customers",
+                "ms": -1,
+                "status": 200
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "archives": [
+    {
+      "file": "139-json-results.json.gz",
+      "originalSha256": "f941670a9f73bd3f78a659535fdf6c4333b8493688dcd8eb600c3efc749915b8"
+    },
+    {
+      "file": "139-json-mobile-results.json.gz",
+      "originalSha256": "2a9206d63164e4ae140f757a456404188fda4a79e87fd9386aa185f117be8eef"
+    }
+  ],
+  "sdkFinal": {
+    "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+    "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+    "started": "2026-10-16T17:05:47.158Z",
+    "fixture": "Firestore demo local. backup_system/auto_backup con ultimo respaldo ficticio reciente para aislar alta; NO prueba respaldo.",
+    "children": [
+      {
+        "label": "emulator",
+        "pid": 11672,
+        "command": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools/java21/jdk-21.0.12.1+1/bin/java.exe",
+        "args": [
+          "-Xmx512m",
+          "-jar",
+          "C:/Users/Usuario/.cache/firebase/emulators/cloud-firestore-emulator-v1.22.0.jar",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "8085",
+          "--project_id",
+          "demo-ak-producciones",
+          "--single_project_mode",
+          "true",
+          "--single_project_mode_error",
+          "true",
+          "--rules",
+          "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\firestore.rules"
+        ]
+      },
+      {
+        "label": "serve",
+        "pid": 1172,
+        "command": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+          "start",
+          "--hostname",
+          "127.0.0.1",
+          "--port",
+          "3300"
+        ]
+      }
+    ],
+    "realServices": false,
+    "snapshots": 61,
+    "error": "TypeError: fetch failed",
+    "restored": [],
+    "sourceDiff": "",
+    "finished": "2026-10-16T17:07:40.035Z"
+  },
+  "resourceCheck": {
+    "observedOn": "2026-10-16",
+    "freePhysicalMemoryKiB": 154548,
+    "totalVisibleMemoryKiB": 7791724,
+    "processesObserved": [
+      {
+        "pid": 13808,
+        "workingSetMiB": 2280,
+        "command": "node .gemini/antigravity/scratch/app-AK/node_modules/next/dist/bin/next build",
+        "createdUtc": "2026-10-16T16:46:27Z"
+      },
+      {
+        "pid": 13160,
+        "workingSetMiB": 1217,
+        "command": "node .gemini/antigravity/scratch/app-AK/node_modules/next/dist/compiled/jest-worker/processChild.js",
+        "createdUtc": "2026-10-16T17:04:00Z"
+      }
+    ],
+    "intervention": "Stopped ONLY own SDK-final Java11672 and Next1172. Did not stop or modify Gemini workspace, its build or workers.",
+    "sdkFinal": "No native tests launched. Interrupted readiness to avoid overlapping another heavy validation. Parent exited and restored snapshots.",
+    "limits": "Resource overlap observed139; does not establish cause of137, a production defect, or that a larger server instance is needed. Do not change App Hosting resources from this measurement."
+  },
+  "cleanup": {
+    "portsListening": [],
+    "sourceDiff": "",
+    "realDataOrMessages": false
+  },
+  "acceptance": {
+    "desktop": true,
+    "mobile": true,
+    "productionSDK": false,
+    "profiles180Fixed": false,
+    "externalIntegrations": false,
+    "originals19": false,
+    "physicalHardware": false
+  }
+}

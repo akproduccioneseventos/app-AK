@@ -1,0 +1,190 @@
+{
+  "gate": "AUDIT_135_COMPLETE_THREE_SCOPED_BLOCKS_WITH_OPEN_FINDINGS",
+  "sourceSha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildExit": 0,
+  "finalNativeCases": [
+    {
+      "title": "DJ: la cancion opcional persistida aparece tambien tras recargar",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "DJ: la cancion opcional persistida aparece tambien tras recargar",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "agenda: revisar sin Google conectado responde y no rompe la pantalla",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "agenda: revisar sin Google conectado responde y no rompe la pantalla",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "cocina: evento y porciones reales, recarga y salida de impresion",
+      "project": "chromium-desktop",
+      "status": "failed"
+    },
+    {
+      "title": "cocina: evento y porciones reales, recarga y salida de impresion",
+      "project": "chromium-mobile",
+      "status": "failed"
+    },
+    {
+      "title": "171 contrato: conserva título, firma y texto del botón PDF dentro del celular",
+      "project": "chromium-mobile",
+      "status": "failed"
+    },
+    {
+      "title": "172 red social: el dock no tapa el encabezado Evento al abrir en celular",
+      "project": "chromium-mobile",
+      "status": "failed"
+    },
+    {
+      "title": "salon 3D: canvas real no blanco y giro, sin aceptar imagen de respaldo",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "salon 3D: canvas real no blanco y giro, sin aceptar imagen de respaldo",
+      "project": "chromium-mobile",
+      "status": "passed"
+    }
+  ],
+  "nativePassed": 6,
+  "nativeFailed": 4,
+  "uniqueNamedUnitChecksAcceptedAcrossDocumentedModes": 42,
+  "unitInitial": {
+    "passed": 41,
+    "failedDueLocalVsMockBranch": 1
+  },
+  "unitFocal": {
+    "passed": 1,
+    "deselected": 7
+  },
+  "newWorkItems": [
+    "178-cabecera-impresa-cocina"
+  ],
+  "existingOpenItems": [
+    "171-contrato-movil",
+    "172-dock-social"
+  ],
+  "previousTask4": "docs/evidencias/134-conciliacion.md",
+  "remainingFixtures": [],
+  "trackedQaChanges": [],
+  "notificationCleanup": [
+    {
+      "file": "data/notifications.json",
+      "syntheticAdded": 1,
+      "cappedRowsRestored": 1,
+      "baselineSha256": "6f78822968bb7dd5eeb32e6e2574358ac05b398744a83b78cbd3d404b43a2e7c"
+    },
+    {
+      "file": "src/data/notifications.json",
+      "syntheticAdded": 1,
+      "cappedRowsRestored": 1,
+      "baselineSha256": "6f78822968bb7dd5eeb32e6e2574358ac05b398744a83b78cbd3d404b43a2e7c"
+    }
+  ],
+  "serverStoppedAt": "2026-10-16T10:47:03.218Z",
+  "applicationEdited": false,
+  "merged": false,
+  "allAppCertified": false,
+  "limits": [
+    "current synthetic source only",
+    "Firebase installations protocol double, not real Firebase",
+    "Google disconnected response only, no Google account cleanup",
+    "software WebGL, no physical devices",
+    "new private/unbuilt coder branches not accepted by these tests"
+  ],
+  "archived": [
+    {
+      "file": "135-3d-results.json.gz",
+      "originalBytes": 270445,
+      "originalSha256": "44994d36822d1729bff4fca7b30a7b509c3b40b251adc10187395789c18af2c3"
+    },
+    {
+      "file": "135-3d.log.gz",
+      "originalBytes": 348,
+      "originalSha256": "fea984394b6c13e10f0886c37d3fd2bbd2ab274365a6e2e3ef4c532bfda39c16"
+    },
+    {
+      "file": "135-agenda-final-results.json.gz",
+      "originalBytes": 6242,
+      "originalSha256": "dd88327f535746fdf15293152afe79b3da2af1b617c9ef7f66d77b76f86497e8"
+    },
+    {
+      "file": "135-agenda-final.log.gz",
+      "originalBytes": 343,
+      "originalSha256": "98cdb3f8af37ec69435a45601de447dae62943851f1d774e2cecb4218d53e049"
+    },
+    {
+      "file": "135-agenda-results.json.gz",
+      "originalBytes": 3150,
+      "originalSha256": "1cf3a7ee6304aa2c762a092f277d34bf79ccad81b3152cf73181e218908f7079"
+    },
+    {
+      "file": "135-agenda.log.gz",
+      "originalBytes": 166,
+      "originalSha256": "10430d4abdbd108757550247ef54aa526417db51010e4fcac2d0bf16fe54e830"
+    },
+    {
+      "file": "135-build.log.gz",
+      "originalBytes": 52578,
+      "originalSha256": "88f511d34db6ea35df93e99abf19e97c5aa878ace50ba12e7461e3b31d20cb77"
+    },
+    {
+      "file": "135-core-results.json.gz",
+      "originalBytes": 32323,
+      "originalSha256": "5614f6daa0420ac7f5e076dc9e3e3a63e1ff09decfef8dc1c8eb8d3511f8c9e1"
+    },
+    {
+      "file": "135-core.log.gz",
+      "originalBytes": 8950,
+      "originalSha256": "b86f2cce47d6b0560768b3dad3694875f58f24a2f0e14c8b12163a15b560abc6"
+    },
+    {
+      "file": "135-kitchen-results.json.gz",
+      "originalBytes": 234374,
+      "originalSha256": "be0c605331221b6390bd80ec9baf7669da76e4d19d069561cc97720e06196317"
+    },
+    {
+      "file": "135-kitchen.log.gz",
+      "originalBytes": 5234,
+      "originalSha256": "aa62955a591c190eb0b700067009d12978aa089feb752637b15942b9c5fae12b"
+    },
+    {
+      "file": "135-mobile-results.json.gz",
+      "originalBytes": 18254,
+      "originalSha256": "9fd68afd24858ec9cd5d3e8139c78825386d2057e686df136707c1bd2c37f959"
+    },
+    {
+      "file": "135-mobile.log.gz",
+      "originalBytes": 9597,
+      "originalSha256": "a2c3412584a815d3f0e063363f4e0d75cef3f2266a3c1a804acf55ec575288f7"
+    },
+    {
+      "file": "135-unit-crm-results.json.gz",
+      "originalBytes": 4804,
+      "originalSha256": "3946f98f4d2ff05be6834cc809aa5c05ae4933ddba1d7797947fa6db165eadcc"
+    },
+    {
+      "file": "135-unit-crm.log.gz",
+      "originalBytes": 1304,
+      "originalSha256": "573041231c599013773af194252116f72e936b9b399331f6f414808eb6412ef4"
+    },
+    {
+      "file": "135-unit-results.json.gz",
+      "originalBytes": 25397,
+      "originalSha256": "43d30283df1acd19ceca64a604fe8c78541298f916708cdd96aea04b735f177a"
+    },
+    {
+      "file": "135-unit.log.gz",
+      "originalBytes": 28330,
+      "originalSha256": "42741a89995368fa30e698b073bfebc773cc2d420b05ee0bfe896beed85d9384"
+    }
+  ]
+}

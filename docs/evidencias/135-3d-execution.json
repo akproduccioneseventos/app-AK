@@ -1,0 +1,37 @@
+{
+  "sourceSha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T10:42:41.692Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 803
+  },
+  "group": "3d",
+  "label": "3d",
+  "args": [
+    "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+    "test",
+    "--config",
+    "135-playwright.config.ts",
+    "135-cocina-agenda-3d.spec.ts",
+    "--grep",
+    "salon 3D",
+    "--output",
+    "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\135-3d-artifacts"
+  ],
+  "exitCode": 0,
+  "finishedAt": "2026-10-16T10:45:46.295Z",
+  "realServicesEnabled": false,
+  "testSourceArtifact": "135-3d-source.spec.ts.gz",
+  "testSourceSha256": "045cb39c89271c4db140ffd8a5ab744ff9dcd7c6655616db84fa8014fb47b68c"
+}
