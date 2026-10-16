@@ -1,6 +1,12 @@
 # 179 - Gemini: enlace de agenda y legibilidad de costos
 
-NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI: HEAD privado desconocido.
+ID estable: AK-CODEX-136-WA099-COST. Usar este ID y el nombre COMPLETO del
+archivo, no solo "179": existe otra179 de Gemini sobre portada/IA, distinta.
+Contraste140: Gemini `4d845b921d3b579515de7937fd7d209cbab71f3b`, rama
+`feat/ordenes-178-179-impresos-ia38`, conserva los consumidores de agenda y
+servicios IDENTICOS a7230 por blobGit. No cerrar esta orden por la entrega de
+`179-gemini-devolucion-176-177-y-ia-gratis-mas-nueva.md`.
+NO CONTRASTADO CON LA CABEZA PRIVADA ACTUAL DE CLAUDE.
 Contraste publico: main `7230f9d02b32805952a185f704a0208bd5d643e6`;
 PR1325 `5f704e68ffc65796d74bbe5d11046bf1c0413004` y
 PR1326 `a21d0b6987bb55757be217bdadf63f8ca67a6cb6` no cambian ni el consumidor

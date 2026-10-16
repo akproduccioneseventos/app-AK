@@ -1,6 +1,10 @@
 # 180 - Claude: validar solo los siete perfiles propios
 
-NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI: HEAD desconocido.
+ID estable: AK-CODEX-138-PERFIL-PROPIO. Usar este ID y el nombre COMPLETO
+del archivo: existe otra180 sobre menu/galeria de Gemini, no es este arreglo.
+Contraste140: Gemini `4d845b921d3b579515de7937fd7d209cbab71f3b`, rama
+`feat/ordenes-178-179-impresos-ia38`, conserva perfiles.ts IDENTICO a7230.
+NO CONTRASTADO CON LA CABEZA PRIVADA ACTUAL DE CLAUDE.
 Fuente ejecutada7230f9d02b32805952a185f704a0208bd5d643e6. En PR1325
 `5f704e68ffc65796d74bbe5d11046bf1c0413004` y PR1326
 `a21d0b6987bb55757be217bdadf63f8ca67a6cb6`, `src/lib/auth/perfiles.ts` y su
@@ -55,8 +59,18 @@ entradas distintas a los siete perfiles validos, antes no ejecutadas.
 Claude implementa/valida; Codex solo documenta. Una sola tanda con las otras
 correcciones, no otra PR por este ayudante.
 
+Correccion de mi verificador140: los tres controles originales daban3PASS
+porque archivos/simbolo/prueba ya existian con el error aun presente. Se
+agregan abajo condiciones que hoy FALLAN para impedir ese falso cierre.
+Siguen siendo controles estructurales: incluso verdes NO sustituyen ejecutar
+la regresion de138 y la ampliacion Jest contra el SHA corregido.
+
 ```comprobar
 archivo: src/lib/auth/perfiles.ts
 usa: esPerfilValido en src/app/actions/auth.ts
 prueba: src/__tests__/perfiles.test.ts
+no-usa: valor in PERMISOS_POR_PERFIL en src/lib/auth/perfiles.ts
+usa: constructor en src/__tests__/perfiles.test.ts
+usa: toString en src/__tests__/perfiles.test.ts
+usa: __proto__ en src/__tests__/perfiles.test.ts
 ```

@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Continua la misma propuesta documental de auditorias134-139 con evidencia nueva.
+Continua la misma propuesta documental de auditorias134-140 con evidencia nueva.
 **No fusionar documentos solos. Codex no cambia codigo app ni fusiona.**
 
 -134: conciliacion421rutas/14areas/7perfiles, sin convertir inventario en pruebas.
@@ -24,6 +24,10 @@ Continua la misma propuesta documental de auditorias134-139 con evidencia nueva.
   el timeout de menu movil de la sonda y se corrigio/retesteo solo ese recorrido.
 -Health publico200 misma fuente7230, indicadores Instagram/MercadoPagofalse;
   configuracion mail/Gemini/Workspace no equivale a conexion probada.
+-140: contraste privadoGemini4d845b921 confirma dos ordenes DIFERENTES con
+  prefijos179/180. Se agregan IDs estables, sin reemitirlas ni tocar su trabajo.
+  Se corrige el falso cierre estructural de mi orden180: antes3PASS/0FAIL y
+  ahora3PASS/4FAIL esperados, con app intacta. No regresion/app corregida.
 -19originales: dueno buscando ubicacion; integraciones reales, Hosting, modelo/
   voz y hardware no certificados. **No representa toda app sin errores.**
 

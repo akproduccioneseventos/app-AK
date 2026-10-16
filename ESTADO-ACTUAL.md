@@ -1,4 +1,4 @@
-# Estado actual - Codex139, 16/10/2026
+# Estado actual - Codex140, 16/10/2026
 
 Codex SOLO audita/prueba/documenta; Gemini programa; Claude valida/compila/fusiona.
 Excepcion autorizada: compilar/levantar SOLO QA aislado. Codex no fusiona.
@@ -17,7 +17,7 @@ Preservar telefono almacenado; reusar ayudante toWhatsAppDigits SOLO para enlace
 Segundo179 visual: titulo Ajuste de Costos Global negro sobre panel oscuro en movil.
 CardTitle impone text-foreground: arreglo local, no formula/permisos ni cambio global.
 1325HEAD5f704e68/1326a21d0b69 sin cambios en consumidores, CardTitle y CSS comparados.
-NO CONTRASTADO CON LA TANDA PRIVADA de Claude/Gemini: HEAD privado desconocido.
+Gemini4d845b921 privado contrastado140; Claudeactual NO CONTRASTADO. Verhandoff140.
 No confundir correccion presente, prueba aprobada y Hosting verificado.
 ErroresQA conservados: escape cookie, JSON atomico bloqueado,Java17,avatar,alias guest,
 formato12h valido,columna movil plegada,telefonos repetidos; no defectos de produccion.
@@ -36,5 +36,5 @@ HTTP138 confirma3x500/controldesconocido404 con cookie ficticia yPDFinexistente.
 No escalada/login real probado; mantener politica vigente. Verorden180.
 139: clienteJSON PC/movil2viajesPASS contelefono/sinemail/lista/recarga/mismoID; NO SDK.
 137salon persiste; clienteSDKINCONCLUSO.139detecto buildGemini/RAM151MiB: no solapar QA.
-139-cierre/limites:180+SDK+integraciones+19originales+hardware pendientes; servicios cerrados.
+140: dos179/dos180distintas; usarIDs yarchivo completo.180gates3PASS4FAIL, appSINarreglo.
 No certificar Hosting/OAuth/modelo-voz/19originales/hardware/integraciones reales sin prueba.

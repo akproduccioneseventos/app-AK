@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex140: distinguir ordenes y no aceptar perfiles por archivos existentes
+
+-Se contrasto por Git la copia Gemini4d845b921d3b579515de7937fd7d209cbab71f3b,
+  rama feat/ordenes-178-179-impresos-ia38, solo lectura. Los consumidores de
+  agenda/catalogo/perfiles son identicos a7230: no repetir defectos136/138.
+-Dos179 y dos180 DIFERENTES entre tandas: usar archivo completo e ID estable
+  AK-CODEX-136-WA099-COST / AK-CODEX-138-PERFIL-PROPIO. "179completa" de91ccc
+  se refiere a portada/IA, no cierra WA/costos. No error automatico por numero
+  demostrado. No renumerar ni reimplementar trabajo ajeno.
+-Mi orden180 tenia tres controles estructurales verdes aun con el fallo. Se
+  ejecutaron las funciones reales del comprobador: antes3PASS/0FAIL; despues
+  de reforzar SOLO el documento3PASS/4FAIL esperados. No son4bugs nuevos ni
+  correccion de app; regresion/Jest futuros siguen pendientes hasta ejecutarse.
+-Ver140-handoff-sin-ambiguedad y140-antes/despues. Controlar contenido/caso, no
+  dar por resuelto por prefijo, archivo existente o informe de otra tarea.
+-SDK sigue pendiente por recursos: se vio devGemini3100 ~1712MiB, RAM461148KiB.
+  No se toco; autorizacion solicitada para detenerlo, no asumir respuesta.
+  Ayudante cerrado, ningun servicio propio nuevo ni build/prueba pesada.
+
 ## 16/10/2026 - Codex139: alta cliente local PC/movil y limites externos
 
 -7230/build135 reutilizados sin cambio app. DOS viajesPASS de alta cliente con
