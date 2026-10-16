@@ -287,6 +287,44 @@ export default function DJPage() {
           </div>
         ) : null}
 
+        {/* Sugerencias / Si es posible */}
+        {fiesta?.listaMusicaPortal?.siEsPosible && fiesta.listaMusicaPortal.siEsPosible.length > 0 ? (
+          <div className="rounded-2xl border-2 border-sky-500/70 bg-gradient-to-r from-sky-950/70 via-zinc-900 to-sky-950/70 p-4 shadow-xl shadow-sky-950/30">
+            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-sky-500/30">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">💡</span>
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-sky-300 tracking-tight">
+                    Si es posible
+                  </h2>
+                  <p className="text-[11px] text-sky-200/70">
+                    Sugerencias del cliente: pasalas si encajan.
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2 py-0.5 rounded-full shrink-0">
+                {fiesta.listaMusicaPortal.siEsPosible.length} sugeridas
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {fiesta.listaMusicaPortal.siEsPosible.map((cancion, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2.5 p-2.5 rounded-xl bg-black/40 border border-sky-500/30 hover:border-sky-400 transition-colors"
+                >
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-sky-500 text-black flex items-center justify-center text-xs font-black">
+                    {idx + 1}
+                  </span>
+                  <span className="font-extrabold text-sm sm:text-base text-sky-100 leading-snug break-words">
+                    {cancion}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {/* 2. Prohibidas / No Deben Sonar */}
         {fiesta?.listaMusicaPortal?.noQuiero && fiesta.listaMusicaPortal.noQuiero.length > 0 ? (
           <div className="rounded-2xl border-2 border-rose-600/80 bg-gradient-to-r from-rose-950/80 via-zinc-900 to-rose-950/80 p-4 shadow-xl shadow-rose-950/30">
@@ -469,4 +507,5 @@ export default function DJPage() {
     </div>
   );
 }
+
 

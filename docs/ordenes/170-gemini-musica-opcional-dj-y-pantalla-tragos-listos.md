@@ -140,7 +140,8 @@ prueba: docs/evidencias/132-portal-menu-musica.test.tsx
 archivo: src/app/evento/barra/[fiestaId]/listo/page.tsx
 usa: getBarPedidosListos en src/app/evento/barra/[fiestaId]/listo/page.tsx
 prueba: docs/evidencias/132-barra-listos.test.tsx
-prueba: PENDIENTE src/__tests__/musica-opcional-visible-dj.test.tsx
-prueba: PENDIENTE src/__tests__/barra-listos-informa-lecturas-fallidas.test.tsx
-prueba: PENDIENTE src/__tests__/chat-en-vivo-avisa-si-no-pudo-leer.test.tsx
+prueba: LISTA src/__tests__/musica-opcional-visible-dj.test.tsx
+prueba: LISTA src/__tests__/barra-listos-informa-lecturas-fallidas.test.tsx
+prueba: LISTA src/__tests__/chat-en-vivo-avisa-si-no-pudo-leer.test.tsx
 ```
+

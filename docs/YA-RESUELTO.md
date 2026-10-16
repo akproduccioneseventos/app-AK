@@ -1,5 +1,11 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 15/10/2026 - Orden 170: Lista "Si es posible" en DJ, tragos listos y chat en vivo ante fallos
+
+- **Panel DJ (canciones "Si es posible"):** en `src/app/evento/dj/[fiestaId]/page.tsx` se agregó la sección "Si es posible" entre las obligatorias (`imprescindibles`) y prohibidas (`noQuiero`). Lee `fiesta.listaMusicaPortal.siEsPosible` con contador "N sugeridas", estilo cielo (`sky`) y leyenda explicativa "Sugerencias del cliente: pasalas si encajan." sin mezclarlas con pedidos ni alterar prioridades. Si la lista está vacía, no se muestra.
+- **Pantalla de tragos listos (barra):** en `src/app/evento/barra/[fiestaId]/listo/page.tsx` se introdujo el estado `lecturaFallida`. Ante `res.success: false` o error de red/servidor, se conserva la lista en pantalla, se expone un cartel accesible con `role="alert"` ("No pudimos leer los pedidos..." en vacío o "Puede estar desactualizado..." con pedidos previos) y el indicador inferior pasa a "Sin conexión, reintentando…". Con lista vacía y fallo de lectura no se muestra el mensaje de espera normal. Al recuperar la conexión, el aviso se limpia solo.
+- **Chat en vivo del invitado:** en `src/app/evento/en-vivo/[fiestaId]/page.tsx` se desacopló la lectura de la fiesta de la lectura del chat (`chatSinLeer`). Ante errores de red en la carga inicial o durante el sondeo cada 6 s, no se vacían los mensajes previos, se oculta el falso "0 mensajes" y "Sé la primera persona..." y se informa "No pudimos cargar los saludos. Reintentando…" (`role="status"`) o "Reintentando conexión…" con mensajes en pantalla.
+
 ## 15/10/2026 - Orden 169: Panel DJ, desmarcar canciones y errores de guardado visibles
 
 - **Panel DJ (estado explícito y desmarcar canciones):** en `src/app/actions/social-interactive.ts`, `markSongPlayed` ahora recibe `reproducida: boolean` y persiste `{ played: reproducida }` explícito en vez de un toggle ciego o escribir siempre `true`. Valida `typeof reproducida === 'boolean'` y preserva permisos de noche y control de evento.
@@ -14407,6 +14413,7 @@ prueba: src/__tests__/pregunta-58-rebarrido.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-plata.test.ts
 prueba: src/__tests__/pregunta-58-rebarrido-eventos-y-clientes.test.ts
 ```
+
 
 
 
