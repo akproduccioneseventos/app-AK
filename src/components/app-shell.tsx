@@ -147,12 +147,17 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/finanzas') return 'Dashboard de Rentabilidad';
   if (pathname === '/alertas') return 'Centro de Alertas';
   if (pathname === '/pagos-rapidos') return 'Pagos Rápidos';
+  if (pathname === '/marketing') return 'Centro de Marketing y Redes';
 
   if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
 
   if (pathname === '/evento/actual') return 'Evento Actual';
   if (pathname === '/evento/actual/mesa') return 'Mi Mesa';
   if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
+  if (pathname.startsWith('/evento/muro-en-vivo')) return 'Muro en Vivo';
+  if (pathname.startsWith('/evento/galeria')) return 'Galería de Recuerdos';
+  if (pathname.startsWith('/evento/album')) return 'Álbum Digital';
+  if (pathname.startsWith('/evento/bogue')) return 'Cabina Vogue';
   if (pathname.startsWith('/evento/social')) return 'Muro Social en Vivo';
   if (pathname.startsWith('/evento/barra')) return 'Barra en Vivo';
   if (pathname.startsWith('/evento/totem')) return 'Tótem Interactivo';

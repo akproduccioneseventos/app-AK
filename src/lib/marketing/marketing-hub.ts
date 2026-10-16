@@ -1,4 +1,4 @@
-import { Sparkles, Megaphone, RadioTower, Globe2, Presentation, MonitorPlay } from 'lucide-react';
+import { Sparkles, Megaphone, RadioTower, Globe2, Presentation, MonitorPlay, MessageSquare } from 'lucide-react';
 
 export const MARKETING_CUATRO_PUERTAS = [
   {
@@ -33,6 +33,13 @@ export const MARKETING_CUATRO_PUERTAS = [
 
 export const MARKETING_HUB_ITEMS = [
   ...MARKETING_CUATRO_PUERTAS,
+  {
+    title: 'WhatsApp y seguimiento comercial',
+    description: 'Bandeja de mensajes preparados y recontacto de presupuestos sin respuesta.',
+    href: '/contabilidad/crm/outbox',
+    icon: MessageSquare,
+    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  },
   {
     title: 'Plantilla LED',
     description: 'Portafolio visual para vender en reunion: beneficios, servicios, tecnologia y cierre comercial.',

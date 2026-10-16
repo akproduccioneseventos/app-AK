@@ -415,7 +415,8 @@
 @media print {
   @page { size: A4 portrait; margin: 15mm 12mm 20mm 12mm; }
   html, body { background: #ffffff !important; color: #111111 !important; font-size: 10pt !important; font-family: 'Arial', 'Helvetica', sans-serif !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  header:not(.cabecera-documento), nav, aside, [data-sidebar], [data-radix-popper-content-wrapper], .print-hide, button, [role="navigation"], [role="banner"] { display: none !important; }
+  header:not(.cabecera-documento):not(.print-header):not([data-document-header]):not(.document-header), nav, aside, [data-sidebar], [data-radix-popper-content-wrapper], .print-hide, button:not(.print-allow), [role="navigation"], [role="banner"]:not(.cabecera-documento):not([data-document-header]) { display: none !important; }
+  .printable-area header, [data-printable] header, .documento-impresion header, .print-header, header.cabecera-documento { display: flex !important; }
   table, thead, tr, th, td, section, figure { page-break-inside: avoid; }
   * { box-shadow: none !important; text-shadow: none !important; border-radius: 0 !important; }
   #budget-summary-printable { width: 100% !important; max-width: 100% !important; border: none !important; background: #ffffff !important; padding: 0 !important; margin: 0 !important; }

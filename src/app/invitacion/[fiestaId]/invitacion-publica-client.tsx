@@ -1624,6 +1624,14 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             </div>
           );
         })()}
+        <div className="mt-8 pt-4 border-t border-white/15 text-[11px] opacity-70">
+          <p>
+            Experiencia digital creada por{' '}
+            <a href="/simulador-ak?utm_source=invitacion_footer" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-100 font-bold">
+              AK Producciones
+            </a>
+          </p>
+        </div>
       </footer>
 
       {/* ============= WHATSAPP FLOATING BUTTON ============= */}

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -742,7 +743,14 @@ export default function PublicAlbumPage() {
           <p className="font-semibold text-zinc-300">
             Organizado y capturado por AK Producciones
           </p>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/simulador-ak?utm_source=album_recuerdo"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs transition-all shadow-md"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Cotizá tu fiesta en 1 minuto
+            </Link>
             <a
               href={buildAkWhatsAppUrl(`Hola! Vi el álbum del evento ${nombreFiesta} y quiero consultar para mi fiesta.`)}
               target="_blank"

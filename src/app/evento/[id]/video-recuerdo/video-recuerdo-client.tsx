@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -334,8 +335,14 @@ export function VideoRecuerdoClient({ eventName, eventDate, images, isPersonaliz
           </p>
         </div>
 
-        <div className="text-right text-[11px] font-bold text-white/60 tracking-wider">
-          AK PRODUCCIONES
+        <div className="pointer-events-auto text-right">
+          <Link
+            href="/simulador-ak?utm_source=video_recuerdo"
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-300 hover:text-amber-200 tracking-wider bg-black/60 px-3 py-1.5 rounded-full border border-amber-500/30 transition shadow-lg backdrop-blur-md"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            Cotizá tu fiesta
+          </Link>
         </div>
       </div>
 
