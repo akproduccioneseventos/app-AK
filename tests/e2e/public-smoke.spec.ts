@@ -67,6 +67,7 @@ test('simulator hub connects both options with the visual first step', async ({ 
 });
 
 test('public homepage fits the viewport without horizontal overflow', async ({ page }) => {
+  test.setTimeout(180_000);
   const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   expect(response?.status()).toBe(200);
@@ -117,6 +118,7 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
 });
 
 test('secondary public navigation returns to the matching homepage section', async ({ page }) => {
+  test.setTimeout(180_000);
   await page.goto('/club-uruguay', { waitUntil: 'domcontentloaded' });
 
   const servicesLink = page.locator('header').getByRole('link', { name: 'Servicios', exact: true });

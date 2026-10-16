@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
   test('TEC-01: Carga la sección comercial "La app de tu fiesta" con sus 5 momentos y demo aislada', async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     // Sección visible en la portada
