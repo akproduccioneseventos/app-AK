@@ -169,33 +169,35 @@ export async function getDashboardKpiData() {
       });
     });
 
-    invoicesData.forEach(inv => {
-      if (inv.status !== 'Paid' && inv.dueDate && isBefore(new Date(inv.dueDate), today)) {
-        alerts.push({
-          id: inv.id,
-          type: 'payment',
-          title: `Pago Pendiente: Factura ${inv.invoiceNumber}`,
-          description: `Cliente: ${inv.customer.name || inv.customer.companyName}`,
-          severity: 'high',
-          href: `/invoices/${inv.id}`,
-        });
-      }
-    });
+    if (veLaPlata) {
+      invoicesData.forEach(inv => {
+        if (inv.status !== 'Paid' && inv.dueDate && isBefore(new Date(inv.dueDate), today)) {
+          alerts.push({
+            id: inv.id,
+            type: 'payment',
+            title: `Pago Pendiente: Factura ${inv.invoiceNumber}`,
+            description: `Cliente: ${inv.customer.name || inv.customer.companyName}`,
+            severity: 'high',
+            href: `/invoices/${inv.id}`,
+          });
+        }
+      });
 
-    presupuestosData.forEach(pres => {
-      if (!isFirmBudgetStatus(pres.estado)) return;
-      const summary = getBudgetPaymentSummary(pres, { includeAnnualAdjustment: true });
-      if (summary.balance > 0 && pres.eventoFecha && new Date(pres.eventoFecha) <= addDays(today, 7)) {
-        alerts.push({
-          id: `budget_balance_${pres.id}`,
-          type: 'payment',
-          title: `Saldo pendiente: ${pres.clienteNombre}`,
-          description: `Faltan ${summary.balance.toLocaleString('es-UY')} UYU para completar el presupuesto.`,
-          severity: 'high',
-          href: `/presupuestos/${pres.id}/ver`,
-        });
-      }
-    });
+      presupuestosData.forEach(pres => {
+        if (!isFirmBudgetStatus(pres.estado)) return;
+        const summary = getBudgetPaymentSummary(pres, { includeAnnualAdjustment: true });
+        if (summary.balance > 0 && pres.eventoFecha && new Date(pres.eventoFecha) <= addDays(today, 7)) {
+          alerts.push({
+            id: `budget_balance_${pres.id}`,
+            type: 'payment',
+            title: `Saldo pendiente: ${pres.clienteNombre}`,
+            description: `Faltan ${summary.balance.toLocaleString('es-UY')} UYU para completar el presupuesto.`,
+            severity: 'high',
+            href: `/presupuestos/${pres.id}/ver`,
+          });
+        }
+      });
+    }
 
     leadsData.forEach(lead => {
       if (!lead.followUpDate) return;
@@ -236,7 +238,7 @@ export async function getDashboardKpiData() {
       const monthName = getMonthKey(date);
       const monthKey = format(date, 'yyyy-MM');
       const ledgerMonth = ledgerMonthsMap.get(monthKey);
-      
+
       monthlyData.push({
         month: monthName,
         ventas: ledgerMonth ? ledgerMonth.ventas : 0,

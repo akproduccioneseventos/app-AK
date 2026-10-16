@@ -84,8 +84,8 @@ usa: getMisPermisos en src/components/main-nav.tsx
 usa: permiso: PERMISOS.CONTABILIDAD en src/components/main-nav.tsx
 usa: 'bogue' en src/app/evento/galeria/[fiestaId]/page.tsx
 no-usa: alert('Enlace copiado al portapapeles') en src/app/evento/galeria/[fiestaId]/page.tsx
-prueba: PENDIENTE src/__tests__/el-menu-muestra-solo-lo-que-se-puede-usar.test.tsx
-prueba: PENDIENTE src/__tests__/la-galeria-filtra-vogue.test.tsx
+prueba: src/__tests__/el-menu-muestra-solo-lo-que-se-puede-usar.test.tsx
+prueba: src/__tests__/la-galeria-filtra-vogue.test.tsx
 usa: filtrarPorEstacion en src/app/evento/album/[fiestaId]/page.tsx
 usa: filtrarPorEstacion en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: 'bogue' en src/components/kiosk/kiosk-setup.tsx

@@ -8,13 +8,7 @@ type Props = {
   }>;
 };
 
-const moduleRedirects: Record<string, (fiestaId: string) => string> = {
-  'tareas': (fiestaId) => `/portal?fiestaId=${fiestaId}`,
-  'musica': (fiestaId) => `/portal-cliente/${fiestaId}/musica`,
-  'video-vida': (fiestaId) => `/portal-cliente/${fiestaId}/fotos-video`,
-  'documentos': (fiestaId) => `/portal/${fiestaId}/contrato`,
-  'fotografia': (fiestaId) => `/portal-cliente/${fiestaId}/fotos-video`,
-};
+import { moduleRedirects } from '@/lib/portal/portal-redirects';
 
 export default async function LegacyPortalModuleRedirectPage(props: Props) {
   const params = await props.params;
