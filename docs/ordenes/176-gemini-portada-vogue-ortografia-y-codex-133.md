@@ -194,8 +194,8 @@ usa: como-calcular-bebida-evento-salto en src/lib/blog/sin-promesas.ts
 no-usa: Oficina & Atencion en src/components/public-footer.tsx
 no-usa: Salon principal en src/lib/salon-helper.ts
 usa: +200 en src/components/landing/StatsSection.tsx
-prueba: tests/e2e/133-contrato-responsive.spec.ts
-prueba: tests/e2e/133-mobile-route-latency.spec.ts
+prueba: docs/evidencias/133-contrato-responsive.spec.ts
+prueba: docs/evidencias/133-mobile-route-latency.spec.ts
 prueba: src/__tests__/el-blog-de-bebidas-no-promete.test.ts
 prueba: src/__tests__/la-portada-escribe-bien.test.ts
 usa: nombreVisibleDeEstacion en src/lib/entertainment/station-config.ts

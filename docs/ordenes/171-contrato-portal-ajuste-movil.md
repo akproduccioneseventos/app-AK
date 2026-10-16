@@ -31,5 +31,5 @@ No se encontro este defecto en los antecedentes consultados. Las correcciones pr
 ```comprobar
 archivo: src/app/portal/[fiestaId]/contrato/page.tsx
 no-usa: absolute -top-12 left-1/2 en src/app/portal/[fiestaId]/contrato/page.tsx
-prueba: tests/e2e/133-contrato-responsive.spec.ts
+prueba: docs/evidencias/133-contrato-responsive.spec.ts
 ```
