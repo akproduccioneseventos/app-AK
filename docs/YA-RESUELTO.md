@@ -1,5 +1,30 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Barrido con las preguntas 64 a 67
+
+- **64 (impresión):** fuera de los 21 documentos de la orden 178, nada más se pierde al imprimir: `aside`, `nav` y los roles ocultos no tienen contenido de documento; los `button` ocultos son controles.
+- **65 (puertas por perfil):** cuatro botones de plata a la vista de quien no puede usarlos (orden 180, bloque 4) y **un defecto de plata real**: la fiesta viajaba con lo que cobra cada persona (`eventSalary`) a la secretaria y al operador. Va en la orden 183.
+- **66 (estaciones en todas las listas):** el álbum tenía las pestañas 360 y Espejo siempre vacías por buscar otro nombre; faltaba Vogue en la tablet y tres estaciones en el centro de la fiesta (orden 180, bloque 3). Los contadores de fotos del post-evento cuentan por exclusión y están bien.
+- **67 (botones repetidos):** fuera del portal y del panel, sólo una lista de verificación con dos puntos que se configuran en la misma pantalla: está bien así.
+
+## 16/10/2026 - La entrega 176/177 vuelve a Gemini (orden 179)
+
+La verificación frenó en la prueba de navegador: 12 pruebas viejas esperaban textos que cambiaron a propósito, la línea base de la maquetación no estaba regenerada, y una falla real (los campos del verificador de fecha con letra menor a 16 px hacen zoom en el celular). Va todo a la orden 179, junto con el paso a la IA gratis más nueva (`gemini-3.8-flash`, decisión del dueño) y la hoja de cocina (178). Lo ya arreglado por Claude en la rama queda: una sola ancla de galería, botones unificados en el pie y el flotante, y la prueba de la portada mirando lo que se ve en el celular.
+
+## 16/10/2026 - Auditoría integral de la IA avanzada de Gemini (`docs/evidencias/135-auditoria-integral-gemini-avanzada.md`)
+
+Verificado por Claude contra el código, de sus siete hallazgos de roles y portal:
+- **Reales y ya arreglados:** el botón Documentos del portal iba al menú, y los atajos `/portal/[fiestaId]/[modulo]` mandaban al cliente a pantallas del equipo.
+- **Ya estaba bien:** Lista de Regalos va a `/invitacion/[id]#regalos`; el contrato ya no adivina el firmante cortando el nombre del evento por " de ".
+- **Falso positivo:** "Mesas del portal sin llave": la pantalla abre, pero los guardados (`updateDecoracion` con `allowPortal`, `addInvitado` con sesión) piden sesión del equipo o la clave del cliente en el servidor. "El chat le da plata al operador": `getDashboardKpiData` ya pone en cero lo de plata si no hay permiso de contabilidad (`veLaPlata`, `src/app/actions/dashboard.ts` ~100).
+- **Propuesta, no defecto:** unificar perfiles y casillas viejas en `/admin/usuarios`, y destacar cuotas y bonificados en la vista del presupuesto. Las decide el dueño.
+
+## 16/10/2026 - Entrega de Gemini 176/177 y PR 1325 del portal
+
+- Entraron la portada nueva (plan Argon), "Vogue" y la ortografía (órdenes 176 y 177), y el arreglo del portal del cliente: el botón **Documentos** abre el contrato y los atajos viejos del portal ya no mandan al cliente a pantallas del equipo.
+- **Se volvió atrás el cambio de Gemini en el Encargado** (`src/lib/multiagent/encargado.ts`), que les ocultaba el total del presupuesto a los organizadores sin contabilidad. No era una fuga: `getPresupuestos` ya les saca los cobros y la app les muestra el total en sus pantallas a propósito (`nivelDePresupuestos`, nivel "operativo"). Cambiar quién ve qué es decisión del dueño; si lo quiere, se pide.
+- Las órdenes 176 y 177 traían líneas de prueba con la palabra "LISTA" delante y dos bloques sin comprobación: se corrigieron para que `npm run ordenes?` las lea.
+
 ## 16/10/2026 - Plan "Argon" de la portada y ortografía de toda la app
 
 - **El dueño aprobó todo el plan de la otra IA ("hacé todo")**, salvo lo que contradice sus decisiones: las cifras quedan "+200", "+7" y "Clientes satisfechos" sin porcentaje, y no se usa "congelar". Va a Gemini en la orden 177; los textos rotos, en la 176.
@@ -14489,6 +14514,30 @@ usa: Ver Resumen y Propuesta en src/app/simulador-de-presupuesto/page.tsx
 La prueba `tests/e2e/viaje-invitado.spec.ts` se inicio en la copia QA sintética `a635b27071ecea22092eba2a285892c84c6f9d08`, pero Codex la detuvo al observar en el log `Firebase Admin SDK initialized with Application Default Credentials`. El runner no guardo resultado JSON, por lo que la prueba no cuenta como PASS ni FAIL. `AK_USE_LOCAL_JSON_ONLY=true` tomo la rama local y dejo `dbAdmin` nulo; en el log se observaron lecturas por fallback JSON y no se observo una escritura remota. Los archivos de fixture de esa corrida ya no estaban en las dos carpetas de datos locales al comprobarlo.
 
 RECTIFICACION: el mensaje ADC no demuestra que el SDK descubriera o usara credenciales reales. La dependencia instalada construye el objeto de credenciales de forma diferida; busca el cliente y solicita el token en `getAccessToken()`. `dbAdmin`/`authAdmin` permanecieron nulos en modo local. La interrupcion basada solo en ese mensaje fue una conclusion excesiva de Codex. Se retira el defecto de credenciales y la prohibicion de reanudar RSVP. La llamada del navegador a Firebase con clave ficticia si esta observada y debe interceptarse en QA para evitar falsos fallos de consola. Orden 174 rectificada; ninguna correccion de produccion es necesaria por el log ADC.
+
+## Codex135: ejecutados los tres bloques pendientes de la lista original (16 de octubre de 2026)
+
+Entrega verificada: PR1324 abierta, rama `codex/134-conciliacion-cobertura-20261015`, commit `59285bb686f53f1a489a79a843e9a518cc5afe6f`;95blobs de la propuesta identicos en GitHub, incluida orden178. Sin fusion por Codex.
+
+Fuente congelada7230f9d02b32805952a185f704a0208bd5d643e6, copiaQA aislada compilada exit0 con autorizacion del dueno. Punto1:3D2/2PASS desktop/Pixel7 entrando con clave ficticia de cliente y sin cookie del equipo; canvas real, pixeles variados y giro,0erroresJS, capturas inspeccionadas. Cierra la comprobacion focal inconclusa133, NO todo el catalogo/editor3D ni dispositivos fisicos. Punto2:agenda2/2PASS para cuentaGoogle no conectada; no limpieza real de una cuenta. Se simula SOLO protocolo FirebaseInstallations de demo para evitar el error de clave dummy; el intento anterior abortado queda archivado como problemaQA, no bug nuevo.
+
+Punto2 cocina: hoja con evento/presupuesto realmente cargados,80adultos+20chicos, entrada100/principal80/infantil20/postre100, Celiaco5 y recarga correctas. NUEVO178 paraClaude: el medio de impresion oculta toda la cabecera documental (evento/fecha/grupos); las tablas y cantidades SI se imprimen. DosPDF Chromium1pagina y capturas lo confirman. Causa: selector global header displaynone!important en @media print. No afirmar PDFvacio ni error de cantidades; no cambiar comida/pagos/permisos por presentacion. La sonda auxiliar del primerh1 devuelve navegacion AK, no identifica el evento; la evidencia especifica es la asercion por nombre, captura y PDF. Ver orden178; Codex no lo arreglo.
+
+Punto3:entregas168/169/170 presentes en723;8suites nuevas41PASS y1caso esperaba almacenamientoFirestore mock mientras corriaJSONlocal. Solo ese caso repitio con proveedor completamente simulado/modo esperado1PASS,7no seleccionados;42nombres de comprobacion aceptados entre ambos modos. Sin cambios de codigo/aserciones ni llamadas reales. DJopcional2/2PASS nativos conrecarga. Movil2FAIL vuelven a confirmar171contrato y172dock, ya encargados con176: no duplicarlos. Nuevas1325HEAD73165d9d/1326HEADa21d0b69 solo contrastadas en los archivos relacionados con178/171/172, no aprobadas completas. Privados NO CONTRASTADOS.
+
+Resultado final de los tres bloques135:10casos nativos distintos6PASS4FAIL, mas las42comprobaciones unitarias descritas; no sumar intentos de arnes ni escenarios repetidos. Punto4 ya completado134. Auditoria de estos bloques terminada CON hallazgos, no toda app sin errores. Informe docs/evidencias/135-cierre-tres-pendientes.md;135-aceptacion.json, recibos/fuentes comprimidos y capturas. Servidor/agentes cerrados,0fixtures135,0trackedQAchanges; listas de notificaciones de la copia restauradas tras comprobar cambios sinteticos y tope50. No se modifico app ni datos/cuentas/cargos/mensajes reales, no fusion. Reutilizar esta evidencia por SHA/consumidor antes de otra auditoria.
+
+## Codex134: conciliacion de las 14 areas, sin reiniciar auditorias (15 de octubre de 2026)
+
+Entrega: PR1324 abierta/borrador, rama `codex/134-conciliacion-cobertura-20261015`, commit inicial `09146cae13773e80f96adf474f72fed958e96169`,25blobs comprobados identicos en GitHub. Sin fusion por Codex.
+
+Tarea4 completada como recuento, no como aprobacion funcional. Fuente inventariada main `7230f9d02b32805952a185f704a0208bd5d643e6`:421rutas,14areas,7perfiles,0rutas sin asignar y8pertenencias compartidas sin doble conteo. Indice2026artefactos historicos,0sin expandir,10815referencias ruta/documento. Se conservan124/125/126/128-133; ni las referencias ni6401ubicaciones AST son botones aprobados.
+
+Captura congelada de29corridas133:216ejecuciones (160passed,13failed,19timedOut,24skipped),168firmas titulo/prueba/proyecto distintas; no convertir timeouts/errores del arnes en bugs ni sumar reintentos como funciones nuevas.164casos conservan fuente exacta del test,68rutas tienen asociaciones nativas historicas. Nuevo main incorpora cambios168/169/170: recibos anteriores NO se promueven a evidencia actual completa; las dependencias modificadas se enumeran para contrastar solo el delta, no repetir421recorridos.
+
+PR1320 fue cerrada sin fusion directa y Claude integro parte en1323. Recuperados desde d558175d los recibos finales RSVP10/10PASS y QR descargado/lector4/4PASS, sus fuentes QA y fallos intermedios; fuente ejecutada a635, equivalente9aa ANTERIOR, no723nuevo. El recibo original RSVP que antes no estaba disponible tambien aparece en la captura congelada; no aumenta cobertura por repetir los mismos escenarios. Ningun servicio/cuenta/hardware real probado. La prueba antigua de cocina solo acepta UI/error/impresion condicional: no usarla como hoja con datos totalmente aprobada. Los cuatro casos operativos de133son personal, no cuatro de agenda. El logADC174 sigue retractado como supuesto defecto de credenciales.
+
+Barra no tiene propiedad de rutas en el registro, pero SI ocho rutas relacionadas y evidencia132; no declararla no auditada por ese cero. Sesion generica de equipo y personas de IA no sustituyen pruebas de los siete perfiles reales. No se marcaron areas limpias, no se programo ni compilo app. `node docs/evidencias/134-validar-conciliacion.mjs` dio `PASS_RECONCILIATION_134_ONLY`: hashes, pertenencias, rutas/dependencias, fuentes/casos archivados y conteos coherentes. Consultar `docs/evidencias/134-conciliacion.md`, CSV/JSONgzip antes de volver a auditar. Pendientes concretos y limites separados en el informe; NO significa ceroerrores ni toda app auditada.
 
 ## Blog publico: articulo de bebidas necesita contexto y respaldo (15 de octubre de 2026)
 

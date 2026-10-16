@@ -767,7 +767,7 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
               size="sm"
               className="w-full text-xs"
               onClick={() => {
-                const updated = [...(config.hospedajes || []), { nombre: '', direccion: '', telefono: '', linkBooking: '' }];
+                const updated = [...(config.hospedajes || []), { nombre: '', direccion: '', teléfono: '', linkBooking: '' }];
                 update('hospedajes', updated);
               }}
             >

@@ -38,7 +38,7 @@ export function deriveBudgetModulesForSync(
     barraTecnologica: hasAny('barra tecnologica', 'barra interactiva', 'carta digital de tragos', 'pedido digital de tragos'),
     zonaDigital: hasAny('zona digital', 'juegos digitales', 'retos digitales', 'experiencia adolescente'),
     pantallasTotem: hasAny('pantalla totem', 'pantallas totem', 'totem interactivo'),
-    entretenimiento: hasAny('fotocabina', 'plataforma 360', 'cabina 360', 'espejo magico', 'bogue', 'touchpix', 'face swap'),
+    entretenimiento: hasAny('fotocabina', 'plataforma 360', 'cabina 360', 'espejo magico', 'bogue', 'vogue', 'touchpix', 'face swap'),
     paginaWeb: hasAny('invitacion digital', 'invitacion web', 'pagina web del evento', 'web del evento'),
     buzon: hasAny('buzon de recuerdos', 'buzon de mensajes', 'buzon audiovisual', 'audio guestbook'),
   };

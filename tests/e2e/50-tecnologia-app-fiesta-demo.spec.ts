@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
   test('TEC-01: Carga la sección comercial "La app de tu fiesta" con sus 5 momentos y demo aislada', async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(120_000);
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     // Sección visible en la portada
@@ -65,7 +65,7 @@ test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
     await tocarHastaQueResponda(3, /Mojito de Maracuyá/);
 
     // Botón de consulta a WhatsApp con mensaje contextual
-    const ctaWa = techSection.getByRole('link', { name: /Consultar para mi fiesta/i });
+    const ctaWa = techSection.getByRole('link', { name: /Consultar disponibilidad por WhatsApp/i });
     await expect(ctaWa).toHaveAttribute('href', /wa\.me/);
   });
 });

@@ -429,7 +429,7 @@ function SalonLayoutContent() {
 
     const newElement: LayoutElement = {
       id: `el_${Date.now()}`,
-      name: customProps?.name || `${category} ${(decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
+      name: customProps?.name || `${category} ${(decoracion.salonElements?.filter((e: any) => e.category === category).length || 0) + 1}`,
       x: 40, y: 40, rotation: 0,
       zIndex: type === 'area' ? 0 : (decoracion.salonElements?.length || 0) + 1,
       ...defaultProps,

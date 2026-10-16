@@ -1266,6 +1266,12 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Mejoras de la auditoría de Gemini aprobadas (16 de octubre de 2026).** Puerta que deja pasar sin
+  señal, de "mi mesa" a la app, Vogue/Espejo/Tótem IA como extras del portal, la franja de
+  "tranquilidad incluida" en el presupuesto (órdenes 180 y 181) y **ordenar la app** (orden 182): 5
+  pestañas por fiesta, portal en 5 pasos, un centro de Marketing. El dueño todavía no usó la app, así que
+  ordenar no le cambia costumbres. Ordenar = agrupar puertas: no se borran pantallas ni direcciones.
+
 - **La portada se rehace con el plan "Argon", y la estación se llama "Vogue" (16 de octubre de 2026).**
   Palabras suyas: *"hacé todo"* y *"creo que se escribe Vogue"*. Va en las órdenes 176 y 177 para
   Gemini. Lo que NO entra, porque contradice decisiones suyas: cifras distintas de "+200", "+7" y

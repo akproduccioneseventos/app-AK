@@ -6,24 +6,23 @@ import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 
 /**
- * Modelos oficiales de Google Gemini (Verificados: 22 de agosto de 2026).
+ * Modelos oficiales de Google Gemini Flash gratuitos.
  *
  * 1. gemini-flash-latest: Atajo oficial de Google que apunta siempre a la última
- *    versión estable de Gemini Flash. Se actualiza solo sin tocar código.
- * 2. gemini-2.5-pro: Modelo con capacidad de razonamiento profundo para análisis
- *    comercial, presupuestos complejos y planificación.
+ *    versión estable de Gemini Flash.
+ * 2. gemini-3.8-flash: Modelo gratis más reciente y avanzado.
  */
 export const DEFAULT_GEMINI_LATEST_MODEL = 'googleai/gemini-flash-latest';
 export const DEFAULT_GEMINI_MODEL = 'googleai/gemini-flash-latest';
-export const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-pro-latest';
-/** Primer respaldo del modelo profundo: si el atajo "latest" no responde, se prueba éste. */
-export const DEFAULT_GEMINI_PRO_FALLBACK_MODEL = 'googleai/gemini-2.5-pro';
+export const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-flash-latest';
+/** Primer respaldo si el atajo "latest" no responde: modelo gratis 3.6 flash. */
+export const DEFAULT_GEMINI_PRO_FALLBACK_MODEL = 'googleai/gemini-3.6-flash';
 
-// Sin el 1.5 flash: Google lo retiró y sólo agregaba un intento que siempre fallaba.
 const DEFAULT_GEMINI_FALLBACK_MODELS = [
   DEFAULT_GEMINI_LATEST_MODEL,
+  'googleai/gemini-3.8-flash',
+  'googleai/gemini-3.6-flash',
   'googleai/gemini-2.5-flash',
-  'googleai/gemini-2.0-flash',
 ] as const;
 
 const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9]+(?:[.-][a-z0-9]+)*$/i;

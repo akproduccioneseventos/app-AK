@@ -115,7 +115,7 @@ function HojaDeCocinaContenido() {
         </Button>
       </div>
 
-      <header className="mb-6 border-b-2 border-slate-900 pb-4">
+      <header className="cabecera-documento mb-6 border-b-2 border-slate-900 pb-4">
         <p className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500">
           <ChefHat className="h-4 w-4" /> Hoja de cocina
         </p>
