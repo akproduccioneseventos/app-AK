@@ -9,6 +9,8 @@ const output = { source: '7230f9d02b32805952a185f704a0208bd5d643e6',
   mode: 'JSON local ficticio, no acepta SDK ni integraciones reales',
   sdkPreflight: json('139-execution.json'), publicStatus: json('139-public-status.json'),
   runs: [], checkpoints: [], archives: [] };
+if (fs.existsSync(new URL('139-sdk-final-execution.json', dir))) output.sdkFinal = json('139-sdk-final-execution.json');
+if (fs.existsSync(new URL('139-concurrencia-maquina.json', dir))) output.resourceCheck = json('139-concurrencia-maquina.json');
 for (const port of [3300, 8085]) {
   await new Promise((resolve, reject) => {
     const s = net.connect({ port, host: '127.0.0.1' });

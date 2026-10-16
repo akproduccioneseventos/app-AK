@@ -30,6 +30,12 @@ No repetir el PC: se reutilizo su resultado y se repitio solo el celular.
 -Ronda movil corregida:1PASS/0FAIL/0omitidos. Ademas se retiro del ambiente
   JSON el host de emulador inactivo: la app ya contempla no inicializar Admin
   cuando el modo JSON esta activo y no hay host. No se cambio esa logica.
+-IntentoSDK-final separado: se amplio solo el plazo de arranque, pero antes
+  de iniciar tests se detecto compilacion activa en el workspace de Gemini:
+  nextbuildPID13808 2280MiB y worker13160 1217MiB; RAM libre154548KiB.
+  Se detuvieron SOLO mis procesos Java11672/Next1172 para no solapar cargas.
+  Ver139-concurrencia-maquina y reciboSDK-final. No se tocaron sus procesos.
+  No hubo testsSDK ni se identifica la causa de137 con esa medicion posterior.
 
 Cada ronda conserva su recibo y hash de test. Los intentos137 siguen siendo
 historicos no aprobados;139 no los edita ni transforma en verde retroactivo.
@@ -48,7 +54,8 @@ Orden180 sigue paraClaude: una causa de perfil heredado, NO arreglada por subir
 estos documentos. No reemitir orden ni afirmar escalada. Las otras ordenes ya
 abiertas conservan su propio estado. NO CONTRASTADO CON LA TANDA PRIVADA.
 
-Para el alcance pendiente de este pedido, faltan: cierre SDK del alta cliente,
+Para el alcance pendiente de este pedido, faltan: cierre SDK del alta cliente
+(sin otra compilacion pesada simultanea en esta computadora),
 arreglo/retest180, pruebas autorizadas de integraciones, comparacion con los19
 originales y ensayo fisico. No hay prueba que permita reemplazar estas cinco
 cosas por una afirmacion de ceroerrores o de toda app auditada.

@@ -8,6 +8,10 @@
 -PreflightSDK139 agoto arranque/health antes de tests, no causa de137 aislada.
   Primera JSON1PASSPC/1timeoutMovil por no abrir menu, corregido en sonda y
   rerun SOLO movil1PASS. Originales/resultados/recibos conservados; no appbug.
+-IntentoSDK-final139 parado antes de tests al detectar build de Gemini en esta
+  maquina: dos procesos de su workspace3497MiB y RAM libre154548KiB. Solo se
+  cerraron Java11672/Next1172 propios. No culpar a app ni cambiar hosting por esto.
+  Antes de mas QA nativo comprobar que no haya build/Jest pesado en otra copia.
 -GETpublico health200 misma fuente7230; indicadores Gemini/Workspace/mailtrue,
   Instagram/MercadoPagofalse, no prueba de integraciones. No operaciones reales.
 -Ver139-cierre/consolidado/limites-externos. Sigue pendiente clienteSDK/180,

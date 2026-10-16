@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import net from 'node:net';
+import os from 'node:os';
 import crypto from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { gzipSync } from 'node:zlib';
@@ -12,13 +13,14 @@ const record = JSON.parse(fs.readFileSync(path.join(dir, '135-entorno.json')));
 const source = '7230f9d02b32805952a185f704a0208bd5d643e6';
 const local = process.argv[2] === 'json';
 const mobile = process.argv[3] === 'mobile';
-const prefix = local ? (mobile ? '139-json-mobile' : '139-json') : '139';
+const prefix = local ? (mobile ? '139-json-mobile' : '139-json') : (process.argv[2] === 'sdk-final' ? '139-sdk-final' : '139');
 const qa = record.qa;
 const sha = (b) => crypto.createHash('sha256').update(b).digest('hex');
 const git = (args) => spawnSync('git', args, { cwd: qa, encoding: 'utf8' });
 if (record.sourceSha !== source || record.buildExit !== 0 || git(['rev-parse', 'HEAD']).stdout.trim() !== source ||
     git(['diff', '--name-only']).stdout.trim()) throw new Error('Source/build gate failed');
 if (fs.readdirSync(qa).some((n) => /^\.env(?:\.(?:local|production|development|test)(?:\.local)?)?$/.test(n))) throw new Error('Env files forbidden');
+if (os.freemem() < 512 * 1024 * 1024) throw new Error('QA resource gate: under512MiB free; do not overlap another build');
 for (const port of [3300, 8085]) {
   const s = net.createServer();
   await new Promise((yes, no) => { s.once('error', no); s.listen(port, '127.0.0.1', yes); });
@@ -75,11 +77,11 @@ try {
   }
   launch('serve', process.execPath, [path.join(qa, 'node_modules/next/dist/bin/next'), 'start', '--hostname', '127.0.0.1', '--port', '3300']);
   receipt.health = await until(async () => {
-    const h = await (await fetch('http://127.0.0.1:3300/api/health', { signal: AbortSignal.timeout(8000) })).json();
+    const h = await (await fetch('http://127.0.0.1:3300/api/health', { signal: AbortSignal.timeout(15_000) })).json();
     if (!h.version?.startsWith(source) || Object.entries(h.services).some(([k, v]) => v && k !== 'firebase')) throw new Error('Unsafe health');
     if (local ? h.services.firebase : !h.services.firebase) throw new Error('Unexpected Firebase mode');
     return h;
-  });
+  }, 90_000);
   fs.copyFileSync(path.join(root, 'tests/e2e/139-cliente-persistencia.spec.ts'), path.join(qa, 'tests/e2e/139-cliente-persistencia.spec.ts'));
   fs.copyFileSync(path.join(dir, '139-playwright.config.ts'), path.join(qa, '139-playwright.config.ts'));
   receipt.testSha256 = sha(fs.readFileSync(path.join(root, 'tests/e2e/139-cliente-persistencia.spec.ts')));
