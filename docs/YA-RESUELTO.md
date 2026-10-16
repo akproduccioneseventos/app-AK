@@ -14492,6 +14492,8 @@ RECTIFICACION: el mensaje ADC no demuestra que el SDK descubriera o usara creden
 
 ## Codex134: conciliacion de las 14 areas, sin reiniciar auditorias (15 de octubre de 2026)
 
+Entrega: PR1324 abierta/borrador, rama `codex/134-conciliacion-cobertura-20261015`, commit inicial `09146cae13773e80f96adf474f72fed958e96169`,25blobs comprobados identicos en GitHub. Sin fusion por Codex.
+
 Tarea4 completada como recuento, no como aprobacion funcional. Fuente inventariada main `7230f9d02b32805952a185f704a0208bd5d643e6`:421rutas,14areas,7perfiles,0rutas sin asignar y8pertenencias compartidas sin doble conteo. Indice2026artefactos historicos,0sin expandir,10815referencias ruta/documento. Se conservan124/125/126/128-133; ni las referencias ni6401ubicaciones AST son botones aprobados.
 
 Captura congelada de29corridas133:216ejecuciones (160passed,13failed,19timedOut,24skipped),168firmas titulo/prueba/proyecto distintas; no convertir timeouts/errores del arnes en bugs ni sumar reintentos como funciones nuevas.164casos conservan fuente exacta del test,68rutas tienen asociaciones nativas historicas. Nuevo main incorpora cambios168/169/170: recibos anteriores NO se promueven a evidencia actual completa; las dependencias modificadas se enumeran para contrastar solo el delta, no repetir421recorridos.
