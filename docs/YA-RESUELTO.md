@@ -1,5 +1,39 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex136: permisos HTTP y altas reales en QA
+
+-Fuente congelada7230f9d02b32805952a185f704a0208bd5d643e6 y build135 reutilizados,
+  sin codigo app ni nuevo build. Informe `docs/evidencias/136-cierre.md`.
+-50/50PASS: descargas HTTP de presupuesto, contrato, contrato salon, comprobante y
+  contrato empleado;7perfiles y controles anonimo/alterado/vencido. Bytes ficticios
+  exactos para autorizados; secretaria no ve sueldos, perfiles sin permiso403.
+  No implica todas las acciones/pantallas ni login real de esos perfiles.
+-11PASS de prospecto en acciones reales con proveedores/auth mock;11anonimas
+  deseleccionadas, no aprobadas. No repetir el barrido de otros perfiles vigente.
+-8viajes nuevos completos PASS: alta/lista/recarga/persistencia de servicio,
+  proveedor, empleado y activo fijo, PC+Pixel7. SDK real contra emulador local
+  demo; sin cuentas, claves, base ni mensajes reales. Capturas revisadas.
+-CRM admite prospecto solo con telefono; cita conserva contacto, horaUy y una
+  entrada timeline. Caso completo FAIL al contrastar enlace, no marcarlo PASS.
+-**ABIERTA179/Gemini, no corregida:** agenda arma wa.me/099... sin598 para telefono
+  local. Reusar toWhatsAppDigits solo para URL, NO cambiar telefono almacenado.
+  PC y movil reproducidos; no se envio mensaje. Variante fuera del alcanceWA80.
+-**Segundo bloque179 visual:** titulo Ajuste de Costos Global oscuro sobre panel
+  oscuro en catalogo movil. CardTitle impone text-foreground sobre padre blanco;
+  corregir localmente sin tocar formula/permisos ni todos los titulos globales.
+  Captura observada, no ratioWCAG medido ni nuevo fallo automatizado.
+-Contraste1325HEAD5f704e68/1326a21d0b69: consumidores agenda/contacto/catalogo/
+  CardTitle/CSSglobal identicos a7230. PrivadosClaude/Gemini NO CONTRASTADOS.
+-Falsos positivosQA archivados: cookie HTTP sin escape, JSON rechaza altas atomicas,
+  Java17 incompatible (se reutilizo21), avatar en selector, alias CRM view=guest,
+  reloj12h valido, columna movil plegada y telefonos ficticios repetidos.
+  No convertirlos en defectos de produccion ni editar resultados para ocultarlos.
+-19originales no localizados: dueno sigue buscando; no confundir29migrados con19.
+  Indices de integraciones y candidatos no son pruebas ejecutadas ni nuevas ordenes.
+-Gate136:50HTTP+11acciones+8viajesPASS;2viajesFAIL por1defecto de enlace, mas1visual.
+  Emulador vaciado, servicios/agentes propios cerrados, maestros restaurados y
+  diff de fuentes QA0. No certifica14areas/todas421rutas/0errores ni externos.
+
 ## 16/10/2026 - Plan "Argon" de la portada y ortografía de toda la app
 
 - **El dueño aprobó todo el plan de la otra IA ("hacé todo")**, salvo lo que contradice sus decisiones: las cifras quedan "+200", "+7" y "Clientes satisfechos" sin porcentaje, y no se usa "congelar". Va a Gemini en la orden 177; los textos rotos, en la 176.

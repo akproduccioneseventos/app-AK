@@ -1,0 +1,137 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "scope": "Form inspection only; not workflow acceptance",
+  "rows": [
+    {
+      "route": "/empresa/crm",
+      "url": "http://127.0.0.1:3300/contabilidad/crm?view=guest",
+      "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nGestión de Prospectos (CRM)\nIngreso/Egreso Rápido\nAbrir notificaciones\nCiclo comercial\n\nContabilidad › CRM de Prospectos\n\nCRM de Prospectos\nAtracción por Fiesta\nAgenda\nAñadir Prospecto\nReiniciar CRM\nVolver\nPROPUESTAS ACTIVAS\n$ 0\nPROSPECTOS\n0\nTASA CONVERSIÓN\n0.0%\nGANADOS/PERDIDOS\n0/0\nREUNIONES HOY\n0\nTodos\nPresupuestos (Simulador)\nWhatsApp y manuales\nCitas Hoy\nSin actividad (0)\nMás filtros\nConsultó\n0\nAgendó entrevista\n0\nCon presupuesto\n0\nFirmó contrato\n0\nNo contrató\n0\nLimpiar filtros\n\nMostrando 0 de 0 prospectos\n\nConsultó\n0\n\nNo hay prospectos en esta etapa.\n\nAgendó entrevista\n0\n\nNo hay prospectos en esta etapa.\n\nCon presupuesto\n0\n\nNo hay prospectos en esta etapa.\n\nFirmó contrato\n0\n\nNo hay prospectos en esta etapa.\n\nNo contrató\n0\n\nNo hay prospectos en esta etapa.\n\nSofia\nSecretaria, agenda y recordatorios\nAñadir Nuevo Prospecto\n\nIngresa los datos del nuevo prospecto. Se añadirá a la primera etapa por defecto.\n\nNombre del Prospecto *\nTeléfono *\nEmail (Opcional)\nTipo de Fiesta (Opcional)\nSeleccionar...\nBoda\nXV años\nCumpleaños\nEvento corporativo\nCumpleaños infantil\nOtro\nFECHA DEL EVENTO (opcional)\nSelecciona una fecha\nSalón (Opcional)\nNº Invitados (Opcional)\nAsignado a (Opcional)\nNotas (Opcional)\nCancelar\nAñadir prospecto\nClose",
+      "fields": [
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": "Buscar por nombre, teléfono, salón...",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "lead-name",
+          "placeholder": "Ej: Contacto de Empresa XYZ",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "tel",
+          "name": null,
+          "id": "lead-phone",
+          "placeholder": "099 123 456",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "email",
+          "name": null,
+          "id": "lead-email",
+          "placeholder": "ejemplo@correo.com",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "lead-party-type",
+          "placeholder": null,
+          "text": "Seleccionar...",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "BodaXV añosCumpleañosEvento corporativoCumpleaños infantilOtro",
+          "value": "Boda"
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "lead-venue",
+          "placeholder": "Ej: Salón El Trébol",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "number",
+          "name": null,
+          "id": "lead-guests",
+          "placeholder": "Ej: 100",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "lead-assigned",
+          "placeholder": "Ej: María García",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "name": null,
+          "id": "lead-notes",
+          "placeholder": "Detalles de la consulta, fecha de primer contacto, etc.",
+          "text": "",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "route": "/contabilidad/crm/agenda",
+      "url": "http://127.0.0.1:3300/contabilidad/crm/agenda",
+      "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAgenda de Prospectos (CRM)\nIngreso/Egreso Rápido\nAbrir notificaciones\nCiclo comercial\nAgenda de Reuniones con Prospectos\nAgendar Nueva Reunión\nCola de Mensajes\nVolver al CRM\nCalendario de Reuniones\nSelecciona un día para ver las reuniones.\noctubre 2026\nlu\nma\nmi\nju\nvi\nsá\ndo\n28\n29\n30\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n1\nReuniones para: viernes, 16 de octubre\nListado de reuniones agendadas con clientes potenciales.\n\nNo hay reuniones agendadas para este día.\n\nSofia\nSecretaria, agenda y recordatorios\nAgendar Nueva Reunión con Prospecto\n\nSelecciona un prospecto y la fecha para la nueva reunión.\n\n1. Seleccionar Prospecto *\n2. Título de la Reunión *\n3. Fecha *\n16 de octubre de 2026\n4. Hora *\nCancelar\nAgendar y Guardar\nClose",
+      "fields": [
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": "Buscar prospecto...",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "meeting-title",
+          "placeholder": null,
+          "text": "",
+          "value": "Reunión de seguimiento"
+        },
+        {
+          "tag": "INPUT",
+          "type": "time",
+          "name": null,
+          "id": "meeting-time",
+          "placeholder": null,
+          "text": "",
+          "value": "10:00"
+        }
+      ]
+    }
+  ]
+}
