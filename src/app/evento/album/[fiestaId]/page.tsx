@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,9 +43,10 @@ import { bajarRecuerdosParaZip, resumirEntrega } from '@/lib/album/armar-zip-del
 import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
 import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
+import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 
 type ViewMode = 'libro' | 'cuadricula';
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'vogue' | 'touchpix' | 'totem' | 'buzon' | 'invitados' | 'mensajes';
 
 function isVideo(url: string = ''): boolean {
   return url.endsWith('.mp4') || url.endsWith('.webm') || url.includes('video');
@@ -242,16 +244,7 @@ export default function PublicAlbumPage() {
   };
 
   const filteredPosts = useMemo(() => {
-    if (activeTab === 'todas') return posts;
-    if (activeTab === 'fotocabina') return posts.filter((p) => p.sourceModule === 'fotocabina');
-    if (activeTab === '360') return posts.filter((p) => p.sourceModule === 'plataforma_360');
-    if (activeTab === 'espejo') return posts.filter((p) => p.sourceModule === 'espejo_magico');
-    if (activeTab === 'bogue') return posts.filter((p) => p.sourceModule === 'bogue' || p.sourceModule === 'boomerang');
-    if (activeTab === 'buzon') return posts.filter((p) => p.sourceModule === 'buzon' || p.sourceModule === 'capsulaTiempo');
-    if (activeTab === 'invitados') {
-      return posts.filter((p) => !p.sourceModule || p.sourceModule === 'muro' || p.sourceModule === 'invitado');
-    }
-    return posts;
+    return filtrarPorEstacion(posts, activeTab);
   }, [posts, activeTab]);
 
   const showNext = useCallback(() => {
@@ -614,7 +607,8 @@ export default function PublicAlbumPage() {
                 { id: 'fotocabina', label: '📸 Fotocabina' },
                 { id: '360', label: '🌐 360°' },
                 { id: 'espejo', label: '✨ Espejo' },
-                { id: 'bogue', label: '⚡ Boomerang' },
+                { id: 'bogue', label: '💎 Vogue' },
+                { id: 'touchpix', label: '🤖 Touchpix AI' },
                 { id: 'buzon', label: '🎙️ Buzón' },
                 { id: 'invitados', label: '📱 Invitados' },
                 { id: 'mensajes', label: errorDedications ? '💌 Mensajes (error)' : `💌 Mensajes (${dedications.length})` },
@@ -749,7 +743,14 @@ export default function PublicAlbumPage() {
           <p className="font-semibold text-zinc-300">
             Organizado y capturado por AK Producciones
           </p>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/simulador-ak?utm_source=album_recuerdo"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-xs transition-all shadow-md"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              Cotizá tu fiesta en 1 minuto
+            </Link>
             <a
               href={buildAkWhatsAppUrl(`Hola! Vi el álbum del evento ${nombreFiesta} y quiero consultar para mi fiesta.`)}
               target="_blank"

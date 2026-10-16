@@ -493,19 +493,20 @@ export async function generateDraftPostsFromPartyPhotos(
           ? 'Cumpleaños'
           : 'EventoSocial';
 
-    // Filtrar fotos aprobadas (no videos, con imagen válida)
-    const approvedPhotos = allPosts
-      .filter((p) => esAprobadoParaMostrar(p) && p.imageUrl && !p.imageUrl.match(/\.(mp4|webm|mov|ogg)(\?|$)/i))
+    // Filtrar fotos y videos aprobados de la fiesta (360, Vogue, fotocabina)
+    const isVideoFile = (url?: string) => Boolean(url && url.match(/\.(mp4|webm|mov|ogg)(\?|$)/i));
+    const approvedPosts = allPosts
+      .filter((p) => esAprobadoParaMostrar(p) && p.imageUrl)
       .sort((a, b) => (b.likes || 0) - (a.likes || 0));
 
-    if (approvedPhotos.length === 0) {
+    if (approvedPosts.length === 0) {
       return {
         success: false,
-        error: 'No se encontraron fotos aprobadas en esta fiesta para armar los posteos.',
+        error: 'No se encontraron fotos o videos aprobados en esta fiesta para armar los posteos.',
       };
     }
 
-    const selectedPhotos = approvedPhotos.slice(0, 4);
+    const selectedMedia = approvedPosts.slice(0, 4);
     const existingPlannerPosts = await readData<SocialPost[]>(POSTS_FILE, []);
     const now = new Date();
 
@@ -522,8 +523,8 @@ export async function generateDraftPostsFromPartyPhotos(
         text: `¡Así se vivió la fiesta de ${nombreEvento}! 📸✨\n\nUna noche llena de emoción, risas y momentos únicos junto a familia y amigos en Salto. ¡Gracias por confiar en el equipo de AK Producciones para hacerla realidad! 🎉\n\n#AKProducciones #EventosSalto #FiestasUruguay #${tipoHashtag} #MomentosInolvidables`,
       },
       {
-        platform: 'Instagram' as const,
-        text: `Cada detalle cuenta cuando se trata de celebrar a lo grande. ✨\n\nAsí lució la ambientación y los momentos mágicos de ${nombreEvento}. ¡Nos apasiona crear experiencias que quedan grabadas para siempre! 💫\n\n#Ambientacion #EventosSalto #SaltoUruguay #AKProducciones #${tipoHashtag}`,
+        platform: 'TikTok' as const,
+        text: `¡Mirá lo que fue la fiesta de ${nombreEvento} en Salto! 🔥💃 La pista prendida fuego con el equipo de AK Producciones. ¿Quién se suma al próximo evento? 🥳🙌 #AKProducciones #EventosSalto #Fiesta #360 #${tipoHashtag}`,
       },
       {
         platform: 'Facebook' as const,
@@ -531,7 +532,7 @@ export async function generateDraftPostsFromPartyPhotos(
       },
       {
         platform: 'Instagram' as const,
-        text: `Risas, poses y recuerdos que duran para siempre. 📸🥳\n\nLos invitados de ${nombreEvento} coparon la cabina y nos dejaron las mejores postales de la noche. ¿Estuviste ahí? ¡Contanos en los comentarios!\n\n#Fotocabina #Recuerdos #FiestasSalto #AKProducciones`,
+        text: `Risas, poses y recuerdos que duran para siempre. 📸🥳\n\nLos invitados de ${nombreEvento} coparon las estaciones interactivas y nos dejaron las mejores postales de la noche. ¿Estuviste ahí? ¡Contanos en los comentarios!\n\n#Fotocabina #CabinaVogue #Recuerdos #FiestasSalto #AKProducciones`,
       },
     ];
 
@@ -559,11 +560,11 @@ export async function generateDraftPostsFromPartyPhotos(
     ];
 
     const canUseAI = await hayPresupuestoParaIA().catch(() => false);
-    const finalPostsData: Array<{ platform: 'Instagram' | 'Facebook'; text: string }> = [];
+    const finalPostsData: Array<{ platform: 'Instagram' | 'Facebook' | 'TikTok'; text: string }> = [];
     let aiUsedCount = 0;
 
     if (canUseAI) {
-      for (let i = 0; i < selectedPhotos.length; i++) {
+      for (let i = 0; i < selectedMedia.length; i++) {
         const item = aiPrompts[i % aiPrompts.length];
         try {
           const aiResponse = await chatWithMarketingAgent({
@@ -596,27 +597,28 @@ export async function generateDraftPostsFromPartyPhotos(
       }
     } else {
       // Sin presupuesto de IA o fallback: usar templates
-      selectedPhotos.forEach((_, idx) => {
+      selectedMedia.forEach((_, idx) => {
         finalPostsData.push(fallbackTemplates[idx % fallbackTemplates.length]);
       });
     }
 
     const generatedPosts: SocialPost[] = [];
 
-    selectedPhotos.forEach((photo, idx) => {
+    selectedMedia.forEach((mediaItem, idx) => {
+      const isVideo = isVideoFile(mediaItem.imageUrl);
       const postData = finalPostsData[idx] || fallbackTemplates[idx % fallbackTemplates.length];
       const scheduledDate = new Date(now.getTime() + (idx + 1) * 86400000); // 1 día por post sugerido
 
       const newPost: SocialPost = {
         id: `draft_${fiestaId}_${Date.now()}_${idx}`,
-        platform: postData.platform,
+        platform: isVideo ? (idx % 2 === 0 ? 'TikTok' : 'Instagram') : postData.platform,
         isGeneralCampaign: false,
         eventId: fiestaId,
         eventName: nombreEvento,
         publishDate: scheduledDate.toISOString(),
         text: postData.text,
-        mediaUrl: photo.imageUrl,
-        mediaType: 'image',
+        mediaUrl: mediaItem.imageUrl,
+        mediaType: isVideo ? 'video' : 'image',
         status: 'Borrador',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

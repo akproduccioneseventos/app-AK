@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { asegurarCuadroDeVideo } from '@/lib/entertainment/camera-readiness';
@@ -7,6 +8,7 @@ import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  Sparkles,
   Camera,
   CheckCircle2,
   Clock3,
@@ -493,7 +495,7 @@ export default function BarraTecnologicaTouchPage() {
     try {
       await asegurarCuadroDeVideo(video);
     } catch {
-      toast({ title: 'La camara no entrega imagen', description: 'Volve a intentarlo en un instante.', variant: 'destructive' });
+      toast({ title: 'La cámara no entrega imagen', description: 'Volvé a intentarlo en un instante.', variant: 'destructive' });
       return;
     }
 
@@ -1118,6 +1120,21 @@ export default function BarraTecnologicaTouchPage() {
                   <p className="mt-2 text-zinc-400">Consultá al personal de barra.</p>
                 </div>
               )}
+
+              {/* Pie comercial discreto de AK Producciones */}
+              <div className="mt-12 mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/40 p-4 text-center sm:text-left backdrop-blur-sm">
+                <div>
+                  <p className="text-xs font-bold text-white">Barra de Tragos & Coctelería por AK Producciones</p>
+                  <p className="text-[11px] text-zinc-400">¿Querés una barra interactiva como esta en tu casamiento o fiesta de 15?</p>
+                </div>
+                <Link
+                  href="/simulador-ak?utm_source=barra_tragos"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-500 hover:bg-amber-400 px-4 py-1.5 text-xs font-bold text-zinc-950 transition shadow"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Cotizá tu fiesta
+                </Link>
+              </div>
             </div>
 
             {/* Detalle y confirmación del trago */}

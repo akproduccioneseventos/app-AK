@@ -24,7 +24,7 @@ const COMPANY_EMAIL = 'akproduccionessalto@gmail.com';
 const COMPANY_WEBSITE = 'www.akproducciones.uy';
 const BUDGET_VALIDITY_DAYS = 30;
 const FORMAL_BOOKING_NOTE =
-  'El presupuesto es valido por 30 dias. Durante este mes podes reservar la fecha con una sena de $ 5.000; la contratacion final se confirma con el contrato correspondiente.';
+  'El presupuesto es valido por 30 días. Durante este mes podés reservar la fecha con una seña de $ 5.000; la contratación final se confirma con el contrato correspondiente.';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatCurrency(amount?: number): string {
@@ -384,7 +384,7 @@ export default function BudgetPrintTemplate({
                               return `plato principal: ${name}`;
                             }
                             if ((lowerName.includes('niño') || lowerName.includes('nino') || lowerName.includes('adolescente') || lowerName.includes('infantil')) && !lowerName.includes('niño')) {
-                              return `menu niño y adolescente: ${name}`;
+                              return `menú niño y adolescente: ${name}`;
                             }
                           }
                           return name;
@@ -395,7 +395,7 @@ export default function BudgetPrintTemplate({
                             key={`${catIdx}-${itemIdx}`}
                             style={{ backgroundColor: '#ffffff' }}
                           >
-                            <td 
+                            <td
                               className="border border-gray-300 px-2 py-1.5 align-top font-semibold"
                               style={{ color: item.esRegalo ? '#dc2626' : '#334155' }}
                             >
@@ -582,7 +582,7 @@ export default function BudgetPrintTemplate({
             font-weight: 600;
           }
           .budget-print-page-number::after {
-            content: "Pagina " counter(page);
+            content: "Página " counter(page);
           }
         }
         @media screen {

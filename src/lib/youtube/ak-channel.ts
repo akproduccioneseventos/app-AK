@@ -34,19 +34,19 @@ const CURATED_VIDEOS: Array<
   },
   {
     youtubeId: "hL0Mb5dejIw",
-    titulo: "XV anos Valentino",
-    categoria: "XV Anos",
+    titulo: "XV años Valentino",
+    categoria: "XV Años",
     destacada: true,
   },
   {
     youtubeId: "mSWxtkeZffI",
-    titulo: "XV anos de Kiara",
-    categoria: "XV Anos",
+    titulo: "XV años de Kiara",
+    categoria: "XV Años",
     destacada: false,
   },
   {
     youtubeId: "uF7ndZPPIz4",
-    titulo: "XV anos Belen en Club Uruguay",
+    titulo: "XV años Belén en Club Uruguay",
     categoria: "Club Uruguay",
     destacada: false,
   },
@@ -65,13 +65,13 @@ function inferCategory(title: string): string {
     .toLowerCase();
   if (normalized.includes("testimonio")) return "Testimonios reales";
   if (normalized.includes("xv") || normalized.includes("15 ano"))
-    return "XV Anos";
+    return "XV Años";
   if (normalized.includes("boda")) return "Bodas";
   if (normalized.includes("empresa") || normalized.includes("corporativo"))
     return "Empresariales";
   if (normalized.includes("club uruguay")) return "Club Uruguay";
   if (normalized.includes("cumple") || normalized.includes("1 ano"))
-    return "Cumpleanos";
+    return "Cumpleaños";
   return "Experiencias AK";
 }
 

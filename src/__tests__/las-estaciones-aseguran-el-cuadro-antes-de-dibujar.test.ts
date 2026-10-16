@@ -72,7 +72,7 @@ describe('Touchpix en particular', () => {
   });
 
   it('avisa en pantalla y ofrece "Reintentar camara" cuando no hay cuadro', () => {
-    expect(fuente).toContain('La camara no esta entregando imagen');
+    expect(fuente).toMatch(/La c[aá]mara no est[aá] entregando imagen/);
     expect(fuente).toContain('data-testid="boton-reintentar-camara"');
     expect(fuente).toContain('camaraSinCuadro');
   });

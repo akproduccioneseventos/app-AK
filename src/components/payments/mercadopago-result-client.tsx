@@ -90,8 +90,8 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
         iconClass: 'text-emerald-600',
         title: result.requiresReview ? 'Pago recibido, en revision' : 'Pago confirmado',
         description: result.requiresReview
-          ? 'Mercado Pago aprobo el cobro. AK revisara el saldo porque cambio durante el proceso.'
-          : 'Mercado Pago aprobo el cobro y el saldo del presupuesto se actualizo automaticamente.',
+          ? 'Mercado Pago aprobó el cobro. AK revisara el saldo porque cambio durante el proceso.'
+          : 'Mercado Pago aprobó el cobro y el saldo del presupuesto se actualizó automaticamente.',
       };
     }
     if (result.status === 'rejected' || result.status === 'failed') {
@@ -99,7 +99,7 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
         icon: AlertTriangle,
         iconClass: 'text-red-600',
         title: 'El pago no se completo',
-        description: 'No registramos ningun ingreso. Podes volver al presupuesto e intentarlo nuevamente.',
+        description: 'No registramos ningun ingreso. Podés volver al presupuesto e intentarlo nuevamente.',
       };
     }
     if (result.status === 'refunded') {
@@ -114,7 +114,7 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
       icon: Clock3,
       iconClass: 'text-amber-600',
       title: 'Pago pendiente',
-      description: 'Estamos esperando la confirmacion de Mercado Pago. Esta pantalla se actualiza sola.',
+      description: 'Estamos esperando la confirmación de Mercado Pago. Esta pantalla se actualiza sola.',
     };
   }, [result]);
 

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +25,7 @@ export function VideoRecuerdoClient({ eventName, eventDate, images, isPersonaliz
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -83,7 +85,7 @@ export function VideoRecuerdoClient({ eventName, eventDate, images, isPersonaliz
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (!ctx) {
-      alert('Tu navegador no soporta renderizado de canvas.');
+      setErrorMessage('Tu navegador no soporta renderizado de canvas.');
       setIsGeneratingVideo(false);
       return;
     }
@@ -215,7 +217,7 @@ export function VideoRecuerdoClient({ eventName, eventDate, images, isPersonaliz
       }, 1000);
     } catch (err: any) {
       console.error('Error generando video en canvas:', err);
-      alert('No se pudo generar el archivo de video en este dispositivo.');
+      setErrorMessage('No se pudo generar el archivo de video en este dispositivo.');
       setIsGeneratingVideo(false);
     }
   };
@@ -247,6 +249,12 @@ export function VideoRecuerdoClient({ eventName, eventDate, images, isPersonaliz
             <PlayCircle className="w-5 h-5 text-indigo-600" />
             Reproducir Recuerdo
           </button>
+
+          {errorMessage && (
+            <p className="text-xs font-semibold text-rose-400 bg-rose-950/40 border border-rose-800/50 rounded-xl p-3">
+              {errorMessage}
+            </p>
+          )}
 
           <button
             onClick={generateAndDownloadVideo}
@@ -327,8 +335,14 @@ export function VideoRecuerdoClient({ eventName, eventDate, images, isPersonaliz
           </p>
         </div>
 
-        <div className="text-right text-[11px] font-bold text-white/60 tracking-wider">
-          AK PRODUCCIONES
+        <div className="pointer-events-auto text-right">
+          <Link
+            href="/simulador-ak?utm_source=video_recuerdo"
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-300 hover:text-amber-200 tracking-wider bg-black/60 px-3 py-1.5 rounded-full border border-amber-500/30 transition shadow-lg backdrop-blur-md"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            Cotizá tu fiesta
+          </Link>
         </div>
       </div>
 

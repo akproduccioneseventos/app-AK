@@ -147,19 +147,24 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/finanzas') return 'Dashboard de Rentabilidad';
   if (pathname === '/alertas') return 'Centro de Alertas';
   if (pathname === '/pagos-rapidos') return 'Pagos Rápidos';
+  if (pathname === '/marketing') return 'Centro de Marketing y Redes';
 
-  if (pathname === '/simulador-de-presupuesto') return 'Wand2';
+  if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
 
-  if (pathname === '/evento/actual') return 'PartyPopper';
-  if (pathname === '/evento/actual/mesa') return 'Ticket';
-  if (pathname === '/evento/actual/checkin') return 'UserCheck';
-  if (pathname.startsWith('/evento/social')) return 'Camera';
-  if (pathname.startsWith('/evento/barra')) return 'GlassWater';
-  if (pathname.startsWith('/evento/totem')) return 'Tv';
-  if (pathname.startsWith('/video-vida')) return 'Camera';
-  if (pathname.startsWith('/feedback')) return 'Star';
-  if (pathname.startsWith('/acceso-personal')) return 'UserCog';
-  if (pathname.startsWith('/portal')) return 'KeyRound';
+  if (pathname === '/evento/actual') return 'Evento Actual';
+  if (pathname === '/evento/actual/mesa') return 'Mi Mesa';
+  if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
+  if (pathname.startsWith('/evento/muro-en-vivo')) return 'Muro en Vivo';
+  if (pathname.startsWith('/evento/galeria')) return 'Galería de Recuerdos';
+  if (pathname.startsWith('/evento/album')) return 'Álbum Digital';
+  if (pathname.startsWith('/evento/bogue')) return 'Cabina Vogue';
+  if (pathname.startsWith('/evento/social')) return 'Muro Social en Vivo';
+  if (pathname.startsWith('/evento/barra')) return 'Barra en Vivo';
+  if (pathname.startsWith('/evento/totem')) return 'Tótem Interactivo';
+  if (pathname.startsWith('/video-vida')) return 'Video de Vida';
+  if (pathname.startsWith('/feedback')) return 'Opiniones y Feedback';
+  if (pathname.startsWith('/acceso-personal')) return 'Acceso de Personal';
+  if (pathname.startsWith('/portal')) return 'Portal del Cliente';
 
   return 'AK Producciones';
 };
@@ -434,7 +439,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main className="flex-1 bg-slate-50/80 p-4 sm:p-6 lg:p-8 pb-32 sm:pb-36">
+          <main className="flex-1 bg-slate-50/80 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
             {children}
           </main>
         </div>

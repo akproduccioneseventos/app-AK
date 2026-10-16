@@ -1,0 +1,38 @@
+{
+  "sourceSha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T10:35:21.278Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 363
+  },
+  "group": "unit",
+  "args": [
+    "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\jest\\bin\\jest.js",
+    "--runInBand",
+    "--runTestsByPath",
+    "src/__tests__/barra-listos-informa-lecturas-fallidas.test.tsx",
+    "src/__tests__/chat-en-vivo-avisa-si-no-pudo-leer.test.tsx",
+    "src/__tests__/dj-estado-explicito-y-error-de-marca.test.tsx",
+    "src/__tests__/musica-opcional-visible-dj.test.tsx",
+    "src/__tests__/orden-168-lecturas-que-deciden.test.ts",
+    "src/__tests__/orden-168-pantallas-avisan-la-falla.test.tsx",
+    "src/__tests__/orden-168-plata-centavos-y-negativos.test.ts",
+    "src/__tests__/orden-169-pantallas-que-dicen-listo.test.tsx",
+    "--json",
+    "--outputFile=C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\135-unit-results.json"
+  ],
+  "exitCode": 1,
+  "finishedAt": "2026-10-16T10:35:48.485Z",
+  "realServicesEnabled": false
+}

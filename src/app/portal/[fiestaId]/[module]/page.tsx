@@ -8,19 +8,13 @@ type Props = {
   }>;
 };
 
-const moduleRedirects: Record<string, string> = {
-  'tareas': '/fiestas/nueva/tareas',
-  'musica': '/fiestas/nueva/musica',
-  'video-vida': '/fiestas/nueva/video-vida',
-  'documentos': '/fiestas/nueva/gestion-documental',
-  'fotografia': '/fiestas/nueva/fotografia',
-};
+import { moduleRedirects } from '@/lib/portal/portal-redirects';
 
 export default async function LegacyPortalModuleRedirectPage(props: Props) {
   const params = await props.params;
-  const destination = moduleRedirects[params.module];
-  if (destination) {
-    redirect(`${destination}?fiestaId=${params.fiestaId}`);
+  const buildDestination = moduleRedirects[params.module];
+  if (buildDestination) {
+    redirect(buildDestination(params.fiestaId));
   }
 
   if (params.module === 'notas' || params.module === 'pagina-publica') {

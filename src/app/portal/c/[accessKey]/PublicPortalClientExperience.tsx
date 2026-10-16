@@ -256,14 +256,14 @@ function PhaseRoadmap({ access, eventColor }: { access: ReturnType<typeof resolv
     },
     {
       id: 'organizacion',
-      title: '2. Organizacion',
-      text: 'Musica, reuniones, fotos, menu, decoracion, cronograma e invitados se abren cuando empieza la coordinacion.',
+      title: '2. Organización',
+      text: 'Música, reuniones, fotos, menú, decoración, cronograma e invitados se abren cuando empieza la coordinación.',
       open: access.canSeeOrganization,
     },
     {
       id: 'en_vivo',
       title: '3. Fiesta en vivo',
-      text: `Muro social y accesos del dia se habilitan cerca del evento${access.daysUntilEvent !== null ? `; faltan ${access.daysUntilEvent} dias` : ''}.`,
+      text: `Muro social y accesos del día se habilitan cerca del evento${access.daysUntilEvent !== null ? `; faltan ${access.daysUntilEvent} dias` : ''}.`,
       open: access.canSeeLive,
     },
   ];
@@ -276,7 +276,7 @@ function PhaseRoadmap({ access, eventColor }: { access: ReturnType<typeof resolv
           <h2 className="text-xl font-black text-slate-950">{access.label}</h2>
         </div>
         <p className="text-xs font-semibold text-slate-500">
-          {access.liveLocked ? `Fiesta en vivo: ${access.liveAccessDaysBefore} dias antes` : 'Fiesta en vivo habilitada'}
+          {access.liveLocked ? `Fiesta en vivo: ${access.liveAccessDaysBefore} días antes` : 'Fiesta en vivo habilitada'}
         </p>
       </div>
       <div className="grid gap-3 lg:grid-cols-3">
@@ -296,7 +296,7 @@ function PhaseRoadmap({ access, eventColor }: { access: ReturnType<typeof resolv
             </div>
             <p className="text-sm leading-6">{phase.text}</p>
             {!phase.open && index > 0 && (
-              <p className="mt-2 text-xs font-semibold text-slate-400">Todavia no visible para el cliente.</p>
+              <p className="mt-2 text-xs font-semibold text-slate-400">Todavía no visible para el cliente.</p>
             )}
           </div>
         ))}
@@ -1677,7 +1677,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
               <AccordionContent className="space-y-4 pb-5">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <QuickButton href={`/evento/social/${fiesta.id}`} icon={ImageIcon} label="Muro social" helper="Fotos, mensajes y contenido aprobado" color={eventColor} />
-                  <QuickButton href={whatsappHref} icon={MessageCircle} label="Contacto AK" helper="Canal directo para el dia de la fiesta" color={eventColor} external />
+                  <QuickButton href={whatsappHref} icon={MessageCircle} label="Contacto AK" helper="Canal directo para el día de la fiesta" color={eventColor} external />
                 </div>
               </AccordionContent>
             </AccordionItem>

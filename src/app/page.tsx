@@ -5,10 +5,10 @@ import { LandingNav } from "@/components/landing/LandingNav";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ServicesSection } from "@/components/landing/ServicesSection";
 import { LaAppDeTuFiestaSection } from "@/components/landing/LaAppDeTuFiestaSection";
-import TechnologyExperienceSection from "@/components/landing/TechnologyExperienceSection";
 import { InteractiveTechShowcase } from "@/components/public/InteractiveTechShowcase";
 import { AkTeamStorySection } from "@/components/landing/AkTeamStorySection";
 import { AkDifferenceSection } from "@/components/landing/AkDifferenceSection";
+import { GaleriaUnificadaSection } from "@/components/landing/GaleriaUnificadaSection";
 import { VideoSection } from "@/components/landing/VideoSection";
 import { GallerySection } from "@/components/landing/GallerySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
@@ -389,10 +389,11 @@ function GallerySkeleton() {
 }
 
 async function AsyncGallerySection() {
-  const [catalogoFotos, galeriaData, instagramFeed] = await Promise.all([
+  const [catalogoFotos, galeriaData, instagramFeed, youtubeVideos] = await Promise.all([
     withPublicFallback(getCatalogoFotos(), []),
     withPublicFallback(getGaleriaItems(), { fotos: [], videos: [] }),
     withPublicFallback(getPublicInstagramFeed(), [], 4_500),
+    getAkYoutubeVideos(),
   ]);
 
   const fotos = defaultGaleriaPublica.fotos as GaleriaFoto[];
@@ -442,7 +443,40 @@ async function AsyncGallerySection() {
     ...catalogoComoGaleria,
   ].filter((foto) => !FOTOS_RETIRADAS.has(foto.url)));
 
-  return <GallerySection galeriaFotos={fotosCombinadas} />;
+  const videos = defaultGaleriaPublica.videos as GaleriaVideo[];
+  const instagramVideos: GaleriaVideo[] = instagramFeed
+    .filter((post) => post.mediaType === "video")
+    .map((post, index) => ({
+      id: post.id,
+      tipo: "video",
+      youtubeUrl: post.permalink,
+      youtubeId: post.id,
+      plataforma: "archivo",
+      thumbnailUrl: post.mediaUrl,
+      titulo: "Video reciente de AK Producciones",
+      descripcion: post.caption,
+      categoria: "Instagram",
+      destacada: true,
+      orden: index,
+      createdAt: post.publishedAt || new Date(0).toISOString(),
+      source: "instagram",
+      sourceId: post.sourceId,
+      sourceUrl: post.permalink,
+    }));
+  const videosCombinados = dedupeGalleryVideos([
+    ...instagramVideos,
+    ...(galeriaData.videos || []),
+    ...videos,
+    ...youtubeVideos,
+  ]);
+
+  return (
+    <GaleriaUnificadaSection
+      galeriaFotos={fotosCombinadas}
+      galeriaVideos={videosCombinados}
+      channelUrl={AK_YOUTUBE_CHANNEL_URL}
+    />
+  );
 }
 
 function VideoSkeleton() {
@@ -674,28 +708,76 @@ export default async function HomePage() {
   const defaultFotos = defaultGaleriaPublica.fotos as GaleriaFoto[];
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "EventVenue",
-    name: "AK Producciones",
-    image: defaultFotos.slice(0, 3).map((f) => f.url),
-    telephone: "+598 98 355 530",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "Gaboto 3390",
-      addressLocality: "Salto",
-      addressCountry: "UY",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: -31.3893,
-      longitude: -57.9592,
-    },
-    url: "https://akproducciones.uy",
-    sameAs: [
-      "https://www.facebook.com/akproduccionessalto",
-      DEFAULT_INSTAGRAM_URL,
+    "@graph": [
+      {
+        "@type": "EventPlanner",
+        name: "AK Producciones",
+        image: defaultFotos.slice(0, 3).map((f) => f.url),
+        telephone: "+598 98 355 530",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Gaboto 3390",
+          addressLocality: "Salto",
+          addressCountry: "UY",
+        },
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: -31.3893,
+          longitude: -57.9592,
+        },
+        url: "https://akproducciones.uy",
+        sameAs: [
+          "https://www.facebook.com/akproduccionessalto",
+          DEFAULT_INSTAGRAM_URL,
+        ],
+        areaServed: [
+          { "@type": "City", name: "Salto" },
+          { "@type": "AdministrativeArea", name: "Litoral de Uruguay" },
+        ],
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: "Servicios de eventos",
+          itemListElement: [
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: "Fiestas de 15",
+              },
+            },
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: "Bodas",
+              },
+            },
+            {
+              "@type": "Offer",
+              itemOffered: {
+                "@type": "Service",
+                name: "Eventos empresariales y sociales",
+              },
+            },
+          ],
+        },
+        description:
+          "Organización integral de eventos en Salto y litoral de Uruguay. Discoteca, comida premium, fotografía, ambientación y salones de fiesta con tecnología interactiva.",
+      },
+      {
+        "@type": "EventVenue",
+        name: "Salón Club Uruguay",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Uruguay 851",
+          addressLocality: "Salto",
+          addressCountry: "UY",
+        },
+        url: "https://akproducciones.uy/club-uruguay",
+        description:
+          "Salón histórico en el centro de Salto con recepción, salón principal, pista LED, climatización y cocina equipada para eventos gestionados por AK Producciones.",
+      },
     ],
-    description:
-      "Organización integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.",
   };
 
   return (
@@ -717,7 +799,7 @@ export default async function HomePage() {
               subheadline={landingSettings.hero.subheadline}
               backgroundImageUrl="/media/catalogo-servicios/quinceanera_hero.png"
               simulatorHref="/simulador-de-presupuesto"
-              simulatorLabel="Proyectar mi fiesta"
+              simulatorLabel="Simular mi presupuesto"
             />
           </div>
         }
@@ -737,7 +819,6 @@ export default async function HomePage() {
                 Y además, las estaciones que se montan en tu fiesta
               </p>
               <InteractiveTechShowcase />
-              <TechnologyExperienceSection whatsappNumber={whatsapp} />
             </div>
           </div>
         }
@@ -758,11 +839,7 @@ export default async function HomePage() {
             <AsyncBlogSection />
           </Suspense>
         }
-        video={
-          <Suspense fallback={<VideoSkeleton />}>
-            <AsyncVideoSection />
-          </Suspense>
-        }
+        video={null}
         testimonials={
           <Suspense fallback={<TestimonialsSkeleton />}>
             <AsyncTestimonialsSection />

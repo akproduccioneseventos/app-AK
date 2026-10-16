@@ -61,12 +61,12 @@ function PaginaWebPageContent() {
 
   const fiestaId = searchParams.get('fiestaId');
   const templateId = searchParams.get('templateId');
-  
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitacionData, setInvitacionData] = useState<InvitacionDigitalData>(defaultInvitacionDigitalData);
   const [invitacionConfig, setInvitacionConfig] = useState<InvitacionDigitalConfig>(defaultInvitacionConfig);
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('mobile');
   const [editorMode, setEditorMode] = useState<EditorMode>('simple');
@@ -78,7 +78,7 @@ function PaginaWebPageContent() {
   const [missingDataDialogOpen, setMissingDataDialogOpen] = useState(false);
   const [missingDataList, setMissingDataList] = useState<string[]>([]);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
-  
+
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
 
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
@@ -98,11 +98,11 @@ function PaginaWebPageContent() {
       router.replace('/eventos');
       return;
     }
-    
+
     try {
       let data;
       let socialData: SocialConnection[] = [];
-      
+
       if(fiestaId) {
         [data, socialData] = await Promise.all([
             getFiestaById(fiestaId),
@@ -115,7 +115,7 @@ function PaginaWebPageContent() {
         const templates = await getInvitationTemplates();
         data = templates.find(t => t.id === templateId);
         if(!data) throw new Error("Plantilla no encontrada");
-        setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuracion: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as unknown as FiestaEnPlanificacion);
+        setFiesta({ ...defaultInvitacionDigitalData, id: 'template_preview', configuración: { nombreEvento: data.name, tipoCelebracion: 'Boda', fechaEvento: new Date().toISOString() } } as unknown as FiestaEnPlanificacion);
       } else {
         throw new Error("ID no proporcionado");
       }
@@ -128,7 +128,7 @@ function PaginaWebPageContent() {
       if (!Array.isArray(mergedData.secciones)) {
         mergedData.secciones = cloneDeep(defaultInvitacionDigitalData.secciones);
       }
-      
+
       if (fiestaId && data && (data as any).configuracion) {
           const config = (data as any).configuracion;
           const isXV = config.tipoCelebracion === 'XV años';
@@ -137,8 +137,8 @@ function PaginaWebPageContent() {
           mergedData.cabecera.protagonista2 = isXV ? '' : (config.protagonista2Nombre || mergedData.cabecera.protagonista2);
           mergedData.cabecera.subtitulo.text = config.tipoCelebracion || mergedData.cabecera.subtitulo.text;
 
-          if (!mergedData.bienvenida.titulo.text || 
-              mergedData.bienvenida.titulo.text === '¡Nos Casamos!' || 
+          if (!mergedData.bienvenida.titulo.text ||
+              mergedData.bienvenida.titulo.text === '¡Nos Casamos!' ||
               mergedData.bienvenida.titulo.text === '¡Mis 15 Años!') {
               mergedData.bienvenida.titulo.text = isXV ? '¡Mis 15 Años!' : '¡Nos Casamos!';
           }
@@ -180,7 +180,7 @@ function PaginaWebPageContent() {
   const handleUpdate = useCallback((newData: Partial<InvitacionDigitalData>) => {
     setInvitacionData(prev => ({...prev, ...newData}));
   }, []);
-  
+
   const handleSave = () => {
     if (!fiesta || fiestaId === 'template_preview') {
       toast({ title: 'Guardado no disponible', description: 'No se puede guardar una vista previa de plantilla. Personaliza el evento directamente.' });
@@ -201,7 +201,7 @@ function PaginaWebPageContent() {
     handleUpdate({ secciones: (invitacionData.secciones ?? []).filter(s => s.id !== idToRemove) });
     if(selectedSectionId === idToRemove) setSelectedSectionId(null);
   };
-  
+
   const getFullLink = (path: string, hash?: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     if (!baseUrl || !fiestaId) return '';
@@ -288,7 +288,7 @@ function PaginaWebPageContent() {
         .catch(() => toast({ title: "No se pudo copiar", description: url, variant: "destructive" }));
     });
   };
-  
+
   const downloadQR = (id: string, name: string) => {
     checkMissingDataBeforeAction(() => {
       const canvas = document.getElementById(id) as HTMLCanvasElement;
@@ -413,7 +413,7 @@ function PaginaWebPageContent() {
       )}
     </div>
   );
-  
+
   if (fiesta && fiesta.modulosContratados && !fiesta.modulosContratados.paginaWeb) {
     return (
       <EmptyStateModulo
@@ -433,29 +433,29 @@ function PaginaWebPageContent() {
                 {fiesta ? `Constructor: ${fiesta.configuracion.nombreEvento}` : 'Editor de Plantilla'}
             </h1>
         </div>
-        
+
         {/* SELECTOR DE DISPOSITIVOS - MEJORADO PARA VISIBILIDAD */}
         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200 shadow-inner">
-            <Button 
-                variant={previewMode === 'mobile' ? 'outline' : 'ghost'} 
-                size="sm" 
-                onClick={() => setPreviewMode('mobile')} 
+            <Button
+                variant={previewMode === 'mobile' ? 'outline' : 'ghost'}
+                size="sm"
+                onClick={() => setPreviewMode('mobile')}
                 className={cn("rounded-xl h-9 px-3", previewMode === 'mobile' && "shadow-sm bg-white")}
             >
                 <Smartphone className="w-4 h-4 md:mr-2"/><span className="hidden md:inline">Móvil</span>
             </Button>
-            <Button 
-                variant={previewMode === 'tablet' ? 'outline' : 'ghost'} 
-                size="sm" 
-                onClick={() => setPreviewMode('tablet')} 
+            <Button
+                variant={previewMode === 'tablet' ? 'outline' : 'ghost'}
+                size="sm"
+                onClick={() => setPreviewMode('tablet')}
                 className={cn("rounded-xl h-9 px-3", previewMode === 'tablet' && "shadow-sm bg-white")}
             >
                 <Tablet className="w-4 h-4 md:mr-2"/><span className="hidden md:inline">Tablet</span>
             </Button>
-            <Button 
-                variant={previewMode === 'desktop' ? 'outline' : 'ghost'} 
-                size="sm" 
-                onClick={() => setPreviewMode('desktop')} 
+            <Button
+                variant={previewMode === 'desktop' ? 'outline' : 'ghost'}
+                size="sm"
+                onClick={() => setPreviewMode('desktop')}
                 className={cn("rounded-xl h-9 px-3", previewMode === 'desktop' && "shadow-sm bg-white")}
             >
                 <Monitor className="w-4 h-4 md:mr-2"/><span className="hidden md:inline">PC</span>
@@ -510,7 +510,7 @@ function PaginaWebPageContent() {
                     <div className="w-12 h-1 bg-slate-800 rounded-full"></div>
                 </div>
             )}
-            
+
             {isLoading ? (
               <div className="flex items-center justify-center h-full"><Loader2 className="w-12 h-12 animate-spin text-primary opacity-20"/></div>
             ) : fiesta ? (
@@ -566,7 +566,7 @@ function PaginaWebPageContent() {
           tipoCelebracion={fiesta?.configuracion?.tipoCelebracion}
         />
       )}
-      
+
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

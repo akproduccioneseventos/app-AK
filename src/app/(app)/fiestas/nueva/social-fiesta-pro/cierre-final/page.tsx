@@ -141,7 +141,7 @@ export default async function SocialFiestaCierreFinalPage(props: PageProps) {
             </div>
             <div className="rounded-lg bg-white p-4">
               <p className="font-semibold text-slate-950">Recuerdo final</p>
-              <p className="mt-1 text-sm text-muted-foreground">La experiencia sigue despues con fotos, video y album.</p>
+              <p className="mt-1 text-sm text-muted-foreground">La experiencia sigue después con fotos, video y album.</p>
             </div>
           </CardContent>
         </Card>

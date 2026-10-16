@@ -187,7 +187,7 @@ function CancelacionParcialContent({ fiestaId }: { fiestaId: string | null }) {
           </div>
         </div>
 
-        <header className="mb-6 print:mb-4">
+        <header className="cabecera-documento mb-6 print:mb-4">
           <h1 className="text-xl font-bold text-center">CONSTANCIA DE CANCELACIÓN PARCIAL DE SERVICIOS</h1>
         </header>
 

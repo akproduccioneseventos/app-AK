@@ -56,7 +56,7 @@ function BarraTecnologicaContent() {
       getBarraTecnologicaDashboard(fiestaId),
       getFiestaById(fiestaId),
     ]);
-    
+
     if (fiestaResult) setFiesta(fiestaResult);
 
     if (result.success && result.data) {
@@ -101,7 +101,7 @@ function BarraTecnologicaContent() {
     const result = await saveBarraTecnologicaSettings(fiestaId, settings);
     if (result.success && result.data) {
       setSettings(result.data);
-      toast({ title: 'Barra guardada', description: 'La experiencia tactil quedo actualizada.' });
+      toast({ title: 'Barra guardada', description: 'La experiencia táctil quedó actualizada.' });
       await loadData();
     } else {
       toast({ title: 'No se pudo guardar', description: result.error, variant: 'destructive' });
@@ -158,7 +158,7 @@ function BarraTecnologicaContent() {
             </div>
             <div>
               <p className="text-xs font-black uppercase tracking-[0.25em] text-primary/70">Zona tecnologica de barra</p>
-              <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">Barra tactil + fotos sociales</h1>
+              <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">Barra táctil + fotos sociales</h1>
               <p className="mt-2 max-w-3xl text-base font-semibold text-slate-500">
                 Invitados piden tragos en una pantalla, el barman los recibe en otra y la gente puede sacarse fotos tipo espejo magico para subirlas al muro social.
               </p>
@@ -195,11 +195,11 @@ function BarraTecnologicaContent() {
           <Card className="rounded-[2rem] shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" /> Personalizacion de experiencia</CardTitle>
-              <CardDescription>Esto es lo que ve el invitado en la pantalla tactil de la barra.</CardDescription>
+              <CardDescription>Esto es lo que ve el invitado en la pantalla táctil de la barra.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
-                <Label>Titulo</Label>
+                <Label>Título</Label>
                 <Input value={settings.title} onChange={(event) => updateSetting('title', event.target.value)} />
               </div>
               <div className="space-y-2 md:col-span-2">
@@ -231,7 +231,7 @@ function BarraTecnologicaContent() {
                 <Input type="color" value={settings.accentColor} onChange={(event) => updateSetting('accentColor', event.target.value)} className="h-12" />
               </div>
               <div className="space-y-2">
-                <Label>Titulo pantalla barman</Label>
+                <Label>Título pantalla barman</Label>
                 <Input value={settings.barmanTitle} onChange={(event) => updateSetting('barmanTitle', event.target.value)} />
               </div>
               <div className="space-y-2">
@@ -251,7 +251,7 @@ function BarraTecnologicaContent() {
               <CardDescription>Activan o pausan partes de la experiencia durante la fiesta.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 md:grid-cols-2">
-              <ToggleRow label="Barra tactil activa" checked={settings.enabled} onCheckedChange={(value) => updateSetting('enabled', value)} />
+              <ToggleRow label="Barra táctil activa" checked={settings.enabled} onCheckedChange={(value) => updateSetting('enabled', value)} />
               <ToggleRow label="Pedir nombre al invitado" checked={settings.requireGuestName} onCheckedChange={(value) => updateSetting('requireGuestName', value)} />
               <ToggleRow label="Fotos tipo espejo magico" checked={settings.allowPhotoCapture} onCheckedChange={(value) => updateSetting('allowPhotoCapture', value)} />
               <ToggleRow label="Publicar fotos al muro" checked={settings.autoPublishPhotos} onCheckedChange={(value) => updateSetting('autoPublishPhotos', value)} />
@@ -266,7 +266,7 @@ function BarraTecnologicaContent() {
           <Card className="rounded-[2rem] shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Instagram className="h-5 w-5 text-primary" /> Regla social para fotos</CardTitle>
-              <CardDescription>La pantalla tactil guia a la persona para seguir redes antes de subir fotos al muro.</CardDescription>
+              <CardDescription>La pantalla táctil guia a la persona para seguir redes antes de subir fotos al muro.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 md:grid-cols-3">
               <div className="rounded-2xl border bg-slate-50 p-4">
@@ -290,7 +290,7 @@ function BarraTecnologicaContent() {
           <Card className="rounded-[2rem] shadow-lg">
             <CardHeader>
               <CardTitle>Tragos sincronizados</CardTitle>
-              <CardDescription>Se toman de la carta de tragos del evento y del modulo maestro de tragos.</CardDescription>
+              <CardDescription>Se toman de la carta de tragos del evento y del módulo maestro de tragos.</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {dashboard.drinks.slice(0, 12).map((drink) => (
@@ -311,7 +311,7 @@ function BarraTecnologicaContent() {
         </div>
 
         <aside className="space-y-6">
-          <QrCard title="Pantalla tactil invitados" icon={Smartphone} url={urls.guest} onCopy={copyLink} />
+          <QrCard title="Pantalla táctil invitados" icon={Smartphone} url={urls.guest} onCopy={copyLink} />
           <QrCard title="Pantalla barman" icon={Monitor} url={urls.barman} onCopy={copyLink} />
           <QrCard title="Estadísticas de la Barra" icon={Sparkles} url={urls.stats} onCopy={copyLink} />
           <QrCard title="Muro social pantalla grande" icon={Tv} url={urls.muro} onCopy={copyLink} />

@@ -115,24 +115,8 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/empleados"
   },
   {
-    "etiqueta": "Marketing y Difusión",
-    "ruta": "/empresa/marketing"
-  },
-  {
-    "etiqueta": "Redes Sociales",
-    "ruta": "/empresa/redes-sociales"
-  },
-  {
-    "etiqueta": "WhatsApp del Día",
-    "ruta": "/contabilidad/crm/outbox"
-  },
-  {
-    "etiqueta": "Rendimiento Anuncios",
-    "ruta": "/contabilidad/crm/marketing-ads"
-  },
-  {
-    "etiqueta": "Presentación LED",
-    "ruta": "/empresa/presentacion-led/configuracion"
+    "etiqueta": "Marketing y Redes",
+    "ruta": "/marketing"
   },
   {
     "etiqueta": "Ajustes Generales",

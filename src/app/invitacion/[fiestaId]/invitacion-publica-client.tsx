@@ -731,7 +731,7 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
       <motion.button
         type="button"
         onClick={togglePlay}
-        aria-label={playing ? 'Pausar musica' : 'Reproducir musica'}
+        aria-label={playing ? 'Pausar música' : 'Reproducir música'}
         className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border shadow-lg flex items-center justify-center relative hover:scale-105 active:scale-95 transition-transform duration-300 focus:outline-none"
         style={{ borderColor: 'var(--inv-primary)' }}
         animate={playing ? { rotate: 360 } : {}}
@@ -1624,6 +1624,14 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             </div>
           );
         })()}
+        <div className="mt-8 pt-4 border-t border-white/15 text-[11px] opacity-70">
+          <p>
+            Experiencia digital creada por{' '}
+            <a href="/simulador-ak?utm_source=invitacion_footer" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-100 font-bold">
+              AK Producciones
+            </a>
+          </p>
+        </div>
       </footer>
 
       {/* ============= WHATSAPP FLOATING BUTTON ============= */}

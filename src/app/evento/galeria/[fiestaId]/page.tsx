@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { toast } from '@/hooks/use-toast';
 import {
   Download,
   Share2,
@@ -35,8 +36,9 @@ import {
 } from '@/lib/caras/agrupar-caras';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
+import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'invitados';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'vogue' | 'bogue' | 'totem' | 'touchpix' | 'invitados';
 
 /**
  * Extrae 128 números normalizados desde un cuadro del video capturado en el teléfono.
@@ -188,24 +190,7 @@ export default function GaleriaPage() {
       return posts.filter((p) => setIds.has(p.id));
     }
 
-    if (activeTab === 'todas') return posts;
-    if (activeTab === 'fotocabina') return posts.filter((p) => p.sourceModule === 'fotocabina');
-    if (activeTab === '360')
-      return posts.filter(
-        (p) => p.sourceModule === 'plataforma360' || p.sourceModule === 'plataforma_360',
-      );
-    if (activeTab === 'espejo') {
-      return posts.filter(
-        (p) =>
-          p.sourceModule === 'espejoMagico' ||
-          p.sourceModule === 'espejo_magico' ||
-          p.sourceModule === 'espejoMagicoFoto' ||
-          p.sourceModule === 'espejoMagicoFirma' ||
-          p.sourceModule === 'espejoMagicoIA',
-      );
-    }
-    if (activeTab === 'invitados') return posts.filter((p) => p.source === 'guest');
-    return posts;
+    return filtrarPorEstacion(posts, activeTab);
   }, [posts, activeTab, selectedPersona]);
 
   useEffect(() => {
@@ -238,7 +223,7 @@ export default function GaleriaPage() {
         await navigator.share({ title: 'Galería de la Fiesta', url });
       } else {
         await navigator.clipboard.writeText(url);
-        alert('Enlace copiado al portapapeles');
+        toast({ title: 'Enlace copiado', description: 'El enlace se copió al portapapeles.' });
       }
     } catch {}
   };
@@ -414,13 +399,15 @@ export default function GaleriaPage() {
               { id: 'fotocabina', label: '📸 Fotocabina' },
               { id: '360', label: '🌐 360°' },
               { id: 'espejo', label: '✨ Espejo' },
+              { id: 'bogue', label: '💎 Cabina Vogue' },
+              { id: 'touchpix', label: '🤖 Tótem IA' },
               { id: 'invitados', label: '📱 Invitados' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as FilterTab)}
                 className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                  activeTab === tab.id
+                  activeTab === tab.id || (tab.id === 'bogue' && activeTab === 'vogue') || (tab.id === 'touchpix' && activeTab === 'totem')
                     ? 'bg-white text-zinc-950 border-white'
                     : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-300'
                 }`}
