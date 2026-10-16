@@ -25,7 +25,7 @@ programa Gemini.)
 `src/__tests__/la-hoja-de-cocina-se-imprime-con-cabecera.test.tsx`: monta `HojaDeCocinaContenido` con
 datos de prueba y comprueba que el nombre del evento está dentro de un elemento que **no** es `header`
 ni tiene `role="banner"` (lo que oculta la regla de impresión). Nombrá la ruta
-`/fiestas/nueva/catering/hoja-de-cocina`. La prueba de Codex `tests/e2e/135-cocina-agenda-3d.spec.ts`
+`/fiestas/nueva/catering/hoja-de-cocina`. La prueba de Codex `docs/evidencias/135-cocina-agenda-3d.spec.ts`
 corre sólo en su copia de pruebas aislada: Codex la repite después.
 
 ---
@@ -67,7 +67,7 @@ Al pasar al medio de impresion desaparece TODO el encabezado documental: titulo 
 ```comprobar
 archivo: src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
 usa: armarHojaDeCocina en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
-prueba: tests/e2e/135-cocina-agenda-3d.spec.ts
+prueba: docs/evidencias/135-cocina-agenda-3d.spec.ts
 no-usa: <header className="mb-6 border-b-2 border-slate-900 pb-4"> en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
 prueba: PENDIENTE src/__tests__/la-hoja-de-cocina-se-imprime-con-cabecera.test.tsx
 ```
