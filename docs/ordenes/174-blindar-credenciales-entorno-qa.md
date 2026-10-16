@@ -1,29 +1,26 @@
-# Orden 174: blindar credenciales y red del entorno QA
+# Orden 174 rectificada: ADC no demuestra credenciales reales
 
 **Responsable sugerido:** Claude (Firebase y aislamiento de credenciales).
-**Estado:** hallazgo del entorno reproducido; correccion y prueba pendientes.
-**Prioridad:** P2 para QA. No es un defecto funcional demostrado en la app publicada.
+**Estado:** retirada como defecto de credenciales. No bloquear recorridos por este mensaje.
+**Prioridad:** observacion de QA; endurecimiento opcional, separado de errores de la app.
 **Base:** build sintetico `a635b27071ecea22092eba2a285892c84c6f9d08`, equivalente en `src` a main `9aa64f991f5ddceefa8d278a3f298be861eb10bb`.
 
 ## Observacion comprobada
 
-Durante el intento de `tests/e2e/viaje-invitado.spec.ts`, el log del servidor informo `Firebase Admin SDK initialized with Application Default Credentials`. El runner oficial crea un ambiente desde una lista permitida que conserva rutas de usuario como `HOME`, `APPDATA` y `USERPROFILE`; por lo tanto, aunque no copie `GOOGLE_APPLICATION_CREDENTIALS` ni variables de cuentas de servicio, Google Auth aun puede descubrir credenciales ADC del usuario. La corrida se interrumpio antes de producir resultado E2E: no clasificarla PASS ni FAIL.
+Durante el intento de `tests/e2e/viaje-invitado.spec.ts`, el log del servidor informo `Firebase Admin SDK initialized with Application Default Credentials`. Codex interrumpio la corrida por interpretar ese mensaje como descubrimiento de credenciales. Esa conclusion no estaba demostrada. La corrida quedo sin resultado E2E: no clasificarla PASS ni FAIL.
 
-En esa corrida `AK_USE_LOCAL_JSON_ONLY=true` dejo `dbAdmin` nulo y los accesos observados usaron archivos JSON locales. No se observo escritura a Firestore real ni alteracion de datos reales. Sin embargo, la inicializacion ADC y la llamada del SDK cliente a Firebase con API key ficticia impiden afirmar aislamiento total o ausencia de trafico externo.
+La dependencia instalada demuestra que `applicationDefault()` construye `ApplicationDefaultCredential`; su constructor crea un objeto `GoogleAuth`. La busqueda del cliente y la solicitud de token ocurren despues, en `getAccessToken()`. El mensaje de inicializacion no demuestra que se encontraran o utilizaran credenciales. En la app, `AK_USE_LOCAL_JSON_ONLY=true` sin emulador dejo `dbAdmin` y `authAdmin` nulos; los accesos observados usaron archivos JSON locales. No se observo escritura a Firestore real.
 
-## Correccion solicitada
+## Observacion que sigue vigente
 
-- Hacer que el proceso del entorno QA no pueda descubrir ADC de la cuenta del usuario ni recibir claves del host; usar configuracion temporal aislada o un modo que falle cerrado sin credenciales.
-- Mantener el modo local exclusivo sin emulador, o apuntar unicamente a emuladores localhost verificados; evitar una configuracion parcial que habilite Firestore real.
-- Bloquear solicitudes salientes de los navegadores de prueba a servicios externos, salvo localhost, incluyendo Firebase Installations/Firestore/Storage y servicios de marketing.
-- Comprobar al iniciar que el servidor, no solo el proceso del test, esta usando la configuracion aislada y que ningun servicio real esta activo. Si no puede probarse, no arrancar.
-- Agregar una prueba automatica que simule ADC disponible en el usuario anfitrion y confirme que el entorno aislado no la usa, que Firestore/Auth/Storage no inicializan conexiones reales y que el navegador no envia solicitudes externas.
-- No cambiar autenticacion ni datos de produccion para facilitar QA. Esta orden solo afecta al entorno y sus pruebas.
+El navegador intento llamar Firebase Installations con la API key ficticia y obtuvo 400. Esto contamina las aserciones que exigen consola sin errores. Para esos recorridos, interceptar solicitudes externas en el arnes QA y conservar sus resultados; no cambiar la app para acomodar la prueba. Mantener modo local exclusivo o emuladores localhost verificados.
 
-**No repetir** `viaje-invitado.spec.ts` hasta que el aislamiento pase la nueva prueba. Despues ejecutar ese viaje en datos sinteticos y guardar el resultado completo.
+Se retira la prohibicion anterior de repetir RSVP basada solo en ADC. Puede reanudarse con datos ficticios, los controles del modo local y el bloqueo de salida del navegador. No requiere una correccion de autenticacion de produccion ni una nueva compilacion si la fuente no cambio. Antes de encargar trabajo, contrastar las tandas privadas de Claude/Gemini, cuyos HEAD siguen NO CONTRASTADOS.
+
+Referencia local comprobada: `node_modules/firebase-admin/lib/app/credential-factory.js` (`applicationDefault`), `credential-internal.js` (`ApplicationDefaultCredential`, `getAccessToken`, `getApplicationDefault`) y `src/lib/firebase/server.ts` (rama local con `dbAdmin` nulo). No se ejecutaron solicitudes de tokens para hacer esta comprobacion.
 
 ```comprobar
 archivo: scripts/entorno-de-pruebas.mjs
 usa: ambienteAislado en el arranque de npm run entorno:pruebas
-prueba: src/__tests__/entorno-aislado-no-descubre-adc.test.ts (pendiente de crear y ejecutar)
+prueba: src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts (existente; no ejecutada en esta rectificacion)
 ```
