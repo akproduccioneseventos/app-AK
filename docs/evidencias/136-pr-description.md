@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Continua la misma propuesta documental de auditorias134-140 con evidencia nueva.
+Continua la misma propuesta documental de auditorias134-141 con evidencia nueva.
 **No fusionar documentos solos. Codex no cambia codigo app ni fusiona.**
 
 -134: conciliacion421rutas/14areas/7perfiles, sin convertir inventario en pruebas.
@@ -20,7 +20,7 @@ Continua la misma propuesta documental de auditorias134-140 con evidencia nueva.
   aparece tras recarga. Runner0PASS/2noPASS, no aceptacion completa ni prueba de
   perdida. Artefactos crudos conservados, timeouts de QA no aislados; ver cierre.
 -139: cliente2viajesPASS PC/movil contelefono sinemail y persistencia SOLO modo
-  JSON aislado. SDK sigue inconcluso; preflight139 no llego a tests. Se conservo
+  JSON aislado. SDK139 fue inconcluso; preflight139 no llego a tests. Se conservo
   el timeout de menu movil de la sonda y se corrigio/retesteo solo ese recorrido.
 -Health publico200 misma fuente7230, indicadores Instagram/MercadoPagofalse;
   configuracion mail/Gemini/Workspace no equivale a conexion probada.
@@ -28,13 +28,21 @@ Continua la misma propuesta documental de auditorias134-140 con evidencia nueva.
   prefijos179/180. Se agregan IDs estables, sin reemitirlas ni tocar su trabajo.
   Se corrige el falso cierre estructural de mi orden180: antes3PASS/0FAIL y
   ahora3PASS/4FAIL esperados, con app intacta. No regresion/app corregida.
+-141: completado cliente SDK emulador demo PC/Pixel7 2PASS/0FAIL/0omitidos:
+  alta sinemail, telefono conservado, lista+recarga y documento completo/ID
+  persistentes. Cierra SOLO ese viaje137/139, no todaarea/integraciones reales.
+  Capturas revisadas,61JSON primer nivel restaurados, puertos libres/fuentesQA0.
+  No servidor ajeno detenido, app modificada ni build adicional. Luna low cerrado.
+-PR1327HEAD17d26a631:3consumidores179/180 identicos7230, sin reencargarlos.
+  CSS178 cambia cabecera: correccion presente, NO prueba nativa en17d.
 -19originales: dueno buscando ubicacion; integraciones reales, Hosting, modelo/
   voz y hardware no certificados. **No representa toda app sin errores.**
 
 Fuente congelada de aplicacion:7230f9d02b32805952a185f704a0208bd5d643e6.
 Contraste consumidores179:1325HEAD5f704e68 y1326HEADa21d0b69 sin esos arreglos.
 Igual contraste para perfiles.ts/auth.ts de180: sin cambios en ambas ramas.
-NO CONTRASTADO CON LA TANDA PRIVADA deClaude/Gemini, HEAD desconocido.
+Gemini1327 contrastado por objetos Git17d SOLO en los consumidores descritos.
+NO CONTRASTADO CON LA TANDA PRIVADA ACTUAL deClaude, HEAD desconocido.
 
 ## Tipo de Cambio
 - [ ] Correccion de errores de la app

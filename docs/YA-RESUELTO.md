@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex141: alta cliente SDK pendiente completada PC/movil
+
+-Dueno aviso que Gemini termino; recursos comprobados libres antes de iniciar.
+  No se paro su servidor ni se tocaron sus cambios. Fuente7230/build135 sin
+  compilar ni cambiar app; nuevo namespace141 conserva todos los intentos139.
+-SDK real a emulador demo local:2PASS PC9.971s/Pixel7 8.980s,0fallos/omitidos/
+  reintentos. Alta con telefono sinemail, lista y recarga; lectura REST antes/
+  despues igual enID/campos/timestamps y un documento por nombre ficticio.
+  Capturas revisadas. Cierra SOLO el viaje clienteSDK inconcluso137/139.
+-Health aceptado7230/firebase true y otros serviciosfalse. HOME/config aislados,
+  Installations doble local y respaldo ficticio reciente; NO prueba OAuth,
+  backup, produccion, edicion/borrado/concurrencia ni todoClientes.
+-PR1327 HEAD17d26a631f500a263c48c4973d9c6f57d56ba421: tres blobs de agenda,
+  catalogo y perfiles identicos7230; no repetir136/138 ni reemitir179/180.
+  CSS178 cambia selector de cabecera: presente, NO retest nativo de17d. No
+  equivalencia transitiva ni aprobacion de toda1327. PrivadoClaude NO CONTRASTADO.
+-Ver141-cierre/consolidado/contraste, resultados crudos comprimidos y hash de
+  test. Gate PASS_CLIENT_CREATE_RELOAD_SDK_DEMO_PC_MOBILE_ONLY. Servicios propios
+  cerrados, puertos libres,61JSON primer nivel restaurados, diff fuentesQA0.
+  Agente economico read-only cerrado. No fusion, datos reales ni codigo app.
+  No repetir si fuente/consumidores iguales; no cambiar fallos historicos aPASS.
+
 ## 16/10/2026 - Decision del dueno: esperar a Gemini
 
 -Respondio "No, espera a que termine Gemini" a detener su servidor3100.

@@ -1,0 +1,719 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "receipt": {
+    "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+    "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+    "started": "2026-10-16T19:07:41.238Z",
+    "fixture": "Firestore demo local. backup_system/auto_backup con ultimo respaldo ficticio reciente para aislar alta; NO prueba respaldo.",
+    "children": [
+      {
+        "label": "emulator",
+        "pid": 6204,
+        "command": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools/java21/jdk-21.0.12.1+1/bin/java.exe",
+        "args": [
+          "-Xmx512m",
+          "-jar",
+          "C:/Users/Usuario/.cache/firebase/emulators/cloud-firestore-emulator-v1.22.0.jar",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "8085",
+          "--project_id",
+          "demo-ak-producciones",
+          "--single_project_mode",
+          "true",
+          "--single_project_mode_error",
+          "true",
+          "--rules",
+          "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\firestore.rules"
+        ]
+      },
+      {
+        "label": "serve",
+        "pid": 3572,
+        "command": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+          "start",
+          "--hostname",
+          "127.0.0.1",
+          "--port",
+          "3300"
+        ]
+      },
+      {
+        "label": "playwright",
+        "pid": 11348,
+        "command": "C:\\Program Files\\nodejs\\node.exe",
+        "args": [
+          "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+          "test",
+          "--config",
+          "139-playwright.config.ts",
+          "139-cliente-persistencia.spec.ts",
+          "--output",
+          "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\141-sdk-client-artifacts"
+        ]
+      }
+    ],
+    "realServices": false,
+    "snapshots": 61,
+    "health": {
+      "status": "ok",
+      "timestamp": "2026-10-16T19:08:14.815Z",
+      "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+      "services": {
+        "firebase": true,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      },
+      "environment": "production",
+      "uptime": 14
+    },
+    "testSha256": "8586ec3faf03cfaa4e943dbc920dfcc3391df4962e5006098aa1d01961d7b369",
+    "exitCode": 0,
+    "restored": [
+      "src\\data\\customers.json",
+      "data\\customers.json"
+    ],
+    "sourceDiff": "",
+    "finished": "2026-10-16T19:08:39.086Z"
+  },
+  "stats": {
+    "startTime": "2026-10-16T19:08:16.471Z",
+    "duration": 22103.182,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "checkpoints": [
+    {
+      "project": "chromium-desktop",
+      "status": "passed",
+      "durationMs": 9971,
+      "screenshot": "141-sdk-client-chromium-desktop.jpeg",
+      "before": [
+        {
+          "name": "projects/demo-ak-producciones/databases/(default)/documents/clientes/cust_c2f8552b-9339-47fe-b27f-ebfaa99ae277",
+          "fields": {
+            "name": {
+              "stringValue": "Auditoria Cliente Qa139 3288 1792177698594"
+            },
+            "companyName": {
+              "nullValue": null
+            },
+            "address": {
+              "nullValue": null
+            },
+            "phone": {
+              "stringValue": "099003288"
+            },
+            "taxId": {
+              "nullValue": null
+            },
+            "partyDate": {
+              "nullValue": null
+            },
+            "partyTime": {
+              "nullValue": null
+            },
+            "partyType": {
+              "nullValue": null
+            },
+            "partyForWhom": {
+              "nullValue": null
+            },
+            "venueName": {
+              "nullValue": null
+            },
+            "estadoCliente": {
+              "stringValue": "Actual"
+            },
+            "id": {
+              "stringValue": "cust_c2f8552b-9339-47fe-b27f-ebfaa99ae277"
+            },
+            "_syncedAt": {
+              "stringValue": "2026-10-16T19:08:23.943Z"
+            }
+          },
+          "createTime": "2026-10-16T19:08:23.976195Z",
+          "updateTime": "2026-10-16T19:08:23.976195Z"
+        }
+      ],
+      "after": [
+        {
+          "name": "projects/demo-ak-producciones/databases/(default)/documents/clientes/cust_c2f8552b-9339-47fe-b27f-ebfaa99ae277",
+          "fields": {
+            "name": {
+              "stringValue": "Auditoria Cliente Qa139 3288 1792177698594"
+            },
+            "companyName": {
+              "nullValue": null
+            },
+            "address": {
+              "nullValue": null
+            },
+            "phone": {
+              "stringValue": "099003288"
+            },
+            "taxId": {
+              "nullValue": null
+            },
+            "partyDate": {
+              "nullValue": null
+            },
+            "partyTime": {
+              "nullValue": null
+            },
+            "partyType": {
+              "nullValue": null
+            },
+            "partyForWhom": {
+              "nullValue": null
+            },
+            "venueName": {
+              "nullValue": null
+            },
+            "estadoCliente": {
+              "stringValue": "Actual"
+            },
+            "id": {
+              "stringValue": "cust_c2f8552b-9339-47fe-b27f-ebfaa99ae277"
+            },
+            "_syncedAt": {
+              "stringValue": "2026-10-16T19:08:23.943Z"
+            }
+          },
+          "createTime": "2026-10-16T19:08:23.976195Z",
+          "updateTime": "2026-10-16T19:08:23.976195Z"
+        }
+      ],
+      "diagnostic": {
+        "name": "Auditoria Cliente Qa139 3288 1792177698594",
+        "phone": "099003288",
+        "elapsedMs": 4507,
+        "url": "http://127.0.0.1:3300/customers",
+        "current": [
+          {
+            "name": "projects/demo-ak-producciones/databases/(default)/documents/clientes/cust_c2f8552b-9339-47fe-b27f-ebfaa99ae277",
+            "fields": {
+              "name": {
+                "stringValue": "Auditoria Cliente Qa139 3288 1792177698594"
+              },
+              "companyName": {
+                "nullValue": null
+              },
+              "address": {
+                "nullValue": null
+              },
+              "phone": {
+                "stringValue": "099003288"
+              },
+              "taxId": {
+                "nullValue": null
+              },
+              "partyDate": {
+                "nullValue": null
+              },
+              "partyTime": {
+                "nullValue": null
+              },
+              "partyType": {
+                "nullValue": null
+              },
+              "partyForWhom": {
+                "nullValue": null
+              },
+              "venueName": {
+                "nullValue": null
+              },
+              "estadoCliente": {
+                "stringValue": "Actual"
+              },
+              "id": {
+                "stringValue": "cust_c2f8552b-9339-47fe-b27f-ebfaa99ae277"
+              },
+              "_syncedAt": {
+                "stringValue": "2026-10-16T19:08:23.943Z"
+              }
+            },
+            "createTime": "2026-10-16T19:08:23.976195Z",
+            "updateTime": "2026-10-16T19:08:23.976195Z"
+          }
+        ],
+        "timings": [
+          {
+            "url": "/empresa",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/empresa",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/v1/projects/demo-ak-producciones/installations",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/empresa",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          }
+        ]
+      }
+    },
+    {
+      "project": "chromium-mobile",
+      "status": "passed",
+      "durationMs": 8980,
+      "screenshot": "141-sdk-client-chromium-mobile.jpeg",
+      "before": [
+        {
+          "name": "projects/demo-ak-producciones/databases/(default)/documents/clientes/cust_ec5af977-a69a-49fc-915c-b3eb79c75b6b",
+          "fields": {
+            "name": {
+              "stringValue": "Auditoria Cliente Qa139 6692 1792177709603"
+            },
+            "companyName": {
+              "nullValue": null
+            },
+            "address": {
+              "nullValue": null
+            },
+            "phone": {
+              "stringValue": "099006692"
+            },
+            "taxId": {
+              "nullValue": null
+            },
+            "partyDate": {
+              "nullValue": null
+            },
+            "partyTime": {
+              "nullValue": null
+            },
+            "partyType": {
+              "nullValue": null
+            },
+            "partyForWhom": {
+              "nullValue": null
+            },
+            "venueName": {
+              "nullValue": null
+            },
+            "estadoCliente": {
+              "stringValue": "Actual"
+            },
+            "id": {
+              "stringValue": "cust_ec5af977-a69a-49fc-915c-b3eb79c75b6b"
+            },
+            "_syncedAt": {
+              "stringValue": "2026-10-16T19:08:35.411Z"
+            }
+          },
+          "createTime": "2026-10-16T19:08:35.432594Z",
+          "updateTime": "2026-10-16T19:08:35.432594Z"
+        }
+      ],
+      "after": [
+        {
+          "name": "projects/demo-ak-producciones/databases/(default)/documents/clientes/cust_ec5af977-a69a-49fc-915c-b3eb79c75b6b",
+          "fields": {
+            "name": {
+              "stringValue": "Auditoria Cliente Qa139 6692 1792177709603"
+            },
+            "companyName": {
+              "nullValue": null
+            },
+            "address": {
+              "nullValue": null
+            },
+            "phone": {
+              "stringValue": "099006692"
+            },
+            "taxId": {
+              "nullValue": null
+            },
+            "partyDate": {
+              "nullValue": null
+            },
+            "partyTime": {
+              "nullValue": null
+            },
+            "partyType": {
+              "nullValue": null
+            },
+            "partyForWhom": {
+              "nullValue": null
+            },
+            "venueName": {
+              "nullValue": null
+            },
+            "estadoCliente": {
+              "stringValue": "Actual"
+            },
+            "id": {
+              "stringValue": "cust_ec5af977-a69a-49fc-915c-b3eb79c75b6b"
+            },
+            "_syncedAt": {
+              "stringValue": "2026-10-16T19:08:35.411Z"
+            }
+          },
+          "createTime": "2026-10-16T19:08:35.432594Z",
+          "updateTime": "2026-10-16T19:08:35.432594Z"
+        }
+      ],
+      "diagnostic": {
+        "name": "Auditoria Cliente Qa139 6692 1792177709603",
+        "phone": "099006692",
+        "elapsedMs": 4175,
+        "url": "http://127.0.0.1:3300/customers",
+        "current": [
+          {
+            "name": "projects/demo-ak-producciones/databases/(default)/documents/clientes/cust_ec5af977-a69a-49fc-915c-b3eb79c75b6b",
+            "fields": {
+              "name": {
+                "stringValue": "Auditoria Cliente Qa139 6692 1792177709603"
+              },
+              "companyName": {
+                "nullValue": null
+              },
+              "address": {
+                "nullValue": null
+              },
+              "phone": {
+                "stringValue": "099006692"
+              },
+              "taxId": {
+                "nullValue": null
+              },
+              "partyDate": {
+                "nullValue": null
+              },
+              "partyTime": {
+                "nullValue": null
+              },
+              "partyType": {
+                "nullValue": null
+              },
+              "partyForWhom": {
+                "nullValue": null
+              },
+              "venueName": {
+                "nullValue": null
+              },
+              "estadoCliente": {
+                "stringValue": "Actual"
+              },
+              "id": {
+                "stringValue": "cust_ec5af977-a69a-49fc-915c-b3eb79c75b6b"
+              },
+              "_syncedAt": {
+                "stringValue": "2026-10-16T19:08:35.411Z"
+              }
+            },
+            "createTime": "2026-10-16T19:08:35.432594Z",
+            "updateTime": "2026-10-16T19:08:35.432594Z"
+          }
+        ],
+        "timings": [
+          {
+            "url": "/empresa",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/empresa",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/v1/projects/demo-ak-producciones/installations",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/empresa",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/empresa",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/empresa",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers/new",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          },
+          {
+            "url": "/customers",
+            "ms": -1,
+            "status": 200
+          }
+        ]
+      }
+    }
+  ],
+  "rawResults": {
+    "file": "141-sdk-client-results.json.gz",
+    "sha256Uncompressed": "17a06d9d409b85cc05fee2e06c875f7700f2aa298732d1a7542d7d04af2eff3f"
+  },
+  "cleanup": {
+    "portsListening": [],
+    "trackedSourceDiff": "",
+    "restoredTopLevelJsonCount": 61
+  },
+  "acceptance": "PASS_CLIENT_CREATE_RELOAD_SDK_DEMO_PC_MOBILE_ONLY",
+  "limits": [
+    "No production Firestore or real credentials",
+    "No edit/delete/concurrency acceptance",
+    "No external integrations, originals19, physical equipment or complete area acceptance",
+    "Recent fictitious backup fixture; backup execution not tested",
+    "Browser Installations protocol double; does not test Google OAuth",
+    "JSON snapshots cover top-level data and src/data only; no recursive restoration claimed"
+  ]
+}
