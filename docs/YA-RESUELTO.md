@@ -1,5 +1,9 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - La entrega 176/177 vuelve a Gemini (orden 179)
+
+La verificación frenó en la prueba de navegador: 12 pruebas viejas esperaban textos que cambiaron a propósito, la línea base de la maquetación no estaba regenerada, y una falla real (los campos del verificador de fecha con letra menor a 16 px hacen zoom en el celular). Va todo a la orden 179, junto con el paso a la IA gratis más nueva (`gemini-3.8-flash`, decisión del dueño) y la hoja de cocina (178). Lo ya arreglado por Claude en la rama queda: una sola ancla de galería, botones unificados en el pie y el flotante, y la prueba de la portada mirando lo que se ve en el celular.
+
 ## 16/10/2026 - Auditoría integral de la IA avanzada de Gemini (`docs/evidencias/135-auditoria-integral-gemini-avanzada.md`)
 
 Verificado por Claude contra el código, de sus siete hallazgos de roles y portal:

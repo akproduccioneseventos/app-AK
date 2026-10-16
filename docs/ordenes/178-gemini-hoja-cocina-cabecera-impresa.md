@@ -1,4 +1,37 @@
-# Orden 178 - Claude: conservar la identificacion al imprimir la hoja de cocina
+# PARA GEMINI - Orden 178: la hoja de cocina impresa conserva su cabecera
+
+**Una sola propuesta.** Antes de decir "terminé", pasá `docs/ANTES-DE-ENTREGAR.md`. Arrancá de la
+versión principal de hoy. (Codex la había dirigido a Claude; por la regla del dueño del 15/10/2026
+programa Gemini.)
+
+## Camino exacto (lo verificó Claude)
+
+- `src/app/globals.css` ~418, dentro de `@media print`, oculta **todo** `header` (y `nav`, `aside`,
+  `button`, `[role="banner"]`) con `display: none !important`, para sacar la navegación de la app al
+  imprimir. **No toques esa regla**: la usan todos los documentos.
+- `src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx`, componente `HojaDeCocinaContenido`
+  (~25): la cabecera del documento (título "Hoja de cocina", nombre del evento, fecha y resumen de
+  invitados) está en un `<header className="mb-6 border-b-2 border-slate-900 pb-4">` (~118 a ~128). Por
+  eso desaparece al imprimir.
+- **El arreglo:** cambiá ese `<header>` y su cierre (~128) por `<section aria-label="Datos del evento" ...>`
+  con las mismas clases. Nada más. **No** le pongas `role="banner"`.
+- **No toques** los cálculos (`armarHojaDeCocina`), los invitados, las restricciones ni el botón de imprimir.
+- Si otra pantalla imprimible usa `<header>` para su propia cabecera de documento (buscá
+  `grep -rln "<header" src/app/(app)` en archivos con `window.print`), avisá cuáles son en la entrega,
+  sin cambiarlas.
+
+## Prueba
+
+`src/__tests__/la-hoja-de-cocina-se-imprime-con-cabecera.test.tsx`: monta `HojaDeCocinaContenido` con
+datos de prueba y comprueba que el nombre del evento está dentro de un elemento que **no** es `header`
+ni tiene `role="banner"` (lo que oculta la regla de impresión). Nombrá la ruta
+`/fiestas/nueva/catering/hoja-de-cocina`. La prueba de Codex `tests/e2e/135-cocina-agenda-3d.spec.ts`
+corre sólo en su copia de pruebas aislada: Codex la repite después.
+
+---
+
+## Lo que encontró Codex (auditoría 135)
+
 
 **Destinatario:** Claude (comida y documento operativo). Codex solo audita.
 **Estado:** reproducido, NO corregido por Codex. Prioridad P2.
@@ -35,4 +68,6 @@ Al pasar al medio de impresion desaparece TODO el encabezado documental: titulo 
 archivo: src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
 usa: armarHojaDeCocina en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
 prueba: tests/e2e/135-cocina-agenda-3d.spec.ts
+no-usa: <header className="mb-6 border-b-2 border-slate-900 pb-4"> en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
+prueba: PENDIENTE src/__tests__/la-hoja-de-cocina-se-imprime-con-cabecera.test.tsx
 ```
