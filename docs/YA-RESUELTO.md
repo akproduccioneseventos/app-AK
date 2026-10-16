@@ -14492,6 +14492,8 @@ RECTIFICACION: el mensaje ADC no demuestra que el SDK descubriera o usara creden
 
 ## Codex135: ejecutados los tres bloques pendientes de la lista original (16 de octubre de 2026)
 
+Entrega verificada: PR1324 abierta, rama `codex/134-conciliacion-cobertura-20261015`, commit `59285bb686f53f1a489a79a843e9a518cc5afe6f`;95blobs de la propuesta identicos en GitHub, incluida orden178. Sin fusion por Codex.
+
 Fuente congelada7230f9d02b32805952a185f704a0208bd5d643e6, copiaQA aislada compilada exit0 con autorizacion del dueno. Punto1:3D2/2PASS desktop/Pixel7 entrando con clave ficticia de cliente y sin cookie del equipo; canvas real, pixeles variados y giro,0erroresJS, capturas inspeccionadas. Cierra la comprobacion focal inconclusa133, NO todo el catalogo/editor3D ni dispositivos fisicos. Punto2:agenda2/2PASS para cuentaGoogle no conectada; no limpieza real de una cuenta. Se simula SOLO protocolo FirebaseInstallations de demo para evitar el error de clave dummy; el intento anterior abortado queda archivado como problemaQA, no bug nuevo.
 
 Punto2 cocina: hoja con evento/presupuesto realmente cargados,80adultos+20chicos, entrada100/principal80/infantil20/postre100, Celiaco5 y recarga correctas. NUEVO178 paraClaude: el medio de impresion oculta toda la cabecera documental (evento/fecha/grupos); las tablas y cantidades SI se imprimen. DosPDF Chromium1pagina y capturas lo confirman. Causa: selector global header displaynone!important en @media print. No afirmar PDFvacio ni error de cantidades; no cambiar comida/pagos/permisos por presentacion. La sonda auxiliar del primerh1 devuelve navegacion AK, no identifica el evento; la evidencia especifica es la asercion por nombre, captura y PDF. Ver orden178; Codex no lo arreglo.
