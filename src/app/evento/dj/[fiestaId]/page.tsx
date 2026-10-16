@@ -25,6 +25,7 @@ export default function DJPage() {
   const [showPlayed, setShowPlayed] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const fetchData = useCallback(async (showLoader = false) => {
     if (showLoader) setIsLoading(true);
@@ -58,18 +59,36 @@ export default function DJPage() {
 
   const handleMarkPlayed = async (req: SongRequest) => {
     setActionLoading(req.id);
-    // no-mira-el-resultado: marca visual del DJ; la lista se refresca sola en el proximo pedido
-    await markSongPlayed(params.fiestaId, req.id);
-    await fetchData(false);
-    setActionLoading(null);
+    setActionError(null);
+    try {
+      const result = await markSongPlayed(params.fiestaId, req.id, !req.played);
+      if (!result?.success) {
+        setActionError('No se pudo guardar la marca. Tocá de nuevo.');
+      } else {
+        await fetchData(false);
+      }
+    } catch {
+      setActionError('No se pudo guardar la marca. Tocá de nuevo.');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const handleVote = async (req: SongRequest) => {
     setActionLoading(req.id + '_vote');
-    // no-mira-el-resultado: voto de un invitado a una cancion; si no entra, vuelve a tocar
-    await voteSongRequest(params.fiestaId, req.id);
-    await fetchData(false);
-    setActionLoading(null);
+    setActionError(null);
+    try {
+      const result = await voteSongRequest(params.fiestaId, req.id);
+      if (!result?.success) {
+        setActionError(result?.error || 'No se pudo registrar el voto. Tocá de nuevo.');
+      } else {
+        await fetchData(false);
+      }
+    } catch {
+      setActionError('No se pudo registrar el voto. Tocá de nuevo.');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const unplayed = requests.filter(r => !r.played);
@@ -268,6 +287,44 @@ export default function DJPage() {
           </div>
         ) : null}
 
+        {/* Sugerencias / Si es posible */}
+        {fiesta?.listaMusicaPortal?.siEsPosible && fiesta.listaMusicaPortal.siEsPosible.length > 0 ? (
+          <div className="rounded-2xl border-2 border-sky-500/70 bg-gradient-to-r from-sky-950/70 via-zinc-900 to-sky-950/70 p-4 shadow-xl shadow-sky-950/30">
+            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-sky-500/30">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">💡</span>
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-sky-300 tracking-tight">
+                    Si es posible
+                  </h2>
+                  <p className="text-[11px] text-sky-200/70">
+                    Sugerencias del cliente: pasalas si encajan.
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2 py-0.5 rounded-full shrink-0">
+                {fiesta.listaMusicaPortal.siEsPosible.length} sugeridas
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {fiesta.listaMusicaPortal.siEsPosible.map((cancion, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2.5 p-2.5 rounded-xl bg-black/40 border border-sky-500/30 hover:border-sky-400 transition-colors"
+                >
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-sky-500 text-black flex items-center justify-center text-xs font-black">
+                    {idx + 1}
+                  </span>
+                  <span className="font-extrabold text-sm sm:text-base text-sky-100 leading-snug break-words">
+                    {cancion}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {/* 2. Prohibidas / No Deben Sonar */}
         {fiesta?.listaMusicaPortal?.noQuiero && fiesta.listaMusicaPortal.noQuiero.length > 0 ? (
           <div className="rounded-2xl border-2 border-rose-600/80 bg-gradient-to-r from-rose-950/80 via-zinc-900 to-rose-950/80 p-4 shadow-xl shadow-rose-950/30">
@@ -315,6 +372,17 @@ export default function DJPage() {
 
       {/* Song list */}
       <main className="max-w-2xl mx-auto px-4 pb-10 space-y-2">
+        {actionError && (
+          <div role="alert" className="rounded-xl border border-red-500/40 bg-red-950/70 p-3 text-sm text-red-200 flex items-center justify-between gap-2 shadow-lg">
+            <span>{actionError}</span>
+            <button
+              onClick={() => setActionError(null)}
+              className="text-xs text-red-300 hover:text-white px-2 py-0.5 rounded border border-red-500/30"
+            >
+              Cerrar
+            </button>
+          </div>
+        )}
         {isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3, 4].map(i => (
@@ -439,3 +507,5 @@ export default function DJPage() {
     </div>
   );
 }
+
+

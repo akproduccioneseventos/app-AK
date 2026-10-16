@@ -44,22 +44,28 @@ export default function EventoEnVivoPage() {
   const [chatDraft, setChatDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [chatSinLeer, setChatSinLeer] = useState(false);
   const [heartCount, setHeartCount] = useState(12);
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
 
   useEffect(() => {
     async function load() {
       try {
-        const [fData, chatData] = await Promise.all([
-          getFiestaById(fiestaId),
-          getChatMessages(fiestaId),
-        ]);
+        const fData = await getFiestaById(fiestaId);
         setFiesta(fData);
-        setMessages(chatData);
       } catch (err) {
         console.error('Error cargando en vivo:', err);
       } finally {
         setLoading(false);
+      }
+
+      try {
+        const chatData = await getChatMessages(fiestaId);
+        setMessages(chatData);
+        setChatSinLeer(false);
+      } catch (err) {
+        console.error('Error cargando chat en vivo:', err);
+        setChatSinLeer(true);
       }
     }
     load();
@@ -68,8 +74,9 @@ export default function EventoEnVivoPage() {
       try {
         const chatData = await getChatMessages(fiestaId);
         setMessages(chatData);
+        setChatSinLeer(false);
       } catch {
-        // Ignorar errores transitorios de polling
+        setChatSinLeer(true);
       }
     }, 6000);
 
@@ -214,16 +221,31 @@ export default function EventoEnVivoPage() {
               <MessageSquare className="h-3.5 w-3.5 text-red-500" />
               Saludos de la Familia
             </span>
-            <span className="text-[10px] text-slate-500">{messages.length} mensajes</span>
+            {chatSinLeer && messages.length === 0 ? null : (
+              <span className="text-[10px] text-slate-500">{messages.length} mensajes</span>
+            )}
           </div>
+
+          {chatSinLeer && messages.length > 0 && (
+            <div role="status" className="px-3 py-1 bg-amber-950/40 border-b border-amber-800/40 text-[10px] text-amber-400 text-center font-medium">
+              Reintentando conexión…
+            </div>
+          )}
 
           {/* Lista de Mensajes con Scroll */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
             {messages.length === 0 ? (
-              <div className="py-12 text-center text-slate-500 text-xs">
-                <Smile className="h-6 w-6 mx-auto mb-2 opacity-50" />
-                <span>Sé la primera persona en mandar un saludo a la fiesta.</span>
-              </div>
+              chatSinLeer ? (
+                <div role="status" className="py-12 text-center text-amber-400 text-xs space-y-2">
+                  <Smile className="h-6 w-6 mx-auto mb-2 opacity-50 text-amber-400" />
+                  <span>No pudimos cargar los saludos. Reintentando…</span>
+                </div>
+              ) : (
+                <div className="py-12 text-center text-slate-500 text-xs">
+                  <Smile className="h-6 w-6 mx-auto mb-2 opacity-50" />
+                  <span>Sé la primera persona en mandar un saludo a la fiesta.</span>
+                </div>
+              )
             ) : (
               messages.map((m) => (
                 <div key={m.id} className="rounded-xl bg-slate-800/80 p-2.5 border border-slate-700/50">
@@ -268,3 +290,4 @@ export default function EventoEnVivoPage() {
     </div>
   );
 }
+

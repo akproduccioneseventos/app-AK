@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 import type {
   DigitalPresenceDashboardData,
   CampaignCommercialRoi,
@@ -80,6 +81,7 @@ interface Props {
 }
 
 export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
+  const { toast } = useToast();
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
   const [activeTab, setActiveTab] = useState<'revision' | 'posicionamiento' | 'comentarios' | 'web' | 'directorios' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
@@ -334,21 +336,30 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
       window.open(whatsappUrl, '_blank');
     }
     try {
-      // no-mira-el-resultado: anota que ya se pidio la resena; si falla se vuelve a ofrecer
-      await marcarResenaSolicitadaAction(fiestaId);
-      setResenasData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          fiestas: prev.fiestas.map((f) =>
-            f.id === fiestaId ? { ...f, reviewRequested: true, reviewRequestedAt: new Date().toISOString() } : f
-          ),
-          pedidas: prev.pedidas + 1,
-          pendientes: Math.max(0, prev.pendientes - 1),
-        };
-      });
+      const res = await marcarResenaSolicitadaAction(fiestaId);
+      if (res?.success) {
+        setResenasData((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            fiestas: prev.fiestas.map((f) =>
+              f.id === fiestaId ? { ...f, reviewRequested: true, reviewRequestedAt: new Date().toISOString() } : f
+            ),
+            pedidas: prev.pedidas + 1,
+            pendientes: Math.max(0, prev.pendientes - 1),
+          };
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          description: 'Se abrió WhatsApp, pero no se pudo anotar que pediste la reseña. Tocá de nuevo para que quede anotado.',
+        });
+      }
     } catch {
-      //
+      toast({
+        variant: 'destructive',
+        description: 'Se abrió WhatsApp, pero no se pudo anotar que pediste la reseña. Tocá de nuevo para que quede anotado.',
+      });
     }
   };
 
@@ -1766,3 +1777,4 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
     </div>
   );
 }
+
