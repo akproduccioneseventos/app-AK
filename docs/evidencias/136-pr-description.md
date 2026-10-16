@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Continua la misma propuesta documental de auditorias134-141 con evidencia nueva.
+Continua la misma propuesta documental de auditorias134-143 con evidencia nueva.
 **No fusionar documentos solos. Codex no cambia codigo app ni fusiona.**
 
 -134: conciliacion421rutas/14areas/7perfiles, sin convertir inventario en pruebas.
@@ -34,11 +34,19 @@ Continua la misma propuesta documental de auditorias134-141 con evidencia nueva.
   Capturas revisadas,61JSON primer nivel restaurados, puertos libres/fuentesQA0.
   No servidor ajeno detenido, app modificada ni build adicional. Luna low cerrado.
 -PR1327HEAD17d26a631:3consumidores179/180 identicos7230, sin reencargarlos.
-  CSS178 cambia cabecera: correccion presente, NO prueba nativa en17d.
+  CSS178 cambia cabecera; retest nativo completado en142, ver siguiente bloque.
+-142: buildQA17d exit0 tipos/lint;178 cocina2PASS PC/Pixel7 y2PDF1pagina
+  revisados.171 parcial (titulo3lineas,caso timedOut);172 FAIL dock2247.17px2.
+  Misma orden171/172 actualizada, no nuevas ordenes por defectos repetidos.
+-143/184Claude NUEVO: fecha civil2027-08-08 aparece7/8enUruguay y8/8UTC,
+  pantalla/print.1PASSUTC/1FAILUy,0omitidos. Primera sonda exigia ceros y
+  rechazoUTC por errorQA; original y resultados conservados, no appbug adicional.
+-PR1327ultimoa98a4b250 solo cambia4E2E respecto17d: runtime/config/deps igual;
+  no recompilacion duplicada ni aprobacion de todaPR. Ver142-contraste-final.
 -19originales: dueno buscando ubicacion; integraciones reales, Hosting, modelo/
   voz y hardware no certificados. **No representa toda app sin errores.**
 
-Fuente congelada de aplicacion:7230f9d02b32805952a185f704a0208bd5d643e6.
+Fuentes congeladas:7230f9d02b32805952a185f704a0208bd5d643e6 y17d26a631.
 Contraste consumidores179:1325HEAD5f704e68 y1326HEADa21d0b69 sin esos arreglos.
 Igual contraste para perfiles.ts/auth.ts de180: sin cambios en ambas ramas.
 Gemini1327 contrastado por objetos Git17d SOLO en los consumidores descritos.

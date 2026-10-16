@@ -1,7 +1,9 @@
 # Orden 178 - Claude: conservar la identificacion al imprimir la hoja de cocina
 
 **Destinatario:** Claude (comida y documento operativo). Codex solo audita.
-**Estado:** reproducido, NO corregido por Codex. Prioridad P2.
+**Estado:** correccion de cabecera validada por Codex142 en PR1327 fuente17d26a631;2PASS PC/Pixel7 y dosPDF revisados. NO cambio de app por Codex ni despliegue certificado. Prioridad historica P2.
+La fecha civil NO quedo aceptada con178: nuevo defecto separado en184/Claude,
+ID AK-CODEX-143-COCINA-FECHA-CIVIL. No reabrir la cabecera ya validada por esto.
 **Fuente ejecutada:** `7230f9d02b32805952a185f704a0208bd5d643e6`, build QA135 aislado de esa fuente.
 **NO CONTRASTADO CON LA TANDA PRIVADA DE CLAUDE/GEMINI:** comprobar HEAD privado antes de programar. No repetir un arreglo ya presente alli.
 

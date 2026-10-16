@@ -1,0 +1,181 @@
+{
+  "source": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+  "candidatePR": 1327,
+  "runs": [
+    {
+      "prefix": "143",
+      "execution": {
+        "source": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+        "buildFinishedAt": "2026-10-16T19:26:20.462Z",
+        "started": "2026-10-16T22:59:41.958Z",
+        "snapshots": 58,
+        "realServices": false,
+        "tests": [
+          {
+            "file": "143-cocina-fecha-local.spec.ts",
+            "sha256": "1ffa939c20e66a04075805093a20c1fe8f424a54928b0f4d7c2c13d18e245c4d"
+          }
+        ],
+        "serverPid": 10472,
+        "health": {
+          "status": "ok",
+          "timestamp": "2026-10-16T22:59:47.228Z",
+          "version": "17d26a631f500a263c48c4973d9c6f57d56ba421 · compilada 2026-10-16T19:16:14.283Z",
+          "services": {
+            "firebase": false,
+            "gemini": false,
+            "googleWorkspace": false,
+            "mail": false,
+            "instagram": false,
+            "mercadoPago": false
+          },
+          "environment": "production",
+          "uptime": 0
+        },
+        "143-date": {
+          "pid": 8324,
+          "exitCode": 1
+        },
+        "restored": [],
+        "sourceDiff": "",
+        "finished": "2026-10-16T23:00:11.614Z"
+      },
+      "stats": {
+        "startTime": "2026-10-16T22:59:48.994Z",
+        "duration": 21843.077999999998,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "checkpoints": [
+        {
+          "project": "chromium-utc",
+          "status": "failed",
+          "durationMs": 13785,
+          "date": {
+            "fixtureDate": "2027-08-08",
+            "expected": "08/08/2027",
+            "screen": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+            "printed": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+            "timezone": "UTC"
+          },
+          "screenshot": "143-chromium-utc.jpeg"
+        },
+        {
+          "project": "chromium-uy",
+          "status": "failed",
+          "durationMs": 4280,
+          "date": {
+            "fixtureDate": "2027-08-08",
+            "expected": "08/08/2027",
+            "screen": "HOJA DE COCINA\n\nFecha cocina QA143\n\n7/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+            "printed": "HOJA DE COCINA\n\nFecha cocina QA143\n\n7/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+            "timezone": "America/Montevideo"
+          },
+          "screenshot": "143-chromium-uy.jpeg"
+        }
+      ],
+      "archive": {
+        "file": "143-date-results.json.gz",
+        "sha256Uncompressed": "e430fe257f691a89eb859871130bb35378ce8a4e34954d0aa46e9664c4ba1a48"
+      }
+    },
+    {
+      "prefix": "143-civil",
+      "execution": {
+        "source": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+        "buildFinishedAt": "2026-10-16T19:26:20.462Z",
+        "started": "2026-10-16T23:00:58.083Z",
+        "snapshots": 58,
+        "realServices": false,
+        "tests": [
+          {
+            "file": "143-cocina-fecha-local.spec.ts",
+            "sha256": "a1c595fe3f7bc011af0f0b8c34bed2b1ca4aacceab19e74a765ef7be3926d5e2"
+          }
+        ],
+        "serverPid": 5624,
+        "health": {
+          "status": "ok",
+          "timestamp": "2026-10-16T23:01:02.722Z",
+          "version": "17d26a631f500a263c48c4973d9c6f57d56ba421 · compilada 2026-10-16T19:16:14.283Z",
+          "services": {
+            "firebase": false,
+            "gemini": false,
+            "googleWorkspace": false,
+            "mail": false,
+            "instagram": false,
+            "mercadoPago": false
+          },
+          "environment": "production",
+          "uptime": 0
+        },
+        "143-civil-date": {
+          "pid": 9044,
+          "exitCode": 1
+        },
+        "restored": [],
+        "sourceDiff": "",
+        "finished": "2026-10-16T23:01:22.572Z"
+      },
+      "stats": {
+        "startTime": "2026-10-16T23:01:04.317Z",
+        "duration": 17659.999,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "checkpoints": [
+        {
+          "project": "chromium-utc",
+          "status": "passed",
+          "durationMs": 11400,
+          "date": {
+            "fixtureDate": "2027-08-08",
+            "expectedCivilDate": [
+              8,
+              8,
+              2027
+            ],
+            "screen": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+            "printed": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+            "timezone": "UTC"
+          },
+          "screenshot": "143-civil-chromium-utc.jpeg"
+        },
+        {
+          "project": "chromium-uy",
+          "status": "failed",
+          "durationMs": 2973,
+          "date": {
+            "fixtureDate": "2027-08-08",
+            "expectedCivilDate": [
+              8,
+              8,
+              2027
+            ],
+            "screen": "HOJA DE COCINA\n\nFecha cocina QA143\n\n7/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+            "printed": "HOJA DE COCINA\n\nFecha cocina QA143\n\n7/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+            "timezone": "America/Montevideo"
+          },
+          "screenshot": "143-civil-chromium-uy.jpeg"
+        }
+      ],
+      "archive": {
+        "file": "143-civil-date-results.json.gz",
+        "sha256Uncompressed": "0c3744bd1687a22fd0bc5f823a6e855c8e07842924aad8d34ff328a06eee0de8"
+      }
+    }
+  ],
+  "finding": "Civil date2027-08-08 displays7/8/2027 in Uruguay,8/8/2027 in UTC",
+  "initialQAError": "The initial control required zero padding; corrected ONLY the audit test to compare numeric civil parts. Initial test and both failures archived.",
+  "appEdited": false,
+  "fixed": false,
+  "allAppAccepted": false,
+  "cleanup": {
+    "portsListening": [],
+    "trackedSourceDiff": ""
+  }
+}

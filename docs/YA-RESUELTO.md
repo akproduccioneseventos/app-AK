@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex142/143: cabecera aprobada, movil parcial y fecha nueva
+
+-PR1327 fuente17d26a631f500a263c48c4973d9c6f57d56ba421 compilada enQA aislado,
+  exit0 tipos/lint incluidos, sin editar app. Nuevoa98a4b250 SOLO cambia4E2E:
+  runtime/config/dependencias identicos17d. Reutilizar build, no recompilar.
+-142 cocina2PASS PC/Pixel7, porciones y cabecera visibles al imprimir; dosPDF
+  de1pagina renderizados/revisados.178 cerrado SOLO cabecera, no todas fechas.
+-171 parcial: sello/boton mejoran por medidas, titulo sigue3lineas. Caso completo
+  timedOut112.582s y asercion3>2 conservados, noPASS inventado.172 FAIL: dock
+  cubre2247.17px2 de Evento en390x844 sin scrollhorizontal. Mismas ordenes171/
+  172 actualizadas, no duplicadas.142 total2PASS/1FAIL/1timedOut,0omitidos/retry.
+-143 NUEVO184/Claude, ID AK-CODEX-143-COCINA-FECHA-CIVIL: fecha fija2027-08-08
+  muestra8/8UTC y7/8enUruguay, pantalla/print.143-civil1PASS/1FAIL confirma
+  conversion de fecha civil con newDate en HojaDeCocinaContenido. NO corregido.
+  Primera sonda143 exigia08/08 y tambien rechazoUTC por padding: errorQA.
+  Fuente/0PASS2FAIL iniciales conservados; solo test se corrigio a partes
+  numericas. No cambiar fecha guardada ni cantidades para resolver presentacion.
+-Ver142-143-cierre,142/143-consolidado,142-contraste-final y capturas/archivos
+  crudos comprimidos. QA58JSON primer nivel restaurados,0trackedchanges,puertos
+  cerrados,fixtures propios borrados. No datos/servicios reales, app editada ni
+  merge. Claudeprivadoactual NO CONTRASTADO. No todaapp ni0errores certificados.
+
 ## 16/10/2026 - Codex141: alta cliente SDK pendiente completada PC/movil
 
 -Dueno aviso que Gemini termino; recursos comprobados libres antes de iniciar.

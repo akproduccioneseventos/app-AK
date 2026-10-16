@@ -1,0 +1,47 @@
+{
+  "source": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+  "buildFinishedAt": "2026-10-16T19:26:20.462Z",
+  "started": "2026-10-16T22:54:32.497Z",
+  "snapshots": 58,
+  "realServices": false,
+  "tests": [
+    {
+      "file": "135-cocina-agenda-3d.spec.ts",
+      "sha256": "045cb39c89271c4db140ffd8a5ab744ff9dcd7c6655616db84fa8014fb47b68c"
+    },
+    {
+      "file": "135-mobile-contrato-social.spec.ts",
+      "sha256": "0461b9583ef3990a430c1bf60b2e20e03d21e721ac3dfd88dc25d88b80f1eef2"
+    }
+  ],
+  "serverPid": 3928,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T22:54:39.245Z",
+    "version": "17d26a631f500a263c48c4973d9c6f57d56ba421 · compilada 2026-10-16T19:16:14.283Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "142-kitchen": {
+    "pid": 3524,
+    "exitCode": 0
+  },
+  "142-mobile": {
+    "pid": 844,
+    "exitCode": 1
+  },
+  "restored": [
+    "src\\data\\notifications.json",
+    "data\\notifications.json"
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-16T22:57:47.501Z"
+}
