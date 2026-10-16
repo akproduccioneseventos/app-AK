@@ -11,21 +11,21 @@ export interface SalonPhoto {
 export const CURATED_CLUB_URUGUAY_PHOTOS: SalonPhoto[] = [
   {
     src: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
-    alt: 'Salon principal de Club Uruguay preparado para una fiesta',
-    title: 'Salon principal',
+    alt: 'Salón principal de Club Uruguay preparado para una fiesta',
+    title: 'Salón principal',
     description: 'Montaje real con mesas, pista y servicio de discoteca de AK Producciones.',
   },
   {
     src: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg',
     alt: 'Pista y discoteca instaladas en Club Uruguay',
     title: 'Pista y discoteca',
-    description: 'Iluminacion, sonido y pista preparados para el evento.',
+    description: 'Iluminación, sonido y pista preparados para el evento.',
   },
   {
     src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
-    alt: 'Fiesta de quince anos con pista iluminada',
+    alt: 'Fiesta de quince años con pista iluminada',
     title: 'Una fiesta en funcionamiento',
-    description: 'Una produccion real con ambientacion, pista y coordinacion integral.',
+    description: 'Una producción real con ambientación, pista y coordinación integral.',
   },
 ];
 

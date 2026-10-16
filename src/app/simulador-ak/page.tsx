@@ -365,7 +365,7 @@ function SimuladorAKContent() {
       invitadosAdultos: adultos,
       invitadosNinos: ninosYAdolescentes,
       invitadosAdolescentes: 0,
-      salonFiestas: tieneSalon === false && incluirClubUruguay ? 'Club Uruguay' : (tieneSalon ? 'Salon propio' : 'A definir'),
+      salonFiestas: tieneSalon === false && incluirClubUruguay ? 'Club Uruguay' : (tieneSalon ? 'Salón propio' : 'A definir'),
       itemsPresupuestados: priceStats.detallados.map((item) => ({
         idServicioCatalogo: item.id,
         nombreServicio: item.nombre,
@@ -514,7 +514,7 @@ function SimuladorAKContent() {
       changesToApply.ninosYAdolescentes = kidsVal;
       changesToApply.currentChatStep = 'hours';
     } else if (currentChatStep === 'hours') {
-      const isMore = text.toLowerCase().includes('mas') || text.toLowerCase().includes('más') || text.includes('5');
+      const isMore = text.toLowerCase().includes('más') || text.toLowerCase().includes('más') || text.includes('5');
       const hours = isMore ? 5 : 3;
       setDuracionHoras(hours);
       nextStep = 'menu';
@@ -863,7 +863,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
         </div>
         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
           <Button asChild variant="ghost" className="min-w-0 flex-1 rounded-full border border-border px-4 text-xs text-foreground bg-muted/30 hover:bg-muted sm:flex-none">
-            <Link href="/simulador-de-presupuesto">
+            <Link href={`/simulador-de-presupuesto?tipo=${encodeURIComponent(eventoTipo || '15 Años')}${adultos ? `&adultos=${adultos}` : ''}${ninosYAdolescentes ? `&ninos=${ninosYAdolescentes}` : ''}`}>
               <span>Simulador Manual</span>
             </Link>
           </Button>

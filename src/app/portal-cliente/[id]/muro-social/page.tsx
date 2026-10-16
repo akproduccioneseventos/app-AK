@@ -509,7 +509,7 @@ export default function ClientMuroSocialPage() {
                     <Tv className="w-5 h-5 text-primary" /> Proyectar Diapositiva
                   </CardTitle>
                   <CardDescription className="text-xs font-semibold text-muted-foreground">
-                    Hacé click para congelar la pantalla gigante en un contenido específico.
+                    Hacé click para fijar la pantalla gigante en un contenido específico.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">

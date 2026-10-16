@@ -206,7 +206,7 @@ export function ServicesSection({
                   <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200">
                     <Image
                       src={party.imageUrl}
-                      alt={`${party.title} producida por AK Producciones`}
+                      alt={`${party.title}, producción de AK Producciones`}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.05]"
@@ -236,7 +236,7 @@ export function ServicesSection({
             <h2 className="mt-2 font-headline text-3xl font-black text-slate-950 sm:text-4xl">Sumá una experiencia especial.</h2>
           </div>
           <Link href="/simulador-de-presupuesto" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-700 transition-colors hover:text-red-700">
-            Cotizar mi fiesta <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            Simular mi presupuesto <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
 

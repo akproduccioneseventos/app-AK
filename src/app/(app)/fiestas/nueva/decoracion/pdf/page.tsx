@@ -106,7 +106,7 @@ function DecorationPdfPageContent() {
           <div className="flex gap-2"><Button onClick={handleShare} variant="outline" size="sm"><Share2 className="w-4 h-4 mr-1.5"/>Compartir</Button><Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / PDF</Button></div>
         </div>
 
-        <header className="mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
+        <header className="cabecera-documento mb-6 print:mb-3 text-center border-b pb-3 print:pb-2">
           <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">
             {showLayout ? <LayoutDashboard className="w-6 h-6 print:w-5 print:h-5 text-primary"/> : <Palette className="w-6 h-6 print:w-5 print:h-5 text-primary" />}
             {showLayout ? "Plano del Salón" : "Plan de Decoración"}

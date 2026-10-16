@@ -17,6 +17,7 @@ import { isSameDay, startOfToday, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ScheduleNewMeetingDialog } from '@/components/crm/ScheduleNewMeetingDialog';
 import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
+import { toWhatsAppDigits } from '@/lib/commercial/contact';
 
 export default function CrmAgendaPage() {
   const [allMeetings, setAllMeetings] = useState<CrmAgendaEntry[]>([]);
@@ -88,9 +89,9 @@ export default function CrmAgendaPage() {
       FECHA: fecha,
       HORA: hora,
     });
-    const phone = meeting.phone?.replace(/\D/g, '') ?? '';
-    return phone
-      ? `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`
+    const digits = toWhatsAppDigits(meeting.phone);
+    return digits
+      ? `https://wa.me/${digits}?text=${encodeURIComponent(mensaje)}`
       : `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
   };
 

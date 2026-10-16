@@ -42,13 +42,13 @@ export default function AccountSettingsPage() {
       return;
     }
     if (!/[a-zA-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
-      toast({ title: 'Contraseña debil', description: 'La nueva contraseña debe combinar letras y numeros.', variant: 'destructive' });
+      toast({ title: 'Contraseña debil', description: 'La nueva contraseña debe combinar letras y números.', variant: 'destructive' });
       return;
     }
     setIsSavingPassword(true);
     const result = await changeAppPassword(currentPassword, newPassword);
     if (result.success) {
-      toast({ title: 'Contraseña actualizada', description: 'Se guardo hasheada y la entrada actual sigue funcionando.' });
+      toast({ title: 'Contraseña actualizada', description: 'Se guardó hasheada y la entrada actual sigue funcionando.' });
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
@@ -67,7 +67,7 @@ export default function AccountSettingsPage() {
       questions,
     });
     if (result.success) {
-      toast({ title: 'Recuperacion configurada', description: 'Ya podes recuperar acceso por mail o preguntas de seguridad.' });
+      toast({ title: 'Recuperación configurada', description: 'Ya podés recuperar acceso por mail o preguntas de seguridad.' });
       setRecoveryPassword('');
       setQuestions((current) => ({
         q1: { ...current.q1, answer: '' },
@@ -75,7 +75,7 @@ export default function AccountSettingsPage() {
         q3: { ...current.q3, answer: '' },
       }));
     } else {
-      toast({ title: 'Error', description: result.error || 'No se pudo guardar la recuperacion.', variant: 'destructive' });
+      toast({ title: 'Error', description: result.error || 'No se pudo guardar la recuperación.', variant: 'destructive' });
     }
     setIsSavingRecovery(false);
   };
@@ -88,7 +88,7 @@ export default function AccountSettingsPage() {
     if (result.success && result.codes) {
       setBackupCodes(result.codes);
       setBackupPassword('');
-      toast({ title: 'Codigos generados', description: 'Se muestran una sola vez para recuperar acceso si olvidas la contrasena.' });
+      toast({ title: 'Códigos generados', description: 'Se muestran una sola vez para recuperar acceso si olvidas la contraseña.' });
     } else {
       toast({ title: 'Error', description: result.error || 'No se pudieron generar codigos.', variant: 'destructive' });
     }
@@ -114,7 +114,7 @@ export default function AccountSettingsPage() {
             <Lock className="w-6 h-6 text-primary" />
             <CardTitle className="font-headline text-xl">Cambiar contraseña</CardTitle>
           </div>
-          <CardDescription>La contraseña nueva queda protegida. Usa minimo 10 caracteres con letras y numeros.</CardDescription>
+          <CardDescription>La contraseña nueva queda protegida. Usa mínimo 10 caracteres con letras y números.</CardDescription>
         </CardHeader>
         <form onSubmit={handleChangePassword}>
           <CardContent className="space-y-4">
@@ -159,9 +159,9 @@ export default function AccountSettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-6 h-6 text-primary" />
-            <CardTitle className="font-headline text-xl">Recuperacion de acceso</CardTitle>
+            <CardTitle className="font-headline text-xl">Recuperación de acceso</CardTitle>
           </div>
-          <CardDescription>Configura mail y preguntas. Si Gmail esta conectado, el codigo llega por correo.</CardDescription>
+          <CardDescription>Configura mail y preguntas. Si Gmail esta conectado, el código llega por correo.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSaveRecovery}>
           <CardContent className="space-y-4">
@@ -170,7 +170,7 @@ export default function AccountSettingsPage() {
               <Input id="recovery-current-password" type="password" value={recoveryPassword} onChange={(event) => setRecoveryPassword(event.target.value)} required disabled={isSavingRecovery} className="rounded-lg" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="recovery-email">Mail de recuperacion</Label>
+              <Label htmlFor="recovery-email">Mail de recuperación</Label>
               <Input id="recovery-email" type="email" value={recoveryEmail} onChange={(event) => setRecoveryEmail(event.target.value)} placeholder="tu-mail@ejemplo.com" required disabled={isSavingRecovery} className="rounded-lg" />
             </div>
             {(['q1', 'q2', 'q3'] as const).map((key, index) => (
@@ -199,19 +199,19 @@ export default function AccountSettingsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <KeyRound className="w-6 h-6 text-primary" />
-            <CardTitle className="font-headline text-xl">Codigos de respaldo</CardTitle>
+            <CardTitle className="font-headline text-xl">Códigos de respaldo</CardTitle>
           </div>
-          <CardDescription>Son codigos de un solo uso para entrar si olvidas la contrasena y no tenes mail disponible.</CardDescription>
+          <CardDescription>Son códigos de un solo uso para entrar si olvidas la contraseña y no tenés mail disponible.</CardDescription>
         </CardHeader>
         <form onSubmit={handleGenerateBackupCodes}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="backup-current-password">Contraseña actual para generar codigos</Label>
+              <Label htmlFor="backup-current-password">Contraseña actual para generar códigos</Label>
               <Input id="backup-current-password" type="password" value={backupPassword} onChange={(event) => setBackupPassword(event.target.value)} required disabled={isGeneratingBackupCodes} />
             </div>
             {backupCodes.length > 0 && (
               <div className="rounded-lg border bg-muted/40 p-4">
-                <p className="mb-3 text-sm font-semibold">Estos codigos se muestran una sola vez:</p>
+                <p className="mb-3 text-sm font-semibold">Estos códigos se muestran una sola vez:</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {backupCodes.map((code) => (
                     <code key={code} className="rounded-md bg-background px-3 py-2 text-center text-sm font-bold tracking-widest">

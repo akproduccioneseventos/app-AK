@@ -29,5 +29,5 @@ Fuentes: [JND, Eventos Cuidados](https://www.gub.uy/junta-nacional-drogas/comuni
 ```comprobar
 archivo: src/lib/blog/sin-promesas.ts
 usa: como-calcular-bebida-evento-salto en src/lib/blog/sin-promesas.ts
-prueba: PENDIENTE src/__tests__/el-blog-de-bebidas-no-promete.test.ts
+prueba: src/__tests__/el-blog-de-bebidas-no-promete.test.ts
 ```

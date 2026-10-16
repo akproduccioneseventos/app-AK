@@ -65,7 +65,7 @@ export const PORTAL_LED_PRO_VISUAL_SECTIONS: PortalLedProVisualSection[] = [
   {
     id: 'tech_zone',
     title: 'Zona tecnologica para fiestas',
-    subtitle: 'Zona digital adolescente, fotocabina, 360, Bogue, espejo, barra tactil, totems y modo audiorritmico.',
+    subtitle: 'Zona digital adolescente, fotocabina, 360, Vogue, espejo, barra tactil, totems y modo audiorritmico.',
     layout: 'cards',
     priority: 4.5,
     screenRule: 'Venderlo como paquetes activables: incluido, opcional o apagado segun lo contratado.',

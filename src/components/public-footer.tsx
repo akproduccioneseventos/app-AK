@@ -155,7 +155,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-700 to-rose-600 hover:from-red-600 hover:to-rose-500 text-white font-black text-xs uppercase tracking-widest px-7 py-4 shadow-xl shadow-red-950/50 transition-all duration-300 hover:scale-[1.03] active:scale-95 border border-red-500/40"
             >
               <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" aria-hidden="true" />
-              <span>Cotizá tu Fiesta</span>
+              <span>Simular mi presupuesto</span>
             </Link>
           </div>
         </div>
@@ -229,12 +229,6 @@ export function PublicFooter({ className }: PublicFooterProps) {
                   Testimonios & Preguntas Frecuentes
                 </a>
               </li>
-              <li>
-                <Link href="/login" className="hover:text-white transition-colors text-zinc-400 flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-zinc-500" aria-hidden="true" />
-                  Acceso Staff & Equipo AK
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -242,7 +236,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
           <div className="space-y-4">
             <h4 className="text-xs font-black uppercase tracking-[0.25em] text-red-400 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-red-400" aria-hidden="true" />
-              Oficina & Atencion
+              Oficina & Atención
             </h4>
             <div className="space-y-3 text-xs font-medium text-zinc-300 rounded-2xl border border-white/5 bg-white/[0.02] p-4 backdrop-blur-sm">
               <p className="flex items-start gap-2.5">

@@ -174,15 +174,22 @@ modernos.
 usa: Consultar disponibilidad de fecha en src/components/landing/HeroSection.tsx
 usa: Tótem Touch IA en src/components/public/InteractiveTechShowcase.tsx
 usa: Exclusivo con IA en src/components/public/InteractiveTechShowcase.tsx
-usa: Incluir en mi simulación en src/components/public/InteractiveTechShowcase.tsx
+usa: mi simulación en src/components/public/InteractiveTechShowcase.tsx
 usa: searchParams.get('extra') en src/app/simulador-de-presupuesto/page.tsx
 usa: areaServed en src/app/page.tsx
 usa: Reservás tu fecha en src/components/landing/TestimonialsSection.tsx
 no-usa: TechnologyExperienceSection whatsappNumber en src/app/page.tsx
 no-usa: Guías útiles y consejos en src/components/landing/AkTeamStorySection.tsx
 no-usa: Proyectar mi fiesta en src/app/page.tsx
+no-usa: Cotizar una fiesta en src/components/landing/SalonDestacadoSection.tsx
+no-usa: Cotizá tu Fiesta en src/components/landing/LandingNav.tsx
+no-usa: Hablar con AK en src/components/landing/HeroSection.tsx
+usa: Simular mi presupuesto en src/components/landing/ServicesSection.tsx
+no-usa: Cotizar mi fiesta en src/components/landing/LaAppDeTuFiestaSection.tsx
+no-usa: Cotizá tu evento en src/components/landing/CTASection.tsx
 no-usa: Acceso Staff & Equipo AK en src/components/public-footer.tsx
 usa: +200 en src/components/landing/StatsSection.tsx
-prueba: PENDIENTE tests/e2e/la-portada-nueva.spec.ts
-prueba: PENDIENTE src/__tests__/datos-para-google-de-la-portada.test.ts
+archivo: src/types/landing-editor.ts
+prueba: tests/e2e/la-portada-nueva.spec.ts
+prueba: src/__tests__/datos-para-google-de-la-portada.test.ts
 ```

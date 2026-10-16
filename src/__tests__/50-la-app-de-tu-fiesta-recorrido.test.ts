@@ -42,10 +42,10 @@ describe('Orden 50 / TEC-01: Recorrido comercial y tecnología de la app para fi
    * Lo que si se le pide a la portada, y es lo que pidio el dueno: **la app va
    * primero**, y las estaciones **siguen estando y se ven**.
    */
-  it('la portada pone la app primero Y deja las estaciones a la vista', () => {
+  it('la portada pone la app primero Y deja las estaciones a la vista (orden 177: ecosistema unificado)', () => {
     expect(pageSource).toContain('<LaAppDeTuFiestaSection');
     expect(pageSource).toContain('<InteractiveTechShowcase');
-    expect(pageSource).toContain('<TechnologyExperienceSection');
+    expect(pageSource).not.toContain('<TechnologyExperienceSection');
 
     // La app va antes que las estaciones.
     expect(pageSource.indexOf('<LaAppDeTuFiestaSection')).toBeLessThan(

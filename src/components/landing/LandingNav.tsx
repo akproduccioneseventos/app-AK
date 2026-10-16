@@ -142,7 +142,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
                 'transition-all duration-300 hover:scale-[1.02] active:scale-95'
               )}
             >
-              Cotizá tu Fiesta
+              Simular mi presupuesto
             </Link>
 
             {/* Mobile Menu button */}
@@ -196,7 +196,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center justify-center gap-2 rounded-lg bg-red-700 px-4 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg hover:bg-red-800 transition"
               >
-                Cotizá tu Fiesta
+                Simular mi presupuesto
               </Link>
             </div>
           </div>
