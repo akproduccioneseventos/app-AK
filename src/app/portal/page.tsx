@@ -38,8 +38,10 @@ import {
   Video,
   Wand2,
   Zap,
+  Download,
   type LucideIcon,
 } from 'lucide-react';
+import { PwaInstallButton } from '@/components/pwa-install-button';
 import type {
   BebidaCalculable,
   ClientPortalSettings,
@@ -629,8 +631,13 @@ function ClientPortalContent() {
         >
           <div className="p-6 sm:p-10 space-y-6">
             <div className="flex items-center justify-between gap-3 flex-wrap">
-              <Badge className="bg-white/20 text-white border-white/30">{fiesta.configuracion.tipoCelebracion || 'Evento'}</Badge>
-              <Badge className="bg-black/30 text-white border-white/20">Portal VIP</Badge>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-white/20 text-white border-white/30">{fiesta.configuracion.tipoCelebracion || 'Evento'}</Badge>
+                <Badge className="bg-black/30 text-white border-white/20">Portal VIP</Badge>
+              </div>
+              <div className="max-w-xs">
+                <PwaInstallButton />
+              </div>
             </div>
 
             <div className="space-y-2">
