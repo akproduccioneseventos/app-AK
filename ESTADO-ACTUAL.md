@@ -35,6 +35,6 @@ inventario134 requieren viajes concretos, no otra ronda de listas ni humo de rut
 HTTP138 confirma3x500/controldesconocido404 con cookie ficticia yPDFinexistente.
 No escalada/login real probado; mantener politica vigente. Verorden180.
 139: clienteJSON PC/movil2viajesPASS contelefono/sinemail/lista/recarga/mismoID; NO SDK.
-137salon persiste; clienteSDKINCONCLUSO.139detecto buildGemini/RAM151MiB: no solapar QA.
+Dueno16/10: NO detener devGemini3100; esperar a que termine. ClienteSDKINCONCLUSO.
 140: dos179/dos180distintas; usarIDs yarchivo completo.180gates3PASS4FAIL, appSINarreglo.
 No certificar Hosting/OAuth/modelo-voz/19originales/hardware/integraciones reales sin prueba.

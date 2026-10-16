@@ -1,5 +1,12 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Decision del dueno: esperar a Gemini
+
+-Respondio "No, espera a que termine Gemini" a detener su servidor3100.
+  NO detenerlo, no tocar su codigo ni insistir con la misma autorizacion.
+  QA pesado/clienteSDK queda en espera hasta que libere recursos; no se marco
+  aprobado. No se inicio otra prueba ni se interrumpio ningun proceso suyo.
+
 ## 16/10/2026 - Codex140: distinguir ordenes y no aceptar perfiles por archivos existentes
 
 -Se contrasto por Git la copia Gemini4d845b921d3b579515de7937fd7d209cbab71f3b,

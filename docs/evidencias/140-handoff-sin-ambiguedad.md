@@ -58,8 +58,9 @@ No agregar estas herramientas de auditoria a dependencias de produccion.
 de entorno sin solapar cargas. En esta corrida se vieron primero dos nextbuild
 de Gemini y despues su devserver3100: NextPID15164 y servidor14452 (~1712MiB),
 RAM libre461148KiB. No se detuvieron ni se navegaron (no conocemos sus claves).
-Se solicito autorizacion especifica al dueno para detener SOLO ese devserver y
-liberar recursos para QA; no asumir respuesta ni permiso por silencio.
+El dueno respondio despues: "No, espera a que termine Gemini". NO detener
+ese devserver, no insistir con la misma autorizacion y no solapar QA pesado.
+El ensayoSDK queda pendiente hasta que el trabajo de Gemini libere recursos.
 
 No se emitio una nueva lista de errores por ausencia de cobertura. El ayudante
 de lectura no verifico un hueco adicional en tareas/avisos y fue cerrado; eso
