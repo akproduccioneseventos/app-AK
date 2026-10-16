@@ -196,3 +196,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     destino de otro botón de la misma pantalla.
 52. **¿Sumaste una opción nueva (estación, categoría)?** Buscá su `id` en todas las listas y filtros que
     ya tienen las otras, y sumala ahí también.
+53. **¿Tu dato es de plata o de sueldos?** Fijate si viaja adentro de la fiesta o del presupuesto a perfiles
+    que no lo ven en su pantalla propia. Y si lo sacás al leer, que guardar no lo borre.

@@ -1145,3 +1145,11 @@ arman pestañas, filtros o listas de opciones, y se compara con una lista que ya
 En el portal del cliente "Documentos" y "Contrato" abrían la misma pantalla, igual que "Video de Vida" y
 "Fotografía"; en el tablero, "Nuevo Lead" y "CRM". No rompe nada, pero confunde. En cada grilla o menú se
 listan los `href` y se buscan repetidos.
+
+### 68. Lo que una pantalla le esconde a un perfil, ¿viaja igual adentro de un objeto más grande?
+
+La lista de empleados le escondía los sueldos a la secretaria, pero la fiesta viajaba entera con lo que
+cobra cada persona (`personalAsignado[].eventSalary`), y la pantalla de recibos se los mostraba. Para cada
+dato protegido por un permiso, se busca **en qué objetos más grandes va metido** (la fiesta, el
+presupuesto, el cliente) y se mira qué perfiles reciben ese objeto entero. Y al revés: si se lo saca al
+leer, **al guardar** el objeto sin ese dato no tiene que borrarlo (pregunta 38).
