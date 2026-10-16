@@ -148,18 +148,18 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/alertas') return 'Centro de Alertas';
   if (pathname === '/pagos-rapidos') return 'Pagos Rápidos';
 
-  if (pathname === '/simulador-de-presupuesto') return 'Wand2';
+  if (pathname === '/simulador-de-presupuesto') return 'Simulador de Presupuesto';
 
-  if (pathname === '/evento/actual') return 'PartyPopper';
-  if (pathname === '/evento/actual/mesa') return 'Ticket';
-  if (pathname === '/evento/actual/checkin') return 'UserCheck';
-  if (pathname.startsWith('/evento/social')) return 'Camera';
-  if (pathname.startsWith('/evento/barra')) return 'GlassWater';
-  if (pathname.startsWith('/evento/totem')) return 'Tv';
-  if (pathname.startsWith('/video-vida')) return 'Camera';
-  if (pathname.startsWith('/feedback')) return 'Star';
-  if (pathname.startsWith('/acceso-personal')) return 'UserCog';
-  if (pathname.startsWith('/portal')) return 'KeyRound';
+  if (pathname === '/evento/actual') return 'Evento Actual';
+  if (pathname === '/evento/actual/mesa') return 'Mi Mesa';
+  if (pathname === '/evento/actual/checkin') return 'Check-in de Invitados';
+  if (pathname.startsWith('/evento/social')) return 'Muro Social en Vivo';
+  if (pathname.startsWith('/evento/barra')) return 'Barra en Vivo';
+  if (pathname.startsWith('/evento/totem')) return 'Tótem Interactivo';
+  if (pathname.startsWith('/video-vida')) return 'Video de Vida';
+  if (pathname.startsWith('/feedback')) return 'Opiniones y Feedback';
+  if (pathname.startsWith('/acceso-personal')) return 'Acceso de Personal';
+  if (pathname.startsWith('/portal')) return 'Portal del Cliente';
 
   return 'AK Producciones';
 };

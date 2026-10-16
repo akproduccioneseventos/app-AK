@@ -48,7 +48,7 @@ test.describe('Orden 27: La Vidriera de la Tecnología', () => {
     await expect(vidriera).toContainText('Experiencias que hacen tu fiesta inolvidable', {
       timeout: 30_000,
     });
-    await expect(vidriera).toContainText('Fotocabina Digital', { timeout: 30_000 });
+    await expect(vidriera).toContainText('Fotocabina Impresa', { timeout: 30_000 });
 
     // 3. Cambiar de estación interactiva
     const boton360 = vidriera.getByRole('button', { name: /Plataforma 360/i });
@@ -65,6 +65,6 @@ test.describe('Orden 27: La Vidriera de la Tecnología', () => {
 
     const vidriera = page.locator('#vidriera-tecnologica');
     await expect(vidriera).toHaveCount(1, { timeout: 60_000 });
-    await expect(vidriera).toContainText('Fotocabina Digital', { timeout: 30_000 });
+    await expect(vidriera).toContainText('Fotocabina Impresa', { timeout: 30_000 });
   });
 });

@@ -1275,7 +1275,7 @@ export default function TouchpixPage() {
         }
       }
       if (isLiveSession()) {
-        alert('No se pudo subir la foto: ' + errMsg);
+        console.error('[Touchpix] No se pudo subir la foto:', errMsg);
       }
     } finally {
       if (isLiveSession()) {

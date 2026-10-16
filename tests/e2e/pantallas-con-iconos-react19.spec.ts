@@ -96,7 +96,7 @@ test('experiencia-mundial: los seis bloques del recorrido muestran icono, titulo
 
   const titulos = [
     'Portada clara y linda',
-    'Organizacion sin marear',
+    'Organización sin marear',
     'Contable en un solo lugar',
     'Invitados siempre visibles',
     'Comunicacion unica',
@@ -132,7 +132,7 @@ test('zona-digital: las doce funciones muestran su icono, su nombre y su interru
 
   const nombres = [
     'Muro social', 'Retos de la fiesta', 'Juegos en vivo', 'Fotocabina', 'Plataforma 360',
-    'Bogue / Boomerang', 'Espejo magico', 'Barra interactiva', 'Totems sincronizados',
+    'Vogue / Boomerang', 'Espejo mágico', 'Barra interactiva', 'Totems sincronizados',
     'Modo baile audiorritmico', 'Ranking por puntos', 'Resumen final',
   ];
   await expect(page.getByRole('heading', { name: 'Muro social', exact: true })).toBeVisible({ timeout: 30_000 });

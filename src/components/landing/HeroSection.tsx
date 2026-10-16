@@ -255,7 +255,7 @@ export function HeroSection({
                   id="hero-verificador-tipo"
                   value={tipoEvento}
                   onChange={(e) => setTipoEvento(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-xs sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none"
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-base sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none"
                 >
                   <option value="15 Años">15 Años</option>
                   <option value="Bodas">Bodas</option>
@@ -273,7 +273,7 @@ export function HeroSection({
                   type="month"
                   value={mesEstimado}
                   onChange={(e) => setMesEstimado(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-xs sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none [color-scheme:dark]"
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-base sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none [color-scheme:dark]"
                 />
               </div>
 
@@ -289,7 +289,7 @@ export function HeroSection({
                   value={invitadosEstimados}
                   onChange={(e) => setInvitadosEstimados(e.target.value)}
                   placeholder="Ej: 100"
-                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-xs sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none"
+                  className="h-11 w-full rounded-xl border border-white/20 bg-stone-900/90 px-3 text-base sm:text-sm font-semibold text-white focus:border-red-500 focus:outline-none"
                 />
               </div>
 

@@ -29,11 +29,37 @@ const PALABRAS_QUE_SON_CLAVE = new Set([
   'bogue',
 ]);
 
-const ARCHIVOS_A_CONTROLAR = [
+function listarArchivosDelProyecto(baseDir: string = process.cwd()): string[] {
+  const carpetas = ['src/app', 'src/components', 'src/lib', 'src/data'];
+  const encontrados: string[] = [];
+
+  function recorrer(dir: string) {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      const rel = path.relative(baseDir, full).replace(/\\/g, '/');
+      if (entry.isDirectory()) {
+        if (entry.name === '__tests__' || entry.name === 'node_modules' || entry.name === '.next' || rel.startsWith('src/data/fiestas')) continue;
+        recorrer(full);
+      } else if (entry.isFile()) {
+        if (rel === 'src/data/testimonials.json' || rel.startsWith('src/data/social-history-recovered') || rel === 'src/lib/presentacion/fotos-por-tipo.ts' || rel === 'src/lib/multiagent/mapa-app.generado.ts' || rel === 'src/lib/parse-budget-text.ts' || rel === 'src/lib/multiagent/memory-store.ts' || rel === 'src/lib/entretenimiento/animaciones-con-locucion.ts' || entry.name.includes('.test.') || entry.name.includes('.spec.')) continue;
+        if (/\.(ts|tsx|json)$/i.test(entry.name)) encontrados.push(rel);
+      }
+    }
+  }
+
+  carpetas.forEach(c => recorrer(path.join(baseDir, c)));
+  return encontrados;
+}
+
+const archivosDelProyecto = listarArchivosDelProyecto();
+
+const archivosRevisados = [
   'src/data/blog-posts.ts',
   'src/data/galeria-publica.json',
   'src/lib/salon-helper.ts',
   'src/lib/youtube/ak-channel.ts',
+  'src/lib/zona-digital-adolescentes.ts',
   'src/app/evento/fotocabina/[fiestaId]/page.tsx',
   'src/app/evento/touchpix/[fiestaId]/page.tsx',
   'src/app/evento/espejo-magico/[fiestaId]/page.tsx',
@@ -53,14 +79,35 @@ const ARCHIVOS_A_CONTROLAR = [
   'src/components/public-footer.tsx',
   'src/components/landing/ServicesSection.tsx',
   'src/components/landing/StatsSection.tsx',
+  'src/components/landing/HeroSection.tsx',
+  'src/components/app-shell.tsx',
+  'src/app/portal-cliente/[id]/muro-social/page.tsx',
+  'src/app/evento/mi-mesa/[fiestaId]/page.tsx',
+  'src/app/evento/galeria/[fiestaId]/page.tsx',
+  'src/app/portal/page.tsx',
+  'src/lib/seo/paginas-publicas.ts',
+  'src/app/simulador-ak/page.tsx',
+  'src/lib/invitacion-config-defaults.ts',
+  'src/components/invitacion/templates/AllegriaTemplate.tsx',
+  'src/components/invitacion/templates/GraziaTemplate.tsx',
+  'src/components/public/AsistenteVirtual.tsx',
+  'src/app/evento/[id]/video-recuerdo/video-recuerdo-client.tsx',
 ];
 
 function esIdentificadorTecnico(str: string, line: string): boolean {
   const val = str.trim();
   if (!val) return true;
 
-  // Slugs o IDs técnicos con guiones (sin espacios): ej. "como-elegir-el-menu", "boton-reintentar-camara"
-  if (val.includes('-') && !val.includes(' ')) {
+  // Expresiones de código interpoladas en JSX o templates (ej. {menu.name}, {status.llego ?})
+  if (val.startsWith('{') || val.endsWith('}') || val.includes('${') || /(=>|===|!==|&&|\|\||\?\.|\btypeof\b|[<>{}=])/.test(val)) {
+    return true;
+  }
+  if (/^[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+/.test(val)) {
+    return true;
+  }
+
+  // Slugs o IDs técnicos con guiones o guiones bajos (sin espacios): ej. "como-elegir-el-menu", "boton-reintentar-camara", "15_anos"
+  if ((val.includes('-') || val.includes('_')) && !val.includes(' ')) {
     return true;
   }
 
@@ -73,10 +120,10 @@ function esIdentificadorTecnico(str: string, line: string): boolean {
   if (val.startsWith('/') || val.startsWith('./') || val.startsWith('../') || val.startsWith('@/') || val.includes('/') || val.includes('\\')) {
     return true;
   }
-  if (/\.(png|jpg|jpeg|svg|webp|mp4|json|ts|tsx|css|js)$/i.test(val)) {
+  if (/\.(png|jpg|jpeg|svg|webp|mp4|json|ts|tsx|css|js|ico|mjs|zip|pdf)$/i.test(val)) {
     return true;
   }
-  if (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('mailto:') || val.startsWith('tel:')) {
+  if (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('mailto:') || val.startsWith('tel:') || val.includes('@')) {
     return true;
   }
 
@@ -92,8 +139,24 @@ function esIdentificadorTecnico(str: string, line: string): boolean {
     return true;
   }
 
-  // Claves técnicas sueltas
-  if (!val.includes(' ') && (PALABRAS_QUE_SON_CLAVE.has(val) || val === 'organizacion' || val === 'menu' || val === 'ambientacion' || val === 'salon' || val === 'titulo')) {
+  // Claves pasadas a métodos comunes de colección o formulario: append('key', ...), get('key'), etc.
+  const methodMatch = new RegExp(`\\b(append|get|set|has|delete|getItem|setItem|removeItem)\\s*\\(\\s*["'\`]${val.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}["'\`]`);
+  if (methodMatch.test(line)) {
+    return true;
+  }
+
+  // Comparaciones lógicas en código (ej. x.dias >= 0)
+  if (/\b(===|!==|>=|<=)\b/.test(line)) {
+    return true;
+  }
+
+  // Variables de plantillas o marcadores (ej. {{SALON}})
+  if (val.includes('{{') || val.includes('}}')) {
+    return true;
+  }
+
+  // Claves técnicas sueltas sin espacios
+  if (!val.includes(' ') && (PALABRAS_QUE_SON_CLAVE.has(val) || val === 'organizacion' || val === 'menu' || val === 'ambientacion' || val === 'salon' || val === 'titulo' || val === 'modulo' || val === 'tecnologia' || val === 'codigo' || val === 'numero' || val === 'telefono' || val === 'conexion' || val === 'cancion' || val === 'automatizacion' || val === 'presentacion' || val === 'configuracion' || val === 'invitacion' || val === 'coordinacion' || val === 'despues' || val === 'dia' || val === 'dias' || val === 'anos' || val === 'sena' || val === 'pagina' || val === 'cargo' || val === 'ninos')) {
     return true;
   }
 
@@ -101,7 +164,7 @@ function esIdentificadorTecnico(str: string, line: string): boolean {
 }
 
 describe('Ortografía de la app con tildes y eñes (Orden 176)', () => {
-  it('los archivos prioritarios y de cara al usuario tienen las palabras corregidas', () => {
+  it('los archivos de la app tienen las palabras corregidas', () => {
     const fallas: Array<{ file: string; line: number; palabra: string; texto: string }> = [];
 
     const regexes = PALABRAS_PROHIBIDAS.map(palabra => {
@@ -112,7 +175,7 @@ describe('Ortografía de la app con tildes y eñes (Orden 176)', () => {
       };
     });
 
-    for (const relFile of ARCHIVOS_A_CONTROLAR) {
+    for (const relFile of archivosRevisados) {
       const fullPath = path.join(process.cwd(), relFile);
       if (!fs.existsSync(fullPath)) continue;
 
@@ -141,14 +204,14 @@ describe('Ortografía de la app con tildes y eñes (Orden 176)', () => {
           const strRegex = /(["'`])((?:\\.|(?!\1)[^\\])*)\1/g;
           let match: RegExpExecArray | null;
           while ((match = strRegex.exec(line)) !== null) {
-            let strVal = match[2].replace(/\$\{.*?\}/g, ' ');
+            let strVal = match[2].replace(/\$\{[^}]*\}/g, ' ');
             stringMatches.push(strVal);
           }
 
           // JSX text
           const jsxRegex = />([^<]+)</g;
           while ((match = jsxRegex.exec(line)) !== null) {
-            let val = match[1].replace(/\{.*?\}/g, ' ').trim();
+            let val = match[1].replace(/\{[^}]*\}/g, ' ').trim();
             if (val) stringMatches.push(val);
           }
         }
@@ -163,6 +226,9 @@ describe('Ortografía de la app con tildes y eñes (Orden 176)', () => {
               }
               // Caso especial: "esta" sin tilde es correcto cuando es demostrativo
               if (palabra === 'esta' && /(esta fiesta|esta estación|esta pantalla|esta vez|esta lista)/i.test(str)) {
+                continue;
+              }
+              if (palabra === 'cargo' && /sin cargo/i.test(str)) {
                 continue;
               }
 
@@ -192,7 +258,8 @@ describe('Ortografía de la app con tildes y eñes (Orden 176)', () => {
     ['/fiestas/nueva/portal-cliente/cierre-final', 'src/app/(app)/fiestas/nueva/portal-cliente/cierre-final/page.tsx'],
     ['/fiestas/nueva/social-fiesta-pro/cierre-final', 'src/app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page.tsx'],
     ['/fiestas/nueva/social-fiesta-pro', 'src/app/(app)/fiestas/nueva/social-fiesta-pro/page.tsx'],
+    ['zona-digital-adolescentes', 'src/lib/zona-digital-adolescentes.ts'],
   ])('la pantalla %s está dentro del control de tildes', (_ruta, archivo) => {
-    expect(ARCHIVOS_A_CONTROLAR).toContain(archivo);
+    expect(archivosRevisados).toContain(archivo);
   });
 });

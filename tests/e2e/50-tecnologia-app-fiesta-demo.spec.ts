@@ -65,7 +65,7 @@ test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
     await tocarHastaQueResponda(3, /Mojito de Maracuyá/);
 
     // Botón de consulta a WhatsApp con mensaje contextual
-    const ctaWa = techSection.getByRole('link', { name: /Consultar para mi fiesta/i });
+    const ctaWa = techSection.getByRole('link', { name: /Consultar disponibilidad por WhatsApp/i });
     await expect(ctaWa).toHaveAttribute('href', /wa\.me/);
   });
 });

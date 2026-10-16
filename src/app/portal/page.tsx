@@ -107,6 +107,27 @@ const PORTAL_EXTRA_DEFINITIONS = [
     aliases: ['plataforma 360', '360'],
     icono: '🎥',
   },
+  {
+    id: 'totem_touch_ia',
+    titulo: 'Tótem Touch Interactivo con IA',
+    descripcion: 'Pantalla táctil vertical de 55 pulgadas con IA, fotos personalizadas y trivia interactiva.',
+    aliases: ['totem', 'totem touch', 'totem ia', 'pantalla interactiva'],
+    icono: '📱',
+  },
+  {
+    id: 'cabina_vogue',
+    titulo: 'Cabina Vogue Neon / Boomerang',
+    descripcion: 'Túnel de luces LED y efecto de moda para videos de alto impacto.',
+    aliases: ['vogue', 'cabina vogue', 'bogue', 'boomerang'],
+    icono: '✨',
+  },
+  {
+    id: 'espejo_magico_ia',
+    titulo: 'Espejo Mágico Táctil con IA',
+    descripcion: 'Firma en pantalla gigante con props digitales e impresión fotográfica instantánea.',
+    aliases: ['espejo', 'espejo magico', 'espejo ia'],
+    icono: '🪞',
+  },
 ] as const;
 
 function normalizeCatalogText(value: string): string {

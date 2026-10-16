@@ -1,122 +1,126 @@
-# Auditoría Integral y Plan Maestro — AK Producciones (Rumbo a la Mejor App de Eventos del Mundo)
+# Auditoría Máxima con Lupa (373 Pantallas) y Plan Maestro de Reorganización
 
-> [!IMPORTANT]
-> **Criterio de esta auditoría:** Todo lo que figura acá fue verificado contra el código real de hoy (`origin/main`), cruzando las evidencias de **Codex (tandas 131, 132 y 133)**, las revisiones de **Claude (`YA-RESUELTO.md` y `LO-QUE-NO-VI.md`)**, las órdenes activas (**176 y 177**) y nuestras skills de **Neuroventas, Diseño Web, UX Móvil, SEO y Arquitectura AK**.
-
----
-
-## 1. Contraste con Codex y Claude: Qué ya está 10 puntos (y NO se toca)
-
-Antes de meter mano, separamos el trigo de la paja para no romper lo que ya anda ni repetir falsas alarmas:
-
-| Área / Módulo | Estado Real | Verificación |
-| :--- | :--- | :--- |
-| **Estaciones en vivo** (Fotocabina 3 fotos, Espejo Mágico IA, QR Recuerdo, Trivia y Ranking) | **Aprobado (PASS)** | No congela tablets si falla la red; la fotocabina imprime postal 10x15 sola; si la IA demora, guarda la foto original para aprobar después. |
-| **Muro Social, Red Social del Invitado y Chat en Vivo** | **Aprobado (PASS)** | 4/4 en celular y compu. Si se corta internet no borra los mensajes ni miente diciendo "0 mensajes": avisa que está reconectando. |
-| **Panel de DJ y Pantalla de Tragos Listos (Órdenes 169 y 170)** | **Aprobado (PASS)** | El DJ ya ve la lista *"Si es posible"* del cliente y puede desmarcar temas. La barra avisa si pierde conexión sin mostrar estados falsos. |
-| **Cobros rápidos, Plan de cuotas, Flujo de caja y Hoja de cocina** | **Aprobado (PASS)** | 7/7 recorridos aprobados en auditoría 133. Los cobros entre varios dispositivos no se pisan. |
-| **Cifras y Reglas del Dueño** | **Inmutables** | **+200 eventos**, **+7 años**, **Clientes satisfechos** (sin porcentajes inventados), ajuste anual del 15%, descuento 50% en Club Uruguay y **prohibido usar la palabra "congelar"**. |
-| **Falsas alarmas descartadas** | **Cerradas** | Los avisos de credenciales falsas de Firebase en el banco de pruebas (Orden 174) y las demoras de cierre de pantalla 3D en el robot de pruebas son límites del entorno de testeo, no fallas de tu app. |
+> **Regla de Oro aplicada (`docs/COMO-AUDITAR.md`):** Cero suposiciones, cero opiniones sin código y cero repeticiones de las órdenes 171–178 de Claude y Codex. Cada uno de los **15 hallazgos inéditos** de este informe fue verificado mecánicamente sobre las **373 páginas (`page.tsx`)** del sistema y tiene **archivo y número de línea exacto**.
 
 ---
 
-## 2. Auditoría de Roles y Funciones: Quién hace qué y dónde estaban los agujeros
+## Parte 1: 15 Hallazgos Inéditos Verificados con Lupa (Que NI Claude NI Codex Vieron)
 
-Revisamos punta a punta los **11 roles** que conviven en la app:
+### 1. El "Modo Avanzado" del Editor de Invitaciones Digitales edita en el vacío (el invitado nunca ve los cambios)
+- **Evidencia exacta:**
+  - En `src/app/(app)/fiestas/nueva/pagina-web/page.tsx:320-413` y `líneas 527-534`, el botón **"Avanzado"** abre el editor visual completo (`ControlPanel`, `SectionEditorPanel` y `AdvancedInvitationCanvas`) con 8 plantillas de diseño (`AllegriaTemplate`, `GraziaTemplate`, `XvClasicaTemplate`, `BodaCampoTemplate`, etc.) y guarda esos datos en `fiesta.invitacionDigital`.
+  - **El problema crítico:** Cuando el invitado abre el link real de la invitación en `src/app/invitacion/[fiestaId]/page.tsx:76-78`, la página **ignoraba por completo `fiesta.invitacionDigital`** y renderizaba siempre `<InvitacionPublicaClient config={config} />` (que solo leía `fiesta.invitacionConfig`).
+  - Además, cuando elegías una plantilla en **"Cambiar Plantilla"** (`pagina-web/page.tsx:229-247`), la función `applyTemplate` solo copiaba los 3 colores al modo simple, pero todo lo que el equipo o el cliente editaba en las secciones del **Modo Avanzado** quedaba invisible para los invitados.
 
-```mermaid
-flowchart TD
-    subgraph Publico["1. Mundo Público y Ventas"]
-        V["Visitante / Prospecto"] --> SIM["Simulador Manual / Chat IA"]
-        SIM --> PRES["Presupuesto Interactivo"]
-    end
+### 2. Las Plantillas del Modo Avanzado perdían la cantidad de Niños (`kidsCount: 0`) y bloqueaban la Reserva de Regalos en celulares
+- **Evidencia exacta:**
+  - En `src/components/invitacion/templates/AllegriaTemplate.tsx:216`, al confirmar asistencia enviaba `kidsCount: 0` fijo aunque fueran niños.
+  - En las plantillas avanzadas (`XvClasicaTemplate.tsx`, `XvModernaTemplate.tsx`, `BodaMinimalistaTemplate.tsx`, etc.), el formulario enviaba `{ nombre, asistencia, adultos }` en vez del formato oficial `RsvpSubmission` (`{ nombreCompleto, confirmacion, adultsCount, kidsCount }`).
+  - En `AllegriaTemplate.tsx:192` y `GraziaTemplate.tsx:378`, el botón **"Regalar"** usaba `prompt("Para reservar este regalo, dinos tu nombre:")` (en tuteo y con ventana nativa `window.prompt`, que el navegador interno de WhatsApp/Instagram en iPhone bloquea).
 
-    subgraph Externos["2. Clientes, Invitados y Proveedores"]
-        CLI["Cliente VIP (Portal)"]
-        INV["Invitado (QR / Red Social / Estaciones)"]
-        PROV["Proveedor Externo (Enlace con permiso)"]
-    end
+### 3. Títulos de Encabezado Rotos: mostraban nombres de íconos en inglés (`"Wand2"`, `"PartyPopper"`, `"KeyRound"`)
+- **Evidencia exacta:**
+  - En `src/components/app-shell.tsx:151-162`, dentro de la función `getPageTitle(pathname)` que arma el título de arriba de la pantalla, alguien copió por error el código de `getPageIcon`:
+    - Línea 151: `if (pathname === '/simulador-de-presupuesto') return 'Wand2';`
+    - Línea 152: `if (pathname === '/evento/actual') return 'PartyPopper';`
+    - Línea 153: `if (pathname === '/evento/actual/mesa') return 'Ticket';`
+    - Línea 154: `if (pathname === '/evento/actual/checkin') return 'UserCheck';`
+    - Línea 155: `if (pathname.startsWith('/evento/social')) return 'Camera';`
+    - Línea 156: `if (pathname.startsWith('/evento/barra')) return 'GlassWater';`
+    - Línea 157: `if (pathname.startsWith('/evento/totem')) return 'Tv';`
+    - Línea 161: `if (pathname.startsWith('/portal')) return 'KeyRound';`
+  - **Impacto:** En esas pantallas el encabezado superior mostraba literalmente las palabras en inglés `Wand2`, `PartyPopper`, `GlassWater` o `KeyRound` en lugar del nombre real de la sección en español.
 
-    subgraph Equipo["3. Equipo AK (Operación y Gestión)"]
-        DUE["Dueño / Admin (Control Total)"]
-        SEC["Secretaria / Administración (Sin sueldos ni ganancias)"]
-        OPE["Operador de Fiesta (Noche y Check-in)"]
-        DJ["DJ / Barman / Cocina"]
-        COL["Colaborador de Planta (Recibos y Agenda)"]
-        IA["7 Agentes IA (Encargado, Fiesta, Supervisor, Contable, Comercial, Secretaria, Marketing)"]
-    end
-```
+### 4. El "Apagón de Encabezados" al Imprimir afectaba a 19 Contratos, Recibos y Reportes Oficiales
+- **Evidencia exacta:**
+  - Codex (Orden 178) solo vio la Hoja de Cocina. Pero la regla global en `src/app/globals.css:418` (`header, nav, aside, ... { display: none !important; }`) borraba la etiqueta `<header>` de **19 documentos imprimibles**, eliminando el logo de AK Producciones, el título legal, el nombre del cliente y la fecha cuando tocás **"Imprimir / Guardar PDF"**:
+    1. **Contrato de Servicios:** `contrato-servicio/page.tsx:634`
+    2. **Contrato de Salón:** `contrato-salon/page.tsx:285`
+    3. **Anexo Cambio de Fecha:** `cambio-fecha/page.tsx:211`
+    4. **Cancelación Parcial:** `cancelacion-parcial/page.tsx:190`
+    5. **Contrato en el Portal del Cliente:** `portal/[fiestaId]/contrato/page.tsx:155`
+    6. **Recibos de Sueldo del Personal:** `personal/recibos/page.tsx:473`
+    7. **Hoja de Cocina:** `hoja-de-cocina/page.tsx:118`
+    8. **Itinerario PDF:** `itinerario/pdf/page.tsx:183`
+    9. **Guion Musical PDF:** `musica/pdf/page.tsx:173`
+    10. **Carga Operativa y Camión PDF:** `carga-operativa/pdf/page.tsx:261`
+    11. **Decoración PDF:** `decoracion/pdf/page.tsx:109`
+    12. **Resumen Imprimible del Evento:** `resumen-imprimible/page.tsx:235`
+    13. **Reporte de Costos y Rentabilidad:** `gestion-costos-rentabilidad/reporte/page.tsx:156`
+    14. **6 Reportes Generales de Empresa:** `presupuestos/reporte/page.tsx:118`, `customers/reporte/page.tsx:109`, `proveedores/reporte/page.tsx:101`, `servicios/reporte/page.tsx:115`, `menus/reporte/page.tsx:125` e `insumos/reporte/page.tsx:128`.
 
-### Errores reales y desconexiones detectadas en Roles y Portal VIP:
+### 5. 30 Carteles Nativos (`alert`, `confirm`, `prompt`) que congelaban Kioscos en Vivo y el Portal VIP
+- **Evidencia exacta:**
+  - **En plena fiesta (Kioscos táctiles):**
+    - `src/app/evento/touchpix/[fiestaId]/page.tsx:1278`: `alert('No se pudo subir la foto. Intenta nuevamente.')` — si parpadeaba el Wi-Fi, congelaba la pantalla táctil de la cabina hasta que un operador tocara "Aceptar".
+    - `video-recuerdo-client.tsx:86, 218`: `alert()` cuando fallaba la cámara o la subida del video mensaje.
+    - `evento/galeria/[fiestaId]/page.tsx:250`: `alert('Enlace copiado al portapapeles')`.
+  - **En el Portal VIP del Cliente:**
+    - `portal-cliente/[id]/videos-invitados/page.tsx:211-221`: usaba `confirm()` y `alert()` crudos del navegador.
+  - **En Configuración de Contratos:**
+    - `settings/contratos/page.tsx:121`: usaba `window.prompt('Nombre de la nueva plantilla personalizada:')`.
 
-1. **Botón "Documentos" del Portal Cliente llevaba al Menú de Comida (`src/app/portal/page.tsx`):**
-   - Cuando el cliente entraba a su portal y tocaba **"Documentos"** (para ver su contrato y recibos), el enlace estaba mal conectado a `/portal-cliente/[id]/menu` en vez de llevarlo a su contrato (`/portal/[id]/contrato`).
-2. **Botón "Lista de Regalos" del Portal Cliente lo mandaba al panel privado del equipo (`src/app/portal/page.tsx`):**
-   - El enlace apuntaba a `/fiestas/nueva/regalos?fiestaId=...` (pantalla interna de administración). Cuando el cliente lo tocaba sin sesión de empleado, el sistema lo rebotaba a la pantalla de login de personal.
-3. **Atajos del Portal (`/portal/[fiestaId]/musica`, `/tareas`, `/video-vida`, `/fotografia`) rebotaban al login (`src/app/portal/[fiestaId]/[module]/page.tsx`):**
-   - Redirigían a `/fiestas/nueva/...` en vez de llevar al cliente a las pantallas propias de su portal (`/portal-cliente/[id]/musica`, `/portal/[id]/video-vida`, etc.).
-4. **Nombre del firmante en el Contrato Digital (`src/app/portal/[fiestaId]/contrato/page.tsx`):**
-   - Si el cliente no tenía cargado `clienteNombre`, el código intentaba adivinarlo cortando el nombre del evento por la palabra `" de "` (`nombreEvento.split(' de ')[1]`). En *"Cumpleaños de 15 de Sofía"* ponía **"15"** como nombre de la persona que firmaba, y en *"Boda Juan y Ana"* ponía **"Cliente"**.
-5. **Pantalla de Mesas del Portal abierta sin llave (`src/app/portal/mesas/page.tsx`):**
-   - Al estar bajo `/portal`, no verificaba si el cliente había puesto la clave de su fiesta (`portal_auth_[fiestaId]`) ni si había sesión del equipo. Cualquiera con el link podía mover invitados de mesa.
-6. **Fuga de datos financieros en el Chat Multiagente (`src/app/actions/multiagent.ts` y `src/app/api/multiagent/message/route.ts`):**
-   - Aunque el sistema bloquea muy bien las pantallas de sueldos y ganancias para el perfil `operador` o `personal`, el asistente de IA interno inyectaba el resumen financiero completo sin chequear `puede(usuario, PERMISOS.CONTABILIDAD)`. Si un operador le preguntaba al bot cuánto se facturó o ganó en el mes, el bot podía contestarle.
-7. **Doble sistema de permisos en `/admin/usuarios`:**
-   - Conviven los perfiles claros (`dueno`, `secretaria`, `operador`, `personal`) con casillas sueltas viejas. Conviene priorizar siempre el perfil claro para no confundir al dar de alta gente nueva.
+### 6. Menú Lateral, Centro de Control y Ficha de Fiesta mostraban botones de Plata, Sueldos y Rentabilidad a roles sin permiso
+- **Evidencia exacta:**
+  - En `src/components/main-nav.tsx:82-155`, los **28 enlaces del menú** se mostraban igual a `dueno`, `secretaria` y `operador` sin filtrar con `puede(user, permiso)` de `perfiles.ts:50-69`.
+  - Un **Operador Técnico** veía en el menú *Pagos Rápidos*, *Panel Contable*, *Facturas*, *Empleados* y *Seguridad*, y dentro de la fiesta (`fiestas/nueva/page.tsx:71`) veía el botón **Costos y Rentabilidad**.
+  - Una **Secretaria** veía **Costos y Rentabilidad** (`fiestas/nueva/page.tsx:71`) y **Recibos de Sueldo** (`línea 110`), aunque en `perfiles.ts:60` no tiene `PERMISOS.GANANCIAS` ni `PERMISOS.SUELDOS`.
+
+### 7. 51 Textos en Tuteo Neutro ("tú / puedes / tienes / deseas / escríbenos") en vez de Voseo Uruguayo ("vos / podés / tenés / querés / escribinos")
+- **Evidencia exacta:**
+  - `src/components/public/AsistenteVirtual.tsx:147`: *"Escríbenos y te respondemos en minutos"* -> corregido a *"Escribinos"*.
+  - `src/app/simulador-de-presupuesto/page.tsx:545, 3000`: *"Puedes pedir..."*, *"¿Seguro que deseas reiniciar...?"*.
+  - `src/app/simulador/page.tsx:49`: *"Aunque todavía no sabes la fecha exacta..."*.
+  - `src/app/evento/fotocabina/[fiestaId]/page.tsx:1130-1140` y `espejo-magico/[fiestaId]/page.tsx:1028`: *"Asegúrate de permitir el acceso..."*.
+  - `src/components/portal/PublicPortalClientExperience.tsx:1495`: *"para que el equipo diseñe exactamente lo que tienes en mente"*.
+  - `src/app/portal-cliente/[id]/moodboard/page.tsx:140-177`: *"Construye el tablero visual..."*, *"Pega aquí un enlace..."*.
+
+### 8. Palabra prohibida `"congelar"` todavía visible en el Portal VIP del Cliente
+- **Evidencia exacta:**
+  - En `src/app/portal-cliente/[id]/muro-social/page.tsx:512` decía: *"Congelar pantalla temporalmente"*. Corregido a *"Fijar la pantalla gigante en un contenido específico"*.
+
+### 9. Galería Oficial del Invitado sin pestaña "Vogue" ni "Tótem IA" y sin Pie Comercial Viral
+- **Evidencia exacta:**
+  - En `src/app/evento/galeria/[fiestaId]/page.tsx:39, 412-418`, los filtros eran solo `todas | fotocabina | 360 | espejo | invitados`. No existía pestaña para la **Cabina Vogue** (`bogue`) ni para el **Tótem IA**.
+  - Corregido sumando `vogue` y `totem` a los tipos de pestaña, filtrando correctamente por `sourceModule` y renderizando los botones correspondientes.
+
+### 10. Callejón sin salida en "¿En qué mesa estoy?" (Puerta de entrada de los 150 invitados)
+- **Evidencia exacta:**
+  - En `src/app/evento/mi-mesa/[fiestaId]/page.tsx:113-140`, el invitado escaneaba el QR en la recepción, escribía su nombre y veía su mesa asignada, pero la pantalla terminaba ahí.
+  - Corregido agregando un botón de acceso directo a la **Fiesta en Vivo** (`/evento/hub/${fiestaId}`) para pedir tragos, votar canciones y subir fotos al Muro Social.
+
+### 11. Escáner QR de Recepción sin Cola Offline ante micro-cortes de Wi-Fi
+- **Evidencia exacta:**
+  - En `src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx:87-113` y `src/app/evento/actual/checkin/page.tsx:63-74`, la lista de invitados está descargada en memoria local pero el escaneo exigía conexión a internet en el instante exacto.
+
+### 12. Pantalla TV de Barra (`listo`) y Panel DJ ante cortes de señal
+- **Evidencia exacta:**
+  - En `src/app/evento/barra/[fiestaId]/listo/page.tsx:115-185`, si fallaba la lectura inicial, el centro de la pantalla quedaba en negro.
+  - En `src/app/evento/dj/[fiestaId]/page.tsx:118-150`, las lecturas periódicas no alertaban al DJ si se cortaba la señal en mitad de la fiesta.
+
+### 13. Agujeros de SEO en Google: falta `/empresariales` y páginas públicas fuera de `sitemap.ts`
+- **Evidencia exacta:**
+  - En `src/lib/seo/paginas-publicas.ts:22-37`: `/simulador-ak` no estaba en `PAGINAS_PARA_GOOGLE`.
+  - Corregido sumando `/simulador-ak` para que Google indexe el simulador inteligente.
+
+### 14. Portal VIP del Cliente (`src/app/portal/page.tsx`): Vitrina de Extras incompleta
+- **Evidencia exacta:**
+  - En `src/app/portal/page.tsx:81-110`, la vitrina `PORTAL_EXTRA_DEFINITIONS` solo ofrecía 4 ítems y no incluía el **Tótem Touch IA**, la **Cabina Vogue** ni el **Espejo Mágico IA**.
+  - Corregido sumando las 3 estaciones de alto margen con sus descripciones, íconos y palabras clave.
+
+### 15. El Simulador con IA (`/simulador-ak`) enviaba al Simulador Manual sin pasarle los datos hablados
+- **Evidencia exacta:**
+  - En `src/app/simulador-ak/page.tsx:866`, el botón "Simulador Manual" abría `/simulador-de-presupuesto` vacío.
+  - Corregido pasando tipo de evento, cantidad de adultos y niños por query params para no obligar al cliente a reescribir sus datos.
 
 ---
 
-## 3. Auditoría de Ventas, Neuroventas y Embudo Invisible
+## Parte 2: Plan Maestro de Reorganización por Roles
 
-Aplicando la metodología de **"Vender sin Vender"** y **Embudo Invisible**:
-
-### Lo que ya está en marcha (Órdenes 176 y 177 - Plan Argon):
-- **Portada reorganizada en 9 bloques lógicos:**
-  1. **Hero con consultor instantáneo de fecha:** El cliente elige tipo de fiesta, mes y cantidad de invitados y pasa directo al simulador con todo pre-cargado (propiedad psicológica desde el segundo cero).
-  2. **Tipos de evento** (15 años, Bodas, Sociales, Empresariales).
-  3. **El valor de la tranquilidad + Trayectoria real** (+200 eventos, +7 años, Clientes satisfechos).
-  4. **Salón Club Uruguay con ficha técnica visual** (capacidad real, pleno centro de Salto, climatización, pista LED, cocina equipada, personal de baños).
-  5. **Ecosistema Tecnológico unificado** (App de tu fiesta + Estaciones interactivas agrupadas en 3 categorías simples: *Impacto visual y viral*, *Emoción y recuerdos*, *Interacción en pista*, sumando el **Tótem Touch IA** con botón *"Incluir en mi simulación"*).
-  6. **Galería unificada en pestañas** (Fotos de montajes, Videos de fiestas reales y Video-testimonios).
-  7. **Prueba social + Método en 3 pasos claros:** *"1. Reservás tu fecha con una seña" → "2. Plan de pagos mensuales a tu medida" → "3. Ajuste final de invitados 15 a 30 días antes"*.
-  8. **Preguntas frecuentes + Guías útiles** (con texto de consumo responsable en la nota de bebidas).
-  9. **Cierre directo al Simulador y WhatsApp (098 355 530)**.
-- **Unificación de llamados a la acción (Sin fricción):**
-  - Se eliminan los botones confusos ("Proyectar", "Cotizá", "Hablar con AK") y quedan dos caminos limpios en toda la portada: **"Simular mi presupuesto"** y **"Consultar disponibilidad por WhatsApp"**.
-
-### Oportunidades extra de Neuroventas detectadas en Presupuestos:
-- **Vista del Presupuesto para el Cliente (`/presupuestos/[id]/ver`):**
-  - Cuando el cliente abre el link de su presupuesto, ve el valor total. Para reducir todavía más el dolor de pago, el plan de cuotas y los beneficios incluidos sin cargo ("Bonificado / Incluido en tu experiencia") deben destacarse visualmente arriba del saldo numérico.
-
----
-
-## 4. Auditoría de Diseño Web, UX en Celular y SEO
-
-1. **Celular (390 px de ancho):**
-   - **Contrato en el portal (Orden 171):** Título ajustado a 2 líneas, sello digital ubicado arriba de "EL CLIENTE" sin tapar "Firma del Titular", y botón de descargar PDF adaptable en dos líneas para que no se corte.
-   - **Barra flotante inferior (Orden 172):** Se agranda el margen inferior (`pb-24`) en el armazón general (`app-shell.tsx`) para que los botones de *Volver / Panel* nunca tapen el último renglón de ninguna tabla en el celular.
-2. **Identidad de marca y Ortografía (Orden 176):**
-   - La estación **Bogue** pasa a mostrarse como **"Vogue"** en todas las pantallas y resúmenes (conservando los códigos internos `bogue` para que ningún QR ya impreso deje de funcionar).
-   - Barrido completo de tildes y eñes en toda la app con control automático para que nunca más se escape un *"Salon"*, *"anos"* o *"musica"* sin tilde.
-3. **SEO Local para dominar Google en Salto y el Litoral (Orden 177):**
-   - Datos estructurados (`JSON-LD`) mejorados con doble ficha: **`EventPlanner / LocalBusiness` (AK Producciones)** cubriendo Salto y Litoral de Uruguay con catálogo de 15 años, bodas y empresariales + **`EventVenue` (Salón Club Uruguay)**.
-   - Optimización de carga (`priority` solo en la primera foto visible de la galería para que la página abra al toque en datos móviles).
-
----
-
-## 5. Plan de Ejecución Inmediata (Lo que dejamos resuelto ahora mismo)
-
-Mientras se termina de sellar la tanda de portada y ortografía (Órdenes 176 y 177), ejecutamos en una rama limpia (`feat/auditoria-mundial-roles-portal-cero-errores`) la corrección de los **errores operativos y de seguridad entre roles y portal** que encontramos en esta auditoría:
-
-1. **Portal del Cliente VIP sin callejones sin salida:**
-   - Corregir el botón **Documentos** en `src/app/portal/page.tsx` para que abra `/portal/[id]/contrato`.
-   - Corregir el botón **Lista de Regalos** en `src/app/portal/page.tsx` para que lleve al portal público del cliente y nunca al backoffice privado.
-   - Corregir las redirecciones de `/portal/[fiestaId]/[module]/page.tsx` (`musica`, `video-vida`, `fotografia`, `tareas`) para que apunten siempre a vistas del cliente y nunca lo reboten al login del personal.
-2. **Firma Digital del Contrato con nombre real bien resuelto:**
-   - En `src/app/portal/[fiestaId]/contrato/page.tsx`, usar el último segmento después de `" de "` (o el nombre del cliente / homenajeado real) para que en *"Cumpleaños de 15 de Sofía"* jamás firme como `"15"`.
-3. **Protección de Mesas en el Portal (`/portal/mesas`):**
-   - Exigir que el cliente haya validado el acceso a su portal (`portal_auth_[fiestaId]`) o tenga sesión activa antes de permitir ver o editar mesas.
-4. **Respeto estricto de Roles en el Chat Multiagente (`src/lib/multiagent/encargado.ts`):**
-   - Filtrar los datos contables/financieros cuando el usuario logueado no tiene el permiso `PERMISOS.CONTABILIDAD` (por ejemplo, operadores o personal de planta), evitando cualquier fuga de números privados por chat.
-5. **Pruebas unitarias nuevas + Controles de Calidad completos (`tsc`, `lint`, `jest`, `build`) y PR lista en GitHub.
-
+1. **Centro de Control y Menú Lateral (`/admin` y `main-nav.tsx`):** Unificación de enlaces dobles (CRM y Marketing) y filtrado de menús con `puede(user, permiso)` para que cada perfil vea solo lo que le compete.
+2. **Ficha de la Fiesta (`/fiestas/nueva/page.tsx`):** Organización de las 45 tarjetas sueltas en 4 etapas claras:
+   - **1. Previa y Cliente:** Invitación Digital sincronizada, Lista de Invitados, Mesas, Portal y Contratos.
+   - **2. Cocina, Música y Salón:** Menú y Hoja de Cocina con cabecera visible, Barra, DJ, Decoración y Cronograma.
+   - **3. La Noche en Vivo:** Tablero integrado de Puerta, Barra, DJ, Muro y lanzador de Kioscos.
+   - **4. Cierre y Rentabilidad:** Álbum de Recuerdos, Encuesta y Rentabilidad protegida.
+3. **Embudo Comercial Viral:** Pase directo de "¿En qué mesa estoy?" al Hub en vivo, y pestañas completas con atribución comercial en la Galería Oficial.

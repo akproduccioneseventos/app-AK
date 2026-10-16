@@ -86,5 +86,5 @@ usa: cabecera-documento en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/p
 usa: cabecera-documento en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
 usa: cabecera-documento en src/app/(app)/fiestas/nueva/personal/recibos/page.tsx
 usa: header:not(.cabecera-documento) en src/app/globals.css
-prueba: PENDIENTE src/__tests__/la-hoja-de-cocina-se-imprime-con-cabecera.test.tsx
+prueba: src/__tests__/la-hoja-de-cocina-se-imprime-con-cabecera.test.tsx
 ```
