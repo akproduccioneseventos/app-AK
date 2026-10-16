@@ -341,11 +341,11 @@ export default function EspejoMagicoPage() {
           setFondoVirtual(result.event.station.fondoDePantalla ?? null);
           setErrorMsg(null);
         } else {
-          setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+          setErrorMsg(result.error || 'No se pudo abrir esta estación.');
         }
       })
       .catch(() => {
-        if (active) setErrorMsg('No se pudo abrir esta estacion.');
+        if (active) setErrorMsg('No se pudo abrir esta estación.');
       });
     void waitForInitialPublicLoad(loadTask).then((result) => {
       if (!active) return;
@@ -741,13 +741,13 @@ export default function EspejoMagicoPage() {
       await asegurarCuadroDeVideo(videoRef.current);
     } catch {
       setCamaraSinCuadro(true);
-      setErrorMsg('La camara no esta entregando imagen. Toca "Reintentar camara" para volver a intentarlo.');
+      setErrorMsg('La cámara no está entregando imagen. Toca "Reintentar cámara" para volver a intentarlo.');
       setLocalStatus('idle');
       return;
     }
     if (!videoRef.current || !canvasRef.current || !containerRef.current) return;
     if (!isVideoFrameReady(videoRef.current)) {
-      setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
+      setErrorMsg('La cámara todavía se está preparando. Intenta nuevamente en un instante.');
       setLocalStatus('idle');
       return;
     }
@@ -1260,7 +1260,7 @@ export default function EspejoMagicoPage() {
               >
                 <FileImage className="w-5 h-5" />
               </button>
-              <button type="button" onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
+              <button type="button" onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} aria-label="Cambiar cámara" title="Cambiar cámara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
                 <SwitchCamera className="w-5 h-5" />
               </button>
             </>
@@ -1297,7 +1297,7 @@ export default function EspejoMagicoPage() {
         {errorMsg ? (
           <div className="absolute inset-0 z-40 flex items-center justify-center bg-zinc-950 p-6 text-center">
             <div className="max-w-md">
-              <h3 className="text-2xl font-black text-white">{camaraSinCuadro ? 'La camara no responde' : 'No pudimos subir la foto'}</h3>
+              <h3 className="text-2xl font-black text-white">{camaraSinCuadro ? 'La cámara no responde' : 'No pudimos subir la foto'}</h3>
               <p className="mt-3 font-medium text-red-300">{errorMsg}</p>
               {camaraSinCuadro ? (
                 <button
@@ -1584,8 +1584,8 @@ export default function EspejoMagicoPage() {
                   >
                     {aiStep === 'detecting' && 'Detectando rostro y contorno facial...'}
                     {aiStep === 'aligning' && 'Mapeando puntos de referencia...'}
-                    {aiStep === 'gemini' && 'Fusionando iluminacion y sombras con Gemini...'}
-                    {aiStep === 'rendering' && 'Renderizando retrato digital en alta definicion...'}
+                    {aiStep === 'gemini' && 'Fusionando iluminación y sombras con Gemini...'}
+                    {aiStep === 'rendering' && 'Renderizando retrato digital en alta definición...'}
                   </motion.p>
                 </AnimatePresence>
               </div>

@@ -29,8 +29,8 @@ import { Badge } from '@/components/ui/badge';
 const COST_CATEGORIES: CostoCategoria[] = [
   'Servicio Proveedor',
   'Pago de Salón',
-  'Personal Evento', 
-  'Compra General', 
+  'Personal Evento',
+  'Compra General',
   'Marketing y Publicidad',
   'Imprevistos',
   'Otro Costo Directo'
@@ -56,7 +56,7 @@ function GestionCostosRentabilidadContent() {
   const [pagosProveedores, setPagosProveedores] = useState<PagoProveedor[]>([]);
   // Cobros al cliente: de acá sale la comisión real de Mercado Pago (28/09/2026).
   const [cobrosCliente, setCobrosCliente] = useState<PagoCliente[]>([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -64,7 +64,7 @@ function GestionCostosRentabilidadContent() {
   const [newCostoNombre, setNewCostoNombre] = useState('');
   const [newCostoCategoria, setNewCostoCategoria] = useState<CostoCategoria>('Otro Costo Directo');
   const [newCostoMontoEstimado, setNewCostoMontoEstimado] = useState<string>('');
-  
+
   const [newPagoCostoId, setNewPagoCostoId] = useState('');
   const [newPagoFecha, setNewPagoFecha] = useState<Date | undefined>(new Date());
   const [newPagoMonto, setNewPagoMonto] = useState('');
@@ -210,7 +210,7 @@ function GestionCostosRentabilidadContent() {
         </div>
         <div className="flex gap-2">
             <Button onClick={handleSyncAll} disabled={isSyncing} className="rounded-xl h-12 bg-primary shadow-lg shadow-primary/20 font-bold">
-                {isSyncing ? <Loader2 className="animate-spin mr-2"/> : <Zap className="w-4 h-4 mr-2"/>} 
+                {isSyncing ? <Loader2 className="animate-spin mr-2"/> : <Zap className="w-4 h-4 mr-2"/>}
                 SINCRONIZAR TODO
             </Button>
             <Button asChild variant="outline" className="rounded-xl h-12 border-slate-200"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
@@ -246,8 +246,8 @@ function GestionCostosRentabilidadContent() {
                       iba de gasto seguia viendose bien. */}
                   <p className="mt-2 text-[11px] font-medium leading-snug text-white/80">
                     {stats.hayGastoCargado
-                      ? 'Calculada con los pagos que ya cargaste. Lo que todavia no tiene pago va por lo estimado.'
-                      : 'Todavia no cargaste ningun pago: este numero usa lo que se estima gastar.'}
+                      ? 'Calculada con los pagos que ya cargaste. Lo que todavía no tiene pago va por lo estimado.'
+                      : 'Todavía no cargaste ningun pago: este número usa lo que se estima gastar.'}
                   </p>
                   {(stats.comisionesMercadoPago > 0 || stats.recargosCobrados > 0) && (
                     <p className="mt-2 text-[11px] font-medium leading-snug text-white/80" data-testid="ganancia-mercado-pago">

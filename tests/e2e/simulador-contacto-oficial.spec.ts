@@ -36,11 +36,18 @@ test('los botones de WhatsApp del simulador abren el numero oficial de AK', asyn
   await page.locator('[role="gridcell"] button:not([disabled])').nth(10).click();
   await continuar.click();
 
-  // Pasos 3, 4 y 5: la app elige sola lo recomendado; solo se avanza.
-  for (let i = 0; i < 3; i++) {
-    await expect(continuar).toBeEnabled({ timeout: 30_000 });
+  // Pasos 3, 4 y 5: resolver oferta opcional conservando selección
+  const mantenerSeleccion = page.getByRole('button', { name: /Mantener mi selección actual/i });
+  for (let paso = 0; paso < 2; paso++) {
+    if (await mantenerSeleccion.isVisible().catch(() => false)) await mantenerSeleccion.click();
+    await expect(continuar, `el paso ${paso + 3} permite continuar tras resolver una oferta opcional`).toBeEnabled({ timeout: 30_000 });
     await continuar.click();
   }
+
+  await mantenerSeleccion.click({ timeout: 30_000 });
+  const verPropuesta = page.getByRole('button', { name: /Ver Resumen y Propuesta/i });
+  await expect(verPropuesta).toBeVisible({ timeout: 30_000 });
+  await verPropuesta.click();
 
   const consultar = page.getByRole('button', { name: /Coordinar Reunión/i }).first();
   await expect(page.getByText('Presupuesto registrado con éxito').first()).toBeVisible({ timeout: 90_000 });

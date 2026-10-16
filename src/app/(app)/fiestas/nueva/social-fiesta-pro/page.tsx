@@ -60,7 +60,7 @@ export default async function SocialFiestaProPage(props: PageProps) {
   if (!fiesta) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-10">
-        <Card><CardHeader><CardTitle>No se encontro la fiesta</CardTitle></CardHeader></Card>
+        <Card><CardHeader><CardTitle>No se encontró la fiesta</CardTitle></CardHeader></Card>
       </main>
     );
   }
@@ -128,12 +128,12 @@ export default async function SocialFiestaProPage(props: PageProps) {
           <Card><CardContent className="space-y-5 p-6 sm:p-8">
             <p className="text-sm font-medium uppercase tracking-wide text-violet-700">Experiencia visible para invitados</p>
             <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{eventName}</h1>
-            <p className="max-w-3xl text-base text-muted-foreground">Este panel une invitacion, red social privada, fotos, mensajes, juegos, sorteos y pantalla gigante. La fiesta queda simple para el invitado y controlada para el operador.</p>
+            <p className="max-w-3xl text-base text-muted-foreground">Este panel une invitación, red social privada, fotos, mensajes, juegos, sorteos y pantalla gigante. La fiesta queda simple para el invitado y controlada para el operador.</p>
             <div className="grid gap-3 sm:grid-cols-3">
               <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={linkFor('/fiestas/nueva/muro-social', fiestaId)}><Monitor className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Muro social y pantalla</span><span className="block text-xs font-normal text-muted-foreground">Moderar fotos, mensajes, juegos y pantalla gigante.</span></span></Link></Button>
-              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={linkFor('/fiestas/nueva/pagina-web', fiestaId)}><QrCode className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Invitacion web</span><span className="block text-xs font-normal text-muted-foreground">RSVP e invitados desde celular.</span></span></Link></Button>
-              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={linkFor('/fiestas/nueva/en-vivo', fiestaId)}><Sparkles className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Evento en vivo</span><span className="block text-xs font-normal text-muted-foreground">Contenido aprobado en el dia de la fiesta.</span></span></Link></Button>
-              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><a href={`/evento/social/${fiestaId}`} target="_blank" rel="noopener noreferrer"><Users className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Vista invitado real</span><span className="block text-xs font-normal text-muted-foreground">Celular participativo con fotos, videos, chat y musica.</span></span></a></Button>
+              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={linkFor('/fiestas/nueva/pagina-web', fiestaId)}><QrCode className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Invitación web</span><span className="block text-xs font-normal text-muted-foreground">RSVP e invitados desde celular.</span></span></Link></Button>
+              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><Link href={linkFor('/fiestas/nueva/en-vivo', fiestaId)}><Sparkles className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Evento en vivo</span><span className="block text-xs font-normal text-muted-foreground">Contenido aprobado en el día de la fiesta.</span></span></Link></Button>
+              <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><a href={`/evento/social/${fiestaId}`} target="_blank" rel="noopener noreferrer"><Users className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Vista invitado real</span><span className="block text-xs font-normal text-muted-foreground">Celular participativo con fotos, videos, chat y música.</span></span></a></Button>
               <Button asChild variant="outline" className="h-auto justify-start gap-3 whitespace-normal p-4 text-left"><a href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank" rel="noopener noreferrer"><Monitor className="h-5 w-5 shrink-0" /><span><span className="block font-semibold">Pantalla LED real</span><span className="block text-xs font-normal text-muted-foreground">Salida grande filtrada por aprobacion.</span></span></a></Button>
             </div>
           </CardContent></Card>

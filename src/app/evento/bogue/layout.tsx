@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Bogue Boomerang | AK Producciones',
+  title: 'Vogue Boomerang | AK Producciones',
   description: 'Procesador de videos Boomerang en tiempo real.',
 };
 

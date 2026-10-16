@@ -155,7 +155,7 @@ function ContratoSalonContent() {
           const alta = await updateContratoFiestaActual(fiestaId, draft, 'salon', 'default-salon');
           if (!alta?.success) {
             // Los datos si cargaron: lo que fallo fue guardar el borrador.
-            setAvisoGuardado('El borrador se armo pero no se pudo guardar. Podes imprimirlo igual; si lo editas, guardalo de nuevo.');
+            setAvisoGuardado('El borrador se armó pero no se pudo guardar. Podés imprimirlo igual; si lo editas, guardalo de nuevo.');
           }
         }
       } else {
@@ -190,7 +190,7 @@ function ContratoSalonContent() {
       setIsEditing(false);
       toast({ title: 'Contrato guardado', description: 'Los cambios quedaron guardados en el evento.' });
     } catch (err: any) {
-      setAvisoGuardado(err.message || 'No se pudo guardar el contrato. Volve a intentar.');
+      setAvisoGuardado(err.message || 'No se pudo guardar el contrato. Volvé a intentar.');
       toast({ title: 'No se pudo guardar', description: err.message, variant: 'destructive' });
     } finally {
       setIsSaving(false);

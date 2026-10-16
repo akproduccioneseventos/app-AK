@@ -434,7 +434,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main className="flex-1 bg-slate-50/80 p-4 sm:p-6 lg:p-8 pb-32 sm:pb-36">
+          <main className="flex-1 bg-slate-50/80 p-4 sm:p-6 lg:p-8 pb-24 md:pb-8">
             {children}
           </main>
         </div>

@@ -31,7 +31,7 @@ export const defaultZonaDigitalFeatures: ZonaDigitalFeatureToggle[] = [
   feature('juegos', 'Juegos en vivo', 'Trivia, votaciones, emoji battle y baile con ranking.'),
   feature('fotocabina', 'Fotocabina', 'Plantillas, marcos, stickers y descarga con marca del evento.', { linkedModuleId: 'entretenimiento', requiresHardware: true }),
   feature('plataforma360', 'Plataforma 360', 'Clips verticales con intro, musica, efecto y salida social.', { linkedModuleId: 'entretenimiento', requiresHardware: true }),
-  feature('bogue', 'Bogue / Boomerang', 'Loops cortos tipo social, pensados para compartir rapido.', { linkedModuleId: 'entretenimiento', requiresHardware: true }),
+  feature('bogue', 'Vogue / Boomerang', 'Loops cortos tipo social, pensados para compartir rapido.', { linkedModuleId: 'entretenimiento', requiresHardware: true }),
   feature('espejo_magico', 'Espejo magico', 'Pantalla tactil con firma, dibujo, props y salida premium.', { linkedModuleId: 'entretenimiento', requiresHardware: true }),
   feature('barra', 'Barra interactiva', 'Eligen tragos, ven ingredientes, video y pasan a pantalla del barman.', { linkedModuleId: 'barraTecnologica' }),
   feature('totems', 'Totems sincronizados', 'Pantallas con QR, fotos, retos y fondos animados.', { linkedModuleId: 'pantallasTotem', requiresHardware: true }),

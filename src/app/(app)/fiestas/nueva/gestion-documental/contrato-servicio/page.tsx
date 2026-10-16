@@ -263,7 +263,7 @@ function ContratoServicioContent() {
     if (type === selectedType) return;
     if (hayCambiosSinGuardar) {
       const seguir = window.confirm(
-        'Tenes cambios sin guardar en el contrato. Si cambias de plantilla se pierden. ¿Cambiar igual?'
+        'Tenés cambios sin guardar en el contrato. Si cambias de plantilla se pierden. ¿Cambiar igual?'
       );
       if (!seguir) return;
     }
@@ -274,7 +274,7 @@ function ContratoServicioContent() {
   const handleToggleEdicion = () => {
     if (isEditing && hayCambiosSinGuardar) {
       const descartar = window.confirm(
-        'Tenes cambios sin guardar. Si salis del modo edicion se pierden. ¿Salir igual?'
+        'Tenés cambios sin guardar. Si salis del modo edicion se pierden. ¿Salir igual?'
       );
       if (!descartar) return;
       setContractText(textoGuardado);
