@@ -1,4 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator } from '@playwright/test';
+
+// Las secciones aparecen al bajar: se lleva cada elemento a la vista antes de mirarlo, y se toma el
+// primero cuando el mismo texto está en la pestaña y en la tarjeta.
+async function seVe(locator: Locator) {
+  const primero = locator.first();
+  await primero.scrollIntoViewIfNeeded();
+  await expect(primero).toBeVisible();
+}
 
 test.describe('Orden 177: La portada nueva (Plan Argon)', () => {
   test('la portada en escritorio y móvil cumple con todos los requisitos del plan Argon', async ({ page }) => {
@@ -16,10 +24,12 @@ test.describe('Orden 177: La portada nueva (Plan Argon)', () => {
     expect(bodyText).not.toContain('Guías útiles y consejos');
 
     // 4. Ningún botón de la portada dice 'Cotizá', 'Cotizar', 'Proyectar' ni 'Hablar con AK'
-    expect(bodyText).not.toMatch(/\bCotiz[aá]/i);
-    expect(bodyText).not.toMatch(/\bCotizar\b/i);
-    expect(bodyText).not.toMatch(/\bProyectar mi fiesta\b/i);
-    expect(bodyText).not.toMatch(/\bHablar con AK\b/i);
+    // Se miran los BOTONES y ENLACES, no el texto corrido (una respuesta frecuente puede decir "cotización").
+    const textosDeBotones = (await page.locator('a, button').allInnerTexts()).join(' | ');
+    expect(textosDeBotones).not.toMatch(/\bCotiz[aá]/i);
+    expect(textosDeBotones).not.toMatch(/\bCotizar\b/i);
+    expect(textosDeBotones).not.toMatch(/\bProyectar mi fiesta\b/i);
+    expect(textosDeBotones).not.toMatch(/\bHablar con AK\b/i);
 
     // 5. La página no dice cifras inventadas ni congelar
     expect(bodyText).not.toMatch(/\+250/);
@@ -28,26 +38,27 @@ test.describe('Orden 177: La portada nueva (Plan Argon)', () => {
     expect(bodyText).not.toMatch(/congel/i);
 
     // 6. Verificar las pestañas de la galería
-    await expect(page.getByRole('button', { name: /Fotos de montajes/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Videos de fiestas reales/i })).toBeVisible();
+    await seVe(page.getByRole('button', { name: /Fotos de montajes/i }));
+    await seVe(page.getByRole('button', { name: /Videos de fiestas reales/i }));
 
     // 7. Estaciones: 3 grupos de filtros y Tótem Touch IA con Exclusivo con IA
-    await expect(page.getByText('Impacto visual y viral')).toBeVisible();
-    await expect(page.getByText('Emoción y recuerdos')).toBeVisible();
-    await expect(page.getByText('Interacción en pista')).toBeVisible();
+    // En el celular el botón muestra el nombre corto ("Visual y viral"); en escritorio, el largo.
+    await seVe(page.getByRole('button', { name: /visual y viral/i }));
+    await seVe(page.getByRole('button', { name: /Emoción y recuerdos/i }));
+    await seVe(page.getByRole('button', { name: /Interacción en pista/i }));
 
-    await expect(page.getByRole('button', { name: /Tótem Touch IA/i })).toBeVisible();
-    await expect(page.getByText('Exclusivo con IA')).toBeVisible();
+    await seVe(page.getByRole('button', { name: /Tótem Touch IA/i }));
+    await seVe(page.getByText('Exclusivo con IA'));
 
     // 8. Ficha técnica del Salón Club Uruguay
-    await expect(page.getByText('Ficha técnica del salón')).toBeVisible();
-    await expect(page.getByText('Pleno centro de Salto')).toBeVisible();
-    await expect(page.getByText('Climatización')).toBeVisible();
+    await seVe(page.getByText('Ficha técnica del salón'));
+    await seVe(page.getByText('Pleno centro de Salto'));
+    await seVe(page.getByText('Climatización'));
 
     // 9. Esquema en 3 pasos en testimonios
-    await expect(page.getByText(/1\.\s*Reservás tu fecha con una seña/i)).toBeVisible();
-    await expect(page.getByText(/2\.\s*Plan de pagos mensuales a tu medida/i)).toBeVisible();
-    await expect(page.getByText(/3\.\s*Ajuste final de invitados 15 a 30 días antes/i)).toBeVisible();
+    await seVe(page.getByText(/1\.\s*Reservás tu fecha con una seña/i));
+    await seVe(page.getByText(/2\.\s*Plan de pagos mensuales a tu medida/i));
+    await seVe(page.getByText(/3\.\s*Ajuste final de invitados 15 a 30 días antes/i));
 
     // 10. Barra verificadora del hero: redirige al simulador con parámetros
     const heroBtn = page.getByRole('link', { name: /Consultar disponibilidad de fecha/i });

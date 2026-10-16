@@ -50,7 +50,7 @@ export function GaleriaUnificadaSection({
   }, []);
 
   return (
-    <section id="landing-gallery" className="relative scroll-mt-20">
+    <section className="relative scroll-mt-20">
       {/* Barra de pestañas unificadas */}
       <div className="bg-slate-900 border-b border-slate-800 py-6 px-4">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
