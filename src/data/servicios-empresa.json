@@ -397,7 +397,7 @@
   },
   {
     "id": "serv_bogue",
-    "nombre": "Bogue",
+    "nombre": "Vogue",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 1500,
@@ -419,7 +419,7 @@
   },
   {
     "id": "serv_espejo_magico_ia",
-    "nombre": "Face Swap IA (avatares, reemplazo de rostros y estilos artisticos)",
+    "nombre": "Tótem Touch IA (personajes y estilos con inteligencia artificial)",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 2500,

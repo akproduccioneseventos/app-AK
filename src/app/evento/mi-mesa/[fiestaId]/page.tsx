@@ -3,6 +3,7 @@ import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { CompanyLogo } from '@/components/company-logo';
 import { Search, Loader2, AlertTriangle, PartyPopper, ChevronRight, MessageCircle } from 'lucide-react';
@@ -131,9 +132,17 @@ export default function MiMesaPage() {
             )}
             <p className="text-sm opacity-60">¡Que disfrutes el evento! 🎉</p>
           </div>
-          <button onClick={handleReset} className="text-sm text-white/50 hover:text-white/80 underline transition-colors">
-            Buscar otro nombre
-          </button>
+          <div className="flex flex-col gap-3">
+            <Link
+              href={`/evento/hub/${fiestaId}`}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 px-6 py-3.5 text-sm font-black text-white shadow-lg hover:brightness-110 transition-all"
+            >
+              <PartyPopper className="w-4 h-4" /> Entrar a la fiesta en vivo
+            </Link>
+            <button onClick={handleReset} className="text-sm text-white/50 hover:text-white/80 underline transition-colors">
+              Buscar otro nombre
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -13,7 +13,7 @@ import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plu
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual, updateClientePortalExperienceFiestaActual } from '@/app/actions/fiesta-actual';
-import { 
+import {
   updateFaqPortal,
   approveClientMenuChangeRequest,
   rejectClientMenuChangeRequest,
@@ -857,7 +857,7 @@ function ClientPortalConfigContent() {
                 <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                   <KeyRound className="w-4 h-4 text-primary" /> Credenciales y Seguridad
                 </h3>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="portal-access-key">Clave del Enlace de Acceso (Access Key)</Label>
                   <div className="flex items-center gap-2">
@@ -867,7 +867,7 @@ function ClientPortalConfigContent() {
                         type={showPassword ? 'text' : 'password'}
                         value={portalSettings.accessKey || ''}
                         onChange={(e) => setPortalSettings(p => ({...(p || defaultClientPortalSettings), accessKey: e.target.value}))}
-                        placeholder="Ej: cliente-vip-cumpleanos-15-abc123"
+                        placeholder="Ej: cliente-vip-cumpleaños-15-abc123"
                         className="pr-10"
                       />
                       <button
@@ -963,7 +963,7 @@ function ClientPortalConfigContent() {
                   <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
                     <div>
                       <Label className="text-sm font-black">Fase de acceso del cliente</Label>
-                      <p className="text-xs text-muted-foreground">El cliente empieza con presupuesto, pagos, contrato y solicitudes economicas. Despues se abren organizacion y fiesta en vivo.</p>
+                      <p className="text-xs text-muted-foreground">El cliente empieza con presupuesto, pagos, contrato y solicitudes economicas. Después se abren organización y fiesta en vivo.</p>
                     </div>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                       {[
@@ -982,7 +982,7 @@ function ClientPortalConfigContent() {
                       ))}
                     </div>
                     <div className="grid gap-2 sm:grid-cols-[1fr_120px] sm:items-center">
-                      <p className="text-xs text-muted-foreground">Dias previos para abrir automaticamente la parte en vivo.</p>
+                      <p className="text-xs text-muted-foreground">Días previos para abrir automaticamente la parte en vivo.</p>
                       <Input
                         type="number"
                         min={0}

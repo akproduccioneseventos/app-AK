@@ -89,7 +89,7 @@ function comprobar(c) {
     // "usa: nombre en ruta/al/archivo.tsx" — tiene que estar.
     // "no-usa: texto en ruta/al/archivo.tsx" — lo que la orden pide SACAR, tiene que no estar
     // (25 de septiembre de 2026: una orden que pedia sacar una exclusion daba "hecha" igual).
-    const m = c.valor.match(/^(.+?)\s+en\s+(.+)$/);
+    const m = c.valor.match(/^(.+)\s+en\s+(.+)$/);
     if (!m) return false;
     const [, simbolo, archivo] = m;
     const ruta = path.join(process.cwd(), archivo.trim());

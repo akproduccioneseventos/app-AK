@@ -97,13 +97,18 @@ export interface PublicEntertainmentEvent {
 const TITLES: Record<EntertainmentModuleId, string> = {
   fotocabina: 'Fotocabina',
   plataforma360: 'Plataforma 360',
-  bogue: 'Bogue',
+  bogue: 'Vogue',
   espejoMagicoFoto: 'Espejo Magico Foto',
   espejoMagicoFirma: 'Espejo Magico Firma',
   espejoMagicoIA: 'Espejo Magico IA',
   totems: 'Totem Interactivo',
   capsulaTiempo: 'Capsula del Tiempo',
 };
+
+export function nombreVisibleDeEstacion(texto: string): string {
+  if (!texto || typeof texto !== 'string') return texto;
+  return texto.replace(/\bBogue\b/g, 'Vogue');
+}
 
 const COLORS: Record<EntertainmentModuleId, string> = {
   fotocabina: '#d97706',

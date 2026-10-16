@@ -2,7 +2,19 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Star, Quote, Sparkles, MessageSquare, X, HeartHandshake } from 'lucide-react';
+import {
+  CheckCircle2,
+  Star,
+  Quote,
+  Sparkles,
+  MessageSquare,
+  X,
+  HeartHandshake,
+  CalendarCheck,
+  CreditCard,
+  Users2,
+  ArrowRight,
+} from 'lucide-react';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 export interface Testimonial {
@@ -10,6 +22,7 @@ export interface Testimonial {
   name: string;
   role: string;
   eventType: string;
+  fiestaNombre?: string;
   rating?: number;
   text: string;
   avatarInitials: string;
@@ -33,7 +46,7 @@ interface SuccessStory {
 }
 
 export function testimonialToStory(testimonial: Testimonial): SuccessStory {
-  const eventType = testimonial.eventType || 'Evento AK';
+  const eventType = testimonial.fiestaNombre || testimonial.eventType || 'Evento AK';
   return {
     id: `testimonial-${testimonial.id}`,
     title: `La experiencia de ${testimonial.name}`,
@@ -45,6 +58,27 @@ export function testimonialToStory(testimonial: Testimonial): SuccessStory {
     rating: testimonial.rating ?? 5,
   };
 }
+
+const PASOS_METODO = [
+  {
+    numero: '1',
+    titulo: '1. Reservás tu fecha con una seña',
+    descripcion: 'Asegurás tu fecha en la agenda oficial de AK y confirmás la disponibilidad de salón y equipos.',
+    icon: CalendarCheck,
+  },
+  {
+    numero: '2',
+    titulo: '2. Plan de pagos mensuales a tu medida',
+    descripcion: 'Abonás en cuotas fijas hasta la fecha del evento sin estrés ni sorpresas financieras.',
+    icon: CreditCard,
+  },
+  {
+    numero: '3',
+    titulo: '3. Ajuste final de invitados 15 a 30 días antes',
+    descripcion: 'Definís el número definitivo de asistentes, menú especial, alergias y cronograma con precisión.',
+    icon: Users2,
+  },
+];
 
 export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHATSAPP_NUMBER }: TestimonialsSectionProps) {
   const [selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
@@ -97,9 +131,8 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
     <section id="landing-testimonials" className="relative overflow-hidden border-t border-slate-200 bg-white py-24 text-slate-950">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent pointer-events-none" />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
         {/* Header de Venta */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -108,11 +141,11 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
           transition={{ duration: 0.55, ease: 'easeOut' }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-black uppercase tracking-widest text-red-400 mb-4">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-black uppercase tracking-widest text-red-500 mb-4">
             <HeartHandshake className="w-3.5 h-3.5" />
             Reseñas de clientes
           </span>
-          <h2 className="mb-4 font-headline text-5xl font-black leading-tight text-slate-950 sm:text-6xl">
+          <h2 className="mb-4 font-headline text-4xl sm:text-6xl font-black leading-tight text-slate-950">
             Experiencias compartidas
           </h2>
           <p className="mx-auto max-w-xl text-lg leading-relaxed text-slate-600">
@@ -133,7 +166,7 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
               whileHover={{ y: -6, scale: 1.01 }}
               onClick={() => openStory(story)}
               aria-label={`Ver reseña de ${story.clientName}`}
-              className="group relative flex w-full cursor-pointer flex-col justify-between overflow-hidden rounded-lg border border-slate-200 bg-white p-6 text-left shadow-sm transition-all hover:-translate-y-1 hover:border-red-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              className="group relative flex w-full cursor-pointer flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition-all hover:-translate-y-1 hover:border-red-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -142,13 +175,13 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
                     {story.eventType}
                   </span>
                 </div>
-                
+
                 <div className="flex gap-0.5">
                   {Array.from({ length: Math.max(1, Math.min(story.rating ?? 5, 5)) }).map((_, i) => (
                     <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                   ))}
                 </div>
-                
+
                 <h3 className="font-headline text-lg font-black text-slate-950 transition-colors group-hover:text-red-700">
                   {story.title}
                 </h3>
@@ -160,15 +193,60 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
               <div className="mt-6 flex items-center justify-between gap-2 border-t border-slate-200 pt-4">
                 <div className="min-w-0">
                   <p className="truncate text-xs font-black text-slate-950">{story.clientName}</p>
-                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">{story.role}</p>
+                  <p className="mt-0.5 text-[11px] font-semibold text-red-700 truncate">{story.eventType}</p>
+                  <p className="text-[10px] font-medium text-slate-500">{story.role}</p>
                 </div>
-                <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-md">
+                <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 px-2 py-1 rounded-md">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Opinión publicada
                 </span>
               </div>
             </motion.button>
           ))}
+        </div>
+
+        {/* Esquema de Método en 3 Pasos */}
+        <div className="mt-20 pt-16 border-t border-slate-200">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-black uppercase tracking-widest text-slate-600 mb-3">
+              Claridad y tranquilidad
+            </span>
+            <h3 className="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight">
+              Cómo trabajamos: nuestro método en 3 pasos
+            </h3>
+            <p className="mt-2 text-slate-600 max-w-xl mx-auto text-sm sm:text-base font-medium">
+              Sin sorpresas ni letra chica. Un camino simple y organizado desde la primera consulta hasta la fiesta.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {PASOS_METODO.map((paso, idx) => {
+              const Icon = paso.icon;
+              return (
+                <div
+                  key={paso.numero}
+                  className="relative flex flex-col justify-between p-6 sm:p-8 rounded-2xl border border-slate-200 bg-slate-50/70 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-red-100 border border-red-200 flex items-center justify-center text-red-700">
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <span className="text-3xl font-black text-slate-300">
+                        0{paso.numero}
+                      </span>
+                    </div>
+                    <h4 className="text-base sm:text-lg font-black text-slate-950 mb-2 leading-tight">
+                      {paso.titulo}
+                    </h4>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                      {paso.descripcion}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -184,7 +262,7 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
               onClick={() => setSelectedStory(null)}
               className="absolute inset-0 bg-black/85 backdrop-blur-sm"
             />
-            
+
             {/* Contenido Modal */}
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -252,4 +330,3 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
     </section>
   );
 }
-
