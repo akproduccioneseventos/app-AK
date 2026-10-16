@@ -158,7 +158,7 @@ export default function ClientContractPage() {
                         <FileSignature className="w-6 h-6"/>
                     </div>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 font-headline uppercase">Contrato de Servicio</h1>
+                        <h1 className="text-xl sm:text-2xl leading-tight font-black text-slate-900 font-headline uppercase">Contrato de Servicio</h1>
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Revisión y Firma Digital</p>
                     </div>
                 </div>
@@ -262,9 +262,9 @@ export default function ClientContractPage() {
                             <p className="font-black text-sm uppercase tracking-tighter text-slate-900">Tec. Alexander Knuth</p>
                             <p className="text-[10px] text-slate-400 font-sans uppercase tracking-widest">Por la Empresa</p>
                         </div>
-                        <div className="border-t border-slate-200 pt-4 relative">
+                        <div className="border-t border-slate-200 pt-4 flex flex-col items-center">
                             {firma?.method === 'digital' && (
-                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-primary rotate-[-5deg]">
+                                <div className="mb-2 text-primary rotate-[-5deg]">
                                     <p className="font-dancing text-3xl font-bold opacity-80">{firma.signedBy}</p>
                                     <p className="text-[8px] font-sans font-black uppercase tracking-tighter -mt-1">Firmado Digitalmente</p>
                                 </div>
@@ -430,7 +430,7 @@ export default function ClientContractPage() {
                                 <h3 className="font-black text-amber-800 uppercase text-xs tracking-wider">Firma Física Requerida</h3>
                                 <p className="text-sm text-amber-700 mt-1">Este contrato debe ser firmado físicamente. Por favor descárguelo o imprímalo, fírmelo y entréguelo al organizador. Una vez escaneado y registrado por el administrador, su validez aparecerá reflejada en este portal.</p>
                             </div>
-                            <Button onClick={() => window.print()} size="lg" className="w-full h-14 rounded-2xl text-base font-black shadow-xl">
+                            <Button onClick={() => window.print()} size="lg" className="w-full h-auto min-h-14 py-3 whitespace-normal text-center leading-tight text-sm sm:text-base rounded-2xl font-black shadow-xl">
                                 IMPRIMIR / DESCARGAR CONTRATO (PDF)
                             </Button>
                         </div>
@@ -447,7 +447,7 @@ export default function ClientContractPage() {
                                 <h3 className="font-black text-amber-800 uppercase text-xs tracking-wider">Falta el contrato en papel</h3>
                                 <p className="text-sm text-amber-700 mt-1">Imprimí el contrato, firmalo y entregáselo al organizador.</p>
                             </div>
-                            <Button onClick={() => window.print()} size="lg" className="w-full h-14 rounded-2xl text-base font-black shadow-xl">
+                            <Button onClick={() => window.print()} size="lg" className="w-full h-auto min-h-14 py-3 whitespace-normal text-center leading-tight text-sm sm:text-base rounded-2xl font-black shadow-xl">
                                 IMPRIMIR / DESCARGAR CONTRATO (PDF)
                             </Button>
                         </div>

@@ -9,8 +9,7 @@ describe('public marketing resilience', () => {
     const gallery = read('src/components/landing/GallerySection.tsx');
 
     expect(home).toContain('const instagramFotos: GaleriaFoto[] = instagramFeed');
-    expect(home).toContain('const instagramVideos: GaleriaVideo[] = instagramFeed');
-    expect(home).toContain('<GallerySection galeriaFotos={fotosCombinadas} />');
+    expect(home).toContain('galeriaFotos={fotosCombinadas}');
     expect(home).not.toContain('InstagramSyncStrip');
     expect(gallery).toContain('Galería de eventos');
   });

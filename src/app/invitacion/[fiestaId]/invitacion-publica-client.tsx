@@ -731,7 +731,7 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
       <motion.button
         type="button"
         onClick={togglePlay}
-        aria-label={playing ? 'Pausar musica' : 'Reproducir musica'}
+        aria-label={playing ? 'Pausar música' : 'Reproducir música'}
         className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border shadow-lg flex items-center justify-center relative hover:scale-105 active:scale-95 transition-transform duration-300 focus:outline-none"
         style={{ borderColor: 'var(--inv-primary)' }}
         animate={playing ? { rotate: 360 } : {}}

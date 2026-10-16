@@ -308,11 +308,11 @@ export default function TouchpixPage() {
           setFiesta(result.event);
           setErrorMsg(null);
         } else {
-          setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+          setErrorMsg(result.error || 'No se pudo abrir esta estación.');
         }
       })
       .catch(() => {
-        if (active) setErrorMsg('No se pudo abrir esta estacion.');
+        if (active) setErrorMsg('No se pudo abrir esta estación.');
       });
     void waitForInitialPublicLoad(loadTask).then((result) => {
       if (!active) return;
@@ -532,12 +532,12 @@ export default function TouchpixPage() {
       await asegurarCuadroDeVideo(videoRef.current);
     } catch {
       setCamaraSinCuadro(true);
-      setErrorMsg('La camara no esta entregando imagen. Toca "Reintentar camara" para volver a intentarlo.');
+      setErrorMsg('La cámara no está entregando imagen. Toca "Reintentar cámara" para volver a intentarlo.');
       return null;
     }
     if (!videoRef.current || !canvasRef.current) return null;
     if (!isVideoFrameReady(videoRef.current)) {
-      setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
+      setErrorMsg('La cámara todavía se está preparando. Intenta nuevamente en un instante.');
       return null;
     }
 
@@ -1405,8 +1405,8 @@ export default function TouchpixPage() {
               <p className="mt-2 text-sm font-black">{fiesta?.station.operatorName || 'Sin asignar'}</p>
             </div>
             <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Ubicacion</p>
-              <p className="mt-2 text-sm font-black">{fiesta?.station.location || 'Salon'}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Ubicación</p>
+              <p className="mt-2 text-sm font-black">{fiesta?.station.location || 'Salón'}</p>
             </div>
           </section>
 
@@ -1557,7 +1557,7 @@ export default function TouchpixPage() {
           </button>
 
           {!capturedImage && wizardStep === 0 && !errorMsg && fiesta && (
-            <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
+            <button type="button" onClick={toggleCamera} aria-label="Cambiar cámara" title="Cambiar cámara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
               <SwitchCamera className="w-5 h-5" />
             </button>
           )}
