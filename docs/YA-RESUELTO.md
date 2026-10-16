@@ -1,5 +1,11 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Entrega de Gemini 176/177 y PR 1325 del portal
+
+- Entraron la portada nueva (plan Argon), "Vogue" y la ortografía (órdenes 176 y 177), y el arreglo del portal del cliente: el botón **Documentos** abre el contrato y los atajos viejos del portal ya no mandan al cliente a pantallas del equipo.
+- **Se volvió atrás el cambio de Gemini en el Encargado** (`src/lib/multiagent/encargado.ts`), que les ocultaba el total del presupuesto a los organizadores sin contabilidad. No era una fuga: `getPresupuestos` ya les saca los cobros y la app les muestra el total en sus pantallas a propósito (`nivelDePresupuestos`, nivel "operativo"). Cambiar quién ve qué es decisión del dueño; si lo quiere, se pide.
+- Las órdenes 176 y 177 traían líneas de prueba con la palabra "LISTA" delante y dos bloques sin comprobación: se corrigieron para que `npm run ordenes?` las lea.
+
 ## 16/10/2026 - Plan "Argon" de la portada y ortografía de toda la app
 
 - **El dueño aprobó todo el plan de la otra IA ("hacé todo")**, salvo lo que contradice sus decisiones: las cifras quedan "+200", "+7" y "Clientes satisfechos" sin porcentaje, y no se usa "congelar". Va a Gemini en la orden 177; los textos rotos, en la 176.

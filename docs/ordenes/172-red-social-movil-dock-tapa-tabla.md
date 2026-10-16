@@ -25,5 +25,5 @@ El ancho movil ya se habia medido con un barrido general; ese barrido solo verif
 ```comprobar
 archivo: src/components/module-navigation-dock.tsx
 usa: pb-24 en src/components/app-shell.tsx
-prueba: PENDIENTE tests/e2e/133-mobile-route-latency.spec.ts
+prueba: tests/e2e/133-mobile-route-latency.spec.ts
 ```

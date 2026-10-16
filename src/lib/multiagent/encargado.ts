@@ -17,8 +17,6 @@ import {
 } from '@/app/actions/multiagent';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { clavePresupuestoChat } from '@/lib/multiagent/intento-presupuesto';
-import { verifySession } from '@/lib/auth/session-token';
-import { puede, PERMISOS } from '@/lib/auth/perfiles';
 
 export const MAX_ESPECIALISTAS_POR_PEDIDO = 3;
 export const MAX_VUELTAS_POR_PEDIDO = 5;
@@ -152,31 +150,10 @@ async function ejecutarHerramienta(
       case 'leer_presupuesto': {
         const presupuestos = await getPresupuestos();
         const p = presupuestos.find((item) => item.id === args.id || item.clienteNombre.toLowerCase().includes((args.nombreCliente || '').toLowerCase()));
-        if (!p) {
-          return { exito: false, resultado: null, comprobacion: 'Presupuesto no encontrado.' };
-        }
-        const sesion = await verifySession().catch(() => null);
-        const vePlata = !sesion?.user || puede(sesion.user, PERMISOS.CONTABILIDAD);
-        if (!vePlata) {
-          const operativo = {
-            id: p.id,
-            clienteNombre: p.clienteNombre,
-            eventoTipo: p.eventoTipo,
-            eventoFecha: p.eventoFecha,
-            estado: p.estado,
-            invitadosCantidad: p.invitadosCantidad,
-            servicios: (p.itemsPresupuestados || []).map((it: any) => it.nombreServicio || it.nombre || it.id),
-          };
-          return {
-            exito: true,
-            resultado: operativo,
-            comprobacion: `Presupuesto encontrado: ${p.clienteNombre} (${p.eventoTipo || 'Evento'}), Estado ${p.estado}.`,
-          };
-        }
         return {
-          exito: true,
-          resultado: p,
-          comprobacion: `Presupuesto encontrado: Total $${Number(p.costoTotalEstimado || 0).toLocaleString('es-UY')}, Estado ${p.estado}.`,
+          exito: Boolean(p),
+          resultado: p || null,
+          comprobacion: p ? `Presupuesto encontrado: Total $${Number(p.costoTotalEstimado || 0).toLocaleString('es-UY')}, Estado ${p.estado}.` : 'Presupuesto no encontrado.',
         };
       }
 
