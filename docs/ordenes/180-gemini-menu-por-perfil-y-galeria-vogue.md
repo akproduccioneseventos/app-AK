@@ -42,11 +42,39 @@ cambia ningún permiso**: sólo se esconde el botón que igual no podría usar.
 - ~241: cambiá `alert('Enlace copiado al portapapeles')` por el `toast` de la app (`useToast`).
 - **El pie comercial ya existe** (~819, "FOOTER COMERCIAL"): no lo dupliques.
 
+## Bloque 3 - Barrido de la pregunta 66 (estaciones que faltan en una lista), confirmado por Claude
+
+- **El álbum tiene dos pestañas que nunca muestran nada** (`src/app/evento/album/[fiestaId]/page.tsx`
+  ~247-248): "360" filtra `sourceModule === 'plataforma_360'` y "Espejo" `=== 'espejo_magico'`, pero las
+  estaciones guardan `plataforma360` y `espejoMagicoFoto` / `espejoMagicoFirma` / `espejoMagicoIA`. La
+  galería ya acepta todas las formas (`src/app/evento/galeria/[fiestaId]/page.tsx` ~192-205). Sacá esa
+  lógica a una función compartida `filtrarPorEstacion(posts, pestana)` en
+  `src/lib/entertainment/station-config.ts` y usala en **las dos** pantallas. El Tótem IA guarda
+  `espejoMagicoIA` (`src/app/actions/touchpix-ai.ts` ~746): la pestaña "Tótem IA" de la galería (bloque 2)
+  y una igual en el álbum toman `espejoMagicoIA`.
+- **Tablet de Vogue:** `src/components/kiosk/kiosk-setup.tsx` ~326-335 no ofrece Vogue. Sumá
+  `{ id: 'bogue', label: 'Vogue', ... }` con la ruta de la estación (`/evento/bogue/[fiestaId]`), igual que
+  las otras.
+- **Centro de la fiesta:** `src/app/(app)/fiestas/[id]/centro/page.tsx` ~76-84, "Estaciones para los
+  invitados", tiene sólo fotocabina, espejo, 360 y barra. Sumá Vogue (`e('bogue')`), Tótem IA
+  (`e('touchpix')`) y Buzón (`e('buzon')`), **sólo si esa estación está prendida en la fiesta** (mirá cómo
+  decide la app si una estación está activa en `station-config.ts`).
+
+## Bloque 4 - Barrido de la pregunta 65 (puertas que el perfil no puede abrir), confirmado
+
+Con `getMisPermisos()` del bloque 1:
+- `src/app/(app)/fiestas/nueva/post-evento/page.tsx` ~265, "Ver Reporte Completo de Rentabilidad": sólo con `GANANCIAS`.
+- `src/app/(app)/empresa/page.tsx` ~95-124 (`PLATA_ITEMS`): Cobros, Panel Contable, Facturación y Flujo de
+  Caja con `CONTABILIDAD`; Métricas con `GANANCIAS`.
+- `src/app/(app)/presupuestos/[id]/ver/page.tsx` ~765, "Registrar Pago": sólo con `CONTABILIDAD`.
+- `src/app/(app)/fiestas/nueva/personal/page.tsx` ~754, "Ver Recibos de Pago": sólo con `SUELDOS`.
+
 ## Pruebas
 
 - `src/__tests__/el-menu-muestra-solo-lo-que-se-puede-usar.test.tsx`: con un operador, el menú no tiene
   "Pagos Rápidos", "Panel Contable", "Facturas" ni "Métricas del Negocio", y sí "Eventos Activos". Con el
   dueño los tiene todos. Y `getMisPermisos()` sin sesión devuelve `[]`.
+- La prueba de la galería suma: en el álbum, una foto `plataforma360` aparece en la pestaña 360 y una `espejoMagicoFoto` en Espejo.
 - `src/__tests__/la-galeria-filtra-vogue.test.tsx`: con una foto `sourceModule: 'bogue'`, la pestaña Vogue
   aparece y la muestra; sin fotos de Vogue, la pestaña no aparece. Nombrá la ruta `/evento/galeria/[fiestaId]`.
 
@@ -58,4 +86,8 @@ usa: 'bogue' en src/app/evento/galeria/[fiestaId]/page.tsx
 no-usa: alert('Enlace copiado al portapapeles') en src/app/evento/galeria/[fiestaId]/page.tsx
 prueba: PENDIENTE src/__tests__/el-menu-muestra-solo-lo-que-se-puede-usar.test.tsx
 prueba: PENDIENTE src/__tests__/la-galeria-filtra-vogue.test.tsx
+usa: filtrarPorEstacion en src/app/evento/album/[fiestaId]/page.tsx
+usa: filtrarPorEstacion en src/app/evento/galeria/[fiestaId]/page.tsx
+usa: 'bogue' en src/components/kiosk/kiosk-setup.tsx
+usa: getMisPermisos en src/app/(app)/empresa/page.tsx
 ```

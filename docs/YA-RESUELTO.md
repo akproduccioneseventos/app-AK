@@ -1,5 +1,12 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Barrido con las preguntas 64 a 67
+
+- **64 (impresión):** fuera de los 21 documentos de la orden 178, nada más se pierde al imprimir: `aside`, `nav` y los roles ocultos no tienen contenido de documento; los `button` ocultos son controles.
+- **65 (puertas por perfil):** cuatro botones de plata a la vista de quien no puede usarlos (orden 180, bloque 4) y **un defecto de plata real**: la fiesta viajaba con lo que cobra cada persona (`eventSalary`) a la secretaria y al operador. Va en la orden 183.
+- **66 (estaciones en todas las listas):** el álbum tenía las pestañas 360 y Espejo siempre vacías por buscar otro nombre; faltaba Vogue en la tablet y tres estaciones en el centro de la fiesta (orden 180, bloque 3). Los contadores de fotos del post-evento cuentan por exclusión y están bien.
+- **67 (botones repetidos):** fuera del portal y del panel, sólo una lista de verificación con dos puntos que se configuran en la misma pantalla: está bien así.
+
 ## 16/10/2026 - La entrega 176/177 vuelve a Gemini (orden 179)
 
 La verificación frenó en la prueba de navegador: 12 pruebas viejas esperaban textos que cambiaron a propósito, la línea base de la maquetación no estaba regenerada, y una falla real (los campos del verificador de fecha con letra menor a 16 px hacen zoom en el celular). Va todo a la orden 179, junto con el paso a la IA gratis más nueva (`gemini-3.8-flash`, decisión del dueño) y la hoja de cocina (178). Lo ya arreglado por Claude en la rama queda: una sola ancla de galería, botones unificados en el pie y el flotante, y la prueba de la portada mirando lo que se ve en el celular.
