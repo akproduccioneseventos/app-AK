@@ -899,10 +899,17 @@ export async function ejecutarEscaneoDeRecordatorios(
   // La guardia ya se paso arriba (permiso de contabilidad, o la llave interna de la tarea
   // programada). `getInvoices()` volvia a pedir sesion: desde el despertador no hay ninguna,
   // tiraba y la tarea no preparaba ningun recordatorio (Codex, auditoria 81).
-  const [invoices, scheduledMessages] = await Promise.all([
-    leerFacturasSinGuardia(),
-    getScheduledMessages(internalToken).catch(() => [])
-  ]);
+  let invoices: any[];
+  let scheduledMessages: any[];
+  try {
+    [invoices, scheduledMessages] = await Promise.all([
+      leerFacturasSinGuardia(),
+      getScheduledMessages(internalToken),
+    ]);
+  } catch (err: any) {
+    const errorMsg = 'No pudimos leer los mensajes programados. No se preparan avisos para evitar duplicados.';
+    return { success: false, triggeredCount: 0, errors: [err?.message || errorMsg] };
+  }
 
   const avisos = calcularAvisosPendientes(invoices, scheduledMessages, {
     saldoDeFactura: getInvoiceBalance,

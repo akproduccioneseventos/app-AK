@@ -66,12 +66,37 @@ function isRecentDuplicate(notifications: Notificacion[], item: CommercialFollow
   });
 }
 
-export async function getCommercialFollowups(): Promise<{ success: boolean; data: CommercialFollowupItem[] }> {
+export async function getCommercialFollowups(): Promise<{ success: boolean; data: CommercialFollowupItem[]; lecturaIncompleta?: boolean; error?: string }> {
   await requireAppSession();
-  const [leads, presupuestos] = await Promise.all([
-    getCrmLeads().catch(() => []),
-    getPresupuestos().catch(() => []),
+  let leads: any[] = [];
+  let presupuestos: any[] = [];
+  let lecturaIncompleta = false;
+
+  const [leadsRes, presupuestosRes] = await Promise.allSettled([
+    getCrmLeads(),
+    getPresupuestos(),
   ]);
+
+  if (leadsRes.status === 'fulfilled') {
+    leads = leadsRes.value;
+  } else {
+    lecturaIncompleta = true;
+  }
+
+  if (presupuestosRes.status === 'fulfilled') {
+    presupuestos = presupuestosRes.value;
+  } else {
+    lecturaIncompleta = true;
+  }
+
+  if (leadsRes.status === 'rejected' && presupuestosRes.status === 'rejected') {
+    return {
+      success: false,
+      data: [],
+      lecturaIncompleta: true,
+      error: 'No se pudieron consultar los prospectos ni los presupuestos.',
+    };
+  }
 
   const items: CommercialFollowupItem[] = [];
 
@@ -141,6 +166,7 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
       const order = { alta: 3, media: 2, normal: 1 } as const;
       return order[b.priority] - order[a.priority];
     }),
+    lecturaIncompleta: lecturaIncompleta || undefined,
   };
 }
 

@@ -297,7 +297,7 @@ export function NewPostDialog({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1"><Label htmlFor="link">Enlace (Opcional)</Label><Input id="link" value={link} onChange={e => setLink(e.target.value)} placeholder="https://ejemplo.com" /></div>
-                        <div className="space-y-1"><Label htmlFor="promotionCost">Inversión Publicitaria ($)</Label><Input id="promotionCost" type="number" value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0" /></div>
+                        <div className="space-y-1"><Label htmlFor="promotionCost">Inversión Publicitaria ($)</Label><Input id="promotionCost" type="number" min={0} value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0" /></div>
                     </div>
                      <div className="space-y-1">
                         <Label>Imagen o Video</Label>
@@ -335,7 +335,7 @@ export function NewPostDialog({
                      <Separator/>
                      <h4 className="font-medium text-sm text-muted-foreground">Rendimiento (Opcional)</h4>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1"><Label htmlFor="promotionCost">Costo Promoción ($)</Label><Input id="promotionCost" type="number" value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0.00" /></div>
+                        <div className="space-y-1"><Label htmlFor="promotionCost">Costo Promoción ($)</Label><Input id="promotionCost" type="number" min={0} value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0.00" /></div>
                         <div className="space-y-1"><Label htmlFor="likes">Likes / Reacciones</Label><Input id="likes" type="number" value={performanceLikes} onChange={e => setPerformanceLikes(e.target.value)} placeholder="0" /></div>
                     </div>
                     <DialogFooter className="pt-3">

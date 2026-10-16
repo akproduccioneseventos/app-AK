@@ -343,7 +343,7 @@ function AprobacionesContent() {
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Impacto Económico (pesos uruguayos)</label>
-              <Input type="number" value={form.impactoEconomico} onChange={(e) => setForm(f => ({ ...f, impactoEconomico: e.target.value }))} />
+              <Input type="number" min={0} value={form.impactoEconomico} onChange={(e) => setForm(f => ({ ...f, impactoEconomico: e.target.value }))} />
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Impacto Operativo</label>

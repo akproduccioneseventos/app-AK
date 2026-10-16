@@ -31,8 +31,13 @@ export async function getFiestasByEmpleado(empleadoId: string): Promise<FiestaEn
  * en los archivos del proyecto, asi que el "llegue" no se guardaria en ningun
  * lado y la pantalla seguiria mostrando a la persona en rojo.
  */
-export async function marcarLlegadaPersonal(fiestaId: string, empleadoId: string): Promise<boolean> {
+export async function marcarLlegadaPersonal(
+  fiestaId: string,
+  empleadoId: string
+): Promise<{ success: boolean; checkInTimestamp?: string }> {
   await requireAppSession();
+
+  let timestampGuardado: string | undefined;
 
   // Marca SOLO el checkIn de ese empleado sobre la lista de personal de ESE momento, adentro del
   // turno: dos personas marcando su llegada a la vez quedan las dos (antes se leia afuera y se
@@ -44,13 +49,20 @@ export async function marcarLlegadaPersonal(fiestaId: string, empleadoId: string
     const persona = personal.find(p => p.empleadoId === empleadoId);
     if (!persona) throw new Error('NO_ASIGNADO');
     // Ya estaba marcado: no se pisa la hora original.
+    timestampGuardado = persona.checkInTimestamp;
     if (persona.checkInTimestamp) return fiesta;
+    const ahora = new Date().toISOString();
+    timestampGuardado = ahora;
     return {
       ...fiesta,
       personalAsignado: personal.map(p =>
-        p.empleadoId === empleadoId ? { ...p, checkInTimestamp: new Date().toISOString() } : p
+        p.empleadoId === empleadoId ? { ...p, checkInTimestamp: ahora } : p
       ),
     };
   }, { publicRsvp: true });
-  return r.success;
+
+  return {
+    success: r.success,
+    checkInTimestamp: r.success ? timestampGuardado : undefined,
+  };
 }

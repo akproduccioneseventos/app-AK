@@ -38,6 +38,14 @@ export async function createAprobacion(
 ): Promise<{ success: boolean; aprobacion?: AprobacionRequest; error?: string }> {
   const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
   if (!permiso.ok) return { success: false, error: permiso.error };
+
+  if (data.impactoEconomico !== undefined && data.impactoEconomico !== null) {
+    const val = Number(data.impactoEconomico);
+    if (!Number.isFinite(val) || val < 0) {
+      return { success: false, error: 'El impacto económico debe ser un número válido mayor o igual a 0.' };
+    }
+  }
+
   try {
     return await aprobacionesMutex.runExclusive(async () => {
       const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);

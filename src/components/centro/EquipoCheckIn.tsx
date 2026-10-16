@@ -21,10 +21,10 @@ export function EquipoCheckIn({ fiestaId, equipo: initialEquipo }: Props) {
 
   const handleLlegada = async (empleadoId: string) => {
     setLoading(empleadoId);
-    const ok = await marcarLlegadaPersonal(fiestaId, empleadoId);
-    if (ok) {
+    const res = await marcarLlegadaPersonal(fiestaId, empleadoId);
+    if (res?.success && res.checkInTimestamp) {
       setEquipo(prev => prev.map(p => 
-        p.empleadoId === empleadoId ? { ...p, llegada: new Date().toISOString() } : p
+        p.empleadoId === empleadoId ? { ...p, llegada: res.checkInTimestamp } : p
       ));
     }
     setLoading(null);

@@ -115,6 +115,16 @@ export async function saveSocialPost(
     }
   }
 
+  const rawPromotionCost = formData.get('promotionCost');
+  let promotionCost: number | undefined = undefined;
+  if (rawPromotionCost !== null && rawPromotionCost !== undefined && String(rawPromotionCost).trim() !== '') {
+    const parsedCost = Number(rawPromotionCost);
+    if (!Number.isFinite(parsedCost) || parsedCost < 0) {
+      return { success: false, error: 'El costo de promoción debe ser un número válido mayor o igual a 0.' };
+    }
+    promotionCost = parsedCost;
+  }
+
   const postData: Omit<SocialPost, 'id' | 'createdAt' | 'updatedAt'> = {
     platform: formData.get('platform') as SocialPost['platform'],
     isGeneralCampaign: formData.get('isGeneralCampaign') === 'true',
@@ -124,7 +134,7 @@ export async function saveSocialPost(
     text: formData.get('text') as string,
     link: formData.get('link') as string || undefined,
     status: (formData.get('status') as SocialPost['status']) || 'Programado',
-    promotionCost: Number(formData.get('promotionCost')) || undefined,
+    promotionCost,
     performance: {
         likes: Number(formData.get('performance.likes')) || undefined,
         views: Number(formData.get('performance.views')) || undefined,

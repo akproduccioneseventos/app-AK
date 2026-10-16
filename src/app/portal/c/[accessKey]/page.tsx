@@ -174,9 +174,11 @@ export default async function PublicPortalPage(props: PageProps) {
   }
 
   const budgetToken = fiesta.presupuestoId ? await generateBudgetToken(fiesta.presupuestoId) : undefined;
-  const [presupuesto, catalogServices] = await Promise.all([
-    fiesta.presupuestoId ? getPresupuestoById(fiesta.presupuestoId, budgetToken) : Promise.resolve(null as Presupuesto | null),
-    getServiciosEmpresaPublicos().then(servicios => servicios
+  let errorCatalogo = false;
+  let catalogServices: any[] = [];
+  try {
+    const servicios = await getServiciosEmpresaPublicos();
+    catalogServices = servicios
       .filter(servicio => Number(servicio.precioVenta ?? servicio.precioBase ?? servicio.precioPorPersona ?? 0) > 0)
       .slice(0, 80)
       .map(servicio => ({
@@ -191,8 +193,15 @@ export default async function PublicPortalPage(props: PageProps) {
         invitadosPorUnidad: servicio.invitadosPorUnidad,
         tramosDePrecio: servicio.tramosDePrecio,
         unidad: servicio.unidad,
-      }))).catch(() => []),
-  ]);
+      }));
+  } catch {
+    errorCatalogo = true;
+    catalogServices = [];
+  }
+
+  const presupuesto = fiesta.presupuestoId
+    ? await getPresupuestoById(fiesta.presupuestoId, budgetToken).catch(() => null)
+    : null;
 
   const portalFiesta = mapFiestaToPortalDTO(fiesta, accessKey);
   const portalPresupuesto = mapPresupuestoToPortalDTO(presupuesto, budgetToken);
@@ -204,6 +213,7 @@ export default async function PublicPortalPage(props: PageProps) {
       companyName={companyInfo.companyName}
       presupuesto={portalPresupuesto}
       catalogServices={catalogServices}
+      errorCatalogo={errorCatalogo}
       ajusteAnualPorcentaje={budgetSettings.annualAdjustmentPercentage ?? 15}
     />
   );

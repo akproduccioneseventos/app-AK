@@ -151,9 +151,10 @@ usa: markSongPlayed en src/app/evento/dj/[fiestaId]/page.tsx
 archivo: src/app/evento/dj/[fiestaId]/page.tsx
 usa: handleMarkPlayed en src/app/evento/dj/[fiestaId]/page.tsx
 prueba: docs/evidencias/131-dj-control-reproduccion.test.tsx
-prueba: PENDIENTE src/__tests__/dj-estado-explicito-y-error-de-marca.test.tsx
+prueba: src/__tests__/dj-estado-explicito-y-error-de-marca.test.tsx
 no-usa: no-mira-el-resultado: marca visual del DJ en src/app/evento/dj/[fiestaId]/page.tsx
 no-usa: no-mira-el-resultado: anota que ya se pidio la resena en src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx
 usa: saveFiestaResult.success en src/app/actions/historicos.ts
-prueba: PENDIENTE src/__tests__/orden-169-pantallas-que-dicen-listo.test.tsx
+prueba: src/__tests__/orden-169-pantallas-que-dicen-listo.test.tsx
 ```
+

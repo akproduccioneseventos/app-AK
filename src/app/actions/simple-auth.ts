@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import crypto from 'crypto';
 import { dbAdmin, verifyIdToken } from '@/lib/firebase/server';
@@ -705,7 +705,12 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
 }
 
 export async function verifyResetCode(code: string): Promise<{ success: boolean; error?: string }> {
-  const config = await getAuthDoc().catch(() => null);
+  let config: SimpleAuthConfig | null;
+  try {
+    config = await getAuthDoc();
+  } catch {
+    return { success: false, error: 'No pudimos verificar el acceso ahora. Probá en unos minutos.' };
+  }
   const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');
   if (recoveryLock) return { success: false, error: recoveryLock };
 
@@ -723,7 +728,12 @@ export async function verifyResetCode(code: string): Promise<{ success: boolean;
 }
 
 export async function resetPasswordWithCode(code: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
-  const config = await getAuthDoc().catch(() => null);
+  let config: SimpleAuthConfig | null;
+  try {
+    config = await getAuthDoc();
+  } catch {
+    return { success: false, error: 'No pudimos verificar el acceso ahora. Probá en unos minutos.' };
+  }
   const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');
   if (recoveryLock) return { success: false, error: recoveryLock };
 
@@ -760,7 +770,12 @@ export async function resetPasswordWithSecurityAnswers(input: {
   answers: Record<SecurityQuestionKey, string>;
   newPassword: string;
 }): Promise<{ success: boolean; error?: string }> {
-  const config = await getAuthDoc().catch(() => null);
+  let config: SimpleAuthConfig | null;
+  try {
+    config = await getAuthDoc();
+  } catch {
+    return { success: false, error: 'No pudimos verificar el acceso ahora. Probá en unos minutos.' };
+  }
   const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');
   if (recoveryLock) return { success: false, error: recoveryLock };
 
@@ -798,7 +813,12 @@ export async function resetPasswordWithRecoveryCode(
   recoveryCode: string,
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
-  const config = await getAuthDoc().catch(() => null);
+  let config: SimpleAuthConfig | null;
+  try {
+    config = await getAuthDoc();
+  } catch {
+    return { success: false, error: 'No pudimos verificar el acceso ahora. Probá en unos minutos.' };
+  }
   const recoveryLock = getActiveLockMessage(config?.recoveryLockedUntil, 'Hubo muchos intentos de recuperacion. Espera');
   if (recoveryLock) return { success: false, error: recoveryLock };
 

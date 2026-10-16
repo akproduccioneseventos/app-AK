@@ -99,7 +99,7 @@ usa: costoNuevo en src/app/actions/price-adjustments.ts
 usa: marcarLlegadaPersonal en src/components/centro/EquipoCheckIn.tsx
 archivo: src/app/video-vida/page.tsx
 archivo: src/app/(app)/fiestas/nueva/carga-operativa/pdf/page.tsx
-prueba: PENDIENTE src/__tests__/orden-168-lecturas-que-deciden.test.ts
-prueba: PENDIENTE src/__tests__/orden-168-pantallas-avisan-la-falla.test.tsx
-prueba: PENDIENTE src/__tests__/orden-168-plata-centavos-y-negativos.test.ts
+prueba: src/__tests__/orden-168-lecturas-que-deciden.test.ts
+prueba: src/__tests__/orden-168-pantallas-avisan-la-falla.test.tsx
+prueba: src/__tests__/orden-168-plata-centavos-y-negativos.test.ts
 ```

@@ -15,6 +15,7 @@ export default function PantallaTragoListoPage() {
   const [pedidosListos, setPedidosListos] = useState<BarDrinkOrder[]>([]);
   const [nombreEvento, setNombreEvento] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const [lecturaFallida, setLecturaFallida] = useState(false);
 
   const cargarPedidos = useCallback(async () => {
     try {
@@ -22,9 +23,12 @@ export default function PantallaTragoListoPage() {
       if (res.success && res.orders) {
         setNombreEvento(res.eventName || '');
         setPedidosListos(res.orders);
+        setLecturaFallida(false);
+      } else {
+        setLecturaFallida(true);
       }
     } catch (e) {
-      // Ignorar errores de sondeo
+      setLecturaFallida(true);
     } finally {
       setIsLoading(false);
     }
@@ -60,20 +64,37 @@ export default function PantallaTragoListoPage() {
         </div>
       </header>
 
+      {/* Cartel de lectura fallida accesible arriba */}
+      {lecturaFallida && (
+        <div
+          role="alert"
+          className="mt-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-center text-sm font-semibold flex items-center justify-center gap-2 shadow-lg"
+        >
+          <span>⚠️</span>
+          <span>
+            {pedidosListos.length === 0
+              ? 'No pudimos leer los pedidos (problema de conexión). Reintentando…'
+              : 'Puede estar desactualizado. Reintentando…'}
+          </span>
+        </div>
+      )}
+
       {/* Contenido principal: Grilla de pedidos listos */}
       <main className="flex-1 my-8 flex items-center justify-center">
         {pedidosListos.length === 0 ? (
-          <div className="text-center py-16 px-4 space-y-4 max-w-md">
-            <div className="w-20 h-20 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-500">
-              <Clock className="w-10 h-10 animate-spin" style={{ animationDuration: '6s' }} />
+          lecturaFallida ? null : (
+            <div className="text-center py-16 px-4 space-y-4 max-w-md">
+              <div className="w-20 h-20 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-500">
+                <Clock className="w-10 h-10 animate-spin" style={{ animationDuration: '6s' }} />
+              </div>
+              <h2 className="text-2xl font-bold text-slate-300">
+                Los tragos se están preparando
+              </h2>
+              <p className="text-slate-500 text-sm">
+                En instantes vas a ver tu nombre en esta pantalla cuando el barman termine tu pedido.
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-slate-300">
-              Los tragos se están preparando
-            </h2>
-            <p className="text-slate-500 text-sm">
-              En instantes vas a ver tu nombre en esta pantalla cuando el barman termine tu pedido.
-            </p>
-          </div>
+          )
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl">
             <AnimatePresence>
@@ -124,10 +145,11 @@ export default function PantallaTragoListoPage() {
       <footer className="border-t border-slate-900 pt-4 flex items-center justify-between text-xs text-slate-500">
         <div>Pantalla de avisos en vivo · Barra de tragos</div>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-          <span>En tiempo real</span>
+          <span className={`w-2 h-2 rounded-full ${lecturaFallida ? 'bg-amber-500' : 'bg-emerald-500 animate-ping'}`}></span>
+          <span>{lecturaFallida ? 'Sin conexión, reintentando…' : 'En tiempo real'}</span>
         </div>
       </footer>
     </div>
   );
 }
+

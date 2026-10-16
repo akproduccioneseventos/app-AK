@@ -81,7 +81,7 @@ export async function previewPriceAdjustment(
 
       if (type === 'costos' || type === 'ambos') {
         item.costoActual = s.valorUnitarioEstimado ?? 0;
-        item.costoNuevo = Math.round((item.costoActual) * multiplier);
+        item.costoNuevo = Math.round(item.costoActual * multiplier * 100) / 100;
       }
 
       return item;

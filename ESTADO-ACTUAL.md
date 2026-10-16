@@ -27,3 +27,22 @@ Se pregunto excepcionasincrona decompilar SOLOQA; NO asumir respuesta concedida.
 Si seautoriza: prepararQAaislado, no prod/datos/cuentas/cargos/mensajesreales.
 No0errores/todoauditado/Hosting/OAuth/19originales/IAvozreal/hardware sin evidencia.
 No grafo/buildpor docs, noforcepush/archivosajenos; cerrar servicios/agentespropios.
+# Estado actual - 15/10/2026 (Codex133)
+
+Codex audita/prueba/documenta; Gemini programa; Claude revisa/compila/fusiona. No fusionar.
+Main observado: `9aa64f991f5ddceefa8d278a3f298be861eb10bb`; arbol `src` equivalente `d10f332a`.
+Sin PR abierta al inicio de esta tanda. PR1318 y PR1319 estaban fusionadas; rama anterior no reutilizable.
+
+QA sintetico aislado, build de app `a635b27071ecea22092eba2a285892c84c6f9d08`; servicios reales deshabilitados.
+Portal/cliente no 3D: mensajes persisten al recargar en desktop y movil; cuatro criterios del panel pasan en ambos.
+Contrato movil: defecto reproducido en 390 px (titulo 3 lineas, sello tapa etiqueta, texto PDF fuera del boton), orden171.
+Panel social: ruta 200, contenido visible y 0px de desborde, pero el dock tapa el encabezado de columna Evento por 1455px2 a 390x844; orden172.
+Salon 3D: tanda de 28 escenarios dio 13 PASS y 15 timeouts durante teardown de Chromium/trazas; no clasificar como 15 errores app ni como area aprobada. Corrida duro 1.1 h; no repetir este bloque. Queda prueba 3D focalizada pendiente.
+Orden del evento y ubicacion sintetica del personal: 4/4 PASS desktop/movil. Agenda respondio, pero su prueba no aprueba por Firebase SDK con API key falsa; runner informa Firebase apagado pero permite intento desde browser. Limite QA, no defecto app confirmado; bloquear salida externa antes de repetir.
+Privados Claude/Gemini NO CONTRASTADOS. Ver evidencia133; no declarar auditoria completa ni cero errores.
+RSVP quedo sin resultado por interrupcion de Codex. RECTIFICACION174: log ADC no prueba descubrimiento/uso de credenciales reales; SDK las busca al solicitar token, no al construir el objeto. Modo local sin emulador dejo dbAdmin/authAdmin nulos y uso JSON local. Retirado el supuesto defecto de credenciales y su bloqueo de auditoria. La llamada cliente a Firebase con clave ficticia sigue siendo ruido QA: interceptar salida en el arnes antes de aserciones de consola.
+Lectura publica de `/public/blog/como-calcular-bebida-evento-salto`: contenido observable, no prueba visual ni de interaccion. El texto presenta como exacta una estimacion general, afirma sin fuente que en Salto se consume el doble y propone 3-4 tragos alcoholicos por adulto en una pagina que tambien promociona fiestas de 15. Se registro orden175 para Gemini: separar calculo logistico de recomendacion de consumo, revisar evidencia y explicitar publico adulto/dispensacion responsable. Referencias oficiales: JND `Eventos Cuidados` y guia de alcohol; OMS ficha sobre alcohol. No es conclusion legal ni consejo medico.
+Seguimiento en build sintetico: pagos rapidos 2/2 PASS, conflicto de cuotas 2/2 PASS, flujo de caja 2/2 PASS; cocina acceso/impresion 2 PASS, 2 omitidos intencionales y 1 control de consola inconcluso por Firebase SDK con API key falsa. No defecto funcional confirmado; ver `docs/evidencias/133-operacion-cocina-cobros.md`.
+3D focal tampoco concluyente: el canvas se observa dibujado, pero Playwright agota 90 s cerrando contexto/traza con avisos WebGL ReadPixels; Firebase cliente sigue llamando con API key falsa. No reabrir la suite larga; ver `docs/evidencias/133-salon-3d-focal.md`.
+Red social de la fiesta como invitado: 4/4 PASS, escritorio/movil para `Mi mesa`, cronograma, ranking, hub y mensajes tecnicos; no incluye carga real de fotos. Ver `docs/evidencias/133-red-social-invitado.md`.
+Ventas/CRM: origen UTM/galeria publica 4/4 PASS; flujo sintetico con UTM Facebook llega al CRM con etiquetas Simulador/Facebook, conserva campana y budgetId, y botones apuntan al WhatsApp oficial (PASS escritorio, movil omitido). La prueba antigua esperaba un `Continuar` inexistente en el paso 5; orden173 pide actualizar solo ese E2E. Ver evidencia133-simulador-whatsapp.

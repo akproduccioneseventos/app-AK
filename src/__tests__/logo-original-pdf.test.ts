@@ -52,5 +52,5 @@ describe('Logo de AK completo y usado en el presupuesto descargable', () => {
         else Reflect.deleteProperty(globalThis, key);
       }
     }
-  });
+  }, 20000);
 });

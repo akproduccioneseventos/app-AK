@@ -179,7 +179,7 @@ function CargaOperativaPdfContent() {
     );
   }
 
-  if (error || !accessView || !listaDeCarga) {
+  if (!fiestaId) {
     return (
       <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border shadow-sm my-12 space-y-4">
         <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-2" />
@@ -189,8 +189,32 @@ function CargaOperativaPdfContent() {
         </p>
         <div className="pt-2">
           <Button asChild>
-            <Link href={fiestaId ? `/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}` : "/eventos"}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> {fiestaId ? "Volver a la fiesta" : "Ir al listado de eventos"}
+            <Link href="/eventos">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de eventos
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !accessView || !listaDeCarga) {
+    return (
+      <div role="alert" className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border border-red-200 bg-red-50/50 shadow-sm my-12 space-y-4">
+        <AlertTriangle className="w-12 h-12 mx-auto text-red-500 mb-2" />
+        <h2 className="text-xl font-bold text-foreground">
+          No pudimos cargar esta fiesta: {error || 'Error al cargar los datos'}.
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Ocurrió un problema al leer la lista de carga de este evento. Podés reintentar la lectura.
+        </p>
+        <div className="pt-2 flex flex-wrap gap-2 justify-center">
+          <Button onClick={() => loadData(true)}>
+            Reintentar
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={`/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}`}>
+              <ArrowLeft className="w-4 h-4 mr-2" /> Volver a la fiesta
             </Link>
           </Button>
         </div>

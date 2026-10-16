@@ -597,7 +597,7 @@ export async function trackSocialFollowClick(
  */
 export async function getMuroParticipantesForSorteo(
   fiestaId: string
-): Promise<{ success: boolean; participantes?: string[]; error?: string }> {
+): Promise<{ success: boolean; participantes?: string[]; lecturaIncompleta?: boolean; error?: string }> {
   await requireAppSession();
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
@@ -606,12 +606,18 @@ export async function getMuroParticipantesForSorteo(
     const { getDedications, getSongRequests } = await import('@/app/actions/social-interactive');
     const { getChatMessages } = await import('@/app/actions/social-gallery');
 
-    const [posts, dedications, songRequests, chatMessages] = await Promise.all([
-      getSocialPosts(fiestaId).catch(() => []),
-      getDedications(fiestaId).catch(() => []),
-      getSongRequests(fiestaId).catch(() => []),
-      getChatMessages(fiestaId).catch(() => []),
+    let lecturaIncompleta = false;
+    const [postsRes, dedicationsRes, songRequestsRes, chatMessagesRes] = await Promise.allSettled([
+      getSocialPosts(fiestaId),
+      getDedications(fiestaId),
+      getSongRequests(fiestaId),
+      getChatMessages(fiestaId),
     ]);
+
+    const posts = postsRes.status === 'fulfilled' ? postsRes.value : (lecturaIncompleta = true, []);
+    const dedications = dedicationsRes.status === 'fulfilled' ? dedicationsRes.value : (lecturaIncompleta = true, []);
+    const songRequests = songRequestsRes.status === 'fulfilled' ? songRequestsRes.value : (lecturaIncompleta = true, []);
+    const chatMessages = chatMessagesRes.status === 'fulfilled' ? chatMessagesRes.value : (lecturaIncompleta = true, []);
 
     const names = new Set<string>();
     const isAnon = (n: string) => !n || n.toLowerCase() === 'anónimo' || n.toLowerCase() === 'anonimo';
@@ -629,7 +635,11 @@ export async function getMuroParticipantesForSorteo(
       if (!isAnon(c.authorName)) names.add(c.authorName.trim());
     }
 
-    return { success: true, participantes: Array.from(names).sort() };
+    return {
+      success: true,
+      participantes: Array.from(names).sort(),
+      lecturaIncompleta: lecturaIncompleta || undefined,
+    };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al obtener participantes del muro.' };
   }

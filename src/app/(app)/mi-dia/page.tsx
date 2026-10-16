@@ -12,6 +12,7 @@ import {
   Sparkles,
   Clock,
   ExternalLink,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -44,7 +45,14 @@ export default async function MiDiaPage() {
   }
 
   const verContabilidad = puede(session.user, PERMISOS.CONTABILIDAD);
-  const fiestas = await getFiestas(false).catch(() => []);
+  let fiestas: any[] = [];
+  let errorFiestas = false;
+  try {
+    fiestas = await getFiestas(false);
+  } catch {
+    errorFiestas = true;
+    fiestas = [];
+  }
 
   const hoy = new Date();
   const hoyStr = hoy.toISOString().split('T')[0];
@@ -188,11 +196,20 @@ export default async function MiDiaPage() {
             Para hacer hoy
           </h2>
           <span className="text-xs font-bold text-slate-400">
-            {accionesHoy.length} {accionesHoy.length === 1 ? 'acción' : 'acciones'}
+            {errorFiestas ? 'Error al cargar' : `${accionesHoy.length} ${accionesHoy.length === 1 ? 'acción' : 'acciones'}`}
           </span>
         </div>
 
-        {accionesHoy.length === 0 ? (
+        {errorFiestas ? (
+          <Card role="alert" className="rounded-2xl border-amber-300 bg-amber-50/70 p-8 text-center">
+            <AlertTriangle className="w-10 h-10 text-amber-600 mx-auto mb-2" />
+            <p className="font-bold text-amber-900 text-base">No pudimos cargar las fiestas ahora.</p>
+            <p className="text-xs text-amber-800 mt-1 mb-4">Ocurrió un problema al leer las tareas y eventos de hoy.</p>
+            <Button asChild size="sm" variant="outline" className="rounded-xl border-amber-300 text-amber-900 hover:bg-amber-100">
+              <Link href="/mi-dia">Reintentar</Link>
+            </Button>
+          </Card>
+        ) : accionesHoy.length === 0 ? (
           <Card className="rounded-2xl border-dashed border-2 border-slate-200 bg-slate-50/50 p-8 text-center">
             <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
             <p className="font-bold text-slate-700 text-base">Por hoy está todo al día</p>

@@ -863,9 +863,21 @@ function MuroSocialContent() {
     if (result.success && result.participantes && result.participantes.length > 0) {
       setSorteoParticipants(result.participantes.join('\n'));
       setSorteoPreviewWinner(null);
-      toast({ title: `${result.participantes.length} participantes del muro cargados`, description: 'Solo se incluyen los que pusieron su nombre (no anónimos).' });
+      if (result.lecturaIncompleta) {
+        toast({
+          title: `${result.participantes.length} participantes (lectura incompleta)`,
+          description: 'No se pudieron consultar todas las fuentes del muro, pero cargamos los disponibles.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: `${result.participantes.length} participantes del muro cargados`, description: 'Solo se incluyen los que pusieron su nombre (no anónimos).' });
+      }
     } else if (result.success) {
-      toast({ title: 'Sin participantes del muro', description: 'Nadie participó con nombre aún.', variant: 'destructive' });
+      if (result.lecturaIncompleta) {
+        toast({ title: 'Error al consultar el muro', description: 'No pudimos leer los participantes del muro. Probá de nuevo.', variant: 'destructive' });
+      } else {
+        toast({ title: 'Sin participantes del muro', description: 'Nadie participó con nombre aún.', variant: 'destructive' });
+      }
     } else {
       toast({ title: 'Error al cargar participantes', description: result.error, variant: 'destructive' });
     }

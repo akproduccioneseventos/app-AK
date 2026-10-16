@@ -107,7 +107,7 @@ export async function responderAsistenciaPersonal(
   tokenId: string,
   confirma: boolean,
   motivo?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; fechaConfirmacionAsistencia?: string }> {
   const acceso = await accesoVigente(tokenId);
   if (!acceso || !acceso.fiestaId) {
     return { success: false, error: 'Acceso no válido o sin evento asociado.' };
@@ -116,9 +116,14 @@ export async function responderAsistenciaPersonal(
     return { success: false, error: 'Este acceso no corresponde a una persona asignada a la fiesta.' };
   }
 
+  let fechaGuardada: string | undefined;
+
   const res = await actualizarFiesta(acceso.fiestaId, (fiestaFresca) => {
     const personal = fiestaFresca.personalAsignado || [];
     let updated = false;
+
+    const ahora = new Date().toISOString();
+    fechaGuardada = ahora;
 
     const nextPersonal = personal.map((p) => {
       if (p.empleadoId === acceso.empleadoId) {
@@ -126,7 +131,7 @@ export async function responderAsistenciaPersonal(
         return {
           ...p,
           asistenciaConfirmada: confirma,
-          fechaConfirmacionAsistencia: new Date().toISOString(),
+          fechaConfirmacionAsistencia: ahora,
           motivoRechazoAsistencia: confirma ? undefined : (motivo?.trim() || 'No especificado'),
         };
       }
@@ -144,7 +149,7 @@ export async function responderAsistenciaPersonal(
     return { success: false, error: res.error || 'No se pudo actualizar la asistencia.' };
   }
 
-  return { success: true };
+  return { success: true, fechaConfirmacionAsistencia: fechaGuardada };
 }
 
 export async function registrarLlegadaPersonal(

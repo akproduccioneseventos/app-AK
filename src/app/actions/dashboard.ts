@@ -46,6 +46,7 @@ export type DashboardSourceStatus = {
   facturas: boolean;
   fiestas: boolean;
   prospectos: boolean;
+  notificaciones?: boolean;
 };
 
 type DashboardSourceName = keyof DashboardSourceStatus;
@@ -106,6 +107,7 @@ export async function getDashboardKpiData() {
       facturas: true,
       fiestas: true,
       prospectos: true,
+      notificaciones: true,
     };
     const [
       presupuestosData,
@@ -119,7 +121,7 @@ export async function getDashboardKpiData() {
       loadDashboardSource('facturas', getInvoices, [], sourceStatus),
       loadDashboardSource('fiestas', getAllFiestas, [], sourceStatus),
       loadDashboardSource('prospectos', getCrmLeadsForDashboard, [], sourceStatus),
-      getNotifications().catch(() => []),
+      loadDashboardSource('notificaciones', getNotifications, [], sourceStatus),
       getPrioridadesDescartadas().catch(() => new Set<string>()),
     ]);
 
@@ -256,7 +258,9 @@ export async function getDashboardKpiData() {
         totalPendiente: veLaPlata ? totalPendiente : 0,
         monthlyChartData: veLaPlata ? monthlyData : [],
         alerts: alerts.filter(a => !prioridadesDescartadas.has(a.id)).sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6),
-        notificacionesNoLeidas: notificationsData.filter(n => !n.leida).length,
+        notificacionesNoLeidas: sourceStatus.notificaciones ? notificationsData.filter(n => !n.leida).length : null,
+        notificacionesLecturaIncompleta: !sourceStatus.notificaciones,
+        lecturaIncompleta: Object.values(sourceStatus).some((available) => !available),
         proximoEvento: (() => {
           const futuras = activeFiestas
             .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today)

@@ -86,6 +86,13 @@ export default function AlertasPage() {
       ]);
       setAlertas(data);
       setDatosFiestas(fiestasInfo);
+      if ((data as any)?.lecturaIncompleta) {
+        toast({
+          title: 'Lectura de activos incompleta',
+          description: 'No se pudieron consultar los activos fijos para las alertas de mantenimiento.',
+          variant: 'destructive',
+        });
+      }
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar las alertas.', variant: 'destructive' });
     } finally {
