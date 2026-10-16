@@ -2,6 +2,9 @@
 
 ## 16/10/2026 - Codex137: cliente inconcluso, salon no perdio datos
 
+- Entrega137/138: PR1324 ABIERTA/BORRADOR, commitca5169c10, arbol remoto/local
+  identico y orden180blob895f7dc verificado. Ver138-entrega-verificada.json.
+
 - Fuente/build7230/135 sin modificar app. Dos viajes nuevos de alta cliente y
   salon: runner inicial0PASS/2FAIL, NO prueba de perdida. Cliente seguia cargando.
 - Contraste posterior conserva evidencia original y agrega lectura REST del

@@ -3,8 +3,8 @@
 Codex SOLO audita/prueba/documenta; Gemini programa; Claude valida/compila/fusiona.
 Excepcion autorizada: compilar/levantar SOLO QA aislado. Codex no fusiona.
 Repo ak-auditoria-133-portal-responsive, rama codex/134-conciliacion-cobertura-20261015.
-PR1324 BORRADOR ABIERTA:136 entregada9dc;138 inicialda9ebf167; ampliacion137/138 en entrega.
-Ver136-entrega-verificada.json; no fusionar documentos solos ni certificar areas completas.
+PR1324 BORRADOR ABIERTA:136 entregada9dc;137/138 entregadasca5169c10, arbol remoto igual.
+Ver136/138-entrega-verificada.json; no fusionar documentos solos ni certificar areas completas.
 Main/fuente QA7230f9d02b32805952a185f704a0208bd5d643e6, build135 reutilizado sin otro build.
 Leer136-cierre.md/136-aceptacion.json para evidencia y limites; no todaapp ni0errores.
 136:50/50PASS HTTP documentos privados,7perfiles+anonimo/cookiealterada/vencida.
