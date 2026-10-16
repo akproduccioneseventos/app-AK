@@ -157,9 +157,9 @@ export default function ClientContractPage() {
                     <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
                         <FileSignature className="w-6 h-6"/>
                     </div>
-                    <div>
-                        <h1 className="text-xl sm:text-2xl leading-tight font-black text-slate-900 font-headline uppercase">Contrato de Servicio</h1>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Revisión y Firma Digital</p>
+                    <div className="min-w-0 flex-1">
+                        <h1 className="text-lg sm:text-2xl leading-snug font-black text-slate-900 font-headline uppercase tracking-tight">Contrato de Servicio</h1>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest truncate">Revisión y Firma Digital</p>
                     </div>
                 </div>
                 <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-5 h-5"/></Link></Button>
