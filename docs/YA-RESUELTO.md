@@ -2,6 +2,8 @@
 
 ## 16/10/2026 - Codex142/143: cabecera aprobada, movil parcial y fecha nueva
 
+-Entrega143 PR1324 ABIERTA/BORRADOR en6b0d67038a391ed8252e4f92ea61f7ebe22de1e9:
+  arbol remoto/local722bbfc3 yblob18405a6bda6 iguales, ver143-entrega-verificada.
 -PR1327 fuente17d26a631f500a263c48c4973d9c6f57d56ba421 compilada enQA aislado,
   exit0 tipos/lint incluidos, sin editar app. Nuevoa98a4b250 SOLO cambia4E2E:
   runtime/config/dependencias identicos17d. Reutilizar build, no recompilar.
