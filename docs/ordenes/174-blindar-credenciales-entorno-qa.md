@@ -15,7 +15,7 @@ La dependencia instalada demuestra que `applicationDefault()` construye `Applica
 
 El navegador intento llamar Firebase Installations con la API key ficticia y obtuvo 400. Esto contamina las aserciones que exigen consola sin errores. Para esos recorridos, interceptar solicitudes externas en el arnes QA y conservar sus resultados; no cambiar la app para acomodar la prueba. Mantener modo local exclusivo o emuladores localhost verificados.
 
-Se retira la prohibicion anterior de repetir RSVP basada solo en ADC. Puede reanudarse con datos ficticios, los controles del modo local y el bloqueo de salida del navegador. No requiere una correccion de autenticacion de produccion ni una nueva compilacion si la fuente no cambio. Antes de encargar trabajo, contrastar las tandas privadas de Claude/Gemini, cuyos HEAD siguen NO CONTRASTADOS.
+Se retira la prohibicion anterior de repetir RSVP basada solo en ADC. Se reanudo con datos ficticios, modo local y rutas externas del contexto bloqueadas: **10/10 PASS finales, 0 omitidos**, sin cambios de app ni nueva compilacion. Evidencia `docs/evidencias/133-invitado-rsvp-portal.md`; no prueba PWA/offline. Antes de encargar trabajo, contrastar las tandas privadas de Claude/Gemini, cuyos HEAD siguen NO CONTRASTADOS.
 
 Referencia local comprobada: `node_modules/firebase-admin/lib/app/credential-factory.js` (`applicationDefault`), `credential-internal.js` (`ApplicationDefaultCredential`, `getAccessToken`, `getApplicationDefault`) y `src/lib/firebase/server.ts` (rama local con `dbAdmin` nulo). No se ejecutaron solicitudes de tokens para hacer esta comprobacion.
 

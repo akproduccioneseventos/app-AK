@@ -1,0 +1,44 @@
+{
+  "startedAt": "2026-10-16T00:41:32.110Z",
+  "finishedAt": "2026-10-16T00:42:45.064Z",
+  "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+  "applicationEquivalentTo": "d10f332a17241de5a4705a560336585853073a76",
+  "qaDirectory": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-P2nuO7",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T00:41:37.799Z",
+    "version": "a635b27071ecea22092eba2a285892c84c6f9d08 · compilada 2026-10-15T20:33:33.044Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "tests": [
+    "tests/e2e/133-invitado-con-red-local.spec.ts"
+  ],
+  "testResult": {
+    "exitCode": 1,
+    "signal": null,
+    "testSources": [
+      {
+        "file": "tests/e2e/133-invitado-con-red-local.spec.ts",
+        "sha256": "8625656ad403712482a03f5b828994fe609ac1d19e0b55c0391b3e4fadc4a47e"
+      }
+    ]
+  },
+  "isolatedServicesDisabled": [
+    "gemini",
+    "mercadoPago",
+    "instagram",
+    "googleWorkspace",
+    "mail"
+  ],
+  "scope": "synthetic isolated native QA only; no production data, accounts, charges, messages, hardware, or merge",
+  "error": "Error: Synthetic E2E exited with 1\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/docs/evidencias/133-run-isolated-native.mjs:99:35\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+}
