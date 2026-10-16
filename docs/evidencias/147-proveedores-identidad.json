@@ -1,0 +1,194 @@
+{
+  "scope": "Real pure helper, fictitious payloads and source-traced consumer; NO persisted payment or full authenticated action executed",
+  "runs": [
+    {
+      "source": "b8491bda3f25aadc71f36f42d5878a47261bb1bf",
+      "file": "src/lib/fiesta/reponer-la-plata.ts",
+      "sha256": "99338c0bdd570a0092769f857e3253b08130a98ee18a54cf0e88d02c287d5026",
+      "cases": [
+        {
+          "name": "different IDs and names",
+          "stored": [
+            {
+              "proveedorId": "a",
+              "proveedor": "A",
+              "montoPagado": 60.3
+            },
+            {
+              "proveedorId": "b",
+              "proveedor": "B",
+              "montoPagado": 200
+            }
+          ],
+          "incoming": {
+            "proveedorId": "b",
+            "proveedor": "B"
+          },
+          "expected": 200,
+          "actual": 200,
+          "pass": true
+        },
+        {
+          "name": "different IDs same display name",
+          "stored": [
+            {
+              "proveedorId": "a",
+              "proveedor": "Proveedor QA",
+              "montoPagado": 60.3
+            },
+            {
+              "proveedorId": "b",
+              "proveedor": "Proveedor QA",
+              "montoPagado": 200
+            }
+          ],
+          "incoming": {
+            "proveedorId": "b",
+            "proveedor": "Proveedor QA"
+          },
+          "expected": 200,
+          "actual": 60.3,
+          "pass": false
+        },
+        {
+          "name": "new ID same display name",
+          "stored": [
+            {
+              "proveedorId": "a",
+              "proveedor": "Proveedor QA",
+              "montoPagado": 60.3
+            }
+          ],
+          "incoming": {
+            "proveedorId": "new",
+            "proveedor": "Proveedor QA"
+          },
+          "expected": null,
+          "actual": 60.3,
+          "pass": false
+        },
+        {
+          "name": "legacy rows without IDs",
+          "stored": [
+            {
+              "proveedor": "A",
+              "montoPagado": 60.3
+            },
+            {
+              "proveedor": "B",
+              "montoPagado": 200
+            }
+          ],
+          "incoming": {
+            "proveedor": "B"
+          },
+          "expected": 200,
+          "actual": 200,
+          "pass": true
+        }
+      ],
+      "pass": 2,
+      "fail": 2,
+      "consumer": "saveFiesta -> actualizarFiesta -> reponerLaPlata(datos, actual, authInfo)"
+    },
+    {
+      "source": "c7f9e3e6f960add2f970676819ec87b65b1af7c8",
+      "file": "src/lib/fiesta/reponer-la-plata.ts",
+      "sha256": "99338c0bdd570a0092769f857e3253b08130a98ee18a54cf0e88d02c287d5026",
+      "cases": [
+        {
+          "name": "different IDs and names",
+          "stored": [
+            {
+              "proveedorId": "a",
+              "proveedor": "A",
+              "montoPagado": 60.3
+            },
+            {
+              "proveedorId": "b",
+              "proveedor": "B",
+              "montoPagado": 200
+            }
+          ],
+          "incoming": {
+            "proveedorId": "b",
+            "proveedor": "B"
+          },
+          "expected": 200,
+          "actual": 200,
+          "pass": true
+        },
+        {
+          "name": "different IDs same display name",
+          "stored": [
+            {
+              "proveedorId": "a",
+              "proveedor": "Proveedor QA",
+              "montoPagado": 60.3
+            },
+            {
+              "proveedorId": "b",
+              "proveedor": "Proveedor QA",
+              "montoPagado": 200
+            }
+          ],
+          "incoming": {
+            "proveedorId": "b",
+            "proveedor": "Proveedor QA"
+          },
+          "expected": 200,
+          "actual": 60.3,
+          "pass": false
+        },
+        {
+          "name": "new ID same display name",
+          "stored": [
+            {
+              "proveedorId": "a",
+              "proveedor": "Proveedor QA",
+              "montoPagado": 60.3
+            }
+          ],
+          "incoming": {
+            "proveedorId": "new",
+            "proveedor": "Proveedor QA"
+          },
+          "expected": null,
+          "actual": 60.3,
+          "pass": false
+        },
+        {
+          "name": "legacy rows without IDs",
+          "stored": [
+            {
+              "proveedor": "A",
+              "montoPagado": 60.3
+            },
+            {
+              "proveedor": "B",
+              "montoPagado": 200
+            }
+          ],
+          "incoming": {
+            "proveedor": "B"
+          },
+          "expected": 200,
+          "actual": 200,
+          "pass": true
+        }
+      ],
+      "pass": 2,
+      "fail": 2,
+      "consumer": "saveFiesta -> actualizarFiesta -> reponerLaPlata(datos, actual, authInfo)"
+    }
+  ],
+  "defectCount": 1,
+  "appEdited": false,
+  "realData": false,
+  "fixed": false,
+  "limits": [
+    "Two branches and four failing variants do not mean four new defects",
+    "No permission escalation, real charge or production corruption demonstrated",
+    "Private Claude HEAD NOT CONTRASTADO"
+  ]
+}

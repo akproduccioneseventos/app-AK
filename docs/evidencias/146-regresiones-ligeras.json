@@ -1,0 +1,201 @@
+{
+  "source": "ef0e9402e90d149d4a8ba8aa4a7399282dfaf039",
+  "pr": 1328,
+  "sources": {
+    "src/lib/auth/perfiles.ts": "b31a505296e885bf9a7bd6c1ea4564547f6deffbef6df1c28c5ada76c36f33a3",
+    "src/lib/commercial/contact.ts": "2fc208917d4a633ede28e7a5b6215f23af83954d5300af5b2df8f167899aac4b",
+    "src/lib/whatsapp/plantilla-mensaje.ts": "ae7be905873064cef24368c43818a6fc2679ff5ee90ea1e7574029ee4d6b827e",
+    "src/app/(app)/contabilidad/crm/agenda/page.tsx": "ec88cc44f0f89be959ef6f1bfa00449965df87c9bf45f7aebdf3f3085394d09f",
+    "src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx": "513b863efc878212b2fc94e4fc3e9ec5096ffa32f9922f0014a5405161e5fe82",
+    "src/app/(app)/empresa/servicios/page.tsx": "a5194dbff6facb7c0318ecf4bd4fa0e87a8c7361968797dcec668ebeb0fb6bcf"
+  },
+  "cases": [
+    {
+      "name": "reject constructor",
+      "status": "PASS"
+    },
+    {
+      "name": "reject toString",
+      "status": "PASS"
+    },
+    {
+      "name": "reject __proto__",
+      "status": "PASS"
+    },
+    {
+      "name": "reject inventado",
+      "status": "PASS"
+    },
+    {
+      "name": "preserve profile dueno",
+      "status": "PASS"
+    },
+    {
+      "name": "preserve profile secretaria",
+      "status": "PASS"
+    },
+    {
+      "name": "preserve profile operador",
+      "status": "PASS"
+    },
+    {
+      "name": "preserve profile personal",
+      "status": "PASS"
+    },
+    {
+      "name": "preserve profile cliente",
+      "status": "PASS"
+    },
+    {
+      "name": "preserve profile prospecto",
+      "status": "PASS"
+    },
+    {
+      "name": "preserve profile invitado",
+      "status": "PASS"
+    },
+    {
+      "name": "actual reminder URL 099000080",
+      "status": "PASS"
+    },
+    {
+      "name": "actual reminder URL 99000080",
+      "status": "PASS"
+    },
+    {
+      "name": "actual reminder URL +598 99 000 080",
+      "status": "PASS"
+    },
+    {
+      "name": "actual reminder URL +54 9 11 1234 5678",
+      "status": "PASS"
+    },
+    {
+      "name": "actual reminder URL 23551234",
+      "status": "PASS"
+    },
+    {
+      "name": "actual reminder URL empty",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date 2027-08-08 UTC",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date 2028-02-29 UTC",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date 2027-12-31 UTC",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date 2028-01-01 UTC",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date  UTC",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date null UTC",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date undefined UTC",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date not-a-date UTC",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date 2027-08-08 America/Montevideo",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date 2028-02-29 America/Montevideo",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date 2027-12-31 America/Montevideo",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date 2028-01-01 America/Montevideo",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date  America/Montevideo",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date null America/Montevideo",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date undefined America/Montevideo",
+      "status": "PASS"
+    },
+    {
+      "name": "civil date not-a-date America/Montevideo",
+      "status": "PASS"
+    },
+    {
+      "name": "catalog local text-white class present",
+      "status": "PASS"
+    }
+  ],
+  "pass": 34,
+  "fail": 0,
+  "branchComparisons": [
+    {
+      "candidate": "b8491bda3f25aadc71f36f42d5878a47261bb1bf",
+      "files": [
+        {
+          "file": "src/app/portal/[fiestaId]/contrato/page.tsx",
+          "sameAsFailedBaseA98": true,
+          "literalOldDateExpression": false
+        },
+        {
+          "file": "src/app/(app)/empresa/red-social-eventos/page.tsx",
+          "sameAsFailedBaseA98": true,
+          "literalOldDateExpression": false
+        },
+        {
+          "file": "src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx",
+          "sameAsFailedBaseA98": true,
+          "literalOldDateExpression": true
+        }
+      ]
+    },
+    {
+      "candidate": "c7f9e3e6f960add2f970676819ec87b65b1af7c8",
+      "files": [
+        {
+          "file": "src/app/portal/[fiestaId]/contrato/page.tsx",
+          "sameAsFailedBaseA98": true,
+          "literalOldDateExpression": false
+        },
+        {
+          "file": "src/app/(app)/empresa/red-social-eventos/page.tsx",
+          "sameAsFailedBaseA98": true,
+          "literalOldDateExpression": false
+        },
+        {
+          "file": "src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx",
+          "sameAsFailedBaseA98": true,
+          "literalOldDateExpression": true
+        }
+      ]
+    }
+  ],
+  "scope": "Actual Git source pure modules and AST-extracted page expressions, no browser/build/live services",
+  "limits": [
+    "No native layout, production authorization or HTTP retest",
+    "Title class is structural only",
+    "PR1329/1330 comparison is direct consumers only, not whole-PR approval",
+    "Low RAM380272KiB observed; no new browser/build started; no other processes stopped"
+  ]
+}

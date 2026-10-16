@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Continua la misma propuesta documental de auditorias134-143 con evidencia nueva.
+Continua la misma propuesta documental de auditorias134-147 con evidencia nueva.
 **No fusionar documentos solos. Codex no cambia codigo app ni fusiona.**
 
 -134: conciliacion421rutas/14areas/7perfiles, sin convertir inventario en pruebas.
@@ -45,6 +45,14 @@ Continua la misma propuesta documental de auditorias134-143 con evidencia nueva.
   no recompilacion duplicada ni aprobacion de todaPR. Ver142-contraste-final.
 -19originales: dueno buscando ubicacion; integraciones reales, Hosting, modelo/
   voz y hardware no certificados. **No representa toda app sin errores.**
+
+Actualizacion146/147: PR1328 avanzoef0e9402 con171/172/184 ademas179/180.
+34controles ligerosPASS (11perfiles/6URLagenda/16fechas/1classtitulo); no retest
+nativo/UI/HTTP ni build con memoria libre380272KiB.1329/1330 contrastadas solo
+en consumidores relacionados, no aprobadas completas. NUEVA185/Claude: helper
+real puede reponer el pago de otro proveedor si coinciden nombres ynoIDs.
+2PASS/2FAIL por rama, UNA causa; sin cargo real/accion autenticada completa.
+Ver146-147-cierre y147datos. No descartar1328 ni duplicar fixes en otrasramas.
 
 Fuentes congeladas:7230f9d02b32805952a185f704a0208bd5d643e6 y17d26a631.
 Contraste consumidores179:1325HEAD5f704e68 y1326HEADa21d0b69 sin esos arreglos.

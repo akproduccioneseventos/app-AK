@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex146/147:34controles ligeros y proveedor con identidad ambigua
+
+-1328 avanzoef0e9402: fixes171/172/184 presentes ademas179/180.146 ejecutado
+  34PASS sinbrowser/build:11perfiles,6URLrealagenda,16fechaUTC/Uy,1classtitulo.
+  No aceptar nativamente contraste/titulo/dock/PDF ni todos los permisos.
+-380272KiB RAM libre: no solapar build/browser ni detener procesos ajenos.
+  1329/1330 consumidores contrato/social/cocina iguales a98, no duplicar fixes
+  de1328; probar conjunto al integrar. No aprobacion total de esasPRs.
+-147 NUEVO185Claude: reponerLaPlata mezcla IDs de proveedores si coinciden
+  nombres; B200 recuperaA60.30.2PASS/2FAIL por rama1329/1330, UNA causa.
+  Helper real y consumidor trazado; NO accion autenticada/pago real persistido.
+  Ver146-147-cierre,147datos y185. Ayudante cerrado; noappmodificada ni merge.
+
 ## 16/10/2026 - Codex145: recuento y correcciones nuevas presentes en1328
 
 -145-recuento-integral.md consolida14areas, pruebas previas/limites y estado
