@@ -1,4 +1,4 @@
-# Estado actual - Codex143,16/10/2026
+# Estado actual - Codex144,16/10/2026
 
 Codex SOLO audita/prueba/documenta; Gemini programa; Claude dinero/permisos/comida,
 valida/compila/fusiona. Excepcion dueno SOLO build/servidorQA ficticio aislado.
@@ -18,7 +18,7 @@ Ordenes171/172 actualizadas, no reemitir ni deshacer178 para corregir fecha.
 143 NUEVO184/Claude AK-CODEX-143-COCINA-FECHA-CIVIL:2027-08-08 se muestra7/8
 enUruguay,8/8UTC.1PASScontrol/1FAILUy pantalla/print, NO corregido. Fecha guardada
 no se cambia.143padding inicial errorQA archivado, no otrobug de produccion.
-Docs142-143-cierre/142-143consolidado/142-contraste-final guardan SHA y limites.
+144:3diffsQA sin aserciones quitadas/skips nuevos;120/180seg no prueban rapidez.
 QA142Temp ak-qa-142-Ti9Igx mantiene build17d: reutilizar si mismo runtime.
 Servicios propios cerrados,58JSON primer nivel restaurados,fixtures propios
 borrados,0diffQAtracked. Nadie paro procesos deGemini. No sesiones reales.

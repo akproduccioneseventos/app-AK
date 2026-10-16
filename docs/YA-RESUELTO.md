@@ -1,5 +1,13 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 16/10/2026 - Codex144: contenido del delta nuevo de tres pruebas
+
+-Diff17d->a98 en50-tecnologia-app-fiesta-demo, pantallas-con-iconos-react19 y
+  public-smoke: no aserciones borradas ni skips nuevos. Plazos ampliados120/
+  180segundos y textos con tildes. Revision de fuente, NO navegador ni prueba
+  de rendimiento. Los verdes no garantizan rapidez. Ver144-revision-breve-tests.
+  Layout-baseline no revisado aqui; no aceptar todaPR ni repetir142 por esto.
+
 ## 16/10/2026 - Codex142/143: cabecera aprobada, movil parcial y fecha nueva
 
 -Entrega143 PR1324 ABIERTA/BORRADOR en6b0d67038a391ed8252e4f92ea61f7ebe22de1e9:
