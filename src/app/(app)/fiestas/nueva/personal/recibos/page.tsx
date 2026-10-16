@@ -470,7 +470,7 @@ function RecibosDePagoContent() {
           </AccordionItem>
         </Accordion>
         
-        <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
+        <header className="cabecera-documento mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
             {recibosConfig.showLogo && (
               <div className="w-full h-24 print:h-20 mb-4 relative">
                   <WatermarkedImage src={logoUrl} alt="Marca de agua" />

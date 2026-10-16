@@ -152,7 +152,7 @@ export default function ClientContractPage() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
         <div className="max-w-4xl mx-auto space-y-8">
-            <header className="flex justify-between items-center">
+            <header className="cabecera-documento flex justify-between items-center">
                 <div className="flex items-center gap-4">
                     <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
                         <FileSignature className="w-6 h-6"/>
