@@ -334,9 +334,14 @@ export function VideoRecuerdoClient({ eventName, eventDate, images, isPersonaliz
           </p>
         </div>
 
-        <div className="text-right text-[11px] font-bold text-white/60 tracking-wider">
-          AK PRODUCCIONES
-        </div>
+        <a
+          href="/simulador-ak?utm_source=video_recuerdo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pointer-events-auto text-right text-[11px] font-bold text-amber-400 hover:text-amber-300 tracking-wider bg-black/50 px-3.5 py-1.5 rounded-full border border-amber-500/30 backdrop-blur shadow-lg transition"
+        >
+          AK PRODUCCIONES · Cotizá tu fiesta →
+        </a>
       </div>
 
       {/* Slideshow animado (Ken Burns sutil + Fade) */}

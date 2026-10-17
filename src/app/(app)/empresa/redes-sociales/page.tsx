@@ -234,10 +234,16 @@ function SocialMediaPageContent() {
                             Creador & Auditor de Anuncios
                         </Link>
                     </Button>
+                    <Button asChild variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/20">
+                        <Link href="/empresa/presencia-digital?tab=comentarios">
+                            <MessageSquare className="w-4 h-4 mr-2 text-emerald-200" />
+                            Comentarios Unificados &amp; Auto-WhatsApp
+                        </Link>
+                    </Button>
                     <Button asChild variant="default" className="bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md shadow-amber-600/20">
                         <Link href="/empresa/presencia-digital">
                             <Sparkles className="w-4 h-4 mr-2 text-amber-200" />
-                            Centro de Presencia Digital
+                            Centro de Presencia Online
                         </Link>
                     </Button>
                     <SocialHistoryImportDialog onImported={fetchData} />

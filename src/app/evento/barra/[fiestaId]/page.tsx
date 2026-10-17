@@ -1003,6 +1003,19 @@ export default function BarraTecnologicaTouchPage() {
                   <Video className="w-10 h-10 mr-3 text-purple-400" /> Graba un Video
                 </Button>
               </div>
+
+              {/* Pie de Embudo Invisible: Vender sin vender */}
+              <div className="mt-8 text-center border-t border-white/10 pt-4">
+                <a
+                  href="/simulador-ak?utm_source=barra_interactiva"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-400 transition"
+                >
+                  <span>Experiencia en vivo creada por <strong className="text-white">AK Producciones</strong></span>
+                  <span className="text-amber-400/80">· ¿Tenés un evento? Cotizá en 1 min →</span>
+                </a>
+              </div>
             </div>
           </motion.div>
         )}

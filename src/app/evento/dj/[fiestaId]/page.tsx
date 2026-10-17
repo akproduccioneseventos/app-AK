@@ -497,12 +497,22 @@ export default function DJPage() {
       </main>
 
       {/* Live indicator */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-zinc-900/90 backdrop-blur px-4 py-2 rounded-full border border-zinc-800 shadow-xl">
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-        </span>
-        <span className="text-xs font-semibold text-zinc-400">EN VIVO · actualización automática</span>
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 bg-zinc-900/95 backdrop-blur px-5 py-2.5 rounded-full border border-zinc-800 shadow-2xl z-20">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+          <span className="text-xs font-semibold text-zinc-400">EN VIVO · actualización automática</span>
+        </div>
+        <a
+          href="/simulador-ak?utm_source=cabina_dj"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] text-zinc-500 hover:text-amber-400 transition"
+        >
+          AK Producciones · ¿Querés esta experiencia en tu fiesta? Cotizá en 1 min →
+        </a>
       </div>
     </div>
   );

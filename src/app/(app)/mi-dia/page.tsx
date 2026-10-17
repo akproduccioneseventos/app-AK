@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { verifySession } from '@/lib/auth/session-token';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getCrmLeadsForDashboard } from '@/app/actions/crm';
 import Link from 'next/link';
 import {
   CheckCircle2,
@@ -160,6 +161,35 @@ export default async function MiDiaPage() {
           nombreCliente,
         });
       }
+    }
+  }
+
+  // Seguimiento proactivo de prospectos y presupuestos (Agente Comercial)
+  if (puede(session.user, PERMISOS.CRM)) {
+    try {
+      const leads = await getCrmLeadsForDashboard();
+      for (const lead of leads) {
+        if (!lead.phone) continue;
+        const telLimpio = lead.phone.replace(/\D/g, '');
+        const telCompleto = telLimpio.startsWith('598') ? telLimpio : `598${telLimpio.replace(/^0/, '')}`;
+        const fechaSeguimiento = lead.followUpDate ? lead.followUpDate.split('T')[0] : undefined;
+        const necesitaSeguimiento = Boolean(fechaSeguimiento && fechaSeguimiento <= hoyStr);
+
+        if (necesitaSeguimiento) {
+          const textoWA = encodeURIComponent(`¡Hola ${lead.name}! Te escribo de AK Producciones para ver cómo venís con la planificación de tu evento. ¿Pudiste ver la propuesta o te quedó alguna duda?`);
+          accionesHoy.push({
+            id: `lead_${lead.id}`,
+            tipo: 'whatsapp',
+            titulo: `Seguimiento de presupuesto: ${lead.name}`,
+            detalle: `Agendado para hoy · ${lead.partyType || 'Evento'}`,
+            categoria: 'hoy',
+            whatsappUrl: `https://wa.me/${telCompleto}?text=${textoWA}`,
+            nombreCliente: lead.name,
+          });
+        }
+      }
+    } catch {
+      // Si falla la lectura de CRM no rompe la pantalla del día
     }
   }
 

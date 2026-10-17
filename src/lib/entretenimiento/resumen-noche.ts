@@ -44,6 +44,9 @@ const NOMBRES_ESTACIONES: Record<string, string> = {
   espejoMagicoIA: 'Espejo Mágico IA',
   totems: 'Tótems Interactivos',
   capsulaTiempo: 'Cápsula del Tiempo',
+  buzon: 'Buzón de Mensajes',
+  webar: 'Experiencia WebAR',
+  descartable: 'Cámara Descartable Retro',
 };
 
 export function calcularResumenNoche(
