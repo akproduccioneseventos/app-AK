@@ -187,50 +187,7 @@ const TAREAS_DEFAULT = [
   { tarea: 'Seguimiento WhatsApp', canal: 'WhatsApp' },
 ];
 
-const MARKETING_HUB_ITEMS = [
-  {
-    title: 'Redes sociales',
-    description: 'Planifica publicaciones, calendario, piezas y contenido real para Instagram, Facebook, TikTok y WhatsApp.',
-    href: '/empresa/redes-sociales',
-    icon: Megaphone,
-    tone: 'bg-pink-50 text-pink-700 border-pink-100',
-  },
-  {
-    title: 'IA de marketing',
-    description: 'Genera copies, ideas de campana, respuestas de venta y mensajes para seguimiento comercial.',
-    href: '/empresa/redes-sociales/ia-marketing',
-    icon: Sparkles,
-    tone: 'bg-violet-50 text-violet-700 border-violet-100',
-  },
-  {
-    title: 'Plantilla LED',
-    description: 'Portafolio visual para vender en reunion: beneficios, servicios, tecnologia y cierre comercial.',
-    href: '/presentacion-led/portafolio',
-    icon: Presentation,
-    tone: 'bg-blue-50 text-blue-700 border-blue-100',
-  },
-  {
-    title: 'Demo tecnologia AK',
-    description: 'Pagina de demostracion para mostrar portal, pantalla, muro, QR y estaciones sin crear una fiesta real.',
-    href: '/marketing/demo-tecnologia',
-    icon: MonitorPlay,
-    tone: 'bg-slate-100 text-slate-800 border-slate-200',
-  },
-  {
-    title: 'Web publica',
-    description: 'Editar la landing, beneficios, servicios, imagen del equipo, fotos y llamados a WhatsApp.',
-    href: '/empresa/landing-editor',
-    icon: Globe2,
-    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-  },
-  {
-    title: 'Biblioteca visual',
-    description: 'Fotos, videos y recursos para que la venta muestre la empresa real y no solo textos.',
-    href: '/settings/biblioteca-visual-ak',
-    icon: RadioTower,
-    tone: 'bg-amber-50 text-amber-700 border-amber-100',
-  },
-];
+import { MARKETING_HUB_ITEMS } from '@/lib/marketing/marketing-hub';
 
 const MARKETING_FOCUS = [
   'Vender AK como solucion completa: salon, organizacion, servicios y tranquilidad.',

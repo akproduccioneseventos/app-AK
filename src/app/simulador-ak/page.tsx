@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Loader2, ArrowRight, Sparkles,
-  Printer, Info, Share2, Send
+  Printer, Info, Share2, Send, Mic, MicOff
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateBudgetAndLeadFromSimulator, getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
@@ -166,6 +166,42 @@ function SimuladorAKContent() {
   const [inputMessage, setInputMessage] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [suggestionPill, setSuggestionPill] = useState<{ label: string; messageToSubmit: string } | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const toggleListening = () => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-UY';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = () => setIsListening(false);
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setInputMessage((prev) => (prev ? `${prev} ${transcript}` : transcript));
+        }
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch {
+      setIsListening(false);
+    }
+  };
 
   // Conversion States
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -365,7 +401,7 @@ function SimuladorAKContent() {
       invitadosAdultos: adultos,
       invitadosNinos: ninosYAdolescentes,
       invitadosAdolescentes: 0,
-      salonFiestas: tieneSalon === false && incluirClubUruguay ? 'Club Uruguay' : (tieneSalon ? 'Salon propio' : 'A definir'),
+      salonFiestas: tieneSalon === false && incluirClubUruguay ? 'Club Uruguay' : (tieneSalon ? 'Salón propio' : 'A definir'),
       itemsPresupuestados: priceStats.detallados.map((item) => ({
         idServicioCatalogo: item.id,
         nombreServicio: item.nombre,
@@ -514,7 +550,7 @@ function SimuladorAKContent() {
       changesToApply.ninosYAdolescentes = kidsVal;
       changesToApply.currentChatStep = 'hours';
     } else if (currentChatStep === 'hours') {
-      const isMore = text.toLowerCase().includes('mas') || text.toLowerCase().includes('más') || text.includes('5');
+      const isMore = text.toLowerCase().includes('más') || text.toLowerCase().includes('más') || text.includes('5');
       const hours = isMore ? 5 : 3;
       setDuracionHoras(hours);
       nextStep = 'menu';
@@ -863,7 +899,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
         </div>
         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
           <Button asChild variant="ghost" className="min-w-0 flex-1 rounded-full border border-border px-4 text-xs text-foreground bg-muted/30 hover:bg-muted sm:flex-none">
-            <Link href="/simulador-de-presupuesto">
+            <Link href={`/simulador-de-presupuesto?tipo=${encodeURIComponent(eventoTipo || '15 Años')}${adultos ? `&adultos=${adultos}` : ''}${ninosYAdolescentes ? `&ninos=${ninosYAdolescentes}` : ''}`}>
               <span>Simulador Manual</span>
             </Link>
           </Button>
@@ -1384,10 +1420,21 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(); }}
-            placeholder="Escribile tu respuesta o pregunta a Sofía..."
+            placeholder="Escribile o hablá tu consulta a Sofía..."
             disabled={isAiLoading}
             className="flex-1 rounded-lg border border-border bg-muted/20 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-40"
           />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={toggleListening}
+            className={`h-10 w-10 shrink-0 rounded-lg border border-border ${isListening ? 'bg-red-500/20 text-red-500 border-red-500 animate-pulse' : 'text-muted-foreground hover:text-foreground'}`}
+            title={isListening ? 'Escuchando... tocá para parar' : 'Dictar por voz'}
+            aria-label={isListening ? 'Detener dictado' : 'Dictar por voz'}
+          >
+            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </Button>
           <Button
             size="icon"
             onClick={() => handleSendMessage()}

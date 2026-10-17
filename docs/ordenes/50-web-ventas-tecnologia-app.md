@@ -183,7 +183,8 @@ archivo: docs/evidencias/50-sondas-venta.cjs
 usa: getPublicInstagramFeed en src/app/page.tsx
 usa: saveLead en src/components/landing/LeadCaptureForm.tsx
 usa: InteractiveTechShowcase en src/app/page.tsx
-usa: TechnologyExperienceSection en src/app/page.tsx
+usa: LaAppDeTuFiestaSection en src/app/page.tsx
+# (16/10/2026, orden 177: TechnologyExperienceSection salió de la portada al unificar tecnología; ahora se comprueba el bloque que quedó)
 prueba: tests/e2e/50-venta-origen-y-galeria-publica.spec.ts
 prueba: tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts
 ```

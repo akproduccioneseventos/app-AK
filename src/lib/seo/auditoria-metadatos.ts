@@ -9,6 +9,7 @@ import { metadata as catalogoMetadata } from '@/app/catalogo/layout';
 import { metadata as expMetadata } from '@/app/experiencia-ak/page';
 import { metadata as privacidadMetadata } from '@/app/privacidad/page';
 import { metadata as simMetadata } from '@/app/simulador-de-presupuesto/layout';
+import { metadata as simAkMetadata } from '@/app/simulador-ak/layout';
 import { metadata as blogListMetadata } from '@/app/public/blog/page';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import { blogPosts } from '@/data/blog-posts';
@@ -93,6 +94,13 @@ export async function getMetadataRealDeRuta(ruta: string): Promise<{ title: stri
     return {
       title: String(simMetadata.title || ''),
       description: String(simMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/simulador-ak') {
+    return {
+      title: String(simAkMetadata.title || ''),
+      description: String(simAkMetadata.description || ''),
     };
   }
 

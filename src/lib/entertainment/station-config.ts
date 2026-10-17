@@ -97,13 +97,18 @@ export interface PublicEntertainmentEvent {
 const TITLES: Record<EntertainmentModuleId, string> = {
   fotocabina: 'Fotocabina',
   plataforma360: 'Plataforma 360',
-  bogue: 'Bogue',
+  bogue: 'Vogue',
   espejoMagicoFoto: 'Espejo Magico Foto',
   espejoMagicoFirma: 'Espejo Magico Firma',
   espejoMagicoIA: 'Espejo Magico IA',
   totems: 'Totem Interactivo',
   capsulaTiempo: 'Capsula del Tiempo',
 };
+
+export function nombreVisibleDeEstacion(texto: string): string {
+  if (!texto || typeof texto !== 'string') return texto;
+  return texto.replace(/\bBogue\b/g, 'Vogue');
+}
 
 const COLORS: Record<EntertainmentModuleId, string> = {
   fotocabina: '#d97706',
@@ -354,4 +359,108 @@ export function getEntertainmentOperatorPath(
     default:
       return null;
   }
+}
+
+export type PestanaEstacion =
+  | 'todas'
+  | 'fotocabina'
+  | '360'
+  | 'espejo'
+  | 'bogue'
+  | 'vogue'
+  | 'touchpix'
+  | 'totem'
+  | 'buzon'
+  | 'invitados'
+  | 'mensajes';
+
+/**
+ * Filtra publicaciones de la noche según la pestaña seleccionada, reconociendo
+ * todas las variantes de nombres de módulo guardadas por las estaciones en vivo.
+ */
+export function filtrarPorEstacion<T extends { sourceModule?: string | null; source?: string | null }>(
+  posts: T[],
+  pestana: string
+): T[] {
+  if (pestana === 'todas') return posts;
+
+  if (pestana === 'fotocabina') {
+    return posts.filter((p) => p.sourceModule === 'fotocabina');
+  }
+
+  if (pestana === '360') {
+    return posts.filter(
+      (p) => p.sourceModule === 'plataforma360' || p.sourceModule === 'plataforma_360'
+    );
+  }
+
+  if (pestana === 'espejo') {
+    return posts.filter(
+      (p) =>
+        p.sourceModule === 'espejoMagico' ||
+        p.sourceModule === 'espejo_magico' ||
+        p.sourceModule === 'espejoMagicoFoto' ||
+        p.sourceModule === 'espejoMagicoFirma' ||
+        p.sourceModule === 'espejoMagicoIA'
+    );
+  }
+
+  if (pestana === 'bogue' || pestana === 'vogue') {
+    return posts.filter(
+      (p) =>
+        p.sourceModule === 'bogue' ||
+        p.sourceModule === 'vogue' ||
+        p.sourceModule === 'cabinaVogue' ||
+        p.sourceModule === 'boomerang'
+    );
+  }
+
+  if (pestana === 'touchpix' || pestana === 'totem') {
+    return posts.filter(
+      (p) =>
+        p.sourceModule === 'touchpix' ||
+        p.sourceModule === 'espejoMagicoIA' ||
+        p.sourceModule === 'totem' ||
+        p.sourceModule === 'totemIA' ||
+        p.sourceModule === 'pantallasTotem'
+    );
+  }
+
+  if (pestana === 'buzon') {
+    return posts.filter(
+      (p) => p.sourceModule === 'buzon' || p.sourceModule === 'capsulaTiempo'
+    );
+  }
+
+  if (pestana === 'invitados') {
+    return posts.filter(
+      (p) =>
+        p.source === 'guest' ||
+        !p.sourceModule ||
+        p.sourceModule === 'muro' ||
+        p.sourceModule === 'invitado'
+    );
+  }
+
+  return posts;
+}
+
+/**
+ * Comprueba si una estación de entretenimiento está prendida en la fiesta.
+ */
+export function estaEstacionHabilitada(
+  fiesta: FiestaEnPlanificacion | null | undefined,
+  moduleId: EntertainmentModuleId | 'barra' | 'buzon'
+): boolean {
+  if (!fiesta) return true;
+  if (moduleId === 'barra') return true;
+  if (moduleId === 'buzon') {
+    return (
+      fiesta.guestPortalSettings?.showBuzon !== false &&
+      fiesta.others?.entretenimiento?.modules?.capsulaTiempo?.enabled !== false
+    );
+  }
+  const modKey = moduleId === 'totems' ? 'totems' : moduleId;
+  const mod = fiesta.others?.entretenimiento?.modules?.[modKey as EntertainmentModuleId];
+  return mod?.enabled !== false;
 }

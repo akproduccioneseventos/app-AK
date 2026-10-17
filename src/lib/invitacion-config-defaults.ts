@@ -69,9 +69,13 @@ export function buildInvitacionConfigFromFiesta(
     'Bautismo': 'bautismo',
   };
 
+  const digital = (fiesta as any).invitacionDigital;
+  const digitalPalette = digital?.cabecera?.paletaColores;
+
   return {
     ...defaultInvitacionConfig,
     ...saved,
+    plantillaId: saved?.plantillaId || digital?.plantilla || defaultInvitacionConfig.plantillaId,
     nombreHomenajeada: saved?.nombreHomenajeada || config.protagonista1Nombre || config.nombreEvento || '',
     nombreHomenajeado2: saved?.nombreHomenajeado2 ?? config.protagonista2Nombre ?? '',
     tipoEvento: saved?.tipoEvento || tipoMap[config.tipoCelebracion || ''] || 'otro',
@@ -80,7 +84,10 @@ export function buildInvitacionConfigFromFiesta(
     nombreSalon: config.nombreLugar || saved?.nombreSalon || '',
     direccionSalon: config.direccionLugar || saved?.direccionSalon || '',
     linkMaps: config.googleMapsUrl || saved?.linkMaps || '',
-    colorPrincipal: saved?.colorPrincipal || config.primaryColor || defaultInvitacionConfig.colorPrincipal,
+    colorPrincipal: saved?.colorPrincipal || digitalPalette?.primary || config.primaryColor || defaultInvitacionConfig.colorPrincipal,
+    colorSecundario: saved?.colorSecundario || digitalPalette?.secondary || defaultInvitacionConfig.colorSecundario,
+    colorAcento: saved?.colorAcento || digitalPalette?.accent || defaultInvitacionConfig.colorAcento,
+    textoBienvenida: saved?.textoBienvenida || digital?.cabecera?.bienvenida || defaultInvitacionConfig.textoBienvenida,
   };
 }
 

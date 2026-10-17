@@ -240,7 +240,7 @@ export default function PrintStationPage() {
       <div className="flex-1 flex flex-col overflow-hidden print:hidden">
         
         {/* HEADER */}
-        <header className="p-4 flex items-center justify-between border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md shrink-0 pt-safe">
+        <header className="cabecera-documento p-4 flex items-center justify-between border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md shrink-0 pt-safe">
           <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
             <ArrowLeft className="w-5 h-5" />
           </button>

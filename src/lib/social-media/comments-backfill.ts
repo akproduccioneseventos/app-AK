@@ -4,6 +4,9 @@ import type { SocialConnection } from '@/types/settings';
 import type {
   SocialComment,
   CommentNetwork,
+  ExtendedSocialNetwork,
+  CommentIntentCategory,
+  AutoReplyRule,
   NetworkCommentsBackfillState,
   CommentsSyncSummary,
 } from '@/types/comentarios-redes';
@@ -18,24 +21,163 @@ const CONNECTIONS_FILE = 'social-connections.json';
 const STATE_FILE = 'social-comments-backfill-state.json';
 const AJUSTES_RESPUESTAS_FILE = 'marketing-respuestas-comentarios.json';
 
+export const REGLAS_AUTO_RESPUESTA_POR_DEFECTO: AutoReplyRule[] = [
+  {
+    id: 'regla_precios_presupuesto',
+    nombre: 'Precios, Costos y Presupuestos',
+    keywords: ['precio', 'cuanto', 'cuánto', 'presupuesto', 'valor', 'costo', 'tarifa', 'cotizar', 'info'],
+    network: 'Todas',
+    respuestaPublica:
+      '¡Hola! Qué alegría leerte. Cada fiesta la armamos a medida según tus invitados y lo que quieras sumar; escribinos por WhatsApp o probá nuestro Simulador online y te armamos la propuesta al toque.',
+    enviarWhatsApp: true,
+    plantillaWhatsApp:
+      '¡Hola {autor}! Vi tu comentario en {red} consultando por presupuesto ("{comentario}"). Te escribo de AK Producciones para armarte opciones a medida. ¿Qué fecha aproximada y cantidad de invitados tenés en mente?',
+    activa: true,
+  },
+  {
+    id: 'regla_fechas_disponibilidad',
+    nombre: 'Disponibilidad de Fechas y Agenda',
+    keywords: ['fecha', 'disponible', 'disponibilidad', 'libre', 'agenda', 'reservar', 'sábado', 'sabado', 'lugar'],
+    network: 'Todas',
+    respuestaPublica:
+      '¡Hola! Para revisar la agenda en vivo y confirmar si tenemos libre la fecha que buscás, escribinos directo por WhatsApp y lo miramos juntos ahora mismo.',
+    enviarWhatsApp: true,
+    plantillaWhatsApp:
+      '¡Hola {autor}! Vi tu consulta en {red} por disponibilidad de fecha ("{comentario}"). Contame qué día estás pensando festejar así revisamos ahora mismo la agenda de AK Producciones.',
+    activa: true,
+  },
+  {
+    id: 'regla_quince_anos',
+    nombre: 'Fiestas de Quince Años',
+    keywords: ['quince', 'quinceañera', 'mis quince', 'fiesta de quince', 'cumple de quince'],
+    network: 'Todas',
+    respuestaPublica:
+      '¡Hola! Nos encanta acompañar los Quince con pista LED, DJ, gastronomía, decoración y organización total. Escribinos por WhatsApp y charlamos sobre cómo imaginás tu noche.',
+    enviarWhatsApp: true,
+    plantillaWhatsApp:
+      '¡Hola {autor}! Qué emoción que estén planificando los Quince. Vi tu comentario en {red} y te escribo de AK Producciones para pasarte nuestro simulador y mostrarte todo lo que incluye la fiesta completa.',
+    activa: true,
+  },
+  {
+    id: 'regla_casamientos_bodas',
+    nombre: 'Casamientos y Bodas',
+    keywords: ['boda', 'casamiento', 'novios', 'casarnos', 'civil'],
+    network: 'Todas',
+    respuestaPublica:
+      '¡Felicitaciones! Para armar la propuesta integral de tu casamiento a medida y sin estrés, escribinos por WhatsApp y coordinamos todos los detalles.',
+    enviarWhatsApp: true,
+    plantillaWhatsApp:
+      '¡Hola {autor}! Muchas felicitaciones por el casamiento. Vi tu comentario en {red} y te escribo de AK Producciones para asesorarte con salón, catering y fiesta completa.',
+    activa: true,
+  },
+];
+
 export interface AjustesRespuestasComentarios {
   activo: boolean;
   actualizadoAt?: string;
+  whatsappNumero?: string;
+  incluirLinkSimulador?: boolean;
+  sincronizacionTiempoRealSegundos?: number;
+  reglas?: AutoReplyRule[];
 }
 
 export async function getAjustesRespuestasComentarios(): Promise<AjustesRespuestasComentarios> {
-  const guardados = await readData<AjustesRespuestasComentarios>(AJUSTES_RESPUESTAS_FILE, { activo: false });
-  return { ...guardados, activo: guardados?.activo === true };
+  const guardados = await readData<AjustesRespuestasComentarios>(AJUSTES_RESPUESTAS_FILE, {
+    activo: false,
+    whatsappNumero: '098355530',
+    incluirLinkSimulador: true,
+    sincronizacionTiempoRealSegundos: 30,
+    reglas: REGLAS_AUTO_RESPUESTA_POR_DEFECTO,
+  });
+  return {
+    whatsappNumero: '098355530',
+    incluirLinkSimulador: true,
+    sincronizacionTiempoRealSegundos: 30,
+    ...guardados,
+    activo: guardados?.activo === true,
+    reglas:
+      Array.isArray(guardados?.reglas) && guardados.reglas.length > 0
+        ? guardados.reglas
+        : REGLAS_AUTO_RESPUESTA_POR_DEFECTO,
+  };
 }
 
-export async function setAjustesRespuestasComentarios(activo: boolean): Promise<AjustesRespuestasComentarios> {
-  const ajustes = { activo, actualizadoAt: new Date().toISOString() };
-  await writeData(AJUSTES_RESPUESTAS_FILE, ajustes);
-  return ajustes;
+export async function setAjustesRespuestasComentarios(
+  activoOrPartial: boolean | Partial<AjustesRespuestasComentarios>,
+): Promise<AjustesRespuestasComentarios> {
+  const actuales = await getAjustesRespuestasComentarios();
+  const siguientes: AjustesRespuestasComentarios =
+    typeof activoOrPartial === 'boolean'
+      ? { ...actuales, activo: activoOrPartial, actualizadoAt: new Date().toISOString() }
+      : {
+          ...actuales,
+          ...activoOrPartial,
+          activo:
+            typeof activoOrPartial.activo === 'boolean'
+              ? activoOrPartial.activo
+              : actuales.activo,
+          actualizadoAt: new Date().toISOString(),
+        };
+  await writeData(AJUSTES_RESPUESTAS_FILE, siguientes);
+  return siguientes;
 }
 
 export function limpiarNumerosDePrecio(texto: string): string {
   return texto.replace(/\$?\s*\d+([.,]\d+)?\s*(usd|dólares|pesos|uyu)?/gi, '').trim();
+}
+
+export function evaluarReglaParaComentario(
+  texto: string,
+  network: ExtendedSocialNetwork,
+  reglas: AutoReplyRule[] = REGLAS_AUTO_RESPUESTA_POR_DEFECTO,
+): AutoReplyRule | null {
+  const limpio = (texto || '').toLowerCase();
+  if (!limpio) return null;
+
+  for (const regla of reglas) {
+    if (!regla.activa) continue;
+    if (regla.network !== 'Todas' && regla.network !== network) continue;
+    const coincide = regla.keywords.some((kw) => {
+      const k = kw.trim().toLowerCase();
+      return k.length > 0 && limpio.includes(k);
+    });
+    if (coincide) return regla;
+  }
+  return null;
+}
+
+export function detectarIntencionComentario(comentario: SocialComment): CommentIntentCategory {
+  if (comentario.intentCategory) return comentario.intentCategory;
+  if (comentario.isInsultOrSpam || comentario.isAutoHidden) return 'spam';
+  if (comentario.isLegitimateComplaint) return 'reclamo';
+  const t = (comentario.text || '').toLowerCase();
+  if (/(precio|cuanto|cuánto|presupuesto|valor|costo|tarifa|cotiz|info|\$)/i.test(t)) {
+    return 'precio_presupuesto';
+  }
+  if (/(fecha|disponible|disponibilidad|libre|agenda|reserv|sábado|sabado)/i.test(t)) {
+    return 'fecha_disponibilidad';
+  }
+  if (comentario.sentiment === 'positivo') return 'elogio';
+  return 'consulta_general';
+}
+
+export function armarMensajeWhatsAppDesdeComentario(
+  comentario: SocialComment,
+  regla?: AutoReplyRule | null,
+): string {
+  const autor = (comentario.authorName || 'Cliente').replace(/^@/, '');
+  const red = comentario.canalOrigen || comentario.network;
+  const extracto =
+    comentario.text.length > 90 ? `${comentario.text.slice(0, 87)}...` : comentario.text;
+
+  if (regla?.plantillaWhatsApp) {
+    return regla.plantillaWhatsApp
+      .replace(/\{autor\}/gi, autor)
+      .replace(/\{red\}/gi, red)
+      .replace(/\{comentario\}/gi, extracto);
+  }
+
+  return `¡Hola ${autor}! Vi tu comentario en ${red} ("${extracto}"). Te escribo de AK Producciones para asesorarte a medida y pasarte nuestro Simulador de fiestas. ¿Para qué fecha aproximada estás averiguando?`;
 }
 
 export async function armarRespuestaAPregunta(
@@ -111,8 +253,24 @@ export async function responderPreguntaComentarioSiAplica(
   const ajustes = await getAjustesRespuestasComentarios();
   if (!ajustes.activo) return false;
 
-  const presupuestoOk = await hayPresupuestoParaIA();
-  if (!presupuestoOk) return false;
+  const reglaCoincidente = evaluarReglaParaComentario(
+    comentario.text,
+    comentario.canalOrigen || comentario.network,
+    ajustes.reglas,
+  );
+
+  let respuestaTexto: string | null = null;
+  if (reglaCoincidente && reglaCoincidente.respuestaPublica) {
+    respuestaTexto = limpiarNumerosDePrecio(reglaCoincidente.respuestaPublica);
+  }
+
+  if (!respuestaTexto) {
+    const presupuestoOk = await hayPresupuestoParaIA();
+    if (!presupuestoOk) return false;
+    respuestaTexto = await armarRespuestaAPregunta(comentario.text, comentario.authorName);
+  }
+
+  if (!respuestaTexto) return false;
 
   const conns = connections || (await readData<SocialConnection[]>(CONNECTIONS_FILE, []));
   let token: string | undefined;
@@ -127,9 +285,6 @@ export async function responderPreguntaComentarioSiAplica(
 
   if (!token) return false;
 
-  const respuestaTexto = await armarRespuestaAPregunta(comentario.text, comentario.authorName);
-  if (!respuestaTexto) return false;
-
   const publicadoOk = await postReplyToMetaComment(
     comentario.networkCommentId,
     comentario.network,
@@ -141,12 +296,16 @@ export async function responderPreguntaComentarioSiAplica(
     comentario.respuestaAutomatica = {
       texto: respuestaTexto,
       at: new Date().toISOString(),
+      modo: reglaCoincidente ? 'regla_keyword' : 'automatica_ia',
+      reglaId: reglaCoincidente?.id,
+      reglaNombre: reglaCoincidente?.nombre,
     };
     return true;
   }
 
   return false;
 }
+
 
 const DEFAULT_EARLIEST_DATE = '2019-09-01T00:00:00.000Z';
 
@@ -635,3 +794,171 @@ export async function hideCommentInternal(commentId: string): Promise<{ success:
   if (!guardado) return { success: false, error: 'Comentario no encontrado.' };
   return { success: true };
 }
+
+/**
+ * Responde un comentario de forma manual o con sugerencia inteligente de regla/IA,
+ * publicando en la red si hay conexión activa y registrando la respuesta en la tabla unificada.
+ */
+export async function replyToCommentInternal(
+  commentId: string,
+  customMessage?: string,
+): Promise<{
+  success: boolean;
+  replyText?: string;
+  publishedOnNetwork?: boolean;
+  error?: string;
+}> {
+  const comments = await readData<SocialComment[]>(COMMENTS_FILE, []);
+  const target = comments.find((c) => c.id === commentId);
+  if (!target) {
+    return { success: false, error: 'Comentario no encontrado.' };
+  }
+
+  const ajustes = await getAjustesRespuestasComentarios();
+  const regla = evaluarReglaParaComentario(
+    target.text,
+    target.canalOrigen || target.network,
+    ajustes.reglas,
+  );
+
+  let textoFinal = (customMessage || '').trim();
+  let modo: 'manual' | 'regla_keyword' | 'automatica_ia' = 'manual';
+
+  if (!textoFinal) {
+    if (regla?.respuestaPublica) {
+      textoFinal = limpiarNumerosDePrecio(regla.respuestaPublica);
+      modo = 'regla_keyword';
+    } else {
+      const iaReply = await armarRespuestaAPregunta(target.text, target.authorName);
+      textoFinal =
+        iaReply ||
+        '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos directamente por WhatsApp y te asesoramos.';
+      modo = 'automatica_ia';
+    }
+  }
+
+  const connections = await readData<SocialConnection[]>(CONNECTIONS_FILE, []);
+  let token: string | undefined;
+  if (target.network === 'Facebook') {
+    token = connections.find((c) => c.platform === 'Facebook')?.pageAccessToken;
+  } else if (target.network === 'Instagram') {
+    token = connections.find((c) => c.platform === 'Instagram')?.pageAccessToken;
+  }
+
+  let publishedOnNetwork = false;
+  if (token && (target.network === 'Facebook' || target.network === 'Instagram')) {
+    publishedOnNetwork = await postReplyToMetaComment(
+      target.networkCommentId,
+      target.network,
+      textoFinal,
+      token,
+    );
+  }
+
+  const respondidoEn = new Date().toISOString();
+  const guardado = await mutarComentarios((lista) => {
+    const actual = lista.find((c) => c.id === commentId);
+    if (!actual) return null;
+    return lista.map((c) =>
+      c.id === commentId
+        ? {
+            ...c,
+            respuestaAutomatica: {
+              texto: textoFinal,
+              at: respondidoEn,
+              modo,
+              reglaId: modo === 'regla_keyword' ? regla?.id : undefined,
+              reglaNombre: modo === 'regla_keyword' ? regla?.nombre : undefined,
+            },
+          }
+        : c,
+    );
+  });
+
+  if (!guardado) {
+    return { success: false, error: 'No se pudo guardar la respuesta del comentario.' };
+  }
+
+  return {
+    success: true,
+    replyText: textoFinal,
+    publishedOnNetwork,
+  };
+}
+
+/**
+ * Procesa en lote todos los comentarios pendientes que sean preguntas o coincidan con reglas activas.
+ */
+export async function responderPendientesEnLoteInternal(): Promise<{
+  success: boolean;
+  respondidosCount: number;
+  error?: string;
+}> {
+  const comments = await readData<SocialComment[]>(COMMENTS_FILE, []);
+  const ajustes = await getAjustesRespuestasComentarios();
+  const connections = await readData<SocialConnection[]>(CONNECTIONS_FILE, []);
+
+  const candidatos = comments.filter((c) => {
+    if (c.isDeleted || c.isAutoHidden || c.isInsultOrSpam || c.respuestaAutomatica) return false;
+    if (c.esPregunta) return true;
+    const regla = evaluarReglaParaComentario(c.text, c.canalOrigen || c.network, ajustes.reglas);
+    return Boolean(regla);
+  });
+
+  let respondidosCount = 0;
+  const actualizaciones = new Map<string, NonNullable<SocialComment['respuestaAutomatica']>>();
+
+  for (const cand of candidatos.slice(0, 30)) {
+    const regla = evaluarReglaParaComentario(
+      cand.text,
+      cand.canalOrigen || cand.network,
+      ajustes.reglas,
+    );
+    let textoRespuesta: string | null = null;
+    let modo: 'regla_keyword' | 'automatica_ia' = 'automatica_ia';
+
+    if (regla?.respuestaPublica) {
+      textoRespuesta = limpiarNumerosDePrecio(regla.respuestaPublica);
+      modo = 'regla_keyword';
+    } else {
+      textoRespuesta = await armarRespuestaAPregunta(cand.text, cand.authorName);
+    }
+
+    if (!textoRespuesta) continue;
+
+    let token: string | undefined;
+    if (cand.network === 'Facebook') {
+      token = connections.find((c) => c.platform === 'Facebook')?.pageAccessToken;
+    } else if (cand.network === 'Instagram') {
+      token = connections.find((c) => c.platform === 'Instagram')?.pageAccessToken;
+    }
+
+    if (token && (cand.network === 'Facebook' || cand.network === 'Instagram')) {
+      await postReplyToMetaComment(cand.networkCommentId, cand.network, textoRespuesta, token);
+    }
+
+    actualizaciones.set(cand.id, {
+      texto: textoRespuesta,
+      at: new Date().toISOString(),
+      modo,
+      reglaId: regla?.id,
+      reglaNombre: regla?.nombre,
+    });
+    respondidosCount++;
+  }
+
+  if (actualizaciones.size > 0) {
+    await mutarComentarios((lista) =>
+      lista.map((c) => {
+        const resp = actualizaciones.get(c.id);
+        return resp ? { ...c, respuestaAutomatica: resp } : c;
+      }),
+    );
+  }
+
+  return {
+    success: true,
+    respondidosCount,
+  };
+}
+

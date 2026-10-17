@@ -5,7 +5,7 @@ import { CalendarCheck2, Clock3, HeartHandshake, Headphones, type LucideIcon } f
 import { cn } from '@/lib/utils';
 import type { LandingStatItem } from '@/types/landing-editor';
 
-const DEFAULT_STATS: LandingStatItem[] = [
+export const DEFAULT_STATS: LandingStatItem[] = [
   { value: '+200', label: 'Eventos realizados', icon: 'events' },
   { value: '+7', label: 'Años de experiencia', icon: 'years' },
   { value: 'Clientes', label: 'Satisfechos', icon: 'clients' },

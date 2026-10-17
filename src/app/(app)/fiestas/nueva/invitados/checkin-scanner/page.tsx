@@ -35,7 +35,7 @@ function CheckinScannerContent() {
 
   const [allGuests, setAllGuests] = useState<Invitado[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
@@ -55,14 +55,71 @@ function CheckinScannerContent() {
       if(showLoading) setIsLoading(false);
     }
   }, [toast, fiestaId]);
-  
+
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
 
+  const [pendientesCount, setPendientesCount] = useState(0);
+
+  const getColaPendientes = useCallback((): Array<{ guestId: string; token: string | null; escaneadoEn: string }> => {
+    if (!fiestaId || typeof window === 'undefined') return [];
+    try {
+      const guardado = localStorage.getItem(`ak_checkin_pendientes_${fiestaId}`);
+      return guardado ? JSON.parse(guardado) : [];
+    } catch {
+      return [];
+    }
+  }, [fiestaId]);
+
+  const guardarColaPendientes = useCallback((cola: Array<{ guestId: string; token: string | null; escaneadoEn: string }>) => {
+    if (!fiestaId || typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(`ak_checkin_pendientes_${fiestaId}`, JSON.stringify(cola));
+      setPendientesCount(cola.length);
+    } catch {}
+  }, [fiestaId]);
+
+  const sincronizarCola = useCallback(async () => {
+    if (!fiestaId || typeof window === 'undefined') return;
+    const cola = getColaPendientes();
+    if (cola.length === 0) {
+      setPendientesCount(0);
+      return;
+    }
+    const pendientesRestantes: typeof cola = [];
+    for (const item of cola) {
+      try {
+        const res = await checkInGuestFiestaActual(
+          fiestaId,
+          item.guestId,
+          item.token ? { token: item.token } : undefined,
+          item.escaneadoEn
+        );
+        if (!res.success && res.error && !res.error.includes('ya')) {
+          pendientesRestantes.push(item);
+        }
+      } catch {
+        pendientesRestantes.push(item);
+      }
+    }
+    guardarColaPendientes(pendientesRestantes);
+  }, [fiestaId, getColaPendientes, guardarColaPendientes]);
+
+  useEffect(() => {
+    setPendientesCount(getColaPendientes().length);
+    const interval = setInterval(sincronizarCola, 10000);
+    const handleOnline = () => sincronizarCola();
+    window.addEventListener('online', handleOnline);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, [getColaPendientes, sincronizarCola]);
+
   const processCheckIn = useCallback(async (guestId: string, qr?: { token: string | null }) => {
     if (isProcessingCheckin || !fiestaId) return;
-    
+
     setIsProcessingCheckin(guestId);
 
     const guestToCheck = allGuests.find(g => g.id === guestId);
@@ -71,7 +128,7 @@ function CheckinScannerContent() {
         setIsProcessingCheckin(null);
         return;
     }
-    
+
     if (guestToCheck.checkedIn) {
          toast({
             title: "Ya Registrado",
@@ -83,8 +140,10 @@ function CheckinScannerContent() {
         return;
     }
 
+    const escaneadoEn = new Date().toISOString();
+
     try {
-      const result = await checkInGuestFiestaActual(fiestaId, guestId, qr);
+      const result = await checkInGuestFiestaActual(fiestaId, guestId, qr, escaneadoEn);
       if (result.success && result.invitado) {
         setAllGuests(prevGuests => prevGuests.map(g => g.id === guestId ? result.invitado! : g));
         toast({
@@ -98,23 +157,34 @@ function CheckinScannerContent() {
         throw new Error(result.error || "No se pudo registrar la entrada.");
       }
     } catch (e: any) {
-      // En la puerta, con gente esperando, no sirve un error tecnico en ingles.
-      // Cuando se corta el WiFi del salon el navegador tira "Failed to fetch": se
-      // traduce a algo que se pueda actuar, porque el ingreso NO quedo guardado y
-      // hay que volver a escanear.
       const bruto = String(e?.message ?? '');
-      const esDeRed = /failed to fetch|networkerror|load failed|fetch failed|timeout/i.test(bruto);
-      toast({
-        title: esDeRed ? 'Sin conexion' : 'No se pudo registrar la entrada',
-        description: esDeRed
-          ? 'El celular perdio la senal del salon. El ingreso no quedo guardado: volve a escanear el QR en unos segundos.'
-          : bruto || 'Proba de nuevo. Si sigue fallando, anotalo a mano desde la lista.',
-        variant: 'destructive',
-      });
+      const esDeRed = !navigator.onLine || /failed to fetch|networkerror|load failed|fetch failed|timeout/i.test(bruto);
+
+      if (esDeRed) {
+        // Modo offline: admitir y encolar
+        setAllGuests(prevGuests => prevGuests.map(g => g.id === guestId ? { ...g, checkedIn: true, checkInTimestamp: escaneadoEn } : g));
+        const colaActual = getColaPendientes();
+        if (!colaActual.some(i => i.guestId === guestId)) {
+          guardarColaPendientes([...colaActual, { guestId, token: qr?.token ?? null, escaneadoEn }]);
+        }
+        toast({
+          title: `¡Adelante, ${guestToCheck.nombre}!`,
+          description: `Mesa ${guestToCheck.tableNumber || 'N/A'} (entrada anotada, pendiente de subir)`,
+          variant: "default",
+          duration: 5000,
+          className: "bg-emerald-100 border-emerald-300 text-emerald-800"
+        });
+      } else {
+        toast({
+          title: 'No se pudo registrar la entrada',
+          description: bruto || 'Probá de nuevo. Si sigue fallando, anotalo a mano desde la lista.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsProcessingCheckin(null);
     }
-  }, [isProcessingCheckin, allGuests, toast, fiestaId]);
+  }, [isProcessingCheckin, allGuests, toast, fiestaId, getColaPendientes, guardarColaPendientes]);
 
   const onScanSuccess: QrcodeSuccessCallback = useCallback((decodedText, decodedResult) => {
     if (scannerRef.current?.getState() === 2) { // 2 is SCANNING state
@@ -149,7 +219,7 @@ function CheckinScannerContent() {
         }, 3000);
     }
   }, [fiestaId, processCheckIn, toast]);
-  
+
   const onScanFailure = (error: any) => {};
 
   // Bandera de desmontado: si se sale de la pantalla mientras se pide el permiso o se carga el
@@ -199,7 +269,7 @@ function CheckinScannerContent() {
       scannerRef.current = null;
     }
   };
-  
+
   const handleTabChange = (value: string) => {
     if (value === 'scanner') {
         startScanner();
@@ -207,7 +277,7 @@ function CheckinScannerContent() {
         stopScanner();
     }
   };
-  
+
   useEffect(() => {
     return () => {
       stopScanner();
@@ -249,7 +319,7 @@ function CheckinScannerContent() {
             </Badge>
         </CardHeader>
       </Card>
-      
+
       <Tabs defaultValue="list" className="w-full" onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="list">Lista de Invitados</TabsTrigger>

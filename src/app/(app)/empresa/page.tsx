@@ -37,6 +37,9 @@ import {
   DollarSign,
 } from 'lucide-react';
 
+import { getMisPermisos } from '@/app/actions/sesion';
+import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+
 interface HubItem {
   title: string;
   description: string;
@@ -45,6 +48,7 @@ interface HubItem {
   color: string;
   badge?: string;
   external?: boolean;
+  permiso?: Permiso;
 }
 
 const VENDER_ITEMS: HubItem[] = [
@@ -278,13 +282,41 @@ const CANVA_CATALOGS = [
 
 export default function EmpresaHubPage() {
   const [activeTab, setActiveTab] = useState('todos');
+  const [misPermisos, setMisPermisos] = useState<Permiso[] | null>(null);
+
+  React.useEffect(() => {
+    let cancelado = false;
+    getMisPermisos()
+      .then((res) => {
+        if (!cancelado) setMisPermisos(res.permisos);
+      })
+      .catch(() => {
+        if (!cancelado) setMisPermisos([]);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  const filtrarPorPermiso = (items: HubItem[]) => {
+    if (!misPermisos) {
+      // Mientras carga, mostrar solo items sin permiso explícito
+      return items.filter((i) => !i.permiso);
+    }
+    return items.filter((i) => !i.permiso || misPermisos.includes(i.permiso));
+  };
+
+  const venderItemsFiltrados = filtrarPorPermiso(VENDER_ITEMS);
+  const plataItemsFiltrados = filtrarPorPermiso(PLATA_ITEMS);
+  const recursosItemsFiltrados = filtrarPorPermiso(RECURSOS_ITEMS);
+  const marketingItemsFiltrados = filtrarPorPermiso(MARKETING_ITEMS);
 
   const groups = [
-    { id: 'vender', label: '1. Vender', count: VENDER_ITEMS.length, items: VENDER_ITEMS, emoji: '💼' },
-    { id: 'plata', label: '2. Plata', count: PLATA_ITEMS.length, items: PLATA_ITEMS, emoji: '💰' },
-    { id: 'recursos', label: '3. Recursos', count: RECURSOS_ITEMS.length, items: RECURSOS_ITEMS, emoji: '📦' },
-    { id: 'marketing', label: '4. Marketing', count: MARKETING_ITEMS.length, items: MARKETING_ITEMS, emoji: '🚀' },
-  ];
+    { id: 'vender', label: '1. Vender', count: venderItemsFiltrados.length, items: venderItemsFiltrados, emoji: '💼' },
+    { id: 'plata', label: '2. Plata', count: plataItemsFiltrados.length, items: plataItemsFiltrados, emoji: '💰' },
+    { id: 'recursos', label: '3. Recursos', count: recursosItemsFiltrados.length, items: recursosItemsFiltrados, emoji: '📦' },
+    { id: 'marketing', label: '4. Marketing', count: marketingItemsFiltrados.length, items: marketingItemsFiltrados, emoji: '🚀' },
+  ].filter((g) => g.items.length > 0);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-24">

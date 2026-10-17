@@ -261,6 +261,26 @@ function normalizePrefillEventType(type?: string | null): string {
     return 'Cumpleaños';
 }
 
+function obtenerPrimerSabadoDeMes(mesStr?: string | null): Date | undefined {
+    if (!mesStr || !/^\d{4}-\d{2}$/.test(mesStr)) return undefined;
+    const [yearStr, monthStr] = mesStr.split('-');
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10) - 1;
+    const date = new Date(year, month, 1, 12, 0, 0);
+    while (date.getDay() !== 6) {
+        date.setDate(date.getDate() + 1);
+    }
+    return date;
+}
+
+const NOMBRE_VISIBLE_POR_ID: Record<string, string> = {
+    serv_espejo_magico_ia: 'Tótem Touch IA (personajes y estilos con inteligencia artificial)',
+};
+
+function getNombreVisibleDeServicio(service: { id: string; nombre: string }): string {
+    return NOMBRE_VISIBLE_POR_ID[service.id] || service.nombre;
+}
+
 function SimuladorContent() {
     const { toast } = useToast();
     const searchParams = useSearchParams();
@@ -268,16 +288,17 @@ function SimuladorContent() {
     const prefillGuests = Math.max(1, Math.min(1000, Math.round(Number(searchParams.get('guests')) || 50)));
     const prefillEventType = normalizePrefillEventType(searchParams.get('eventType') ?? searchParams.get('tipo'));
     const prefillSalonChoice: 'club' | '' = searchParams.get('salon')?.toLowerCase() === 'club' ? 'club' : '';
+    const prefillExtra = searchParams.get('extra');
     const acquisition = useMemo(() => ({
         ...commercialAttributionFromSearchParams(searchParams, 'landing'),
         entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
         simulatorMode: 'visual' as const,
     }), [searchParams]);
     const [hasStarted, setHasStarted] = useState(false);
-    // Si la URL trae el tipo de fiesta pre-seleccionado, saltamos la pantalla de bienvenida
-    // para que el combobox quede visible de entrada y las pruebas e2e puedan encontrarlo.
+    // Si la URL trae el tipo de fiesta pre-seleccionado o parámetros clave, saltamos la pantalla de bienvenida
+    // para que el formulario quede visible de entrada y las pruebas e2e puedan encontrarlo.
     useEffect(() => {
-      if (searchParams.get('tipo') || searchParams.get('eventType')) {
+      if (searchParams.get('tipo') || searchParams.get('eventType') || searchParams.get('mes') || searchParams.get('extra')) {
         setHasStarted(true);
       }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -298,7 +319,7 @@ function SimuladorContent() {
     const [adultos, setAdultos] = useState<number>(prefillGuests);
     const [ninosYAdolescentes, setNinosYAdolescentes] = useState<number>(0);
     const [duracionHoras, setDuracionHoras] = useState<number>(5);
-    const [eventoFecha, setEventoFecha] = useState<Date | undefined>(undefined);
+    const [eventoFecha, setEventoFecha] = useState<Date | undefined>(() => obtenerPrimerSabadoDeMes(searchParams.get('mes')));
     const [selectedEntradas, setSelectedEntradas] = useState<string[]>([]);
     const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
     const [selectedInfantil, setSelectedInfantil] = useState<string>('');
@@ -767,6 +788,16 @@ function SimuladorContent() {
             }
         }
     }, [config, selectedPaqueteId, excludedPackageServiceIds, formData.serviciosSeleccionados, selectedEntradas, selectedPrincipal, selectedInfantil, allSimuladorServices, adultos, ninosYAdolescentes, maxEntradas]);
+
+    const extraAppliedRef = useRef(false);
+    useEffect(() => {
+        if (extraAppliedRef.current || !prefillExtra || allSimuladorServices.length === 0) return;
+        const target = allSimuladorServices.find(s => s.id === prefillExtra);
+        if (target) {
+            extraAppliedRef.current = true;
+            handleToggleServiceInBudget(prefillExtra, 'include');
+        }
+    }, [prefillExtra, allSimuladorServices, handleToggleServiceInBudget]);
 
     const stats = useMemo(() => {
         const pricingConfig = config || { menus: [], paquetes: [], descuentoGeneral: 15 };
@@ -1381,9 +1412,14 @@ function SimuladorContent() {
                              (selectedPackage?.serviciosIncluidos.some(s => s.id === service.id) && !excludedPackageServiceIds.includes(service.id));
             if (isActive) return false;
 
-            return service.nombre.toLowerCase().includes(term) ||
+            const nombreVisible = getNombreVisibleDeServicio(service).toLowerCase();
+            const matchesIA = service.id === 'serv_espejo_magico_ia' && (term.includes('ia') || term.includes('totem') || term.includes('tótem') || term.includes('touch'));
+
+            return nombreVisible.includes(term) ||
+                   service.nombre.toLowerCase().includes(term) ||
                    (service.categoria || '').toLowerCase().includes(term) ||
-                   (service.subcategoria || '').toLowerCase().includes(term);
+                   (service.subcategoria || '').toLowerCase().includes(term) ||
+                   matchesIA;
         }).slice(0, 5);
     }, [serviceSearchTerm, allSimuladorServices, formData.serviciosSeleccionados, selectedPackage, excludedPackageServiceIds]);
 
@@ -2643,7 +2679,7 @@ function SimuladorContent() {
                                                         >
                                                             <div className="min-w-0 flex-1 text-left">
                                                                 <span className="block font-black text-slate-800 text-xs truncate">
-                                                                    {item.nombre}
+                                                                    {getNombreVisibleDeServicio(item)}
                                                                 </span>
                                                                 <div className="flex items-center gap-2 mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                                                     <span className={item.esRegalo ? "text-emerald-600 font-black" : ""}>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio activo')}</span>
@@ -2774,7 +2810,7 @@ function SimuladorContent() {
                                                             )}
                                                         >
                                                             <div className="min-w-0 flex-1">
-                                                                <span className="block font-black text-xs text-white truncate">{service.nombre}</span>
+                                                                <span className="block font-black text-xs text-white truncate">{getNombreVisibleDeServicio(service)}</span>
                                                                 <span className="block text-[10px] text-amber-300 font-black mt-0.5">+{formatCurrency(calculated.total)}</span>
                                                             </div>
                                                             <Button
@@ -2840,13 +2876,13 @@ function SimuladorContent() {
                                                                     setIsSearchFocused(false);
                                                                     toast({
                                                                         title: "Servicio agregado",
-                                                                        description: `${service.nombre} se agregó al presupuesto.`,
+                                                                        description: `${getNombreVisibleDeServicio(service)} se agregó al presupuesto.`,
                                                                     });
                                                                 }}
                                                                 className="w-full p-4 text-left hover:bg-slate-50 flex items-center justify-between gap-4 transition"
                                                             >
                                                                 <div>
-                                                                    <span className="block text-sm font-bold text-slate-800">{service.nombre}</span>
+                                                                    <span className="block text-sm font-bold text-slate-800">{getNombreVisibleDeServicio(service)}</span>
                                                                     <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
                                                                         {formatCategoriaText(service.categoria)} {service.subcategoria ? `· ${service.subcategoria}` : ''}
                                                                     </span>

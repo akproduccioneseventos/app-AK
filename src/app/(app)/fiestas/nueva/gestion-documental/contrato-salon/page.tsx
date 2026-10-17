@@ -155,7 +155,7 @@ function ContratoSalonContent() {
           const alta = await updateContratoFiestaActual(fiestaId, draft, 'salon', 'default-salon');
           if (!alta?.success) {
             // Los datos si cargaron: lo que fallo fue guardar el borrador.
-            setAvisoGuardado('El borrador se armo pero no se pudo guardar. Podes imprimirlo igual; si lo editas, guardalo de nuevo.');
+            setAvisoGuardado('El borrador se armó pero no se pudo guardar. Podés imprimirlo igual; si lo editas, guardalo de nuevo.');
           }
         }
       } else {
@@ -190,7 +190,7 @@ function ContratoSalonContent() {
       setIsEditing(false);
       toast({ title: 'Contrato guardado', description: 'Los cambios quedaron guardados en el evento.' });
     } catch (err: any) {
-      setAvisoGuardado(err.message || 'No se pudo guardar el contrato. Volve a intentar.');
+      setAvisoGuardado(err.message || 'No se pudo guardar el contrato. Volvé a intentar.');
       toast({ title: 'No se pudo guardar', description: err.message, variant: 'destructive' });
     } finally {
       setIsSaving(false);
@@ -282,7 +282,7 @@ function ContratoSalonContent() {
         )}
 
         <div className="bg-white shadow-2xl print:shadow-none p-10 md:p-16 print:p-2 min-h-[1000px] rounded-[2.5rem] border border-slate-100">
-          <header className="mb-12 print:mb-8 text-center">
+          <header className="cabecera-documento mb-12 print:mb-8 text-center">
             {logoUrl && (
               <div className="w-full h-24 print:h-20 mb-6 relative">
                 <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName="w-full h-full" />

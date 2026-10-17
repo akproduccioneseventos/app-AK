@@ -38,12 +38,15 @@ export interface ResumenNocheEntretenimiento {
 const NOMBRES_ESTACIONES: Record<string, string> = {
   fotocabina: 'Fotocabina',
   plataforma360: 'Plataforma 360',
-  bogue: 'Bogue Boomerang',
+  bogue: 'Vogue Boomerang',
   espejoMagicoFoto: 'Espejo Mágico (Foto)',
   espejoMagicoFirma: 'Espejo Mágico (Firma)',
   espejoMagicoIA: 'Espejo Mágico IA',
   totems: 'Tótems Interactivos',
   capsulaTiempo: 'Cápsula del Tiempo',
+  buzon: 'Buzón de Mensajes',
+  webar: 'Experiencia WebAR',
+  descartable: 'Cámara Descartable Retro',
 };
 
 export function calcularResumenNoche(

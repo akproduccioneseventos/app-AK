@@ -82,10 +82,20 @@ function selectBestSpanishVoice(): SpeechSynthesisVoice | null {
 }
 
 function truncateForSpeech(text: string): string {
-  return text
+  const limpio = text
     .replace(/[*#_`~>]/g, '')
     .replace(/https?:\/\/\S+/g, '')
     .trim();
+
+  // Modo Walkie-Talkie ágil: máximo ~260 caracteres cerrando en punto para no hablar de más
+  if (limpio.length <= 260) return limpio;
+  const cortePunto = limpio.indexOf('. ', 120);
+  if (cortePunto !== -1 && cortePunto < 280) {
+    return limpio.slice(0, cortePunto + 1).trim();
+  }
+  const corte = limpio.slice(0, 260);
+  const ultimoEspacio = corte.lastIndexOf(' ');
+  return (ultimoEspacio > 0 ? corte.slice(0, ultimoEspacio) : corte) + '...';
 }
 
 type ChatMessage = AkMultiAgentMessage & {
