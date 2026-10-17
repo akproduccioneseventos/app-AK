@@ -33,10 +33,10 @@ export default async function PresenciaDigitalPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-amber-400" />
-            Centro de Presencia Digital
+            Centro de Redes Sociales y Presencia Online
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Todo el estado de tus redes, publicidad y qué campañas traen fiestas de verdad.
+            Sincronización en tiempo real, tabla unificada de comentarios, contestaciones automáticas, WhatsApp y fiestas reales.
           </p>
         </div>
 
