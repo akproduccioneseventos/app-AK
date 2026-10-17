@@ -16,6 +16,7 @@ import {
   Download,
   ExternalLink,
   Facebook,
+  Film,
   Gamepad2,
   Gift,
   Globe,
@@ -99,6 +100,8 @@ const PUBLIC_TOOL_ICONS: Record<PublicEventTool['id'], LucideIcon> = {
   games: Gamepad2,
   buzon: Heart,
   mesa: MapPin,
+  webar: Sparkles,
+  descartable: Film,
 };
 
 type PortalAction = {

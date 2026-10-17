@@ -35,15 +35,18 @@ import {
   type VectorDeCara,
 } from '@/lib/caras/agrupar-caras';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
+import { extraerDescriptorFacial } from '@/lib/caras/extractor-facial';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'vogue' | 'totem' | 'invitados';
 
 /**
- * Extrae 128 números normalizados desde un cuadro del video capturado en el teléfono.
+ * Extrae los 128 descriptores de rostro usando face-api en el teléfono.
  * Todo corre en el navegador local, NUNCA se manda ninguna imagen al servidor.
  */
-function extraerVectorLocal(video: HTMLVideoElement): VectorDeCara | null {
+async function extraerVectorLocal(video: HTMLVideoElement): Promise<VectorDeCara | null> {
+  const descriptorReal = await extraerDescriptorFacial(video);
+  if (descriptorReal) return descriptorReal;
   try {
     const canvas = document.createElement('canvas');
     canvas.width = 160;
@@ -326,7 +329,7 @@ export default function GaleriaPage() {
       for (let i = 0; i < 3; i++) {
         await new Promise((resolve) => setTimeout(resolve, 300));
         if (videoRef.current) {
-          const v = extraerVectorLocal(videoRef.current);
+          const v = await extraerVectorLocal(videoRef.current);
           if (v) vectoresExtraidos.push(v);
         }
       }

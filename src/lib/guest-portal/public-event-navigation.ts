@@ -1,6 +1,6 @@
 import type { PublicGuestEvent } from "@/lib/guest-portal-public-data";
 
-export type PublicEventToolId = "social" | "gallery" | "songs" | "bar" | "games" | "buzon" | "mesa";
+export type PublicEventToolId = "social" | "gallery" | "songs" | "bar" | "games" | "buzon" | "mesa" | "webar" | "descartable";
 
 export interface PublicEventTool {
   id: PublicEventToolId;
@@ -130,6 +130,22 @@ export function buildPublicEventTools({
     label: "¿Dónde me siento?",
     description: "Buscá tu nombre para saber en qué mesa estás ubicado.",
     href: accessiblePath("mi-mesa"),
+  });
+
+  // Experiencia WebAR (Holograma de bienvenida y menú interactivo)
+  tools.push({
+    id: "webar",
+    label: "Holograma 3D y Menú AR",
+    description: "Apuntá con tu cámara para ver el holograma de bienvenida y el menú interactivo.",
+    href: accessiblePath("ar"),
+  });
+
+  // Cámara descartable analógica virtual (POV de la fiesta)
+  tools.push({
+    id: "descartable",
+    label: "Cámara Retro POV",
+    description: "Capturá momentos analógicos con revelado al mediodía siguiente.",
+    href: accessiblePath("descartable"),
   });
 
   return tools;

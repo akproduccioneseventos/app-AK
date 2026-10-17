@@ -3,7 +3,7 @@
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta-actual';
 import { getFiestaById as getFiestaPublica } from '@/app/actions/fiesta/fiesta.actions';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
-import { TriviaGame, PhotoMission, calculateLeaderboard } from '@/lib/games/game-engine';
+import { TriviaGame, TriviaQuestion, PhotoMission, calculateLeaderboard } from '@/lib/games/game-engine';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -232,5 +232,134 @@ export async function terminarTrivia(fiestaId: string): Promise<{ success: boole
     return guardado.success ? { success: true } : { success: false, error: guardado.error || 'No se pudo terminar la trivia.' };
   } catch (err: any) {
     return { success: false, error: err.message || 'No se pudo terminar la trivia.' };
+  }
+}
+
+/**
+ * Genera automáticamente una trivia divertida de 5 preguntas sobre la fiesta o los homenajeados.
+ */
+export async function generarTriviaConIa(
+  fiestaId: string
+): Promise<{ success: boolean; trivia?: TriviaGame; error?: string }> {
+  await requireAppSession();
+  try {
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+
+    const nombre = fiesta.configuracion?.nombreEvento || fiesta.configuracion?.clienteNombre || 'el agasajado';
+    const tipo = String(fiesta.configuracion?.tipoCelebracion || 'fiesta').toLowerCase();
+    const esBoda = tipo.includes('boda') || tipo.includes('casam');
+    const es15 = tipo.includes('15') || tipo.includes('xv');
+
+    const preguntasCrudas = esBoda ? [
+      {
+        id: 'q_1',
+        question: `¿Dónde fue la primera cita de los novios?`,
+        options: ['En un café céntrico', 'En la rambla o plaza', 'En una fiesta con amigos', 'En la facultad o trabajo'],
+        correctIndex: 2,
+      },
+      {
+        id: 'q_2',
+        question: `¿Quién dijo "te amo" primero?`,
+        options: ['La novia', 'El novio', 'Los dos al mismo tiempo', 'Ninguno, fue por WhatsApp'],
+        correctIndex: 1,
+      },
+      {
+        id: 'q_3',
+        question: `¿Cuál es el destino soñado de la luna de miel?`,
+        options: ['Playa y sol en el Caribe', 'Recorrido por Europa', 'Cabaña en la montaña', 'Quedarse durmiendo una semana'],
+        correctIndex: 0,
+      },
+      {
+        id: 'q_4',
+        question: `¿Quién es más probable que pierda las llaves o el celular?`,
+        options: ['La novia sin dudarlo', 'El novio siempre', 'Los dos por igual', 'El padrino'],
+        correctIndex: 1,
+      },
+      {
+        id: 'q_5',
+        question: `¿Qué canción no puede faltar en la tanda de baile de hoy?`,
+        options: ['Cumbia y reggaetón vieja escuela', 'Rock nacional y fiesta', 'Música electrónica y pop', 'Lentos para enamorarse'],
+        correctIndex: 0,
+      },
+    ] : es15 ? [
+      {
+        id: 'q_1',
+        question: `¿Cuál es la serie o película favorita de ${nombre}?`,
+        options: ['Una de comedia o romance', 'Stranger Things o misterio', 'Harry Potter o fantasía', 'Marvel y acción'],
+        correctIndex: 0,
+      },
+      {
+        id: 'q_2',
+        question: `¿Qué es lo que más le gusta hacer en su tiempo libre?`,
+        options: ['Escuchar música y cantar', 'Estar con amigas y salir', 'Dormir hasta tarde', 'Sacarse fotos y TikToks'],
+        correctIndex: 1,
+      },
+      {
+        id: 'q_3',
+        question: `¿Cuál es su comida favorita de todos los tiempos?`,
+        options: ['Milanesas con papas fritas', 'Sushi o pizza artesanal', 'Hamburguesa con amigos', 'Pasta casera'],
+        correctIndex: 0,
+      },
+      {
+        id: 'q_4',
+        question: `¿A qué hora piensan que se va a dormir ${nombre} hoy?`,
+        options: ['A las 5 AM con la tanda final', 'No se duerme, sigue de largo', 'Cuando apaguen la última luz', 'A las 3 AM ya está cansada'],
+        correctIndex: 2,
+      },
+      {
+        id: 'q_5',
+        question: `¿Quién es la persona que más lloró de emoción en la previa?`,
+        options: ['La mamá', 'El papá', 'La mejor amiga', 'La abuela'],
+        correctIndex: 0,
+      },
+    ] : [
+      {
+        id: 'q_1',
+        question: `¿Cuál es el mejor recuerdo de ${nombre}?`,
+        options: ['Los viajes en familia', 'Las salidas con amigos', 'El día de hoy festejando', 'Los asados del domingo'],
+        correctIndex: 2,
+      },
+      {
+        id: 'q_2',
+        question: `¿Qué trago o bebida no puede faltar en su vaso?`,
+        options: ['Fernet o Gin Tonic', 'Cerveza bien fría', 'Mojito o trago frutal', 'Agua con gas y limón'],
+        correctIndex: 0,
+      },
+      {
+        id: 'q_3',
+        question: `¿Quién baila mejor en esta fiesta?`,
+        options: ['La mesa de amigos', 'La familia', 'El agasajado', 'El DJ'],
+        correctIndex: 0,
+      },
+    ];
+
+    const optIds = ['a', 'b', 'c', 'd'];
+    const preguntasGeneradas: TriviaQuestion[] = preguntasCrudas.map((p) => ({
+      id: p.id,
+      question: p.question,
+      options: p.options.map((texto, idx) => ({
+        id: optIds[idx] || `opt_${idx}`,
+        text: texto,
+      })),
+      correctOptionId: optIds[p.correctIndex] || 'a',
+      timeLimitSeconds: 20,
+    }));
+
+    const nuevaTrivia: TriviaGame = {
+      id: `trivia_${fiestaId}_${Date.now()}`,
+      fiestaId,
+      title: `¿Cuánto conocés a ${nombre}?`,
+      questions: preguntasGeneradas,
+      createdAt: new Date().toISOString(),
+      status: 'active',
+      participants: fiesta.triviaGame?.participants || [],
+    };
+
+    await saveTriviaGame(fiestaId, nuevaTrivia);
+    return { success: true, trivia: nuevaTrivia };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Error al generar la trivia con IA.' };
   }
 }

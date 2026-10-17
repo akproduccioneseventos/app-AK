@@ -253,15 +253,46 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
         <h3 className="text-2xl font-bold text-gray-800">¡Confirmación recibida!</h3>
         <p className="text-gray-500 font-medium">{confirmLabels[asistencia] ?? 'Gracias por responder.'}</p>
         <p className="text-sm text-gray-400">Hemos guardado tu confirmación para el evento.</p>
-        <p className="text-sm text-gray-500">¿Te cambian los planes? Volvé a entrar con este mismo enlace y tu mismo nombre para actualizar tu respuesta.</p>
-        <Button
-          type="button"
-          onClick={handleRespondAgain}
-          className="rounded-xl px-5 font-bold text-white shadow-md transition-all active:scale-95"
-          style={{ backgroundColor: 'var(--inv-primary)' }}
-        >
-          Responder de nuevo
-        </Button>
+
+        {asistencia === 'Confirmado' && (
+          <div className="mt-6 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 space-y-3 text-left">
+            <p className="text-xs font-black uppercase tracking-wider text-amber-800">Tu pase digital al evento</p>
+            <div className="flex flex-col gap-2">
+              <a
+                href={`/evento/mi-mesa/${fiestaId}?nombre=${encodeURIComponent(nombre || '')}`}
+                className="inline-flex items-center justify-between p-3 rounded-xl bg-white border border-amber-200 text-sm font-bold text-slate-800 hover:bg-amber-100/50 transition shadow-sm"
+              >
+                <span>🍽️ Ver mi mesa asignada</span>
+                <span className="text-xs text-amber-600 font-semibold">Consultar →</span>
+              </a>
+              <a
+                href={`/evento/hub/${fiestaId}`}
+                className="inline-flex items-center justify-between p-3 rounded-xl bg-white border border-amber-200 text-sm font-bold text-slate-800 hover:bg-amber-100/50 transition shadow-sm"
+              >
+                <span>📱 Entrar a la app en vivo de la fiesta</span>
+                <span className="text-xs text-amber-600 font-semibold">Abrir →</span>
+              </a>
+              <a
+                href={`/evento/ar/${fiestaId}`}
+                className="inline-flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-sm font-black text-slate-950 shadow transition hover:scale-[1.02]"
+              >
+                <span>✨ Ver bienvenida en Realidad Aumentada (WebAR)</span>
+                <span className="text-xs bg-black/20 px-2 py-0.5 rounded-full">3D →</span>
+              </a>
+            </div>
+          </div>
+        )}
+
+        <div className="pt-2">
+          <Button
+            type="button"
+            onClick={handleRespondAgain}
+            className="rounded-xl px-5 font-bold text-white shadow-md transition-all active:scale-95 text-xs"
+            style={{ backgroundColor: 'var(--inv-primary)' }}
+          >
+            Modificar mi respuesta
+          </Button>
+        </div>
       </motion.div>
     );
   }
