@@ -321,7 +321,7 @@ export default function PublicPortalView({
    *
    * Se usa el mismo criterio para habilitar el boton y para enviar. Antes el
    * boton miraba `parseFloat(pagoMonto)` en crudo: si el cliente escribia algo
-   * que no era un numero, eso daba "no es un numero", la comparacion con cero
+   * que no era un numero, eso daba "no es un número", la comparacion con cero
    * daba falso y el boton quedaba habilitado. El cliente lo tocaba, no pasaba
    * nada y no recibia ningun aviso.
    */

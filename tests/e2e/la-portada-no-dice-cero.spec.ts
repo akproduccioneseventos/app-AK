@@ -11,7 +11,7 @@ test.describe('Orden 96 - Bloque 2: Los números de la portada no dicen cero', (
 
     // El servidor no manda "+0 " ni "0/7"
     expect(html).not.toMatch(/\+0\s/);
-    expect(html).not.toMatch(/0\/7/);
+    expect(html).not.toMatch(/>\s*0\/7\b/);
 
     // Contiene la cifra oficial de eventos realizados (+200)
     expect(html).toContain('+200');

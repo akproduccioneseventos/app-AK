@@ -3,14 +3,14 @@
 import { useCallback, useState, useEffect, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Lock, 
-  Settings, 
-  Wine, 
-  Tv, 
-  Video, 
-  Smartphone, 
-  AlertCircle, 
+import {
+  Lock,
+  Settings,
+  Wine,
+  Tv,
+  Video,
+  Smartphone,
+  AlertCircle,
   Loader2,
   Check,
   Camera,
@@ -29,13 +29,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/co
 import { Input } from '@/components/ui/input';
 import { getFiestaActivaDeHoy, getFiestas } from '@/app/actions/fiesta-actual';
 
-export type KioskRole = 
-  | 'barra' 
-  | 'muro-en-vivo' 
-  | 'plataforma-360' 
+export type KioskRole =
+  | 'barra'
+  | 'muro-en-vivo'
+  | 'plataforma-360'
   | 'totem'
   | 'fotocabina'
   | 'espejo-magico'
+  | 'bogue'
   | 'touchpix'
   | 'buzon'
   | 'video-vida'
@@ -54,6 +55,7 @@ const ETIQUETAS_DE_ESTACION: Record<string, string> = {
   totem: 'Totem',
   fotocabina: 'Fotocabina',
   'espejo-magico': 'Espejo magico',
+  bogue: 'Cabina Vogue',
   touchpix: 'Touchpix',
   buzon: 'Buzon de saludos',
   'video-vida': 'Video de vida',
@@ -66,7 +68,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const fiestaSelectId = useId();
   const rolesGroupId = useId();
   const totemInputId = useId();
-  
+
   // Loading and State
   const [status, setStatus] = useState<'checking' | 'setup' | 'redirecting'>('checking');
   const [fiestas, setFiestas] = useState<any[]>([]);
@@ -81,7 +83,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
    * justamente lo que hace que no se use**.
    */
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   // Totem custom identifier
   const [totemId, setTotemId] = useState('');
   const [enlaceCopiado, setEnlaceCopiado] = useState(false);
@@ -138,7 +140,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
         loadFiestaOptions();
       }
     }
-    
+
     checkTodayEvent();
   }, [defaultRole, loadFiestaOptions, navigateToRole]);
 
@@ -203,7 +205,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
       setErrorMessage('Por favor selecciona un evento.');
       return;
     }
-    
+
     if (selectedRole === 'totem' && !totemId.trim()) {
       setErrorMessage('Indica el identificador real del tótem antes de lanzarlo.');
       return;
@@ -280,7 +282,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
               Vincula esta tablet o pantalla a un rol específico del salón y bloquéala de forma segura.
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
             {errorMessage && (
               <motion.div
@@ -327,6 +329,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                   { id: 'totem', label: 'Tótem LED', icon: Smartphone, color: 'hover:border-emerald-500/50 hover:bg-emerald-500/5' },
                   { id: 'fotocabina', label: 'Fotocabina', icon: Camera, color: 'hover:border-amber-500/50 hover:bg-amber-500/5' },
                   { id: 'espejo-magico', label: 'Espejo Mágico', icon: Sparkles, color: 'hover:border-pink-500/50 hover:bg-pink-500/5' },
+                  { id: 'bogue', label: 'Cabina Vogue', icon: Sparkles, color: 'hover:border-fuchsia-500/50 hover:bg-fuchsia-500/5' },
                   { id: 'touchpix', label: 'Touchpix AI', icon: Wand2, color: 'hover:border-cyan-500/50 hover:bg-cyan-500/5' },
                   { id: 'buzon', label: 'Buzón Saludos', icon: Mic, color: 'hover:border-violet-500/50 hover:bg-violet-500/5' },
                   { id: 'video-vida', label: 'Video de Vida', icon: Film, color: 'hover:border-orange-500/50 hover:bg-orange-500/5' },
@@ -345,8 +348,8 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                         setErrorMessage('');
                       }}
                       className={`flex flex-col items-center gap-2 p-3 rounded-lg border text-center transition-all motion-reduce:transition-none ${
-                        isSelected 
-                          ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/5 text-purple-300' 
+                        isSelected
+                          ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/5 text-purple-300'
                           : 'border-slate-800 bg-slate-950 text-slate-400 ' + role.color
                       }`}
                     >

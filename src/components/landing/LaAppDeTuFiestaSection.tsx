@@ -263,21 +263,21 @@ export function LaAppDeTuFiestaSection({
 
               {/* Botones de acción directa */}
               <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/simulador-de-presupuesto"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-red-600/20 transition-transform duration-150 hover:bg-red-700 active:scale-95"
+                >
+                  Simular mi presupuesto
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
                 <a
                   href={waHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-red-600/20 transition-transform duration-150 hover:bg-red-700 active:scale-95"
-                >
-                  Consultar para mi fiesta
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-                <Link
-                  href="/simulador-de-presupuesto"
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
                 >
-                  Simular presupuesto
-                </Link>
+                  Consultar disponibilidad por WhatsApp
+                </a>
               </div>
 
               <p className="text-xs text-slate-400">
@@ -346,7 +346,7 @@ export function LaAppDeTuFiestaSection({
 
                       {demoMenuTab === "menu" && (
                         <div className="space-y-2 rounded-xl bg-slate-900/80 p-4 text-xs">
-                          <div className="flex items-center justify-between font-semibold text-slate-200">
+                          <div className="flex items-center justify-between gap-3 font-semibold text-slate-200">
                             <span>Propuesta Gastronómica Aprobada</span>
                             <span className="text-emerald-400">Confirmado</span>
                           </div>
@@ -366,7 +366,7 @@ export function LaAppDeTuFiestaSection({
 
                       {demoMenuTab === "musica" && (
                         <div className="space-y-2 rounded-xl bg-slate-900/80 p-4 text-xs">
-                          <div className="flex items-center justify-between font-semibold text-slate-200">
+                          <div className="flex items-center justify-between gap-3 font-semibold text-slate-200">
                             <span>Lista para el DJ</span>
                             <span className="text-red-400">Sincronizado</span>
                           </div>
@@ -385,7 +385,7 @@ export function LaAppDeTuFiestaSection({
 
                       {demoMenuTab === "deco" && (
                         <div className="space-y-2 rounded-xl bg-slate-900/80 p-4 text-xs">
-                          <div className="flex items-center justify-between font-semibold text-slate-200">
+                          <div className="flex items-center justify-between gap-3 font-semibold text-slate-200">
                             <span>Estilo & Iluminación</span>
                             <span className="text-purple-400">Paleta Oro & Lila</span>
                           </div>
@@ -398,7 +398,7 @@ export function LaAppDeTuFiestaSection({
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between rounded-lg bg-slate-900 px-3 py-2 text-[11px] text-slate-400">
+                      <div className="flex items-center justify-between gap-3 rounded-lg bg-slate-900 px-3 py-2 text-[11px] text-slate-400">
                         <span>💬 Conversación centralizada con tu productor asignado</span>
                         <span className="text-emerald-400 font-semibold">Al día</span>
                       </div>

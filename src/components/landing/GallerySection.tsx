@@ -342,6 +342,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                   alt={image.alt}
                   className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03] motion-reduce:transition-none"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  priority={index === 0}
                 />
                 <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/35" />
                 <span className="absolute left-3 top-3 bg-white/95 px-2 py-1 text-[10px] font-bold text-slate-800">
@@ -423,7 +424,6 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                   alt={displayedImages[lightboxIndex].alt}
                   className="object-contain"
                   sizes="100vw"
-                  priority
                 />
               </div>
               {(() => {

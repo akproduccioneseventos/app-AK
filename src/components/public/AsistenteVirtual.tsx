@@ -144,7 +144,7 @@ export function AsistenteVirtual() {
         {
           id: Date.now().toString(),
           role: 'assistant',
-          text: 'No pudimos conectar con el asistente en este momento. Escríbenos directamente por WhatsApp.'
+          text: 'No pudimos conectar con el asistente en este momento. Escribinos directamente por WhatsApp.'
         }
       ]);
     } finally {

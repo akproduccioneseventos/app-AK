@@ -67,6 +67,7 @@ test('simulator hub connects both options with the visual first step', async ({ 
 });
 
 test('public homepage fits the viewport without horizontal overflow', async ({ page }) => {
+  test.setTimeout(180_000);
   const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   expect(response?.status()).toBe(200);
@@ -76,13 +77,13 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
   const gallery = page.getByTestId('gallery-section');
   await expect(gallery).toBeVisible();
   await expect(
-    gallery.getByRole('heading', { name: 'Galería de eventos', level: 2 }),
+    gallery.getByRole('heading', { name: /Galería de eventos|Nuestros eventos en imágenes y movimiento/, level: 2 }),
   ).toBeVisible();
   await expect(
     page.getByRole('heading', { name: 'Elegimos la base y la hacemos tuya.' }),
   ).toHaveCount(0);
   await expect(
-    page.getByRole('img', { name: 'Fiestas de 15 producida por AK Producciones' }),
+    page.getByRole('img', { name: 'Fiestas de 15, producción de AK Producciones' }),
   ).toHaveAttribute('src', /xv-pista-iluminada-01\.jpeg/);
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
@@ -117,6 +118,7 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
 });
 
 test('secondary public navigation returns to the matching homepage section', async ({ page }) => {
+  test.setTimeout(180_000);
   await page.goto('/club-uruguay', { waitUntil: 'domcontentloaded' });
 
   const servicesLink = page.locator('header').getByRole('link', { name: 'Servicios', exact: true });

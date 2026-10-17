@@ -1,0 +1,44 @@
+{
+  "startedAt": "2026-10-16T00:43:26.458Z",
+  "finishedAt": "2026-10-16T00:44:40.823Z",
+  "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+  "applicationEquivalentTo": "d10f332a17241de5a4705a560336585853073a76",
+  "qaDirectory": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-P2nuO7",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T00:43:45.072Z",
+    "version": "a635b27071ecea22092eba2a285892c84c6f9d08 · compilada 2026-10-15T20:33:33.044Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 13
+  },
+  "tests": [
+    "tests/e2e/133-invitado-con-red-local.spec.ts"
+  ],
+  "testResult": {
+    "exitCode": 0,
+    "signal": null,
+    "testSources": [
+      {
+        "file": "tests/e2e/133-invitado-con-red-local.spec.ts",
+        "sha256": "0231afcb0bd7117cd59095c2e172f605a9c7322566a7fef9c9b731fe1cbec85d"
+      }
+    ]
+  },
+  "isolatedServicesDisabled": [
+    "gemini",
+    "mercadoPago",
+    "instagram",
+    "googleWorkspace",
+    "mail"
+  ],
+  "scope": "synthetic isolated native QA only; no production data, accounts, charges, messages, hardware, or merge",
+  "error": null
+}

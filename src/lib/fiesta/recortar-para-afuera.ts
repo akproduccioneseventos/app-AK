@@ -1,4 +1,46 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
+
+/**
+ * Recorta datos sensibles de la fiesta según los permisos del usuario que está leyendo (Orden 183).
+ */
+export function recortarFiestaPorPerfil(
+  fiesta: FiestaEnPlanificacion,
+  usuario: { perfil?: string; role?: string } | undefined | null
+): FiestaEnPlanificacion {
+  if (!usuario) return fiesta;
+
+  const copia: Record<string, unknown> = { ...fiesta };
+
+  // 1. Sin SUELDOS: no ve eventSalary en el personal asignado
+  if (!puede(usuario, PERMISOS.SUELDOS) && Array.isArray(fiesta.personalAsignado)) {
+    copia.personalAsignado = fiesta.personalAsignado.map((p) => {
+      const { eventSalary: _es, ...resto } = p as any;
+      return resto;
+    });
+  }
+
+  // 2. Sin GANANCIAS: no ve gestionCostos
+  if (!puede(usuario, PERMISOS.GANANCIAS)) {
+    delete copia.gestionCostos;
+  }
+
+  // 3. Sin CONTABILIDAD: no ve pagos a proveedores, plan de pagos, contratoDatos, notificaciones de pago ni montos pagados de compra
+  if (!puede(usuario, PERMISOS.CONTABILIDAD)) {
+    delete copia.pagosProveedores;
+    delete copia.planDePagos;
+    delete copia.clientPaymentNotifications;
+    delete copia.contratoDatos;
+    if (Array.isArray(fiesta.estadosCompra)) {
+      copia.estadosCompra = fiesta.estadosCompra.map((ec) => {
+        const { pagado: _p, montoPagado: _mp, ...resto } = ec as any;
+        return resto;
+      });
+    }
+  }
+
+  return copia as unknown as FiestaEnPlanificacion;
+}
 
 /**
  * LO QUE VIAJA A QUIEN NO ES DEL EQUIPO (25 de septiembre de 2026).

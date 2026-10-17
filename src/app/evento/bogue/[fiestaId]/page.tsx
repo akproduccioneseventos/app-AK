@@ -462,14 +462,14 @@ export default function BoguePage() {
       try {
         await asegurarCuadroDeVideo(videoRef.current);
       } catch {
-        setProgressMsg('La camara no esta entregando imagen. Tocá para volver a intentarlo.');
+        setProgressMsg('La cámara no esta entregando imagen. Tocá para volver a intentarlo.');
         setLocalStatus('idle');
         return;
       }
     }
     const video = videoRef.current;
     if (!isVideoFrameReady(video)) {
-      setProgressMsg('La camara todavia se esta preparando. Intenta nuevamente.');
+      setProgressMsg('La cámara todavía se esta preparando. Intenta nuevamente.');
       setLocalStatus('idle');
       return;
     }
@@ -543,7 +543,7 @@ export default function BoguePage() {
       const fotosBase64 = frames.map(f => f.toDataURL('image/jpeg', 0.9));
       setCuadrosDeLaTanda(fotosBase64);
       setGifUrl(null);
-      const eventName = fiesta?.eventName || 'Bogue';
+      const eventName = fiesta?.eventName || 'Vogue';
       const eventDate = fiesta?.eventDate || '';
       const colorDeAcento = fiesta?.station.accentColor || '#ec4899';
 
@@ -554,7 +554,7 @@ export default function BoguePage() {
         colorDeAcento,
         colorFondo: fiesta?.colorFondo,
         imagenFondoUrl: fiesta?.imagenFondoUrl,
-        textoDeMarca: 'BOGUE LIVE'
+        textoDeMarca: 'VOGUE LIVE'
       });
       setFinalStripUrl(stripUrl);
     } catch (e) {
@@ -701,7 +701,7 @@ export default function BoguePage() {
       ctx.fillStyle = '#000000';
       ctx.font = `bold ${h * 0.016}px monospace`;
       ctx.textAlign = 'center';
-      ctx.fillText('BOGUE LIVE', w - 110, h - 48);
+      ctx.fillText('VOGUE LIVE', w - 110, h - 48);
     }
 
     // Reset shadow values
@@ -773,7 +773,7 @@ export default function BoguePage() {
           const formDataStrip = new FormData();
           formDataStrip.append('fiestaId', fiestaId);
           formDataStrip.append('file', fileStrip);
-          formDataStrip.append('authorName', 'Bogue Fotos');
+          formDataStrip.append('authorName', 'Vogue Fotos');
           formDataStrip.append('moduleId', 'bogue');
           if (capturedAccessToken) formDataStrip.append('accessToken', capturedAccessToken);
           if (capturedGuestId) formDataStrip.append('guestId', capturedGuestId);
@@ -793,14 +793,14 @@ export default function BoguePage() {
               fileBlob: blobStrip,
               fileName: `bogue-tira-${Date.now()}.jpg`,
               mimeType: 'image/jpeg',
-              authorName: 'Bogue Fotos',
+              authorName: 'Vogue Fotos',
               guestId: capturedGuestId,
               guestAccessToken: capturedGuestAccessToken,
               accessToken: capturedAccessToken,
             });
             avisoDeTira = 'La tira de fotos quedó guardada y se sube sola en cuanto se pueda.';
           } catch (colaError) {
-            console.error('[Bogue] No se pudo guardar la tira en la cola:', colaError);
+            console.error('[Vogue] No se pudo guardar la tira en la cola:', colaError);
             avisoDeTira = 'La tira de fotos no se pudo subir. Avisale al equipo.';
           }
         }
@@ -814,7 +814,7 @@ export default function BoguePage() {
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
-      formData.append('authorName', 'Bogue Boomerang');
+      formData.append('authorName', 'Vogue Boomerang');
       formData.append('moduleId', 'bogue');
       if (capturedAccessToken) formData.append('accessToken', capturedAccessToken);
       if (capturedGuestId) formData.append('guestId', capturedGuestId);
@@ -847,7 +847,7 @@ export default function BoguePage() {
         throw new Error(res.error || 'Fallo al subir archivo');
       }
     } catch (err: any) {
-      console.error('[Bogue] Error al subir boomerang:', err);
+      console.error('[Vogue] Error al subir boomerang:', err);
       const errMessage = err?.message || 'Fallo al subir archivo';
       const decision = classifyOfflineUploadError(errMessage);
 
@@ -875,7 +875,7 @@ export default function BoguePage() {
           fileBlob: blob,
           fileName: `bogue-${Date.now()}.mp4`,
           mimeType: blob.type || 'video/mp4',
-          authorName: 'Bogue Boomerang',
+          authorName: 'Vogue Boomerang',
           guestId: capturedGuestId,
           guestAccessToken: capturedGuestAccessToken,
           accessToken: capturedAccessToken,
@@ -888,11 +888,11 @@ export default function BoguePage() {
           if (isLiveSession()) completeGuestCycle();
         }, 12000);
         return;
-      } catch (offlineErr: any) {
-        console.error('[Bogue] Error al guardar offline:', offlineErr);
+      } catch (offlineErr) {
+        const err = offlineErr as { name?: string; message?: string } | null;
         const sinEspacio =
-          offlineErr?.name === 'QuotaExceededError' ||
-          /quota|space|storage/i.test(String(offlineErr?.message || ''));
+          err?.name === 'QuotaExceededError' ||
+          /quota|space|storage/i.test(String(err?.message || ''));
         const mensajeEspacio = sinEspacio
           ? 'Esta computadora se quedó sin lugar para guardar videos. Avisale al encargado.'
           : 'No se pudo guardar el video en esta computadora. Avisale al encargado antes de seguir.';
@@ -936,19 +936,19 @@ export default function BoguePage() {
       },
       accessToken
     );
-    if (!result.success) setOperatorError(result.error || 'No se pudo iniciar Bogue.');
+    if (!result.success) setOperatorError(result.error || 'No se pudo iniciar Vogue.');
   };
 
   const handleOperatorReset = async () => {
     setOperatorError(null);
     const result = await resetEntertainmentSession(fiestaId, 'bogue', accessToken);
-    if (!result.success) setOperatorError(result.error || 'No se pudo reiniciar Bogue.');
+    if (!result.success) setOperatorError(result.error || 'No se pudo reiniciar Vogue.');
   };
 
   if (isEventLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
-        <Loader2 className="h-10 w-10 animate-spin text-rose-400 motion-reduce:animate-none" aria-label="Cargando estación Bogue" />
+        <Loader2 className="h-10 w-10 animate-spin text-rose-400 motion-reduce:animate-none" aria-label="Cargando estación Vogue" />
       </div>
     );
   }
@@ -958,7 +958,7 @@ export default function BoguePage() {
       <main className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center text-white">
         <div className="w-full max-w-md rounded-lg border border-white/10 bg-white/5 p-6">
           <Flame className="mx-auto h-10 w-10 text-rose-400" aria-hidden="true" />
-          <h1 className="mt-4 text-xl font-black">No pudimos abrir Bogue</h1>
+          <h1 className="mt-4 text-xl font-black">No pudimos abrir Vogue</h1>
           <p className="mt-2 text-sm leading-6 text-zinc-300">{loadError}</p>
           <button
             type="button"
@@ -984,7 +984,7 @@ export default function BoguePage() {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="flex items-center gap-2 text-base font-black uppercase tracking-wide text-rose-300">
-              <Flame className="h-5 w-5 motion-safe:animate-pulse" /> Operador Bogue
+              <Flame className="h-5 w-5 motion-safe:animate-pulse" /> Operador Vogue
             </h1>
             <div className="w-9" />
           </div>
@@ -1075,7 +1075,7 @@ export default function BoguePage() {
         </button>
         <div className="text-center">
           <h1 className="text-sm font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-fuchsia-500 flex items-center gap-1.5 justify-center">
-            <Flame className="w-4 h-4 fill-pink-500" /> Bogue Boomerang
+            <Flame className="w-4 h-4 fill-pink-500" /> Vogue Boomerang
           </h1>
           {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
@@ -1146,7 +1146,7 @@ export default function BoguePage() {
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Boomerang</h2>
-                  <p className="text-sm text-zinc-300">Prepara tu pose. Esta estacion crea un loop con la camara web.</p>
+                  <p className="text-sm text-zinc-300">Prepara tu pose. Esta estación crea un loop con la cámara web.</p>
                 </div>
 
                 {/* Selector táctil de fondo virtual */}

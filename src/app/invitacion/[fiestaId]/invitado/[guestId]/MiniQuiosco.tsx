@@ -269,7 +269,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
               );
             })}
           </div>
-          {drinks.length === 0 && <p className="mt-4 rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-500">La carta todavia no esta disponible.</p>}</section>
+          {drinks.length === 0 && <p className="mt-4 rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-500">La carta todavía no esta disponible.</p>}</section>
         </div>
       </div>
 
