@@ -166,7 +166,7 @@ function SocialMediaPageContent() {
             toast({ title: 'No se pudo copiar', description: 'Abrí la landing y copiá el enlace desde el navegador.', variant: 'destructive' });
         }
     };
-    
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -234,10 +234,16 @@ function SocialMediaPageContent() {
                             Creador & Auditor de Anuncios
                         </Link>
                     </Button>
+                    <Button asChild variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/20">
+                        <Link href="/empresa/presencia-digital?tab=comentarios">
+                            <MessageSquare className="w-4 h-4 mr-2 text-emerald-200" />
+                            Comentarios Unificados &amp; Auto-WhatsApp
+                        </Link>
+                    </Button>
                     <Button asChild variant="default" className="bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md shadow-amber-600/20">
                         <Link href="/empresa/presencia-digital">
                             <Sparkles className="w-4 h-4 mr-2 text-amber-200" />
-                            Centro de Presencia Digital
+                            Centro de Presencia Online
                         </Link>
                     </Button>
                     <SocialHistoryImportDialog onImported={fetchData} />
@@ -246,10 +252,10 @@ function SocialMediaPageContent() {
                 </div>
             </div>
             {postToDuplicate && (
-                <NewPostDialog 
+                <NewPostDialog
                     isOpen={isDuplicateDialogOpen}
                     onOpenChange={setIsDuplicateDialogOpen}
-                    onPostCreated={fetchData} 
+                    onPostCreated={fetchData}
                     postToDuplicate={postToDuplicate}
                 />
             )}
@@ -314,7 +320,7 @@ function SocialMediaPageContent() {
                     </div>
                 </CardContent>
             </Card>
-            
+
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-xl">Gestor de Contenido</CardTitle>
