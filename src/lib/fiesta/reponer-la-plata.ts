@@ -31,7 +31,12 @@ export function reponerLaPlata(
     if (Array.isArray(copia.estadosCompra)) {
       const antes = guardada?.estadosCompra || [];
       copia.estadosCompra = (copia.estadosCompra as Record<string, unknown>[]).map((e) => {
-        const previo = antes.find((o) => (o.proveedorId && o.proveedorId === e.proveedorId) || o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
+        const previo = antes.find((o) => {
+          if (e.proveedorId || o.proveedorId) {
+            return Boolean(e.proveedorId && o.proveedorId && o.proveedorId === e.proveedorId);
+          }
+          return o.proveedor === e.proveedor;
+        }) as Record<string, unknown> | undefined;
         const r = { ...e };
         for (const k of PAGO_DE_LA_COMPRA) {
           if (previo && k in previo) r[k] = previo[k]; else delete r[k];
