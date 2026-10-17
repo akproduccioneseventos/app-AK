@@ -1,4 +1,8 @@
 import {
+  DEFAULT_GEMINI_LATEST_MODEL,
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_PRO_FALLBACK_MODEL,
+  DEFAULT_GEMINI_PRO_MODEL,
   PISO_DE_TOKENS_DE_SALIDA,
   conLugarParaPensar,
   geminiFastModel,
@@ -12,24 +16,34 @@ describe("Gemini model policy", () => {
   it("uses the automatic Flash alias and keeps stable production fallbacks", () => {
     expect(getGeminiFallbackCandidates("googleai/gemini-flash-latest")).toEqual([
       "googleai/gemini-flash-latest",
+      "googleai/gemini-3.8-flash",
+      "googleai/gemini-3.6-flash",
       "googleai/gemini-2.5-flash",
-      "googleai/gemini-2.0-flash",
     ]);
   });
 
-  it("no vuelve a probar el modelo retirado gemini-1.5-flash", () => {
+  it("no vuelve a probar modelos retirados como gemini-1.5-flash o gemini-2.0-flash", () => {
     expect(getGeminiFallbackCandidates(geminiFastModel)).not.toContain("googleai/gemini-1.5-flash");
+    expect(getGeminiFallbackCandidates(geminiFastModel)).not.toContain("googleai/gemini-2.0-flash");
     expect(getGeminiFallbackCandidates(geminiProModel)).not.toContain("googleai/gemini-1.5-flash");
+    expect(getGeminiFallbackCandidates(geminiProModel)).not.toContain("googleai/gemini-2.0-flash");
   });
 
-  it("el modelo profundo cae primero al pro estable y recién después a los flash", () => {
-    expect(getGeminiFallbackCandidates("googleai/gemini-pro-latest")).toEqual([
-      "googleai/gemini-pro-latest",
-      "googleai/gemini-2.5-pro",
-      "googleai/gemini-flash-latest",
-      "googleai/gemini-2.5-flash",
-      "googleai/gemini-2.0-flash",
-    ]);
+  it("ningún modelo por defecto ni de respaldo contiene 'pro' ni 'argon'", () => {
+    const todosLosModelos = [
+      DEFAULT_GEMINI_MODEL,
+      DEFAULT_GEMINI_LATEST_MODEL,
+      DEFAULT_GEMINI_PRO_MODEL,
+      DEFAULT_GEMINI_PRO_FALLBACK_MODEL,
+      ...getGeminiFallbackCandidates(DEFAULT_GEMINI_MODEL),
+      ...getGeminiFallbackCandidates(DEFAULT_GEMINI_PRO_MODEL),
+      ...getGeminiFallbackCandidates(geminiFastModel),
+      ...getGeminiFallbackCandidates(geminiProModel),
+    ];
+    for (const m of todosLosModelos) {
+      expect(m.toLowerCase()).not.toContain("pro");
+      expect(m.toLowerCase()).not.toContain("argon");
+    }
   });
 
   it("el asistente manda un tope de salida explícito, así el piso de tokens sí se aplica", () => {
@@ -64,7 +78,7 @@ describe("ejecutarPromptConFallback", () => {
       return "ok";
     });
     await expect(ejecutarPromptConFallback(prompt, { x: 1 }, "googleai/gemini-flash-latest")).resolves.toBe("ok");
-    expect(usados).toEqual(["googleai/gemini-flash-latest", "googleai/gemini-2.5-flash"]);
+    expect(usados).toEqual(["googleai/gemini-flash-latest", "googleai/gemini-3.8-flash"]);
 
     const malaClave = jest.fn(async () => { throw { status: 401, message: "invalid api key" }; });
     await expect(ejecutarPromptConFallback(malaClave, {}, "googleai/gemini-flash-latest")).rejects.toMatchObject({ status: 401 });

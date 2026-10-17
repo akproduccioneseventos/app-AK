@@ -50,7 +50,7 @@ export default function ControlEntretenimientoPage() {
           },
           {
             id: 'bogue',
-            nombre: 'Bogue (Boomerang)',
+            nombre: 'Vogue (Boomerang)',
             tipo: 'bogue',
             activa: f.others?.entretenimiento?.modules?.bogue?.enabled !== false,
             estadoOperativo: 'idle',

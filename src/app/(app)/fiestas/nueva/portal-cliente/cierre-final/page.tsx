@@ -37,7 +37,7 @@ export default async function ClienteCierreFinalPage(props: PageProps) {
         <Card>
           <CardHeader><CardTitle>Falta elegir un evento</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">Para revisar el cierre del modulo cliente hay que entrar desde una fiesta concreta.</p>
+            <p className="text-muted-foreground">Para revisar el cierre del módulo cliente hay que entrar desde una fiesta concreta.</p>
             <Button asChild><Link href="/eventos">Volver a eventos</Link></Button>
           </CardContent>
         </Card>
@@ -94,7 +94,7 @@ export default async function ClienteCierreFinalPage(props: PageProps) {
             <CardHeader><CardTitle>Regla de uso</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
               <div className="rounded-lg bg-white p-4">
-                <p className="font-semibold text-slate-950">Poca informacion de golpe</p>
+                <p className="font-semibold text-slate-950">Poca información de golpe</p>
                 <p className="mt-1">Todo tiene que abrirse y cerrarse por secciones.</p>
               </div>
               <div className="rounded-lg bg-white p-4">
@@ -150,7 +150,7 @@ export default async function ClienteCierreFinalPage(props: PageProps) {
             </div>
             <div className="rounded-lg bg-white p-4">
               <p className="font-semibold text-slate-950">Menos mensajes sueltos</p>
-              <p className="mt-1 text-sm text-muted-foreground">La informacion importante queda dentro del portal.</p>
+              <p className="mt-1 text-sm text-muted-foreground">La información importante queda dentro del portal.</p>
             </div>
           </CardContent>
         </Card>

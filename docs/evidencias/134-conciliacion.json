@@ -1,0 +1,225 @@
+{
+  "sourceSha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "documentarySha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "counts": {
+    "areas": 14,
+    "routes": 421,
+    "unmappedRoutes": 0,
+    "staleMappedRoutes": 0,
+    "uniqueStructuralFiles": 1412,
+    "uniqueAstInteractiveLocations": 6401,
+    "prior131AstLocations": 4633,
+    "nativeRunsIndexed": 29,
+    "nativeCaseExecutions": 216,
+    "distinctNamedNativeCases": 168,
+    "routesWithLinkedPassingPartialScenarios": 0,
+    "routesWithoutLinkedPassingPartialScenarios": 421,
+    "routesWithHistoricalNativeScenarioLinks": 68,
+    "individuallyAcceptedControls": 0,
+    "fullRoutesAccepted": 0,
+    "fullAreasAccepted": 0,
+    "profiles": 7,
+    "historicalArtifactsIndexed": 2026,
+    "historicalArtifactsNotExpanded": 0,
+    "historicalRouteReferenceLinks": 10815,
+    "multiplyDeclaredRoutes": 8
+  },
+  "areas": [
+    {
+      "id": "plata",
+      "name": "Cobros, cuotas, facturas y recibos",
+      "ownedRoutes": 56,
+      "structuralConsumerRoutes": 353,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 56,
+      "reportScopes": [
+        "129-compras",
+        "130-costos-y-finanzas",
+        "130-reportes-y-variantes",
+        "133-operacion-cocina-cobros",
+        "133-simulador-whatsapp"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "contrato",
+      "name": "Contrato, seña y firma",
+      "ownedRoutes": 13,
+      "structuralConsumerRoutes": 330,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 13,
+      "reportScopes": [
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "comida",
+      "name": "Menús, compras e insumos",
+      "ownedRoutes": 12,
+      "structuralConsumerRoutes": 289,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 12,
+      "reportScopes": [
+        "129-compras",
+        "131-retest166",
+        "133-operacion-cocina-cobros",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "permisos",
+      "name": "Ingreso, sesiones y quién ve qué",
+      "ownedRoutes": 15,
+      "structuralConsumerRoutes": 355,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 15,
+      "reportScopes": [
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "fiesta",
+      "name": "Fiesta, invitados y confirmaciones",
+      "ownedRoutes": 104,
+      "structuralConsumerRoutes": 300,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 104,
+      "reportScopes": [
+        "126-dos-defectos-historicos",
+        "131-dj-y-registro",
+        "132-portal-musica-menu",
+        "133-rsvp-portal-invitado",
+        "133-red-social-invitado",
+        "133-salon-3d"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "portal",
+      "name": "Portal del cliente",
+      "ownedRoutes": 23,
+      "structuralConsumerRoutes": 23,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 23,
+      "reportScopes": [
+        "126-dos-defectos-historicos",
+        "130-reportes-y-variantes",
+        "132-portal-musica-menu",
+        "133-rsvp-portal-invitado",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "invitado",
+      "name": "Invitación y pantallas del invitado",
+      "ownedRoutes": 7,
+      "structuralConsumerRoutes": 16,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 7,
+      "reportScopes": [
+        "126-dos-defectos-historicos",
+        "133-rsvp-portal-invitado",
+        "133-qr-descarga-lector",
+        "133-red-social-invitado",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "web",
+      "name": "Web pública, blog y simulador",
+      "ownedRoutes": 49,
+      "structuralConsumerRoutes": 59,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 49,
+      "reportScopes": [
+        "133-simulador-whatsapp",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "redes",
+      "name": "Instagram, YouTube y galería",
+      "ownedRoutes": 10,
+      "structuralConsumerRoutes": 59,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 10,
+      "reportScopes": [],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "estaciones",
+      "name": "Entretenimiento: fotocabina, 360, espejo, muro, tótem",
+      "ownedRoutes": 51,
+      "structuralConsumerRoutes": 52,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 51,
+      "reportScopes": [
+        "125-aceptacion-historica",
+        "133-qr-descarga-lector",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "barra",
+      "name": "Barra de tragos",
+      "ownedRoutes": 0,
+      "structuralConsumerRoutes": 287,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 0,
+      "reportScopes": [
+        "132-barra-pedidos-listos"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "asistente",
+      "name": "Asistente AK y WhatsApp",
+      "ownedRoutes": 30,
+      "structuralConsumerRoutes": 37,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 30,
+      "reportScopes": [],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "personal",
+      "name": "Personal, llegada y recibos de sueldo",
+      "ownedRoutes": 9,
+      "structuralConsumerRoutes": 290,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 9,
+      "reportScopes": [
+        "129-personal-llegada",
+        "131-retest166",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "automaticos",
+      "name": "Tareas automáticas y avisos",
+      "ownedRoutes": 42,
+      "structuralConsumerRoutes": 46,
+      "partialScenarioRoutes": 0,
+      "noLinkedPassingScenarioRoutes": 42,
+      "reportScopes": [
+        "129-automatizaciones",
+        "131-retest166"
+      ],
+      "fullAreaAccepted": false
+    }
+  ],
+  "payload": {
+    "file": "docs/evidencias/134-conciliacion-completa.json.gz",
+    "jsonSha256": "579b1e49a14d7c916768861261bcc17b79b04368cab279fab4a2231b9c35de30",
+    "bytes": 16140252
+  },
+  "allAppCertified": false
+}

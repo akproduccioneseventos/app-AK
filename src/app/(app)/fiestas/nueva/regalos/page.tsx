@@ -137,7 +137,7 @@ function GiftRegistryPageContent() {
     return (
       <EmptyStateModulo
         titulo="Lista de Regalos"
-        descripcion="Entra a la lista de regalos desde la fiesta: elegi el evento en el listado y abri su planificador."
+        descripcion="Entra a la lista de regalos desde la fiesta: elegí el evento en el listado y abrí su planificador."
         fiestaId=""
       />
     );

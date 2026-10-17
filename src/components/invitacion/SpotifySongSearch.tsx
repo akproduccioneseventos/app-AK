@@ -59,10 +59,10 @@ export function SpotifySongSearch({ value, onChange }: SpotifySongSearchProps) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         maxLength={120}
-        placeholder="Cancion y artista"
+        placeholder="Canción y artista"
         className="h-12 bg-white pr-10 text-slate-950"
         autoComplete="off"
-        aria-label="Buscar cancion para el DJ"
+        aria-label="Buscar canción para el DJ"
         aria-expanded={tracks.length > 0}
       />
       {loading && <Loader2 className="absolute right-3 top-3.5 h-5 w-5 animate-spin text-slate-400" />}

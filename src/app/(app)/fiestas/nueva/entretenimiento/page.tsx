@@ -249,7 +249,7 @@ const STATION_META: Record<StationId, { shortLabel: string; description: string;
     icon: RotateCcw,
   },
   bogue: {
-    shortLabel: 'Bogue (Boomerang)',
+    shortLabel: 'Vogue (Boomerang)',
     description: 'Clips cortos y dinámicos estilo boomerang con loops y música, listos para historias de Instagram.',
     caption: 'Captura bogue',
     icon: Video,

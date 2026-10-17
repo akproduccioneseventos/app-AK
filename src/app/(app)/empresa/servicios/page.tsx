@@ -240,7 +240,7 @@ export default function CatalogoServiciosPage() {
         
         <Card className="shadow-lg border-none rounded-[1.5rem] bg-slate-900 text-white">
           <CardHeader>
-            <CardTitle className="font-headline text-lg flex items-center gap-2"><Save className="w-5 h-5 text-primary"/>Ajuste de Costos Global</CardTitle>
+            <CardTitle className="font-headline text-lg flex items-center gap-2 text-white"><Save className="w-5 h-5 text-primary"/>Ajuste de Costos Global</CardTitle>
             <CardDescription className="text-slate-400">
               Aplica un aumento porcentual a los COSTOS INTERNOS del catálogo.
             </CardDescription>

@@ -77,10 +77,10 @@ export function FloatingActions({
                 "flex h-12 w-12 items-center justify-center gap-2 rounded-full border border-red-600 bg-red-700 text-xs font-black uppercase tracking-widest text-white shadow-xl transition-all hover:bg-red-600",
                 "sm:h-auto sm:w-auto sm:rounded-lg sm:px-4 sm:py-3"
               )}
-              aria-label="Cotizá tu fiesta"
+              aria-label="Simular mi presupuesto"
             >
               <Calculator className="w-5 h-5 shrink-0 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Cotizá tu Fiesta</span>
+              <span className="hidden sm:inline">Simular mi presupuesto</span>
             </motion.a>
 
             {/* Direct WhatsApp Button */}

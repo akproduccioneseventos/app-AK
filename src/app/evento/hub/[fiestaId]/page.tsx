@@ -9,6 +9,7 @@ import {
   CalendarDays,
   Camera,
   ExternalLink,
+  Film,
   Gamepad2,
   GalleryHorizontal,
   Home,
@@ -23,6 +24,7 @@ import {
   Sparkles,
   Star,
   TicketCheck,
+  View,
 } from 'lucide-react';
 import {
   getPublicGuestPortalData,
@@ -63,6 +65,8 @@ const TOOL_ICONS: Record<PublicEventToolId, typeof Camera> = {
   games: Gamepad2,
   buzon: Mic2,
   mesa: MapPin,
+  webar: Sparkles,
+  descartable: Film,
 };
 
 const formatEventDate = formatEventDateHub;

@@ -961,7 +961,7 @@ export default function GuestBuzonPage() {
     try {
       await asegurarCuadroDeVideo(video);
     } catch {
-      toast({ title: 'La camara no entrega imagen', description: 'Volve a intentarlo en un instante.', variant: 'destructive' });
+      toast({ title: 'La cámara no entrega imagen', description: 'Volvé a intentarlo en un instante.', variant: 'destructive' });
       return;
     }
 

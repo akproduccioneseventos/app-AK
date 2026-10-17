@@ -16,6 +16,7 @@ import {
   Download,
   ExternalLink,
   Facebook,
+  Film,
   Gamepad2,
   Gift,
   Globe,
@@ -99,6 +100,8 @@ const PUBLIC_TOOL_ICONS: Record<PublicEventTool['id'], LucideIcon> = {
   games: Gamepad2,
   buzon: Heart,
   mesa: MapPin,
+  webar: Sparkles,
+  descartable: Film,
 };
 
 type PortalAction = {
@@ -344,7 +347,7 @@ function GuestPortalContent() {
     ? { label: 'Asistencia confirmada', className: 'border-emerald-200 bg-emerald-50 text-emerald-800' }
     : guest.rsvp === 'Rechazado'
       ? { label: 'Asistencia cancelada', className: 'border-red-200 bg-red-50 text-red-800' }
-      : { label: 'Confirmacion pendiente', className: 'border-amber-200 bg-amber-50 text-amber-800' };
+      : { label: 'Confirmación pendiente', className: 'border-amber-200 bg-amber-50 text-amber-800' };
   const menuSections = getPublicGuestMenuSections(fiesta);
   const instagramUrl = guestExp?.instagramUrl || getSocialUrl(socialConnections, 'Instagram');
   const facebookUrl = guestExp?.facebookUrl || getSocialUrl(socialConnections, 'Facebook');

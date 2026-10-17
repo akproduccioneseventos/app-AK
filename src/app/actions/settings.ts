@@ -642,6 +642,7 @@ export async function scanAiAssistantAppContext(): Promise<{ success: boolean; c
 
 const GEMINI_CONNECTION_TIMEOUT_MS = 15000;
 const GEMINI_CONNECTION_MODELS = [
+  'gemini-3.8-flash',
   'gemini-flash-latest',
   'gemini-3.6-flash',
   'gemini-3.5-flash',

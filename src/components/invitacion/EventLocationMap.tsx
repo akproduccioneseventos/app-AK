@@ -56,7 +56,7 @@ export function EventLocationMap({
           <div className="aspect-video w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
             <iframe
               src={embedUrl}
-              title={`Mapa de ${venueName || address || 'la ubicacion del evento'}`}
+              title={`Mapa de ${venueName || address || 'la ubicación del evento'}`}
               className="h-full w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

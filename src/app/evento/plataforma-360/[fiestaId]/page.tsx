@@ -271,11 +271,11 @@ export default function Plataforma360Page() {
           setLoadError(null);
           setSelectedDuration(result.event.station.recordingDurationSeconds);
         } else {
-          setLoadError(result.error || 'No se pudo abrir esta estacion.');
+          setLoadError(result.error || 'No se pudo abrir esta estación.');
         }
       })
       .catch(() => {
-        if (active) setLoadError('No se pudo abrir esta estacion.');
+        if (active) setLoadError('No se pudo abrir esta estación.');
       });
     void waitForInitialPublicLoad(loadTask).then((result) => {
       if (!active) return;
@@ -446,7 +446,7 @@ export default function Plataforma360Page() {
   const recordVideoDuration = async (targetDurationSec: number) => {
     const currentStream = streamRef.current;
     if (!currentStream || !videoRef.current) {
-      setProgressMsg('La camara aun no esta lista.');
+      setProgressMsg('La cámara aun no esta lista.');
       setLocalStatus('idle');
       return;
     }
@@ -458,7 +458,7 @@ export default function Plataforma360Page() {
       }
       await asegurarCuadroDeVideo(videoRef.current);
     } catch {
-      setProgressMsg('La camara no esta entregando imagen. Intenta nuevamente.');
+      setProgressMsg('La cámara no esta entregando imagen. Intenta nuevamente.');
       setLocalStatus('idle');
       return;
     }
@@ -523,7 +523,7 @@ export default function Plataforma360Page() {
     setProgressMsg('Procesando efecto cámara lenta...');
 
     if (frames.length === 0) {
-      setProgressMsg('No se capturaron cuadros. Revisa la camara e intenta nuevamente.');
+      setProgressMsg('No se capturaron cuadros. Revisa la cámara e intenta nuevamente.');
       setLocalStatus('idle');
       return;
     }
@@ -1012,7 +1012,7 @@ export default function Plataforma360Page() {
               >
                 {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
-              <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
+              <button type="button" onClick={toggleCamera} aria-label="Cambiar cámara" title="Cambiar cámara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
                 <RefreshCw className="w-5 h-5" />
               </button>
             </>

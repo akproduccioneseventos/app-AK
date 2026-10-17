@@ -107,6 +107,27 @@ const PORTAL_EXTRA_DEFINITIONS = [
     aliases: ['plataforma 360', '360'],
     icono: '🎥',
   },
+  {
+    id: 'totem_touch_ia',
+    titulo: 'Tótem Touch Interactivo con IA',
+    descripcion: 'Pantalla táctil vertical de 55 pulgadas con IA, fotos personalizadas y trivia interactiva.',
+    aliases: ['totem', 'totem touch', 'totem ia', 'pantalla interactiva'],
+    icono: '📱',
+  },
+  {
+    id: 'cabina_vogue',
+    titulo: 'Cabina Vogue Neon / Boomerang',
+    descripcion: 'Túnel de luces LED y efecto de moda para videos de alto impacto.',
+    aliases: ['vogue', 'cabina vogue', 'bogue', 'boomerang'],
+    icono: '✨',
+  },
+  {
+    id: 'espejo_magico_ia',
+    titulo: 'Espejo Mágico Táctil con IA',
+    descripcion: 'Firma en pantalla gigante con props digitales e impresión fotográfica instantánea.',
+    aliases: ['espejo', 'espejo magico', 'espejo ia'],
+    icono: '🪞',
+  },
 ] as const;
 
 function normalizeCatalogText(value: string): string {
@@ -139,7 +160,7 @@ const portalModules: PortalModule[] = [
   { id: 'musica', label: 'Sugerencias Musicales', icon: Music, href: (id) => `/portal-cliente/${id}/musica` },
   { id: 'videoVida', label: 'Video de Vida', icon: Video, href: (id) => `/portal-cliente/${id}/fotos-video` },
   { id: 'listaRegalos', label: 'Regalos', icon: Gift, href: (id) => `/invitacion/${id}#regalos` },
-  { id: 'documentos', label: 'Documentos', icon: FileText, href: (id) => `/portal-cliente/${id}/menu` },
+  { id: 'documentos', label: 'Documentos', icon: FileText, href: (id) => `/portal/${id}/contrato` },
   { id: 'notasCliente', label: 'Notas', icon: NotebookText },
   { id: 'paginaPublica', label: 'Invitación Web', icon: Globe, href: (id) => `/invitacion/${id}` },
   { id: 'fotografiaYFilmacion', label: 'Fotografía', icon: Sparkles, href: (id) => `/portal-cliente/${id}/fotos-video` },
