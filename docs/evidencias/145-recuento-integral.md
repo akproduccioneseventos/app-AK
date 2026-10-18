@@ -1,5 +1,10 @@
 #145 - Recuento acumulado: auditado, corregido y pendiente
 
+Actualizacion18/10: ver146-147-cierre y148-cierre-proveedor.1328 incorpora
+correcciones171/172/184 ademas179/180;14634controles ligerosPASS, noUI.
+147detecta185; PR1333 la corrige y148aprueba4regresiones del helper, no accion
+completa ni despliegue. El resto de este recuento conserva su fecha original.
+
 Registro al16/10/2026. Recopilacion, NO otra ejecucion de pruebas.
 Fuentes: conciliacion134 de2026documentos historicos, recibos128-144 y
 YA-RESUELTO. No se suman reintentos como funciones ni se descartan pruebas

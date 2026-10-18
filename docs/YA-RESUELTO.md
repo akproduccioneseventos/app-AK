@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 18/10/2026 - Codex148:185 helper corregido y4regresiones aprobadas
+
+-PR1333ABIERTA fuente03cd87d59dcdd35ac26108d3d7fe979b6a4bf83b:1suite real
+  4PASS/0FAIL/0pendientes. B200 no recuperaA60.30; IDnuevo no hereda pago,
+  controlesID/nombre ylegado sinID funcionan. No repetir147sin motivo.
+-PASS_ORDER185_HELPER_ONLY, no accion autenticada/persistencia/completaPR.
+  No nuevo arreglo Codex ni merge; no proclamar toda185 lista ni pagos reales.
+  Ver148-cierre-proveedor y148-revalidacion-proveedor.json/fuentes/logs.
+-QAaislado/HOMEvacio/clavesdemo, Jest1worker sinbuild. Procesoexit0, fuentes
+  diff0, no servicios/agentes abiertos.1332/1334/1335 solo metadatos vistos.
+
 ## 16/10/2026 - Codex146/147:34controles ligeros y proveedor con identidad ambigua
 
 -1328 avanzoef0e9402: fixes171/172/184 presentes ademas179/180.146 ejecutado

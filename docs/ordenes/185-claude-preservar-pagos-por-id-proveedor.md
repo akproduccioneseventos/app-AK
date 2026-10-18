@@ -1,5 +1,9 @@
 #185 - Preservar pagos por identidad de proveedor, no por nombre coincidente
 
+Actualizacion18/10, Codex148: correccion PRESENTE enPR1333 fuente03cd87d59
+y suite REAL del helper4/4PASS. Causa del helper validada; no accion completa
+ni persistencia real. Ver148-cierre-proveedor.md. No reencargar esta causa.
+
 ID: AK-CODEX-147-PROVEEDOR-ID. ResponsableClaude. P2 reproducido en helper
 financiero; accion completa/impacto real pendientes. Codex no programa app.
 Fuentes contrastadas: PR1329b8491bda3f25aadc71f36f42d5878a47261bb1bf y
@@ -45,5 +49,6 @@ No copiar una rama entera ni aplicar el mismo cambio dos veces al integrar.
 ```comprobar
 archivo: src/lib/fiesta/reponer-la-plata.ts
 usa: reponerLaPlata en src/app/actions/fiesta/fiesta.actions.ts
-prueba: PENDIENTE src/__tests__/reponer-plata-identidad-proveedor.test.ts
+prueba: src/__tests__/reponer-plata-identidad-proveedor.test.ts
+prueba: PENDIENTE src/__tests__/guardar-fiesta-preserva-identidad-proveedor.test.ts
 ```
