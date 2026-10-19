@@ -1,0 +1,42 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "file": "src/lib/auth/perfiles.ts",
+  "fileSha256": "0ca6892f2f9e8133e00efbc090115937bfc8d4fa61d709e6680d3db17e6a2ea7",
+  "scope": "Pure real source transpiled in VM; no session forgery, live API, user update or real data",
+  "cases": [
+    {
+      "perfil": "constructor",
+      "expectedValid": false,
+      "actualValid": true,
+      "expectedLegacyUserPermission": true,
+      "error": "TypeError: exports.PERMISOS_POR_PERFIL[perfilDe(...)].includes is not a function",
+      "pass": false
+    },
+    {
+      "perfil": "toString",
+      "expectedValid": false,
+      "actualValid": true,
+      "expectedLegacyUserPermission": true,
+      "error": "TypeError: exports.PERMISOS_POR_PERFIL[perfilDe(...)].includes is not a function",
+      "pass": false
+    },
+    {
+      "perfil": "__proto__",
+      "expectedValid": false,
+      "actualValid": true,
+      "expectedLegacyUserPermission": true,
+      "error": "TypeError: exports.PERMISOS_POR_PERFIL[perfilDe(...)].includes is not a function",
+      "pass": false
+    },
+    {
+      "perfil": "inventado",
+      "expectedValid": false,
+      "actualValid": false,
+      "expectedLegacyUserPermission": true,
+      "allowed": true,
+      "pass": true
+    }
+  ],
+  "pass": 1,
+  "fail": 3
+}

@@ -1,0 +1,12 @@
+{
+  "observedOn": "2026-10-16",
+  "freePhysicalMemoryKiB": 154548,
+  "totalVisibleMemoryKiB": 7791724,
+  "processesObserved": [
+    { "pid": 13808, "workingSetMiB": 2280, "command": "node .gemini/antigravity/scratch/app-AK/node_modules/next/dist/bin/next build", "createdUtc": "2026-10-16T16:46:27Z" },
+    { "pid": 13160, "workingSetMiB": 1217, "command": "node .gemini/antigravity/scratch/app-AK/node_modules/next/dist/compiled/jest-worker/processChild.js", "createdUtc": "2026-10-16T17:04:00Z" }
+  ],
+  "intervention": "Stopped ONLY own SDK-final Java11672 and Next1172. Did not stop or modify Gemini workspace, its build or workers.",
+  "sdkFinal": "No native tests launched. Interrupted readiness to avoid overlapping another heavy validation. Parent exited and restored snapshots.",
+  "limits": "Resource overlap observed139; does not establish cause of137, a production defect, or that a larger server instance is needed. Do not change App Hosting resources from this measurement."
+}

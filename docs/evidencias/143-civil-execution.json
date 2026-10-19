@@ -1,0 +1,36 @@
+{
+  "source": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+  "buildFinishedAt": "2026-10-16T19:26:20.462Z",
+  "started": "2026-10-16T23:00:58.083Z",
+  "snapshots": 58,
+  "realServices": false,
+  "tests": [
+    {
+      "file": "143-cocina-fecha-local.spec.ts",
+      "sha256": "a1c595fe3f7bc011af0f0b8c34bed2b1ca4aacceab19e74a765ef7be3926d5e2"
+    }
+  ],
+  "serverPid": 5624,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T23:01:02.722Z",
+    "version": "17d26a631f500a263c48c4973d9c6f57d56ba421 · compilada 2026-10-16T19:16:14.283Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "143-civil-date": {
+    "pid": 9044,
+    "exitCode": 1
+  },
+  "restored": [],
+  "sourceDiff": "",
+  "finished": "2026-10-16T23:01:22.572Z"
+}

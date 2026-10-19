@@ -1,0 +1,27 @@
+{
+  "source": "03cd87d59dcdd35ac26108d3d7fe979b6a4bf83b",
+  "pr": 1333,
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-148-2PZdnv",
+  "test": "src/__tests__/reponer-plata-identidad-proveedor.test.ts",
+  "testSha256": "05e63fb5e48b5557d1a30d5f18c62207d35e12179c9ca2512ec295641e77e811",
+  "file": "src/lib/fiesta/reponer-la-plata.ts",
+  "fileSha256": "b96276fa77158fcf5d71ee63267477db1b95cf82f105dbffb3b01c00024a7fea",
+  "started": "2026-10-18T23:42:52.966Z",
+  "realServices": false,
+  "appEdited": false,
+  "scope": "Four helper regression cases only; no full authenticated saveFiesta or persisted payment",
+  "pid": 14036,
+  "exitCode": 0,
+  "finished": "2026-10-18T23:43:22.357Z",
+  "sourceDiff": "",
+  "resultSha256": "dc7a01e4fd20d148711357d1eacda2142b36c794e6265db12111a7a3d591a327",
+  "summary": {
+    "suites": 1,
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "acceptance": "PASS_ORDER185_HELPER_ONLY"
+}

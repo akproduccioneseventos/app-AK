@@ -1,0 +1,62 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "started": "2026-10-16T16:52:22.296Z",
+  "fixture": "Modo JSON local autorizado; NO acepta el guardado SDK de produccion.",
+  "children": [
+    {
+      "label": "serve",
+      "pid": 3240,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+        "start",
+        "--hostname",
+        "127.0.0.1",
+        "--port",
+        "3300"
+      ]
+    },
+    {
+      "label": "playwright",
+      "pid": 4612,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "139-playwright.config.ts",
+        "139-cliente-persistencia.spec.ts",
+        "--output",
+        "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\139-json-artifacts"
+      ]
+    }
+  ],
+  "realServices": false,
+  "snapshots": 61,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T16:52:59.195Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "testSha256": "043915e53a984e5a524cfa84374a335e78c8122e003dc62befb0244cfe527774",
+  "exitCode": 1,
+  "restored": [
+    "data\\notifications.json",
+    "src\\data\\customers.json",
+    "src\\data\\notifications.json",
+    "data\\customers.json"
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-16T16:56:46.073Z"
+}

@@ -1,0 +1,20 @@
+{
+  "pr": 1324,
+  "stateObserved": "OPEN",
+  "draftObserved": true,
+  "branch": "codex/134-conciliacion-cobertura-20261015",
+  "deliveredCommit": "6b0d67038a391ed8252e4f92ea61f7ebe22de1e9",
+  "localTree": "722bbfc3bc9e15d4632185d7c2ca51e6770117f5",
+  "remoteTree": "722bbfc3bc9e15d4632185d7c2ca51e6770117f5",
+  "order184LocalBlob": "05a6bda6fd0a1e503e0a43917204431c500c73e8",
+  "order184RemoteBlob": "05a6bda6fd0a1e503e0a43917204431c500c73e8",
+  "deliveryVerified": true,
+  "appEdited": false,
+  "merged": false,
+  "qaBuildSource": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+  "candidateLatestObserved": "a98a4b25009f9994d7a9cbd3025972a4142634c2",
+  "candidateRuntimeDelta": [],
+  "authoredDiffWhitespaceCheck": "PASS excluding untouched raw Playwright error-context files",
+  "rawErrorContextWhitespace": "Preserved as generated; unfiltered diff-check reports trailing spaces inside source excerpts",
+  "noMoreErrorsClaimed": false
+}

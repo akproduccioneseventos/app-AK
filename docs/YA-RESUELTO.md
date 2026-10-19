@@ -24,6 +24,209 @@ Verificado por Claude contra el código, de sus siete hallazgos de roles y porta
 - Entraron la portada nueva (plan Argon), "Vogue" y la ortografía (órdenes 176 y 177), y el arreglo del portal del cliente: el botón **Documentos** abre el contrato y los atajos viejos del portal ya no mandan al cliente a pantallas del equipo.
 - **Se volvió atrás el cambio de Gemini en el Encargado** (`src/lib/multiagent/encargado.ts`), que les ocultaba el total del presupuesto a los organizadores sin contabilidad. No era una fuga: `getPresupuestos` ya les saca los cobros y la app les muestra el total en sus pantallas a propósito (`nivelDePresupuestos`, nivel "operativo"). Cambiar quién ve qué es decisión del dueño; si lo quiere, se pide.
 - Las órdenes 176 y 177 traían líneas de prueba con la palabra "LISTA" delante y dos bloques sin comprobación: se corrigieron para que `npm run ordenes?` las lea.
+## 18/10/2026 - Codex148:185 helper corregido y4regresiones aprobadas
+
+-PR1333ABIERTA fuente03cd87d59dcdd35ac26108d3d7fe979b6a4bf83b:1suite real
+  4PASS/0FAIL/0pendientes. B200 no recuperaA60.30; IDnuevo no hereda pago,
+  controlesID/nombre ylegado sinID funcionan. No repetir147sin motivo.
+-PASS_ORDER185_HELPER_ONLY, no accion autenticada/persistencia/completaPR.
+  No nuevo arreglo Codex ni merge; no proclamar toda185 lista ni pagos reales.
+  Ver148-cierre-proveedor y148-revalidacion-proveedor.json/fuentes/logs.
+-QAaislado/HOMEvacio/clavesdemo, Jest1worker sinbuild. Procesoexit0, fuentes
+  diff0, no servicios/agentes abiertos.1332/1334/1335 solo metadatos vistos.
+
+## 16/10/2026 - Codex146/147:34controles ligeros y proveedor con identidad ambigua
+
+-1328 avanzoef0e9402: fixes171/172/184 presentes ademas179/180.146 ejecutado
+  34PASS sinbrowser/build:11perfiles,6URLrealagenda,16fechaUTC/Uy,1classtitulo.
+  No aceptar nativamente contraste/titulo/dock/PDF ni todos los permisos.
+-380272KiB RAM libre: no solapar build/browser ni detener procesos ajenos.
+  1329/1330 consumidores contrato/social/cocina iguales a98, no duplicar fixes
+  de1328; probar conjunto al integrar. No aprobacion total de esasPRs.
+-147 NUEVO185Claude: reponerLaPlata mezcla IDs de proveedores si coinciden
+  nombres; B200 recuperaA60.30.2PASS/2FAIL por rama1329/1330, UNA causa.
+  Helper real y consumidor trazado; NO accion autenticada/pago real persistido.
+  Ver146-147-cierre,147datos y185. Ayudante cerrado; noappmodificada ni merge.
+
+## 16/10/2026 - Codex145: recuento y correcciones nuevas presentes en1328
+
+-145-recuento-integral.md consolida14areas, pruebas previas/limites y estado
+  de137/139/171/172/178/179/180/184/144, sin repetir tests ni inventar cobertura.
+-NUEVA1328HEADade94f83b8820ed43eff23227aaecb77776a042b contiene arreglos179
+  (toWhatsAppDigits URL/text-white titulo) y180(hasOwnProperty.call). Fuente
+  inspeccionada API paginada: presentes, NO retest Codex ni despliegue verificado.
+  No volver a llamarlos no implementados ni reemitirlos; revalidar eseSHA.
+-1329HEADb8491bda/1330HEADc7f9e3e6 nuevas solo metadatos vistos. Contrastar antes
+  de afirmar vigencia/fix de171/172/184. Main sigue7230. No toda app aceptada.
+
+## 16/10/2026 - Codex144: contenido del delta nuevo de tres pruebas
+
+-Diff17d->a98 en50-tecnologia-app-fiesta-demo, pantallas-con-iconos-react19 y
+  public-smoke: no aserciones borradas ni skips nuevos. Plazos ampliados120/
+  180segundos y textos con tildes. Revision de fuente, NO navegador ni prueba
+  de rendimiento. Los verdes no garantizan rapidez. Ver144-revision-breve-tests.
+  Layout-baseline no revisado aqui; no aceptar todaPR ni repetir142 por esto.
+
+## 16/10/2026 - Codex142/143: cabecera aprobada, movil parcial y fecha nueva
+
+-Entrega143 PR1324 ABIERTA/BORRADOR en6b0d67038a391ed8252e4f92ea61f7ebe22de1e9:
+  arbol remoto/local722bbfc3 yblob18405a6bda6 iguales, ver143-entrega-verificada.
+-PR1327 fuente17d26a631f500a263c48c4973d9c6f57d56ba421 compilada enQA aislado,
+  exit0 tipos/lint incluidos, sin editar app. Nuevoa98a4b250 SOLO cambia4E2E:
+  runtime/config/dependencias identicos17d. Reutilizar build, no recompilar.
+-142 cocina2PASS PC/Pixel7, porciones y cabecera visibles al imprimir; dosPDF
+  de1pagina renderizados/revisados.178 cerrado SOLO cabecera, no todas fechas.
+-171 parcial: sello/boton mejoran por medidas, titulo sigue3lineas. Caso completo
+  timedOut112.582s y asercion3>2 conservados, noPASS inventado.172 FAIL: dock
+  cubre2247.17px2 de Evento en390x844 sin scrollhorizontal. Mismas ordenes171/
+  172 actualizadas, no duplicadas.142 total2PASS/1FAIL/1timedOut,0omitidos/retry.
+-143 NUEVO184/Claude, ID AK-CODEX-143-COCINA-FECHA-CIVIL: fecha fija2027-08-08
+  muestra8/8UTC y7/8enUruguay, pantalla/print.143-civil1PASS/1FAIL confirma
+  conversion de fecha civil con newDate en HojaDeCocinaContenido. NO corregido.
+  Primera sonda143 exigia08/08 y tambien rechazoUTC por padding: errorQA.
+  Fuente/0PASS2FAIL iniciales conservados; solo test se corrigio a partes
+  numericas. No cambiar fecha guardada ni cantidades para resolver presentacion.
+-Ver142-143-cierre,142/143-consolidado,142-contraste-final y capturas/archivos
+  crudos comprimidos. QA58JSON primer nivel restaurados,0trackedchanges,puertos
+  cerrados,fixtures propios borrados. No datos/servicios reales, app editada ni
+  merge. Claudeprivadoactual NO CONTRASTADO. No todaapp ni0errores certificados.
+
+## 16/10/2026 - Codex141: alta cliente SDK pendiente completada PC/movil
+
+-Dueno aviso que Gemini termino; recursos comprobados libres antes de iniciar.
+  No se paro su servidor ni se tocaron sus cambios. Fuente7230/build135 sin
+  compilar ni cambiar app; nuevo namespace141 conserva todos los intentos139.
+-SDK real a emulador demo local:2PASS PC9.971s/Pixel7 8.980s,0fallos/omitidos/
+  reintentos. Alta con telefono sinemail, lista y recarga; lectura REST antes/
+  despues igual enID/campos/timestamps y un documento por nombre ficticio.
+  Capturas revisadas. Cierra SOLO el viaje clienteSDK inconcluso137/139.
+-Health aceptado7230/firebase true y otros serviciosfalse. HOME/config aislados,
+  Installations doble local y respaldo ficticio reciente; NO prueba OAuth,
+  backup, produccion, edicion/borrado/concurrencia ni todoClientes.
+-PR1327 HEAD17d26a631f500a263c48c4973d9c6f57d56ba421: tres blobs de agenda,
+  catalogo y perfiles identicos7230; no repetir136/138 ni reemitir179/180.
+  CSS178 cambia selector de cabecera: presente, NO retest nativo de17d. No
+  equivalencia transitiva ni aprobacion de toda1327. PrivadoClaude NO CONTRASTADO.
+-Ver141-cierre/consolidado/contraste, resultados crudos comprimidos y hash de
+  test. Gate PASS_CLIENT_CREATE_RELOAD_SDK_DEMO_PC_MOBILE_ONLY. Servicios propios
+  cerrados, puertos libres,61JSON primer nivel restaurados, diff fuentesQA0.
+  Agente economico read-only cerrado. No fusion, datos reales ni codigo app.
+  No repetir si fuente/consumidores iguales; no cambiar fallos historicos aPASS.
+
+## 16/10/2026 - Decision del dueno: esperar a Gemini
+
+-Respondio "No, espera a que termine Gemini" a detener su servidor3100.
+  NO detenerlo, no tocar su codigo ni insistir con la misma autorizacion.
+  QA pesado/clienteSDK queda en espera hasta que libere recursos; no se marco
+  aprobado. No se inicio otra prueba ni se interrumpio ningun proceso suyo.
+
+## 16/10/2026 - Codex140: distinguir ordenes y no aceptar perfiles por archivos existentes
+
+-Se contrasto por Git la copia Gemini4d845b921d3b579515de7937fd7d209cbab71f3b,
+  rama feat/ordenes-178-179-impresos-ia38, solo lectura. Los consumidores de
+  agenda/catalogo/perfiles son identicos a7230: no repetir defectos136/138.
+-Dos179 y dos180 DIFERENTES entre tandas: usar archivo completo e ID estable
+  AK-CODEX-136-WA099-COST / AK-CODEX-138-PERFIL-PROPIO. "179completa" de91ccc
+  se refiere a portada/IA, no cierra WA/costos. No error automatico por numero
+  demostrado. No renumerar ni reimplementar trabajo ajeno.
+-Mi orden180 tenia tres controles estructurales verdes aun con el fallo. Se
+  ejecutaron las funciones reales del comprobador: antes3PASS/0FAIL; despues
+  de reforzar SOLO el documento3PASS/4FAIL esperados. No son4bugs nuevos ni
+  correccion de app; regresion/Jest futuros siguen pendientes hasta ejecutarse.
+-Ver140-handoff-sin-ambiguedad y140-antes/despues. Controlar contenido/caso, no
+  dar por resuelto por prefijo, archivo existente o informe de otra tarea.
+-SDK sigue pendiente por recursos: se vio devGemini3100 ~1712MiB, RAM461148KiB.
+  No se toco; autorizacion solicitada para detenerlo, no asumir respuesta.
+  Ayudante cerrado, ningun servicio propio nuevo ni build/prueba pesada.
+
+## 16/10/2026 - Codex139: alta cliente local PC/movil y limites externos
+
+-7230/build135 reutilizados sin cambio app. DOS viajesPASS de alta cliente con
+  telefono sinemail/lista/busqueda/recarga/mismoID-nombre-telefono, modo JSON
+  aislado. PC58.356s y movil corrida59.2s; capturas revisadas. No aceptar SDK.
+-PreflightSDK139 agoto arranque/health antes de tests, no causa de137 aislada.
+  Primera JSON1PASSPC/1timeoutMovil por no abrir menu, corregido en sonda y
+  rerun SOLO movil1PASS. Originales/resultados/recibos conservados; no appbug.
+-IntentoSDK-final139 parado antes de tests al detectar build de Gemini en esta
+  maquina: dos procesos de su workspace3497MiB y RAM libre154548KiB. Solo se
+  cerraron Java11672/Next1172 propios. No culpar a app ni cambiar hosting por esto.
+  Antes de mas QA nativo comprobar que no haya build/Jest pesado en otra copia.
+-GETpublico health200 misma fuente7230; indicadores Gemini/Workspace/mailtrue,
+  Instagram/MercadoPagofalse, no prueba de integraciones. No operaciones reales.
+-Ver139-cierre/consolidado/limites-externos. Sigue pendiente clienteSDK/180,
+  servicios reales/19originales/hardware; no reemitir orden180 ni declarar0errores.
+  Datos restaurados, servicios/agente cerrados, puertos libres/diffQAfuentes0.
+
+## 16/10/2026 - Codex137: cliente inconcluso, salon no perdio datos
+
+- Entrega137/138: PR1324 ABIERTA/BORRADOR, commitca5169c10, arbol remoto/local
+  identico y orden180blob895f7dc verificado. Ver138-entrega-verificada.json.
+
+- Fuente/build7230/135 sin modificar app. Dos viajes nuevos de alta cliente y
+  salon: runner inicial0PASS/2FAIL, NO prueba de perdida. Cliente seguia cargando.
+- Contraste posterior conserva evidencia original y agrega lectura REST del
+  emulador: salon mantiene UN ID/capacidad80/campos/timestamps tras recarga y
+  aparece en UI; captura revisada. Runner0PASS/2noPASS porque cliente no termino
+  de salir del guardado y salon agoto90s en captura/finalizacion. No falsear verde.
+- Cliente: log guardado exitoso, pero no lectura durable ni recarga completadas;
+  INCONCLUSO. Health/consultas/respaldo local con timeouts; causa no aislada.
+  No emitir orden de perdida de datos ni invalidar8altas136 por estos limites.
+- Ver137-cierre/137-consolidado, pruebas y logs comprimidos; servicios locales
+  cerrados, puertos libres, diff de fuentes QA0 y recibos historicos restaurados.
+  Pendiente aislar guardado cliente; movil/edicion/fotos no aceptados por137.
+
+## 16/10/2026 - Codex138: perfiles heredados, orden180 abierta
+
+- Fuente7230f9d0, sonda pura del archivo real `src/lib/auth/perfiles.ts`, hash
+  `0ca6892f2f9e8133e00efbc090115937bfc8d4fa61d709e6680d3db17e6a2ea7`.
+- `constructor`, `toString` y `__proto__` pasan esPerfilValido por usar `in` y
+  luego puede lanza TypeError. Control `inventado` false y conversion vigente
+  sin error.1PASS/3FAIL, una causa. NO escalada de permisos demostrada ni cuenta
+  real afectada. No son fallos de las50fronteras HTTP de136, son otras entradas.
+- ABIERTA180/CLAUDE: pertenencia propia a los siete perfiles, conservar prioridad
+  y conversion historica aprobadas. Ampliacion Jest y prueba login/accion con
+  usuario corrupto PENDIENTES; la sonda no equivale a esas pruebas.
+- Confirmacion HTTP138 posterior, build135 de7230: cookie ficticia roleuser,
+  PDFsintetico inexistente. Controlinventado404, tresheredados500 con cuerpo0bytes.
+ 1PASS/3FAIL adicionales, misma causa. No cuentas cambiadas ni archivos reales
+  recuperados, no escalada demostrada. Ver138-perfiles-http-results.json.
+- Fuente de auth.ts usa el predicado en login/listUsers/createUser/updateUserModules;
+  no se modifico ningun usuario. Archivos iguales en1325HEAD5f704e68/1326a21d0b69;
+  NO CONTRASTADO CON LA TANDA PRIVADA. No se programa ni fusiona por Codex.
+
+## 16/10/2026 - Codex136: permisos HTTP y altas reales en QA
+
+-Fuente congelada7230f9d02b32805952a185f704a0208bd5d643e6 y build135 reutilizados,
+  sin codigo app ni nuevo build. Informe `docs/evidencias/136-cierre.md`.
+-50/50PASS: descargas HTTP de presupuesto, contrato, contrato salon, comprobante y
+  contrato empleado;7perfiles y controles anonimo/alterado/vencido. Bytes ficticios
+  exactos para autorizados; secretaria no ve sueldos, perfiles sin permiso403.
+  No implica todas las acciones/pantallas ni login real de esos perfiles.
+-11PASS de prospecto en acciones reales con proveedores/auth mock;11anonimas
+  deseleccionadas, no aprobadas. No repetir el barrido de otros perfiles vigente.
+-8viajes nuevos completos PASS: alta/lista/recarga/persistencia de servicio,
+  proveedor, empleado y activo fijo, PC+Pixel7. SDK real contra emulador local
+  demo; sin cuentas, claves, base ni mensajes reales. Capturas revisadas.
+-CRM admite prospecto solo con telefono; cita conserva contacto, horaUy y una
+  entrada timeline. Caso completo FAIL al contrastar enlace, no marcarlo PASS.
+-**ABIERTA179/Gemini, no corregida:** agenda arma wa.me/099... sin598 para telefono
+  local. Reusar toWhatsAppDigits solo para URL, NO cambiar telefono almacenado.
+  PC y movil reproducidos; no se envio mensaje. Variante fuera del alcanceWA80.
+-**Segundo bloque179 visual:** titulo Ajuste de Costos Global oscuro sobre panel
+  oscuro en catalogo movil. CardTitle impone text-foreground sobre padre blanco;
+  corregir localmente sin tocar formula/permisos ni todos los titulos globales.
+  Captura observada, no ratioWCAG medido ni nuevo fallo automatizado.
+-Contraste1325HEAD5f704e68/1326a21d0b69: consumidores agenda/contacto/catalogo/
+  CardTitle/CSSglobal identicos a7230. PrivadosClaude/Gemini NO CONTRASTADOS.
+-Falsos positivosQA archivados: cookie HTTP sin escape, JSON rechaza altas atomicas,
+  Java17 incompatible (se reutilizo21), avatar en selector, alias CRM view=guest,
+  reloj12h valido, columna movil plegada y telefonos ficticios repetidos.
+  No convertirlos en defectos de produccion ni editar resultados para ocultarlos.
+-19originales no localizados: dueno sigue buscando; no confundir29migrados con19.
+  Indices de integraciones y candidatos no son pruebas ejecutadas ni nuevas ordenes.
+-Gate136:50HTTP+11acciones+8viajesPASS;2viajesFAIL por1defecto de enlace, mas1visual.
+  Emulador vaciado, servicios/agentes propios cerrados, maestros restaurados y
+  diff de fuentes QA0. No certifica14areas/todas421rutas/0errores ni externos.
 
 ## 16/10/2026 - Plan "Argon" de la portada y ortografía de toda la app
 

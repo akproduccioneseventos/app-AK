@@ -1153,3 +1153,11 @@ cobra cada persona (`personalAsignado[].eventSalary`), y la pantalla de recibos 
 dato protegido por un permiso, se busca **en qué objetos más grandes va metido** (la fiesta, el
 presupuesto, el cliente) y se mira qué perfiles reciben ese objeto entero. Y al revés: si se lo saca al
 leer, **al guardar** el objeto sin ese dato no tiene que borrarlo (pregunta 38).
+
+### 69. Una función "interna" sin permiso, ¿vive en un archivo `'use server'`?
+
+La entrega de la orden 183 (propuesta 1333) agregó `updateGestionCostosInterno` sin pedir permiso, para
+que la sincronización automática pudiera guardar costos. Pero la exportó desde `costos.actions.ts`, que
+empieza con `'use server'`: **todo lo que se exporta de ahí se puede llamar desde el navegador**. "Interna"
+era sólo el nombre. Lo frenó el candado de la plata. Al verificar: una función que se saltea el permiso
+vive en un archivo **sin** `'use server'` (con `import 'server-only'`), y la acción pública la llama.

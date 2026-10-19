@@ -198,3 +198,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     ya tienen las otras, y sumala ahí también.
 53. **¿Tu dato es de plata o de sueldos?** Fijate si viaja adentro de la fiesta o del presupuesto a perfiles
     que no lo ven en su pantalla propia. Y si lo sacás al leer, que guardar no lo borre.
+54. **¿Hiciste una versión "interna" que no pide permiso?** No la exportes de un archivo `'use server'`:
+    ahí todo se puede llamar desde el navegador. Va en un archivo aparte con `import 'server-only'`.
