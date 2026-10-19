@@ -93,6 +93,52 @@ Dibujados en el lienzo, o con imágenes livianas guardadas en `public/filtros/`,
 - El ajuste lo lee la estación: pregunta 3 de "Cuatro reglas" en CLAUDE.md, *todo lo que se puede
   editar tiene que leerlo alguien*.
 
+## Bloque 5 — lo que tienen otras aplicaciones (pedido del dueño: "que sea todo divertido y novedoso")
+
+Lo que hoy usa la gente en Instagram, TikTok y Snapchat, hecho dentro de la app, **gratis y sin
+servicios de afuera**. Todo usa el mismo detector de caras del bloque 1, con
+`outputFaceBlendshapes: true`, que dice si la persona abre la boca, guiña o levanta las cejas.
+
+1. **Efectos que reaccionan a la cara** (como las lentes de Snapchat):
+   - si abre la boca, salen confeti o corazones de la boca;
+   - si guiña un ojo, sale un destello de brillo;
+   - si levanta las cejas, el filtro cambia al siguiente.
+
+   Se usan `jawOpen`, `eyeBlinkLeft`/`eyeBlinkRight` y `browInnerUp`, con un umbral de 0.5 y una pausa
+   de 1 segundo entre disparos, para que no tiemble.
+2. **"¿Qué tipo de invitado sos?"**, la ruleta sobre la cabeza que se puso de moda en Instagram:
+   - arriba de cada cara giran opciones durante 3 segundos y se frenan en una;
+   - las opciones son de fiesta ("El que no larga la pista", "El del brindis", "El que llora en el
+     vals"...), con 20 cargadas;
+   - en quince y casamientos se suma una con el nombre del agasajado ("El favorito de Sofi");
+   - en video queda grabado el giro; en foto, el resultado.
+3. **Cabezón y ojos gigantes** (TikTok): agranda la cabeza o los ojos de cada persona, deformando la
+   imagen alrededor de los puntos de la cara. Tiene que verse redondo, sin cortes.
+4. **Cambio de caras entre dos personas** (face swap): con exactamente dos caras, se intercambian,
+   recortadas por los puntos del contorno y con el color de piel emparejado en el borde. Con una o con
+   más de dos caras, el botón no aparece.
+5. **Purpurina y maquillaje de fiesta:** brillos en los pómulos, delineado neón y estrellitas en la
+   frente, pegados a los puntos de la cara.
+6. **Efectos detrás de la persona.** Con el recorte que ya existe (`recortarPersonaSinTela` en
+   `segmentacion-fondo.ts`), la persona queda adelante y atrás caen confeti, fuegos artificiales o
+   corazones, como si estuviera adentro del efecto. Si el recorte no anda en ese equipo, el efecto va
+   encima, nunca un recorte inventado.
+7. **Minijuego de 15 segundos con la cara** (los juegos de Instagram): "atrapá las estrellas con la
+   boca". Caen estrellas, el invitado abre la boca debajo y suma puntos.
+   - Se graba como video con el puntaje final y el nombre de la fiesta.
+   - Va en Touchpix y en Espejo mágico.
+   - **No guarda ranking de personas ni pide datos.**
+8. **Voces divertidas en el video de Vogue** (como TikTok): al grabar, se elige "ardilla", "robot" o
+   "gigante". Se cambia el tono con el `AudioContext` que ya está en
+   `src/app/evento/bogue/[fiestaId]/page.tsx` (~213), y la voz cambiada queda dentro del video
+   guardado. Si el equipo no puede, se graba con la voz normal y se avisa.
+9. **Formato historia de Instagram:** al descargar o compartir, se elige "historia" (1080x1920) y la
+   foto sale armada con uno de los diseños estilo Canva del bloque 2, lista para subir.
+
+**Cada uno es un filtro más de la lista**: el operador lo prende o lo apaga con `filtrosActivos`
+(bloque 4). Lo que pide mucha máquina (cambio de caras, cabezón, minijuego) **se apaga solo** si la vista
+previa baja de 15 cuadros por segundo, con el aviso "Este equipo no da para este filtro".
+
 ## Qué NO tocar
 
 - Los stickers quietos, los marcos que ya existen, el recorte de fondo y el filtro de belleza.
@@ -110,6 +156,12 @@ Dibujados en el lienzo, o con imágenes livianas guardadas en `public/filtros/`,
   - sin caras, el lienzo queda **idéntico** al original.
 - `src/__tests__/el-filtro-de-15-lleva-el-nombre.test.ts`: el filtro "Mis 15" escribe el
   `nombreAgasajado` de la fiesta, y sin nombre no escribe "undefined" ni deja la cinta vacía.
+- `src/__tests__/los-efectos-reaccionan-a-la-cara.test.ts`, con valores de cara de mentira:
+  - con `jawOpen` en 0.8 sale confeti, y con 0.2 no sale;
+  - dos bocas abiertas seguidas en menos de 1 segundo disparan un solo efecto;
+  - la ruleta termina en una opción de la lista;
+  - el cambio de caras no se ofrece con una sola cara;
+  - con el recorte apagado, el efecto de atrás va encima y la imagen no se corta.
 - `tests/e2e/la-fotocabina-ofrece-filtros.spec.ts`:
   - la fila "Filtros" aparece;
   - con `filtrosActivos: ['mis15']` sólo se ve ese;
@@ -117,6 +169,9 @@ Dibujados en el lienzo, o con imágenes livianas guardadas en `public/filtros/`,
     nombre en el código).
 
 ```comprobar
+usa: jawOpen en src/lib/entretenimiento/filtros-cara.ts
+usa: recortarPersonaSinTela en src/lib/entretenimiento/filtros-cara.ts
+prueba: src/__tests__/los-efectos-reaccionan-a-la-cara.test.ts
 archivo: src/lib/entretenimiento/filtros-cara.ts
 archivo: public/models/caras/face_landmarker.task
 usa: dibujarFiltroDeCara en src/app/evento/fotocabina/[fiestaId]/page.tsx
