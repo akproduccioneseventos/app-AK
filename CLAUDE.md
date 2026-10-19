@@ -1266,6 +1266,11 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Voz con IA: el cliente sí, el invitado no (19 de octubre de 2026).** Palabras suyas: *"al cliente
+  quizás le pueda hablar, pero al invitado no: imaginate 100 personas hablándole"*. El cliente habla
+  desde su portal con tope propio (orden 190, bloque 6); el invitado sólo por escrito, y las estaciones
+  con la voz del teléfono, que es gratis. No se propone voz con IA para invitados.
+
 - **Novedades elegidas y la app en los teléfonos (19 de octubre de 2026).** De las propuestas 1330 a 1335
   entra lo que va en la orden 189. **La realidad aumentada ahora SÍ va** (manda sobre el descarte del 1
   de octubre): apuntar el celular a la invitación impresa y ver un video encima. La app va a **Play Store**

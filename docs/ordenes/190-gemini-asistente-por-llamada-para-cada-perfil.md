@@ -163,6 +163,28 @@ aprobación.
 - Nada de una computadora propia en la nube por agente: eso se paga por mes.
 - Nada de conectar servicios nuevos pagos. Si algo lo pidiera, **parás y avisás**.
 
+## Bloque 6 — el cliente puede hablarle; el invitado NO (decisión del dueño, 19/10/2026)
+
+Palabras del dueño: *"al cliente quizás le pueda hablar, porque no creo que lo use tanto, pero al
+invitado no: imaginate 100 personas hablándole, me va a consumir mucho"*.
+
+- **Cliente:** su asistente del portal (`src/components/portal/AsistenteDelCliente.tsx`, montado en
+  `src/app/portal-cliente/[id]/page.tsx` ~1416, con `chatConAsistenteCliente` de
+  `src/app/actions/asistente-virtual.ts`) suma un botón "Hablar".
+  - Usa la misma llamada en vivo del bloque 2, con una ruta propia
+    `src/app/api/asistente/voz-en-vivo/cliente/route.ts`, que entra con la sesión del portal de **esa**
+    fiesta, no con la del equipo.
+  - **El contexto es sólo su fiesta**, con lo mismo que ya le muestra el portal; nada interno.
+  - **No hace acciones**: contesta y, si pide algo, lo deja como mensaje para el equipo.
+  - **Tope propio: 5 minutos por día por fiesta**, contados aparte de los del equipo. Se ajusta en
+    Ajustes → Asistente y tiene un interruptor que lo apaga para todos los clientes.
+  - Pasa por `hayPresupuestoParaIA()` y anota con `registrarConsumoIA()`.
+- **Invitado: sin voz con IA.**
+  - `src/components/invitacion/AsistenteDelInvitado.tsx` sigue sólo por escrito, como hoy
+    (`chatConAsistenteInvitado`, que ya mira el tope de gasto).
+  - Las estaciones siguen hablando con la voz del propio teléfono (`speechSynthesis`), que no cuesta.
+  - **No le agregues "Hablar" ni la llamada en vivo a ninguna pantalla del invitado.**
+
 ## Qué NO tocar
 
 - El tope de minutos por día y su ajuste (`vozEnVivoMinutosPorDia`). **No cambies el valor por omisión.**
@@ -185,6 +207,11 @@ aprobación.
   - con el tope de IA agotado, el agente no llama a la IA;
   - con el perfil `dueno`, "¿cómo vino lo contable este mes?" contesta con montos; con el perfil `operador`
     contesta "eso no lo tengo para tu perfil" y no aparece ningún monto.
+- `src/__tests__/la-voz-del-cliente-tiene-tope-y-el-invitado-no-habla.test.ts`:
+  - con la sesión del portal de la fiesta A no se abre la voz de la fiesta B;
+  - el sexto minuto del día no se da;
+  - con el interruptor apagado, ningún cliente habla;
+  - el contexto no lleva sueldos, costos ni ganancias.
 - `src/__tests__/el-asistente-avisa-a-cada-uno-lo-suyo.test.ts`: el aviso de cobros no le llega al
   operador, el cuarto aviso del día no sale, a las 23:30 de Uruguay no sale nada, y con el
   interruptor apagado tampoco.
@@ -197,6 +224,10 @@ aprobación.
   - sin sesión, 401.
 
 ```comprobar
+archivo: src/app/api/asistente/voz-en-vivo/cliente/route.ts
+usa: voz-en-vivo/cliente en src/components/portal/AsistenteDelCliente.tsx
+no-usa: voz-en-vivo en src/components/invitacion/AsistenteDelInvitado.tsx
+prueba: src/__tests__/la-voz-del-cliente-tiene-tope-y-el-invitado-no-habla.test.ts
 usa: objetivos en src/lib/agentes/motor-agentes.ts
 usa: apodo en src/app/(app)/settings/agentes-autonomos/page.tsx
 usa: getHistorialAgentes en src/app/(app)/mi-dia/page.tsx
