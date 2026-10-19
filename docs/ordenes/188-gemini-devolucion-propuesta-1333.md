@@ -82,4 +82,7 @@ usa: updateGestionCostosInterno en src/app/actions/fiesta/decoracion.actions.ts
 no-usa: export async function updateGestionCostosInterno en src/app/actions/fiesta/costos.actions.ts
 prueba: src/__tests__/el-candado-de-la-plata.test.ts
 prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
+usa: portal-redirects en src/__tests__/portal-y-encargado-sin-fugas-ni-desvios.test.ts
+prueba: src/__tests__/asistente-mapa-y-navegacion.test.ts
+usa: pestana en src/app/(app)/fiestas/nueva/page.tsx
 ```

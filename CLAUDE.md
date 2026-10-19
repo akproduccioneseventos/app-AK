@@ -1266,6 +1266,13 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Novedades elegidas y la app en los teléfonos (19 de octubre de 2026).** De las propuestas 1330 a 1335
+  entra lo que va en la orden 189. **La realidad aumentada ahora SÍ va** (manda sobre el descarte del 1
+  de octubre): apuntar el celular a la invitación impresa y ver un video encima. La app va a **Play Store**
+  (unos 25 dólares, una sola vez) y en **iPhone se instala desde la web**, sin la tienda de Apple. No van:
+  respuestas automáticas en redes, las "4 puertas", el teléfono rojo, el WhatsApp de invitados en el hub,
+  el walkie-talkie, la lista de regalos ni el brindis cruzado.
+
 - **Mejoras de la auditoría de Gemini aprobadas (16 de octubre de 2026).** Puerta que deja pasar sin
   señal, de "mi mesa" a la app, Vogue/Espejo/Tótem IA como extras del portal, la franja de
   "tranquilidad incluida" en el presupuesto (órdenes 180 y 181) y **ordenar la app** (orden 182): 5
