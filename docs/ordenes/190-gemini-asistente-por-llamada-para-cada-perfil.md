@@ -139,7 +139,7 @@ cuál. Contesta con `importantPending` en criollo y pide ORGANIZACION.
 
 ```comprobar
 usa: hablar=1 en public/manifest.json
-usa: hablar en src/components/multiagent/multiagent-widget.tsx
+usa: get('hablar') en src/components/multiagent/multiagent-widget.tsx
 usa: server-messaging en src/app/api/cron/asistente-proactivo/route.ts
 prueba: src/__tests__/el-asistente-avisa-a-cada-uno-lo-suyo.test.ts
 usa: contextoDeVozParaPerfil en src/app/api/asistente/voz-en-vivo/route.ts
