@@ -1,38 +1,37 @@
-# Estado actual - Codex148,18/10/2026
+# Estado actual — 19 de octubre de 2026
 
-Codex SOLO audita/prueba/documenta; Gemini programa; Claude dinero/permisos/comida,
-valida/compila/fusiona. Excepcion dueno SOLO build/servidorQA ficticio aislado.
-Repo ak-auditoria-133-portal-responsive, rama codex/134-conciliacion-cobertura-20261015.
-PR1324 BORRADOR ABIERTA;143 entregada6b0d67038, arbol/blob184 remoto igual, verrecibo.
-No fusionar documentos solos. No cambiar app ni datos reales, no forcepush.
-Main7230f9d02b32805952a185f704a0208bd5d643e6; build135 reutilizable por alcance.
-141 clienteSDK real emulador demo:2PASS PC/Pixel7 telefono sinemail/lista/recarga,
-ID/campos/timestamps iguales por REST. Cierra viaje inconcluso137/139, no area.
-142 nuevoQA compilado17d26a631f500a263c48c4973d9c6f57d56ba421, exit0 tipos/lint.
-PR1327 avanzoa98a4b25009f9994d7a9cbd3025972a4142634c2: solo4E2Ecambiados,
-runtime/config/deps identicos17d. NO recompilar ni repetir mismoalcance por esto.
-142178 cabecera cocina2PASS PC/Pixel7,2PDF1pagina renderizados/revisados.
-171 PARCIAL: sello/boton mejoraron; titulo3lineas. Caso completo timedOut,
-asercion3>2 y metricas archivadas, noPASS.172 FAIL dock tapa Evento2247.17px2.
-Ordenes171/172 actualizadas, no reemitir ni deshacer178 para corregir fecha.
-143 NUEVO184/Claude AK-CODEX-143-COCINA-FECHA-CIVIL:2027-08-08 se muestra7/8
-enUruguay,8/8UTC.1PASScontrol/1FAILUy pantalla/print, NO corregido. Fecha guardada
-no se cambia.143padding inicial errorQA archivado, no otrobug de produccion.
-144:3diffsQA sin aserciones quitadas/skips nuevos;120/180seg no prueban rapidez.
-QA142Temp ak-qa-142-Ti9Igx mantiene build17d: reutilizar si mismo runtime.
-Servicios propios cerrados,58JSON primer nivel restaurados,fixtures propios
-borrados,0diffQAtracked. Nadie paro procesos deGemini. No sesiones reales.
-141Luna low read-only cerrado. No heredar credenciales/env; HOME/config aislados.
-13650HTTP permisosPASS,11prospectoPASS/11deseleccionadas,8altasSDKmaestrosPASS.
-136CRM-agenda telefono/sinemail/cita/horaUy/timeline persisten; enlace099sin598FAIL.
-AK-CODEX-136-WA099-COST=179-gemini-agenda-recordatorio-whatsapp-local.md;
-AK-CODEX-138-PERFIL-PROPIO=180-claude-perfiles-solo-claves-propias.md.
-1328HEADef0e9402 fixes171/172/179/180/184presentes;14634PASSsolo ligeros, noUI.
-148185helper CORREGIDO PR1333SHA03cd87d59, suite real4PASS; NOaccion completa.
-140 controles180 ahora3PASS4FAILesperados; inventario no prueba regresion.
-Claudeprivadoactual NO CONTRASTADO. Contrastar cada entrega antes de ordenar.
-1353D/agenda/DJ6PASS y42unidades focales vigentes por alcance; no repetir.
-134421rutas/14areas/7perfiles/6401AST es inventario, no aceptacion por boton.
-19originales dueno sigue buscando, no insistir ni sustituir por JSONmigrados/QA.
-Hosting/OAuth/modelo-voz/cuentas/hardware/integraciones reales NO certificados.
-Siguiente:UI171/172/179/184 conbuildnuevo;185accioncompleta.1332/34/35 noauditadas.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la
+propuesta 1323 (`7230f9d02`). **Nada de esta tanda está publicado todavía.**
+
+## En qué se está
+Esperando entregas de Gemini (órdenes 188, 189 y 190). Claude revisa, corre la puerta y fusiona.
+Codex sólo audita.
+
+## Terminado en esta tanda
+- Junté en la rama los arreglos de Codex 136/138 (1328) y la evidencia de Codex 134 (1324).
+- Devolví la entrega de Gemini 1333 (órdenes 180 a 183 y 185): sola rompía 7 pruebas, junto con
+  la rama 12, y dejaba pública una función de costos sin permiso → **orden 188**.
+- Cerré sin fusionar 1330, 1331, 1332, 1334, 1335 y 1333. Lo que servía pasó a las órdenes.
+- **Orden 189:** las novedades que eligió el dueño, con realidad aumentada de verdad (apuntar a la
+  invitación impresa), Play Store, iPhone desde la web, selfie, cámara descartable, trivia con IA
+  real, efecto Coldplay y armador de mesas.
+- **Orden 190:** hablarle a la app como en una llamada, que haga tareas con confirmación, avisos al
+  teléfono según el perfil, ícono "Hablar con AK" y "los dots de AK" (asistentes con nombre, objetivo
+  y qué hacen solos). Se habla siempre a "Asistente AK", que deriva solo; el dueño llega a todo.
+- Método: preguntas 69 a 73 (COMO-AUDITAR) y 54 (ANTES-DE-ENTREGAR). El control de acentos ya lee
+  nombres de archivo con tilde.
+- Decisiones nuevas anotadas en CLAUDE.md (19/10): realidad aumentada SÍ; Play Store sí; Apple no.
+
+## A medias / trabado
+- Órdenes 180–183 y 185 siguen sin entrar: van dentro de la devolución 188.
+- Orden 182 (5 pestañas, portal en 5 pasos, Marketing): lo armado no se ve en las pantallas.
+- Hay que medir cuántos minutos de voz en vivo gratis da Gemini por día antes de subir el tope de
+  10 minutos.
+- Respaldo local de la integración rota: rama local `respaldo-integracion-f9878` (no subida, se
+  puede tirar).
+
+## Lo próximo
+1. Cuando Gemini entregue 188: revisar plata y permisos línea por línea (candado de la plata,
+   `recortarFiestaPorPerfil`, guardado que no borra), puerta, fusionar con `expectedHeadSha`.
+2. Después 189 y 190, en el mismo orden. 190 toca permisos: con lupa.
+3. Pendiente del dueño, sin apuro: si quiere sumar "Mi día" como puerta de entrada al reordenar.
