@@ -1060,6 +1060,15 @@ graves que nadie había pedido (un prospecto firmado que se podía borrar si fal
 ayudantes de sólo lectura con las preguntas de sus líneas en `LO-QUE-NO-VI.md`, y lo confirmado sale
 como orden para Gemini (así salió la 168). Juntar sin barrer es una tanda incompleta.
 
+### 39. Dejar las órdenes para Gemini en una rama que Gemini no mira
+
+**Pasó el 19 de octubre de 2026.** Escribí las órdenes 188 a 191 en la rama de trabajo, sin
+fusionar, y Gemini arranca de la versión principal: no las vio. Entregó la 1336 sobre la entrega
+ya devuelta, con el mismo agujero de plata y con lo que el dueño había descartado.
+
+**Qué se hace distinto:** cada vez que queda una orden nueva para Gemini, el aviso al dueño lleva
+**el mensaje listo para pegarle a Gemini**, con la rama de donde arrancar y los números de orden.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
