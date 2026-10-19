@@ -1266,6 +1266,10 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Filtros divertidos que siguen la cara (19 de octubre de 2026).** Pedido del dueño: filtros "tipo
+  Instagram" para fotos y videos, uno personalizado del 15 con el nombre, y diseños estilo Canva. Va en
+  la orden 191: hechos en la app, con lo que ya está instalado y sin servicios pagos.
+
 - **Voz con IA: el cliente sí, el invitado no (19 de octubre de 2026).** Palabras suyas: *"al cliente
   quizás le pueda hablar, pero al invitado no: imaginate 100 personas hablándole"*. El cliente habla
   desde su portal con tope propio (orden 190, bloque 6); el invitado sólo por escrito, y las estaciones
