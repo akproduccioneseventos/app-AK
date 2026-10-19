@@ -20,6 +20,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { getParteDeLaManana, parteParaQuienMira } from '@/lib/automatico/parte-manana';
 import { ParteDeLaMananaPlayer } from '@/components/mi-dia/ParteDeLaMananaPlayer';
+import { readData } from '@/lib/data-service';
+import type { DigitalPresenceReview } from '@/types/presencia-digital';
 
 export const metadata: Metadata = {
   title: 'Mi Día - AK Producciones',
@@ -196,6 +198,16 @@ export default async function MiDiaPage() {
   // Los saldos y la conciliación son plata: sólo los ve quien tiene contabilidad.
   const parte = parteParaQuienMira(await getParteDeLaManana(), verContabilidad);
 
+  // Consejo del Ayudante de Presencia Digital (para marketing / CRM / dueño)
+  let digitalReview: DigitalPresenceReview | null = null;
+  if (puede(session.user, PERMISOS.CRM)) {
+    try {
+      digitalReview = await readData<DigitalPresenceReview | null>('digital-presence-review.json', null);
+    } catch {
+      digitalReview = null;
+    }
+  }
+
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-20">
       {/* Encabezado sereno */}
@@ -217,6 +229,40 @@ export default async function MiDiaPage() {
 
       {/* El Parte de la Mañana por el Encargado */}
       <ParteDeLaMananaPlayer parte={parte} />
+
+      {/* Consejo del Ayudante Diario de Presencia Digital */}
+      {digitalReview?.consejoEstrategicoDelDia && (
+        <Card className="rounded-2xl border-amber-500/30 bg-gradient-to-r from-amber-50 via-white to-amber-50/50 p-4 sm:p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-700 shrink-0 mt-0.5">
+                <Sparkles className="w-5 h-5 text-amber-600" />
+              </div>
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+                    Presencia Digital · Consejo del Día
+                  </span>
+                  <span className="text-[11px] text-slate-400">Hoy ({digitalReview.date})</span>
+                </div>
+                <p className="text-sm sm:text-base font-bold text-slate-800 leading-snug">
+                  {digitalReview.consejoEstrategicoDelDia}
+                </p>
+                <p className="text-xs text-slate-500">
+                  Tenés 3 publicaciones listas para subir hoy con 1 toque.
+                </p>
+              </div>
+            </div>
+
+            <Button asChild size="sm" className="rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 shrink-0 gap-1.5 shadow-sm">
+              <Link href="/empresa/presencia-digital">
+                Ver publicaciones
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Acciones para hoy */}
       <section className="space-y-4">

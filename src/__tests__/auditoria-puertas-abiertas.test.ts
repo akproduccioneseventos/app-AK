@@ -168,6 +168,22 @@ const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
     'el cliente notifica que envio su comprobante de transferencia desde su portal.',
   'google-workspace-extended.ts:notifyClientPortalKeyRecovery':
     'envia la clave olvidada al correo electronico registrado del cliente.',
+
+  // Experiencia interactiva de invitados en vivo (noche del evento)
+  'audio-guestbook.ts:getAudioGuestbookEntriesAction':
+    'los audios de felicitaciones grabados por los invitados para los novios o quinceañera en la fiesta.',
+  'audio-guestbook.ts:saveAudioGuestbookEntryAction':
+    'el invitado graba su audio o mensaje de voz sin cuenta desde su celular en el evento.',
+  'brindis-cruzado.ts:getBrindisActivosAction':
+    'los brindis interactivos entre mesas en vivo durante la cena.',
+  'brindis-cruzado.ts:enviarBrindisCruzadoAction':
+    'el invitado envia un brindis a otra mesa sin cuenta desde su celular en el evento.',
+  'camara-descartable.ts:getFotosDescartablesAction':
+    'consulta de fotos tomadas con la camara descartable digital del evento.',
+  'camara-descartable.ts:guardarFotoDescartableAction':
+    'el invitado saca una foto con la camara descartable digital desde su celular.',
+  'crowd-sync.ts:getCrowdSyncStateAction':
+    'estado de sincronizacion de luces de celulares para el show interactivo en vivo.',
 };
 
 function archivosDeServidor(): string[] {

@@ -14,6 +14,7 @@ import type { SocialConnection } from '@/types/settings';
 import type { CrmLead } from '@/types/crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { SocialComment } from '@/types/comentarios-redes';
 import { readData, writeData } from '@/lib/data-service';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -34,6 +35,7 @@ const CONNECTIONS_FILE = 'social-connections.json';
 const LEADS_FILE = 'crm-leads.json';
 const BUDGETS_FILE = 'presupuestos.json';
 const FIESTAS_FILE = 'fiestas.json';
+const COMMENTS_FILE = 'social-comments.json';
 
 /**
  * Obtiene todos los datos unificados para el Tablero del Centro de Presencia Digital (Bloque 1).
@@ -47,13 +49,14 @@ export async function getDigitalPresenceDashboard(): Promise<{
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return { success: false, error: permiso.error };
 
-    const [connections, posts, history, leads, budgets, fiestas, storedReview] = await Promise.all([
+    const [connections, posts, history, leads, budgets, fiestas, comments, storedReview] = await Promise.all([
       readData<SocialConnection[]>(CONNECTIONS_FILE, []),
       readData<SocialPost[]>(POSTS_FILE, []),
       readData<DailySocialMetricSnapshot[]>(HISTORY_FILE, []),
       readData<CrmLead[]>(LEADS_FILE, []),
       readData<Presupuesto[]>(BUDGETS_FILE, []),
       readData<FiestaEnPlanificacion[]>(FIESTAS_FILE, []),
+      readData<SocialComment[]>(COMMENTS_FILE, []),
       readData<DigitalPresenceReview | null>(REVIEW_FILE, null),
     ]);
 
@@ -70,11 +73,18 @@ export async function getDigitalPresenceDashboard(): Promise<{
       fiestas,
     });
 
-    // 3. Obtener o generar la revisión diaria (Bloque 4)
+    // 3. Obtener o generar la revisión diaria profunda con IA (Bloque 4)
     const todayStr = hoyEnUruguay();
     let review = storedReview;
     if (!review || review.date !== todayStr) {
-      review = await buildDigitalPresenceDailyReview({ posts, connections });
+      review = await buildDigitalPresenceDailyReview({
+        posts,
+        connections,
+        leads,
+        budgets,
+        fiestas,
+        comments,
+      });
       await writeData(REVIEW_FILE, review);
     }
 
@@ -248,19 +258,25 @@ export async function publishApprovedSocialPost(
  */
 export async function createPostFromDailySuggestion(
   suggestionText: string,
-  platform: 'Instagram' | 'Facebook' = 'Instagram'
+  platform: PlatformName | 'Multi' = 'Instagram',
+  options?: { title?: string; hashtags?: string[] }
 ): Promise<{ success: boolean; post?: SocialPost; error?: string }> {
   try {
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return { success: false, error: permiso.error };
 
     const posts = await readData<SocialPost[]>(POSTS_FILE, []);
+    const targetPlatform = platform === 'Multi' ? 'Instagram' : platform;
+    const fullText = options?.hashtags && options.hashtags.length > 0 && !suggestionText.includes(options.hashtags[0])
+      ? `${suggestionText}\n\n${options.hashtags.join(' ')}`
+      : suggestionText;
+
     const newPost: SocialPost = {
       id: `sug_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      platform,
+      platform: targetPlatform,
       isGeneralCampaign: true,
       publishDate: new Date().toISOString(),
-      text: suggestionText,
+      text: fullText,
       status: 'Borrador',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -272,6 +288,45 @@ export async function createPostFromDailySuggestion(
     return { success: true, post: newPost };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al crear la publicación sugerida.' };
+  }
+}
+
+/**
+ * Regenera el análisis diario de presencia digital con IA bajo demanda con datos actualizados.
+ */
+export async function regenerateDailyDigitalReviewAction(): Promise<{
+  success: boolean;
+  review?: DigitalPresenceReview;
+  error?: string;
+}> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+
+    const [connections, posts, leads, budgets, fiestas, comments] = await Promise.all([
+      readData<SocialConnection[]>(CONNECTIONS_FILE, []),
+      readData<SocialPost[]>(POSTS_FILE, []),
+      readData<CrmLead[]>(LEADS_FILE, []),
+      readData<Presupuesto[]>(BUDGETS_FILE, []),
+      readData<FiestaEnPlanificacion[]>(FIESTAS_FILE, []),
+      readData<SocialComment[]>(COMMENTS_FILE, []),
+    ]);
+
+    const review = await buildDigitalPresenceDailyReview({
+      posts,
+      connections,
+      leads,
+      budgets,
+      fiestas,
+      comments,
+      forceRegenerate: true,
+    });
+
+    await writeData(REVIEW_FILE, review);
+    return { success: true, review };
+  } catch (error: any) {
+    console.error('[presencia-digital] Error regenerando revisión diaria con IA:', error);
+    return { success: false, error: error.message || 'Error al actualizar el análisis con IA.' };
   }
 }
 

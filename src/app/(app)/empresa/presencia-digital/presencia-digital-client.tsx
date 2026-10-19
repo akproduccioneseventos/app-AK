@@ -8,6 +8,7 @@ import type {
   CampaignCommercialRoi,
   NetworkAttributionPeriod,
   NetworkAttributionReport,
+  DailyPostRecommendation,
 } from '@/types/presencia-digital';
 import type { GoogleAnalyticsDashboardData } from '@/lib/presencia-digital/google-analytics';
 import type { SocialPost } from '@/types/social-media';
@@ -15,6 +16,7 @@ import type { SocialComment, NetworkCommentsBackfillState, CommentNetwork } from
 import {
   publishApprovedSocialPost,
   createPostFromDailySuggestion,
+  regenerateDailyDigitalReviewAction,
   getNetworkAttributionReport,
   getWebsiteAnalyticsData,
 } from '@/app/actions/presencia-digital';
@@ -74,6 +76,12 @@ import {
   Star,
   MessageSquarePlus,
   Wand2,
+  Copy,
+  Check,
+  Lightbulb,
+  Video,
+  Layers,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface Props {
@@ -102,6 +110,8 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [loadingAttribution, setLoadingAttribution] = useState(false);
   const [creatingSuggestion, setCreatingSuggestion] = useState(false);
   const [generatingWeekly, setGeneratingWeekly] = useState(false);
+  const [regeneratingReview, setRegeneratingReview] = useState(false);
+  const [copiedProposalId, setCopiedProposalId] = useState<string | null>(null);
 
   // Estado para el Tablero de Altas (16 directorios)
   const [directoriosData, setDirectoriosData] = useState<DirectorioAltasResumen | null>(null);
@@ -478,6 +488,85 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
     }
   };
 
+  const handleRegenerateReview = async () => {
+    setRegeneratingReview(true);
+    setPublishFeedback(null);
+    try {
+      const res = await regenerateDailyDigitalReviewAction();
+      if (res.success && res.review) {
+        setData((prev) => ({
+          ...prev,
+          review: res.review!,
+        }));
+        setPublishFeedback({
+          success: true,
+          message: '¡Análisis diario actualizado con IA con los datos más recientes de tus redes y clientes!',
+        });
+      } else {
+        setPublishFeedback({
+          success: false,
+          message: res.error || 'No se pudo actualizar el análisis diario.',
+        });
+      }
+    } catch (err: any) {
+      setPublishFeedback({
+        success: false,
+        message: err.message || 'Error al actualizar el análisis con IA.',
+      });
+    } finally {
+      setRegeneratingReview(false);
+    }
+  };
+
+  const handleCreateFromProposal = async (prop: DailyPostRecommendation) => {
+    setCreatingSuggestion(true);
+    setPublishFeedback(null);
+    try {
+      const res = await createPostFromDailySuggestion(
+        prop.textoListo,
+        prop.redRecomendada,
+        { title: prop.titulo, hashtags: prop.hashtags }
+      );
+      if (res.success && res.post) {
+        setPosts((prev) => [res.post!, ...prev]);
+        setPublishFeedback({
+          success: true,
+          message: `¡Borrador "${prop.titulo}" creado en el planificador! Podés verlo y programarlo en la pestaña Publicaciones.`,
+        });
+        setActiveTab('publicaciones');
+      } else {
+        setPublishFeedback({
+          success: false,
+          message: res.error || 'No se pudo crear el borrador de la publicación.',
+        });
+      }
+    } catch (err: any) {
+      setPublishFeedback({
+        success: false,
+        message: err.message || 'Error al crear la publicación recomendada.',
+      });
+    } finally {
+      setCreatingSuggestion(false);
+    }
+  };
+
+  const handleCopyProposalText = async (id: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedProposalId(id);
+      setTimeout(() => setCopiedProposalId(null), 3000);
+      toast({
+        title: 'Texto copiado',
+        description: 'El texto del posteo fue copiado al portapapeles listo para pegar.',
+      });
+    } catch {
+      toast({
+        variant: 'destructive',
+        description: 'No se pudo copiar el texto automáticamente.',
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* 1. KPIs GRANDES (Pensados para ver de un vistazo en el celular) */}
@@ -743,64 +832,251 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
 
       {/* CONTENIDO DE PESTAÑAS */}
 
-      {/* PESTAÑA 1: REVISIÓN DIARIA */}
+      {/* PESTAÑA 1: AYUDANTE REAL DIARIO DE REDES Y PRESENCIA DIGITAL CON IA */}
       {activeTab === 'revision' && review && (
         <div className="space-y-6">
-          {/* Tarjeta de Resumen */}
+          {/* Encabezado del Ayudante Diario */}
           <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-amber-400" />
-                Resumen de Hoy ({review.date})
-              </h2>
-              {review.aiUsed && (
-                <span className="text-[11px] font-semibold px-2.5 py-1 bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded-lg">
-                  Contabilizado en IA
-                </span>
-              )}
-            </div>
-            <p className="text-slate-300 text-sm leading-relaxed">{review.summary}</p>
-
-            {/* Alertas de inactividad o desconexión */}
-            {review.inactivePlatforms.length > 0 && (
-              <div className="p-3.5 bg-amber-950/30 border border-amber-800/50 rounded-xl flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <div className="text-xs text-amber-200">
-                  <span className="font-bold">Atención:</span> Hay redes sin publicaciones recientes:{' '}
-                  {review.inactivePlatforms
-                    .map((p) => `${p.platform} (${p.daysWithoutPost} días sin postear)`)
-                    .join(', ')}
-                  .
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Tu Ayudante Diario con IA
+                  </span>
+                  <span className="text-xs text-slate-400">Análisis del {review.date}</span>
                 </div>
+                <h2 className="text-xl font-black text-white mt-1 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  Presencia Digital & Redes Sociales
+                </h2>
               </div>
-            )}
+
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <button
+                  onClick={handleRegenerateReview}
+                  disabled={regeneratingReview}
+                  className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2 disabled:opacity-50"
+                  title="Analiza nuevamente los datos de hoy con IA"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${regeneratingReview ? 'animate-spin text-amber-400' : 'text-slate-400'}`} />
+                  {regeneratingReview ? 'Analizando con IA...' : 'Actualizar análisis de hoy'}
+                </button>
+              </div>
+            </div>
+
+            {/* Consejo Estratégico del Día */}
+            <div className="p-4 md:p-5 bg-gradient-to-r from-amber-950/50 via-slate-950 to-slate-900 border border-amber-500/40 rounded-xl space-y-2">
+              <div className="flex items-center gap-2 text-amber-300 text-xs font-bold uppercase tracking-wider">
+                <Lightbulb className="w-4 h-4 text-amber-400" />
+                Consejo Estratégico para Hoy
+              </div>
+              <p className="text-sm md:text-base text-slate-100 font-medium leading-relaxed">
+                {review.consejoEstrategicoDelDia || review.summary}
+              </p>
+            </div>
           </div>
 
-          {/* Sugerencia de posteo para hoy */}
-          <div className="p-5 md:p-6 bg-gradient-to-br from-slate-900 to-slate-950 border border-amber-500/30 rounded-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                  Sugerencia para Publicar Hoy
-                </span>
-                <h3 className="text-base font-bold text-white mt-0.5">
-                  {review.dailyPostSuggestion.concept}
-                </h3>
+          {/* DIAGNÓSTICO EN 2 COLUMNAS: LO QUE FUNCIONA VS LO QUE NO */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Columna 1: LO QUE ESTÁ FUNCIONANDO */}
+            <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Lo que te está funcionando</span>
+                </div>
+                <span className="text-[11px] font-semibold text-slate-400">Datos reales</span>
               </div>
-              <button
-                onClick={handleCreateFromSuggestion}
-                disabled={creatingSuggestion}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition disabled:opacity-50"
-              >
-                {creatingSuggestion ? 'Creando...' : 'Preparar Borrador'}
-              </button>
+
+              <div className="space-y-3">
+                {review.loQueFunciona && review.loQueFunciona.length > 0 ? (
+                  review.loQueFunciona.map((finding) => (
+                    <div
+                      key={finding.id}
+                      className="p-3.5 bg-slate-950/80 border border-emerald-900/30 rounded-xl space-y-1.5"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                          <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          {finding.titulo}
+                        </span>
+                        {finding.metrica && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 shrink-0">
+                            {finding.metrica}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed">{finding.detalle}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-xs text-slate-400 bg-slate-950/50 rounded-xl border border-slate-800">
+                    Aún estamos recopilando interacciones de publicaciones para consolidar métricas de éxito.
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-slate-200 whitespace-pre-wrap font-sans">
-              {review.dailyPostSuggestion.text}
-              <div className="text-xs text-blue-400 mt-3 flex flex-wrap gap-1.5 font-medium">
-                {review.dailyPostSuggestion.hashtags.join(' ')}
+            {/* Columna 2: LO QUE NO ESTÁ FUNCIONANDO / QUÉ CORREGIR */}
+            <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>Lo que no está funcionando / Oportunidades</span>
+                </div>
+                <span className="text-[11px] font-semibold text-slate-400">Acción sugerida</span>
               </div>
+
+              <div className="space-y-3">
+                {review.loQueNoFunciona && review.loQueNoFunciona.length > 0 ? (
+                  review.loQueNoFunciona.map((alert) => (
+                    <div
+                      key={alert.id}
+                      className={`p-3.5 bg-slate-950/80 border rounded-xl space-y-1.5 ${
+                        alert.severidad === 'alta'
+                          ? 'border-rose-900/40 text-rose-200'
+                          : 'border-amber-900/30 text-amber-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={`text-xs font-bold flex items-center gap-1.5 ${
+                            alert.severidad === 'alta' ? 'text-rose-400' : 'text-amber-300'
+                          }`}
+                        >
+                          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                          {alert.titulo}
+                        </span>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase ${
+                            alert.severidad === 'alta'
+                              ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20'
+                              : 'bg-amber-500/10 text-amber-300 border border-amber-500/20'
+                          }`}
+                        >
+                          {alert.severidad === 'alta' ? 'Prioritario' : 'Atención'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed">{alert.detalle}</p>
+                      <div className="text-[11px] font-medium text-slate-400 pt-1 border-t border-slate-800/60">
+                        <span className="text-amber-400 font-bold">Qué hacer:</span> {alert.accionSugerida}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-xs text-emerald-300 bg-emerald-950/20 rounded-xl border border-emerald-900/30 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>¡Excelente! No tenés redes frías ni dudas desatendidas hoy.</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 3 PUBLICACIONES NUEVAS RECOMENDADAS PARA HOY */}
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="text-lg font-black text-white flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  3 Publicaciones Nuevas para Hoy (Listas en 1 toque)
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Redactadas con el método AK (Dolor → Solución Integral → WhatsApp 098 355 530) según lo que más te está rindiendo.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {(review.nuevasPublicacionesRecomendadas && review.nuevasPublicacionesRecomendadas.length > 0
+                ? review.nuevasPublicacionesRecomendadas
+                : [
+                    {
+                      id: 'prop_fallback_1',
+                      titulo: review.dailyPostSuggestion.concept,
+                      redRecomendada: (review.dailyPostSuggestion.recommendedPlatform === 'Facebook' ? 'Facebook' : 'Instagram') as any,
+                      formato: 'Publicación destacada',
+                      porQueFunciona: 'Momento clave para mantener presencia y tracción comercial.',
+                      guionVisual: 'Fotos o video de pista de baile y luces robóticas.',
+                      textoListo: review.dailyPostSuggestion.text,
+                      hashtags: review.dailyPostSuggestion.hashtags,
+                    },
+                  ]
+              ).map((prop, idx) => (
+                <div
+                  key={prop.id || `prop_${idx}`}
+                  className="p-5 bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 hover:border-amber-500/40 rounded-2xl flex flex-col justify-between gap-4 transition shadow-md"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-bold px-2.5 py-1 bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded-lg">
+                        Propuesta #{idx + 1}
+                      </span>
+                      <span className="text-[11px] font-bold px-2 py-0.5 bg-blue-500/10 text-blue-300 border border-blue-500/20 rounded-md">
+                        {prop.redRecomendada}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-bold text-white line-clamp-2">{prop.titulo}</h4>
+                      <p className="text-[11px] text-slate-400 font-medium mt-1 flex items-center gap-1.5">
+                        <Video className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                        {prop.formato}
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-slate-950/70 border border-slate-800/80 rounded-xl space-y-1.5 text-xs">
+                      <div className="text-[11px] font-bold text-amber-400">¿Por qué funciona hoy?</div>
+                      <p className="text-slate-300 leading-relaxed text-[11px]">{prop.porQueFunciona}</p>
+                      {prop.guionVisual && (
+                        <div className="pt-1.5 border-t border-slate-800/60 text-[11px] text-slate-400">
+                          <span className="text-slate-200 font-semibold">Visual:</span> {prop.guionVisual}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Caja de texto listo */}
+                    <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 whitespace-pre-wrap font-sans max-h-48 overflow-y-auto leading-relaxed">
+                      {prop.textoListo}
+                      {prop.hashtags && prop.hashtags.length > 0 && (
+                        <div className="text-[11px] text-blue-400 mt-2 font-medium">
+                          {prop.hashtags.join(' ')}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Botones de acción rápida */}
+                  <div className="flex items-center gap-2 pt-2 border-t border-slate-800/60">
+                    <button
+                      onClick={() => handleCreateFromProposal(prop)}
+                      disabled={creatingSuggestion}
+                      className="flex-1 py-2 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl shadow-md shadow-amber-500/10 transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      {creatingSuggestion ? 'Creando...' : 'Crear borrador'}
+                    </button>
+
+                    <button
+                      onClick={() => handleCopyProposalText(prop.id, prop.textoListo)}
+                      className="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs rounded-xl border border-slate-700 transition flex items-center justify-center gap-1"
+                      title="Copiar texto al portapapeles"
+                    >
+                      {copiedProposalId === prop.id ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-emerald-400">Copiado</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copiar</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

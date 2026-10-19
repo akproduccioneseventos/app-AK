@@ -217,7 +217,8 @@
         "src/app/api/marketing",
         "src/app/api/v1",
         "src/app/(app)/empresa/resenas-google",
-        "src/app/(app)/empresa/page.tsx"
+        "src/app/(app)/empresa/page.tsx",
+        "src/app/hub"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
