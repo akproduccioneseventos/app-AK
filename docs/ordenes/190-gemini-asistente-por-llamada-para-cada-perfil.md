@@ -91,6 +91,26 @@ Hoy la instrucción dice *"No ejecuto acciones por voz"* (`voz-en-vivo.ts` ~124)
 `que_falta_de_la_fiesta` busca la fiesta por nombre entre las próximas. Si hay dos parecidas, pregunta
 cuál. Contesta con `importantPending` en criollo y pide ORGANIZACION.
 
+## Bloque 4 — siempre a mano, como un asistente de bolsillo (pedido del dueño: "similar al Dot")
+
+- **Un ícono propio "Hablar con AK"** en el teléfono:
+  - `public/manifest.json` → `shortcuts` con "Hablar con AK" a `/mi-dia?hablar=1`. Es la entrada que
+    aparece al mantener apretado el ícono de la app instalada.
+  - Con `hablar=1`, `src/components/multiagent/multiagent-widget.tsx` abre directo en la pantalla de
+    llamada, con un solo botón grande "Hablar". El navegador exige un toque para prender el micrófono:
+    **no intentes arrancarlo solo**.
+- **El asistente te busca a vos cuando hay algo urgente**, sin esperar que lo abras:
+  - El despertador `src/app/api/cron/asistente-proactivo/route.ts` ya junta lo urgente. Cuando hay
+    algo de prioridad alta, manda un aviso al teléfono con `src/lib/firebase/server-messaging.ts`.
+  - **El aviso va a cada persona según su perfil** (la misma regla del bloque 1): a la contadora, lo
+    que falta cobrar; al organizador, lo que falta de una fiesta. Si el teléfono guardado no tiene a
+    quién pertenece (`requestAndSaveFcmToken(userId)` en `src/lib/firebase/messaging.ts`), el aviso va
+    sólo al dueño, nunca a todos.
+  - Tocar el aviso abre `/mi-dia?hablar=1`.
+  - **Máximo tres avisos por persona por día**, y nunca entre las 23 y las 8 (hora de Uruguay).
+  - Interruptor en Ajustes → Asistente, prendido por omisión.
+  - Avisar está permitido; mandarle algo a un cliente, no.
+
 ## Qué NO tocar
 
 - El tope de minutos por día y su ajuste (`vozEnVivoMinutosPorDia`). **No cambies el valor por omisión.**
@@ -106,6 +126,9 @@ cuál. Contesta con `importantPending` en criollo y pide ORGANIZACION.
     las palabras "saldo", "seña" o "cuota";
   - con contabilidad, sí tiene lo que debe un cliente de prueba;
   - con organización, tiene un pendiente de una fiesta de prueba.
+- `src/__tests__/el-asistente-avisa-a-cada-uno-lo-suyo.test.ts`: el aviso de cobros no le llega al
+  operador, el cuarto aviso del día no sale, a las 23:30 de Uruguay no sale nada, y con el
+  interruptor apagado tampoco.
 - `src/__tests__/la-llamada-hace-lo-que-puede-y-pregunta-lo-demas.test.ts`, contra la ruta nueva:
   - `crear_tarea` crea la tarea;
   - `agendar_reunion` sin confirmar **no** agenda, y confirmada sí;
@@ -115,6 +138,10 @@ cuál. Contesta con `importantPending` en criollo y pide ORGANIZACION.
   - sin sesión, 401.
 
 ```comprobar
+usa: hablar=1 en public/manifest.json
+usa: hablar en src/components/multiagent/multiagent-widget.tsx
+usa: server-messaging en src/app/api/cron/asistente-proactivo/route.ts
+prueba: src/__tests__/el-asistente-avisa-a-cada-uno-lo-suyo.test.ts
 usa: contextoDeVozParaPerfil en src/app/api/asistente/voz-en-vivo/route.ts
 archivo: src/app/api/asistente/voz-en-vivo/accion/route.ts
 usa: nivelDeRiesgo en src/app/api/asistente/voz-en-vivo/accion/route.ts
