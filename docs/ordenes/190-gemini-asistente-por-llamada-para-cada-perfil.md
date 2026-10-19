@@ -146,9 +146,17 @@ aprobación.
    - Lo que da `'nunca'` no aparece: mandar mensajes a clientes, cobrar, facturar, cerrar presupuestos
      y tocar permisos. Son las cuatro reglas del dueño y no se configuran.
    - Lo que toca plata o fechas sigue pidiendo el OK del dueño aunque el interruptor diga "solo".
-4. **Hablarle a uno por su nombre.** En la llamada (bloque 2) y en el chat, "Contador, ¿quién debe?" lo
+4. **No hace falta elegir con quién hablar (lo aclaró el dueño).** Se le habla siempre a "Asistente AK".
+   - Él reconoce de qué es la pregunta y la contesta con el asistente que corresponde: "¿cómo vino lo
+     contable este mes?" va al Contador, "¿qué falta de la fiesta de Sofía?" va al Organizador.
+   - Si la pregunta toca dos áreas, junta las dos respuestas en una.
+   - El perfil `dueno` (`src/lib/auth/perfiles.ts` ~52, con TODOS los permisos) llega a todo. Los demás
+     sólo a lo de su perfil.
+   - Si alguien pregunta algo que su perfil no ve, contesta "eso no lo tengo para tu perfil", sin dar
+     ningún dato.
+5. **Hablarle a uno por su nombre, si se quiere.** En la llamada (bloque 2) y en el chat, "Contador, ¿quién debe?" lo
    atiende ese asistente, con el permiso de quien habla: el operador no habla con el Contador.
-5. **"Qué hiciste hoy".** En `/mi-dia`, una tarjeta por asistente con lo que hizo solo y lo que dejó
+6. **"Qué hiciste hoy".** En `/mi-dia`, una tarjeta por asistente con lo que hizo solo y lo que dejó
    esperando tu OK. Se arma con `getHistorialAgentes()`.
 
 **Qué NO:**
@@ -174,7 +182,9 @@ aprobación.
   - un agente con el interruptor en "solo" igual **no** cobra, no factura ni manda a un cliente;
   - lo que toca plata espera el OK del dueño;
   - el objetivo escrito llega a lo que se le pasa a la IA;
-  - con el tope de IA agotado, el agente no llama a la IA.
+  - con el tope de IA agotado, el agente no llama a la IA;
+  - con el perfil `dueno`, "¿cómo vino lo contable este mes?" contesta con montos; con el perfil `operador`
+    contesta "eso no lo tengo para tu perfil" y no aparece ningún monto.
 - `src/__tests__/el-asistente-avisa-a-cada-uno-lo-suyo.test.ts`: el aviso de cobros no le llega al
   operador, el cuarto aviso del día no sale, a las 23:30 de Uruguay no sale nada, y con el
   interruptor apagado tampoco.
