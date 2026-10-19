@@ -1,4 +1,4 @@
-# PARA GEMINI - Orden 190: hablarle a la app como en una llamada, y que haga las cosas
+# PARA GEMINI - Orden 190: hablarle a la app como en una llamada, que haga las cosas, y los "dots" de AK
 
 **Una sola propuesta con todos los bloques.** Si un bloque se traba, entregá el resto igual en la misma
 propuesta y avisá cuál faltó. Antes de decir "terminé", pasá `docs/ANTES-DE-ENTREGAR.md` entero. **Toca
@@ -111,6 +111,50 @@ cuál. Contesta con `importantPending` en criollo y pide ORGANIZACION.
   - Interruptor en Ajustes → Asistente, prendido por omisión.
   - Avisar está permitido; mandarle algo a un cliente, no.
 
+## Bloque 5 — "los dots de AK": asistentes con nombre que trabajan solos (pedido del dueño, 19/10/2026)
+
+El dueño quiere algo como los "dots" de ChatGPT: asistentes siempre prendidos, con nombre y cara, que
+reciben un objetivo, trabajan en segundo plano y dejan que él decida qué hacen solos y qué con su
+aprobación.
+
+**La app ya tiene el motor, no lo rehagas:**
+- Seis agentes que corren solos con el despertador, en `src/lib/agentes/motor-agentes.ts`
+  (`ejecutarAgentesAutonomos`, ~463): `vigilante_fiestas`, `perseguidor_presupuestos`, `cobrador`,
+  `generador_contenido`, `vigilante_noche` y `vigilante_publicidad`.
+- Su configuración: `ConfiguracionAgente` en `src/lib/agentes/tipos.ts` (~9).
+- Su pantalla: `src/app/(app)/settings/agentes-autonomos/page.tsx`, con las acciones de
+  `src/app/actions/agentes-autonomos.ts`.
+- Lo que aprenden: `src/lib/multiagent/memory-store.ts` (`saveAgentLearning`) y las reglas de "no me
+  avises más" de `src/lib/asistente/propuestas-service.ts` (`descartarNoAvisarMas`).
+
+**Lo que falta, y es lo que se pide:**
+
+1. **Identidad.** En `ConfiguracionAgente` sumá `apodo`, `avatar` y `objetivos: string[]`.
+   - Los cuatro de cara al equipo llevan el nombre del área que eligió el dueño:
+     - Contador: `cobrador`;
+     - Comercial: `perseguidor_presupuestos`;
+     - Organizador: `vigilante_fiestas` y `vigilante_noche`;
+     - Marketing: `generador_contenido` y `vigilante_publicidad`.
+   - El avatar es `src/components/asistente/MascotaAsistenteAK.tsx` con un color por área; no dibujes otra.
+2. **Objetivos escritos por el dueño.** En la pantalla de agentes, cada uno tiene "Tu objetivo" en texto
+   libre, por ejemplo "que cada fiesta tenga todo cobrado 10 días antes".
+   - Los objetivos entran en lo que el agente le pasa a la IA para decidir qué buscar.
+   - Ese llamado pasa por `hayPresupuestoParaIA()` y `registrarConsumoIA()`.
+3. **Qué hace solo y qué con tu OK, por asistente.** Cada acción que el agente puede preparar tiene un
+   interruptor "solo / con mi OK".
+   - El interruptor **sólo existe para lo que `nivelDeRiesgo` da `'solo'` o `'pregunta'`**.
+   - Lo que da `'nunca'` no aparece: mandar mensajes a clientes, cobrar, facturar, cerrar presupuestos
+     y tocar permisos. Son las cuatro reglas del dueño y no se configuran.
+   - Lo que toca plata o fechas sigue pidiendo el OK del dueño aunque el interruptor diga "solo".
+4. **Hablarle a uno por su nombre.** En la llamada (bloque 2) y en el chat, "Contador, ¿quién debe?" lo
+   atiende ese asistente, con el permiso de quien habla: el operador no habla con el Contador.
+5. **"Qué hiciste hoy".** En `/mi-dia`, una tarjeta por asistente con lo que hizo solo y lo que dejó
+   esperando tu OK. Se arma con `getHistorialAgentes()`.
+
+**Qué NO:**
+- Nada de una computadora propia en la nube por agente: eso se paga por mes.
+- Nada de conectar servicios nuevos pagos. Si algo lo pidiera, **parás y avisás**.
+
 ## Qué NO tocar
 
 - El tope de minutos por día y su ajuste (`vozEnVivoMinutosPorDia`). **No cambies el valor por omisión.**
@@ -126,6 +170,11 @@ cuál. Contesta con `importantPending` en criollo y pide ORGANIZACION.
     las palabras "saldo", "seña" o "cuota";
   - con contabilidad, sí tiene lo que debe un cliente de prueba;
   - con organización, tiene un pendiente de una fiesta de prueba.
+- `src/__tests__/los-dots-de-ak-respetan-las-cuatro-reglas.test.ts`:
+  - un agente con el interruptor en "solo" igual **no** cobra, no factura ni manda a un cliente;
+  - lo que toca plata espera el OK del dueño;
+  - el objetivo escrito llega a lo que se le pasa a la IA;
+  - con el tope de IA agotado, el agente no llama a la IA.
 - `src/__tests__/el-asistente-avisa-a-cada-uno-lo-suyo.test.ts`: el aviso de cobros no le llega al
   operador, el cuarto aviso del día no sale, a las 23:30 de Uruguay no sale nada, y con el
   interruptor apagado tampoco.
@@ -138,6 +187,10 @@ cuál. Contesta con `importantPending` en criollo y pide ORGANIZACION.
   - sin sesión, 401.
 
 ```comprobar
+usa: objetivos en src/lib/agentes/motor-agentes.ts
+usa: apodo en src/app/(app)/settings/agentes-autonomos/page.tsx
+usa: getHistorialAgentes en src/app/(app)/mi-dia/page.tsx
+prueba: src/__tests__/los-dots-de-ak-respetan-las-cuatro-reglas.test.ts
 usa: hablar=1 en public/manifest.json
 usa: get('hablar') en src/components/multiagent/multiagent-widget.tsx
 usa: server-messaging en src/app/api/cron/asistente-proactivo/route.ts
