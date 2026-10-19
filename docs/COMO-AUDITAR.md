@@ -1161,3 +1161,25 @@ que la sincronización automática pudiera guardar costos. Pero la exportó desd
 empieza con `'use server'`: **todo lo que se exporta de ahí se puede llamar desde el navegador**. "Interna"
 era sólo el nombre. Lo frenó el candado de la plata. Al verificar: una función que se saltea el permiso
 vive en un archivo **sin** `'use server'` (con `import 'server-only'`), y la acción pública la llama.
+
+### 70. Una fecha sin hora (la del evento, un vencimiento), ¿se muestra el mismo día en Uruguay?
+
+Codex 143 (orden 184): la hoja de cocina guardaba 2027-08-08 y mostraba el 7/8 en Uruguay, porque leía la
+fecha como medianoche de Greenwich. Una fecha "civil" se arma con año, mes y día, nunca con
+`new Date('AAAA-MM-DD')`, y la prueba corre con la zona `America/Montevideo`.
+
+### 71. Dos registros con el mismo nombre, ¿la cuenta los distingue por su identificador?
+
+Codex 148 (orden 185): al guardar la fiesta, los pagos a proveedores se reponían buscando por nombre; con dos
+proveedores de igual nombre, uno se quedaba con la plata del otro. Si hay `id`, se empareja por `id`; el
+nombre sólo para filas viejas sin `id`, y sólo si no es ambiguo.
+
+### 72. Un número de teléfono local, ¿sale con el 598 cuando arma el enlace de WhatsApp?
+
+Codex 136 (orden 186): el recordatorio de la agenda armaba `wa.me/099...` y WhatsApp no lo abría. Todo enlace
+de WhatsApp pasa por la misma función que agrega el prefijo del país.
+
+### 73. Una lista de nombres permitidos, ¿acepta nombres que el lenguaje trae de fábrica?
+
+Codex 138 (orden 187): `esPerfilValido` preguntaba `valor in PERMISOS_POR_PERFIL`, y `"toString"` o `"constructor"`
+pasaban como perfiles. Se pregunta con `Object.hasOwn` (o `hasOwnProperty`), nunca con `in`.
