@@ -1091,6 +1091,24 @@ Volvían por tres lados:
   un caso.
 - Una nota de "sigue pendiente" sale como orden en la misma tanda.
 
+### 41. Encontrar un error de plata y dejarlo esperando adentro de una entrega grande
+
+**Pasó del 16 al 20 de octubre de 2026.** Codex encontró que, con dos proveedores con el mismo nombre,
+se podía borrar un pago. La pregunta 71 lo encontraba y la orden lo pedía. Igual siguió en la app
+publicada cuatro días, porque viajó dentro de entregas grandes (1333 y 1337) que se devolvieron por
+otras cosas. El dueño: *"no funcionó, ya que seguía el error"*.
+
+**Qué era lo cierto:** encontrar no es arreglar. Una pregunta que encuentra el error sirve si el
+arreglo llega a la app.
+
+**Qué se hace distinto:**
+
+- Lo de plata y permisos **que ya está roto en la app publicada** va en una propuesta chica aparte,
+  primero (orden 197).
+- `ESTADO-ACTUAL.md` lleva la lista "Errores de plata abiertos", con el día en que se encontró
+  cada uno.
+- El despertador le avisa al dueño si alguno pasa de 2 días.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
