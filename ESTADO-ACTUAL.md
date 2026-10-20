@@ -21,8 +21,8 @@ siguencruzando/rechazando pornombre. Ya193. Auth/asignacion/transacciondobles.
 1337cola reescrita2PASS1FAIL conserva falloBperdido:ya195, no duplicacionservidor.
 NUEVO196Claude AK-CODEX-150-SAVE-RESPUESTA-PERFIL:saveFiesta devuelvecostos/pagos
 aloperador sinpermiso. ControlfiltrorealPASS+2variantesFAIL, UNAcausa de salida.
-FronteraREAL deasignacion4casos3PASS1FAIL:entradaSINcostos/salidaCONcostos;
-noasignado/anonimo rechazados,dueno permitido. NOHTTPfirmado/SDKreal.
+FronteraREAL deESTEguardado cubre7perfiles,no7portales:operador recibecostos;
+secretariasec150recibesueldoAJENOop150(3000). SinHTTPfirmado/SDKreal. Ya196.
 150entorno prepare2intentos rechazados porguardia2GiB, segundoesperamaxima10min.
 NO build ni150entorno.json producidos; NO falloapp. No procesosajenos detenidos.
 Preparados150-entorno prepare/testmobile/date/agenda, fuente45 congeladaalcrear.

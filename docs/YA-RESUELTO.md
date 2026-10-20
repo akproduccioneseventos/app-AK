@@ -23,6 +23,10 @@
   Fortalecido con guardiaREAL de asignacion:4casos3PASS1FAIL; asignado entra
   SINcostos yrecibeCONcostos; noasignado/anonimo rechazados,dueno permitido.
   Solo verifySession/read/transaccion dobles. No otra causa ni0errores.
+  Ampliado a7perfiles deESTEguardado, no7portales. Personal/cliente/prospecto/
+  invitado sincredencialportal rechazados. Secretaria entra porlarama sin
+  transaccion yrecibe sueldo3000 AJENO(sec150 vsop150), sinhaberlo enviado.
+  Caso separado evita confundir con su propio recibo; totalcontable nojuzgado.
 -150entorno prepare dosvecesrechazado porguardia2GiB, segundaespera maxima10min;
   NO buildcorrio,nocertificafalloapp. Preparadas fasesmobile/date/agenda para
   fuente45. No usar build14217d. Dosagentescerrados, no appedit/merge.

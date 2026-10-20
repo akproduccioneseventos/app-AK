@@ -59,6 +59,16 @@ costos yrespuestaCONcostos; operador noasignado yanonimo rechazados sin writes,
 dueno conservaacceso. Solo sesionverificada/datos/transaccion son dobles.
 No repetir anterior sonda como si esto fuera otrobug ni afirmarHTTPfirmado.
 
+Ampliacion150-otros-perfiles: los cinco perfiles no cubiertos se ejecutaron
+sin repetir los anteriores. Asi la guardia de ESTE guardado cubre los7perfiles,
+ademas deanonimo yoperador noasignado. No equivale a cubrir toda la app/portales.
+Personal/cliente/prospecto/invitado sincredencialportal rechazados. Secretaria
+admitida, pero sale sueldo; confirmacion mas precisa150-secretaria-sueldos-
+ajenos: actorsec150 recibe3000 deotroempleadoop150 sinenviarlo. No es su propio
+recibo permitido. La primera variante con mismoIDusuario/empleado no demuestra
+por si sola sueldo AJENO; no usarla paraesa afirmacion. Tampoco juzgar eltotal
+contable por esta sonda: el fallo confirmado esSUELDOS. Ya196, no otrobug.
+
 El agente encontro estado filtroPublicaciones sin consumo en listadoPosts,
 solo una pistaESTATICA de interfaz; NO usuario/navegador ejecutado y NO orden
 de programacion emitida por esa lectura. Filtros faciales/mesas no aceptados

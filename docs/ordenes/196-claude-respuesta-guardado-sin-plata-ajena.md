@@ -41,6 +41,16 @@ No es un eco de importes ya enviados. Operador no asignado y anonimo: rechazados
 sin escrituras. Dueno: conserva acceso al dato. Misma causa, no cuatrobugs.
 Solo verifySession y lectura/transaccion son dobles; firmadoHTTP/SDK pendiente.
 
+Ampliacion sin repetir los casos anteriores:150-otros-perfiles prueba los otros
+cinco perfiles. Personal/cliente/prospecto/invitado SIN credencial del portal
+son rechazados; esto NO prueba sus portales dedicados. La secretaria guarda
+por la otra rama (sin actualizarFiesta) y tambien recibe datos recortados.
+150-secretaria-sueldos-ajenos confirma especificamente actorsec150 recibiendo
+eventSalary3000 del empleadoop150. No es su propio recibo ni un valor enviado:
+la entrada no tenia ese sueldo. El caso juzga SUELDOS, no decide si un total
+contable es visible; esa distincion evita inventar una regla de contabilidad.
+Misma causa de respuesta cruda en ambas ramas, no nueva orden independiente.
+
 ## Criterio de arreglo y comprobacion
 
 - Reponer campos para GUARDAR no debe reintroducirlos en la RESPUESTA.
@@ -58,5 +68,6 @@ usa: saveFiesta en src/app/(app)/fiestas/nueva/pagina-web/page.tsx
 usa: recortarFiestaPorPerfil en src/app/actions/fiesta/fiesta.actions.ts
 prueba: docs/evidencias/150-salidas-perfil.mjs
 prueba: docs/evidencias/150-frontera-guardado.mjs
+prueba: docs/evidencias/150-secretaria-sueldos-ajenos.mjs
 prueba: PENDIENTE src/__tests__/save-fiesta-respuesta-respeta-perfil.test.ts
 ```
