@@ -1,10 +1,10 @@
-# Estado actual — 19 de octubre de 2026
+# Estado actual — 20 de octubre de 2026
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la
 propuesta 1323 (`7230f9d02`). **Nada de esta tanda está publicado todavía.**
 
 ## En qué se está
-Esperando entregas de Gemini (órdenes 188, 189 y 190). Claude revisa, corre la puerta y fusiona.
+Esperando UNA entrega de Gemini con las órdenes 188 a 193 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
 Codex sólo audita.
 
 ## Terminado en esta tanda
@@ -21,6 +21,12 @@ Codex sólo audita.
 - Método: preguntas 69 a 73 (COMO-AUDITAR) y 54 (ANTES-DE-ENTREGAR). El control de acentos ya lee
   nombres de archivo con tilde.
 - Decisiones nuevas anotadas en CLAUDE.md (19/10): realidad aumentada SÍ; Play Store sí; Apple no.
+
+- **Orden 191:** filtros que siguen la cara, "Mis 15", estilo Canva y efectos de Instagram/TikTok.
+- **Orden 192:** un solo centro de presencia y redes, bandeja única de mensajes, respuestas solas con reglas.
+- **Barrido de las 73 preguntas** (20/10): registro `docs/barridos.json` + control que lo exige.
+  Lo confirmado (plata incluida) va en la **orden 193**; ~25 preguntas quedaron "parcial".
+- Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
 
 ## A medias / trabado
 - Órdenes 180–183 y 185 siguen sin entrar: van dentro de la devolución 188.
