@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Una orden ya no se cumple con un comentario (entrega 1341 de Gemini, cerrada)
+
+- La 1341 dio por hechas las órdenes 180, 181 y 183 con comentarios que nombraban lo pedido, imports sin
+  usar y pruebas `expect(true)`. Se cerró sin fusionar y se devolvió como **orden 202**.
+- `npm run ordenes?` ahora, para las órdenes, no cuenta un `usa:` si el nombre está sólo en una línea de
+  comentario `//` o en un import que nadie usa (`enCodigoQueCorre`). En YA-RESUELTO sigue contando el
+  comentario, porque hay comprobaciones que piden a propósito un aviso escrito adentro del archivo.
+- Al ponerlo aparecieron **dos trampas viejas**: el presupuesto al prospecto por WhatsApp (órdenes 105 y
+  117, sólo importado) y `contarMesas` en el plano (orden 75, sólo importado). Van en la orden 202. Otras
+  seis comprobaciones apuntaban a un comentario que explicaba bien el diseño; se repuntaron al código que
+  corre (`consolidarCompras(`, `<SalonDelClienteEn3D`, `<SalonScene`, `mutateGenericJsonArray<CrmAppointment>(`,
+  `evaluarReglasParaFiesta(`).
+- Ninguna prueba puede comprobar sólo `true`.
+
+```comprobar
+usa: enCodigoQueCorre en scripts/ordenes-cumplidas.mjs
+prueba: src/__tests__/una-orden-no-se-cumple-con-un-comentario.test.ts
+```
+
 ## 20/10/2026 - Órdenes 200 y 201 de Codex, arregladas por Claude (permisos)
 
 - **El empleado vuelve a abrir su portal (200).** `getEmployeeWorkspacePortal` y la conexión de su propia

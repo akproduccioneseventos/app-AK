@@ -64,7 +64,7 @@ decide qué ve el cliente. Mientras tanto, programá la pantalla contra esos dos
 
 ```comprobar
 archivo: src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
-usa: SalonScene en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+usa: <SalonDelClienteEn3D en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
 prueba: tests/e2e/el-cliente-gira-su-salon-en-3d.spec.ts
 ```
 

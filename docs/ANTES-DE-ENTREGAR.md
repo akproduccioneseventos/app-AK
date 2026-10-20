@@ -204,3 +204,6 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     buscá la misma línea en toda la app. Y tu prueba, que recorra `src/`, no sólo tu archivo.
 56. **¿Lo que mandás de una pantalla a otra llega con el mismo nombre?** Parámetros del enlace, campos
     del recorte que ve el cliente y datos opcionales de los que depende una protección.
+57. **¿Lo que pide la orden lo hace el código, o sólo aparece el nombre?** Un comentario con la palabra o
+    un import que no se usa **no cumple nada**, y `npm run ordenes?` ya no los cuenta. Y una prueba que
+    sólo dice `expect(true)` no prueba nada: el control `una-orden-no-se-cumple-con-un-comentario` la frena.
