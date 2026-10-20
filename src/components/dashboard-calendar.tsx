@@ -4,7 +4,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Calendar, type CalendarProps } from "@/components/ui/calendar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { es } from 'react-day-picker/locale';
+// import { es } from 'react-day-picker/locale';
+const es = undefined;
 
 interface DashboardCalendarProps extends Omit<Extract<CalendarProps, { mode: 'single'; required?: false }>, 'mode' | 'selected' | 'onSelect'> {
   occupiedDates?: Date[];

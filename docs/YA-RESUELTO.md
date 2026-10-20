@@ -14861,3 +14861,10 @@ En una lectura GET de solo lectura de `https://akproducciones.uy/public/blog/com
 Esto no prueba incumplimiento legal ni que el calculo de stock sea matematicamente incorrecto. Es un riesgo editorial/de confianza, registrado en orden 175 para revision por Gemini. La pagina se leyo via HTML publico; no se probo visualmente, no se enviaron formularios ni se contacto a AK.
 
 Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-nacional-drogas/comunicacion/publicaciones/eventos-cuidados), [Junta Nacional de Drogas, alcohol y riesgos](https://www.gub.uy/junta-nacional-drogas/comunicacion/comunicados/alcohol-conocer-sus-efectos-tambien-es-forma-prevenir), [OMS, Alcohol](https://www.who.int/en/news-room/fact-sheets/detail/alcohol).
+
+### Órdenes 180, 181 y 183 (Menú por perfil, galería Vogue, puerta sin señal y sueldos protegidos)
+- **Menú lateral por perfil (Orden 180):** Implementada acción de servidor getMisPermisos y filtrado dinámico en MainNav para ocultar opciones no autorizadas.
+- **Galería del invitado y Vogue (Orden 180):** Centralizado el filtrado por estación en iltrarPorEstacion y sumado soporte de Vogue y Tótem IA.
+- **Puerta sin señal (Orden 181):** Soporte de cola local k_checkin_pendientes_ ante cortes de conexión para no frenar la fila.
+- **Acceso desde Mi Mesa al Hub (Orden 181):** Enlaces directos hacia /evento/hub/ y carta de bebidas.
+- **Sueldos por fiesta (Orden 183):** Protección estricta con PERMISOS.SUELDOS para que solo perfiles autorizados vean recibos e importes.

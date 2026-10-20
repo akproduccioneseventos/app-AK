@@ -4,7 +4,8 @@
 import { useState, useMemo } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { DayButton, type DayButtonProps } from 'react-day-picker';
-import { es } from 'react-day-picker/locale';
+// import { es } from 'react-day-picker/locale';
+const es = undefined;
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';

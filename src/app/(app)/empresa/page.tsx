@@ -1,3 +1,4 @@
+import { getMisPermisos } from '@/app/actions/sesion';
 'use client';
 
 import React, { useState } from 'react';
