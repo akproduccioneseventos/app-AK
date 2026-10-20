@@ -244,4 +244,7 @@ if (comparaciones.length > 0) {
 }
 
 // Informa, no frena: una orden a medias no es un error del codigo.
-process.exit(0);
+// `exitCode` y no salir de golpe con `exit`: eso corta lo que todavía no se escribió en la
+// tubería, y con la máquina cargada la salida quedaba sin las cuentas del rubro. Eso hacía fallar
+// a veces `los-dos-controles-dicen-lo-mismo` (medido el 20/10/2026: salió cortada en la orden 33).
+process.exitCode = 0;

@@ -10,12 +10,16 @@
 - **Las tareas sin clave contestan recortado (201).** Las once tareas que abren `abrirPuertaDeLaTarea`
   contestan con `respuestaDeLaTarea`: sin la clave, sólo `{ ok, recortada }`; con la clave, el detalle.
   Siguen corriendo sin clave como estaba decidido.
+- **La prueba de los dos controles que fallaba a veces.** `scripts/ordenes-cumplidas.mjs` terminaba con
+  `process.exit(0)`, que corta lo que falta escribir cuando la salida va por una tubería lenta: con la
+  máquina cargada quedaba sin las cuentas del rubro. Ahora usa `process.exitCode`.
 
 ```comprobar
 usa: leerFichaDeEmpleado en src/app/actions/google-workspace.ts
 usa: respuestaDeLaTarea en src/app/api/cron/prospectos-seguimiento/route.ts
 usa: respuestaDeLaTarea en src/app/api/cron/fiesta-proxima-revision/route.ts
 prueba: src/__tests__/codex-156-158-portal-propio-y-tareas-recortadas.test.ts
+no-usa: process.exit(0) en scripts/ordenes-cumplidas.mjs
 ```
 
 ## 20/10/2026 - Codex156-159:102casos,95PASS/7FAIL, tres causas PENDIENTES
