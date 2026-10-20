@@ -1296,6 +1296,7 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 190 → pregunta 35
 - Orden 191 → pregunta 3
 - Orden 192 → pregunta 22
+- Orden 193 → pregunta 69
 - Auditoria Gemini 16/10 (encabezados impresos) → pregunta 64
 - Auditoria Gemini 16/10 (menu con puertas cerradas) → pregunta 65
 - Auditoria Gemini 16/10 (galeria sin Vogue) → pregunta 66

@@ -1,0 +1,297 @@
+{
+  "nota": "Registro de barridos: cada pregunta de docs/COMO-AUDITAR.md buscada en todo src/. 'parcial' = falta terminar (orden 193, bloque 9). Lo controla src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts.",
+  "preguntas": {
+    "1": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: control lo-automatico-tiene-que-haber-pasado.test.ts"
+    },
+    "2": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: falta correr scripts/lo-que-se-dijo-es-lo-que-es.mjs --todo"
+    },
+    "3": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "4": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: controles ninguna-pantalla-miente y nada-inventado-en-pantalla"
+    },
+    "5": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: sin control mecánico; no se recorrieron las pantallas públicas"
+    },
+    "6": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: falta comprobar que cada carpeta de src/app/api/cron la dispare el programador publicado"
+    },
+    "7": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: parámetros opcionales que nadie pasa: no buscado a fondo"
+    },
+    "8": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: falta correr lo-que-se-dijo-es-lo-que-es criterio C"
+    },
+    "9": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: controles de turno; 124 archivos que escriben no revisados uno por uno"
+    },
+    "10": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "11": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "12": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "13": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: plan-pagos ~167 fechaPago en UTC; mi-dia ~58; doble toque plan-pagos ~346"
+    },
+    "14": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "15": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: listas largas: no buscado"
+    },
+    "16": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "17": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: errores-humanos alergias con campos que no existen; moderación lee isDark/isBlurry"
+    },
+    "18": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "19": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: no se barrieron todas las pantallas con datos en la dirección"
+    },
+    "20": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "21": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: errores-humanos sin try por registro; alertas-errores-humanos devuelve [] al fallar"
+    },
+    "22": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: 275 writeData: falta ver cuáles reescriben la lista sin marca de lectura"
+    },
+    "23": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "24": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: afiche pide sesión: herramienta del equipo"
+    },
+    "25": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: escrituras en dos pasos: no verificado"
+    },
+    "26": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "27": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: sólo cubierta la cabina; otros trabajos en segundo plano sin revisar"
+    },
+    "28": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: textos de cliente sin garantía/24/7/congelar"
+    },
+    "29": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: portal-cliente href #catering/#invitados/#pagos sin confirmar condición"
+    },
+    "30": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: ?algo= contra searchParams.get: no barrido"
+    },
+    "31": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: formateadores de fecha/hora/monto: no barrido"
+    },
+    "32": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: poner-al-dia.ts ~65 y portal.actions ~507 sin verificar"
+    },
+    "33": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: checkInGuest sin leer completo"
+    },
+    "34": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "35": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: candado de la plata"
+    },
+    "36": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: saldo sin ajuste anual en parte-manana, errores-humanos, motor-agentes, customers"
+    },
+    "37": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: datos de prueba contra src/types: no barrido"
+    },
+    "38": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "39": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "40": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: ~20 runTransaction sin revisar contadores externos"
+    },
+    "41": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: no se recorrieron todas las pantallas con enlace"
+    },
+    "42": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: sin búsqueda mecánica de unidades"
+    },
+    "43": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "44": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: ganancia-evento ~165 cuenta cobros a confirmar"
+    },
+    "45": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: no se barrieron los que llaman funciones con candado"
+    },
+    "46": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: sin barrido"
+    },
+    "47": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: zona-digital, social-screen y configuracion piden sólo sesión: son de una fiesta"
+    },
+    "48": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: social-gallery ~593 es a propósito"
+    },
+    "49": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: cámaras que quedan prendidas en bogue y espejo; resto probable"
+    },
+    "50": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: 51 catch que devuelven vacío sin trazar hasta la pantalla"
+    },
+    "51": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "52": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "53": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "54": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "55": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: falta el diff de package.json de las mayores subidas"
+    },
+    "56": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: avisos fijos en celular sin confirmar que tapen botones"
+    },
+    "57": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: rutas de descarga entregan fotos y audios; documentos-fiesta usa hasAdminAccess"
+    },
+    "58": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: applyPlaybookToFiesta duplica al reintentar"
+    },
+    "59": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: diálogos Nuevo/Agregar fuera del CRM sin revisar"
+    },
+    "60": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "61": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "62": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "63": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: 189 select sin revisar uno por uno"
+    },
+    "64": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "65": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos"
+    },
+    "66": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: listas por estación sin confirmar todas"
+    },
+    "67": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: portal Video de Vida y Fotografía: lo ordena la orden 182"
+    },
+    "68": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos: google-workspace manda a cada empleado sólo su sueldo"
+    },
+    "69": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: diez archivos de src/lib y src/ai con 'use server'"
+    },
+    "70": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: fechas AAAA-MM-DD con new Date en 9 lugares"
+    },
+    "71": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: proveedores emparejados por nombre con ids distintos en 3 archivos"
+    },
+    "72": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: 8 enlaces de WhatsApp sin 598"
+    },
+    "73": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 193: catálogo público y landings aceptan 'constructor'"
+    }
+  }
+}

@@ -1218,6 +1218,11 @@ ubicar.
 **La única excepción:** si la pregunta nueva sólo puede aplicarse a plata, cobros, comida o
 permisos, el barrido es mío y no hay orden.
 
+**Y queda anotado en `docs/barridos.json` (20 de octubre de 2026):** cada pregunta con la fecha en que
+se buscó en toda la app y qué salió. Una pregunta sin su línea **no deja publicar**
+(`cada-pregunta-se-barrio-en-toda-la-app.test.ts`), y lo mismo una pregunta de un hallazgo de Codex que
+no existe o no se barrió. Lo `parcial` se termina en una orden.
+
 **Lo que NO es esta lista:** no es para pedir perdón ni para llevar la cuenta de quién encontró
 más. Es la única forma de que el rango suba: cada cosa que se me escapó, se convierte en una
 pregunta que de ahí en adelante hago solo.
@@ -1734,6 +1739,7 @@ con otra cara.
 | El entorno de pruebas no podía probar estaciones, mural ni fotos porque la base estaba apagada | `tests/firebase/estaciones-y-mural-con-emulador.test.ts` (corre en `npm run test:rules`) |
 | Pruebas que armaban "hoy" con la hora de Greenwich y fallaban de noche en Uruguay | `src/__tests__/las-pruebas-cuentan-los-dias-en-uruguay.test.ts` |
 | Codex encontraba la misma forma de error una y otra vez porque el método no sumaba la pregunta | `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` |
+| Se sumaban preguntas al método y nadie las buscaba en el resto de la app | `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 
 ### Cómo se elige el matafuego
 
