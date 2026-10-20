@@ -1790,6 +1790,7 @@ con otra cara.
 | Codex encontraba la misma forma de error una y otra vez porque el método no sumaba la pregunta | `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` |
 | Lo arreglado en un archivo seguía igual en otro, y su control miraba sólo el primero | `npm run formas-ya-arregladas` con `src/__tests__/lo-ya-arreglado-se-busca-en-toda-la-app.test.ts` |
 | El asistente contestaba importes escritos a mano como si fueran los cobros del mes | `src/__tests__/el-asistente-no-inventa-plata.test.ts` |
+| Rutas del despertador rebotadas, funciones internas llamables desde afuera y guardados que devolvían costos y sueldos ajenos: cada forma nueva frena la publicación | `src/__tests__/las-fugas-de-plata-no-crecen.test.ts` |
 | Se sumaban preguntas al método y nadie las buscaba en el resto de la app | `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 
 ### Cómo se elige el matafuego

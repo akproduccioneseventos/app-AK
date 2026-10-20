@@ -1,5 +1,12 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Las tres formas de fuga de plata y permisos ya no pueden crecer
+
+- `src/__tests__/las-fugas-de-plata-no-crecen.test.ts` frena la publicación si aparece una ruta de
+  máquina rebotada por la puerta (pregunta 74), un archivo `'use server'` fuera de `src/app/` (69) o una
+  acción que devuelve la fiesta entera sin recortar (68). Los casos de hoy quedan listados con su
+  orden (193, 194, 197, 198) y se sacan al arreglarse. Se probó rompiéndolo.
+
 ## 20/10/2026 - Auditoría de Gemini: 36 de 45 ciertos, y por qué volvían
 
 - **Falsos positivos verificados, no se vuelven a reportar:**

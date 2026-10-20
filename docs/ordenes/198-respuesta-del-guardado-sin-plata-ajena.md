@@ -11,6 +11,9 @@ porque piden sólo sesión, así que llega también el perfil `personal`:
 - `src/app/actions/multiagent.ts` ~589 (`crearTareaDesdeMultiagente`): devuelve `fiesta: updatedFiesta`
   entera, con sólo `requireAppSession`.
 
+- `src/app/(app)/fiestas/nueva/invitados.actions.ts`: devuelve la fiesta entera y **nadie lo importa**.
+  Se borra.
+
 **Arreglo, igual para los tres:**
 
 - Lo que se devuelve pasa por `recortarFiestaPorPerfil` (o `paraAfuera` si no es del equipo).
@@ -84,6 +87,7 @@ Misma causa de respuesta cruda en ambas ramas, no nueva orden independiente.
 - Completar la prueba de frontera HTTP/SDK ficticia antes de darla por aceptada.
 
 ```comprobar
+prueba: src/__tests__/las-fugas-de-plata-no-crecen.test.ts
 archivo: src/app/actions/fiesta/fiesta.actions.ts
 usa: saveFiesta en src/app/(app)/fiestas/nueva/pagina-web/page.tsx
 usa: recortarFiestaPorPerfil en src/app/actions/fiesta/fiesta.actions.ts

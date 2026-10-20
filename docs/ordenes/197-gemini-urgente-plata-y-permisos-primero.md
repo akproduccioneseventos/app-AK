@@ -40,6 +40,13 @@ Lo que hay que hacer está escrito, con archivo y línea, en las órdenes de ori
 
 Si un bloque se traba, entregá los otros y avisá cuál faltó. **No esperes a tenerlos todos.**
 
+## El control que vigila esto
+
+`src/__tests__/las-fugas-de-plata-no-crecen.test.ts` lista los casos que hoy existen: rutas del
+despertador bloqueadas, archivos `'use server'` fuera de `src/app/` y acciones que devuelven la fiesta
+entera. **Cuando arregles uno, sacalo de su lista**: el control avisa si quedó listado algo ya
+arreglado, y frena si aparece uno nuevo. No agregues nada a esas listas.
+
 ## Pruebas
 
 Las de cada orden de origen. Además, **cada arreglo de plata trae el caso "alguien sin permiso"**
