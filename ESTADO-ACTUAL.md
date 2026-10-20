@@ -1,7 +1,7 @@
 # Estado actual — 20 de octubre de 2026
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la
-propuesta 1339 (`894d01603`, 20/10): toda la tanda del 20/10, con la orden 197.
+propuesta 1342 (`9b7ee982c`, 20/10): con las órdenes 197, 200 y 201 y el control que no deja cumplir con un comentario.
 
 ## En qué se está
 Esperando UNA entrega de Gemini con las órdenes 188 a 195 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
