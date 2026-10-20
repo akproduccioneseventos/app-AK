@@ -1,0 +1,15 @@
+{
+  "source": "2e5363f259461a31bf6b31807872c227855415de",
+  "baseline": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-151-NHxkYi",
+  "preparedAt": "2026-10-20T12:31:41.366Z",
+  "phase": "built",
+  "dependencySectionsAndLockEqual": true,
+  "packageScriptsDiffer": true,
+  "realServices": false,
+  "appEdited": false,
+  "buildExit": 0,
+  "buildPid": 9840,
+  "finished": "2026-10-20T12:43:46.937Z",
+  "sourceDiff": ""
+}

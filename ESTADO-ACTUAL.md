@@ -1,55 +1,36 @@
-# Estado actual — 20 de octubre de 2026
+# Estado actual - cierre de tanda Codex154,20/10/2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la
-propuesta 1323 (`7230f9d02`). **Nada de esta tanda está publicado todavía.**
-
-## En qué se está
-Esperando UNA entrega de Gemini con las órdenes 188 a 195 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
-Codex sólo audita.
-
-## Terminado en esta tanda
-- Junté en la rama los arreglos de Codex 136/138 (1328) y la evidencia de Codex 134 (1324).
-- Devolví la entrega de Gemini 1333 (órdenes 180 a 183 y 185): sola rompía 7 pruebas, junto con
-  la rama 12, y dejaba pública una función de costos sin permiso → **orden 188**.
-- Cerré sin fusionar 1330, 1331, 1332, 1334, 1335 y 1333. Lo que servía pasó a las órdenes.
-- **Orden 189:** las novedades que eligió el dueño, con realidad aumentada de verdad (apuntar a la
-  invitación impresa), Play Store, iPhone desde la web, selfie, cámara descartable, trivia con IA
-  real, efecto Coldplay y armador de mesas.
-- **Orden 190:** hablarle a la app como en una llamada, que haga tareas con confirmación, avisos al
-  teléfono según el perfil, ícono "Hablar con AK" y "los dots de AK" (asistentes con nombre, objetivo
-  y qué hacen solos). Se habla siempre a "Asistente AK", que deriva solo; el dueño llega a todo.
-- Método: preguntas 69 a 73 (COMO-AUDITAR) y 54 (ANTES-DE-ENTREGAR). El control de acentos ya lee
-  nombres de archivo con tilde.
-- Decisiones nuevas anotadas en CLAUDE.md (19/10): realidad aumentada SÍ; Play Store sí; Apple no.
-
-- **Orden 191:** filtros que siguen la cara, "Mis 15", estilo Canva y efectos de Instagram/TikTok.
-- **Orden 192:** un solo centro de presencia y redes, bandeja única de mensajes, respuestas solas con reglas.
-- **Barrido de las 73 preguntas** (20/10): registro `docs/barridos.json` + control que lo exige.
-  Lo confirmado (plata incluida) va en la **orden 193**; ~25 preguntas quedaron "parcial".
-- **Orden 194:** 36 de 45 hallazgos de la auditoría de Gemini (20/10) eran ciertos. Lo urgente: el despertador
-  no llega a la app. Preguntas 74–81 y `npm run formas-ya-arregladas` (lo arreglado en un archivo, buscado en todo).
-- **Despertador de Claude cada hora:** revisa solo lo que entreguen Gemini y Codex (decisión del dueño 20/10).
-- Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
-
-## Errores de plata y permisos abiertos en la app publicada
-- Ninguno en la rama: la orden 197 (con 183 y 198) entró el 20/10. Falta publicarla (fusionar a main).
-
-## Revisado hasta (lo usa el despertador de cada hora)
-- Codex 1324: `2852f0881` (auditoría 150 juntada; su 196 pasó a ser la **198**). Antes `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
-- Gemini 1338 (orden 197): `2e5363f25`, juntada y terminada por Claude.
-- Gemini 1337: `45a0b1d47` (órdenes 188 a 192) → **devuelta con la orden 196**; faltan 193 a 195.
-- 1325 a 1329: viejas, superadas por las órdenes 188 a 194; no se revisan de nuevo.
-
-## A medias / trabado
-- Órdenes 180–183 y 185 siguen sin entrar: van dentro de la devolución 188.
-- Orden 182 (5 pestañas, portal en 5 pasos, Marketing): lo armado no se ve en las pantallas.
-- Hay que medir cuántos minutos de voz en vivo gratis da Gemini por día antes de subir el tope de
-  10 minutos.
-- Respaldo local de la integración rota: rama local `respaldo-integracion-f9878` (no subida, se
-  puede tirar).
-
-## Lo próximo
-1. Cuando Gemini entregue 188: revisar plata y permisos línea por línea (candado de la plata,
-   `recortarFiestaPorPerfil`, guardado que no borra), puerta, fusionar con `expectedHeadSha`.
-2. Después 189 y 190, en el mismo orden. 190 toca permisos: con lupa.
-3. Pendiente del dueño, sin apuro: si quiere sumar "Mi día" como puerta de entrada al reordenar.
+Codex SOLO audita/prueba/documenta. Gemini programa; Claude dinero/permisos/
+comida,valida/compila/fusiona. Excepcion dueno: build/servidorQA ficticio.
+Main894d01603e0e03cebc8f90a6ccf869ef86bbe1de,PR1339 integrada.
+GET publico health17:01:49UTC devuelve894d,compilada16:42:52UTC; no certifica
+integraciones por sus booleanos ni todas las funciones publicadas.
+Claude publico d0147992: runtime/config/deps igualesmain. Privados NO CONTRASTADOS.
+1324/1338 cerradas/integradas: no subir ramas viejas. Entrega actual solo docs/QA,
+rama codex/154-cierre-verificado-20261020 en ak-auditoria154-entrega; no fusionar sola.
+PR1337 sigue45a0,devuelta con196deGemini;195cola pendiente. No es196deCodex,
+renumerada198.186actual es179agendaWA; usar IDs completos para evitar cruces.
+151build2e y152build2538 exit0 con tipos/lint. No nuevo build local894d aceptado.
+152regresion802suites4998tests:4997PASS1FAIL0omitidos;ENOENT blog por checkoutS.
+154blog conblobcanonico9a2ac6b8 y asercionesoriginalesPASS; no otra amplia verde.
+Desde2538 a894d solo cambia cancelacion-parcial y1test;154handler4PASS conAPI dobles.
+151nativos171contrato1PASS,184cocinaUTC/Uy2PASS,186antes179agenda/costos4PASS.
+151nativo172FAIL: dock tapa Evento2610.1933596357703px2 a390x844. Consumidor/dock/
+AppShell/CSS siguen igualesmain. No repetir antes de correccion ni emitirotraorden.
+153proveedores6PASS en2538,acciones igualesmain: total/parcial/catering porID.
+152guardado10PASS;154SDK REAL9PASS en894d,2transacciones,0docs alterminar.
+Conserva3000/9500/60.30/1000 y recorta porperfil; operador noasignado/otros sinportal
+rechazados. Funciones/firma reales,adaptadores de sesion/I-O; NO peticionHTTPNext.
+154otros4retornos198:12PASS dueno/secretaria/personal,efectos/calculo controlados.
+No reencargar198/183 por el fallo151de sueldo: Claude ya lo corrigio y154 pasa.
+Mantener cierres150simulador movil/PDF/CRM,141clienteSDK,1353D/agenda/DJ,
+142cabecera PORALCANCE/SHA.134421rutas/14areas/7roles esinventario,no todocontrol.
+NO auditoria total aceptada/14areaslimpias/0errores. Ver154-cierre yconsolidado.
+153build interrumpido entreturnos,noactivo/sinBUILD_ID,NOaceptado. No repetir amplia
+ni compilar por docs. SDK154 liviano guardia768MiB/Java256/Node192,sin Next/browser.
+No procesos ajenos detenidos. SDK/emulador/agentes propios cerrados,difffuentes0.
+19originales dueno buscando,noinsistir. OAuth/modelo/voz/sincronizaciones/hardware
+reales no certificados. QA nunca datos/cuentas/cargos/mensajesreales.
+Siguiente: correccion172 y entrega195/1337; retest SOLOdelta,cerrar cobertura por
+criterios observados,no por grep. No afirmar IA/portales completos por estos casos.
+No appedit/merge/forcepush. GHrojo facturacion nofalloapp. RegistrarSHA+limites.

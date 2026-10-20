@@ -1,0 +1,1509 @@
+{
+  "source": "2e5363f259461a31bf6b31807872c227855415de",
+  "refs": [
+    {
+      "name": "getFiestaById",
+      "id": "60fde7134021da0d351fa1c79f57596d1a7c79acc3",
+      "chunks": [
+        ".next\\static\\chunks\\10742-08f93b5f34fb6ccd.js",
+        ".next\\static\\chunks\\36507-86934e6a4439fe06.js",
+        ".next\\static\\chunks\\69096-6cb1a62c24ab706c.js",
+        ".next\\static\\chunks\\87780-e0bdd5ca6a892bb9.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\alergias\\page-b87506bbe418eb2a.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\buzon\\page-92969f307bcbde64.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\carga-operativa\\page-a6ba0d8098277d54.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\configuracion\\page-46e9feb8d3f7abe3.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\decoracion\\page-76d45a5e6d64fc33.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\decoracion\\pdf\\page-5bc6f5d93a6e6109.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\en-vivo\\page-1f47bc20650382c7.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\gestion-costos-rentabilidad\\page-9e1be45f21982b8c.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\gestion-documental\\contrato-salon\\page-94c259bba8e38446.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\gestion-documental\\contrato-servicio\\page-7950887aff2358c8.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\gestion-documental\\page-fd6fde2e34782544.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\invitados\\checkin-scanner\\page-d8d0cf2e1a0818bc.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\itinerario\\pdf\\page-ab1e0da9c32f09b2.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\logistica\\page-627c12f9b49f8273.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\muro-social\\page-bffb756ad0f141bf.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\musica\\page-62dfd2b514a417d2.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\page-b66677a8b1271d03.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\pantallas-totem\\page-67a6c2c1a46cf45e.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\personal\\page-f8e08f7f918fc8ec.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\portal-cliente\\page-6d475694dfded0ba.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\readiness\\page-8dc7cce4b2144b58.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\resumen-planificacion\\page-9a3487363f662bfc.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\reunion-organizacion\\page-5bcb054976f54adf.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\reuniones\\imprimir\\page-0e85964673c2b870.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\reuniones\\page-48f089981e777269.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\servicios-contratados\\page-86950a79e8c0bcdb.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\zona-digital\\page-fa07139a3d5186bc.js",
+        ".next\\static\\chunks\\app\\(app)\\presupuestos\\nuevo\\crear\\page-6bd689d8f76e6c51.js",
+        ".next\\static\\chunks\\app\\evento\\actual\\checkin\\page-92dad7e8cc1ba372.js",
+        ".next\\static\\chunks\\app\\evento\\video-vida\\[fiestaId]\\page-73ed4011a5d99067.js",
+        ".next\\static\\chunks\\app\\video-vida\\[fiestaId]\\page-b91e1fa4d08dee95.js"
+      ],
+      "workers": {
+        "app/api/video-vida-photos/[fiestaId]/download/route": {
+          "moduleId": "505235",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/ak-100/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/centro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/cierre-mundial/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/experiencia-tecnologica-ak/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/centro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/centro-total/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/mission-control/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/cierre-final/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/experiencia-mundial/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/social-fiesta-pro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/evento/actual/checkin/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/barra/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/dj/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/impresion/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/inicio/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/totem/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/video-vida/[fiestaId]/page": {
+          "moduleId": "296538",
+          "async": false
+        },
+        "app/evento/video-vida/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/video-vida/[fiestaId]/page": {
+          "moduleId": "602867",
+          "async": false
+        },
+        "app/(app)/empresa/configurador-reunion/page": {
+          "moduleId": "673796",
+          "async": false
+        },
+        "app/(app)/empresa/redes-sociales/page": {
+          "moduleId": "457666",
+          "async": false
+        },
+        "app/(app)/empresa/salones/club-uruguay/page": {
+          "moduleId": "108696",
+          "async": false
+        },
+        "app/(app)/eventos/page": {
+          "moduleId": "506803",
+          "async": false
+        },
+        "app/(app)/invoices/page": {
+          "moduleId": "106442",
+          "async": false
+        },
+        "app/(app)/presupuestos/nuevo/crear/page": {
+          "moduleId": "500027",
+          "async": false
+        },
+        "app/(app)/settings/accesos-personal/page": {
+          "moduleId": "614662",
+          "async": false
+        },
+        "app/(app)/settings/datos/page": {
+          "moduleId": "493604",
+          "async": false
+        },
+        "app/(app)/settings/feedback/page": {
+          "moduleId": "141370",
+          "async": false
+        },
+        "app/evento/muro-en-vivo/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/marketing/demo-tecnologia/page": {
+          "moduleId": "786345",
+          "async": false
+        },
+        "app/portal/[fiestaId]/contrato/page": {
+          "moduleId": "761031",
+          "async": false
+        },
+        "app/portal/mesas/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/buzon/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/espejo-magico/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/fotocabina/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/plataforma-360/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/touchpix/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/alergias/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/buzon/page": {
+          "moduleId": "75909",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/carga-operativa/page": {
+          "moduleId": "21898",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/carteleria/page": {
+          "moduleId": "234128",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/catering/page": {
+          "moduleId": "468165",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/configuracion/page": {
+          "moduleId": "595829",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/decoracion/page": {
+          "moduleId": "221346",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/decoracion/pdf/page": {
+          "moduleId": "710038",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/en-vivo/page": {
+          "moduleId": "84699",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page": {
+          "moduleId": "419062",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/fotografia/page": {
+          "moduleId": "406803",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page": {
+          "moduleId": "481972",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page": {
+          "moduleId": "543988",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page": {
+          "moduleId": "452307",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/contrato-salon/page": {
+          "moduleId": "710038",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page": {
+          "moduleId": "248009",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/itinerario/page": {
+          "moduleId": "362210",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/itinerario/pdf/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/logistica/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/musica/page": {
+          "moduleId": "458619",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/page": {
+          "moduleId": "162155",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/pantallas-totem/page": {
+          "moduleId": "494754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/personal/page": {
+          "moduleId": "133434",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/personal/recibos/page": {
+          "moduleId": "676230",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/planner-costo-fiesta/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/readiness/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/resumen-planificacion/page": {
+          "moduleId": "879849",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/reunion-organizacion/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/reuniones/imprimir/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/reuniones/page": {
+          "moduleId": "572060",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/servicios-contratados/page": {
+          "moduleId": "804450",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/tareas/page": {
+          "moduleId": "522401",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/video-vida/page": {
+          "moduleId": "126318",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/zona-digital/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/invitados/checkin-scanner/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/invitados/layout/page": {
+          "moduleId": "26160",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/invitados/page": {
+          "moduleId": "757945",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/muro-social/page": {
+          "moduleId": "326431",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/page": {
+          "moduleId": "44007",
+          "async": false
+        }
+      }
+    },
+    {
+      "name": "getFiestaById",
+      "id": "60b75d30dff4cb9fd8a48e2798e0427854f4db2adf",
+      "chunks": [
+        ".next\\static\\chunks\\90686-7d81cfc14d181a36.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\barra-tecnologica\\page-82ce3e7a8c453b16.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\carta-tragos\\page-3622b443bf8ebf43.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\carteleria\\page-ec490b6f193a9a32.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\catering\\hoja-de-cocina\\page-14019757a7ffca4b.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\catering\\lista-compras\\page-18a434c6ac473d56.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\gestion-documental\\cambio-fecha\\page-8e51872ff34c3673.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\gestion-documental\\cancelacion-contrato\\page-7d326125c0049c52.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\gestion-documental\\cancelacion-parcial\\page-16ce426c8f028961.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\gestion-documental\\recibo-pago\\page-a8d4d03b1936fecc.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\menu-mesa\\page-cda8fb0452a769bb.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\modulo-invitado\\page-2280f6fbbadc5ea4.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\musica\\pdf\\page-f955cdd4ced63dcc.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\numeros-mesa\\page-5bb54828beead10d.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\orden-de-evento\\page-02542b19e28adc47.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\pagina-web\\page-7ed682f76f760fda.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\plan-pagos\\page-57fbc9706d2f75a5.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\post-evento\\page-887790e46e2202fa.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\proveedores-portal\\page-13db7181477b75b4.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\regalos\\page-3eb671184a4e9686.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\resumen-imprimible\\page-cd6249d45fcc7661.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\[id]\\centro\\page-9bfbc37cb7311681.js",
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\[id]\\timeline\\page-186d7d713995ecc5.js",
+        ".next\\static\\chunks\\app\\evento\\accesos\\[fiestaId]\\page-cb4ca16117044265.js",
+        ".next\\static\\chunks\\app\\evento\\actual\\mesa\\page-9134835ac0d0e282.js",
+        ".next\\static\\chunks\\app\\evento\\bienvenida\\[fiestaId]\\page-e0d4a34fd545dc77.js",
+        ".next\\static\\chunks\\app\\evento\\dj\\[fiestaId]\\page-da3f8fbca24f98a6.js",
+        ".next\\static\\chunks\\app\\evento\\en-vivo\\[fiestaId]\\organizador\\page-026bdc971e6ed29f.js",
+        ".next\\static\\chunks\\app\\evento\\en-vivo\\[fiestaId]\\page-506bc650a984161f.js",
+        ".next\\static\\chunks\\app\\evento\\impresion\\[fiestaId]\\page-bde376aa1e1d16c5.js",
+        ".next\\static\\chunks\\app\\evento\\moderacion\\[fiestaId]\\page-f2453aa34c3e05de.js",
+        ".next\\static\\chunks\\app\\evento\\staff\\[fiestaId]\\cronograma\\page-42004f2abde29163.js",
+        ".next\\static\\chunks\\app\\portal\\[fiestaId]\\decoracion\\page-b6f3967ae5c0ca6e.js",
+        ".next\\static\\chunks\\app\\portal\\[fiestaId]\\moodboard\\page-89091072a97e7fa2.js"
+      ],
+      "workers": {
+        "app/api/buzon/[fiestaId]/download/route": {
+          "moduleId": "710429",
+          "async": false
+        },
+        "app/api/cron/avisos-al-cliente/route": {
+          "moduleId": "400086",
+          "async": false
+        },
+        "app/api/cron/generate-blog-post/route": {
+          "moduleId": "461665",
+          "async": false
+        },
+        "app/api/cron/recordar-invitacion-no-abierta/route": {
+          "moduleId": "400086",
+          "async": false
+        },
+        "app/api/cron/recordatorios-de-pago/route": {
+          "moduleId": "14126",
+          "async": false
+        },
+        "app/api/documentos-fiesta/[...parts]/route": {
+          "moduleId": "356160",
+          "async": false
+        },
+        "app/api/fiestas/[fiestaId]/download-recuerdos/route": {
+          "moduleId": "666331",
+          "async": false
+        },
+        "app/api/social-gallery/[fiestaId]/download/route": {
+          "moduleId": "917417",
+          "async": false
+        },
+        "app/api/video-vida-photos/[fiestaId]/[filename]/route": {
+          "moduleId": "638622",
+          "async": false
+        },
+        "app/api/video-vida-photos/[fiestaId]/download/route": {
+          "moduleId": "505235",
+          "async": false
+        },
+        "app/api/asistente/voz-en-vivo/route": {
+          "moduleId": "250139",
+          "async": false
+        },
+        "app/api/cron-despachador/route": {
+          "moduleId": "147673",
+          "async": false
+        },
+        "app/api/cron/asistente-proactivo/route": {
+          "moduleId": "473023",
+          "async": false
+        },
+        "app/api/google/oauth/callback/route": {
+          "moduleId": "56018",
+          "async": false
+        },
+        "app/api/marketing/automation/route": {
+          "moduleId": "196651",
+          "async": false
+        },
+        "app/api/payments/mercadopago/checkout/route": {
+          "moduleId": "67954",
+          "async": false
+        },
+        "app/api/payments/mercadopago/webhook/route": {
+          "moduleId": "372014",
+          "async": false
+        },
+        "app/api/whatsapp/webhook/route": {
+          "moduleId": "959302",
+          "async": false
+        },
+        "app/api/multiagent/message/route": {
+          "moduleId": "116241",
+          "async": false
+        },
+        "app/evento/[id]/video-recuerdo/page": {
+          "moduleId": "917417",
+          "async": false
+        },
+        "app/i/[slug]/page": {
+          "moduleId": "691585",
+          "async": false
+        },
+        "app/personal/[empleadoId]/page": {
+          "moduleId": "56018",
+          "async": false
+        },
+        "app/q/[fiestaId]/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/page": {
+          "moduleId": "666597",
+          "async": false
+        },
+        "app/video-vida/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/ak-100/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/centro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/cierre-mundial/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/experiencia-tecnologica-ak/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/invitacion/[fiestaId]/page": {
+          "moduleId": "691585",
+          "async": false
+        },
+        "app/invitacion/[fiestaId]/recap/page": {
+          "moduleId": "982893",
+          "async": false
+        },
+        "app/portal/[fiestaId]/[module]/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/post-fiesta/[fiestaId]/page": {
+          "moduleId": "698439",
+          "async": false
+        },
+        "app/recepcion/[fiestaId]/page": {
+          "moduleId": "483038",
+          "async": false
+        },
+        "app/(app)/empresa/presencia-digital/page": {
+          "moduleId": "747383",
+          "async": false
+        },
+        "app/(app)/mi-dia/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/control-tower/page": {
+          "moduleId": "550908",
+          "async": false
+        },
+        "app/control-tower/preparacion/page": {
+          "moduleId": "251468",
+          "async": false
+        },
+        "app/presentacion-led/portafolio/fiesta/[id]/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/centro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/centro-total/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/mission-control/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/playlist-pantalla/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/portal/c/[accessKey]/page": {
+          "moduleId": "158679",
+          "async": false
+        },
+        "app/(app)/contabilidad/crm/ciclo-comercial/page": {
+          "moduleId": "331709",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/cierre-final/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/experiencia-mundial/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/social-fiesta-pro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/evento/accesos/[fiestaId]/page": {
+          "moduleId": "756638",
+          "async": false
+        },
+        "app/evento/actual/mesa/page": {
+          "moduleId": "271916",
+          "async": false
+        },
+        "app/evento/bienvenida/[fiestaId]/page": {
+          "moduleId": "200940",
+          "async": false
+        },
+        "app/evento/dj/[fiestaId]/page": {
+          "moduleId": "516226",
+          "async": false
+        },
+        "app/evento/impresion/[fiestaId]/page": {
+          "moduleId": "777708",
+          "async": false
+        },
+        "app/evento/moderacion/[fiestaId]/page": {
+          "moduleId": "777708",
+          "async": false
+        },
+        "app/evento/staff/[fiestaId]/cronograma/page": {
+          "moduleId": "594658",
+          "async": false
+        },
+        "app/(app)/customers/[id]/page": {
+          "moduleId": "931556",
+          "async": false
+        },
+        "app/(app)/customers/page": {
+          "moduleId": "789261",
+          "async": false
+        },
+        "app/(app)/empleados/reporte/page": {
+          "moduleId": "252497",
+          "async": false
+        },
+        "app/(app)/empresa/dashboard/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/timeline/page": {
+          "moduleId": "223786",
+          "async": false
+        },
+        "app/(app)/fiestas/revisar/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/presupuestos/[id]/ver/page": {
+          "moduleId": "585634",
+          "async": false
+        },
+        "app/admin/finanzas/page": {
+          "moduleId": "268682",
+          "async": false
+        },
+        "app/evento/en-vivo/[fiestaId]/organizador/page": {
+          "moduleId": "214714",
+          "async": false
+        },
+        "app/evento/en-vivo/[fiestaId]/page": {
+          "moduleId": "147764",
+          "async": false
+        },
+        "app/portal-cliente/page": {
+          "moduleId": "809339",
+          "async": false
+        },
+        "app/portal/[fiestaId]/decoracion/page": {
+          "moduleId": "388529",
+          "async": false
+        },
+        "app/portal/[fiestaId]/moodboard/page": {
+          "moduleId": "804962",
+          "async": false
+        },
+        "app/admin/ventas/page": {
+          "moduleId": "268682",
+          "async": false
+        },
+        "app/portal/page": {
+          "moduleId": "809339",
+          "async": false
+        },
+        "app/recursos-multi-evento/page": {
+          "moduleId": "459707",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/barra-tecnologica/page": {
+          "moduleId": "217477",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/carta-tragos/page": {
+          "moduleId": "659350",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/carteleria/page": {
+          "moduleId": "234128",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/catering/hoja-de-cocina/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/catering/lista-compras/page": {
+          "moduleId": "258671",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/entretenimiento/page": {
+          "moduleId": "62323",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page": {
+          "moduleId": "481972",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page": {
+          "moduleId": "543988",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page": {
+          "moduleId": "452307",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page": {
+          "moduleId": "543084",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/menu-mesa/page": {
+          "moduleId": "528759",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/modulo-invitado/page": {
+          "moduleId": "528759",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/numeros-mesa/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/musica/pdf/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/orden-de-evento/page": {
+          "moduleId": "958941",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/pagina-web/page": {
+          "moduleId": "762112",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/page": {
+          "moduleId": "162155",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/personal/recibos/page": {
+          "moduleId": "676230",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/plan-pagos/page": {
+          "moduleId": "333208",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/post-evento/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/proveedores-portal/page": {
+          "moduleId": "810529",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/regalos/page": {
+          "moduleId": "82369",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/resumen-imprimible/page": {
+          "moduleId": "46291",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/page": {
+          "moduleId": "44007",
+          "async": false
+        }
+      }
+    },
+    {
+      "name": "saveFiesta",
+      "id": "4014ee8509b95b6754f0bec9b0c97427928d01c300",
+      "chunks": [
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\pagina-web\\page-7ed682f76f760fda.js",
+        ".next\\static\\chunks\\app\\admin\\ventas\\page-4e95d7bf2b82f1e8.js"
+      ],
+      "workers": {
+        "app/api/buzon/[fiestaId]/download/route": {
+          "moduleId": "710429",
+          "async": false
+        },
+        "app/api/cron/avisos-al-cliente/route": {
+          "moduleId": "400086",
+          "async": false
+        },
+        "app/api/cron/generate-blog-post/route": {
+          "moduleId": "461665",
+          "async": false
+        },
+        "app/api/cron/recordar-invitacion-no-abierta/route": {
+          "moduleId": "400086",
+          "async": false
+        },
+        "app/api/cron/recordatorios-de-pago/route": {
+          "moduleId": "14126",
+          "async": false
+        },
+        "app/api/documentos-fiesta/[...parts]/route": {
+          "moduleId": "356160",
+          "async": false
+        },
+        "app/api/fiestas/[fiestaId]/download-recuerdos/route": {
+          "moduleId": "666331",
+          "async": false
+        },
+        "app/api/social-gallery/[fiestaId]/download/route": {
+          "moduleId": "917417",
+          "async": false
+        },
+        "app/api/video-vida-photos/[fiestaId]/[filename]/route": {
+          "moduleId": "638622",
+          "async": false
+        },
+        "app/api/video-vida-photos/[fiestaId]/download/route": {
+          "moduleId": "505235",
+          "async": false
+        },
+        "app/api/asistente/voz-en-vivo/route": {
+          "moduleId": "250139",
+          "async": false
+        },
+        "app/api/cron-despachador/route": {
+          "moduleId": "147673",
+          "async": false
+        },
+        "app/api/cron/asistente-proactivo/route": {
+          "moduleId": "473023",
+          "async": false
+        },
+        "app/api/google/oauth/callback/route": {
+          "moduleId": "56018",
+          "async": false
+        },
+        "app/api/marketing/automation/route": {
+          "moduleId": "196651",
+          "async": false
+        },
+        "app/api/payments/mercadopago/checkout/route": {
+          "moduleId": "67954",
+          "async": false
+        },
+        "app/api/payments/mercadopago/webhook/route": {
+          "moduleId": "372014",
+          "async": false
+        },
+        "app/api/whatsapp/webhook/route": {
+          "moduleId": "959302",
+          "async": false
+        },
+        "app/api/multiagent/message/route": {
+          "moduleId": "116241",
+          "async": false
+        },
+        "app/evento/[id]/video-recuerdo/page": {
+          "moduleId": "917417",
+          "async": false
+        },
+        "app/i/[slug]/page": {
+          "moduleId": "691585",
+          "async": false
+        },
+        "app/personal/[empleadoId]/page": {
+          "moduleId": "56018",
+          "async": false
+        },
+        "app/q/[fiestaId]/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/page": {
+          "moduleId": "666597",
+          "async": false
+        },
+        "app/video-vida/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/ak-100/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/centro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/cierre-mundial/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/experiencia-tecnologica-ak/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/invitacion/[fiestaId]/page": {
+          "moduleId": "691585",
+          "async": false
+        },
+        "app/invitacion/[fiestaId]/recap/page": {
+          "moduleId": "982893",
+          "async": false
+        },
+        "app/portal/[fiestaId]/[module]/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/post-fiesta/[fiestaId]/page": {
+          "moduleId": "698439",
+          "async": false
+        },
+        "app/recepcion/[fiestaId]/page": {
+          "moduleId": "483038",
+          "async": false
+        },
+        "app/(app)/empresa/presencia-digital/page": {
+          "moduleId": "747383",
+          "async": false
+        },
+        "app/(app)/mi-dia/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/control-tower/page": {
+          "moduleId": "550908",
+          "async": false
+        },
+        "app/control-tower/preparacion/page": {
+          "moduleId": "251468",
+          "async": false
+        },
+        "app/presentacion-led/portafolio/fiesta/[id]/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/centro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/centro-total/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/mission-control/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/playlist-pantalla/page": {
+          "moduleId": "740766",
+          "async": false
+        },
+        "app/portal/c/[accessKey]/page": {
+          "moduleId": "158679",
+          "async": false
+        },
+        "app/(app)/contabilidad/crm/ciclo-comercial/page": {
+          "moduleId": "331709",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/cierre-final/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/experiencia-mundial/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/social-fiesta-pro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/evento/accesos/[fiestaId]/page": {
+          "moduleId": "756638",
+          "async": false
+        },
+        "app/evento/actual/mesa/page": {
+          "moduleId": "271916",
+          "async": false
+        },
+        "app/evento/bienvenida/[fiestaId]/page": {
+          "moduleId": "200940",
+          "async": false
+        },
+        "app/evento/dj/[fiestaId]/page": {
+          "moduleId": "516226",
+          "async": false
+        },
+        "app/evento/impresion/[fiestaId]/page": {
+          "moduleId": "777708",
+          "async": false
+        },
+        "app/evento/moderacion/[fiestaId]/page": {
+          "moduleId": "777708",
+          "async": false
+        },
+        "app/evento/staff/[fiestaId]/cronograma/page": {
+          "moduleId": "594658",
+          "async": false
+        },
+        "app/(app)/customers/[id]/page": {
+          "moduleId": "931556",
+          "async": false
+        },
+        "app/(app)/customers/page": {
+          "moduleId": "789261",
+          "async": false
+        },
+        "app/(app)/empleados/reporte/page": {
+          "moduleId": "252497",
+          "async": false
+        },
+        "app/(app)/empresa/dashboard/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/timeline/page": {
+          "moduleId": "223786",
+          "async": false
+        },
+        "app/(app)/fiestas/revisar/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/presupuestos/[id]/ver/page": {
+          "moduleId": "585634",
+          "async": false
+        },
+        "app/admin/finanzas/page": {
+          "moduleId": "268682",
+          "async": false
+        },
+        "app/evento/en-vivo/[fiestaId]/organizador/page": {
+          "moduleId": "214714",
+          "async": false
+        },
+        "app/evento/en-vivo/[fiestaId]/page": {
+          "moduleId": "147764",
+          "async": false
+        },
+        "app/portal-cliente/page": {
+          "moduleId": "809339",
+          "async": false
+        },
+        "app/portal/[fiestaId]/decoracion/page": {
+          "moduleId": "388529",
+          "async": false
+        },
+        "app/portal/[fiestaId]/moodboard/page": {
+          "moduleId": "804962",
+          "async": false
+        },
+        "app/admin/ventas/page": {
+          "moduleId": "268682",
+          "async": false
+        },
+        "app/portal/page": {
+          "moduleId": "809339",
+          "async": false
+        },
+        "app/recursos-multi-evento/page": {
+          "moduleId": "459707",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/barra-tecnologica/page": {
+          "moduleId": "217477",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/carta-tragos/page": {
+          "moduleId": "659350",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/carteleria/page": {
+          "moduleId": "234128",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/catering/hoja-de-cocina/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/catering/lista-compras/page": {
+          "moduleId": "258671",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/entretenimiento/page": {
+          "moduleId": "62323",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page": {
+          "moduleId": "481972",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page": {
+          "moduleId": "543988",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page": {
+          "moduleId": "452307",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page": {
+          "moduleId": "543084",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/menu-mesa/page": {
+          "moduleId": "528759",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/modulo-invitado/page": {
+          "moduleId": "528759",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/numeros-mesa/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/musica/pdf/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/orden-de-evento/page": {
+          "moduleId": "958941",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/pagina-web/page": {
+          "moduleId": "762112",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/page": {
+          "moduleId": "162155",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/personal/recibos/page": {
+          "moduleId": "676230",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/plan-pagos/page": {
+          "moduleId": "333208",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/post-evento/page": {
+          "moduleId": "829754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/proveedores-portal/page": {
+          "moduleId": "810529",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/regalos/page": {
+          "moduleId": "82369",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/resumen-imprimible/page": {
+          "moduleId": "46291",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/page": {
+          "moduleId": "44007",
+          "async": false
+        }
+      }
+    },
+    {
+      "name": "saveFiesta",
+      "id": "405c95a98d1d53be95e035c776b930ebeca5acd3a3",
+      "chunks": [
+        ".next\\static\\chunks\\app\\(app)\\fiestas\\nueva\\reunion-organizacion\\page-5bcb054976f54adf.js"
+      ],
+      "workers": {
+        "app/api/video-vida-photos/[fiestaId]/download/route": {
+          "moduleId": "505235",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/ak-100/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/centro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/cierre-mundial/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/[id]/experiencia-tecnologica-ak/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/centro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/centro-total/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/mission-control/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/cierre-final/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/experiencia-mundial/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/social-fiesta-pro/page": {
+          "moduleId": "657885",
+          "async": false
+        },
+        "app/evento/actual/checkin/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/barra/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/dj/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/impresion/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/inicio/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/totem/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/video-vida/[fiestaId]/page": {
+          "moduleId": "296538",
+          "async": false
+        },
+        "app/evento/video-vida/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/video-vida/[fiestaId]/page": {
+          "moduleId": "602867",
+          "async": false
+        },
+        "app/(app)/empresa/configurador-reunion/page": {
+          "moduleId": "673796",
+          "async": false
+        },
+        "app/(app)/empresa/redes-sociales/page": {
+          "moduleId": "457666",
+          "async": false
+        },
+        "app/(app)/empresa/salones/club-uruguay/page": {
+          "moduleId": "108696",
+          "async": false
+        },
+        "app/(app)/eventos/page": {
+          "moduleId": "506803",
+          "async": false
+        },
+        "app/(app)/invoices/page": {
+          "moduleId": "106442",
+          "async": false
+        },
+        "app/(app)/presupuestos/nuevo/crear/page": {
+          "moduleId": "500027",
+          "async": false
+        },
+        "app/(app)/settings/accesos-personal/page": {
+          "moduleId": "614662",
+          "async": false
+        },
+        "app/(app)/settings/datos/page": {
+          "moduleId": "493604",
+          "async": false
+        },
+        "app/(app)/settings/feedback/page": {
+          "moduleId": "141370",
+          "async": false
+        },
+        "app/evento/muro-en-vivo/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/marketing/demo-tecnologia/page": {
+          "moduleId": "786345",
+          "async": false
+        },
+        "app/portal/[fiestaId]/contrato/page": {
+          "moduleId": "761031",
+          "async": false
+        },
+        "app/portal/mesas/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/buzon/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/espejo-magico/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/fotocabina/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/plataforma-360/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/evento/touchpix/page": {
+          "moduleId": "306411",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/alergias/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/buzon/page": {
+          "moduleId": "75909",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/carga-operativa/page": {
+          "moduleId": "21898",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/carteleria/page": {
+          "moduleId": "234128",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/catering/page": {
+          "moduleId": "468165",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/configuracion/page": {
+          "moduleId": "595829",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/decoracion/page": {
+          "moduleId": "221346",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/decoracion/pdf/page": {
+          "moduleId": "710038",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/en-vivo/page": {
+          "moduleId": "84699",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page": {
+          "moduleId": "419062",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/fotografia/page": {
+          "moduleId": "406803",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page": {
+          "moduleId": "481972",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page": {
+          "moduleId": "543988",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page": {
+          "moduleId": "452307",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/contrato-salon/page": {
+          "moduleId": "710038",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page": {
+          "moduleId": "248009",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/gestion-documental/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/itinerario/page": {
+          "moduleId": "362210",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/itinerario/pdf/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/logistica/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/musica/page": {
+          "moduleId": "458619",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/page": {
+          "moduleId": "162155",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/pantallas-totem/page": {
+          "moduleId": "494754",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/personal/page": {
+          "moduleId": "133434",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/personal/recibos/page": {
+          "moduleId": "676230",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/planner-costo-fiesta/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/readiness/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/resumen-planificacion/page": {
+          "moduleId": "879849",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/reunion-organizacion/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/reuniones/imprimir/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/reuniones/page": {
+          "moduleId": "572060",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/servicios-contratados/page": {
+          "moduleId": "804450",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/tareas/page": {
+          "moduleId": "522401",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/video-vida/page": {
+          "moduleId": "126318",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/zona-digital/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/invitados/checkin-scanner/page": {
+          "moduleId": "500857",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/invitados/layout/page": {
+          "moduleId": "26160",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/invitados/page": {
+          "moduleId": "757945",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/muro-social/page": {
+          "moduleId": "326431",
+          "async": false
+        },
+        "app/(app)/fiestas/nueva/portal-cliente/page": {
+          "moduleId": "44007",
+          "async": false
+        }
+      }
+    }
+  ]
+}

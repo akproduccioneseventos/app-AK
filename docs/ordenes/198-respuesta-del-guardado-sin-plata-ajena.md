@@ -1,5 +1,13 @@
 # PARA GEMINI - Orden 198 (Codex 196, renumerada por Claude): lo que devuelve un guardado respeta el perfil
 
+**Contraste Codex154, main894d:** guardado y preservacion corregidos por Claude,
+9PASS con SDK real al emulador y2transacciones,0documentos restantes. Respuesta
+recortada y datos guardados intactos. Otros cuatro retornos abajo:12PASS con
+I/O/efectos controlados. Ver154-cierre.md,154-final-sdk-real.json y
+154-retornos-198.json. No reencargar por el fallo historico de151.
+Limites: no HTTPNext/cookies ni portales dedicados, no liquidacion aritmetica,
+Google/notificaciones/aprendizaje reales. El informe original se conserva.
+
 **Va en la propuesta CHICA de la orden 197**, porque esto ya está en la app publicada: guardar una fiesta
 le devuelve al navegador costos, pagos a proveedores y sueldos ajenos aunque el perfil no los pueda ver.
 

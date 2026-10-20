@@ -1,5 +1,37 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Codex151-154: cierres comprobados y limites, no cero errores
+
+- Main894d01603e0e03cebc8f90a6ccf869ef86bbe1de; Claude publico d0147992 tiene
+  runtime/config/deps iguales. NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
+-151 nativo: contrato1711PASS,cocina1842PASS UTC/Uy,agenda/costos186(antes179)
+  4PASS PC/Pixel7.172 sigueFAIL: dock tapa Evento2610.1933596357703px2 a390x844.
+  Consumidores relacionados iguales hasta main. No repetir estos cierres ni
+  emitir otra172; conservar captura y retestear solo al entregar cambio.
+-152 build2538387 exit0/tipos/lint y amplia802suites4998tests:4997PASS1FAIL,
+  0omitidos. Fallo ENOENT de blog omitido por skip-worktree, no de contenido.
+  154 repite mismas aserciones con blob Git canonico y pasa; NO otra amplia verde.
+-Desde2538387 a894d cambian cancelacion-parcial y un test.154 handler compartir
+  4PASS con APIs dobles: espera clipboard y da alternativa al fallar/no existir.
+-153 consumidores de proveedores6PASS, cuerpos reales igualesmain, sesion/I-O
+  controlados: total,parcial y compras porID. No certifica pagos productivos.
+-Fallo151 de sueldo ya corregido por Claude2538387, no nueva orden.152 guardado
+  10PASS y154 SDK9PASS/2transacciones en894d: conserva3000/9500/60.30/1000 y
+  recorta respuestas segunperfil. SDK real a demo; firma/permisos reales,
+  adaptador de sesion y empleados/I-O, NO HTTPNext.0documentos al terminar.
+-198 otros4retornos12PASS dueno/secretaria/personal, funciones reales con dobles
+  I-O/efectos. No acepta liquidacion aritmetica ni Google/aprendizaje reales.
+-151/152 builds aceptados;153 interrumpido/sinBUILD_ID,NO aceptado. Incidencias
+  de sondas archivadas en154-incidencias-qa.md, no contarlas como fallos app.
+-Mantener cierres150simulador/PDF/CRM,141clienteSDK,1353D/agenda/DJ y142cabecera
+  POR ALCANCE/SHA.421rutas/14areas/7roles/6401AST es inventario, no todoscontroles.
+-Pendientes:172,entrega195/1337 y cobertura funcional exhaustiva no establecida.
+  No certificados19originales/OAuth/modelo/voz/sincronizaciones/hardware reales.
+  Health publico200/894d solo prueba respuesta/version, no sus integraciones.
+-Codex no cambio app ni fusiono; solo docs/QA. Servicios/SDK/agentes propios
+  cerrados,diffQAfuentes0. Ver154-cierre.md y154-consolidado.json. No fusionar
+  documentacion sola: juntar con proxima tanda de Claude. NO14areaslimpias/0errores.
+
 ## 20/10/2026 - Orden 197 (plata y permisos, urgente): entregada por Gemini y terminada por Claude
 
 - **Entró de Gemini (1338):** despertador y rutas de máquina públicas; pagos de proveedores por número
