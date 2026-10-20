@@ -5,6 +5,7 @@ import { syncFiestaToGoogleWorkspace } from '../google-workspace';
 import { getFiestaById, getFiestas, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
 
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -31,7 +32,8 @@ export async function updatePersonal(
       }
     }
 
-    const currentData = await getFiestaById(fiestaId);
+    // Lectura completa: el sueldo guardado se conserva aunque a este perfil no se le muestre.
+    const currentData = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!currentData) throw new Error("Fiesta no encontrada");
     const currentPersonal = currentData.personalAsignado || [];
     personal = personal.map((p) => {

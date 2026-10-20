@@ -41,6 +41,19 @@ jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
 }));
 
 const sincronizaciones: any[] = [];
+// Quien guarda la decoración en estas pruebas es del equipo (el dueño): recalcula los gastos.
+jest.mock('@/lib/auth/equipo-de-la-fiesta', () => ({
+  usuarioDelEquipo: jest.fn(async () => ({ role: 'admin', perfil: 'dueno' })),
+  quienEsElEquipo: jest.fn(async () => () => true),
+  esDelEquipoDeLaFiesta: jest.fn(async () => true),
+}));
+// La decoración guarda sus gastos por costos-interno (orden 183): se anotan igual que antes.
+jest.mock('@/lib/fiesta/costos-interno', () => ({
+  guardarCostosInterno: jest.fn(async (_id: string, costos: any) => {
+    sincronizaciones.push(JSON.parse(JSON.stringify(costos)));
+    return { success: true, updatedData: costos };
+  }),
+}));
 jest.mock('@/app/actions/fiesta/costos.actions', () => ({
   updateGestionCostos: jest.fn(async (_id: string, costos: any) => {
     sincronizaciones.push(JSON.parse(JSON.stringify(costos)));

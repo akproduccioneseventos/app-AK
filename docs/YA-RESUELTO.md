@@ -1,5 +1,33 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Orden 197 (plata y permisos, urgente): entregada por Gemini y terminada por Claude
+
+- **Entró de Gemini (1338):** despertador y rutas de máquina públicas; pagos de proveedores por número
+  (no por nombre); los diez archivos `'use server'` de `src/lib` y `src/ai` dejaron de serlo; ingreso
+  con Google con su perfil; preguntas de seguridad con tope; cambiar la clave pide sesión; eco de
+  WhatsApp; ganancias, sueldos, portal del proveedor y agenda de la empresa con su permiso.
+- **Lo que Claude corrigió de esa entrega:**
+  - `getRoles` le da el sueldo en 0 a quien no tiene SUELDOS, y las cuentas del servidor lo usaban:
+    los costos del personal se calculaban y GUARDABAN en cero con una secretaria. Ahora leen
+    `leerRolesInterno` (`src/lib/roles/leer-roles-interno.ts`, server-only). `getRolById` también recorta.
+  - El eco de WhatsApp nunca se marcaba (variable tapada) y el destinatario era el propio número:
+    un mensaje del dueño a un cliente se podía leer como orden. Ahora no, y un eco no se contesta.
+  - Borrar facturas, presupuestos y prospectos había pasado a CONTABILIDAD/CRM (lo decía mi orden
+    194, mal): vuelve a ser sólo de administración, como estaba.
+  - Asignar personal: ORGANIZACION, y el sueldo guardado se conserva sin SUELDOS.
+  - Se recuperaron comentarios y nombres de perfiles que la entrega borró o cambió sin pedido.
+- **Orden 183, terminada por Claude:** al equipo se le recorta lo que su perfil no ve
+  (`recortarFiestaPorPerfil` en `getFiestaById`). Para que eso no borre nada al guardar:
+  `saveFiesta` repone costos y sueldos de lo guardado (`reponerLoDelPerfil`); `updateFiestaPartial`
+  rechaza costos sin GANANCIAS y repone sueldos sin SUELDOS; escribir costos a mano pide GANANCIAS;
+  las cuentas automáticas (decoración, lavandería, sincronizar todo) leen con `LECTURA_COMPLETA` y
+  guardan por `guardarCostosInterno` (server-only); la lista de compras, el personal, archivar y
+  duplicar leen completo; una casilla de pago que llega recortada no cuenta como "cambiar la plata".
+- **Orden 198 terminada:** guardar, reuniones, tareas del asistente, suspender y reactivar devuelven
+  la fiesta recortada; se borró un archivo de acciones que nadie usaba.
+- **Hallazgo 35 de la 194:** la decoración desde el portal ya no dice "no se pudo guardar"; desde el
+  portal no se recalculan costos (los recalcula el próximo guardado del equipo).
+
 ## 20/10/2026 - Las tres formas de fuga de plata y permisos ya no pueden crecer
 
 - `src/__tests__/las-fugas-de-plata-no-crecen.test.ts` frena la publicación si aparece una ruta de

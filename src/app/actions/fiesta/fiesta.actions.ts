@@ -113,7 +113,13 @@ function paraAfuera(fiesta: FiestaEnPlanificacion, esCliente = false): FiestaEnP
 async function requireEquipo(): Promise<(f: FiestaEnPlanificacion) => FiestaEnPlanificacion> {
     if (!(await usuarioDelEquipo())) throw new Error('Tu usuario no tiene acceso a las fiestas.');
     const decide = await quienEsElEquipo();
-    return (f) => (decide(f) ? f : paraAfuera(f));
+    // Orden 183: al equipo también se le recorta lo que su perfil no ve: costos sin GANANCIAS,
+    // sueldos sin SUELDOS, pagos sin CONTABILIDAD. Al guardar se repone de lo guardado
+    // (`reponerLoDelPerfil`, `reponerLaPlata`); las cuentas del servidor leen con LECTURA_COMPLETA.
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession();
+    const usuario = sesion.success ? sesion.user : null;
+    return (f) => (decide(f) ? recortarFiestaPorPerfil(f, usuario) : paraAfuera(f));
 }
 
 /**
@@ -190,7 +196,8 @@ function pideCambiarLaPlata(parcial: Partial<FiestaEnPlanificacion>, guardada: F
     const antes = (guardada?.estadosCompra || []) as unknown as Record<string, unknown>[];
     return (p.estadosCompra as Record<string, unknown>[]).some((e) => {
       const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor);
-      return PAGO_DE_LA_COMPRA.some((k) => !mismoValor(e[k], previo?.[k]));
+      // Sin la casilla (llegó recortada por el perfil, orden 183) no pide cambiarla: se conserva.
+      return PAGO_DE_LA_COMPRA.some((k) => k in e && !mismoValor(e[k], previo?.[k]));
     });
   }
   return false;
@@ -353,6 +360,31 @@ export async function updateFiestaPartial(
   }
   const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
+  {
+    // Orden 183: costos (GANANCIAS) y sueldos (SUELDOS) por el guardado parcial.
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession();
+    const usuario = sesion.success ? sesion.user : null;
+    if (usuario && 'gestionCostos' in partialData && !puede(usuario, PERMISOS.GANANCIAS)) {
+      return { success: false, error: 'Los costos de la fiesta los maneja quien tiene permiso de ganancias.' };
+    }
+    if (usuario && Array.isArray(partialData.personalAsignado) && !puede(usuario, PERMISOS.SUELDOS)) {
+      const { reponerLoDelPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
+      const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+      const sinPlata = !(await tocaLaPlata());
+      if (sinPlata) {
+        const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+        if (pideCambiarLaPlata(partialData, await getFiestaByIdRaw(fiestaId))) {
+          return { success: false, error: 'Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.' };
+        }
+      }
+      const r = await actualizarFiesta(fiestaId, (actual) => {
+        const parcial = sinPlata ? sinLaPlata(partialData, actual) : partialData;
+        return reponerLoDelPerfil({ ...actual, ...parcial }, actual, usuario);
+      });
+      return r.success ? { success: true } : { success: false, error: r.error || 'No se pudo actualizar parcialmente el evento.' };
+    }
+  }
   if (!(await tocaLaPlata())) {
     const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
     if (pideCambiarLaPlata(partialData, await getFiestaByIdRaw(fiestaId))) {
@@ -422,6 +454,11 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
             const esCliente = await verifyPortalSession(fiestaId).catch(() => false);
             const { recortarFiestaParaAfuera } = await import('@/lib/fiesta/recortar-para-afuera');
             fiesta = recortarFiestaParaAfuera(fiesta, { esCliente });
+        } else if (lectura !== LECTURA_COMPLETA) {
+            // Orden 183: al equipo también se le saca lo que su perfil no ve (costos, sueldos, pagos).
+            const { verifySession } = await import('@/lib/auth/session-token');
+            const sesion = await verifySession();
+            fiesta = recortarFiestaPorPerfil(fiesta, sesion.success ? sesion.user : null);
         }
     }
     return fiesta;
@@ -1085,7 +1122,7 @@ export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean
 export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA); // Se archiva entera, con costos y sueldos.
     if (!fiesta) throw new Error("Evento no encontrado.");
     const datePart = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
     const archiveFilename = `fiesta_archivada_${datePart}_${fiesta.id}.json`;
@@ -1271,7 +1308,7 @@ export async function duplicateFiesta(fiestaId: string, opciones?: { idIntento?:
     // Pregunta 58: si la respuesta se perdio y la persona reintenta, la copia ya esta con ese id.
     const idDeLaPantalla = idDelIntento('fiesta_copy', opciones?.idIntento);
     if (idDeLaPantalla && (await getFiestaById(idDeLaPantalla))) return { success: true, newFiestaId: idDeLaPantalla };
-    const original = await getFiestaById(fiestaId);
+    const original = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!original) throw new Error('Evento no encontrado.');
     const newFiesta: FiestaEnPlanificacion = {
       ...original,

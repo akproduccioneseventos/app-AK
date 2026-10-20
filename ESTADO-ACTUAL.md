@@ -31,16 +31,12 @@ Codex sólo audita.
 - **Despertador de Claude cada hora:** revisa solo lo que entreguen Gemini y Codex (decisión del dueño 20/10).
 - Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
 
-## Errores de plata y permisos abiertos en la app publicada (orden 197, van primero)
-- Pagos a proveedores con el mismo nombre (desde el 16/10).
-- Despertador bloqueado: las tareas automáticas no corren solas (desde el 20/10).
-- Ingreso con Google sin perfil, preguntas de seguridad sin tope, cambio de clave sin sesión, eco de WhatsApp (desde el 20/10).
-- La fiesta entera (costos y sueldos ajenos) le llega a la secretaria y al operador (desde el 16/10, orden 183).
-- Guardar una fiesta le devuelve costos y sueldos ajenos a quien no tiene permiso (desde el 20/10, orden 198).
-- Saldos sin el ajuste anual y un cobro a confirmar contado como ganancia (desde el 20/10).
+## Errores de plata y permisos abiertos en la app publicada
+- Ninguno en la rama: la orden 197 (con 183 y 198) entró el 20/10. Falta publicarla (fusionar a main).
 
 ## Revisado hasta (lo usa el despertador de cada hora)
 - Codex 1324: `2852f0881` (auditoría 150 juntada; su 196 pasó a ser la **198**). Antes `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
+- Gemini 1338 (orden 197): `2e5363f25`, juntada y terminada por Claude.
 - Gemini 1337: `45a0b1d47` (órdenes 188 a 192) → **devuelta con la orden 196**; faltan 193 a 195.
 - 1325 a 1329: viejas, superadas por las órdenes 188 a 194; no se revisan de nuevo.
 
