@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Auditoría de Gemini: 36 de 45 ciertos, y por qué volvían
+
+- **Falsos positivos verificados, no se vuelven a reportar:**
+  - 16: el equipo de la fiesta se busca por el email del empleado.
+  - 27: la lista por enlace no nombra cocina ni recepción.
+  - 32: "Servicios retirados" no filtra por salón.
+  - 34: el presupuesto guarda la fecha con hora.
+  - 41: esas acciones de invitados no las llama nadie.
+  - 44: el recorte público deja id y nombre del invitado.
+  - 7: los posteos comparan versiones al guardar.
+- **Del script `formas-ya-arregladas`, inocentes:**
+  - el botón de la bandeja que marca "enviado" lo toca una persona;
+  - "concilia solo" en facturas es un comentario;
+  - el tótem conserva las fotos si se corta la señal;
+  - recepción y el muro social piden permiso;
+  - la clave del portal se quita en `public-fiesta.ts`;
+  - las capturas de la fotocabina y de la 360 no duplican el id;
+  - "ya está en la galería" sale sólo con la original publicada;
+  - el enlace de la carga lleva su token;
+  - el desglose del recibo suma el total;
+  - "cinco días" en el parte es un comentario.
+- **Lo cierto va en la orden 194.** Por qué volvían, y el control nuevo: pregunta 81 y
+  `npm run formas-ya-arregladas`.
+
 ## 16/10/2026 - Barrido con las preguntas 64 a 67
 
 - **64 (impresión):** fuera de los 21 documentos de la orden 178, nada más se pierde al imprimir: `aside`, `nav` y los roles ocultos no tienen contenido de documento; los `button` ocultos son controles.
@@ -24,6 +48,25 @@ Verificado por Claude contra el código, de sus siete hallazgos de roles y porta
 - Entraron la portada nueva (plan Argon), "Vogue" y la ortografía (órdenes 176 y 177), y el arreglo del portal del cliente: el botón **Documentos** abre el contrato y los atajos viejos del portal ya no mandan al cliente a pantallas del equipo.
 - **Se volvió atrás el cambio de Gemini en el Encargado** (`src/lib/multiagent/encargado.ts`), que les ocultaba el total del presupuesto a los organizadores sin contabilidad. No era una fuga: `getPresupuestos` ya les saca los cobros y la app les muestra el total en sus pantallas a propósito (`nivelDePresupuestos`, nivel "operativo"). Cambiar quién ve qué es decisión del dueño; si lo quiere, se pide.
 - Las órdenes 176 y 177 traían líneas de prueba con la palabra "LISTA" delante y dos bloques sin comprobación: se corrigieron para que `npm run ordenes?` las lea.
+## 20/10/2026UTC - Codex149: consumidores185, cola186 (renumerada orden 195 por Claude) y estado real de entregas
+
+-1330-1335 CERRADAS SIN FUSION; main sigue7230.1333helper4PASS148 no llego
+  a1329abierta, que mantiene el helper viejo. Conservar arreglo al integrar,
+  no repetir148 ni afirmar despliegue. PrivadoClaude/Gemini NO CONTRASTADO.
+-149proveedores:2PASS/2FAIL consumidoresAST reales. Predicado rechaza pagos
+  intactos; catering cambiaBpedido y reemplazaA60.30 porB200 conigualnombre/
+  distintoID. Auth/read/transaccion dobles, noSDK. Catering mismoblobmain7230/
+  1329/1333.185 ampliada, no orden duplicada ni toda185 cerrada porhelperPASS.
+-149puerta:2PASS/1FAIL callback real. Aesperando, se agregaB; confirmarA borraB
+  sin enviarlo.186 devuelve181, fuente1329, no cola publicada enmain. No dos
+  ingresos servidor demostrados; ACK perdido conservaA. No repetir sin fuente
+  nueva. Total7casos4PASS3FAIL, dos familias, no tresbugs independientes.
+-Recuento149 conserva3D/agenda/DJ135,cliente141,cabecera178142. Agente reabria
+  viajes desde134antiguo: conclusion descartada al contrastar recibos nuevos.
+  No reemitirlos. No14areas/roles/controles completos ni0errores certificados.
+-Dos agentes economicos cerrados; sin app/build/servidores ni datos reales.
+  SHA/limites/entradas/observados en149JSON y149-recuento-vigente.md.
+
 ## 18/10/2026 - Codex148:185 helper corregido y4regresiones aprobadas
 
 -PR1333ABIERTA fuente03cd87d59dcdd35ac26108d3d7fe979b6a4bf83b:1suite real

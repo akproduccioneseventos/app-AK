@@ -1069,6 +1069,28 @@ ya devuelta, con el mismo agujero de plata y con lo que el dueño había descart
 **Qué se hace distinto:** cada vez que queda una orden nueva para Gemini, el aviso al dueño lleva
 **el mensaje listo para pegarle a Gemini**, con la rama de donde arrancar y los números de orden.
 
+### 40. Arreglar en un archivo, controlar un archivo, y barrer con ayudantes que dicen "sin hallazgos"
+
+**Pasó el 20 de octubre de 2026.** El dueño: *"cada vez que hacemos una auditoría siguen habiendo
+problemas, cosas que ya habías resuelto"*. Medido sobre los 45 hallazgos de Gemini: 36 ciertos.
+Volvían por tres lados:
+
+- **El control miraba un archivo.** El álbum al disco de todos se arregló en una pantalla y su control
+  leía sólo esa; la misma línea seguía en otra.
+- **Lo anotado como "sigue pendiente" en `YA-RESUELTO.md` no tenía orden**: el despertador bloqueado
+  y la llegada del personal estaban escritos ahí, sin arreglar.
+- **El barrido de la mañana dio "sin hallazgos"** en las preguntas 3, 24 y 35, y esa noche Gemini
+  encontró casos.
+
+**Qué se hace distinto:**
+
+- `npm run formas-ya-arregladas` busca en toda la app cada forma que un control prohíbe en un
+  archivo. Se corre al juntar cada entrega.
+- Preguntas 74 a 81 en `COMO-AUDITAR.md`.
+- Un "sin hallazgos" de un ayudante económico en plata o permisos se confirma mirando yo al menos
+  un caso.
+- Una nota de "sigue pendiente" sale como orden en la misma tanda.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1218,6 +1240,11 @@ ubicar.
 **La única excepción:** si la pregunta nueva sólo puede aplicarse a plata, cobros, comida o
 permisos, el barrido es mío y no hay orden.
 
+**Y queda anotado en `docs/barridos.json` (20 de octubre de 2026):** cada pregunta con la fecha en que
+se buscó en toda la app y qué salió. Una pregunta sin su línea **no deja publicar**
+(`cada-pregunta-se-barrio-en-toda-la-app.test.ts`), y lo mismo una pregunta de un hallazgo de Codex que
+no existe o no se barrió. Lo `parcial` se termina en una orden.
+
 **Lo que NO es esta lista:** no es para pedir perdón ni para llevar la cuenta de quién encontró
 más. Es la única forma de que el rango suba: cada cosa que se me escapó, se convierte en una
 pregunta que de ahí en adelante hago solo.
@@ -1274,6 +1301,15 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Claude se despierta solo y revisa lo que entregan Gemini y Codex (20 de octubre de 2026).**
+  Palabras suyas: *"cuando ellos terminen, tú lo detectas y trabajas solo; te activas solo"*. Hay un
+  despertador cada hora que mira las propuestas abiertas.
+  - Si hay algo nuevo, se revisa con ayudantes económicos: lista de controles, `formas-ya-arregladas`,
+    puerta y fusión con `expectedHeadSha`.
+  - Si no pasa, se devuelve como orden.
+  - Si es un informe de Codex, se suman sus preguntas, se barre la app y sale la orden para Gemini.
+  - **El dueño no hace de intermediario**: sólo pega el mensaje a Gemini cuando hay una orden nueva.
 
 - **Un solo centro de presencia y redes, con los mensajes juntos y automáticos (20 de octubre de
   2026).** Palabras suyas: *"quiero un centro de presencia digital y redes juntos, mensajes juntos y
@@ -1734,6 +1770,8 @@ con otra cara.
 | El entorno de pruebas no podía probar estaciones, mural ni fotos porque la base estaba apagada | `tests/firebase/estaciones-y-mural-con-emulador.test.ts` (corre en `npm run test:rules`) |
 | Pruebas que armaban "hoy" con la hora de Greenwich y fallaban de noche en Uruguay | `src/__tests__/las-pruebas-cuentan-los-dias-en-uruguay.test.ts` |
 | Codex encontraba la misma forma de error una y otra vez porque el método no sumaba la pregunta | `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` |
+| Lo arreglado en un archivo seguía igual en otro, y su control miraba sólo el primero | `npm run formas-ya-arregladas` con `src/__tests__/lo-ya-arreglado-se-busca-en-toda-la-app.test.ts` |
+| Se sumaban preguntas al método y nadie las buscaba en el resto de la app | `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 
 ### Cómo se elige el matafuego
 

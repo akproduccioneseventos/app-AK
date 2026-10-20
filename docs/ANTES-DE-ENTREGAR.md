@@ -200,3 +200,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     que no lo ven en su pantalla propia. Y si lo sacás al leer, que guardar no lo borre.
 54. **¿Hiciste una versión "interna" que no pide permiso?** No la exportes de un archivo `'use server'`:
     ahí todo se puede llamar desde el navegador. Va en un archivo aparte con `import 'server-only'`.
+55. **¿Lo que arreglaste está repetido en otro archivo?** Corré `node scripts/formas-ya-arregladas.mjs` y
+    buscá la misma línea en toda la app. Y tu prueba, que recorra `src/`, no sólo tu archivo.
+56. **¿Lo que mandás de una pantalla a otra llega con el mismo nombre?** Parámetros del enlace, campos
+    del recorte que ve el cliente y datos opcionales de los que depende una protección.
