@@ -1,4 +1,3 @@
-
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
@@ -12,7 +11,12 @@ export async function getRoles(): Promise<Rol[]> {
   // Cada rol trae el sueldo por evento. Sin esta comprobacion, cualquiera de
   // internet pedia la lista y se enteraba de cuanto cobra cada puesto.
   await requireAppSession();
-  return leerRoles();
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const ses = await verifySession();
+  const roles = await leerRoles();
+  const { puede, PERMISOS } = await import('@/lib/auth/perfiles');
+  if (ses.user && (puede(ses.user, PERMISOS.SUELDOS))) return roles;
+  return roles.map(r => ({ ...r, sueldoPorEvento: 0 }));
 }
 
 /** Sin comprobar sesion: uso interno de este archivo. */
@@ -32,7 +36,13 @@ export async function getRolesPublicos(): Promise<Array<Pick<Rol, 'id' | 'nombre
 export async function getRolById(id: string): Promise<Rol | null> {
   await requireAppSession();
   const roles = await leerRoles();
-  return roles.find(r => r.id === id) || null;
+  const rol = roles.find(r => r.id === id) || null;
+  // El sueldo, sólo a quien tiene permiso de sueldos (igual que getRoles).
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const ses = await verifySession();
+  const { puede } = await import('@/lib/auth/perfiles');
+  if (!rol || (ses.user && (puede(ses.user, PERMISOS.SUELDOS)))) return rol;
+  return { ...rol, sueldoPorEvento: 0 };
 }
 
 export async function saveRol(
@@ -49,12 +59,12 @@ export async function saveRol(
   if (isNaN(sueldoNum) || sueldoNum < 0) {
     return { success: false, error: "El sueldo por evento debe ser un número positivo." };
   }
-  
+
   const roles = await leerRoles();
   let savedRol: Rol;
 
   const costoAportes = (sueldoNum * (Number(rolData.porcentajeAportesPatronales) || 0)) / 100;
-  
+
   const rolToProcess: Omit<Rol, 'id'> = {
     nombre: rolData.nombre.trim(),
     categoriaServicio: rolData.categoriaServicio,
@@ -66,7 +76,6 @@ export async function saveRol(
   };
 
   if ('id' in rolData && rolData.id) {
-    // Update
     const index = roles.findIndex(r => r.id === rolData.id);
     if (index === -1) {
       return { success: false, error: `Rol con ID ${rolData.id} no encontrado para actualizar.` };
@@ -74,26 +83,22 @@ export async function saveRol(
     savedRol = { ...roles[index], ...rolToProcess };
     roles[index] = savedRol;
   } else {
-    // Create
     const newRolId = `rol_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     savedRol = { ...rolToProcess, id: newRolId };
     roles.push(savedRol);
   }
-  
+
   await writeData(ROLES_FILE, roles, (a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
   return { success: true, id: savedRol.id, rol: savedRol };
 }
 
 export async function deleteRol(id: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
-  let roles = await leerRoles();
-  const initialLength = roles.length;
-  roles = roles.filter(r => r.id !== id);
-
-  if (roles.length === initialLength) {
+  const roles = await leerRoles();
+  const updated = roles.filter(r => r.id !== id);
+  if (updated.length === roles.length) {
     return { success: false, error: `Rol ID ${id} no encontrado para eliminar.` };
   }
-  
-  await writeData(ROLES_FILE, roles);
+  await writeData(ROLES_FILE, updated);
   return { success: true };
 }

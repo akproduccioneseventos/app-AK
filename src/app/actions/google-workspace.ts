@@ -3,7 +3,7 @@
 import { getEmpleados } from '@/app/actions/empleados';
 import { getFiestas, getHistorialFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { requireAppSession } from '@/lib/auth/require-session';
-import { getRoles } from '@/app/actions/roles';
+import { leerRolesInterno } from '@/lib/roles/leer-roles-interno';
 import { readData, writeData } from '@/lib/data-service';
 import { verifySession } from '@/lib/auth/session-token';
 import { perfilDe, puede, PERMISOS } from '@/lib/auth/perfiles';
@@ -259,7 +259,7 @@ export async function syncFiestaToGoogleWorkspace(
 
   const [empleados, roles, accounts, records] = await Promise.all([
     getEmpleados(),
-    getRoles(),
+    leerRolesInterno(),
     readAccounts(),
     readSyncRecords(),
   ]);
@@ -431,7 +431,7 @@ export async function getEmployeeWorkspacePortal(empleadoId: string) {
   }
   const [empleados, roles, fiestas, accounts] = await Promise.all([
     getEmpleados(),
-    getRoles(),
+    leerRolesInterno(),
     getFiestas(true),
     readAccounts(),
   ]);
@@ -623,7 +623,8 @@ function soloElDia(valor: string): string {
 }
 
 export async function revisarAgendaDeAK(): Promise<RevisionDeAgenda> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { ok: false, error: permiso.error || 'Acceso restringido a administradores.', revisados: 0, sobrantes: [] };
 
   const cuentas = await readAccounts();
   const cuentaEmpresa = await freshConnectedAccount(cuentas.find((c) => c.kind === 'company'));
@@ -703,7 +704,8 @@ export async function revisarAgendaDeAK(): Promise<RevisionDeAgenda> {
 export async function limpiarAgendaDeAK(
   idsABorrar: string[],
 ): Promise<{ ok: boolean; borrados: number; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { ok: false, borrados: 0, error: permiso.error || 'Acceso restringido a administradores.' };
 
   if (!Array.isArray(idsABorrar) || idsABorrar.length === 0) {
     return { ok: true, borrados: 0 };

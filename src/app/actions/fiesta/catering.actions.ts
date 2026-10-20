@@ -23,8 +23,10 @@ export async function updateMenuAsignado(fiestaId: string, menuId?: string) {
 /** Las casillas que son plata: pagarle al proveedor no es de organización. */
 const CAMPOS_DE_PAGO = ['pagado', 'montoPagado'] as const;
 const claveProveedor = (e: Pick<CompraProveedorEstado, 'proveedor' | 'proveedorId'>) => e.proveedorId || e.proveedor;
-const mismoProveedor = (a: CompraProveedorEstado, b: CompraProveedorEstado) =>
-  (Boolean(a.proveedorId) && a.proveedorId === b.proveedorId) || a.proveedor === b.proveedor;
+const mismoProveedor = (a: CompraProveedorEstado, b: CompraProveedorEstado) => {
+  if (a.proveedorId && b.proveedorId) return a.proveedorId === b.proveedorId;
+  return Boolean(a.proveedor && b.proveedor && a.proveedor === b.proveedor);
+};
 const igual = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
 /**

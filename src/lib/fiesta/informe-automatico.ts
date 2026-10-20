@@ -107,7 +107,7 @@ export function armarInformeAutomatico(params: {
   ];
 
   // 4. Finanzas
-  const totalContratado = Number(fiesta?.presupuesto?.total || fiesta?.finanzas?.total || 125000);
+  const totalContratado = Number(fiesta?.presupuesto?.total || fiesta?.finanzas?.total || 0);
   const pagado = Number(fiesta?.presupuesto?.pagado || fiesta?.finanzas?.pagado || totalContratado);
   const saldoPendiente = Math.max(0, totalContratado - pagado);
   const moneda = fiesta?.presupuesto?.moneda || 'UYU';
@@ -169,4 +169,3 @@ export function armarInformeAutomatico(params: {
     resumenDueno,
   };
 }
-

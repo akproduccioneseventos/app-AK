@@ -20,7 +20,7 @@ import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { leerFacturasSinGuardia } from '@/lib/invoices/leer-facturas';
 import { cobrosDeFacturaSinPasarAlPresupuesto, referenciaDelCobro } from '@/lib/commercial-flow/cobros-sin-pasar-al-presupuesto';
-import { PERMISOS } from '@/lib/auth/perfiles';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import {
   buildDepositPaymentBreakdown,
@@ -580,7 +580,7 @@ export async function registerBookingDeposit(data: {
 async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
+  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
   const originalInvoices = await leerFacturasSinGuardia();
   // Borrar una factura cobrada hace desaparecer el comprobante del cobro.
   const aBorrar = originalInvoices.find(inv => inv.id === id);
@@ -625,7 +625,7 @@ async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden resetear facturas.' };
+    if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden resetear facturas.' };
     const { dbAdmin } = await import('@/lib/firebase/server');
     let deletedCount = 0;
     if (dbAdmin) {

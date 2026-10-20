@@ -1,3 +1,4 @@
+import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
@@ -148,7 +149,7 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
       // Sólo lo cobrado de verdad: un pago a confirmar no baja el saldo (Codex, auditoría 81).
       .filter(isConfirmedClientPayment)
       .reduce((acc, pg) => acc + (Number(pg.monto) || 0), 0);
-    const total = Number(p.totalConDescuento || p.costoTotalEstimado || 0);
+    const total = getBudgetCollectibleTotal(p);
     const saldo = total - pagos;
 
     if (saldo > 500 && diasParaFiesta >= 0 && diasParaFiesta <= 14) {

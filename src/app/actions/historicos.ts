@@ -195,3 +195,13 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
     }
 }
 
+
+export async function extractContractDataAction(input: { fileDataUri: string }) {
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
+  const { hayPresupuestoParaIA } = await import('@/lib/ai/consumo-servidor');
+  if (!(await hayPresupuestoParaIA())) {
+    throw new Error('Presupuesto de IA alcanzado para este período.');
+  }
+  const { extractContractData } = await import('@/ai/flows/extract-contract-data');
+  return extractContractData(input);
+}

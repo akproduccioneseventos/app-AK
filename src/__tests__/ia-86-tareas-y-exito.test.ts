@@ -14,7 +14,10 @@
  * rojo (queda una tarea) y las de éxito falso dan rojo si se deja la acción en la respuesta.
  */
 jest.mock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => ({ success: true, user: { role: 'admin' } })) }));
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn(async () => undefined) }));
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn(async () => undefined),
+  requirePermiso: jest.fn(async () => ({ ok: true, user: { role: 'admin' } })),
+}));
 jest.mock('@/lib/notifications/create-notification', () => ({
   createNotification: jest.fn(async () => ({ success: false, error: 'sin aviso' })),
 }));

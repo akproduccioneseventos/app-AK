@@ -18,6 +18,11 @@ jest.mock('@/app/actions/accesos-personal', () => ({ getAccesoById: jest.fn(asyn
   nombreAcceso: 'Persona ficticia QA129', permisos: [], fechaCreacion: '2026-10-14T12:00:00Z',
 })) }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getFiestaById: jest.fn(async () => copy(mockFiesta)) }));
+// Las cuentas del servidor leen los roles por acá (orden 197): mismo dato que el mock de getRoles.
+jest.mock('@/lib/roles/leer-roles-interno', () => ({
+  leerRolesInterno: () => require('@/app/actions/roles').getRoles(),
+}));
+
 jest.mock('@/app/actions/roles', () => ({ getRolesPublicos: jest.fn(async () => [{ id: 'qa129-rol', nombre: 'Operador ficticio' }]) }));
 jest.mock('@/app/actions/settings', () => ({ getAjustesLlegadaPersonal: jest.fn(async () => ({ llegadaConUbicacion: false, radioMetros: 300 })) }));
 jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({ actualizarFiesta: jest.fn(async (_id: string, cambiar: any) => {

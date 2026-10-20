@@ -6,7 +6,7 @@ import { getInvoices } from './invoices';
 import { inRange } from '@/lib/reportes/rango-de-dias';
 import { getPresupuestos } from './presupuestos';
 import { getAllFiestas } from './fiesta/fiesta.actions';
-import { getRoles } from './roles';
+import { leerRolesInterno } from '@/lib/roles/leer-roles-interno';
 import { getGastosGenerales } from './gastos';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
@@ -83,7 +83,7 @@ export async function getProfitAndLossData(
       getInvoices(),
       getPresupuestos(),
       getAllFiestas(),
-      getRoles(),
+      leerRolesInterno(),
       getGastosGenerales(),
     ]);
 

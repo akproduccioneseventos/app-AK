@@ -46,7 +46,7 @@ import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
 import { getPresupuestoById, getPresupuestos } from '../presupuestos';
-import { getRoles } from '../roles';
+import { leerRolesInterno } from '@/lib/roles/leer-roles-interno';
 import { syncLaundryCosts } from './costos.actions';
 import { getActivosFijos } from '../activos-fijos';
 import * as logger from '@/lib/logger';
@@ -57,7 +57,7 @@ import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
-import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera } from '@/lib/fiesta/recortar-para-afuera';
+import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera, recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -160,7 +160,7 @@ function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanific
   if (Array.isArray(copia.estadosCompra)) {
     const antes = guardada?.estadosCompra || [];
     copia.estadosCompra = (copia.estadosCompra as Record<string, unknown>[]).map((e) => {
-      const previo = antes.find((o) => (o.proveedorId && o.proveedorId === e.proveedorId) || o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
+      const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
       const r = { ...e };
       for (const k of PAGO_DE_LA_COMPRA) {
         if (previo && k in previo) r[k] = previo[k]; else delete r[k];
@@ -189,7 +189,7 @@ function pideCambiarLaPlata(parcial: Partial<FiestaEnPlanificacion>, guardada: F
   if (Array.isArray(p.estadosCompra)) {
     const antes = (guardada?.estadosCompra || []) as unknown as Record<string, unknown>[];
     return (p.estadosCompra as Record<string, unknown>[]).some((e) => {
-      const previo = antes.find((o) => (o.proveedorId && o.proveedorId === e.proveedorId) || o.proveedor === e.proveedor);
+      const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor);
       return PAGO_DE_LA_COMPRA.some((k) => !mismoValor(e[k], previo?.[k]));
     });
   }
@@ -292,21 +292,33 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   }
   const assignmentError = validatePersonalAssignments(fiestaData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
-  if (!(await tocaLaPlata())) {
+  const { verifySession: sesionDeQuienGuarda } = await import('@/lib/auth/session-token');
+  const quienGuarda = await sesionDeQuienGuarda();
+  const usuarioQueGuarda = quienGuarda.success ? quienGuarda.user : null;
+  const sinPlata = !(await tocaLaPlata());
+  // Orden 183: lo que el perfil no ve (costos sin GANANCIAS, sueldos sin SUELDOS) llegó recortado
+  // desde la pantalla; se repone de lo guardado. El cliente del portal ya no trae esos campos.
+  const recortadoAlLeer = Boolean(usuarioQueGuarda)
+    && (!puede(usuarioQueGuarda, PERMISOS.GANANCIAS) || !puede(usuarioQueGuarda, PERMISOS.SUELDOS));
+  if (sinPlata || recortadoAlLeer) {
     // Auditoría 73 (CAMPO73-RACE): lo de plata se repone desde la fiesta de ESE momento, adentro
     // de la misma operación. Reponerlo desde una lectura anterior dejaba que una pantalla vieja
     // borrara una cuota cobrada entre la lectura y el guardado.
     const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+    const { recortarFiestaPorPerfil, reponerLoDelPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
+    const reponer = (datos: FiestaEnPlanificacion, actual: FiestaEnPlanificacion | null) => {
+      const conPlata = sinPlata ? reponerLaPlata(datos, actual) : datos;
+      return recortadoAlLeer ? reponerLoDelPerfil(conPlata, actual, usuarioQueGuarda) : conPlata;
+    };
     if (await getFiestaByIdRaw(fiestaData.id)) {
       const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
       const datos = fiestaData;
-      const r = await actualizarFiesta(datos.id, (actual) => reponerLaPlata(datos, actual));
+      const r = await actualizarFiesta(datos.id, (actual) => reponer(datos, actual));
       if (!r.success) return { success: false, error: 'No se pudo guardar el evento.' };
-      const { verifySession } = await import('@/lib/auth/session-token');
-      if (!(await verifySession()).success) return { success: true };
-      return { success: true, fiesta: r.updatedFiesta ?? datos };
+      if (!quienGuarda.success) return { success: true };
+      return { success: true, fiesta: recortarFiestaPorPerfil(r.updatedFiesta ?? datos, usuarioQueGuarda) };
     }
-    fiestaData = reponerLaPlata(fiestaData, null);
+    fiestaData = reponer(fiestaData, null);
   }
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaData.id}.json`;
@@ -314,8 +326,10 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     // A quien no es del equipo no se le devuelve la fiesta entera: varias acciones públicas
     // devuelven directo lo que contesta esto (ver recortar-para-afuera).
     const { verifySession } = await import('@/lib/auth/session-token');
-    if (!(await verifySession()).success) return { success: true };
-    return { success: true, fiesta: fiestaData };
+    const sesion = await verifySession();
+    if (!sesion.success) return { success: true };
+    const { recortarFiestaPorPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
+    return { success: true, fiesta: recortarFiestaPorPerfil(fiestaData, sesion.user) };
   } catch (error: any) {
     return { success: false, error: "No se pudo guardar el evento." };
   }
@@ -883,7 +897,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
     if (!presupuesto) return { success: false, error: "Presupuesto no encontrado" };
 
-    const roles = await getRoles();
+    const roles = await leerRolesInterno();
     const updatedFiesta = { ...fiesta };
 
     const guests = presupuesto.invitadosCantidad || 100;
@@ -1408,6 +1422,13 @@ export async function updateGuestExperienceStats(
   return await saveFiesta({ ...f, invitados });
 }
 
+async function recortarParaQuienPregunta(f: FiestaEnPlanificacion): Promise<FiestaEnPlanificacion> {
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const sesion = await verifySession();
+  const { recortarFiestaPorPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
+  return recortarFiestaPorPerfil(f, sesion.success ? sesion.user : null);
+}
+
 export async function suspenderFiestaAction(fiestaId: string, motivo: string, fecha?: string) {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   const f = await getFiestaById(fiestaId);
@@ -1431,7 +1452,8 @@ export async function suspenderFiestaAction(fiestaId: string, motivo: string, fe
   const liquidacion = calcularLiquidacionSuspension(suspendida, totalVigente, cobrado);
   const guardado = await saveFiesta(suspendida);
 
-  return { success: guardado.success, fiesta: suspendida, liquidacion };
+  // Orden 198: lo devuelto pasa por el perfil (la secretaria no ve costos ni sueldos ajenos).
+  return { success: guardado.success, fiesta: await recortarParaQuienPregunta(suspendida), liquidacion };
 }
 
 export async function reactivarFiestaAction(fiestaId: string) {
@@ -1443,7 +1465,7 @@ export async function reactivarFiestaAction(fiestaId: string) {
   const reactivada = reactivarFiesta(f);
   const guardado = await saveFiesta(reactivada);
 
-  return { success: guardado.success, fiesta: reactivada };
+  return { success: guardado.success, fiesta: await recortarParaQuienPregunta(reactivada) };
 }
 
 export async function obtenerFiestasParaRevisarAction() {

@@ -11,6 +11,7 @@ import {
 import { getGoogleRecoveryAccountStatus } from '@/lib/auth/google-recovery';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
+import { esPerfilValido, perfilDesdeRolViejo } from '@/lib/auth/perfiles';
 
 const AUTH_COLLECTION = 'app-settings';
 const AUTH_DOC_ID = 'auth';
@@ -906,11 +907,13 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
       }
     }
 
+    const perfil = esPerfilValido(storedUser?.perfil) ? storedUser.perfil : perfilDesdeRolViejo(storedUser?.role);
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie({
       email: decodedToken?.email ?? 'google-user@akproducciones.com',
       role: storedUser?.role || 'admin',
       userId: cuentaCreada || decodedToken?.uid || 'google-uid',
+      perfil,
       modules: Array.isArray(storedUser?.modules) ? storedUser.modules : ['all'],
     });
     await clearLoginProtection();

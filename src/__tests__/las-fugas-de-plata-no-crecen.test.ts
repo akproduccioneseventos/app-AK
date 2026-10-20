@@ -34,30 +34,15 @@ const rel = (ruta: string) => relative(RAIZ, ruta).split(sep).join('/');
 const esUseServer = (codigo: string) => /^['"]use server['"];?\s*$/m.test(codigo);
 
 /** Orden 193, bloque 1 (y 197). Se sacan de acá a medida que se arreglan. */
-const USE_SERVER_FUERA_DE_APP_CONOCIDOS = new Set([
-  'src/ai/flows/extract-contract-data.ts',
-  'src/ai/flows/extract-receipt-data.ts',
-  'src/ai/flows/marketing-agent-flow.ts',
-  'src/ai/flows/meeting-intelligence-flow.ts',
-  'src/ai/flows/multiagent-flow.ts',
-  'src/lib/commercial-flow/deposit-service.ts',
-  'src/lib/data-service-firebase.ts',
-  'src/lib/data-service.ts',
-  'src/lib/firebase-sync.ts',
-  'src/lib/generic-json-store.ts',
-]);
+/** Orden 193, bloque 1: arreglados todos en la entrega de la orden 197 (20/10/2026). */
+const USE_SERVER_FUERA_DE_APP_CONOCIDOS = new Set<string>([]);
 
 /** Orden 198 (y 197). `archivo:función` que hoy devuelven el objeto entero. */
 const DEVUELVEN_ENTERO_CONOCIDOS = new Set<string>(DEVUELVEN_ENTERO_CONFIRMADOS());
 
 function DEVUELVEN_ENTERO_CONFIRMADOS(): string[] {
-  return [
-    'src/app/actions/fiesta/fiesta.actions.ts',
-    'src/app/actions/fiesta/reuniones.actions.ts',
-    'src/app/actions/multiagent.ts',
-    // Nadie lo importa: se borra (orden 198).
-    'src/app/(app)/fiestas/nueva/invitados.actions.ts',
-  ];
+  // Orden 198: arreglados todos el 20/10/2026 (entrega de la orden 197 más lo que terminó Claude).
+  return [];
 }
 
 // `return { ..., fiesta: x }`, `updatedFiesta: x`, `presupuesto: x` sin recorte en la misma línea.
@@ -80,21 +65,8 @@ export function accionesQueDevuelvenEntero(): string[] {
 }
 
 /** Orden 194, bloque 1 (y 197). Rutas que llama una máquina y la puerta hoy rebota. */
-const RUTAS_DE_MAQUINA_BLOQUEADAS_CONOCIDAS = new Set([
-  '/api/cron-despachador',
-  '/api/despertar',
-  '/api/cron/asistente-proactivo',
-  '/api/cron/avisos-al-cliente',
-  '/api/cron/fiesta-proxima-revision',
-  '/api/cron/generate-blog-post',
-  '/api/cron/metricas-de-redes',
-  '/api/cron/posicionamiento-diario',
-  '/api/cron/prospectos-seguimiento',
-  '/api/cron/publicar-programados',
-  '/api/cron/recordar-invitacion-no-abierta',
-  '/api/cron/recordatorio-a-los-invitados',
-  '/api/cron/recordatorios-de-pago',
-]);
+/** Orden 194, bloque 1: arregladas todas en la entrega de la orden 197 (20/10/2026). */
+const RUTAS_DE_MAQUINA_BLOQUEADAS_CONOCIDAS = new Set<string>([]);
 
 const LA_LLAMA_UNA_MAQUINA = /CRON_SECRET|TAREAS_SECRET|abrirPuertaDeLaTarea|x-hub-signature|x-twilio-signature/i;
 

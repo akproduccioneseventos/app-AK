@@ -1,3 +1,4 @@
+import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -159,7 +160,7 @@ export function detectarErroresHumanos(
       const pagos = (presupuesto.pagosCliente || [])
         .filter(isConfirmedClientPayment)
         .reduce((sum, p) => sum + (Number(p.monto) || 0), 0);
-      const total = Number(presupuesto.totalConDescuento || presupuesto.costoTotalEstimado || 0);
+      const total = getBudgetCollectibleTotal(presupuesto);
       const saldo = total - pagos;
       if (saldo > 500) {
         alertas.push({

@@ -1,5 +1,9 @@
 'use server';
 
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
+
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
 import { esUnSi } from '@/lib/multiagent/confirmacion';
 import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
@@ -540,7 +544,8 @@ export async function crearTareaDesdeMultiagente(input: {
 }) {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const tarea: Tarea = {
     id: `multiagent_task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     texto: input.texto.trim(),
@@ -586,7 +591,7 @@ export async function crearTareaDesdeMultiagente(input: {
     confidence: 'high',
   }).catch(() => null);
 
-  return { success: true, tarea, fiesta: updatedFiesta };
+  return { success: true, tarea, fiesta: recortarFiestaPorPerfil(updatedFiesta, permiso.user) };
 }
 
 export async function crearRecordatorioDesdeMultiagente(input: {

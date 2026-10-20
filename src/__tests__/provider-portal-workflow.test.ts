@@ -26,7 +26,7 @@ describe('provider portal workflow', () => {
   it('keeps administrative creation behind the app session and public writes behind the token', () => {
     const actions = read('src/app/actions/provider-portal.ts');
 
-    expect(actions).toMatch(/getProveedoresPortal[\s\S]*requireAppSession/);
+    expect(actions).toMatch(/getProveedoresPortal[\s\S]*requirePermisoAlguno\(PERMISOS.ORGANIZACION/);
     expect(actions).toMatch(/createProveedorAcceso[\s\S]*requirePermisoAlguno\(PERMISOS\.ORGANIZACION, PERMISOS\.CONTABILIDAD\)/);
     expect(actions).toMatch(/updateProveedorEstado[\s\S]*getProveedorByToken\(token\)/);
     expect(actions).toMatch(/toggleTareaProveedor[\s\S]*getProveedorByToken\(token\)/);

@@ -13,6 +13,11 @@ let fiesta: any;
 
 jest.mock('@/app/actions/accesos-personal', () => ({ getAccesoById: jest.fn(async () => acceso) }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getFiestaById: jest.fn(async () => fiesta) }));
+// Las cuentas del servidor leen los roles por acá (orden 197): mismo dato que el mock de getRoles.
+jest.mock('@/lib/roles/leer-roles-interno', () => ({
+  leerRolesInterno: () => require('@/app/actions/roles').getRoles(),
+}));
+
 jest.mock('@/app/actions/roles', () => ({ getRolesPublicos: jest.fn(async () => []) }));
 jest.mock('@/app/actions/settings', () => ({
   getAjustesLlegadaPersonal: jest.fn(async () => ({ llegadaConUbicacion: true, radioMetros: 300 })),
