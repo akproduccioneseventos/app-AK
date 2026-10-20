@@ -1,0 +1,477 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/app/actions/empleados.ts": "d8ac1c2f070f306df731d562e31b7f0e742fe7b5ff33ae59cbbade3368761bb1",
+    "src/lib/auth/equipo-de-la-fiesta.ts": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+    "src/app/actions/fiesta/fiesta.actions.ts": "0a1298508b729a73a16c0e8f63a942419b5f248b058bbcf29181ec8fb947609e",
+    "src/app/actions/google-workspace.ts": "5658f05ef85d68de20f0b90fa2c2b5fb5ab7de8ae86b0541f3c8f3ec9887ff9a",
+    "src/app/actions/provider-portal.ts": "8f990bb0112f6efc189c6cb427f536461980c08c1a0ba44abf5efca2b0f2107b",
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/lib/client-portal/public-fiesta.ts": "f4ba97d29f9fec0e991ac9563ac8d0c0b2131b7f4866079ad55f775ed2d4e350",
+    "src/app/actions/fiesta/portal.actions.ts": "747e829d4c1409081718e179cb0c1aefb1cb62fa0f558c0cb545ad39ee2a0b6d"
+  },
+  "cases": [
+    {
+      "name": "employee-own-dueno-real-call-chain",
+      "expected": "own portal allowed",
+      "pass": true,
+      "result": {
+        "employee": {
+          "id": "qa156-ea",
+          "nombre": "Empleado ficticio A",
+          "email": "ea@qa.invalid",
+          "cedula": "QA-A"
+        },
+        "events": []
+      }
+    },
+    {
+      "name": "employee-own-secretaria-real-call-chain",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "Solo puedes consultar tu propio portal de trabajo."
+      }
+    },
+    {
+      "name": "employee-own-operador-real-call-chain",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "Solo puedes consultar tu propio portal de trabajo."
+      }
+    },
+    {
+      "name": "employee-own-personal-real-call-chain",
+      "expected": "own portal allowed",
+      "pass": false,
+      "thrown": "Tu perfil no tiene acceso a los datos del personal."
+    },
+    {
+      "name": "employee-own-cliente-real-call-chain",
+      "expected": "deny",
+      "pass": true,
+      "thrown": "Tu perfil no tiene acceso a los datos del personal."
+    },
+    {
+      "name": "employee-own-prospecto-real-call-chain",
+      "expected": "deny",
+      "pass": true,
+      "thrown": "Tu perfil no tiene acceso a los datos del personal."
+    },
+    {
+      "name": "employee-own-invitado-real-call-chain",
+      "expected": "deny",
+      "pass": true,
+      "thrown": "Tu perfil no tiene acceso a los datos del personal."
+    },
+    {
+      "name": "employee-own-matching-verified-email-real-call-chain",
+      "expected": "own portal allowed",
+      "pass": false,
+      "thrown": "Tu perfil no tiene acceso a los datos del personal."
+    },
+    {
+      "name": "employee-other-denied",
+      "expected": "deny",
+      "pass": true,
+      "thrown": "Tu perfil no tiene acceso a los datos del personal."
+    },
+    {
+      "name": "general-directory-stays-denied-to-personal",
+      "expected": "deny",
+      "pass": true,
+      "thrown": "Tu perfil no tiene acceso a los datos del personal."
+    },
+    {
+      "name": "general-events-stay-denied-to-personal",
+      "expected": "deny",
+      "pass": true,
+      "thrown": "Tu usuario no tiene acceso a las fiestas."
+    },
+    {
+      "name": "employee-own-after-only-directory-adapter-still-blocked-by-events",
+      "expected": "own portal allowed",
+      "pass": false,
+      "thrown": "Tu usuario no tiene acceso a las fiestas."
+    },
+    {
+      "name": "employee-anonymous-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "QA no session"
+      }
+    },
+    {
+      "name": "provider-token-a-only-event-a",
+      "expected": "own event",
+      "pass": true,
+      "result": {
+        "success": true,
+        "data": {
+          "id": "qa156-pa",
+          "token": "qa156-token-a",
+          "fiestaId": "qa156-fa",
+          "nombreProveedor": "Proveedor ficticio mismo nombre",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "tareas": [
+            {
+              "id": "qa156-task-a",
+              "descripcion": "Tarea ficticia",
+              "completada": false
+            }
+          ],
+          "estadoActual": "Pendiente"
+        }
+      }
+    },
+    {
+      "name": "provider-token-b-only-event-b",
+      "expected": "own event",
+      "pass": true,
+      "result": {
+        "success": true,
+        "data": {
+          "id": "qa156-pb",
+          "token": "qa156-token-b",
+          "fiestaId": "qa156-fb",
+          "nombreProveedor": "Proveedor ficticio mismo nombre",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "tareas": [
+            {
+              "id": "qa156-task-b",
+              "descripcion": "Tarea ficticia",
+              "completada": false
+            }
+          ],
+          "estadoActual": "Pendiente"
+        }
+      }
+    },
+    {
+      "name": "provider-unknown-token-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "success": false,
+        "error": "Proveedor no encontrado o acceso inactivo"
+      }
+    },
+    {
+      "name": "provider-revoked-token-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "success": false,
+        "error": "Proveedor no encontrado o acceso inactivo"
+      }
+    },
+    {
+      "name": "provider-expired-token-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "success": false,
+        "error": "Acceso de proveedor vencido"
+      }
+    },
+    {
+      "name": "provider-cannot-toggle-other-event-task",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "success": false,
+        "error": "La tarea indicada no existe."
+      }
+    },
+    {
+      "name": "provider-invalid-state-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "success": false,
+        "error": "El estado indicado no es válido."
+      }
+    },
+    {
+      "name": "provider-arrival-preserves-other-event",
+      "expected": "own write only",
+      "pass": true,
+      "result": {
+        "success": true,
+        "data": {
+          "id": "qa156-pa",
+          "token": "qa156-token-a",
+          "fiestaId": "qa156-fa",
+          "nombreProveedor": "Proveedor ficticio mismo nombre",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "tareas": [
+            {
+              "id": "qa156-task-a",
+              "descripcion": "Tarea ficticia",
+              "completada": false
+            }
+          ],
+          "estadoActual": "Llegó",
+          "llegadaConfirmadaEn": "2026-10-20T19:29:45.607Z"
+        }
+      }
+    },
+    {
+      "name": "provider-task-preserves-other-event",
+      "expected": "own write only",
+      "pass": true,
+      "result": {
+        "success": true,
+        "data": {
+          "id": "qa156-pa",
+          "token": "qa156-token-a",
+          "fiestaId": "qa156-fa",
+          "nombreProveedor": "Proveedor ficticio mismo nombre",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "tareas": [
+            {
+              "id": "qa156-task-a",
+              "descripcion": "Tarea ficticia",
+              "completada": true,
+              "completadoEn": "2026-10-20T19:29:45.621Z"
+            }
+          ],
+          "estadoActual": "Llegó",
+          "llegadaConfirmadaEn": "2026-10-20T19:29:45.607Z"
+        }
+      }
+    },
+    {
+      "name": "provider-departure-preserves-other-event",
+      "expected": "own write only",
+      "pass": true,
+      "result": {
+        "success": true,
+        "data": {
+          "id": "qa156-pa",
+          "token": "qa156-token-a",
+          "fiestaId": "qa156-fa",
+          "nombreProveedor": "Proveedor ficticio mismo nombre",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "tareas": [
+            {
+              "id": "qa156-task-a",
+              "descripcion": "Tarea ficticia",
+              "completada": true,
+              "completadoEn": "2026-10-20T19:29:45.621Z"
+            }
+          ],
+          "estadoActual": "Completó",
+          "llegadaConfirmadaEn": "2026-10-20T19:29:45.607Z",
+          "partidaConfirmadaEn": "2026-10-20T19:29:45.621Z"
+        }
+      }
+    },
+    {
+      "name": "client-a-login-and-current-event-only",
+      "expected": "own event",
+      "pass": false,
+      "result": {
+        "login": {
+          "success": true
+        },
+        "own": {
+          "id": "qa156-fa",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio a"
+          },
+          "clientPortalSettings": {
+            "enabled": true
+          },
+          "clientChecklist": [],
+          "clientNotes": "",
+          "faqPortal": [],
+          "menuSeleccionPortal": {},
+          "listaMusicaPortal": {},
+          "timeline": [],
+          "invitados": [],
+          "reuniones": [],
+          "programa": [
+            {
+              "id": "public",
+              "titulo": "Momento cliente"
+            }
+          ],
+          "videoVida": {},
+          "fotografiaYFilmacion": {},
+          "clientMenuChangeRequests": [],
+          "clientServiceChangeRequests": [],
+          "clienteDebeLlevar": [],
+          "contratoFirmaInfo": {},
+          "contratoServicioTexto": "",
+          "documentos": [],
+          "otrosDocumentos": [],
+          "othersDocumentos": [],
+          "clientPaymentNotifications": [],
+          "personalAsignado": []
+        },
+        "other": null
+      }
+    },
+    {
+      "name": "client-cross-event-key-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": {
+        "success": false,
+        "error": "Acceso denegado."
+      }
+    },
+    {
+      "name": "client-b-login-and-cannot-read-a",
+      "expected": "own event",
+      "pass": true,
+      "result": {
+        "login": {
+          "success": true
+        },
+        "own": {
+          "id": "qa156-fb",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio b"
+          },
+          "clientPortalSettings": {
+            "enabled": true
+          },
+          "clientChecklist": [],
+          "clientNotes": "",
+          "faqPortal": [],
+          "menuSeleccionPortal": {},
+          "listaMusicaPortal": {},
+          "timeline": [],
+          "invitados": [],
+          "reuniones": [],
+          "programa": [
+            {
+              "id": "public",
+              "titulo": "Momento cliente"
+            }
+          ],
+          "videoVida": {},
+          "fotografiaYFilmacion": {},
+          "clientMenuChangeRequests": [],
+          "clientServiceChangeRequests": [],
+          "clienteDebeLlevar": [],
+          "contratoFirmaInfo": {},
+          "contratoServicioTexto": "",
+          "documentos": [],
+          "otrosDocumentos": [],
+          "othersDocumentos": [],
+          "clientPaymentNotifications": [],
+          "personalAsignado": []
+        },
+        "other": null
+      }
+    },
+    {
+      "name": "client-key-rotation-revokes-existing-cookie",
+      "expected": "deny",
+      "pass": true,
+      "result": null
+    },
+    {
+      "name": "client-disabled-portal-revokes-existing-cookie",
+      "expected": "deny",
+      "pass": true,
+      "result": null
+    },
+    {
+      "name": "client-tampered-signature-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": null
+    },
+    {
+      "name": "client-expired-signed-cookie-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": null
+    },
+    {
+      "name": "client-key-lookup-does-not-return-other-event",
+      "expected": "own event",
+      "pass": true,
+      "result": {
+        "id": "qa156-fa",
+        "configuracion": {
+          "nombreEvento": "Evento ficticio a"
+        },
+        "clientPortalSettings": {
+          "enabled": true
+        },
+        "clientChecklist": [],
+        "clientNotes": "",
+        "faqPortal": [],
+        "menuSeleccionPortal": {},
+        "listaMusicaPortal": {},
+        "timeline": [],
+        "invitados": [],
+        "reuniones": [],
+        "programa": [
+          {
+            "id": "public",
+            "titulo": "Momento cliente"
+          }
+        ],
+        "videoVida": {},
+        "fotografiaYFilmacion": {},
+        "clientMenuChangeRequests": [],
+        "clientServiceChangeRequests": [],
+        "clienteDebeLlevar": [],
+        "contratoFirmaInfo": {},
+        "contratoServicioTexto": "",
+        "documentos": [],
+        "otrosDocumentos": [],
+        "othersDocumentos": [],
+        "clientPaymentNotifications": [],
+        "personalAsignado": []
+      }
+    },
+    {
+      "name": "client-old-key-lookup-denied-after-rotation",
+      "expected": "deny",
+      "pass": true,
+      "result": null
+    },
+    {
+      "name": "client-blank-key-denied",
+      "expected": "deny",
+      "pass": true,
+      "result": null
+    }
+  ],
+  "summary": {
+    "pass": 29,
+    "fail": 4
+  },
+  "scope": "Actual portal action bodies, profiles, upstream employee/event permission guards, client HMAC session and client mapper; two fictional employees/events/provider tokens",
+  "limits": [
+    "Storage, app-session user and Next cookies are controlled adapters, not HTTP/SDK or UI",
+    "Employee fixture has no assigned events: demonstrates self-access blocked before assignment display, not salary/calendar correctness",
+    "Provider writes are in-memory: not real persistence/concurrency or arrival hardware",
+    "Client key lookup exercises JSON compatibility reader, not Firestore index/query; no external accounts or production data"
+  ],
+  "appEdited": false,
+  "built": false,
+  "merged": false
+}
