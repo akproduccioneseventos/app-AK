@@ -1275,6 +1275,14 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Un solo centro de presencia y redes, con los mensajes juntos y automáticos (20 de octubre de
+  2026).** Palabras suyas: *"quiero un centro de presencia digital y redes juntos, mensajes juntos y
+  automáticos"*, y aprobó el ayudante diario de redes. Va en la orden 192. Se contestan solos los
+  comentarios en publicaciones de AK y el primer mensaje directo de quien no es cliente, con interruptor
+  por canal. **No cambia:** el WhatsApp personal sólo contesta solo a quien viene de un anuncio o
+  publicación; a un cliente con fiesta y las quejas los contesta una persona; nada automático dice
+  precios ni promesas.
+
 - **Filtros divertidos que siguen la cara (19 de octubre de 2026).** Pedido del dueño: filtros "tipo
   Instagram" para fotos y videos, uno personalizado del 15 con el nombre, y diseños estilo Canva. Va en
   la orden 191: hechos en la app, con lo que ya está instalado y sin servicios pagos.
