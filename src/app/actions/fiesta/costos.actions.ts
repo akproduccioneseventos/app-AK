@@ -19,7 +19,7 @@ import { requireEventPermission } from '@/lib/auth/event-access';
 
 export async function updateGestionCostos(fiestaId: string, costos: GestionCostosData): Promise<{ success: boolean; updatedData?: GestionCostosData; error?: string }> {
   await requireAppSession();
-  await requireEventPermission(fiestaId, [PERMISOS.GANANCIAS]);
+  await requireEventPermission(fiestaId, [PERMISOS.GANANCIAS, PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION]);
   return updateGestionCostosInterno(fiestaId, costos);
 }
 
