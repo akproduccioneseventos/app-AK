@@ -10,7 +10,7 @@
  * Reloj falso a las 22:30 de Uruguay (01:30 de Greenwich del dia siguiente).
  * Probado rompiendolo: con `new Date(anio, mes, diaMes, hh, mm)` las de horarios se ponen en rojo.
  */
-jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({ abrirPuertaDeLaTarea: jest.fn(async () => ({ permitido: true })) }));
+jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({ abrirPuertaDeLaTarea: jest.fn(async () => ({ permitido: true })), respuestaDeLaTarea: (_puerta: unknown, cuerpo: unknown) => cuerpo }));
 const marcarCorrida = jest.fn(async () => undefined);
 jest.mock('@/lib/automatico/tareas-automaticas', () => ({ marcarCorrida: (...a: any[]) => (marcarCorrida as any)(...a) }));
 const leerFiestasCrudas = jest.fn();

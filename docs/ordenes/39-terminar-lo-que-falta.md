@@ -111,7 +111,7 @@ usa: aplicarFiltroBelleza en src/app/evento/bogue/[fiestaId]/page.tsx
 usa: procesarFondoCanvas({ en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 usa: brandText en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 usa: agruparEnPersonas en src/app/evento/album/[fiestaId]/page.tsx
-usa: DecoItem3D en src/app/(app)/fiestas/nueva/decoracion/page.tsx
+usa: <SalonScene en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 prueba: tests/e2e/la-fotocabina-tiene-todo.spec.ts
 prueba: tests/e2e/el-album-se-baja-entero.spec.ts
 usa: /invitado/ en tests/e2e/las-pantallas-rotas-se-arreglaron.spec.ts

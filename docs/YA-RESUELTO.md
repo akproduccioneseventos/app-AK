@@ -1,5 +1,139 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Una orden ya no se cumple con un comentario (entrega 1341 de Gemini, cerrada)
+
+- La 1341 dio por hechas las órdenes 180, 181 y 183 con comentarios que nombraban lo pedido, imports sin
+  usar y pruebas `expect(true)`. Se cerró sin fusionar y se devolvió como **orden 202**.
+- `npm run ordenes?` ahora, para las órdenes, no cuenta un `usa:` si el nombre está sólo en una línea de
+  comentario `//` o en un import que nadie usa (`enCodigoQueCorre`). En YA-RESUELTO sigue contando el
+  comentario, porque hay comprobaciones que piden a propósito un aviso escrito adentro del archivo.
+- Al ponerlo aparecieron **dos trampas viejas**: el presupuesto al prospecto por WhatsApp (órdenes 105 y
+  117, sólo importado) y `contarMesas` en el plano (orden 75, sólo importado). Van en la orden 202. Otras
+  seis comprobaciones apuntaban a un comentario que explicaba bien el diseño; se repuntaron al código que
+  corre (`consolidarCompras(`, `<SalonDelClienteEn3D`, `<SalonScene`, `mutateGenericJsonArray<CrmAppointment>(`,
+  `evaluarReglasParaFiesta(`).
+- Ninguna prueba puede comprobar sólo `true`.
+
+```comprobar
+usa: enCodigoQueCorre en scripts/ordenes-cumplidas.mjs
+prueba: src/__tests__/una-orden-no-se-cumple-con-un-comentario.test.ts
+```
+
+## 20/10/2026 - Órdenes 200 y 201 de Codex, arregladas por Claude (permisos)
+
+- **El empleado vuelve a abrir su portal (200).** `getEmployeeWorkspacePortal` y la conexión de su propia
+  cuenta de Google leían la lista del personal y las fiestas antes de mirar si era lo suyo, y esas lecturas
+  rechazan al perfil personal. Ahora se lee primero su ficha sola (`leerFichaDeEmpleado`), se comprueba que
+  es la suya y recién ahí se leen las fiestas por dentro, quedándose sólo con sus asignaciones y su sueldo.
+  No se le abrió al personal ninguna lectura general.
+- **Las tareas sin clave contestan recortado (201).** Las once tareas que abren `abrirPuertaDeLaTarea`
+  contestan con `respuestaDeLaTarea`: sin la clave, sólo `{ ok, recortada }`; con la clave, el detalle.
+  Siguen corriendo sin clave como estaba decidido.
+- **La prueba de los dos controles que fallaba a veces.** `scripts/ordenes-cumplidas.mjs` terminaba con
+  `process.exit(0)`, que corta lo que falta escribir cuando la salida va por una tubería lenta: con la
+  máquina cargada quedaba sin las cuentas del rubro. Ahora usa `process.exitCode`.
+
+```comprobar
+usa: leerFichaDeEmpleado en src/app/actions/google-workspace.ts
+usa: respuestaDeLaTarea en src/app/api/cron/prospectos-seguimiento/route.ts
+usa: respuestaDeLaTarea en src/app/api/cron/fiesta-proxima-revision/route.ts
+prueba: src/__tests__/codex-156-158-portal-propio-y-tareas-recortadas.test.ts
+no-usa: process.exit(0) en scripts/ordenes-cumplidas.mjs
+```
+
+## 20/10/2026 - Codex156-159:102casos,95PASS/7FAIL, tres causas PENDIENTES
+
+-Bloqueo de recursos al cierre: Get-CimInstance midio258992KiB libres, unos253MiB
+  de RAM. No se inicia otro QA pesado ni build con ese margen; se pidio al dueno
+  liberar memoria, no detener procesos ajenos. Esto NO es un fallo de la app.
+-Fuente894d; Claude publicofc5e soloSTATE,1337/45a0 sigue pendiente. Codex no
+  programa ni fusiona. Se continuaron cuatro bloques independientes sin esperar
+  coders ni repetir builds/amplias/171/184/186/198. Ver159-consolidado.json.
+-156 portales33casos30PASS/3FAIL: personal NO abre su propia ficha porID/correo,
+  porque getEmpleados ygetFiestas rechazan antes de isOwnPortal. UNA regresion
+  de composicion, orden200/Claude. No relajar permisos generales ni la politica
+  "cada empleado ve lo suyo" de193; ese texto correcto no prueba camino util.
+-Dueno positivo y denegaciones ajenas pasan. Cliente crucesA/B, HMAC real,
+  revocacion, firma/vencimiento y DTO sinprivados pasan. Proveedor dos eventos/
+  tokens/tareas, vencidos/revocados y llegadas sin pisar otro pasan conI/Odoble.
+-Primer caso cliente156 exigia ausencia de personalAsignado, pero [] no filtra
+  datos. ErrorQA archivado con fuente/JSON iniciales, no appbug. Focal corregido
+  conserva los tres fallos reales del portal propio. No amplia nueva verde.
+-15751PASS: invitado correcto/ajeno/dosfiestas, siete enlaces de estaciones,
+  credenciales codificadas, guest no controla operador, tokens modulos/fiestas/
+  firma/vence, video solo asignado tras checkin, modulos apagados no ofrecidos.
+  HMAC/config/acciones reales, almacen yfirmadoURLdobles; NO captura/hardware.
+-15814casos12PASS/2FAIL: sinCRON_SECRET, dos tareas publicas responden con datos
+  internos de seguimiento/eventos. Orden201/Claude, P1 CONDICIONAL QA; no se
+  comprobo configproduccion ni fuga real. Conclave/rate/error pasan. Mantener
+  preparacion anonima aprobada, recortar solo salida; no manda mensajes reales.
+-1594casos2PASSUTC/2FAILUy: borradores5dias/14dias dicen7/8 para2027-08-08.
+  Funcion igual1337; ampliar193bloque3 MISMAfamilia, no nueva orden. No cambiar
+  fecha almacenada ni zona global/plazos. Ver158-159-tareas-y-fechas.md.
+-156contraste por simbolo: getEmpleados/getFiestas/usuarioDelEquipo iguales1337;
+  getEmployee difieregetRoles vsleerRolesInterno yrequireEquipo recorte distinto.
+  No aceptar equivalencia transitiva o tandas privadas desconocidas.
+-QAlogica/RequestResponseenproceso, no HTTP/SDK/UI de estos casos. Modelo,voz,
+  integraciones,19originales/hardware y cobertura exhaustiva siguen sincertificar.
+  PruebaLuna documental acotada recupero antecedentes y fue cerrada. No0errores.
+
+## 20/10/2026 - Codex155: foco de galeria, friccion nueva PENDIENTE199
+
+-No esperar solo coders: se avanzo un criterio independiente no aceptado por los
+  cierres151-154. Main894d; Claude publicofc5e solo STATE,1337sigue45a0. Gallery
+  y sus modulos cargados sin cambios entre esos HEAD; privados NO CONTRASTADOS.
+-Componente real GallerySection con React/framer/next-image en DOM aislado:
+  7PASS/2FAIL deUNAfriccion. Abre, flechas y Escape funcionan; el foco queda en
+  tarjeta detras del modal y al cerrar desde dentro queda enBODY. Radix positivo
+  SI mueve foco. Orden199 para Gemini en misma tanda, NO implementada por Codex.
+-Consumidor REAL: AsyncGallerySection -> GaleriaUnificadaSection -> GallerySection.
+  No confundir resultado del componente con Tab nativo/lector/galeria completa.
+-Sonda inicial tenia parentesis extra; siguiente control appDialog cancelaba
+  autofocus deliberadamente y no servia como positivo. Ambos archivos conservados,
+  no fallos app ni orden para cambiar Dialog global. Ver155-galeria-foco.md.
+-Cua timeout/CDP/kernel no prueba fallo web; no se completo viaje nativo. Luna no
+  pudo leer recibos en su entorno y fue cerrado, no se atribuyen resultados.
+-No appedit/build/merge ni datos reales. Compartir conClaude en PR1340; mantener
+  cierres previos porSHA/alcance, no mas amplia por docs ni certificar0errores.
+
+## 20/10/2026 - Codex151-154: cierres comprobados y limites, no cero errores
+
+-Entregada PR1340 BORRADOR,rama codex/154-cierre-verificado-20261020. Payload
+  d27be221ec428d6853088692a9c5da560f85344e,arbol9abb6713 remoto/local iguales.
+  No fusionar documentacion sola: incorporar con la proxima tanda de Claude.
+-Limite de entrega: PR existe y arbol remoto comprobado; adjunto a chat y cambio
+  del seguimiento automatico no confirmados por timeout de herramientas. TOML
+  leido sigue sinPR1340; no se edito a mano ni se promete ejecucion autonoma.
+- Main894d01603e0e03cebc8f90a6ccf869ef86bbe1de; Claude publico d0147992 tiene
+  runtime/config/deps iguales. NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
+-151 nativo: contrato1711PASS,cocina1842PASS UTC/Uy,agenda/costos186(antes179)
+  4PASS PC/Pixel7.172 sigueFAIL: dock tapa Evento2610.1933596357703px2 a390x844.
+  Consumidores relacionados iguales hasta main. No repetir estos cierres ni
+  emitir otra172; conservar captura y retestear solo al entregar cambio.
+-152 build2538387 exit0/tipos/lint y amplia802suites4998tests:4997PASS1FAIL,
+  0omitidos. Fallo ENOENT de blog omitido por skip-worktree, no de contenido.
+  154 repite mismas aserciones con blob Git canonico y pasa; NO otra amplia verde.
+-Desde2538387 a894d cambian cancelacion-parcial y un test.154 handler compartir
+  4PASS con APIs dobles: espera clipboard y da alternativa al fallar/no existir.
+-153 consumidores de proveedores6PASS, cuerpos reales igualesmain, sesion/I-O
+  controlados: total,parcial y compras porID. No certifica pagos productivos.
+-Fallo151 de sueldo ya corregido por Claude2538387, no nueva orden.152 guardado
+  10PASS y154 SDK9PASS/2transacciones en894d: conserva3000/9500/60.30/1000 y
+  recorta respuestas segunperfil. SDK real a demo; firma/permisos reales,
+  adaptador de sesion y empleados/I-O, NO HTTPNext.0documentos al terminar.
+-198 otros4retornos12PASS dueno/secretaria/personal, funciones reales con dobles
+  I-O/efectos. No acepta liquidacion aritmetica ni Google/aprendizaje reales.
+-151/152 builds aceptados;153 interrumpido/sinBUILD_ID,NO aceptado. Incidencias
+  de sondas archivadas en154-incidencias-qa.md, no contarlas como fallos app.
+-Mantener cierres150simulador/PDF/CRM,141clienteSDK,1353D/agenda/DJ y142cabecera
+  POR ALCANCE/SHA.421rutas/14areas/7roles/6401AST es inventario, no todoscontroles.
+-Pendientes:172,entrega195/1337 y cobertura funcional exhaustiva no establecida.
+  No certificados19originales/OAuth/modelo/voz/sincronizaciones/hardware reales.
+  Health publico200/894d solo prueba respuesta/version, no sus integraciones.
+-Codex no cambio app ni fusiono; solo docs/QA. Servicios/SDK/agentes propios
+  cerrados,diffQAfuentes0. Ver154-cierre.md y154-consolidado.json. No fusionar
+  documentacion sola: juntar con proxima tanda de Claude. NO14areaslimpias/0errores.
+
 ## 20/10/2026 - Orden 197 (plata y permisos, urgente): entregada por Gemini y terminada por Claude
 
 - **Entró de Gemini (1338):** despertador y rutas de máquina públicas; pagos de proveedores por número

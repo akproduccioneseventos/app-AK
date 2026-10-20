@@ -1,0 +1,11 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "checkedAt": "2026-10-20T17:24:03.675Z",
+  "scriptsSyntaxPass": 23,
+  "jsonParsed": 32,
+  "frozenTestSourcesPass": 3,
+  "stateAtMost40Lines": true,
+  "appDiff": "",
+  "whitespacePass": true,
+  "scope": "Delivery syntax, JSON, hashes and no app edits; not another functional audit"
+}

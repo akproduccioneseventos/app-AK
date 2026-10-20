@@ -1,0 +1,31 @@
+{
+  "rows": [
+    {
+      "file": "151-mobile-source.spec.ts",
+      "actualExecutionReceipt": "151-mobile-execution.json",
+      "executedSha256": "0461b9583ef3990a430c1bf60b2e20e03d21e721ac3dfd88dc25d88b80f1eef2"
+    },
+    {
+      "file": "151-date-source.spec.ts",
+      "actualExecutionReceipt": "151-date-execution.json",
+      "executedSha256": "a1c595fe3f7bc011af0f0b8c34bed2b1ca4aacceab19e74a765ef7be3926d5e2"
+    },
+    {
+      "file": "151-agenda-source.spec.ts",
+      "actualExecutionReceipt": "151-agenda-execution.json",
+      "executedSha256": "2e4d15093170c4ef93dbf89cb4acbd73c68534375853d5233ea1c39584fbefd2"
+    },
+    {
+      "file": "151-mobile-config.ts",
+      "original": "135-playwright.config.ts",
+      "sha256": "b55b8e352554a4e2d0ba2f98f50cb2a77f0e59c498981c700f522227c1ea5db4",
+      "scope": "Configuration snapshot, not a retroactive execution hash"
+    },
+    {
+      "file": "151-date-config.ts",
+      "original": "143-playwright.config.ts",
+      "sha256": "4d14531f231acaa00f79aa498dbbf7a803526ae85c06ac43f6c32d8abd1a337e",
+      "scope": "Configuration snapshot, not a retroactive execution hash"
+    }
+  ]
+}

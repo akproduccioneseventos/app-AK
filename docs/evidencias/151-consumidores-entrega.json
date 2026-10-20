@@ -1,0 +1,548 @@
+{
+  "source": "2e5363f259461a31bf6b31807872c227855415de",
+  "pr": 1338,
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "938f9ae400f691094190eaf2adc634ad16a90456771a397a1ac331443c67f91e",
+    "src/lib/fiesta/recortar-para-afuera.ts": "fad3cf356ea5ccfbf2150b628b5ad4cf130dcf22b375d1962861017dc9614889",
+    "src/app/actions/fiesta/fiesta.actions.ts": "5f279e693ee2db21bb867967f4820d4371b3c4347a81e72b4d58749f7329a0a7",
+    "src/app/actions/fiesta/catering.actions.ts": "3e4f9dc8f7c04347e752421cd5c34cadeebba7b35aed05e1161a069f90ed4f45"
+  },
+  "results": [
+    {
+      "kind": "saveFiesta",
+      "sameName": false,
+      "pass": true,
+      "before": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "input": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "expected": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "observed": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "response": {
+        "success": true,
+        "fiesta": {
+          "id": "qa150",
+          "configuracion": {
+            "nombreEvento": "QA ficticio"
+          },
+          "tareas": [],
+          "personalAsignado": [],
+          "estadosCompra": [
+            {
+              "proveedorId": "a",
+              "proveedor": "A",
+              "pedido": false
+            },
+            {
+              "proveedorId": "b",
+              "proveedor": "B",
+              "pedido": true
+            }
+          ]
+        }
+      },
+      "transactions": 1,
+      "actualPermissions": {
+        "contabilidad": false,
+        "sueldos": false,
+        "ganancias": false
+      },
+      "permissionsRequested": []
+    },
+    {
+      "kind": "updateFiestaPartial",
+      "sameName": false,
+      "pass": true,
+      "before": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "input": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "expected": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "observed": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "response": {
+        "success": true
+      },
+      "transactions": 1,
+      "actualPermissions": {
+        "contabilidad": false,
+        "sueldos": false,
+        "ganancias": false
+      },
+      "permissionsRequested": []
+    },
+    {
+      "kind": "updateShoppingListStatus",
+      "sameName": false,
+      "pass": true,
+      "before": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "input": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "expected": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "observed": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "response": {
+        "success": true
+      },
+      "transactions": 1,
+      "actualPermissions": {
+        "contabilidad": false,
+        "sueldos": false,
+        "ganancias": false
+      },
+      "permissionsRequested": [
+        [
+          "insumos",
+          "organizacion"
+        ]
+      ]
+    },
+    {
+      "kind": "saveFiesta",
+      "sameName": true,
+      "pass": true,
+      "before": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "input": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "expected": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "observed": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "response": {
+        "success": true,
+        "fiesta": {
+          "id": "qa150",
+          "configuracion": {
+            "nombreEvento": "QA ficticio"
+          },
+          "tareas": [],
+          "personalAsignado": [],
+          "estadosCompra": [
+            {
+              "proveedorId": "a",
+              "proveedor": "Proveedor QA",
+              "pedido": false
+            },
+            {
+              "proveedorId": "b",
+              "proveedor": "Proveedor QA",
+              "pedido": true
+            }
+          ]
+        }
+      },
+      "transactions": 1,
+      "actualPermissions": {
+        "contabilidad": false,
+        "sueldos": false,
+        "ganancias": false
+      },
+      "permissionsRequested": []
+    },
+    {
+      "kind": "updateFiestaPartial",
+      "sameName": true,
+      "pass": true,
+      "before": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "input": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "expected": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "observed": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "response": {
+        "success": true
+      },
+      "transactions": 1,
+      "actualPermissions": {
+        "contabilidad": false,
+        "sueldos": false,
+        "ganancias": false
+      },
+      "permissionsRequested": []
+    },
+    {
+      "kind": "updateShoppingListStatus",
+      "sameName": true,
+      "pass": true,
+      "before": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "input": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "expected": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "observed": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "response": {
+        "success": true
+      },
+      "transactions": 1,
+      "actualPermissions": {
+        "contabilidad": false,
+        "sueldos": false,
+        "ganancias": false
+      },
+      "permissionsRequested": [
+        [
+          "insumos",
+          "organizacion"
+        ]
+      ]
+    }
+  ],
+  "summary": {
+    "pass": 6,
+    "fail": 0
+  },
+  "scope": "Actual action bodies and permission model; session, assignment gate, read and transaction are controlled doubles",
+  "limits": [
+    "Not real signed authentication, SDK persistence, browser or production",
+    "Catering requireEventPermission is allowed deliberately: tests identity, not that permission boundary",
+    "Same inputs and same names are legitimate; no deduplication by business name"
+  ],
+  "appEdited": false,
+  "realData": false
+}

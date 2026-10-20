@@ -95,7 +95,7 @@ fotos, mensajes y equipos sí son tuyos.
 
 ```comprobar
 archivo: src/lib/compras/unidades.ts
-usa: claveDeConsolidado en src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx
+usa: consolidarCompras( en src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx
 prueba: src/__tests__/las-claves-de-agrupacion-no-mienten.test.ts
 ```
 

@@ -221,12 +221,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-09",
-        "commit": "497ee725",
+        "fecha": "2026-10-20",
+        "commit": "894d0160",
         "hallazgos": 1,
-        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
+        "reporte": "Auditoría 155 de Codex (PR 1340)"
       },
-      "nota": "Auditoría 81: la revisión web decía óptimo sin abrir páginas; arreglado el 9/10. Falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 155 (20/10): foco del visor de la galería pública; orden 199 (con el video de ayuda del simulador)."
     },
     {
       "id": "redes",

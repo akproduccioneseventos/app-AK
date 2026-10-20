@@ -1792,6 +1792,8 @@ con otra cara.
 | El asistente contestaba importes escritos a mano como si fueran los cobros del mes | `src/__tests__/el-asistente-no-inventa-plata.test.ts` |
 | Rutas del despertador rebotadas, funciones internas llamables desde afuera y guardados que devolvían costos y sueldos ajenos: cada forma nueva frena la publicación | `src/__tests__/las-fugas-de-plata-no-crecen.test.ts` |
 | Se sumaban preguntas al método y nadie las buscaba en el resto de la app | `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
+| Una orden figuraba hecha con un comentario o un import sin usar, y pruebas que sólo decían `expect(true)` | `enCodigoQueCorre` en `scripts/ordenes-cumplidas.mjs` con `src/__tests__/una-orden-no-se-cumple-con-un-comentario.test.ts` |
+| La tarea sin clave devolvía nombres de clientes, y el empleado no llegaba a su portal | `src/__tests__/codex-156-158-portal-propio-y-tareas-recortadas.test.ts` |
 
 ### Cómo se elige el matafuego
 

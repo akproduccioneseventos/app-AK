@@ -1,0 +1,80 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "testSha256": "a4a68de378a4677993b88cef53c4a963228df0cdb00a12b4941787af7380c5b2",
+  "runs": [
+    {
+      "exitCode": 0,
+      "stderr": "",
+      "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+      "timezone": "UTC",
+      "bodySha256": "0773eca7d55cade49b0567605d50a6b7518c933406a9e120a43de3f01380ece8",
+      "sameFunctionIn1337": true,
+      "cases": [
+        {
+          "timezone": "UTC",
+          "days": 6,
+          "pass": true,
+          "observed": {
+            "day": 8,
+            "month": 8,
+            "year": 2027
+          },
+          "messageText": "Hola Cliente ficticio QA159, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del 8/8/2027. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos."
+        },
+        {
+          "timezone": "UTC",
+          "days": 15,
+          "pass": true,
+          "observed": {
+            "day": 8,
+            "month": 8,
+            "year": 2027
+          },
+          "messageText": "Hola Cliente ficticio QA159, te contacto de AK Producciones. Queríamos consultar si la fecha del 8/8/2027 sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!"
+        }
+      ]
+    },
+    {
+      "exitCode": 1,
+      "stderr": "",
+      "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+      "timezone": "America/Montevideo",
+      "bodySha256": "0773eca7d55cade49b0567605d50a6b7518c933406a9e120a43de3f01380ece8",
+      "sameFunctionIn1337": true,
+      "cases": [
+        {
+          "timezone": "America/Montevideo",
+          "days": 6,
+          "pass": false,
+          "observed": {
+            "day": 7,
+            "month": 8,
+            "year": 2027
+          },
+          "messageText": "Hola Cliente ficticio QA159, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del 7/8/2027. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos."
+        },
+        {
+          "timezone": "America/Montevideo",
+          "days": 15,
+          "pass": false,
+          "observed": {
+            "day": 7,
+            "month": 8,
+            "year": 2027
+          },
+          "messageText": "Hola Cliente ficticio QA159, te contacto de AK Producciones. Queríamos consultar si la fecha del 7/8/2027 sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "pass": 2,
+    "fail": 2
+  },
+  "scope": "Actual followup draft generator, both5-day/14-day branches, civil event date in UTC and Uruguay",
+  "limits": [
+    "Controlled budget/message storage and agent-log sink; no real message, HTTP or SDK",
+    "Existing193 date family, new consumer evidence; no date-storage/global-timezone change"
+  ],
+  "appEdited": false
+}

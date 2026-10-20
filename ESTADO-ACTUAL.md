@@ -1,7 +1,7 @@
 # Estado actual — 20 de octubre de 2026
 
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la
-propuesta 1323 (`7230f9d02`). **Nada de esta tanda está publicado todavía.**
+propuesta 1339 (`894d01603`, 20/10): toda la tanda del 20/10, con la orden 197.
 
 ## En qué se está
 Esperando UNA entrega de Gemini con las órdenes 188 a 195 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
@@ -32,11 +32,13 @@ Codex sólo audita.
 - Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
 
 ## Errores de plata y permisos abiertos en la app publicada
-- Ninguno en la rama: la orden 197 (con 183 y 198) entró el 20/10. Falta publicarla (fusionar a main).
+- Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1340: `588fd64d7` (auditorías 156-159 juntadas: órdenes 200 y 201 de permisos arregladas por Claude; la fecha del seguimiento quedó en la 193 para Gemini). Antes `fdc24539a` (auditoría 155 juntada: foco de la galería pública → orden 199, con el video de ayuda sumado por el barrido de la pregunta 83). Antes `9301e146c` (auditorías 151-154 sobre la publicada 894d0160): sin hallazgos nuevos; confirma cerradas 171, 184 y 186; sigue abierta la 172 (dock en celular), ya pedida a Gemini. La 1324 quedó cerrada al entrar en la 1339.
 - Codex 1324: `2852f0881` (auditoría 150 juntada; su 196 pasó a ser la **198**). Antes `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
-- Gemini 1338 (orden 197): `2e5363f25`, juntada y terminada por Claude.
+- Gemini 1341 (`7dd30ef2c`, órdenes 180-183): **cerrada sin fusionar**; comentarios y pruebas vacías en vez de código → **orden 202**.
+- Gemini 1338 (orden 197): `2e5363f25`, juntada, terminada por Claude y publicada en la 1339.
 - Gemini 1337: `45a0b1d47` (órdenes 188 a 192) → **devuelta con la orden 196**; faltan 193 a 195.
 - 1325 a 1329: viejas, superadas por las órdenes 188 a 194; no se revisan de nuevo.
 

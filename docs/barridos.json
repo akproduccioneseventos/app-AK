@@ -328,6 +328,18 @@
     "82": {
       "fecha": "2026-10-20",
       "resultado": "sin hallazgos en la rama: el control recorre agentes, asistente, multiagente y voz; los casos de la entrega 1337 van en la orden 196"
+    },
+    "83": {
+      "fecha": "2026-10-20",
+      "resultado": "4 visores hechos a mano: VideoSection y TestimonialsSection cumplen; GallerySection (portada) y VideoDeAyuda (simulador y video de vida) no. Los dos van en la orden 199"
+    },
+    "84": {
+      "fecha": "2026-10-20",
+      "resultado": "arreglados el portal del empleado y la conexión de su cuenta de Google; el barrido no encontró otra función del camino del personal que lo frene antes de ver lo suyo (recibos firmados y fiestas por empleado son pantallas del equipo)"
+    },
+    "85": {
+      "fecha": "2026-10-20",
+      "resultado": "las 11 rutas que abren la puerta de las tareas recortan la respuesta sin clave; el control recorre todas las rutas de src/app/api"
     }
   }
 }

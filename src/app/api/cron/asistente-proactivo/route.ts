@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { ejecutarAgentesAutonomos } from '@/lib/agentes/motor-agentes';
 import { detectarErroresHumanos } from '@/lib/alertas/errores-humanos';
@@ -212,7 +212,7 @@ export async function GET(request: Request) {
   // 9. MARCAR CORRIDA
   await marcarCorrida('asistente-proactivo');
 
-  return NextResponse.json({
+  return NextResponse.json(respuestaDeLaTarea(puerta, {
     ok: true,
     ejecutadoEn: ahora.toISOString(),
     propuestasGeneradas: nuevasParaAgregar.length,
@@ -220,5 +220,5 @@ export async function GET(request: Request) {
     propuestasIgnoradasODuplicadas: resultadoPersistencia.ignoradas,
     avisoDuenio: avisoDuenioRes,
     fallos,
-  });
+  }));
 }

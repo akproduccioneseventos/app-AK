@@ -10,7 +10,7 @@
  */
 const marcarCorrida = jest.fn(async () => undefined);
 jest.mock('@/lib/automatico/tareas-automaticas', () => ({ marcarCorrida: (...a: any[]) => (marcarCorrida as any)(...a) }));
-jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({ abrirPuertaDeLaTarea: jest.fn(async () => ({ permitido: true })) }));
+jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({ abrirPuertaDeLaTarea: jest.fn(async () => ({ permitido: true })), respuestaDeLaTarea: (_puerta: unknown, cuerpo: unknown) => cuerpo }));
 const leerFiestasCrudas = jest.fn();
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: (...a: any[]) => leerFiestasCrudas(...a) }));
 const readDataConDetalle = jest.fn();

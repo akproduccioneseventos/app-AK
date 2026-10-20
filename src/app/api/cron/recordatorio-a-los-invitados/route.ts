@@ -1,6 +1,6 @@
 import { diasHastaEnUruguay } from '@/lib/utils';
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
@@ -86,11 +86,11 @@ async function correrTarea(request: Request) {
     const ok = errores.length === 0;
     if (ok) await marcarCorrida('recordatorio-a-los-invitados');
 
-    return NextResponse.json({
+    return NextResponse.json(respuestaDeLaTarea(puerta, {
       ok,
       mensajesPreparados,
       errores,
-    }, { status: ok ? 200 : 500 });
+    }), { status: ok ? 200 : 500 });
   } catch (error: any) {
     console.error('[cron-recordatorio-invitados] Error:', error);
     return NextResponse.json(

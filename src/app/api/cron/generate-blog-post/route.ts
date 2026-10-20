@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { runMarketingAutomation } from '@/lib/marketing-automation';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
@@ -28,7 +28,7 @@ async function handleCron(request: Request) {
     // una tarea automatica esta funcionando o solo esta escrita.
     await marcarCorrida('generate-blog-post');
 
-    return NextResponse.json(result);
+    return NextResponse.json(respuestaDeLaTarea(puerta, result));
   } catch (error: any) {
     console.error('[cron-blog] Error running blog generation cron:', error);
     return NextResponse.json(

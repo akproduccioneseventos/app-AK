@@ -2,7 +2,7 @@
 
 > **Se programa con la orden 176 (para Gemini), que tiene el camino exacto.**
 
-**Estado:** retest142 FAIL en PR1327 fuente17d26a631: interseccion2247.17px2 a390x844. Sin desborde horizontal; sigue tapando Evento. Ver142-143-cierre.md. Misma orden, no reemitir.
+**Estado actual:** retest151 FAIL, fuente2e5363f259461a31bf6b31807872c227855415de: interseccion2610.1933596357703px2 a390x844. Sin desborde horizontal; sigue tapando Evento. Dock/AppShell/consumidor/CSS iguales hasta main894d; no es otra ejecucion nativa894d. Captura151-social-solapamiento.png y154-cierre.md. Misma orden, no reemitir ni repetir antes de correccion.
 **Prioridad:** P2, el acceso fijo tapa parte de una columna de datos.
 **Base auditada:** app `d10f332a17241de5a4705a560336585853073a76`, build QA aislado `a635b27071ecea22092eba2a285892c84c6f9d08`; `src` coincide con main `9aa64f991f5ddceefa8d278a3f298be861eb10bb`.
 
@@ -24,6 +24,6 @@ El ancho movil ya se habia medido con un barrido general; ese barrido solo verif
 
 ```comprobar
 archivo: src/components/module-navigation-dock.tsx
-usa: pb-24 en src/components/app-shell.tsx
-prueba: docs/evidencias/133-mobile-route-latency.spec.ts
+usa: ModuleNavigationDock en src/components/app-shell.tsx
+prueba: docs/evidencias/151-mobile-source.spec.ts
 ```
