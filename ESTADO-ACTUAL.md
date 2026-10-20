@@ -34,3 +34,5 @@ reales no certificados. QA nunca datos/cuentas/cargos/mensajesreales.
 Siguiente: correccion172 y entrega195/1337; retest SOLOdelta,cerrar cobertura por
 criterios observados,no por grep. No afirmar IA/portales completos por estos casos.
 No appedit/merge/forcepush. GHrojo facturacion nofalloapp. No fusionar docs solos.
+Seguimiento automatico: update y adjunto de PR sin respuesta de herramienta;
+TOML sigue sinPR1340. No afirmar actualizacion ni continuacion autonoma confirmada.

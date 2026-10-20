@@ -5,6 +5,9 @@
 -Entregada PR1340 BORRADOR,rama codex/154-cierre-verificado-20261020. Payload
   d27be221ec428d6853088692a9c5da560f85344e,arbol9abb6713 remoto/local iguales.
   No fusionar documentacion sola: incorporar con la proxima tanda de Claude.
+-Limite de entrega: PR existe y arbol remoto comprobado; adjunto a chat y cambio
+  del seguimiento automatico no confirmados por timeout de herramientas. TOML
+  leido sigue sinPR1340; no se edito a mano ni se promete ejecucion autonoma.
 - Main894d01603e0e03cebc8f90a6ccf869ef86bbe1de; Claude publico d0147992 tiene
   runtime/config/deps iguales. NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
 -151 nativo: contrato1711PASS,cocina1842PASS UTC/Uy,agenda/costos186(antes179)
