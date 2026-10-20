@@ -1267,3 +1267,19 @@ Los visores de video y de historias de la portada ya lo hacían bien (guardan `d
 vuelven a enfocar). Se busca `role="dialog"` y `aria-modal` en `src/` y, en los que no importan
 `@/components/ui/dialog`, se miran las tres cosas.
 
+### 84. Donde alguien puede ver "lo suyo" (su portal, su ficha, sus recibos), ¿llega a la comprobación de que es suyo, o antes lo frena una lectura general que a su perfil le dice que no?
+
+Codex 156 (orden 200): el portal del empleado leía la lista entera del personal y todas las fiestas antes
+de mirar si el portal era el suyo; esas lecturas rechazan al perfil personal, así que nunca llegaba. La
+regla estaba bien y el control de "es lo suyo" también: fallaba el orden. Se busca cada comprobación de
+"propio" y se mira qué se llama antes; lo propio se lee con una lectura interna acotada a esa persona,
+**sin** abrirle a ese perfil las lecturas generales.
+
+### 85. Lo que una ruta contesta cuando entró sin clave, ¿trae datos de clientes, fiestas o mensajes?
+
+Codex 158 (orden 201): las tareas automáticas que pueden correr sin la clave (porque sólo preparan
+borradores) contestaban con todo el detalle: nombres de clientes, tipo de fiesta y días sin respuesta. La
+puerta ya decía "sin clave, la respuesta va recortada" y nadie la recortaba. Ahora toda respuesta de una
+tarea pasa por `respuestaDeLaTarea`, y `codex-156-158-portal-propio-y-tareas-recortadas.test.ts` lo exige
+en todas las rutas que abren la puerta.
+

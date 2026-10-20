@@ -332,6 +332,14 @@
     "83": {
       "fecha": "2026-10-20",
       "resultado": "4 visores hechos a mano: VideoSection y TestimonialsSection cumplen; GallerySection (portada) y VideoDeAyuda (simulador y video de vida) no. Los dos van en la orden 199"
+    },
+    "84": {
+      "fecha": "2026-10-20",
+      "resultado": "parcial: arreglado el portal del empleado y la conexión de su cuenta de Google (google-workspace.ts); barrido del resto en curso"
+    },
+    "85": {
+      "fecha": "2026-10-20",
+      "resultado": "las 11 rutas que abren la puerta de las tareas recortan la respuesta sin clave; el control recorre todas las rutas de src/app/api"
     }
   }
 }

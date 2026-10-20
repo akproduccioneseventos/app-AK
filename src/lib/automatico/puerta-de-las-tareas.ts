@@ -147,3 +147,20 @@ export async function abrirPuertaDeLaTarea(
 
   return { permitido: true, conClave: false };
 }
+
+/**
+ * Lo que contesta una tarea al terminar. Sin la clave, la tarea corre igual (está en la lista de
+ * las que no le hacen daño a nadie), pero la respuesta va recortada: sólo si salió bien. El detalle
+ * trae nombres de clientes, fiestas y mensajes preparados, y cualquiera de internet puede llamarla
+ * (Codex 158, orden 201).
+ */
+export function respuestaDeLaTarea<T extends object>(
+  puerta: ResultadoDeLaPuerta,
+  cuerpo: T,
+): T | { ok: boolean; recortada: true } {
+  if (puerta.conClave) return cuerpo;
+  const c = cuerpo as { ok?: unknown; success?: unknown };
+  const ok = typeof c.ok === 'boolean' ? c.ok : typeof c.success === 'boolean' ? c.success : true;
+  return { ok, recortada: true };
+}
+

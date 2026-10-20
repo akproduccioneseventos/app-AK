@@ -1,5 +1,5 @@
 ﻿import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { ejecutarVigilanteFiestas } from '@/lib/agentes/motor-agentes';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
@@ -22,7 +22,7 @@ async function handleCron(request: Request) {
 
     const resultado = await ejecutarVigilanteFiestas(new Date());
     await marcarCorrida('fiesta-proxima-revision');
-    return NextResponse.json({ ok: true, resultado });
+    return NextResponse.json(respuestaDeLaTarea(puerta, { ok: true, resultado }));
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || 'Error al ejecutar revisión de fiestas próximas.' },

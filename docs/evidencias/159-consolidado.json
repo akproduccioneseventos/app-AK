@@ -1,0 +1,99 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "receipts": [
+    {
+      "file": "156-portales-cruzados-final.json",
+      "sha256": "12b7a22872c2fbf7da15868ee0b0ffb992067c918e2149ab55218df10ca8f8ec",
+      "summary": {
+        "pass": 30,
+        "fail": 3
+      },
+      "scope": "Actual portal action bodies, profiles, upstream employee/event permission guards, client HMAC session and client mapper; two fictional employees/events/provider tokens",
+      "limits": [
+        "Storage, app-session user and Next cookies are controlled adapters, not HTTP/SDK or UI",
+        "Employee fixture has no assigned events: demonstrates self-access blocked before assignment display, not salary/calendar correctness",
+        "Provider writes are in-memory: not real persistence/concurrency or arrival hardware",
+        "Client key lookup exercises JSON compatibility reader, not Firestore index/query; no external accounts or production data"
+      ]
+    },
+    {
+      "file": "157-invitados-estaciones.json",
+      "sha256": "a0bdbe32d9e2284199cee2d2f4faf768d15080b9f4273d9cc0cb1d67fd782378",
+      "summary": {
+        "pass": 51,
+        "fail": 0
+      },
+      "scope": "Actual guest portal actions, DTO, station config/paths and HMAC tokens across two events/guests and seven modules",
+      "limits": [
+        "Raw event storage and signed-media URL service are controlled adapters; no HTTP, SDK or real media URL signed",
+        "No capture, printing, physical360, AI model, screen, hardware or actual mobile UI accepted",
+        "No app-session bypass tested: station token scope path is checked without an app session"
+      ]
+    },
+    {
+      "file": "158-tareas-respuesta-publica.json",
+      "sha256": "21c0a48c11a7359a2c11f068413457fa986531598301037dcd9204420ed2aba2",
+      "summary": {
+        "pass": 12,
+        "fail": 2
+      },
+      "scope": "Actual cron GET/body and key/rate-limit gate with actual agent record/queue preparation; fictional storage and clock",
+      "limits": [
+        "Conditional no-CRON_SECRET environment, not evidence of current production secret configuration or real data exposure",
+        "Request/Response objects in-process, NextResponse.json adapter; no HTTP server, scheduler or real messages",
+        "Rate-limit storage and error detector are controlled; not a throttle concurrency or alert-accuracy test"
+      ]
+    },
+    {
+      "file": "159-fecha-seguimiento.json",
+      "sha256": "dad89a3dc28c4a4b79112fae3512cd82c520ea1648cdcd8c0c7d431ea8bc4795",
+      "summary": {
+        "pass": 2,
+        "fail": 2
+      },
+      "scope": "Actual followup draft generator, both5-day/14-day branches, civil event date in UTC and Uruguay",
+      "limits": [
+        "Controlled budget/message storage and agent-log sink; no real message, HTTP or SDK",
+        "Existing193 date family, new consumer evidence; no date-storage/global-timezone change"
+      ]
+    }
+  ],
+  "summary": {
+    "cases": 102,
+    "pass": 95,
+    "fail": 7
+  },
+  "findings": [
+    {
+      "id": "AK-CODEX-156-PERSONAL-LECTURAS-PREVIAS",
+      "order": 200,
+      "responsible": "Claude",
+      "status": "P1 reproduced, not implemented",
+      "failedAssertions": 3
+    },
+    {
+      "id": "AK-CODEX-158-CRON-RESPUESTA",
+      "order": 201,
+      "responsible": "Claude",
+      "status": "P1 conditional no-CRON_SECRET QA, production configuration unverified",
+      "failedAssertions": 2
+    },
+    {
+      "id": "AK-CODEX-159-SEGUIMIENTO-FECHA-CIVIL",
+      "order": 193,
+      "responsible": "Gemini",
+      "status": "Existing civil-date family, new consumer reproduced",
+      "failedAssertions": 2
+    }
+  ],
+  "reused": "151-155 accepted scopes preserved; no full build or broad Jest repeated",
+  "notCertified": [
+    "All controls, roles, pages and failure/concurrency combinations",
+    "Native UI in these batches",
+    "Real integrations, original19budgets, hardware and production business data"
+  ],
+  "overallAuditClosed": false,
+  "zeroErrorsCertified": false,
+  "appEdited": false,
+  "merged": false
+}

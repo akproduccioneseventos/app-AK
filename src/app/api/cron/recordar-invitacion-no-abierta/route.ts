@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { correrTareaRecordarInvitacionNoAbierta } from '@/lib/invitaciones/recordatorio-no-abiertas';
 
@@ -21,10 +21,10 @@ async function correrTarea(request: Request) {
     const resultado = await correrTareaRecordarInvitacionNoAbierta();
     await marcarCorrida('recordar-invitacion-no-abierta');
 
-    return NextResponse.json({
+    return NextResponse.json(respuestaDeLaTarea(puerta, {
       ok: true,
       ...resultado,
-    });
+    }));
   } catch (error: any) {
     console.error('[cron-recordar-invitacion-no-abierta] Error:', error);
     return NextResponse.json(

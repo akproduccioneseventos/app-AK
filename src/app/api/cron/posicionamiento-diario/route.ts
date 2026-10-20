@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { ejecutarRevisionPosicionamiento } from '@/lib/automatico/posicionamiento-diario';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
@@ -22,7 +22,7 @@ async function handleCron(request: Request) {
 
     const resultado = await ejecutarRevisionPosicionamiento(new Date(), 'despertador');
     await marcarCorrida('posicionamiento-diario');
-    return NextResponse.json({ ok: true, resultado });
+    return NextResponse.json(respuestaDeLaTarea(puerta, { ok: true, resultado }));
   } catch (error: any) {
     return NextResponse.json(
       { ok: false, error: error?.message || 'Error al ejecutar tarea de posicionamiento.' },

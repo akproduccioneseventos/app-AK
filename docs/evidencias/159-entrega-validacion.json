@@ -1,0 +1,20 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "checkedAt": "2026-10-20T19:52:17.111Z",
+  "scriptsSyntaxPass": 8,
+  "jsonParsed": 8,
+  "caseReceiptsMatchExecutedSources": 4,
+  "publicPathGate": {
+    "routes": [
+      "/api/cron/prospectos-seguimiento",
+      "/api/cron/fiesta-proxima-revision"
+    ],
+    "bothPublic": true,
+    "protectedControl": "/portal/mesas",
+    "protectedControlPublic": false
+  },
+  "noAppEdits": true,
+  "claude16aAppDiff": "",
+  "stateAtMost40Lines": true,
+  "scope": "Delivery integrity and actual path gate; not a new end-to-end audit"
+}

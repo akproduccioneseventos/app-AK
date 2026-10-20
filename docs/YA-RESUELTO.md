@@ -1,5 +1,59 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Órdenes 200 y 201 de Codex, arregladas por Claude (permisos)
+
+- **El empleado vuelve a abrir su portal (200).** `getEmployeeWorkspacePortal` y la conexión de su propia
+  cuenta de Google leían la lista del personal y las fiestas antes de mirar si era lo suyo, y esas lecturas
+  rechazan al perfil personal. Ahora se lee primero su ficha sola (`leerFichaDeEmpleado`), se comprueba que
+  es la suya y recién ahí se leen las fiestas por dentro, quedándose sólo con sus asignaciones y su sueldo.
+  No se le abrió al personal ninguna lectura general.
+- **Las tareas sin clave contestan recortado (201).** Las once tareas que abren `abrirPuertaDeLaTarea`
+  contestan con `respuestaDeLaTarea`: sin la clave, sólo `{ ok, recortada }`; con la clave, el detalle.
+  Siguen corriendo sin clave como estaba decidido.
+
+```comprobar
+usa: leerFichaDeEmpleado en src/app/actions/google-workspace.ts
+usa: respuestaDeLaTarea en src/app/api/cron/prospectos-seguimiento/route.ts
+usa: respuestaDeLaTarea en src/app/api/cron/fiesta-proxima-revision/route.ts
+prueba: src/__tests__/codex-156-158-portal-propio-y-tareas-recortadas.test.ts
+```
+
+## 20/10/2026 - Codex156-159:102casos,95PASS/7FAIL, tres causas PENDIENTES
+
+-Bloqueo de recursos al cierre: Get-CimInstance midio258992KiB libres, unos253MiB
+  de RAM. No se inicia otro QA pesado ni build con ese margen; se pidio al dueno
+  liberar memoria, no detener procesos ajenos. Esto NO es un fallo de la app.
+-Fuente894d; Claude publicofc5e soloSTATE,1337/45a0 sigue pendiente. Codex no
+  programa ni fusiona. Se continuaron cuatro bloques independientes sin esperar
+  coders ni repetir builds/amplias/171/184/186/198. Ver159-consolidado.json.
+-156 portales33casos30PASS/3FAIL: personal NO abre su propia ficha porID/correo,
+  porque getEmpleados ygetFiestas rechazan antes de isOwnPortal. UNA regresion
+  de composicion, orden200/Claude. No relajar permisos generales ni la politica
+  "cada empleado ve lo suyo" de193; ese texto correcto no prueba camino util.
+-Dueno positivo y denegaciones ajenas pasan. Cliente crucesA/B, HMAC real,
+  revocacion, firma/vencimiento y DTO sinprivados pasan. Proveedor dos eventos/
+  tokens/tareas, vencidos/revocados y llegadas sin pisar otro pasan conI/Odoble.
+-Primer caso cliente156 exigia ausencia de personalAsignado, pero [] no filtra
+  datos. ErrorQA archivado con fuente/JSON iniciales, no appbug. Focal corregido
+  conserva los tres fallos reales del portal propio. No amplia nueva verde.
+-15751PASS: invitado correcto/ajeno/dosfiestas, siete enlaces de estaciones,
+  credenciales codificadas, guest no controla operador, tokens modulos/fiestas/
+  firma/vence, video solo asignado tras checkin, modulos apagados no ofrecidos.
+  HMAC/config/acciones reales, almacen yfirmadoURLdobles; NO captura/hardware.
+-15814casos12PASS/2FAIL: sinCRON_SECRET, dos tareas publicas responden con datos
+  internos de seguimiento/eventos. Orden201/Claude, P1 CONDICIONAL QA; no se
+  comprobo configproduccion ni fuga real. Conclave/rate/error pasan. Mantener
+  preparacion anonima aprobada, recortar solo salida; no manda mensajes reales.
+-1594casos2PASSUTC/2FAILUy: borradores5dias/14dias dicen7/8 para2027-08-08.
+  Funcion igual1337; ampliar193bloque3 MISMAfamilia, no nueva orden. No cambiar
+  fecha almacenada ni zona global/plazos. Ver158-159-tareas-y-fechas.md.
+-156contraste por simbolo: getEmpleados/getFiestas/usuarioDelEquipo iguales1337;
+  getEmployee difieregetRoles vsleerRolesInterno yrequireEquipo recorte distinto.
+  No aceptar equivalencia transitiva o tandas privadas desconocidas.
+-QAlogica/RequestResponseenproceso, no HTTP/SDK/UI de estos casos. Modelo,voz,
+  integraciones,19originales/hardware y cobertura exhaustiva siguen sincertificar.
+  PruebaLuna documental acotada recupero antecedentes y fue cerrada. No0errores.
+
 ## 20/10/2026 - Codex155: foco de galeria, friccion nueva PENDIENTE199
 
 -No esperar solo coders: se avanzo un criterio independiente no aceptado por los

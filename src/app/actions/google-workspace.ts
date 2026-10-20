@@ -4,6 +4,7 @@ import { getEmpleados } from '@/app/actions/empleados';
 import { getFiestas, getHistorialFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { leerRolesInterno } from '@/lib/roles/leer-roles-interno';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData } from '@/lib/data-service';
 import { verifySession } from '@/lib/auth/session-token';
 import { perfilDe, puede, PERMISOS } from '@/lib/auth/perfiles';
@@ -62,6 +63,12 @@ function toPublicAccount(account: GoogleWorkspaceAccount): PublicGoogleWorkspace
     status: account.status,
     lastError: account.lastError,
   };
+}
+
+/** La ficha de un empleado, sin pedir permiso: quien la llama ya comprobó que es la suya o que es el dueño. */
+async function leerFichaDeEmpleado(empleadoId: string): Promise<Empleado | null> {
+  const empleados = await readData<Empleado[]>('empleados.json', []);
+  return empleados.find((item) => item.id === empleadoId) || null;
 }
 
 async function readAccounts() {
@@ -163,7 +170,7 @@ export async function saveGoogleWorkspaceAccountFromOAuth(input: {
     throw new Error('Solo el dueño puede conectar la cuenta corporativa de Google.');
   }
   if (input.kind === 'employee' && !canAdminister) {
-    const employee = (await getEmpleados()).find(item => item.id === input.employeeId);
+    const employee = input.employeeId ? await leerFichaDeEmpleado(input.employeeId) : null;
     const sessionEmail = session.user.email?.trim().toLowerCase();
     const isOwnAccount = employee && (
       employee.id === session.user.userId
@@ -429,13 +436,10 @@ export async function getEmployeeWorkspacePortal(empleadoId: string) {
   if (!session.success || !session.user) {
     return { employee: null, googleAccount: undefined, events: [], error: session.error || 'Sesion no autorizada.' };
   }
-  const [empleados, roles, fiestas, accounts] = await Promise.all([
-    getEmpleados(),
-    leerRolesInterno(),
-    getFiestas(true),
-    readAccounts(),
-  ]);
-  const employee = empleados.find((item) => item.id === empleadoId) || null;
+  // Primero se resuelve de quien es el portal y despues se lee lo demas (Codex 156, orden 200):
+  // `getEmpleados` y `getFiestas` rechazan al perfil personal, y el empleado no llegaba nunca a
+  // su propio portal. Se lee sola su ficha, y de las fiestas sólo sus asignaciones.
+  const employee = await leerFichaDeEmpleado(empleadoId);
   if (!employee) {
     return { employee: null, googleAccount: undefined, events: [] };
   }
@@ -455,6 +459,11 @@ export async function getEmployeeWorkspacePortal(empleadoId: string) {
     };
   }
 
+  const [roles, fiestas, accounts] = await Promise.all([
+    leerRolesInterno(),
+    leerFiestasCrudas(true),
+    readAccounts(),
+  ]);
   const googleAccount = accounts.find((account) => account.kind === 'employee' && account.employeeId === empleadoId);
   const events = fiestas
     .flatMap((fiesta) => {
