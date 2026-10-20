@@ -57,7 +57,12 @@ import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
-import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera } from '@/lib/fiesta/recortar-para-afuera';
+import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera, recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
+import {
+  reponerLaPlata,
+  CAMPOS_DE_PLATA_Y_CONTRATO,
+  PAGO_DE_LA_COMPRA,
+} from '@/lib/fiesta/reponer-la-plata';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -113,7 +118,10 @@ function paraAfuera(fiesta: FiestaEnPlanificacion, esCliente = false): FiestaEnP
 async function requireEquipo(): Promise<(f: FiestaEnPlanificacion) => FiestaEnPlanificacion> {
     if (!(await usuarioDelEquipo())) throw new Error('Tu usuario no tiene acceso a las fiestas.');
     const decide = await quienEsElEquipo();
-    return (f) => (decide(f) ? f : paraAfuera(f));
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession().catch(() => null);
+    const usuario = sesion?.success ? sesion.user : null;
+    return (f) => (decide(f) ? recortarFiestaPorPerfil(f, usuario) : paraAfuera(f));
 }
 
 /**
@@ -126,21 +134,19 @@ async function requireEquipo(): Promise<(f: FiestaEnPlanificacion) => FiestaEnPl
  * proveedores (`pagos.actions`), presupuesto y facturas (`presupuestos`). Por el guardado general
  * sólo los cambia quien tiene contabilidad; para los demás quedan como estaban guardados.
  */
-const CAMPOS_DE_PLATA_Y_CONTRATO = [
-  'estado',
-  'presupuestoId',
-  'invoiceIds',
-  'contratoFirmaInfo',
-  'planDePagos',
-  'pagosProveedores',
-  'clientPaymentNotifications',
-  // Senia, saldo, ajuste y plan de pagos del contrato, y el texto del contrato (barrido 12/10/2026).
-  'contratoDatos',
-  'contratoServicioTexto',
-] as const;
+// Constantes importadas de @/lib/fiesta/reponer-la-plata
 
-/** Lo de pagar en cada compra al proveedor: plata, aunque la compra sea de organización. */
-const PAGO_DE_LA_COMPRA = ['pagado', 'montoPagado'] as const;
+async function getSesionYPermisos() {
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const sesion = await verifySession().catch(() => null);
+  const u = sesion?.success ? sesion.user : null;
+  return {
+    user: u,
+    puedeContabilidad: Boolean(u && puede(u, PERMISOS.CONTABILIDAD)),
+    puedeSueldos: Boolean(u && puede(u, PERMISOS.SUELDOS)),
+    puedeGanancias: Boolean(u && puede(u, PERMISOS.GANANCIAS)),
+  };
+}
 
 async function tocaLaPlata(): Promise<boolean> {
   const { verifySession } = await import('@/lib/auth/session-token');
@@ -150,33 +156,17 @@ async function tocaLaPlata(): Promise<boolean> {
 
 const mismoValor = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
-/** Deja lo de plata como está guardado. Para el guardado ENTERO de quien no tiene contabilidad. */
-function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanificacion | null): FiestaEnPlanificacion {
-  const copia: Record<string, unknown> = { ...nueva };
-  for (const campo of CAMPOS_DE_PLATA_Y_CONTRATO) {
-    if (guardada && campo in guardada) copia[campo] = (guardada as unknown as Record<string, unknown>)[campo];
-    else delete copia[campo];
-  }
-  if (Array.isArray(copia.estadosCompra)) {
-    const antes = guardada?.estadosCompra || [];
-    copia.estadosCompra = (copia.estadosCompra as Record<string, unknown>[]).map((e) => {
-      const previo = antes.find((o) => (o.proveedorId && o.proveedorId === e.proveedorId) || o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
-      const r = { ...e };
-      for (const k of PAGO_DE_LA_COMPRA) {
-        if (previo && k in previo) r[k] = previo[k]; else delete r[k];
-      }
-      return r;
-    });
-  }
-  return copia as unknown as FiestaEnPlanificacion;
-}
-
 /** El parcial sin lo de plata: eso queda como está en la fiesta de ese momento. */
-function sinLaPlata(parcial: Partial<FiestaEnPlanificacion>, actual: FiestaEnPlanificacion): Partial<FiestaEnPlanificacion> {
+function sinLaPlata(
+  parcial: Partial<FiestaEnPlanificacion>,
+  actual: FiestaEnPlanificacion,
+  authInfo?: any,
+  internalSync?: boolean
+): Partial<FiestaEnPlanificacion> {
   const copia: Record<string, unknown> = { ...parcial };
   for (const campo of CAMPOS_DE_PLATA_Y_CONTRATO) delete copia[campo];
   if (Array.isArray(copia.estadosCompra)) {
-    copia.estadosCompra = reponerLaPlata({ estadosCompra: copia.estadosCompra } as FiestaEnPlanificacion, actual).estadosCompra;
+    copia.estadosCompra = reponerLaPlata({ estadosCompra: copia.estadosCompra } as FiestaEnPlanificacion, actual, authInfo).estadosCompra;
   }
   return copia as Partial<FiestaEnPlanificacion>;
 }
@@ -292,7 +282,8 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   }
   const assignmentError = validatePersonalAssignments(fiestaData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
-  if (!(await tocaLaPlata())) {
+  const authInfo = await getSesionYPermisos();
+  if (!authInfo.puedeContabilidad) {
     // Auditoría 73 (CAMPO73-RACE): lo de plata se repone desde la fiesta de ESE momento, adentro
     // de la misma operación. Reponerlo desde una lectura anterior dejaba que una pantalla vieja
     // borrara una cuota cobrada entre la lectura y el guardado.
@@ -300,13 +291,17 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     if (await getFiestaByIdRaw(fiestaData.id)) {
       const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
       const datos = fiestaData;
-      const r = await actualizarFiesta(datos.id, (actual) => reponerLaPlata(datos, actual));
+      const r = await actualizarFiesta(datos.id, (actual) => reponerLaPlata(datos, actual, authInfo));
       if (!r.success) return { success: false, error: 'No se pudo guardar el evento.' };
       const { verifySession } = await import('@/lib/auth/session-token');
       if (!(await verifySession()).success) return { success: true };
       return { success: true, fiesta: r.updatedFiesta ?? datos };
     }
-    fiestaData = reponerLaPlata(fiestaData, null);
+    fiestaData = reponerLaPlata(fiestaData, null, authInfo);
+  } else if (!authInfo.puedeSueldos || !authInfo.puedeGanancias) {
+    const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+    const guardada = await getFiestaByIdRaw(fiestaData.id);
+    fiestaData = reponerLaPlata(fiestaData, guardada, authInfo);
   }
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaData.id}.json`;
@@ -324,7 +319,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
 export async function updateFiestaPartial(
   fiestaId: string,
   partialData: Partial<FiestaEnPlanificacion>,
-  options?: { allowPortal?: boolean }
+  options?: { allowPortal?: boolean; internalSync?: boolean }
 ): Promise<{ success: boolean; error?: string }> {
   if (options?.allowPortal) {
     await requireFiestaWriteAccess(fiestaId);
@@ -339,16 +334,49 @@ export async function updateFiestaPartial(
   }
   const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
-  if (!(await tocaLaPlata())) {
+
+  const authInfo = await getSesionYPermisos();
+  if (!authInfo.puedeContabilidad) {
     const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
-    if (pideCambiarLaPlata(partialData, await getFiestaByIdRaw(fiestaId))) {
+    const guardada = await getFiestaByIdRaw(fiestaId);
+    if (pideCambiarLaPlata(partialData, guardada)) {
       return { success: false, error: 'Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.' };
+    }
+    if (!options?.internalSync && !authInfo.puedeGanancias && 'gestionCostos' in partialData && !mismoValor(partialData.gestionCostos, guardada?.gestionCostos)) {
+      return { success: false, error: 'La gestión de costos y márgenes requiere permiso de ganancias.' };
     }
     // Lo de plata que vino igual a lo leído no se escribe: se queda lo de ESE momento, adentro de
     // la operación (auditoría 73). Si no, un cobro anotado en el medio volvía a cero.
     const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
-    const r = await actualizarFiesta(fiestaId, (actual) => ({ ...actual, ...sinLaPlata(partialData, actual) }));
+    const r = await actualizarFiesta(fiestaId, (actual) => ({ ...actual, ...sinLaPlata(partialData, actual, authInfo, options?.internalSync) }));
     return r.success ? { success: true } : { success: false, error: r.error || 'No se pudo actualizar parcialmente el evento.' };
+  }
+  if (!options?.internalSync) {
+    if (!authInfo.puedeGanancias && 'gestionCostos' in partialData) {
+      const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+      const guardada = await getFiestaByIdRaw(fiestaId);
+      if (guardada && 'gestionCostos' in guardada) {
+        partialData.gestionCostos = guardada.gestionCostos;
+      } else {
+        delete partialData.gestionCostos;
+      }
+    }
+    if (!authInfo.puedeSueldos && Array.isArray(partialData.personalAsignado)) {
+      const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+      const guardada = await getFiestaByIdRaw(fiestaId);
+      const antes = guardada?.personalAsignado || [];
+      const antesPorId = new Map(antes.map((p) => [p.empleadoId, p]));
+      partialData.personalAsignado = partialData.personalAsignado.map((p) => {
+        const previo = antesPorId.get(p.empleadoId);
+        const item = { ...p };
+        if (previo && previo.eventSalary !== undefined) {
+          item.eventSalary = previo.eventSalary;
+        } else {
+          delete (item as any).eventSalary;
+        }
+        return item;
+      });
+    }
   }
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaId}.json`;
@@ -396,7 +424,13 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
                 ...fiesta.modulosContratados,
             };
         }
-        if (lectura !== LECTURA_COMPLETA && !(await quienEsElEquipo())(fiesta)) {
+        if (lectura !== LECTURA_COMPLETA) {
+            const esEquipo = (await quienEsElEquipo())(fiesta);
+            if (esEquipo) {
+                const { verifySession } = await import('@/lib/auth/session-token');
+                const sesion = await verifySession().catch(() => null);
+                fiesta = recortarFiestaPorPerfil(fiesta, sesion?.user);
+            } else {
             if (fiesta.clientPortalSettings) {
                 fiesta.clientPortalSettings = {
                     ...fiesta.clientPortalSettings,
@@ -410,6 +444,7 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
             fiesta = recortarFiestaParaAfuera(fiesta, { esCliente });
         }
     }
+    }
     return fiesta;
 }
 
@@ -421,7 +456,13 @@ export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificaci
   const fiesta = fiestas.find(f => f.invitacionSlug === normalized) || null;
   // Al invitado le llega la invitación, no la clave del portal ni las credenciales (auditoría 69).
   if (!fiesta) return null;
-  return (await quienEsElEquipo())(fiesta) ? fiesta : paraAfuera(fiesta);
+  const esEquipo = (await quienEsElEquipo())(fiesta);
+  if (esEquipo) {
+    const { verifySession } = await import('@/lib/auth/session-token');
+    const sesion = await verifySession().catch(() => null);
+    return recortarFiestaPorPerfil(fiesta, sesion?.user);
+  }
+  return paraAfuera(fiesta);
 }
 
 export async function updateInvitacionSlug(fiestaId: string, slug: string): Promise<{ success: boolean; slug?: string; error?: string }> {

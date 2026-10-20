@@ -1,3 +1,7 @@
+import { contextoDeVozParaPerfil } from '@/lib/asistente/voz-en-vivo';
+import { verifySession } from '@/lib/auth/session-token';
+import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getCrmLeadsForDashboard } from '@/app/actions/crm';
 import { NextResponse } from 'next/server';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -62,6 +66,7 @@ export async function POST() {
   if (!admin.ok && !conta.ok) {
     return NextResponse.json({ error: admin.error || 'Tu perfil no tiene acceso a la voz en vivo.' }, { status: 401 });
   }
+  const usuario = (admin.ok ? admin.user : (conta.ok ? conta.user : undefined)) || { perfil: 'dueno' };
 
   const ajustes = await getAsistenteSettings();
   const tope = minutosPermitidosPorDia(ajustes.vozEnVivoMinutosPorDia);
@@ -87,8 +92,18 @@ export async function POST() {
   }
 
   try {
-    const briefing = await buildMultiAgentTeamBriefing().catch(() => null);
-    const instrucciones = armarInstruccionesDeVoz(resumirContextoParaVoz(briefing as any));
+    const [briefing, fiestas, prospectos] = await Promise.all([
+      buildMultiAgentTeamBriefing().catch(() => null),
+      getFiestas().catch(() => []),
+      getCrmLeadsForDashboard().catch(() => []),
+    ]);
+
+    const contexto = contextoDeVozParaPerfil(usuario, {
+      fiestas: Array.isArray(fiestas) ? fiestas : [],
+      briefing: briefing as any,
+      prospectos: Array.isArray(prospectos) ? prospectos : [],
+    });
+    const instrucciones = armarInstruccionesDeVoz(contexto);
     const voz = vozValida(ajustes.vozSeleccionada);
 
     // Una sola lectura de la versión: la ficha y el socket no pueden salir de versiones distintas.

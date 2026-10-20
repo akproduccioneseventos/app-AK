@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { getSession } from '@/lib/auth';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeftRight,
   Bot,
@@ -248,6 +248,13 @@ function getDefaultPosition(side: DockSide): DockPosition {
 export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams?.get('hablar') === '1') {
+      setIsOpen(true);
+    }
+  }, [searchParams]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' | 'warning' } | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isOpen, setIsOpen]         = useState(defaultOpen);

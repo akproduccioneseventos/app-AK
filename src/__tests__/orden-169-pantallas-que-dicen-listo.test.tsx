@@ -41,6 +41,8 @@ jest.mock('@/app/actions/presencia-digital', () => ({
   createPostFromDailySuggestion: jest.fn(),
   getNetworkAttributionReport: jest.fn(),
   getWebsiteAnalyticsData: jest.fn(),
+  getAjustesRespuestasAction: jest.fn().mockResolvedValue({ comentarios: false, mensajesDirectos: false }),
+  setAjustesRespuestasAction: jest.fn().mockResolvedValue({ success: true }),
 }));
 
 jest.mock('@/app/actions/comentarios-redes', () => ({

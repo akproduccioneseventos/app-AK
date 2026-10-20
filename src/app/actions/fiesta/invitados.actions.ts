@@ -353,7 +353,7 @@ export async function checkInGuest(
    * credencial se cambiaba con el lector abierto, el QR viejo seguía entrando. Sin esto (entrada
    * manual de recepción), no se pide QR.
    */
-  qr?: { token: string | null }
+  qr?: { token: string | null; escaneadoEn?: string }
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   try {
     await requireFiestaWriteAccess(fiestaId);
@@ -377,7 +377,16 @@ export async function checkInGuest(
           invitadoActualizado = inv;
           return inv;
         }
-        invitadoActualizado = { ...inv, checkedIn: true, checkInTimestamp: new Date().toISOString() };
+        let timestamp = new Date().toISOString();
+        if (qr?.escaneadoEn) {
+          const parsed = new Date(qr.escaneadoEn);
+          const ahora = Date.now();
+          const parsedTime = parsed.getTime();
+          if (!isNaN(parsedTime) && parsedTime <= ahora && ahora - parsedTime <= 12 * 60 * 60 * 1000) {
+            timestamp = parsed.toISOString();
+          }
+        }
+        invitadoActualizado = { ...inv, checkedIn: true, checkInTimestamp: timestamp };
         return invitadoActualizado;
       }
       return inv;

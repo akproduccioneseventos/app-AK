@@ -115,20 +115,12 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/empleados"
   },
   {
-    "etiqueta": "Marketing y Difusión",
-    "ruta": "/empresa/marketing"
-  },
-  {
-    "etiqueta": "Redes Sociales",
-    "ruta": "/empresa/redes-sociales"
+    "etiqueta": "Marketing y Redes",
+    "ruta": "/marketing"
   },
   {
     "etiqueta": "WhatsApp del Día",
     "ruta": "/contabilidad/crm/outbox"
-  },
-  {
-    "etiqueta": "Rendimiento Anuncios",
-    "ruta": "/contabilidad/crm/marketing-ads"
   },
   {
     "etiqueta": "Presentación LED",
@@ -502,6 +494,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/evento/actual/checkin",
     "/evento/actual/mesa",
     "/evento/album/:fiestaId",
+    "/evento/ar/:fiestaId",
     "/evento/barra",
     "/evento/barra/:fiestaId",
     "/evento/barra/:fiestaId/barman",

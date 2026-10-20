@@ -40,6 +40,55 @@ function CheckinScannerContent() {
   const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [pendientesSubida, setPendientesSubida] = useState<Set<string>>(new Set());
+
+  const colaKey = `ak_checkin_pendientes_${fiestaId}`;
+
+  const sincronizarCola = useCallback(async () => {
+    if (!fiestaId || typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(colaKey);
+      if (!raw) return;
+      const cola: Array<{ guestId: string; token: string | null; escaneadoEn: string }> = JSON.parse(raw);
+      if (!Array.isArray(cola) || cola.length === 0) return;
+
+      const rest: typeof cola = [];
+      for (const item of cola) {
+        try {
+          const res = await checkInGuestFiestaActual(fiestaId, item.guestId, { token: item.token, escaneadoEn: item.escaneadoEn });
+          if (res.success || res.error?.includes('ya hab') || res.error?.includes('ya estaba')) {
+            // subido ok
+          } else {
+            rest.push(item);
+          }
+        } catch {
+          rest.push(item);
+        }
+      }
+      localStorage.setItem(colaKey, JSON.stringify(rest));
+      setPendientesSubida(new Set(rest.map((r) => r.guestId)));
+    } catch {}
+  }, [fiestaId, colaKey]);
+
+  useEffect(() => {
+    if (!fiestaId || typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(colaKey);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          setPendientesSubida(new Set(arr.map((p: any) => p.guestId)));
+        }
+      }
+    } catch {}
+
+    const interval = setInterval(sincronizarCola, 10000);
+    window.addEventListener('online', sincronizarCola);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('online', sincronizarCola);
+    };
+  }, [fiestaId, colaKey, sincronizarCola]);
 
 
   const loadInitialData = useCallback(async (showLoading = true) => {
@@ -98,19 +147,42 @@ function CheckinScannerContent() {
         throw new Error(result.error || "No se pudo registrar la entrada.");
       }
     } catch (e: any) {
-      // En la puerta, con gente esperando, no sirve un error tecnico en ingles.
-      // Cuando se corta el WiFi del salon el navegador tira "Failed to fetch": se
-      // traduce a algo que se pueda actuar, porque el ingreso NO quedo guardado y
-      // hay que volver a escanear.
       const bruto = String(e?.message ?? '');
       const esDeRed = /failed to fetch|networkerror|load failed|fetch failed|timeout/i.test(bruto);
-      toast({
-        title: esDeRed ? 'Sin conexión' : 'No se pudo registrar la entrada',
-        description: esDeRed
-          ? 'El celular perdió la señal del salón. El ingreso no quedó guardado: volvé a escanear el QR en unos segundos.'
-          : bruto || 'Proba de nuevo. Si sigue fallando, anotalo a mano desde la lista.',
-        variant: 'destructive',
-      });
+      if (esDeRed && guestToCheck && !guestToCheck.checkedIn) {
+        const escaneadoEn = new Date().toISOString();
+        const fakeInvitado: Invitado = {
+          ...guestToCheck,
+          checkedIn: true,
+          checkInTimestamp: escaneadoEn,
+        };
+        setAllGuests((prev) => prev.map((g) => (g.id === guestId ? fakeInvitado : g)));
+        setPendientesSubida((prev) => new Set([...prev, guestId]));
+
+        try {
+          const raw = localStorage.getItem(colaKey);
+          const cola = raw ? JSON.parse(raw) : [];
+          if (!cola.some((c: any) => c.guestId === guestId)) {
+            cola.push({ guestId, token: qr?.token ?? null, escaneadoEn });
+            localStorage.setItem(colaKey, JSON.stringify(cola));
+          }
+        } catch {}
+
+        toast({
+          title: `¡Adelante, ${guestToCheck.nombre}! — Mesa ${guestToCheck.tableNumber || 'N/A'}`,
+          description: 'Ingreso registrado (pendiente de subir cuando vuelva la señal).',
+          className: 'bg-green-100 border-green-300 text-green-800',
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: esDeRed ? 'Sin conexión' : 'No se pudo registrar la entrada',
+          description: esDeRed
+            ? 'El celular perdió la señal del salón. El ingreso no quedó guardado: volvé a escanear el QR en unos segundos.'
+            : bruto || 'Proba de nuevo. Si sigue fallando, anotalo a mano desde la lista.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsProcessingCheckin(null);
     }

@@ -74,6 +74,7 @@ import {
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { dibujarFiltroDeCara, FILTROS_DISPONIBLES } from '@/lib/entretenimiento/filtros-cara';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 
 const FRAMES = [
@@ -112,6 +113,8 @@ export default function FotocabinaPage() {
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
   const [activeStickers, setActiveStickers] = useState<string[]>([]);
+  const [selectedFiltroCara, setSelectedFiltroCara] = useState<string | null>(null);
+  const carasDetectadasRef = useRef<any[]>([]);
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
   const toggleSticker = (s: string) => {
     setActiveStickers((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
@@ -448,7 +451,14 @@ export default function FotocabinaPage() {
           if (fiesta?.station.enableChromaKey) {
             aplicarChromaKey(ctx, canvas.width, canvas.height);
           }
-          drawFrameOverlay(ctx, canvas.width, canvas.height);
+          if (selectedFiltroCara) {
+      dibujarFiltroDeCara(ctx, video, selectedFiltroCara, carasDetectadasRef.current, {
+        nombreAgasajado: fiesta?.nombreAgasajado,
+        tipoCelebracion: fiesta?.tipoCelebracion,
+        primaryColor: fiesta?.primaryColor,
+      });
+    }
+    drawFrameOverlay(ctx, canvas.width, canvas.height);
         }
         frames.push(canvas);
         count++;
@@ -1570,6 +1580,29 @@ export default function FotocabinaPage() {
                         }`}
                       >
                         {frame.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Filtros de cara */}
+                <div className="flex flex-col gap-2 w-full pt-1" data-testid="selector-filtros">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Filtros
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 justify-center py-1">
+                    {FILTROS_DISPONIBLES.filter(f => !fiesta?.station?.filtrosActivos?.length || fiesta.station.filtrosActivos.includes(f.id)).map((filtro) => (
+                      <button
+                        key={filtro.id}
+                        type="button"
+                        onClick={() => setSelectedFiltroCara(prev => prev === filtro.id ? null : filtro.id)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-black transition border ${
+                          selectedFiltroCara === filtro.id
+                            ? 'bg-pink-500 text-white border-pink-400 shadow'
+                            : 'bg-white/10 text-white border-white/15 hover:bg-white/20'
+                        }`}
+                      >
+                        {filtro.nombre}
                       </button>
                     ))}
                   </div>

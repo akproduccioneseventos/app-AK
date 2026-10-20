@@ -15,7 +15,7 @@ import type { CrmLead } from '@/types/crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
-import { requirePermiso } from '@/lib/auth/require-session';
+import { requirePermiso, requireAppSession } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   buildDailySnapshots,
@@ -427,3 +427,21 @@ export async function getNetworkAttributionReport(
   }
 }
 
+
+export async function leerBandejaUnicaAction(): Promise<import('@/lib/mensajes/bandeja-unica').MensajeBandeja[]> {
+  await requireAppSession();
+  const { leerBandejaUnica } = await import('@/lib/mensajes/bandeja-unica');
+  return await leerBandejaUnica();
+}
+
+export async function getAjustesRespuestasAction() {
+  await requireAppSession();
+  const { getAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
+  return await getAjustesRespuestasComentarios();
+}
+
+export async function setAjustesRespuestasAction(ajustes: { comentarios?: boolean; mensajesDirectos?: boolean }) {
+  await requireAppSession();
+  const { setAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
+  return await setAjustesRespuestasComentarios(ajustes);
+}

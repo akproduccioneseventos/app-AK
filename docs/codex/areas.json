@@ -309,6 +309,7 @@
         "src/app/api/asistente",
         "src/app/api/multiagent",
         "src/app/api/whatsapp",
+        "src/app/api/meta",
         "src/app/(app)/settings/whatsapp",
         "src/app/(app)/settings/whatsapp-business",
         "src/app/(app)/settings/whatsapp-templates",

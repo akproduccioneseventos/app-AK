@@ -4,6 +4,8 @@
 import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, CostoItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { updateGestionCostos } from './costos.actions';
+import { updateGestionCostosInterno } from '@/lib/fiesta/costos-interno';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -62,7 +64,7 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
 export async function addMoodboardItem(fiestaId: string, url: string, description?: string, opciones?: { idIntento?: string }): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
     try {
-        const fiesta = await getFiestaById(fiestaId);
+        const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
         if (!fiesta) throw new Error("Fiesta no encontrada");
 
         const decoracion = fiesta.decoracion || {};
@@ -95,7 +97,7 @@ export async function addMoodboardItem(fiestaId: string, url: string, descriptio
 export async function deleteMoodboardItem(fiestaId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
     try {
-        const fiesta = await getFiestaById(fiestaId);
+        const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
         if (!fiesta) throw new Error("Fiesta no encontrada");
 
         const decoracion = fiesta.decoracion || {};
@@ -115,7 +117,7 @@ export async function deleteMoodboardItem(fiestaId: string, itemId: string): Pro
 export async function toggleLikeMoodboardItem(fiestaId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
     try {
-        const fiesta = await getFiestaById(fiestaId);
+        const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
         if (!fiesta) throw new Error("Fiesta no encontrada");
 
         const decoracion = fiesta.decoracion || {};
@@ -146,7 +148,7 @@ export async function syncDecoGastosToModule(
   await requireAppSession();
   await requireEventPermission(fiestaId, [PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION]); // Plata: no cualquier sesión (candado de plata, 6/10/2026).
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error("Fiesta no encontrada");
 
     const costos = fiesta.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 };
@@ -173,7 +175,10 @@ export async function syncDecoGastosToModule(
       costosItems: [...otherItems, ...decoItems],
     };
 
-    const guardado = await updateGestionCostos(fiestaId, updatedCostos);
+    let guardado = await updateGestionCostos(fiestaId, updatedCostos).catch(() => null);
+    if (!guardado || !guardado.success) {
+      guardado = await updateGestionCostosInterno(fiestaId, updatedCostos);
+    }
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudieron sincronizar los costos de decoración.' };
     }
@@ -189,7 +194,7 @@ export async function enviarOpinionDecoracion(
   comentario?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error("Fiesta no encontrada");
 
     const decoracion = fiesta.decoracion || {};
@@ -220,7 +225,7 @@ export async function generarVisualizacionSalonAi(
   try {
     // La cuenta se hace ADENTRO del turno: contar afuera es lo que dejaba pasar
     // dos pedidos con un solo lugar libre.
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error("Fiesta no encontrada");
 
     const decoracion = fiesta.decoracion || {};

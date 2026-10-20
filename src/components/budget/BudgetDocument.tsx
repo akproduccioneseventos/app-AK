@@ -90,6 +90,43 @@ export interface BudgetDocumentProps {
   totalFinalOverride?: number;
 }
 
+export function FranjaTranquilidad({
+  presupuesto,
+}: {
+  presupuesto: Presupuesto;
+}) {
+  const itemsRegalo = (presupuesto.itemsPresupuestados || []).filter((i) => i.esRegalo);
+  return (
+    <section className="mb-4 rounded-xl border border-emerald-200/90 bg-emerald-50/50 p-3.5 print:border-slate-300 print:bg-slate-50 print:p-2.5">
+      <div className="flex items-start gap-2.5">
+        <Sparkles className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0 print:hidden" />
+        <div className="w-full space-y-2">
+          <p className="text-[10px] font-black uppercase tracking-wider text-emerald-900 print:text-slate-800">
+            Tranquilidad incluida con tu fiesta
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
+            <div className="space-y-1">
+              <p className="font-semibold text-emerald-800">✓ Reservás tu fecha con una seña</p>
+              <p className="text-slate-600">✓ Plan de pagos mensuales a tu medida</p>
+              <p className="text-slate-600">✓ Hasta 12 cuotas con tarjeta</p>
+            </div>
+            {itemsRegalo.length > 0 && (
+              <div className="space-y-1 sm:border-l sm:border-emerald-200 sm:pl-3">
+                <p className="font-bold text-[11px] text-emerald-900 uppercase tracking-wider">Beneficios bonificados:</p>
+                {itemsRegalo.map((r, idx) => (
+                  <p key={idx} className="text-xs text-emerald-800 font-medium">
+                    • {r.nombreServicio} <span className="font-bold text-emerald-600">(Incluido)</span>
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function BudgetDocument({
   presupuesto,
   logoUrl,
@@ -379,6 +416,9 @@ export default function BudgetDocument({
           );
         })()}
 
+        {/* Franja de Tranquilidad (Orden 181) */}
+        <FranjaTranquilidad presupuesto={presupuesto} />
+
         {/* Items table */}
         {showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
           <section className="mb-4">
@@ -470,7 +510,7 @@ export default function BudgetDocument({
                             key={`${catIdx}-${itemIdx}`}
                             className="bg-white border-b border-slate-200"
                           >
-                            <td 
+                            <td
                               className="border border-slate-200 px-3 py-2 align-top"
                               style={{ color: item.esRegalo ? '#dc2626' : '#334155' }}
                             >
@@ -574,7 +614,7 @@ export default function BudgetDocument({
             <span>💳 Opciones de Pago & Transparencia Financiera</span>
             <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full font-bold">Mercado Pago / Transferencia</span>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-slate-700">
             <div className="bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm">
               <p className="font-extrabold text-slate-900 flex items-center justify-between">
