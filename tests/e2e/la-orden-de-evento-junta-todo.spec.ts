@@ -6,7 +6,26 @@ import {
   guardarFiesta,
   leerFiesta,
 } from './helpers/fiesta-de-prueba';
-import { readData, writeData } from '@/lib/data-service';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// `@/lib/data-service` es `server-only` desde la orden 197: fuera de Next no se puede importar.
+// En el entorno de pruebas (`AK_USE_LOCAL_JSON_ONLY`) los datos viven en estos archivos.
+const ARCHIVOS_LOCALES = ['data', 'src/data'].map((base) => path.join(process.cwd(), base));
+async function readData<T>(archivo: string, porDefecto: T): Promise<T> {
+  for (const base of ARCHIVOS_LOCALES) {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(base, archivo), 'utf-8')) as T;
+    } catch {}
+  }
+  return porDefecto;
+}
+async function writeData(archivo: string, datos: unknown): Promise<void> {
+  for (const base of ARCHIVOS_LOCALES) {
+    fs.mkdirSync(base, { recursive: true });
+    fs.writeFileSync(path.join(base, archivo), `${JSON.stringify(datos, null, 2)}\n`);
+  }
+}
 
 const FIESTA_ID = `e2e_orden_evento_${process.pid}_${Date.now()}`;
 const EMPLEADO_NOMBRE = 'Gonzalo DJ Operativo';
