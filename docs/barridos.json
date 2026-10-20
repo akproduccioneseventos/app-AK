@@ -324,6 +324,10 @@
     "81": {
       "fecha": "2026-10-20",
       "resultado": "confirmado → orden 194: post-fiesta manda al disco de todos; formas-ya-arregladas encontró candidatos que se confirman en la orden 194"
+    },
+    "82": {
+      "fecha": "2026-10-20",
+      "resultado": "sin hallazgos en la rama: el control recorre agentes, asistente, multiagente y voz; los casos de la entrega 1337 van en la orden 196"
     }
   }
 }

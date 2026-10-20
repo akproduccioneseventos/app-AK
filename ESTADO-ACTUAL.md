@@ -33,6 +33,7 @@ Codex sólo audita.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
 - Codex 1324: `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
+- Gemini 1337: `45a0b1d47` (órdenes 188 a 192) → **devuelta con la orden 196**; faltan 193 a 195.
 - 1325 a 1329: viejas, superadas por las órdenes 188 a 194; no se revisan de nuevo.
 
 ## A medias / trabado

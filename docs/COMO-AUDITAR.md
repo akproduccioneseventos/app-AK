@@ -1245,3 +1245,12 @@ seguía en `src/app/post-fiesta/[fiestaId]/page.tsx`. **`node scripts/formas-ya-
 cada forma que un control prohíbe en un archivo y la busca en toda la app. Se corre al juntar cada
 entrega; lo que encuentra se confirma y va a una orden. Y un control nuevo que prohíbe una forma se
 escribe recorriendo `src/`, no un archivo.
+
+### 82. Lo que dice el asistente, la voz o un agente, ¿sale de los datos o es un texto fijo que parece un dato?
+
+Entrega 1337 (orden 196): el Contador de "los dots" contestaba "este mes se cobraron $240.000 y restan
+$85.000" siempre igual; la acción "ejecutada automáticamente" no hacía nada; el borrador de WhatsApp
+"dejado listo en Mi Día" no se guardaba en ningún lado, y una acción desconocida respondía "recibida y
+registrada". Todo con pruebas en verde. Se busca: cada respuesta del asistente que nombre un número, una
+acción hecha o algo guardado, y se sigue hasta el dato o el guardado que la respalda. El control
+`src/__tests__/el-asistente-no-inventa-plata.test.ts` frena los importes escritos a mano.
