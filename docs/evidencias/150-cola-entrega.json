@@ -1,0 +1,72 @@
+{
+  "source": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+  "file": "src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx",
+  "sha256": "d3bc4a26bd33aed33f2e0ed63cc65be3f328705dd6e2e7cbb16e751f66eb77d5",
+  "cases": [
+    {
+      "mode": "sequential",
+      "expected": [],
+      "observed": [],
+      "requests": [
+        [
+          "qa150",
+          "A",
+          {
+            "token": null,
+            "escaneadoEn": "2026-10-20T10:00:00.000Z"
+          }
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "mode": "enqueue-during-await",
+      "expected": [
+        "B"
+      ],
+      "observed": [],
+      "requests": [
+        [
+          "qa150",
+          "A",
+          {
+            "token": null,
+            "escaneadoEn": "2026-10-20T10:00:00.000Z"
+          }
+        ]
+      ],
+      "pass": false
+    },
+    {
+      "mode": "lost-response",
+      "expected": [
+        "A"
+      ],
+      "observed": [
+        "A"
+      ],
+      "requests": [
+        [
+          "qa150",
+          "A",
+          {
+            "token": null,
+            "escaneadoEn": "2026-10-20T10:00:00.000Z"
+          }
+        ]
+      ],
+      "pass": true
+    }
+  ],
+  "summary": {
+    "pass": 2,
+    "fail": 1
+  },
+  "scope": "Actual new1337 callback AST-extracted, controlled localStorage and response promises",
+  "limits": [
+    "No browser/camera/server SDK, no duplicated server guest claim",
+    "This revalidates changed source, not identical149 callback"
+  ],
+  "appEdited": false,
+  "realData": false
+}

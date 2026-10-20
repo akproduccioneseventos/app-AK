@@ -1,40 +1,40 @@
-# Estado actual - Codex149,20/10/2026UTC
+# Estado actual - Codex150,20/10/2026
 
 Codex SOLO audita/prueba/documenta; Gemini programa; Claude dinero/permisos/comida,
 valida/compila/fusiona. Excepcion dueno SOLO build/servidorQA ficticio aislado.
 Repo ak-auditoria-133-portal-responsive, rama codex/134-conciliacion-cobertura-20261015.
-PR1324 BORRADOR ABIERTA; no fusionar documentos solos ni cambiar app/datos reales.
-Main7230f9d02b32805952a185f704a0208bd5d643e6 sin cambio al20/10UTC.
-1330-1335 CERRADAS SIN FUSION. No tratarlas como abiertas/publicadas/aceptadas.
-141 clienteSDK real emulador demo:2PASS PC/Pixel7 telefono sinemail/lista/recarga,
-ID/campos/timestamps iguales por REST. Cierra viaje inconcluso137/139, no area.
-142 nuevoQA compilado17d26a631f500a263c48c4973d9c6f57d56ba421, exit0 tipos/lint.
-PR1327 avanzoa98a4b25009f9994d7a9cbd3025972a4142634c2: solo4E2Ecambiados,
-runtime/config/deps identicos17d. NO recompilar ni repetir mismoalcance por esto.
-171/172 fallos historicos142; fixes presentes1328ef0, aun sin retest nativo.
-184fecha143 mostraba7/8Uy vs8/8UTC;146expresion16PASS, falta pantalla/print.
-178cabecera142aceptada2PASS/2PDF: NO reabrir por184. No cambiar fecha guardada.
-144:3diffsQA sin aserciones quitadas/skips nuevos;120/180seg no prueban rapidez.
-QA142Temp ak-qa-142-Ti9Igx mantiene build17d: reutilizar si mismo runtime.
-QAprevio restaurado,0difftracked; no parar ajenos ni heredar credenciales/env.
-13650HTTP permisosPASS,11prospectoPASS/11deseleccionadas,8altasSDKmaestrosPASS.
-136CRM-agenda datos persisten; enlace099sin598FAILhistorico, fixpresente1328.
-AK-CODEX-136-WA099-COST=179-gemini-agenda-recordatorio-whatsapp-local.md;
-AK-CODEX-138-PERFIL-PROPIO=180-claude-perfiles-solo-claves-propias.md.
-1328HEADef0e9402 fixes171/172/179/180/184presentes;14634PASSsolo ligeros, noUI.
-148185helper4PASS03cd87d59;1333cerradaSINmerge,1329abiertab849helperviejo.
-149consumidores1852PASS/2FAIL: predicado rechaza pagos intactos; catering
-cambiaBpedido y reemplazaA60.30 porB200 conigualnombre/distintoID.185ampliada.
-Auth/read/transaccion dobles enmemoria, NOaccionSDK. Catering mismoblobmain/1329/1333.
-149cola1329sincronizarCola2PASS/1FAIL: Aesperando,se agregaB,confirmarA borraB.
-186 AK-CODEX-149-COLA-PUERTA devuelve181; no duplicacion servidor demostrada.
-Total1497casos4PASS3FAIL, dosfamilias. No repetir sondas sin nueva fuente.
-Claude/Geminiprivadoactual NO CONTRASTADO. Contrastar antes de programar.
-1353D/agenda/DJ6PASS y42unidades focales vigentes por alcance; no repetir.
-134421rutas/14areas/7perfiles/6401AST es inventario, no aceptacion por boton.
-19originales dueno sigue buscando, no insistir ni sustituir por JSONmigrados/QA.
-Hosting/OAuth/modelo-voz/cuentas/hardware/integraciones reales NO certificados.
-Siguiente:185consumidores/186responsables;UI171/172/179/184 conbuildnuevo,
-viaje comercialmovil omitido y185accion/persistencia.149-recuento-vigente manda.
-RAM inicial380460KiB: no build pesado ni parar ajenos. Sondas Node128MiB seriales.
-Dos agentes cerrados; sin app/build/servidores nuevos. No14areas/0errores certificados.
+PR1324 BORRADOR ABIERTA, misma entrega documental; NO fusionar documentos solos.
+Main7230f9d02b32805952a185f704a0208bd5d643e6 sin cambio observado.
+PR1337ABIERTA fuente45a0b1d4783ad58846c2e2d07ad8f318287024bf, base remotaClaude
+860aa8c2641a6b8af3806bae08011dffa6276c80. Privadosnopublicados NO CONTRASTADOS.
+Leidas193/194/195:193bloque2 YArecoge185;195renumera186/mismoID. NO duplicarlas.
+150 CERRADO movilcomercial pendiente133:Pixel7 1PASS0FAIL0SKIP36seg, build1357230.
+Presupuesto/prospecto unicos,FacebookUTM,PDF,2contactos interceptados,CRMrecarga.
+Documentos conservados salvo timestamp/IDs internos regenerados: SOLOJSONlocal,
+NO SDK/produccion. Gate PASS_COMMERCIAL_MOBILE_MAIN_JSON_ONLY; no repetir.
+PDFreal2paginasA4/20servicios/84838/p-persona1697/regalos/cabeceras/numeracion.
+Ambas paginas revisadas; enlaceNOdesborda(margenderecho40.31pt), sospecha descartada.
+Tresprimeras corridasFAILporQA(columnaCRMplegada/oraculo metadatos/campoitems),
+fuentes/reportes/logs/4PDFconservados. No tresbugs app.61JSON restaurados,diff0.
+1337cuerposacciones6casos4PASS2FAIL:saveFiesta preserva IDs, parcial/catering
+siguencruzando/rechazando pornombre. Ya193. Auth/asignacion/transacciondobles.
+1337cola reescrita2PASS1FAIL conserva falloBperdido:ya195, no duplicacionservidor.
+NUEVO196Claude AK-CODEX-150-SAVE-RESPUESTA-PERFIL:saveFiesta devuelvecostos/pagos
+aloperador sinpermiso. ControlfiltrorealPASS+2variantesFAIL, UNAcausa de salida.
+FronteraREAL deasignacion4casos3PASS1FAIL:entradaSINcostos/salidaCONcostos;
+noasignado/anonimo rechazados,dueno permitido. NOHTTPfirmado/SDKreal.
+150entorno prepare2intentos rechazados porguardia2GiB, segundoesperamaxima10min.
+NO build ni150entorno.json producidos; NO falloapp. No procesosajenos detenidos.
+Preparados150-entorno prepare/testmobile/date/agenda, fuente45 congeladaalcrear.
+Dependencias/lock iguales7230,package soloagrega script. No nuevasdepsproduccion.
+UI171/172/179/184 identica directamente a1328ef0;perfilesdifere,noequivalencia total.
+Pendiente retestUI fuentecompilada45 +aceptacion193/195/196 yfronteraSDKficticia.
+1353D/agendaGoogle-no-conectada/DJ6PASS+42unidades,141clienteSDK2PASS y178142
+cabecera2PASS/2PDF siguen cerrados PORALCANCE.14634ligerosPASS, noUI. No reabrir.
+142build17d NOvalida45. No repetirbuild/grafo por docs ni mutarQA mientras prueba.
+Dos agentes economicos150cerrados, sin serviciospropios. Recibos150-consolidado.
+FiltroPublicaciones sinconsumo es pistaESTATICA,noorden niUIprobada porahora.
+1330-1336 cerradasSINmerge, no subirramasviejas. No appedit/merge/forcepush.
+134421rutas/14areas/7roles/6401AST inventario, NOaceptacion exhaustiva decontroles.
+19originalesdueno buscando;noinsistir. OAuth/modelo/voz/Hosting/hardware noaceptados.
+No14areas/todosroles/0errores certificados;GHrojo facturacion nofalloapp.

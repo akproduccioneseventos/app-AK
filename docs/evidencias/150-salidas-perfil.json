@@ -1,0 +1,52 @@
+{
+  "source": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "5c2d2aa0adfd7753d5399058cbca74b74a9613e2f3e921d9f296895319a58cf8",
+    "src/lib/fiesta/recortar-para-afuera.ts": "5b1e86f4ca350851d92b77cbcc1b381f7eee140411e5e71c55a390bd87941fce"
+  },
+  "inputReceipt": "150-consumidores-entrega.json",
+  "cases": [
+    {
+      "sameName": false,
+      "exposed": [
+        "gestionCostos",
+        "estadosCompra[0].montoPagado",
+        "estadosCompra[0].pagado",
+        "estadosCompra[1].montoPagado",
+        "estadosCompra[1].pagado"
+      ],
+      "pass": false,
+      "observedCost": {
+        "total": 9500
+      },
+      "expectedHasCost": false
+    },
+    {
+      "sameName": true,
+      "exposed": [
+        "gestionCostos",
+        "estadosCompra[0].montoPagado",
+        "estadosCompra[0].pagado",
+        "estadosCompra[1].montoPagado",
+        "estadosCompra[1].pagado"
+      ],
+      "pass": false,
+      "observedCost": {
+        "total": 9500
+      },
+      "expectedHasCost": false
+    }
+  ],
+  "control": {
+    "name": "Actual recortarFiestaPorPerfil removes protected fields",
+    "pass": true
+  },
+  "scope": "Output from previously executed actual saveFiesta body; actual permission model and actual response filter",
+  "limits": [
+    "Assignment/session/transaction were controlled doubles in prior receipt",
+    "No real signed HTTP call, real account, real leak or SDK persistence demonstrated",
+    "Only save response is in scope; do not infer every action leaks"
+  ],
+  "appEdited": false,
+  "realData": false
+}
