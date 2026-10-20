@@ -7,7 +7,7 @@ GET publico health17:01:49UTC devuelve894d,compilada16:42:52UTC; no certifica
 integraciones por sus booleanos ni todas las funciones publicadas.
 Claude publico d0147992: runtime/config/deps igualesmain. Privados NO CONTRASTADOS.
 1324/1338 cerradas/integradas: no subir ramas viejas. Entrega actual solo docs/QA,
-rama codex/154-cierre-verificado-20261020 en ak-auditoria154-entrega; no fusionar sola.
+rama codex/154-cierre-verificado-20261020 en ak-auditoria154-entrega,PR1340 BORRADOR.
 PR1337 sigue45a0,devuelta con196deGemini;195cola pendiente. No es196deCodex,
 renumerada198.186actual es179agendaWA; usar IDs completos para evitar cruces.
 151build2e y152build2538 exit0 con tipos/lint. No nuevo build local894d aceptado.
@@ -33,4 +33,4 @@ No procesos ajenos detenidos. SDK/emulador/agentes propios cerrados,difffuentes0
 reales no certificados. QA nunca datos/cuentas/cargos/mensajesreales.
 Siguiente: correccion172 y entrega195/1337; retest SOLOdelta,cerrar cobertura por
 criterios observados,no por grep. No afirmar IA/portales completos por estos casos.
-No appedit/merge/forcepush. GHrojo facturacion nofalloapp. RegistrarSHA+limites.
+No appedit/merge/forcepush. GHrojo facturacion nofalloapp. No fusionar docs solos.
