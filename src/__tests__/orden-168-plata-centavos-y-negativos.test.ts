@@ -48,6 +48,14 @@ jest.mock('@/lib/data-service', () => ({
 
 // --- Mock de fiesta.actions ---
 const mockUpdateFiestaPartial = jest.fn().mockResolvedValue({ success: true });
+// Los costos que recalcula el servidor se guardan por costos-interno (orden 183): mismo destino que
+// el updateFiestaPartial de mentira de esta prueba.
+jest.mock('@/lib/fiesta/costos-interno', () => ({
+  guardarCostosInterno: async (id: string, costos: unknown) => {
+    const r = await require('@/app/actions/fiesta/fiesta.actions').updateFiestaPartial(id, { gestionCostos: costos });
+    return r?.success ? { success: true, updatedData: costos } : { success: false, error: r?.error };
+  },
+}));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   updateFiestaPartial: (...args: unknown[]) => mockUpdateFiestaPartial(...args),
   getFiestaById: jest.fn().mockResolvedValue(null),

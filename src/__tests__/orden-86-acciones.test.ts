@@ -30,6 +30,11 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestas: jest.fn(async () => [JSON.parse(JSON.stringify(fiestaActual))]),
 }));
 jest.mock('@/app/actions/empleados', () => ({ getEmpleados: jest.fn(async () => [{ id: 'e1', rolIds: ['mozo'] }, { id: 'e2', rolIds: ['mozo'] }]) }));
+// Las cuentas del servidor leen los roles por acá (orden 197): mismo dato que el mock de getRoles.
+jest.mock('@/lib/roles/leer-roles-interno', () => ({
+  leerRolesInterno: () => require('@/app/actions/roles').getRoles(),
+}));
+
 jest.mock('@/app/actions/roles', () => ({ getRoles: jest.fn(async () => [{ id: 'mozo', sueldoPorEvento: 1000 }]) }));
 jest.mock('@/lib/staff-agenda-data', () => ({ readActiveFiestasForStaffAgenda: jest.fn(async (leer: () => any) => leer()) }));
 

@@ -1,48 +1,55 @@
-# Estado actual - 15/10/2026 (Codex132)
+# Estado actual — 20 de octubre de 2026
 
-Codex SOLO audita/prueba/documenta; Gemini programa, Claude revisa/compila/fusiona.
-Mainbbf68006e09b358f8e0869c1d534acdd0863724c, app iguald10f332a.
-PR1315 integrada porClaude via1317: NO subir rama131 cerrada.
-Nueva rama codex/132-portal-musica-y-avisos-barra-20261015 desdebbf.
-PR1318 ABIERTA/BORRADOR snapshotb30a5aea,35blobs remotos identicos; recibo132.
-NoPRcoders abierta alcontraste;169encargada yprivado NO CONTRASTADO HEADdesconocido.
-No reauditar169 ni pisar archivoDJ enentregaactiva; coordinar170con169.
-132portal9casos8PASS1FAIL: paginas+acciones/mapeo reales, datos/sesion ficticios.
-Menu ylistas musicales guardan/remontan, borrador/error yclaveinvalidaPASS.
-FalloP2: Si es posible persistida porUI no visibleDJ, mismoFiesta recibido.
-132barra/listo6casos3PASS3FAIL: pagina real/acciondoble. Errorinicial falso
-preparando ysondeocaido sin aviso de desactualizacion son UNAcausaP2.
-Vacio/pedidolisto/recuperacionPASS. Motor/stock/barman anteriores NOreabiertos.
-Orden170 con2defectos,15casosdistintos11PASS4FAIL0omitidos; registro3PASSaparte.
-Fuente congelada Gitarchive d10, TS-jest NO Nextbuild/tsc/navegador.
-RedHTTP/HTTPS/fetchbloqueada, envsinclaves, ADCinexistente;0fixturesalterados.
-Temporalesretirados alterminar, datosajenosbytespreservados; dosLunalowcerrados.
-FallosQAserver-only/contador.mock conservadosgzip; no fallosappni casosnuevos.
-No app/compilacion/fusion/dependenciasproduccion. Checkacentos2957PASS.
-13116614casosPASS cierra5defectos129ENALCANCE; fuentee8historica, reutilizarporconsumidor.
-167presentemain;169pendiente; no alterar politicaingresoscuotasenteros.
-Inventario131421rutas/4633ASTcontroles NOaceptacionfuncional ni14areaslimpias.
-Requisito114vigente: artefactoQAactualSHA/health/ficticio para viajesnativos.
-Se pregunto excepcionasincrona decompilar SOLOQA; NO asumir respuesta concedida.
-Si seautoriza: prepararQAaislado, no prod/datos/cuentas/cargos/mensajesreales.
-No0errores/todoauditado/Hosting/OAuth/19originales/IAvozreal/hardware sin evidencia.
-No grafo/buildpor docs, noforcepush/archivosajenos; cerrar servicios/agentespropios.
-# Estado actual - 15/10/2026 (Codex133)
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la
+propuesta 1323 (`7230f9d02`). **Nada de esta tanda está publicado todavía.**
 
-Codex audita/prueba/documenta; Gemini programa; Claude revisa/compila/fusiona. No fusionar.
-Main observado: `9aa64f991f5ddceefa8d278a3f298be861eb10bb`; arbol `src` equivalente `d10f332a`.
-Sin PR abierta al inicio de esta tanda. PR1318 y PR1319 estaban fusionadas; rama anterior no reutilizable.
+## En qué se está
+Esperando UNA entrega de Gemini con las órdenes 188 a 195 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
+Codex sólo audita.
 
-QA sintetico aislado, build de app `a635b27071ecea22092eba2a285892c84c6f9d08`; servicios reales deshabilitados.
-Portal/cliente no 3D: mensajes persisten al recargar en desktop y movil; cuatro criterios del panel pasan en ambos.
-Contrato movil: defecto reproducido en 390 px (titulo 3 lineas, sello tapa etiqueta, texto PDF fuera del boton), orden171.
-Panel social: ruta 200, contenido visible y 0px de desborde, pero el dock tapa el encabezado de columna Evento por 1455px2 a 390x844; orden172.
-Salon 3D: tanda de 28 escenarios dio 13 PASS y 15 timeouts durante teardown de Chromium/trazas; no clasificar como 15 errores app ni como area aprobada. Corrida duro 1.1 h; no repetir este bloque. Queda prueba 3D focalizada pendiente.
-Orden del evento y ubicacion sintetica del personal: 4/4 PASS desktop/movil. Agenda respondio, pero su prueba no aprueba por Firebase SDK con API key falsa; runner informa Firebase apagado pero permite intento desde browser. Limite QA, no defecto app confirmado; bloquear salida externa antes de repetir.
-Privados Claude/Gemini NO CONTRASTADOS. Ver evidencia133; no declarar auditoria completa ni cero errores.
-RSVP quedo sin resultado por interrupcion de Codex. RECTIFICACION174: log ADC no prueba descubrimiento/uso de credenciales reales; SDK las busca al solicitar token, no al construir el objeto. Modo local sin emulador dejo dbAdmin/authAdmin nulos y uso JSON local. Retirado el supuesto defecto de credenciales y su bloqueo de auditoria. La llamada cliente a Firebase con clave ficticia sigue siendo ruido QA: interceptar salida en el arnes antes de aserciones de consola.
-Lectura publica de `/public/blog/como-calcular-bebida-evento-salto`: contenido observable, no prueba visual ni de interaccion. El texto presenta como exacta una estimacion general, afirma sin fuente que en Salto se consume el doble y propone 3-4 tragos alcoholicos por adulto en una pagina que tambien promociona fiestas de 15. Se registro orden175 para Gemini: separar calculo logistico de recomendacion de consumo, revisar evidencia y explicitar publico adulto/dispensacion responsable. Referencias oficiales: JND `Eventos Cuidados` y guia de alcohol; OMS ficha sobre alcohol. No es conclusion legal ni consejo medico.
-Seguimiento en build sintetico: pagos rapidos 2/2 PASS, conflicto de cuotas 2/2 PASS, flujo de caja 2/2 PASS; cocina acceso/impresion 2 PASS, 2 omitidos intencionales y 1 control de consola inconcluso por Firebase SDK con API key falsa. No defecto funcional confirmado; ver `docs/evidencias/133-operacion-cocina-cobros.md`.
-3D focal tampoco concluyente: el canvas se observa dibujado, pero Playwright agota 90 s cerrando contexto/traza con avisos WebGL ReadPixels; Firebase cliente sigue llamando con API key falsa. No reabrir la suite larga; ver `docs/evidencias/133-salon-3d-focal.md`.
-Red social de la fiesta como invitado: 4/4 PASS, escritorio/movil para `Mi mesa`, cronograma, ranking, hub y mensajes tecnicos; no incluye carga real de fotos. Ver `docs/evidencias/133-red-social-invitado.md`.
-Ventas/CRM: origen UTM/galeria publica 4/4 PASS; flujo sintetico con UTM Facebook llega al CRM con etiquetas Simulador/Facebook, conserva campana y budgetId, y botones apuntan al WhatsApp oficial (PASS escritorio, movil omitido). La prueba antigua esperaba un `Continuar` inexistente en el paso 5; orden173 pide actualizar solo ese E2E. Ver evidencia133-simulador-whatsapp.
+## Terminado en esta tanda
+- Junté en la rama los arreglos de Codex 136/138 (1328) y la evidencia de Codex 134 (1324).
+- Devolví la entrega de Gemini 1333 (órdenes 180 a 183 y 185): sola rompía 7 pruebas, junto con
+  la rama 12, y dejaba pública una función de costos sin permiso → **orden 188**.
+- Cerré sin fusionar 1330, 1331, 1332, 1334, 1335 y 1333. Lo que servía pasó a las órdenes.
+- **Orden 189:** las novedades que eligió el dueño, con realidad aumentada de verdad (apuntar a la
+  invitación impresa), Play Store, iPhone desde la web, selfie, cámara descartable, trivia con IA
+  real, efecto Coldplay y armador de mesas.
+- **Orden 190:** hablarle a la app como en una llamada, que haga tareas con confirmación, avisos al
+  teléfono según el perfil, ícono "Hablar con AK" y "los dots de AK" (asistentes con nombre, objetivo
+  y qué hacen solos). Se habla siempre a "Asistente AK", que deriva solo; el dueño llega a todo.
+- Método: preguntas 69 a 73 (COMO-AUDITAR) y 54 (ANTES-DE-ENTREGAR). El control de acentos ya lee
+  nombres de archivo con tilde.
+- Decisiones nuevas anotadas en CLAUDE.md (19/10): realidad aumentada SÍ; Play Store sí; Apple no.
+
+- **Orden 191:** filtros que siguen la cara, "Mis 15", estilo Canva y efectos de Instagram/TikTok.
+- **Orden 192:** un solo centro de presencia y redes, bandeja única de mensajes, respuestas solas con reglas.
+- **Barrido de las 73 preguntas** (20/10): registro `docs/barridos.json` + control que lo exige.
+  Lo confirmado (plata incluida) va en la **orden 193**; ~25 preguntas quedaron "parcial".
+- **Orden 194:** 36 de 45 hallazgos de la auditoría de Gemini (20/10) eran ciertos. Lo urgente: el despertador
+  no llega a la app. Preguntas 74–81 y `npm run formas-ya-arregladas` (lo arreglado en un archivo, buscado en todo).
+- **Despertador de Claude cada hora:** revisa solo lo que entreguen Gemini y Codex (decisión del dueño 20/10).
+- Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
+
+## Errores de plata y permisos abiertos en la app publicada
+- Ninguno en la rama: la orden 197 (con 183 y 198) entró el 20/10. Falta publicarla (fusionar a main).
+
+## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1324: `2852f0881` (auditoría 150 juntada; su 196 pasó a ser la **198**). Antes `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
+- Gemini 1338 (orden 197): `2e5363f25`, juntada y terminada por Claude.
+- Gemini 1337: `45a0b1d47` (órdenes 188 a 192) → **devuelta con la orden 196**; faltan 193 a 195.
+- 1325 a 1329: viejas, superadas por las órdenes 188 a 194; no se revisan de nuevo.
+
+## A medias / trabado
+- Órdenes 180–183 y 185 siguen sin entrar: van dentro de la devolución 188.
+- Orden 182 (5 pestañas, portal en 5 pasos, Marketing): lo armado no se ve en las pantallas.
+- Hay que medir cuántos minutos de voz en vivo gratis da Gemini por día antes de subir el tope de
+  10 minutos.
+- Respaldo local de la integración rota: rama local `respaldo-integracion-f9878` (no subida, se
+  puede tirar).
+
+## Lo próximo
+1. Cuando Gemini entregue 188: revisar plata y permisos línea por línea (candado de la plata,
+   `recortarFiestaPorPerfil`, guardado que no borra), puerta, fusionar con `expectedHeadSha`.
+2. Después 189 y 190, en el mismo orden. 190 toca permisos: con lupa.
+3. Pendiente del dueño, sin apuro: si quiere sumar "Mi día" como puerta de entrada al reordenar.

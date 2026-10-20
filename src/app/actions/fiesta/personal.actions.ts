@@ -5,6 +5,7 @@ import { syncFiestaToGoogleWorkspace } from '../google-workspace';
 import { getFiestaById, getFiestas, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
 
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -13,12 +14,16 @@ export async function updatePersonal(
   personal: PersonalAsignadoDetalleStorage[]
 ): Promise<{ success: boolean; error?: string; googleSyncWarning?: string; agendaWarning?: string }> {
   // Lo que se guarda aca incluye `eventSalary`: cuanto cobra cada persona por esa
-  // fiesta. Es el mismo dato que protegen los recibos, asi que pide el mismo
-  // permiso. Antes no comprobaba NADA: con solo conocer el codigo de una fiesta se
+  // fiesta. Antes no comprobaba NADA: con solo conocer el codigo de una fiesta se
   // podian cambiar los sueldos desde afuera, y ademas se disparaban los correos de
   // asignacion al equipo.
-  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  //
+  // Orden 194 (hallazgo 21): asignar personal es de ORGANIZACION; el sueldo, de SUELDOS. Quien
+  // asigna sin permiso de sueldos no puede tocar `eventSalary`: se conserva el guardado.
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
   if (!permiso.ok) return { success: false, error: permiso.error };
+  const { puede } = await import('@/lib/auth/perfiles');
+  const tieneSueldos = puede(permiso.user, PERMISOS.SUELDOS);
 
   try {
     for (const p of personal) {
@@ -27,8 +32,15 @@ export async function updatePersonal(
       }
     }
 
-    const currentData = await getFiestaById(fiestaId);
+    // Lectura completa: el sueldo guardado se conserva aunque a este perfil no se le muestre.
+    const currentData = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!currentData) throw new Error("Fiesta no encontrada");
+    const currentPersonal = currentData.personalAsignado || [];
+    personal = personal.map((p) => {
+      if (tieneSueldos) return p;
+      const previo = currentPersonal.find((prev: any) => prev.empleadoId === p.empleadoId);
+      return { ...p, eventSalary: previo ? previo.eventSalary : 0 };
+    });
 
     const contarAsignaciones = (items: PersonalAsignadoDetalleStorage[]) => {
       const counts = new Map<string, number>();

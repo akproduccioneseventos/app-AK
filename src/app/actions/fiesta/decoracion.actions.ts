@@ -3,12 +3,14 @@
 
 import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, CostoItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
-import { updateGestionCostos } from './costos.actions';
+import { usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
+import { guardarCostosInterno } from '@/lib/fiesta/costos-interno';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { idDelIntento } from '@/lib/intento-en-servidor';
-import { PERMISOS } from '@/lib/auth/perfiles';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { AsyncMutex } from '@/lib/mutex';
@@ -44,7 +46,13 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
      * Y no se mira "por las dudas": si la sincronizacion falla, se avisa. Antes se
      * tiraba el resultado a la basura, asi que un error ahi no lo veia nadie.
      */
-    const sincronizado = await syncDecoGastosToModule(fiestaId, decoracion.itemsDecoracion || []);
+    // Desde el portal del cliente no se recalculan gastos: los costos son del equipo (orden 183) y el
+    // cliente no tiene por qué tocarlos. Se recalculan la próxima vez que guarda alguien del equipo.
+    const equipo = await usuarioDelEquipo();
+    const puedeRecalcular = Boolean(equipo)
+      && [PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION].some((p) => puede(equipo, p));
+    if (!puedeRecalcular) return { success: true, updatedData: decoracion };
+    const sincronizado = await sincronizarGastosDeco(fiestaId, decoracion.itemsDecoracion || []);
     if (!sincronizado.success) {
       return {
         success: false,
@@ -145,8 +153,20 @@ export async function syncDecoGastosToModule(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   await requireEventPermission(fiestaId, [PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION]); // Plata: no cualquier sesión (candado de plata, 6/10/2026).
+  return sincronizarGastosDeco(fiestaId, itemsDecoracion);
+}
+
+/**
+ * Sin permiso propio: la llaman `syncDecoGastosToModule` (que pide el suyo) y `updateDecoracion`, que
+ * guarda desde el portal del cliente (orden 194, hallazgo 35: el cliente veía "no se pudo guardar").
+ * No está exportada, así que el navegador no la puede llamar.
+ */
+async function sincronizarGastosDeco(
+  fiestaId: string,
+  itemsDecoracion: DecoItem[]
+): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error("Fiesta no encontrada");
 
     const costos = fiesta.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 };
@@ -173,7 +193,7 @@ export async function syncDecoGastosToModule(
       costosItems: [...otherItems, ...decoItems],
     };
 
-    const guardado = await updateGestionCostos(fiestaId, updatedCostos);
+    const guardado = await guardarCostosInterno(fiestaId, updatedCostos);
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudieron sincronizar los costos de decoración.' };
     }

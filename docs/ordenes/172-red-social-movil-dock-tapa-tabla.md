@@ -2,7 +2,7 @@
 
 > **Se programa con la orden 176 (para Gemini), que tiene el camino exacto.**
 
-**Estado:** superposicion reproducida; correccion y revalidacion pendientes.
+**Estado:** retest142 FAIL en PR1327 fuente17d26a631: interseccion2247.17px2 a390x844. Sin desborde horizontal; sigue tapando Evento. Ver142-143-cierre.md. Misma orden, no reemitir.
 **Prioridad:** P2, el acceso fijo tapa parte de una columna de datos.
 **Base auditada:** app `d10f332a17241de5a4705a560336585853073a76`, build QA aislado `a635b27071ecea22092eba2a285892c84c6f9d08`; `src` coincide con main `9aa64f991f5ddceefa8d278a3f298be861eb10bb`.
 
@@ -25,5 +25,5 @@ El ancho movil ya se habia medido con un barrido general; ese barrido solo verif
 ```comprobar
 archivo: src/components/module-navigation-dock.tsx
 usa: pb-24 en src/components/app-shell.tsx
-prueba: PENDIENTE tests/e2e/133-mobile-route-latency.spec.ts
+prueba: docs/evidencias/133-mobile-route-latency.spec.ts
 ```

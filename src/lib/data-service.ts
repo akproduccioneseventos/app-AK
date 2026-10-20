@@ -2,7 +2,7 @@
  * @fileOverview A centralized service for reading and writing data.
  * Firestore is the single source of truth for all environments.
  */
-"use server";
+import 'server-only';
 
 import { syncToFirestore, readFromFirestore } from "./firebase-sync";
 import { readGenericJsonFile, syncGenericJsonFile, leerGenericJsonParaGuardarEncima } from "./generic-json-store";

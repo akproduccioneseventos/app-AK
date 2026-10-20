@@ -55,7 +55,7 @@ export async function saveEmpleado(
   opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
   // Cambiar la ficha de alguien (cedula, contrato) es del dueño, como borrarla.
-  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
   if (!permiso.ok) return { success: false, error: permiso.error };
 
   let empleados = await getEmpleados();
@@ -84,7 +84,7 @@ export async function saveEmpleado(
   } else {
     empleadoToSave = { ...empleadoData };
   }
-  
+
   if (!empleadoToSave.nombre?.trim()) {
     return { success: false, error: 'El nombre del empleado es obligatorio.' };
   }
@@ -144,7 +144,7 @@ export async function saveEmpleado(
       return { success: false, error: `Error al guardar archivo de contrato: ${fileError.message}` };
     }
   }
-  
+
   const finalIndex = empleados.findIndex(e => e.id === empleadoId);
   if (finalIndex !== -1) empleados[finalIndex] = empleadoToSave as Empleado;
 

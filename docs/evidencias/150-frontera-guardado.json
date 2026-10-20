@@ -1,0 +1,86 @@
+{
+  "source": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "5c2d2aa0adfd7753d5399058cbca74b74a9613e2f3e921d9f296895319a58cf8",
+    "src/lib/fiesta/recortar-para-afuera.ts": "5b1e86f4ca350851d92b77cbcc1b381f7eee140411e5e71c55a390bd87941fce",
+    "src/lib/fiesta/reponer-la-plata.ts": "cf002fc2f179720d6d2df17b5ff79974417c2dbc8a08eb33d77e1d206f731d20",
+    "src/lib/auth/equipo-de-la-fiesta.ts": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+    "src/app/actions/fiesta/fiesta.actions.ts": "14d2b85b0669b4355c4079a7fa997924d37f7801bf36a52883778dea4fdfba18"
+  },
+  "cases": [
+    {
+      "kind": "operator-assigned",
+      "actorProfile": "operador",
+      "allowedByRealTeam": true,
+      "inputHasCosts": false,
+      "rejected": false,
+      "writes": 1,
+      "responseHasCosts": true,
+      "returnedCosts": {
+        "total": 9500
+      },
+      "returnedSupplierPayment": 60.3,
+      "storedCosts": {
+        "total": 9500
+      },
+      "pass": false
+    },
+    {
+      "kind": "operator-unassigned",
+      "actorProfile": "operador",
+      "allowedByRealTeam": false,
+      "inputHasCosts": false,
+      "rejected": true,
+      "writes": 0,
+      "responseHasCosts": false,
+      "returnedCosts": null,
+      "returnedSupplierPayment": null,
+      "storedCosts": {
+        "total": 9500
+      },
+      "pass": true
+    },
+    {
+      "kind": "owner",
+      "actorProfile": "dueno",
+      "allowedByRealTeam": true,
+      "inputHasCosts": true,
+      "rejected": false,
+      "writes": 1,
+      "responseHasCosts": true,
+      "returnedCosts": {
+        "total": 9500
+      },
+      "returnedSupplierPayment": 60.3,
+      "storedCosts": {
+        "total": 9500
+      },
+      "pass": true
+    },
+    {
+      "kind": "anonymous",
+      "actorProfile": null,
+      "allowedByRealTeam": false,
+      "inputHasCosts": false,
+      "rejected": true,
+      "writes": 0,
+      "responseHasCosts": false,
+      "returnedCosts": null,
+      "returnedSupplierPayment": null,
+      "storedCosts": {
+        "total": 9500
+      },
+      "pass": true
+    }
+  ],
+  "summary": {
+    "pass": 3,
+    "fail": 1
+  },
+  "scope": "Actual action, assignment gate, profile model and redaction; fake session verification and database only",
+  "limits": [
+    "No real signed HTTP, SDK persistence, production or real financial data",
+    "Assigned operator starts from genuinely redacted input; cost is restored from fictitious storage, not echoed input"
+  ],
+  "appEdited": false
+}

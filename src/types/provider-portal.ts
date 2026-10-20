@@ -25,5 +25,6 @@ export interface ProveedorPortalAccess {
   llegadaConfirmadaEn?: string; // ISO string
   partidaConfirmadaEn?: string; // ISO string
   createdAt: string; // ISO string
+  venceEl?: string; // ISO string
   activo: boolean;
 }

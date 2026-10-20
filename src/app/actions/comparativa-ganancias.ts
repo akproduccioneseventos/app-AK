@@ -16,7 +16,7 @@ export async function getComparativaDeGanancias(): Promise<{
   comparativa?: Comparativa;
   error?: string;
 }> {
-  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  const permiso = await requirePermiso(PERMISOS.GANANCIAS);
   if (!permiso.ok) return { ok: false, error: permiso.error };
 
   const { getFiestas } = await import('@/app/actions/fiesta/fiesta.actions');

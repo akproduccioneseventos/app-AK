@@ -1,0 +1,259 @@
+{
+  "purpose": "Indice de evidencia reciente para conciliacion con inventario historico; no certifica areas ni resuelve vigencia sobre main.",
+  "baseline": {
+    "artifact": "docs/evidencias/128-matriz-areas.json",
+    "use": "Solo linea base; el contenido no se considera aceptacion vigente.",
+    "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+    "limitations": "La matriz registra el estado previo. No se presume que su codigo, rutas o hallazgos sigan vigentes en la fuente de cada recibo."
+  },
+  "rows": [
+    {
+      "id": "125-aceptacion-historica",
+      "areaIds": ["estaciones"],
+      "sourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+      "buildSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+      "artifact": "docs/evidencias/125-aceptacion.json",
+      "result": "PASS_DELTA125_ONLY: 759 suites/4765 tests historicos, 6 casos nativos y 4 smokes de dependencias. Se conserva el alcance del recibo, no aceptacion actual de las 14 areas.",
+      "scenarioScope": "Delta125 y controles de totem/contraste; otros alcances permanecen en el recibo original, sin asignarlos automaticamente a un area.",
+      "consumers": null,
+      "limitations": "Fuente historica distinta: comparar consumidores antes de reutilizar. Eventos PWA simulados no certifican instalacion del sistema operativo. Once advisories unicos residuales no se convierten en defectos nuevos."
+    },
+    {
+      "id": "126-dos-defectos-historicos",
+      "areaIds": ["portal", "fiesta", "invitado"],
+      "sourceSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+      "buildSha": "b520f7cee28546634e1c87391efd7a80e1a40f48",
+      "artifact": "docs/evidencias/126-aceptacion.json; docs/evidencias/126-observaciones.md",
+      "result": "8 casos nativos: 4 PASS / 4 FAIL correspondientes a 2 defectos (ACK de plantillas y contraste de decoracion). Orden164 posterior los trata; no reemitirlos desde esta evidencia antigua.",
+      "scenarioScope": "Chromium/SDK demo aislado, plantillas de invitacion y portal decoracion. Registro 3 PASS separado de funcionamiento.",
+      "consumers": ["src/app/actions/invitacion-digital-templates.ts", "src/app/(app)/settings/templates/invitaciones/page.tsx", "src/app/portal/[fiestaId]/decoracion/page.tsx"],
+      "limitations": "Evidencia anterior al arreglo; ni build actual ni veredicto presente. Sin cuentas ni hardware reales."
+    },
+    {
+      "id": "129-automatizaciones",
+      "areaIds": ["automaticos"],
+      "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+      "buildSha": null,
+      "artifact": "docs/evidencias/129-automatizaciones-jest.json",
+      "result": "4 PASS / 3 FAIL de 7. Cero avisos y duplicados controlados; fallo de lectura y fallos parciales de creacion muestran ‘Revision completa’ como si todo hubiera terminado bien. Lote conserva 1 aviso de 2 con resultado global success=true.",
+      "scenarioScope": "Componente/pagina React, accion y dobles de datos, autenticacion y notificaciones; sin navegador nativo. Casos de lectura fallida, aviso individual fallido y lote parcialmente fallido.",
+      "consumers": null,
+      "limitations": "No acredita ejecucion contra proveedores ni navegador real. El path de consumidor no esta expresamente documentado en el recibo."
+    },
+    {
+      "id": "129-compras",
+      "areaIds": ["comida", "plata"],
+      "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+      "buildSha": null,
+      "artifact": "docs/evidencias/129-compras-jest.json; docs/evidencias/129-compras-ampliado-jest.json; docs/evidencias/129-compras-importe-observado.json; docs/evidencias/129-compras-reversion-observado.json",
+      "result": "Primer sondeo 2 PASS / 1 FAIL; ampliado 3 PASS / 2 FAIL (misma prueba de reversión repetida, no caso adicional). La accion acepto y persistio adelanto -500. Revertir pagado a pendiente no reabre recordatorio; control UI de negativo tampoco lo rechaza.",
+      "scenarioScope": "Accion real con dobles en memoria/transaccion/autenticacion y sonda React puntual; adelanto negativo, centavos positivos, recordatorio de compra pagada y reversada.",
+      "consumers": null,
+      "limitations": "Sin navegador nativo ni dinero real. No se infiere ruta/componente consumidor no explicitado. Reintento ampliado no cuenta como cobertura distinta."
+    },
+    {
+      "id": "129-personal-llegada",
+      "areaIds": ["personal"],
+      "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+      "buildSha": null,
+      "artifact": "docs/evidencias/129-personal-jest.json; docs/evidencias/129-personal-llegada-observado.json",
+      "result": "1 PASS / 1 FAIL: llegada normal muestra hora guardada; tras perder respuesta y reintentar, la pantalla no muestra la hora ORIGINAL preservada por servidor.",
+      "scenarioScope": "Pagina/vista React y accion real con dobles sintéticos de datos, autenticacion y GPS; reintento despues de respuesta perdida.",
+      "consumers": null,
+      "limitations": "No navegador nativo, GPS ni sesiones reales. Consumidor directo no nombrado en recibo."
+    },
+    {
+      "id": "129-registro",
+      "areaIds": [],
+      "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+      "buildSha": null,
+      "artifact": "docs/evidencias/129-registro-jest.json",
+      "result": "3 PASS de comprobaciones documentales del registro/ordenes; no son escenarios de funcionamiento de un area.",
+      "scenarioScope": "Presencia de ordenes desde 149 y referencias a preguntas del metodo; no comportamiento de app.",
+      "consumers": ["docs/evidencias/129-registro.test.ts"],
+      "limitations": "Excluir como cobertura funcional de areas."
+    },
+    {
+      "id": "130-costos-y-finanzas",
+      "areaIds": ["plata"],
+      "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+      "buildSha": null,
+      "artifact": "docs/evidencias/130-costos-ejecucion.json; docs/evidencias/130-finanzas-ejecucion.json; docs/evidencias/130-costos-precision-observado.json; docs/evidencias/130-finanzas-centavos-observado.json",
+      "result": "Resultados agregados historicos: costos 1/3 PASS, finanzas 3/5 PASS. El hallazgo valido fue que gastos/costos admitidos con centavos se truncaban en el reporte. Las expectativas sobre ingresos/cuotas decimales fueron DESCARTADAS por politica previa de pesos enteros; no se cuentan como defecto ni pendiente. Tambien se excluyo un fixture inicial con fecha/paymentDate incompatible.",
+      "scenarioScope": "Guardar/leer gastos y acciones reales de ganancias/perdidas y conciliacion con datos/auth en memoria; importes enteros y decimales; sin envio.",
+      "consumers": null,
+      "limitations": "Dobles, no navegador; resultados resumidos por reportes y recibos focales, no auditoria contable completa. No adoptar policy de centavos desde estos casos excluidos/incompatibles."
+    },
+    {
+      "id": "130-reportes-y-variantes",
+      "areaIds": ["plata", "portal"],
+      "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+      "buildSha": null,
+      "artifact": "docs/evidencias/130-resumen-final.json; docs/evidencias/130-reportes-compartir-observado.json; docs/evidencias/130-reporte-evento-observado.json",
+      "result": "Reportes 14/21 PASS; portal material 3/5 PASS; reporte evento 2/4 PASS; variantes 29/30 PASS. El reporte de evento observó carga válida y errores devueltos/de red con aviso y retorno; el portal material mostró contenido cargado, sesión inválida sin contenido y casos de lectura fallida. Fallos restantes constan agregados, sin convertirlos en aceptación.",
+      "scenarioScope": "Siete paginas React de reporte y botones con datos sintéticos; portal cliente con sesion/datos dobles y mapeo DTO; reporte de evento con query/accion simuladas; pruebas focalizadas de variantes.",
+      "consumers": null,
+      "limitations": "Sin navegador nativo, auth/proveedores reales. El resumen cuenta 63 casos y 14 fallos, con casos excluidos por fixtures/politica/contexto; los conteos no aceptan las areas. Consumer paths no quedan identificados aqui."
+    },
+    {
+      "id": "130-registro",
+      "areaIds": [],
+      "sourceSha": "ce1ac07d1bb16c24dd73e2d26ac55038028a2472",
+      "buildSha": null,
+      "artifact": "docs/evidencias/130-registro-jest.json",
+      "result": "3 PASS de comprobaciones documentales; no cobertura funcional.",
+      "scenarioScope": "Registro/ordenes y referencias del metodo.",
+      "consumers": ["docs/evidencias/130-registro.test.ts"],
+      "limitations": "Excluir como cobertura funcional de areas."
+    },
+    {
+      "id": "131-retest166",
+      "areaIds": ["automaticos", "comida", "personal"],
+      "sourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+      "buildSha": null,
+      "artifact": "docs/evidencias/131-retest166-jest.json; docs/evidencias/131-retest166-ejecucion.json",
+      "result": "14/14 PASS en los casos originales de retest166: avisos/lote, rechazo de monto negativo y pruebas de llegada incluidas. El lote ahora informa un fallo parcial; el negativo devuelve error y no guarda.",
+      "scenarioScope": "Reejecucion focal de escenarios 166 con componentes/acciones reales y dobles sinteticos de datos/auth/notificaciones/GPS; no navegador nativo.",
+      "consumers": null,
+      "limitations": "Cierra solo sondas originales del orden166, no areas completas. Reutiliza escenarios 129, no contarlos como cobertura nueva distinta. Sesiones nativas no probadas."
+    },
+    {
+      "id": "131-dj-y-registro",
+      "areaIds": ["fiesta"],
+      "sourceSha": "e8cd2c2b114bcda21d153cb406318cc1119d1dc5",
+      "buildSha": null,
+      "artifact": "docs/evidencias/131-dj-jest.json; docs/evidencias/131-dj-observado.json; docs/evidencias/131-resumen-final.json",
+      "result": "DJ 2/4 PASS / 2 FAIL: marcar pendiente funciona y canción de otra fiesta no cambia; desmarcar no persiste tras recarga y fallo al guardar no informa/permite reintentar como esperado. Tanda total 16/18 casos funcionales PASS, 2 FAIL; registro documental 3/3 aparte.",
+      "scenarioScope": "Pagina real DJ, accion de marca y persistencia con dobles Firestore/auth; casos de propiedad entre fiestas, desmarcar y error de guardado.",
+      "consumers": null,
+      "limitations": "No navegador, auth ni Firestore nativos. El inventario de rutas/controles de 131 no es aceptación funcional."
+    },
+    {
+      "id": "132-portal-musica-menu",
+      "areaIds": ["portal", "fiesta"],
+      "sourceSha": "d10f332a17241de5a4705a560336585853073a76",
+      "buildSha": null,
+      "artifact": "docs/evidencias/132-portal-jest.json; docs/evidencias/132-portal-observado.json",
+      "result": "8 PASS / 1 FAIL: clave/sesion valida, DTO, menu guardado y remontado, borrador/error, clave/evento invalidos y musica agregar/quitar/guardar/recargar pasan; la cancion ‘Si es posible’ persistida por el portal no aparece en la lista DJ con consultas vacias.",
+      "scenarioScope": "Paginas/acciones reales de portal cliente, sesion/cookie sintetica y dobles en memoria; controles de menu/restriccion, musica y cruce portal-DJ.",
+      "consumers": ["docs/evidencias/132-portal-menu-musica.test.tsx"],
+      "limitations": "TS/Jest con providers sintéticos; no build Next, navegador ni auth real. El mismo codigo src se documenta equivalente al main observado por tanda 132, pero eso no certifica mas consumidores."
+    },
+    {
+      "id": "132-barra-pedidos-listos",
+      "areaIds": ["barra"],
+      "sourceSha": "d10f332a17241de5a4705a560336585853073a76",
+      "buildSha": null,
+      "artifact": "docs/evidencias/132-barra-jest.json; docs/evidencias/132-barra-listos-observado.json",
+      "result": "3 PASS / 3 FAIL: estado vacio, pedido listo y sondeo sano posterior al error pasan; respuesta inicial success=false, rechazo inicial y fallo de sondeo sin aviso de desactualizacion fallan. Los dos errores iniciales son una causa compartida en el resumen 132; fallo del sondeo es la segunda causa.",
+      "scenarioScope": "Pagina real y accion getBarPedidosListos simulada; primer fetch/sondeo, lista vacia, estado listo y recuperacion.",
+      "consumers": null,
+      "limitations": "Sin autenticacion ni hardware real; no navegador/build. Las seis comprobaciones son casos de una sola sonda focal, no aceptación de toda barra."
+    },
+    {
+      "id": "132-registro",
+      "areaIds": [],
+      "sourceSha": "d10f332a17241de5a4705a560336585853073a76",
+      "buildSha": null,
+      "artifact": "docs/evidencias/132-registro-jest.json",
+      "result": "3 PASS de comprobaciones documentales; no cobertura funcional.",
+      "scenarioScope": "Registro de ejecucion/documentacion.",
+      "consumers": ["docs/evidencias/132-registro.test.ts"],
+      "limitations": "Excluir como cobertura funcional de areas."
+    },
+    {
+      "id": "133-rsvp-portal-invitado",
+      "areaIds": ["invitado", "portal", "fiesta"],
+      "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "buildSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "artifact": "docs/evidencias/133-invitado-rsvp-portal.md; docs/evidencias/133-invitado-red-local-sin-sw-execution.json; docs/evidencias/133-invitado-red-local-sin-sw-results.json.gz",
+      "result": "10 PASS finales, 0 FAIL/omitidos en cinco escenarios desktop y Pixel 7: RSVP con acompañantes/contacto/cancion, no asistencia, reflejo de confirmacion y conteo, cancelacion sin duplicar, acceso cliente/centro del muro y guardado de configuracion. Corridas anteriores repetian estos escenarios; bloqueo artificial de service worker genero 6 PASS/4 FAIL por fallo del harness/fixture y no cuenta como defectos.",
+      "scenarioScope": "Build sintético aislado, JSON local, servicios externos deshabilitados e interceptados, sin service workers y sin API de service worker para el caso de ausencia.",
+      "consumers": ["tests/e2e/133-invitado-con-red-local.spec.ts"],
+      "limitations": "No prueba PWA/offline, OAuth, pagos, fotos reales, hardware, diseño completo ni area completa. Caso QR no descarga archivo; guardado de configuracion no relee diseño. sourceSha del build explícito; fuente exacta de main informada como equivalente en el recibo, no como build separado."
+    },
+    {
+      "id": "133-qr-descarga-lector",
+      "areaIds": ["invitado", "estaciones"],
+      "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "buildSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "artifact": "docs/evidencias/133-qr-descarga-lector.md; docs/evidencias/133-qr-descarga-lector-local-execution.json; docs/evidencias/133-qr-descarga-lector-local-results.json.gz",
+      "result": "4 PASS, 0 FAIL/omitidos: dos longitudes de token en desktop y Pixel 7; descarga PNG real, bytes iguales leidos por html5-qrcode, checkedIn y hora estable al repetir.",
+      "scenarioScope": "Build sintetico/local, lector real de la app, archivo descargado; cámara simulada por helper, no hardware.",
+      "consumers": ["tests/e2e/133-qr-descarga-lector-local.spec.ts", "/evento/accesos/:fiestaId"],
+      "limitations": "No camara fisica, impresion, PWA/offline ni totalidad del control de acceso. sourceSha/buildSha son el SHA explícito de ejecución; main se documenta como arbol src equivalente."
+    },
+    {
+      "id": "133-red-social-invitado",
+      "areaIds": ["fiesta", "invitado"],
+      "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "buildSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "artifact": "docs/evidencias/133-red-social-invitado.md",
+      "result": "4/4 PASS escritorio/movil: carga, Mi mesa, cronograma, ranking, enlace a mesa y ausencia de texto técnico/errores JS.",
+      "scenarioScope": "Recorrido sintetico como invitado y hub de red social; documento nombra fiesta/red social y escritorio/móvil.",
+      "consumers": ["tests/e2e/la-red-social-de-la-fiesta.spec.ts"],
+      "limitations": "No subida real de fotos ni todas las funciones del mural; artifact no explicita resultado de ejecución aislado en JSON."
+    },
+    {
+      "id": "133-operacion-cocina-cobros",
+      "areaIds": ["plata", "comida"],
+      "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "buildSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "artifact": "docs/evidencias/133-operacion-cocina-cobros.md",
+      "result": "7 PASS, 2 omitidos y 1 control de consola inconcluso: pagos rapidos, cuotas y flujo de caja pasan sus criterios. Cocina solo comprueba acceso/interfaz o aviso de error y el control Imprimir condicional; NO demuestra hoja con evento/datos cargados ni impresion real. El viaje RSVP fue despues completado en su propio recibo.",
+      "scenarioScope": "E2E en build aislado: pagos rápidos, cuotas, flujo de caja y hoja de cocina; datos/claves sinteticos, servicios externos deshabilitados. Solicitud del SDK Firebase cliente a API key falsa invalida una comprobación de consola, no atribuida a defecto funcional.",
+      "consumers": ["tests/e2e/49-contabilidad-cobros-conciliados.spec.ts", "tests/e2e/49-contabilidad-permisos-y-errores.spec.ts", "tests/e2e/el-plan-de-cuotas-no-deshace-un-cobro.spec.ts", "tests/e2e/la-hoja-de-cocina.spec.ts"],
+      "limitations": "No auditoria completa de finanzas/cocina, Firebase real ni dinero real. No aceptar cocina completa desde estas aserciones condicionales; el RSVP posterior tiene evidencia separada."
+    },
+    {
+      "id": "133-salon-3d",
+      "areaIds": ["fiesta"],
+      "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "buildSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "artifact": "docs/evidencias/133-salon-3d-focal.md; docs/evidencias/133-salon-3d-focal.png",
+      "result": "INCONCLUSO: canvas dibujado; timeout de teardown/trazas de 90s con avisos WebGL, sin asercion funcional fallida. No es PASS ni defecto confirmado.",
+      "scenarioScope": "Una variante escritorio del test de muebles 3D; movil omitido deliberadamente.",
+      "consumers": ["tests/e2e/la-vista-3d-muestra-los-muebles.spec.ts"],
+      "limitations": "Captura no demuestra colocacion correcta de todos los muebles. SDK Firebase de navegador también llamó con API key sintetica inválida. No repetir suite extensa; recibo pide ejecución aislada sin traza/red externa."
+    },
+    {
+      "id": "133-simulador-whatsapp",
+      "areaIds": ["web", "plata"],
+      "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "buildSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "artifact": "docs/evidencias/133-simulador-whatsapp.md",
+      "result": "Flujo de oferta/contacto en escritorio PASS; móvil omitido por el test. Lead conserva etiquetas Simulador/Facebook, campaña UTM, budgetSource simulator_common, acquisition.source facebook y presupuestoId; destino wa.me coincide, window.open interceptado. Control comercial origen UTM/galería pública 4/4 desktop/móvil PASS.",
+      "scenarioScope": "Simulador con UTM Facebook, datos sintéticos, oferta de extras, presupuesto/lead CRM y botones de contacto; no se abre WhatsApp ni se envia mensaje.",
+      "consumers": ["tests/e2e/133-simulador-whatsapp-despues-de-oferta.spec.ts", "tests/e2e/50-venta-origen-y-galeria-publica.spec.ts"],
+      "limitations": "No prospectos/presupuestos/mensajes reales; prueba móvil del flujo con presupuesto omitida. Orden173 de actualizar E2E antiguo es mantenimiento de prueba, no bug adicional."
+    },
+    {
+      "id": "133-responsive-publico-y-operacion",
+      "areaIds": ["web", "invitado", "portal", "contrato", "estaciones", "comida", "permisos", "personal"],
+      "sourceSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "buildSha": "a635b27071ecea22092eba2a285892c84c6f9d08",
+      "artifact": "docs/evidencias/133-contrato-mobile-layout.md; docs/evidencias/133-mobile-social-overlap-390.png; docs/evidencias/133-invitado-rsvp-portal.md",
+      "result": "Se documenta solapamiento reproducido de ModuleNavigationDock sobre encabezado Evento (~1455 px2 a 390x844); orden172 pendiente. Tres rutas responden HTTP 200/red externa bloqueada, social sin desborde; la aserción de solapamiento falla. Tótem 8/8 desktop/móvil; puerta /evento/inicio 2/2 desktop con 2 móvil omitidos; barrido de overflow desktop pasa y móvil expira por límite de recorrido, no defecto de rutas. Operacion/personal 4/4 en casos documentados; limpieza de agenda con consola inconclusa por SDK/Firebase sintético. Contrato movil tiene defectos de distribucion documentados en orden171, no aceptacion completa.",
+      "scenarioScope": "QA nativo aislado: responsive social/publico, contrato móvil reportado en evidencia separada, tótem, puerta de estaciones, overflow general y operación/agenda.",
+      "consumers": ["/", "/settings/cupones", "/empresa/red-social-eventos", "/evento/inicio"],
+      "limitations": "Solo rutas citadas explícitamente; resultados mezclan subcorridas y artefactos. Timeout de barrido móvil no es FAIL funcional. Fallo/consola de Firebase sintético no se atribuye al producto. No inferir auditoria de todas las áreas listadas."
+    },
+    {
+      "id": "174-adc-retractado-y-175-editorial",
+      "areaIds": [],
+      "sourceSha": null,
+      "buildSha": null,
+      "artifact": "ESTADO-ACTUAL.md (seccion Codex133); docs/evidencias/133-blog-bebidas-publico.md",
+      "result": "174 retractado como defecto: mensaje ADC no demuestra credenciales reales ni defecto de app; no contar como bug ni como prueba funcional. 175 es propuesta editorial para distinguir calculo logistico de recomendacion de bebidas alcoholicas y explicitar contexto adulto/dispensacion responsable; requiere revision principal, no es hallazgo funcional confirmado.",
+      "scenarioScope": "Rectificacion de interpretacion de log y propuesta de copy/editorial.",
+      "consumers": null,
+      "limitations": "No aceptación o prueba funcional. Referencias/alcance editorial requieren determinacion principal; no presentar 175 como bug."
+    }
+  ],
+  "reconciliationNotes": [
+    "Los SHAs de source/build se incluyen solo cuando el recibo los declara explícitamente. Documentary HEAD no se sustituye por sourceSha ni se interpreta como build.",
+    "Los paths de consumidor se limitan a pruebas o rutas nombradas por el artefacto; null significa que el consumidor directo no quedó explícito, no que no exista.",
+    "No sumar retests de los mismos escenarios, registros documentales, pruebas de inventario AST/rutas/controles ni afirmaciones agregadas como cobertura funcional independiente.",
+    "La matriz 128 es baseline histórica. Vigencia frente a main y reconciliación con inventario histórico quedan para revisión principal; ninguna fila acepta el area completa."
+  ]
+}

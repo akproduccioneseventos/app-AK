@@ -33,7 +33,7 @@ describe('El control de acentos rotos', () => {
     // Secuencias tipicas de UTF-8 leido a la latina.
     const rotos = /Ã[-¿]|Â[-¿]|â€/;
 
-    const documentos = execFileSync('git', ['ls-files', '--', '*.md'], {
+    const documentos = execFileSync('git', ['-c', 'core.quotepath=off', 'ls-files', '--', '*.md'], {
       cwd: RAIZ,
       encoding: 'utf-8',
     })

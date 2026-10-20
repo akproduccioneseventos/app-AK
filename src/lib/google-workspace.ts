@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import type { Empleado } from '@/types/empleado';
 import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import type { Rol } from '@/types/rol';
@@ -66,14 +67,28 @@ function base64UrlDecode(value: string) {
   return Buffer.from(padded, 'base64').toString('utf8');
 }
 
+function getGoogleStateSecret(): string {
+  return process.env.AK_SESSION_SECRET || process.env.SESSION_SECRET || 'ak-google-state-secret-2026';
+}
+
 export function encodeGoogleState(state: GoogleOAuthState) {
-  return base64UrlEncode(JSON.stringify(state));
+  const payload = base64UrlEncode(JSON.stringify(state));
+  const sig = crypto.createHmac('sha256', getGoogleStateSecret()).update(payload).digest('hex');
+  return `${payload}.${sig}`;
 }
 
 export function decodeGoogleState(rawState: string | null): GoogleOAuthState {
   if (!rawState) return { kind: 'company' };
   try {
-    const parsed = JSON.parse(base64UrlDecode(rawState));
+    const parts = rawState.split('.');
+    if (parts.length !== 2) return { kind: 'company' };
+    const [payload, sig] = parts;
+    const expectedSig = crypto.createHmac('sha256', getGoogleStateSecret()).update(payload).digest('hex');
+    if (sig !== expectedSig) {
+      console.warn('[google-workspace] HMAC signature mismatch en state');
+      return { kind: 'company' };
+    }
+    const parsed = JSON.parse(base64UrlDecode(payload));
     return {
       kind: parsed.kind === 'employee' ? 'employee' : 'company',
       employeeId: typeof parsed.employeeId === 'string' ? parsed.employeeId : undefined,

@@ -38,8 +38,8 @@ async function persistProvider(access: ProveedorPortalAccess): Promise<ProviderM
 }
 
 export async function getProveedoresPortal(fiestaId: string): Promise<{ success: boolean; data?: ProveedorPortalAccess[]; error?: string }> {
-  await requireAppSession();
   try {
+    await requirePermisoAlguno(PERMISOS.ORGANIZACION, PERMISOS.CONTABILIDAD);
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     return { success: true, data: all.filter(p => p.fiestaId === fiestaId) };
   } catch (error) {
@@ -64,6 +64,7 @@ export async function createProveedorAcceso(
       nombreProveedor,
       id: `prov-${randomUUID()}`,
       token: randomUUID(),
+      venceEl: (data as any).venceEl || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       createdAt: new Date().toISOString(),
     };
     await createDataItem(DATA_PATH, DATA_COLLECTION, newRecord.id, newRecord);
@@ -78,6 +79,7 @@ export async function getProveedorByToken(token: string): Promise<{ success: boo
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     const found = all.find(p => p.token === token && p.activo);
     if (!found) return { success: false, error: 'Proveedor no encontrado o acceso inactivo' };
+    if (found.venceEl && new Date(found.venceEl).getTime() < Date.now()) return { success: false, error: 'Acceso de proveedor vencido' };
     return { success: true, data: found };
   } catch (error) {
     return { success: false, error: String(error) };

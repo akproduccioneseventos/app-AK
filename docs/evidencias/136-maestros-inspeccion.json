@@ -1,0 +1,376 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "scope": "Form inspection only; not workflow acceptance",
+  "rows": [
+    {
+      "route": "/empresa/servicios/nuevo",
+      "url": "http://127.0.0.1:3300/empresa/servicios/nuevo",
+      "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAñadir Nuevo Servicio\nIngreso/Egreso Rápido\nAbrir notificaciones\nAñadir Nuevo Servicio\nVolver\nDetalles del Servicio\nCompleta la información del nuevo servicio que ofrecerás.\nNombre del Servicio *\nCategoría *\nOtros servicios\nServicio de catering\nServicio de filmación\nServicio de fotografía\nServicio de decoración\nServicio de entretenimiento\nServicio de bebidas\nServicio de discoteca\nServicio de repostería\nRegalo exclusivo\nPersonal\nOtros servicios\nEntrada\nPlato Principal\nPostre\nMenú Infantil\nMenú Infantil/Adolescente\nSubcategoría (Opcional)\nCONFIGURACIÓN FINANCIERA (COSTOS)\nTIPO DE COSTO\nProveedor Externo (Servicio)\nPersonal (Sueldo + Aportes)\nProveedor Externo (Servicio)\nInsumo / Mercadería\nPROVEEDOR / RESPONSABLE\nElegir...\nSin asignar\nBAGASHOPING\nBISIO\nBORDENAVE\nCALSAL\nCARNICERIA\nCASA DE LA MIEL\nDK MAYORISTA\nDON DIEGO\nDOPACA\nEL TROPERO\nFENIX\nFERRANDO\nLA AVENIDA\nMONTEVIDEO\nNICO\nPANONO\nPASTAS LULU\nTATA\nUNIPLAS\nVALENTIN\nVERDULERIA\nValor de Costo Unitario (UYU)\n\nESTE VALOR SE USARÁ PARA CALCULAR AUTOMÁTICAMENTE LA RENTABILIDAD DEL EVENTO.\n\nCálculo de Precio de Venta *\nPrecio Fijo\nPrecio Fijo\nPor Persona\nPor Ratio de Invitados\nPor Tramos de Invitados\nPrecio de Venta (Fijo)\nCrear Servicio\nBruno\nResponsable general de fiesta",
+      "fields": [
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "item-nombre",
+          "placeholder": "Ej: Barra de Tragos Premium",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "item-categoria",
+          "placeholder": null,
+          "text": "Otros servicios",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Servicio de cateringServicio de filmaciónServicio de fotografíaServicio de decoraciónServicio de entretenimientoServicio de bebidasServicio de discotecaServicio de reposteríaRegalo exclusivoPersonalOtros serviciosEntradaPlato PrincipalPostreMenú InfantilMenú Infantil/Adolescente",
+          "value": "Otros servicios"
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "item-subcategoria",
+          "placeholder": "Ej: Mesa de Postres, Candy Bar",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Proveedor Externo (Servicio)",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Personal (Sueldo + Aportes)Proveedor Externo (Servicio)Insumo / Mercadería",
+          "value": "Proveedor"
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Elegir...",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Sin asignarBAGASHOPINGBISIOBORDENAVECALSALCARNICERIACASA DE LA MIELDK MAYORISTADON DIEGODOPACAEL TROPEROFENIXFERRANDOLA AVENIDAMONTEVIDEONICOPANONOPASTAS LULUTATAUNIPLASVALENTINVERDULERIA",
+          "value": "none"
+        },
+        {
+          "tag": "INPUT",
+          "type": "number",
+          "name": null,
+          "id": "item-costo",
+          "placeholder": "0.00",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Precio Fijo",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Precio FijoPor PersonaPor Ratio de InvitadosPor Tramos de Invitados",
+          "value": "fijo"
+        },
+        {
+          "tag": "INPUT",
+          "type": "number",
+          "name": null,
+          "id": "precio-venta",
+          "placeholder": null,
+          "text": "",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "route": "/proveedores/new",
+      "url": "http://127.0.0.1:3300/proveedores/new",
+      "body": "Añadir Registro\nVolver a Proveedores\nInformación del Registro\nSelecciona el tipo de registro y completa los datos.\nTipo de Registro*\nProveedor de Insumos\nServicio Subcontratado\nNombre de la Empresa*\nNombre del Contacto (Opcional)\nCategoría Principal*\nTeléfono\nEmail\nNotas Adicionales\nGuardar Registro\nBruno\nResponsable general de fiesta",
+      "fields": [
+        {
+          "tag": "INPUT",
+          "type": "radio",
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "",
+          "value": "Proveedor"
+        },
+        {
+          "tag": "INPUT",
+          "type": "radio",
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "",
+          "value": "Servicio Subcontratado"
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "company-name",
+          "placeholder": "Ej: Insumos Fiesta S.A.",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "proveedor-name",
+          "placeholder": "Ej: Juan Rodríguez",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "proveedor-servicio",
+          "placeholder": "Ej: Catering, Mantelería, Descartables",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "tel",
+          "name": null,
+          "id": "proveedor-telefono",
+          "placeholder": null,
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "email",
+          "name": null,
+          "id": "proveedor-email",
+          "placeholder": null,
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "TEXTAREA",
+          "type": null,
+          "name": null,
+          "id": "proveedor-notas",
+          "placeholder": "Detalles de contacto, calidad del servicio, etc.",
+          "text": "",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "route": "/empleados/nuevo",
+      "url": "http://127.0.0.1:3300/empleados/nuevo",
+      "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAñadir Nuevo Empleado\nIngreso/Egreso Rápido\nAbrir notificaciones\nAñadir Nuevo Empleado\nVolver a Empleados\nInformación del Empleado\nCompleta los datos personales y asigna uno o más roles.\nFoto de Perfil\nSubir foto\nNombre Completo *\nRoles Asignados\nSeleccionar roles...\nCédula de Identidad\nTeléfono / WhatsApp\nEmail para avisos y Google\nFecha de Nacimiento\nSelecciona una fecha\nGuardar Empleado\nBruno\nResponsable general de fiesta",
+      "fields": [
+        {
+          "tag": "INPUT",
+          "type": "file",
+          "name": null,
+          "id": "empleado-photo-upload",
+          "placeholder": null,
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "empleado-nombre",
+          "placeholder": "Ej: Carlos Rodríguez",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Seleccionar roles...",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "empleado-cedula",
+          "placeholder": "Ej: 1.234.567-8 (sin puntos ni guion)",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "tel",
+          "name": null,
+          "id": "empleado-telefono",
+          "placeholder": "Ej: 59899123456 (con código de país)",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "email",
+          "name": null,
+          "id": "empleado-email",
+          "placeholder": "ejemplo@correo.com",
+          "text": "",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "route": "/empresa/activos-fijos/nuevo",
+      "url": "http://127.0.0.1:3300/empresa/activos-fijos/nuevo",
+      "body": "CENTRO DE CONTROL\nMI DÍA\n☀️\nMi Día\nFIESTAS\n🎉\nEventos Activos\nCalendario\nMuro Social\nIncidentes\nGuias de Armado\nAlergias y Dietas\nPortal de Proveedores\nPersonal en dos fiestas\nLA EMPRESA\n🏢\nGestión de Empresa\nVENDER\nProspectos\nPresupuestos\nClientes\nSimulador IA\nPLATA\nPagos Rápidos\nPanel Contable\nFacturas\nCambios a Aprobar\nMétricas del Negocio\nRECURSOS\nComida / Menús\nLista de Compras\nSalones\nCatálogo de Servicios\nProveedores\nEmpleados\nMARKETING\nMarketing y Difusión\nRedes Sociales\nWhatsApp del Día\nRendimiento Anuncios\nPresentación LED\nCONFIGURACIÓN\n⚙️\nAjustes Generales\nTareas Automáticas\nConexiones\nWhatsApp\nCláusulas de Contrato\nSeguridad\nPromociones\nAsistente IA\nMapa Tecnológico\nLaboratorio Experimental\nALERTAS\nAñadir Nuevo Activo Fijo\nIngreso/Egreso Rápido\nAbrir notificaciones\nAñadir Nuevo Activo Fijo\nVolver\nDetalles del Activo\nCompleta la información del nuevo activo para tu inventario.\nNombre del Ítem *\nFoto del Activo (URL o subir archivo)\nSubir desde dispositivo\nCategoría *\nMobiliario\nMobiliario\nDiscoteca\nDecoración (Activo)\nVajilla (Activo)\nMantelería\nEquipamiento de Cocina\nOtro Activo\nInsumos varios\nBarra de Tragos\nUnidad *\nUnidad\nUnidad\nSet\nMetro\nKg\nLitro\nCaja\nRollo\nDocena\nPor persona\nPor evento\nGramos\nCc\nPack\nCantidad Disponible (Stock)\nCosto Interno (UYU)\nMétodo de Cálculo de Cantidad (para Lista de Carga)\nCantidad Fija\nCantidad Fija\nPor Persona\nPor Ratio de Invitados\nPor Tramos de Invitados\nCantidad a Cargar\n\nCantidad fija a cargar siempre.\n\nGuardar Activo\nBruno\nResponsable general de fiesta",
+      "fields": [
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "item-nombre",
+          "placeholder": "Ej: Silla Tiffany, Mantel Redondo",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": null,
+          "name": null,
+          "id": "item-image-url",
+          "placeholder": "https://...",
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "INPUT",
+          "type": "file",
+          "name": null,
+          "id": "item-image-upload",
+          "placeholder": null,
+          "text": "",
+          "value": ""
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "item-categoria",
+          "placeholder": null,
+          "text": "Mobiliario",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "MobiliarioDiscotecaDecoración (Activo)Vajilla (Activo)ManteleríaEquipamiento de CocinaOtro ActivoInsumos variosBarra de Tragos",
+          "value": "Mobiliario"
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "item-unidad",
+          "placeholder": null,
+          "text": "Unidad",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "UnidadSetMetroKgLitroCajaRolloDocenaPor personaPor eventoGramosCcPack",
+          "value": "Unidad"
+        },
+        {
+          "tag": "INPUT",
+          "type": "number",
+          "name": null,
+          "id": "item-cantidad",
+          "placeholder": "Ej: 150",
+          "text": "",
+          "value": "1"
+        },
+        {
+          "tag": "INPUT",
+          "type": "number",
+          "name": null,
+          "id": "item-valor-unitario",
+          "placeholder": "0.00",
+          "text": "",
+          "value": "0"
+        },
+        {
+          "tag": "BUTTON",
+          "type": "button",
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Cantidad Fija",
+          "value": ""
+        },
+        {
+          "tag": "SELECT",
+          "type": null,
+          "name": null,
+          "id": "",
+          "placeholder": null,
+          "text": "Cantidad FijaPor PersonaPor Ratio de InvitadosPor Tramos de Invitados",
+          "value": "fijo"
+        },
+        {
+          "tag": "INPUT",
+          "type": "number",
+          "name": null,
+          "id": "cantidad-fija",
+          "placeholder": null,
+          "text": "",
+          "value": "1"
+        }
+      ]
+    }
+  ]
+}

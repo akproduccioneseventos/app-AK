@@ -1,0 +1,828 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "finished": "2026-10-16T12:03:53.620Z",
+  "permissions": {
+    "passed": 50,
+    "failed": 0,
+    "scope": "Actual HTTP routes and signed demo sessions; not OAuth login, real records, UI role navigation or all permissions"
+  },
+  "prospecto": {
+    "passed": 11,
+    "failed": 0,
+    "deselected": 11,
+    "provider": "mocked data/auth"
+  },
+  "native": {
+    "masters": [
+      {
+        "title": "empresa: crear servicio, conservar precio y leerlo tras recarga",
+        "project": "chromium-desktop",
+        "status": "timedOut",
+        "error": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJub21icmUiOiJRQTEzNl8yMzMwMF8xNzkyMTUwNDAwMjkxX1NlcnZpY2lvIiwidGlwb0l0ZW0iOiJTZXJ2aWNpbyIsImNhdGVnb3JpYSI6Ik90cm9zIHNlcnZpY2lvcyIsInN1YmNhdGVnb3JpYSI6IlBydWViYSBhaXNsYWRhIiwiY2FsY3VsYXRpb25NZXRob2QiOiJmaWpvIiwicHJlY2lvVmVudGEiOjg1MCwidGlwb0Nvc3RvIjoiUHJvdmVlZG9yIiwidHJhbW9zRGVQcmVjaW8iOlt7ImlkIjoidHJhbW9fMSIsImRlc2RlIjowLCJoYXN0YSI6NTAsInByZWNpbyI6MH1dLCJ2YWxvclVuaXRhcmlvRXN0aW1hZG8iOjEyMCwiaWQiOiJzZXJ2XzJiYzQxOWFlLWMwNzAtNDljYy1iZmFkLTdjZTIwMDA4NWQ0MCJ9"
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-chromium-desktop-0.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-02aae-recio-y-leerlo-tras-recarga-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-02aae-recio-y-leerlo-tras-recarga-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear proveedor y conservar contacto tras recarga",
+        "project": "chromium-desktop",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/proveedores(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3300/proveedores/new\"\u001b[39m\nTimeout: 25000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 25000ms\u001b[22m\n\u001b[2m    43 × unexpected value \"http://127.0.0.1:3300/proveedores/new\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-19604-ervar-contacto-tras-recarga-chromium-desktop\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-19604-ervar-contacto-tras-recarga-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-19604-ervar-contacto-tras-recarga-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear empleado y conservar contacto tras recarga",
+        "project": "chromium-desktop",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/empleados(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3300/empleados/nuevo\"\u001b[39m\nTimeout: 25000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 25000ms\u001b[22m\n\u001b[2m    35 × unexpected value \"http://127.0.0.1:3300/empleados/nuevo\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear activo fijo y conservar stock tras recarga",
+        "project": "chromium-desktop",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/empresa\\/activos-fijos(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3300/empresa/activos-fijos/nuevo\"\u001b[39m\nTimeout: 25000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 25000ms\u001b[22m\n\u001b[2m    27 × unexpected value \"http://127.0.0.1:3300/empresa/activos-fijos/nuevo\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-2098a-onservar-stock-tras-recarga-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-2098a-onservar-stock-tras-recarga-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear servicio, conservar precio y leerlo tras recarga",
+        "project": "chromium-mobile",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJub21icmUiOiJRQTEzNl82ODQ4XzE3OTIxNTA2Mjk3MjhfU2VydmljaW8iLCJ0aXBvSXRlbSI6IlNlcnZpY2lvIiwiY2F0ZWdvcmlhIjoiT3Ryb3Mgc2VydmljaW9zIiwic3ViY2F0ZWdvcmlhIjoiUHJ1ZWJhIGFpc2xhZGEiLCJjYWxjdWxhdGlvbk1ldGhvZCI6ImZpam8iLCJwcmVjaW9WZW50YSI6ODUwLCJ0aXBvQ29zdG8iOiJQcm92ZWVkb3IiLCJ0cmFtb3NEZVByZWNpbyI6W3siaWQiOiJ0cmFtb18xIiwiZGVzZGUiOjAsImhhc3RhIjo1MCwicHJlY2lvIjowfV0sInZhbG9yVW5pdGFyaW9Fc3RpbWFkbyI6MTIwLCJpZCI6InNlcnZfODk1NjNkNmYtMDMxYS00MDA3LWJlZjgtOGMzMzI0MTE3OWViIn0="
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-chromium-mobile-4.png"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear proveedor y conservar contacto tras recarga",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/proveedores(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3300/proveedores/new\"\u001b[39m\nTimeout: 25000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 25000ms\u001b[22m\n\u001b[2m    22 × unexpected value \"http://127.0.0.1:3300/proveedores/new\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-19604-ervar-contacto-tras-recarga-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-19604-ervar-contacto-tras-recarga-chromium-mobile\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear empleado y conservar contacto tras recarga",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/empleados(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3300/empleados/nuevo\"\u001b[39m\nTimeout: 25000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 25000ms\u001b[22m\n\u001b[2m    44 × unexpected value \"http://127.0.0.1:3300/empleados/nuevo\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-mobile\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear activo fijo y conservar stock tras recarga",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/empresa\\/activos-fijos(?:\\?|$)/\u001b[39m\nReceived string:  \u001b[31m\"http://127.0.0.1:3300/empresa/activos-fijos/nuevo\"\u001b[39m\nTimeout: 25000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 25000ms\u001b[22m\n\u001b[2m    44 × unexpected value \"http://127.0.0.1:3300/empresa/activos-fijos/nuevo\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-2098a-onservar-stock-tras-recarga-chromium-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-2098a-onservar-stock-tras-recarga-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-artifacts\\136-maestros-empresa-crear-2098a-onservar-stock-tras-recarga-chromium-mobile\\error-context.md"
+          }
+        ]
+      }
+    ],
+    "masters-sdk": [
+      {
+        "title": "empresa: crear servicio, conservar precio y leerlo tras recarga",
+        "project": "chromium-desktop",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJub21icmUiOiJRQTEzNl8xMzY4OF8xNzkyMTUwOTQzNzcyX1NlcnZpY2lvIiwidGlwb0l0ZW0iOiJTZXJ2aWNpbyIsImNhdGVnb3JpYSI6Ik90cm9zIHNlcnZpY2lvcyIsInN1YmNhdGVnb3JpYSI6IlBydWViYSBhaXNsYWRhIiwiY2FsY3VsYXRpb25NZXRob2QiOiJmaWpvIiwicHJlY2lvVmVudGEiOjg1MCwidGlwb0Nvc3RvIjoiUHJvdmVlZG9yIiwidHJhbW9zRGVQcmVjaW8iOlt7ImlkIjoidHJhbW9fMSIsImRlc2RlIjowLCJoYXN0YSI6NTAsInByZWNpbyI6MH1dLCJ2YWxvclVuaXRhcmlvRXN0aW1hZG8iOjEyMCwiaWQiOiJzZXJ2XzQxYjY3NmQ1LTY1NTktNGQ2Yi05M2UyLWUyNWJjOTlhNzEzMiJ9"
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-chromium-desktop-0.png"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear proveedor y conservar contacto tras recarga",
+        "project": "chromium-desktop",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJ0aXBvIjoiUHJvdmVlZG9yIiwibm9tYnJlIjoiQ29udGFjdG8gZmljdGljaW8gUUExMzYiLCJub21icmVFbXByZXNhIjoiUUExMzZfMTM2ODhfMTc5MjE1MDk0Mzc3Ml9Qcm92ZWVkb3IiLCJzZXJ2aWNpb1ByaW5jaXBhbCI6Ikluc3VtbyBRQTEzNiIsInRlbGVmb25vIjoiMDk5MDAwMTM2IiwiZW1haWwiOiJxYTEzNkBleGFtcGxlLmludmFsaWQiLCJub3RhcyI6IlNvbG8gcHJ1ZWJhLCBubyBjb250YWN0YXIiLCJpZCI6InByb3ZfMTE4ZDRiZTItMWNmMC00YWI4LWFjNzAtNDI1YzU1ODc5NzYzIn0="
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-chromium-desktop-1.png"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear empleado y conservar contacto tras recarga",
+        "project": "chromium-desktop",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('QA136_13688_1792150943772_Empleado', { exact: true }).first()\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('QA136_13688_1792150943772_Empleado', { exact: true }).first()\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-desktop\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear activo fijo y conservar stock tras recarga",
+        "project": "chromium-desktop",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJub21icmUiOiJRQTEzNl85MjI0XzE3OTIxNTA5ODc3MzVfQWN0aXZvIiwidGlwb0l0ZW0iOiJBY3Rpdm8gRmlqbyIsImNhdGVnb3JpYSI6Ik1vYmlsaWFyaW8iLCJjYW50aWRhZERpc3BvbmlibGUiOjcsInZhbG9yVW5pdGFyaW9Fc3RpbWFkbyI6MjUwLCJ1bmlkYWQiOiJVbmlkYWQiLCJjYWxjdWxhdGlvbk1ldGhvZCI6ImZpam8iLCJjYW50aWRhZCI6MiwiaWQiOiJhY3Rpdm9fZDI2NDUwZGItMzYxYi00YzA5LTgxNmItYjM0YTE5OGNiMDYyIn0="
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-chromium-desktop-3.png"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear servicio, conservar precio y leerlo tras recarga",
+        "project": "chromium-mobile",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJub21icmUiOiJRQTEzNl84OTA4XzE3OTIxNTA5OTM1MTBfU2VydmljaW8iLCJ0aXBvSXRlbSI6IlNlcnZpY2lvIiwiY2F0ZWdvcmlhIjoiT3Ryb3Mgc2VydmljaW9zIiwic3ViY2F0ZWdvcmlhIjoiUHJ1ZWJhIGFpc2xhZGEiLCJjYWxjdWxhdGlvbk1ldGhvZCI6ImZpam8iLCJwcmVjaW9WZW50YSI6ODUwLCJ0aXBvQ29zdG8iOiJQcm92ZWVkb3IiLCJ0cmFtb3NEZVByZWNpbyI6W3siaWQiOiJ0cmFtb18xIiwiZGVzZGUiOjAsImhhc3RhIjo1MCwicHJlY2lvIjowfV0sInZhbG9yVW5pdGFyaW9Fc3RpbWFkbyI6MTIwLCJpZCI6InNlcnZfNjNmYzRjMGMtY2U5Yy00MjI3LWE3YWMtYmVmZjNiY2I3MTE1In0="
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-chromium-mobile-4.png"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear proveedor y conservar contacto tras recarga",
+        "project": "chromium-mobile",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJ0aXBvIjoiUHJvdmVlZG9yIiwibm9tYnJlIjoiQ29udGFjdG8gZmljdGljaW8gUUExMzYiLCJub21icmVFbXByZXNhIjoiUUExMzZfODkwOF8xNzkyMTUwOTkzNTEwX1Byb3ZlZWRvciIsInNlcnZpY2lvUHJpbmNpcGFsIjoiSW5zdW1vIFFBMTM2IiwidGVsZWZvbm8iOiIwOTkwMDAxMzYiLCJlbWFpbCI6InFhMTM2QGV4YW1wbGUuaW52YWxpZCIsIm5vdGFzIjoiU29sbyBwcnVlYmEsIG5vIGNvbnRhY3RhciIsImlkIjoicHJvdl9mNTg0ZWZmNy0zODI0LTQwZjItYTk1Mi00M2RiZTA4YjRmYjMifQ=="
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-chromium-mobile-5.png"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear empleado y conservar contacto tras recarga",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('QA136_8908_1792150993510_Empleado', { exact: true }).first()\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('QA136_8908_1792150993510_Empleado', { exact: true }).first()\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-artifacts\\136-maestros-empresa-crear-37daf-ervar-contacto-tras-recarga-chromium-mobile\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear activo fijo y conservar stock tras recarga",
+        "project": "chromium-mobile",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJub21icmUiOiJRQTEzNl83MTg4XzE3OTIxNTEwMzMwMzRfQWN0aXZvIiwidGlwb0l0ZW0iOiJBY3Rpdm8gRmlqbyIsImNhdGVnb3JpYSI6Ik1vYmlsaWFyaW8iLCJjYW50aWRhZERpc3BvbmlibGUiOjcsInZhbG9yVW5pdGFyaW9Fc3RpbWFkbyI6MjUwLCJ1bmlkYWQiOiJVbmlkYWQiLCJjYWxjdWxhdGlvbk1ldGhvZCI6ImZpam8iLCJjYW50aWRhZCI6MiwiaWQiOiJhY3Rpdm9fNTMxZDljNTQtNjg5Yi00MWQxLTg4NWUtNTJhMzI5Yjg5OTAwIn0="
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-chromium-mobile-7.png"
+          }
+        ]
+      }
+    ],
+    "masters-sdk-empleado": [
+      {
+        "title": "empresa: crear empleado y conservar contacto tras recarga",
+        "project": "chromium-desktop",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJub21icmUiOiJRQTEzNl8xOTc2OF8xNzkyMTUxMDk0MjMyX0VtcGxlYWRvIiwidGVsZWZvbm8iOiI1OTg5OTAwMDEzNiIsImVtYWlsIjoiZW1wbGVhZG8xMzZAZXhhbXBsZS5pbnZhbGlkIiwicm9sSWRzIjpbXSwiaWQiOiJlbXBfMTU1NDQ1MjMtMzdlZi00Mzc0LTg0MDItNGViYmE5YmNmY2JlIn0="
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-empleado-chromium-desktop-0.png"
+          }
+        ]
+      },
+      {
+        "title": "empresa: crear empleado y conservar contacto tras recarga",
+        "project": "chromium-mobile",
+        "status": "passed",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJub21icmUiOiJRQTEzNl8yMzM2OF8xNzkyMTUxMTAwOTMyX0VtcGxlYWRvIiwidGVsZWZvbm8iOiI1OTg5OTAwMDEzNiIsImVtYWlsIjoiZW1wbGVhZG8xMzZAZXhhbXBsZS5pbnZhbGlkIiwicm9sSWRzIjpbXSwiaWQiOiJlbXBfZTRkZmEwZGQtYWI1Mi00MTQzLWFjZmYtNWVhZGZkZDUzYzdmIn0="
+          },
+          {
+            "name": "lista.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-empleado-chromium-mobile-1.png"
+          }
+        ]
+      }
+    ],
+    "masters-sdk-comercial": [
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-desktop",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('QA136_22712_1792151199013_Prospecto', { exact: true }).first()\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('QA136_22712_1792151199013_Prospecto', { exact: true }).first()\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeHidden\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('dialog')\nExpected: hidden\nReceived: visible\nTimeout:  25000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeHidden\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    52 × locator resolved to <div role=\"dialog\" tabindex=\"-1\" id=\"radix-_r_51_\" data-state=\"open\" aria-labelledby=\"radix-_r_52_\" aria-describedby=\"radix-_r_53_\" class=\"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-…>…</div>\u001b[22m\n\u001b[2m       - unexpected value \"visible\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          }
+        ]
+      }
+    ],
+    "masters-sdk-comercial-final": [
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-desktop",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('18:45').first()\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('18:45').first()\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-final-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-final-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-final-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Auditoria Qa136 3228 1792151436186', { exact: true }).first()\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Auditoria Qa136 3228 1792151436186', { exact: true }).first()\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-final-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-final-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-final-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          }
+        ]
+      }
+    ],
+    "masters-sdk-comercial-evidencia": [
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-desktop",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeHidden\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('dialog')\nExpected: hidden\nReceived: visible\nTimeout:  25000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeHidden\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    51 × locator resolved to <div role=\"dialog\" tabindex=\"-1\" id=\"radix-_r_24_\" data-state=\"open\" aria-labelledby=\"radix-_r_25_\" aria-describedby=\"radix-_r_26_\" class=\"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-…>…</div>\u001b[22m\n\u001b[2m       - unexpected value \"visible\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-evidencia-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-evidencia-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-evidencia-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeHidden\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('dialog')\nExpected: hidden\nReceived: visible\nTimeout:  25000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeHidden\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    51 × locator resolved to <div role=\"dialog\" tabindex=\"-1\" id=\"radix-_r_1v_\" data-state=\"open\" aria-labelledby=\"radix-_r_20_\" aria-describedby=\"radix-_r_21_\" class=\"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-…>…</div>\u001b[22m\n\u001b[2m       - unexpected value \"visible\"\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-evidencia-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-evidencia-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-evidencia-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          }
+        ]
+      }
+    ],
+    "masters-sdk-comercial-defecto": [
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-desktop",
+        "status": "failed",
+        "error": "Error: WhatsApp requires international digits; stored local phone must stay unchanged\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"/\u001b[7m598\u001b[27m99020808\"\u001b[39m\nReceived: \u001b[31m\"/\u001b[7m0\u001b[27m99020808\"\u001b[39m",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJuYW1lIjoiQXVkaXRvcmlhIFFhMTM2IDIwODA4IDE3OTIxNTE3NDE0OTciLCJwaG9uZSI6IjA5OTAyMDgwOCIsImVtYWlsIjoiIiwibm90ZXMiOiJDb25zdWx0YSBmaWN0aWNpYSBkZSBwdWJsaWNpZGFkLCBzaW4gY29ycmVvIG5pIHByZXN1cHVlc3RvIHByZXZpb1xuW1JFVU5Jw5NOIEFHRU5EQURBOiBFbnRyZXZpc3RhIEF1ZGl0b3JpYSBRYTEzNiAyMDgwOCAxNzkyMTUxNzQxNDk3IHBhcmEgZWwgMTYvMTAvMjAyNiwgMTg6NDU6MDBdIiwicGFydHlUeXBlIjoiIiwidmVudWVOYW1lIjoiIiwiYXNzaWduZWRUbyI6IiIsImN1cnJlbnRTdGFnZUlkIjoiczEiLCJpZCI6ImxlYWRfNTI0NDNiOWItMGRmMi00N2RkLThmOTgtYTg4YWFkYjgyOTNlIiwiY3JlYXRlZEF0IjoiMjAyNi0xMC0xNlQxMTo1NTo0NS40MzBaIiwidXBkYXRlZEF0IjoiMjAyNi0xMC0xNlQxMTo1NTo1MC4wMDNaIiwidGltZWxpbmUiOlt7ImlkIjoidGxfMTc5MjE1MTc0NTQzMF9xMm9jNjMiLCJ0eXBlIjoibGVhZF9jcmVhdGVkIiwidGltZXN0YW1wIjoiMjAyNi0xMC0xNlQxMTo1NTo0NS40MzBaIiwiZGVzY3JpcHRpb24iOiJQcm9zcGVjdG8gY3JlYWRvIn0seyJpZCI6InRsX21lZXRpbmdfMTc5MjE1MTc1MDAzMSIsInR5cGUiOiJtZWV0aW5nX3NjaGVkdWxlZCIsInRpbWVzdGFtcCI6IjIwMjYtMTAtMTZUMTE6NTU6NTAuMDAzWiIsImRlc2NyaXB0aW9uIjoiRW50cmV2aXN0YSBBdWRpdG9yaWEgUWExMzYgMjA4MDggMTc5MjE1MTc0MTQ5NzogMTYvMTAvMjAyNiwgMTg6NDU6MDAifV0sImZvbGxvd1VwRGF0ZSI6IjIwMjYtMTAtMTZUMjE6NDU6MDAuMDAwWiJ9"
+          },
+          {
+            "name": "agenda.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-comercial-defecto-chromium-desktop-0.png"
+          },
+          {
+            "name": "recordatorio.json",
+            "contentType": "application/json",
+            "body": "eyJocmVmIjoiaHR0cHM6Ly93YS5tZS8wOTkwMjA4MDg/dGV4dD1Ib2xhJTIwQXVkaXRvcmlhJTIwUWExMzYlMjAyMDgwOCUyMDE3OTIxNTE3NDE0OTclMkMlMjB0ZSUyMHJlY29yZGFtb3MlMjBxdWUlMjB0aWVuZXMlMjB1bmElMjByZXVuaSVDMyVCM24lMjBjb24lMjAqQUslMjBQcm9kdWNjaW9uZXMqJTIwZWwlMjB2aWVybmVzJTIwMTYlMjBkZSUyMG9jdHVicmUlMjBhJTIwbGFzJTIwMTglM0E0NSUyMGhzLiUyMCVDMiVBMVRlJTIwZXNwZXJhbW9zISIsImV4cGVjdGVkUGF0aCI6Ii81OTg5OTAyMDgwOCIsInN0b3JlZFBob25lIjoiMDk5MDIwODA4IiwiZm9sbG93VXBEYXRlIjoiMjAyNi0xMC0xNlQyMTo0NTowMC4wMDBaIiwibWVzc2FnZVNlbnQiOmZhbHNlfQ=="
+          },
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-defecto-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-defecto-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-defecto-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-desktop\\error-context.md"
+          }
+        ]
+      },
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Auditoria Qa136 4068 1792151754505', { exact: true }).first()\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Auditoria Qa136 4068 1792151754505', { exact: true }).first()\u001b[22m\n",
+        "attachments": [
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-defecto-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-defecto-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-defecto-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          }
+        ]
+      }
+    ],
+    "masters-sdk-comercial-movil": [
+      {
+        "title": "comercial: prospecto y agenda conservan contacto, cita y hora Uruguay",
+        "project": "chromium-mobile",
+        "status": "failed",
+        "error": "Error: WhatsApp requires international digits; stored local phone must stay unchanged\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"/\u001b[7m598\u001b[27m99021264\"\u001b[39m\nReceived: \u001b[31m\"/\u001b[7m0\u001b[27m99021264\"\u001b[39m",
+        "attachments": [
+          {
+            "name": "persistencia.json",
+            "contentType": "application/json",
+            "body": "eyJuYW1lIjoiQXVkaXRvcmlhIFFhMTM2IDIxMjY0IDE3OTIxNTE5ODQ0NTEiLCJwaG9uZSI6IjA5OTAyMTI2NCIsImVtYWlsIjoiIiwibm90ZXMiOiJDb25zdWx0YSBmaWN0aWNpYSBkZSBwdWJsaWNpZGFkLCBzaW4gY29ycmVvIG5pIHByZXN1cHVlc3RvIHByZXZpb1xuW1JFVU5Jw5NOIEFHRU5EQURBOiBFbnRyZXZpc3RhIEF1ZGl0b3JpYSBRYTEzNiAyMTI2NCAxNzkyMTUxOTg0NDUxIHBhcmEgZWwgMTYvMTAvMjAyNiwgMTg6NDU6MDBdIiwicGFydHlUeXBlIjoiIiwidmVudWVOYW1lIjoiIiwiYXNzaWduZWRUbyI6IiIsImN1cnJlbnRTdGFnZUlkIjoiczEiLCJpZCI6ImxlYWRfMTBhMGI2MjItZGFiYS00MDM0LTg0OTYtZGY2ZjU4ODgwMzA3IiwiY3JlYXRlZEF0IjoiMjAyNi0xMC0xNlQxMTo1OTo1Mi40NDZaIiwidXBkYXRlZEF0IjoiMjAyNi0xMC0xNlQxMjowMDowMi40MjJaIiwidGltZWxpbmUiOlt7ImlkIjoidGxfMTc5MjE1MTk5MjQ0N182cTI3Y2ciLCJ0eXBlIjoibGVhZF9jcmVhdGVkIiwidGltZXN0YW1wIjoiMjAyNi0xMC0xNlQxMTo1OTo1Mi40NDZaIiwiZGVzY3JpcHRpb24iOiJQcm9zcGVjdG8gY3JlYWRvIn0seyJpZCI6InRsX21lZXRpbmdfMTc5MjE1MjAwMjQyMyIsInR5cGUiOiJtZWV0aW5nX3NjaGVkdWxlZCIsInRpbWVzdGFtcCI6IjIwMjYtMTAtMTZUMTI6MDA6MDIuNDIyWiIsImRlc2NyaXB0aW9uIjoiRW50cmV2aXN0YSBBdWRpdG9yaWEgUWExMzYgMjEyNjQgMTc5MjE1MTk4NDQ1MTogMTYvMTAvMjAyNiwgMTg6NDU6MDAifV0sImZvbGxvd1VwRGF0ZSI6IjIwMjYtMTAtMTZUMjE6NDU6MDAuMDAwWiJ9"
+          },
+          {
+            "name": "agenda.png",
+            "contentType": "image/png",
+            "savedAs": "136-masters-sdk-comercial-movil-chromium-mobile-0.png"
+          },
+          {
+            "name": "recordatorio.json",
+            "contentType": "application/json",
+            "body": "eyJocmVmIjoiaHR0cHM6Ly93YS5tZS8wOTkwMjEyNjQ/dGV4dD1Ib2xhJTIwQXVkaXRvcmlhJTIwUWExMzYlMjAyMTI2NCUyMDE3OTIxNTE5ODQ0NTElMkMlMjB0ZSUyMHJlY29yZGFtb3MlMjBxdWUlMjB0aWVuZXMlMjB1bmElMjByZXVuaSVDMyVCM24lMjBjb24lMjAqQUslMjBQcm9kdWNjaW9uZXMqJTIwZWwlMjB2aWVybmVzJTIwMTYlMjBkZSUyMG9jdHVicmUlMjBhJTIwbGFzJTIwMTglM0E0NSUyMGhzLiUyMCVDMiVBMVRlJTIwZXNwZXJhbW9zISIsImV4cGVjdGVkUGF0aCI6Ii81OTg5OTAyMTI2NCIsInN0b3JlZFBob25lIjoiMDk5MDIxMjY0IiwiZm9sbG93VXBEYXRlIjoiMjAyNi0xMC0xNlQyMTo0NTowMC4wMDBaIiwibWVzc2FnZVNlbnQiOmZhbHNlfQ=="
+          },
+          {
+            "name": "screenshot",
+            "contentType": "image/png",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-movil-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\test-failed-1.png"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-movil-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          },
+          {
+            "name": "error-context",
+            "contentType": "text/markdown",
+            "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\136-masters-sdk-comercial-movil-artifacts\\136-maestros-comercial-pro-03bbd-ontacto-cita-y-hora-Uruguay-chromium-mobile\\error-context.md"
+          }
+        ]
+      }
+    ]
+  },
+  "acceptedDistinctNative": 8,
+  "failingDistinctNative": 2,
+  "distinctBehaviorDefects": 1,
+  "visualDefects": [
+    {
+      "route": "/empresa/servicios",
+      "evidence": "136-masters-sdk-chromium-mobile-4.png",
+      "observed": "Dark Ajuste de Costos Global title on dark panel; screenshot reviewed, no WCAG ratio measured"
+    }
+  ],
+  "archives": [
+    {
+      "file": "136-maestros-v1.spec.ts.gz",
+      "bytes": 6168,
+      "sha256": "f26132d15b97eb1c42dfa9ab83069155a361c810b2d9771198c3215af6522e97"
+    },
+    {
+      "file": "136-maestros-v2.spec.ts.gz",
+      "bytes": 8588,
+      "sha256": "ddcbfe927125b23e4c92200706dfeefd1f17ed46d02859c289d8414d41624ca9"
+    },
+    {
+      "file": "136-maestros-v3.spec.ts.gz",
+      "bytes": 8770,
+      "sha256": "f0ef6f6f43647a303e56e815b908e33caa567b61b1856c932774b6755f811e99"
+    },
+    {
+      "file": "136-maestros-v4.spec.ts.gz",
+      "bytes": 9595,
+      "sha256": "92325e091a7c9ead9d1aee4045034dfe299358df8ac50f467dbcd491a30f591a"
+    },
+    {
+      "file": "136-maestros-v5.spec.ts.gz",
+      "bytes": 9575,
+      "sha256": "17195eeef89c0d51cc13f740ba1da31f26c8f75aaaf095216c8b702f6c33adac"
+    },
+    {
+      "file": "136-masters-results.json.gz",
+      "bytes": 492736,
+      "sha256": "ccd0e09fb14e110e6c1190fb6cfb06221532ca2bd8a41346fe27bb89fb2fb445"
+    },
+    {
+      "file": "136-masters-sdk-comercial-defecto-results.json.gz",
+      "bytes": 203830,
+      "sha256": "0e07b2479d317dcc4c890c768dbc4a53944dc145d1b83e00eae00a391e24fa3b"
+    },
+    {
+      "file": "136-masters-sdk-comercial-defecto.log.gz",
+      "bytes": 5180,
+      "sha256": "44b4cbd8ce9927d2f3d29be443e8a6613f70ee73cf4f4b6c94606413dd4afe23"
+    },
+    {
+      "file": "136-masters-sdk-comercial-evidencia-results.json.gz",
+      "bytes": 20499,
+      "sha256": "0dc0a1195eafed7c10ed53160076b28e814ab4f46a4ba154b25c063ddabdce82"
+    },
+    {
+      "file": "136-masters-sdk-comercial-evidencia.log.gz",
+      "bytes": 6402,
+      "sha256": "273c314b0f9248c5fba6e40bc753aa90bc4b943b8c0962ca0b92f42ef8a4423c"
+    },
+    {
+      "file": "136-masters-sdk-comercial-final-results.json.gz",
+      "bytes": 17003,
+      "sha256": "27b8fa108f3feae62b9e52bfe2083f4e3eef539196b63de7c18ec30c1cf06b1b"
+    },
+    {
+      "file": "136-masters-sdk-comercial-final.log.gz",
+      "bytes": 5271,
+      "sha256": "e1658aadda725e52c7a7c6968316809de3105ca2c3db99e02478f831fb929630"
+    },
+    {
+      "file": "136-masters-sdk-comercial-movil-results.json.gz",
+      "bytes": 455259,
+      "sha256": "fe5fbede3daf1bb17e5f51385e0f72cfd3bf9ca4aec43d711433b3ad355554f9"
+    },
+    {
+      "file": "136-masters-sdk-comercial-movil.log.gz",
+      "bytes": 2549,
+      "sha256": "e15b08f8ef117daca03c1ce4e1e967550ba77f4e0b30f71d428e9cdb4d9d078e"
+    },
+    {
+      "file": "136-masters-sdk-comercial-results.json.gz",
+      "bytes": 18606,
+      "sha256": "9a9305187826113f886c21bdeee3a7fbd4a3288f4310c7641df938ec6a3998a5"
+    },
+    {
+      "file": "136-masters-sdk-comercial.log.gz",
+      "bytes": 5798,
+      "sha256": "0de16a1b1fbf88a9131be85c1c55d1ef038daae7c4b418b7e2cf00a446065427"
+    },
+    {
+      "file": "136-masters-sdk-empleado-results.json.gz",
+      "bytes": 518361,
+      "sha256": "dfa420b5c5f96316be43a63a2d37536156cbd6763a33bfa9840e800c8017517e"
+    },
+    {
+      "file": "136-masters-sdk-empleado.log.gz",
+      "bytes": 305,
+      "sha256": "f69f91e163963d84c6781e1a21ea68d0226c03680c2b8075702c8885146f7b94"
+    },
+    {
+      "file": "136-masters-sdk-results.json.gz",
+      "bytes": 1545291,
+      "sha256": "e7be4879d888d04b690b66fdc51e9c35c8a92a151693e970ac752599a05ee9e5"
+    },
+    {
+      "file": "136-masters-sdk.log.gz",
+      "bytes": 5913,
+      "sha256": "11f6aeb15af16a2225d5ffad663f3bbe86289ff5020e70d99a0a4f85edd1cf81"
+    },
+    {
+      "file": "136-masters.log.gz",
+      "bytes": 13987,
+      "sha256": "ee38bbaa8a6e67a1e1f3910fe31bd3dcfedbea7fe65ee2700d8b08866383d9e6"
+    },
+    {
+      "file": "136-permisos-http-inicial-transporte-results.json.gz",
+      "bytes": 12812,
+      "sha256": "e887a0f2328bbfacb149b90adfe8ca460ef33d6399ce3cf9cbf7d4171e8df938"
+    },
+    {
+      "file": "136-permisos-http-results.json.gz",
+      "bytes": 12767,
+      "sha256": "9b55738386811379648da5a1ea7739a4011451ea23457c3f16e27cd04c97573f"
+    },
+    {
+      "file": "136-prospecto-results.json.gz",
+      "bytes": 11861,
+      "sha256": "dc02002c8af096bc6399724580a2870f17e6c3bc0ceff2e8d6be90e849086692"
+    },
+    {
+      "file": "136-prospecto.log.gz",
+      "bytes": 2039,
+      "sha256": "31054e02ea99814130244a2c14c20d7d895b1bf7fb3c851aa9f32e0a94455ef5"
+    },
+    {
+      "file": "136-sdk-emulator-ronda1.log.gz",
+      "bytes": 6970,
+      "sha256": "58e5f4d7a40083e2db909735903593cf0bab8eecda31c563a8f31aa4d5ec4e87"
+    },
+    {
+      "file": "136-sdk-emulator.log.gz",
+      "bytes": 2570,
+      "sha256": "b1f7208dfc1e12667d6b2da92e528814a99cb854677e530d1a1962ed85450e2b"
+    },
+    {
+      "file": "136-sdk-serve-ronda1.log.gz",
+      "bytes": 21450,
+      "sha256": "f89cd3fd95dd07a11c4e229faca433cf8f062d8ca01c8d89bdcb2f12ee6c0cf5"
+    },
+    {
+      "file": "136-sdk-serve.log.gz",
+      "bytes": 6500,
+      "sha256": "342c62d7ee53ef73be6a05a96a0f6932b172d35823480e00e6288d2e160bbfdb"
+    }
+  ],
+  "sourceMap": {
+    "masters": {
+      "archive": "136-masters-source.spec.ts.gz",
+      "sha256": "f26132d15b97eb1c42dfa9ab83069155a361c810b2d9771198c3215af6522e97",
+      "provenance": "Archived executed test version"
+    },
+    "masters-sdk": {
+      "archive": "136-masters-sdk-source.spec.ts.gz",
+      "sha256": "f26132d15b97eb1c42dfa9ab83069155a361c810b2d9771198c3215af6522e97",
+      "provenance": "Archived executed test version"
+    },
+    "masters-sdk-empleado": {
+      "archive": "136-masters-sdk-empleado-source.spec.ts.gz",
+      "sha256": "967a4e5531d6eeb35dd4d53dcc5ea1a33a357ff30f7a6a20f5d822a63f0efb00",
+      "provenance": "Reconstructed exact one-line selector/comment delta from v1; original execution predates per-run hash receipt"
+    },
+    "masters-sdk-comercial": {
+      "archive": "136-masters-sdk-comercial-source.spec.ts.gz",
+      "sha256": "ddcbfe927125b23e4c92200706dfeefd1f17ed46d02859c289d8414d41624ca9",
+      "provenance": "Archived executed test version"
+    },
+    "masters-sdk-comercial-final": {
+      "archive": "136-masters-sdk-comercial-final-source.spec.ts.gz",
+      "sha256": "f0ef6f6f43647a303e56e815b908e33caa567b61b1856c932774b6755f811e99",
+      "provenance": "Archived executed test version"
+    },
+    "masters-sdk-comercial-evidencia": {
+      "archive": "136-masters-sdk-comercial-evidencia-source.spec.ts.gz",
+      "sha256": "92325e091a7c9ead9d1aee4045034dfe299358df8ac50f467dbcd491a30f591a",
+      "provenance": "Archived executed test version"
+    },
+    "masters-sdk-comercial-defecto": {
+      "archive": "136-masters-sdk-comercial-defecto-source.spec.ts.gz",
+      "sha256": "17195eeef89c0d51cc13f740ba1da31f26c8f75aaaf095216c8b702f6c33adac",
+      "provenance": "Archived executed test version"
+    },
+    "masters-sdk-comercial-movil": {
+      "archive": "136-masters-sdk-comercial-movil-source.spec.ts.gz",
+      "sha256": "efece9cfaa7ca0deee2bb4c7d8e8bdda32bf184e2d582a137fc2a73db9ed2913",
+      "provenance": "Archived executed test version"
+    }
+  },
+  "cleanup": {
+    "sourceTrackedDiff": 0,
+    "servicesStopped": true,
+    "notificationEolRestored": true,
+    "masterFixturesRemaining": 0
+  },
+  "scope": "Only the named permission/file boundaries and create/reload master/CRM/agenda workflows; not every app role/control or real integration",
+  "originals": "Owner is locating the 19 original documents; no comparison claimed"
+}

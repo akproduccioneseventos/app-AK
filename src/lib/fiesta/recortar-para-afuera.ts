@@ -1,4 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
 
 /**
  * LO QUE VIAJA A QUIEN NO ES DEL EQUIPO (25 de septiembre de 2026).
@@ -116,4 +117,73 @@ export function reponerLoRecortado(
     });
   }
   return salida as unknown as FiestaEnPlanificacion;
+}
+
+/**
+ * Recorta los campos sensibles de plata según el perfil de un miembro del equipo (Orden 183 y 198).
+ */
+export function recortarFiestaPorPerfil(
+  fiesta: FiestaEnPlanificacion,
+  usuario: { role?: string; profile?: string; perfil?: string; permissions?: string[] } | null | undefined,
+): FiestaEnPlanificacion {
+  const copia: Record<string, unknown> = { ...fiesta };
+
+  if (!puede(usuario ?? null, PERMISOS.SUELDOS)) {
+    if (Array.isArray(fiesta.personalAsignado)) {
+      copia.personalAsignado = fiesta.personalAsignado.map((p) => {
+        const { eventSalary: _eventSalary, ...resto } = p as unknown as Record<string, unknown>;
+        return resto;
+      });
+    }
+  }
+
+  if (!puede(usuario ?? null, PERMISOS.GANANCIAS)) {
+    delete copia.gestionCostos;
+  }
+
+  if (!puede(usuario ?? null, PERMISOS.CONTABILIDAD)) {
+    delete copia.pagosProveedores;
+    delete copia.planDePagos;
+    delete copia.clientPaymentNotifications;
+    delete copia.contratoDatos;
+    if (Array.isArray(fiesta.estadosCompra)) {
+      copia.estadosCompra = fiesta.estadosCompra.map((e) => {
+        const { pagado: _pagado, montoPagado: _montoPagado, ...resto } = e as unknown as Record<string, unknown>;
+        return resto;
+      });
+    }
+  }
+
+  return copia as unknown as FiestaEnPlanificacion;
+}
+
+/**
+ * LO QUE SE LE SACÓ AL LEER, SE REPONE AL GUARDAR (orden 183, 20/10/2026; pregunta 53).
+ *
+ * Desde que `getFiestaById` le recorta a cada perfil lo que no le toca ver (costos sin GANANCIAS,
+ * sueldos sin SUELDOS), la pantalla de una secretaria guarda la fiesta SIN esos campos. Si se
+ * escribiera así, borraría los costos y los sueldos de todos. Por eso, para quien no tiene el
+ * permiso, lo suyo se toma siempre de lo guardado, nunca de lo que mandó la pantalla.
+ */
+export function reponerLoDelPerfil(
+  nueva: FiestaEnPlanificacion,
+  guardada: FiestaEnPlanificacion | null,
+  usuario: { role?: string; perfil?: string } | null | undefined,
+): FiestaEnPlanificacion {
+  const copia: Record<string, unknown> = { ...nueva };
+  if (!puede(usuario ?? null, PERMISOS.GANANCIAS)) {
+    if (guardada && 'gestionCostos' in guardada) copia.gestionCostos = guardada.gestionCostos;
+    else delete copia.gestionCostos;
+  }
+  if (!puede(usuario ?? null, PERMISOS.SUELDOS) && Array.isArray(nueva.personalAsignado)) {
+    const antes = new Map((guardada?.personalAsignado || []).map((p) => [p.empleadoId, p]));
+    copia.personalAsignado = nueva.personalAsignado.map((p) => {
+      const previo = antes.get(p.empleadoId);
+      const r = { ...p } as Record<string, unknown>;
+      if (previo && previo.eventSalary !== undefined) r.eventSalary = previo.eventSalary;
+      else delete r.eventSalary;
+      return r;
+    });
+  }
+  return copia as unknown as FiestaEnPlanificacion;
 }

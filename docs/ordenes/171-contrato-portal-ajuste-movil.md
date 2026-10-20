@@ -2,7 +2,7 @@
 
 > **Se programa con la orden 176 (para Gemini), que tiene el camino exacto.**
 
-**Estado:** hallazgo reproducido; correccion y revalidacion pendientes.
+**Estado:** correccion PARCIAL en PR1327, fuente17d26a631. Retest142: el titulo sigue3lineas; medidas de sello/boton mejoraron. Caso completo timedOut, noPASS. Ver142-143-cierre.md. No reemitir la orden ni cambiar logica legal.
 **Prioridad:** P2, afecta lectura y descarga/impresion en el portal del cliente.
 **Base auditada:** app `d10f332a17241de5a4705a560336585853073a76`, copia QA compilada en `a635b27071ecea22092eba2a285892c84c6f9d08`; `src` coincide con `origin/main` `9aa64f991f5ddceefa8d278a3f298be861eb10bb`.
 
@@ -31,5 +31,5 @@ No se encontro este defecto en los antecedentes consultados. Las correcciones pr
 ```comprobar
 archivo: src/app/portal/[fiestaId]/contrato/page.tsx
 no-usa: absolute -top-12 left-1/2 en src/app/portal/[fiestaId]/contrato/page.tsx
-prueba: PENDIENTE tests/e2e/133-contrato-responsive.spec.ts
+prueba: docs/evidencias/133-contrato-responsive.spec.ts
 ```

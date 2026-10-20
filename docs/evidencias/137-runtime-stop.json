@@ -1,0 +1,15 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "project": "demo-ak-producciones",
+  "emulatorHost": "127.0.0.1:8085",
+  "appHost": "127.0.0.1:3300",
+  "emulatorPidFromLaunchReceipt": 21516,
+  "servePidFromLaunchReceipt": 3420,
+  "stopRequestedAt": "2026-10-16T12:29:00Z",
+  "stopMethod": "Ctrl+C sent to the two exec sessions that launched node docs/evidencias/136-sdk.mjs emulator and serve",
+  "processSessionsExited": true,
+  "portsListeningAfterStop": [],
+  "emulatorPersistence": "in-memory emulator stopped; no live database remains",
+  "receiptsCopiedBeforeHistoricalRestore": true,
+  "136ExecutionReceiptsRestoredByteExactFromHead": true
+}

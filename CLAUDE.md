@@ -1060,6 +1060,55 @@ graves que nadie había pedido (un prospecto firmado que se podía borrar si fal
 ayudantes de sólo lectura con las preguntas de sus líneas en `LO-QUE-NO-VI.md`, y lo confirmado sale
 como orden para Gemini (así salió la 168). Juntar sin barrer es una tanda incompleta.
 
+### 39. Dejar las órdenes para Gemini en una rama que Gemini no mira
+
+**Pasó el 19 de octubre de 2026.** Escribí las órdenes 188 a 191 en la rama de trabajo, sin
+fusionar, y Gemini arranca de la versión principal: no las vio. Entregó la 1336 sobre la entrega
+ya devuelta, con el mismo agujero de plata y con lo que el dueño había descartado.
+
+**Qué se hace distinto:** cada vez que queda una orden nueva para Gemini, el aviso al dueño lleva
+**el mensaje listo para pegarle a Gemini**, con la rama de donde arrancar y los números de orden.
+
+### 40. Arreglar en un archivo, controlar un archivo, y barrer con ayudantes que dicen "sin hallazgos"
+
+**Pasó el 20 de octubre de 2026.** El dueño: *"cada vez que hacemos una auditoría siguen habiendo
+problemas, cosas que ya habías resuelto"*. Medido sobre los 45 hallazgos de Gemini: 36 ciertos.
+Volvían por tres lados:
+
+- **El control miraba un archivo.** El álbum al disco de todos se arregló en una pantalla y su control
+  leía sólo esa; la misma línea seguía en otra.
+- **Lo anotado como "sigue pendiente" en `YA-RESUELTO.md` no tenía orden**: el despertador bloqueado
+  y la llegada del personal estaban escritos ahí, sin arreglar.
+- **El barrido de la mañana dio "sin hallazgos"** en las preguntas 3, 24 y 35, y esa noche Gemini
+  encontró casos.
+
+**Qué se hace distinto:**
+
+- `npm run formas-ya-arregladas` busca en toda la app cada forma que un control prohíbe en un
+  archivo. Se corre al juntar cada entrega.
+- Preguntas 74 a 81 en `COMO-AUDITAR.md`.
+- Un "sin hallazgos" de un ayudante económico en plata o permisos se confirma mirando yo al menos
+  un caso.
+- Una nota de "sigue pendiente" sale como orden en la misma tanda.
+
+### 41. Encontrar un error de plata y dejarlo esperando adentro de una entrega grande
+
+**Pasó del 16 al 20 de octubre de 2026.** Codex encontró que, con dos proveedores con el mismo nombre,
+se podía borrar un pago. La pregunta 71 lo encontraba y la orden lo pedía. Igual siguió en la app
+publicada cuatro días, porque viajó dentro de entregas grandes (1333 y 1337) que se devolvieron por
+otras cosas. El dueño: *"no funcionó, ya que seguía el error"*.
+
+**Qué era lo cierto:** encontrar no es arreglar. Una pregunta que encuentra el error sirve si el
+arreglo llega a la app.
+
+**Qué se hace distinto:**
+
+- Lo de plata y permisos **que ya está roto en la app publicada** va en una propuesta chica aparte,
+  primero (orden 197).
+- `ESTADO-ACTUAL.md` lleva la lista "Errores de plata abiertos", con el día en que se encontró
+  cada uno.
+- El despertador le avisa al dueño si alguno pasa de 2 días.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1209,6 +1258,11 @@ ubicar.
 **La única excepción:** si la pregunta nueva sólo puede aplicarse a plata, cobros, comida o
 permisos, el barrido es mío y no hay orden.
 
+**Y queda anotado en `docs/barridos.json` (20 de octubre de 2026):** cada pregunta con la fecha en que
+se buscó en toda la app y qué salió. Una pregunta sin su línea **no deja publicar**
+(`cada-pregunta-se-barrio-en-toda-la-app.test.ts`), y lo mismo una pregunta de un hallazgo de Codex que
+no existe o no se barrió. Lo `parcial` se termina en una orden.
+
 **Lo que NO es esta lista:** no es para pedir perdón ni para llevar la cuenta de quién encontró
 más. Es la única forma de que el rango suba: cada cosa que se me escapó, se convierte en una
 pregunta que de ahí en adelante hago solo.
@@ -1265,6 +1319,45 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Claude se despierta solo y revisa lo que entregan Gemini y Codex (20 de octubre de 2026).**
+  Palabras suyas: *"cuando ellos terminen, tú lo detectas y trabajas solo; te activas solo"*. Hay un
+  despertador cada hora que mira las propuestas abiertas.
+  - Si hay algo nuevo, se revisa con ayudantes económicos: lista de controles, `formas-ya-arregladas`,
+    puerta y fusión con `expectedHeadSha`.
+  - Si no pasa, se devuelve como orden.
+  - Si es un informe de Codex, se suman sus preguntas, se barre la app y sale la orden para Gemini.
+  - **El dueño no hace de intermediario**: sólo pega el mensaje a Gemini cuando hay una orden nueva.
+
+- **Un solo centro de presencia y redes, con los mensajes juntos y automáticos (20 de octubre de
+  2026).** Palabras suyas: *"quiero un centro de presencia digital y redes juntos, mensajes juntos y
+  automáticos"*, y aprobó el ayudante diario de redes. Va en la orden 192. Se contestan solos los
+  comentarios en publicaciones de AK y el primer mensaje directo de quien no es cliente, con interruptor
+  por canal. **No cambia:** el WhatsApp personal sólo contesta solo a quien viene de un anuncio o
+  publicación; a un cliente con fiesta y las quejas los contesta una persona; nada automático dice
+  precios ni promesas.
+
+- **Filtros divertidos que siguen la cara (19 de octubre de 2026).** Pedido del dueño: filtros "tipo
+  Instagram" para fotos y videos, uno personalizado del 15 con el nombre, y diseños estilo Canva. Va en
+  la orden 191: hechos en la app, con lo que ya está instalado y sin servicios pagos.
+
+- **Voz con IA: el cliente sí, el invitado no (19 de octubre de 2026).** Palabras suyas: *"al cliente
+  quizás le pueda hablar, pero al invitado no: imaginate 100 personas hablándole"*. El cliente habla
+  desde su portal con tope propio (orden 190, bloque 6); el invitado sólo por escrito, y las estaciones
+  con la voz del teléfono, que es gratis. No se propone voz con IA para invitados.
+
+- **Novedades elegidas y la app en los teléfonos (19 de octubre de 2026).** De las propuestas 1330 a 1335
+  entra lo que va en la orden 189. **La realidad aumentada ahora SÍ va** (manda sobre el descarte del 1
+  de octubre): apuntar el celular a la invitación impresa y ver un video encima. La app va a **Play Store**
+  (unos 25 dólares, una sola vez) y en **iPhone se instala desde la web**, sin la tienda de Apple. No van:
+  respuestas automáticas en redes, las "4 puertas", el teléfono rojo, el WhatsApp de invitados en el hub,
+  el walkie-talkie, la lista de regalos ni el brindis cruzado.
+
+- **Mejoras de la auditoría de Gemini aprobadas (16 de octubre de 2026).** Puerta que deja pasar sin
+  señal, de "mi mesa" a la app, Vogue/Espejo/Tótem IA como extras del portal, la franja de
+  "tranquilidad incluida" en el presupuesto (órdenes 180 y 181) y **ordenar la app** (orden 182): 5
+  pestañas por fiesta, portal en 5 pasos, un centro de Marketing. El dueño todavía no usó la app, así que
+  ordenar no le cambia costumbres. Ordenar = agrupar puertas: no se borran pantallas ni direcciones.
 
 - **La portada se rehace con el plan "Argon", y la estación se llama "Vogue" (16 de octubre de 2026).**
   Palabras suyas: *"hacé todo"* y *"creo que se escribe Vogue"*. Va en las órdenes 176 y 177 para
@@ -1695,6 +1788,10 @@ con otra cara.
 | El entorno de pruebas no podía probar estaciones, mural ni fotos porque la base estaba apagada | `tests/firebase/estaciones-y-mural-con-emulador.test.ts` (corre en `npm run test:rules`) |
 | Pruebas que armaban "hoy" con la hora de Greenwich y fallaban de noche en Uruguay | `src/__tests__/las-pruebas-cuentan-los-dias-en-uruguay.test.ts` |
 | Codex encontraba la misma forma de error una y otra vez porque el método no sumaba la pregunta | `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` |
+| Lo arreglado en un archivo seguía igual en otro, y su control miraba sólo el primero | `npm run formas-ya-arregladas` con `src/__tests__/lo-ya-arreglado-se-busca-en-toda-la-app.test.ts` |
+| El asistente contestaba importes escritos a mano como si fueran los cobros del mes | `src/__tests__/el-asistente-no-inventa-plata.test.ts` |
+| Rutas del despertador rebotadas, funciones internas llamables desde afuera y guardados que devolvían costos y sueldos ajenos: cada forma nueva frena la publicación | `src/__tests__/las-fugas-de-plata-no-crecen.test.ts` |
+| Se sumaban preguntas al método y nadie las buscaba en el resto de la app | `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 
 ### Cómo se elige el matafuego
 

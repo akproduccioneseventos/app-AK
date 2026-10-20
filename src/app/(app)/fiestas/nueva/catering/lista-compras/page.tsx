@@ -331,9 +331,11 @@ function ListaDeComprasContent() {
     // Se copia cada renglón: antes se cambiaba el que estaba en pantalla y lo leído se perdía.
     const leidos = estadosCompra;
     const updatedEstados = estadosCompra.map((e) => ({ ...e }));
-    let estadoProveedor = updatedEstados.find(e => (e.proveedorId === proveedorId) || (e.proveedor === proveedorName));
+    let estadoProveedor = updatedEstados.find(e => e.proveedorId ? e.proveedorId === proveedorId : e.proveedor === proveedorName);
     if (estadoProveedor) {
-        estadoProveedor.proveedorId = proveedorId; // migración
+        if (!estadoProveedor.proveedorId && proveedorId) {
+          estadoProveedor.proveedorId = proveedorId; // migración sólo si no tenía
+        }
         (estadoProveedor as any)[field] = value;
     }
     else {
@@ -385,7 +387,7 @@ function ListaDeComprasContent() {
   };
 
   const estadoDe = (providerId: string, providerName: string) =>
-    estadosCompra.find(e => e.proveedorId === providerId || e.proveedor === providerName);
+    estadosCompra.find(e => e.proveedorId ? e.proveedorId === providerId : e.proveedor === providerName);
 
   // Al mandar o copiar el pedido, queda anotado solo qué se pidió y cuándo.
   const anotarPedidoEnviado = (providerId: string, providerName: string, items: ShoppingListItem[]) => {
@@ -527,7 +529,7 @@ function ListaDeComprasContent() {
           <div className="grid grid-cols-1 gap-8">
             {Object.keys(groupedByProvider).map(providerId => {
                 const { providerName, items, total } = groupedByProvider[providerId];
-                const estadoActual = estadosCompra.find(e => e.proveedorId === providerId || e.proveedor === providerName) || { pedido: false, pagado: false, entregadoParcial: false, montoPagado: 0 };
+                const estadoActual = estadosCompra.find(e => e.proveedorId ? e.proveedorId === providerId : e.proveedor === providerName) || { pedido: false, pagado: false, entregadoParcial: false, montoPagado: 0 };
                 const isSavingThis = isSavingStatus === providerId;
 
                 return (

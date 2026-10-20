@@ -1,0 +1,39 @@
+{
+  "base": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "candidate": "17d26a631f500a263c48c4973d9c6f57d56ba421",
+  "pr": 1327,
+  "consumers": [
+    {
+      "file": "src/lib/auth/perfiles.ts",
+      "baseBlob": "7614bf0ca1f265250fbc971bd0beab823b68bffd",
+      "candidateBlob": "7614bf0ca1f265250fbc971bd0beab823b68bffd"
+    },
+    {
+      "file": "src/app/(app)/contabilidad/crm/agenda/page.tsx",
+      "baseBlob": "a2c8eb5db82133ca1b99742fc2e910367b6d8db7",
+      "candidateBlob": "a2c8eb5db82133ca1b99742fc2e910367b6d8db7"
+    },
+    {
+      "file": "src/app/(app)/empresa/servicios/page.tsx",
+      "baseBlob": "9a3a5ea4fd43ab90d40b93762cdf7857357799db",
+      "candidateBlob": "9a3a5ea4fd43ab90d40b93762cdf7857357799db"
+    }
+  ],
+  "printHeader": {
+    "file": "src/app/globals.css",
+    "baseBlob": "0ef2aada9bb13d95e77a416e46b5257bd041e262",
+    "candidateBlob": "c46ff2548c4b3cc5d0b81b43ec1d72db987be5c7",
+    "status": "Correction present in source; native test on candidate NOT executed"
+  },
+  "limits": [
+    "Committed Git objects only; dirty Gemini files untouched",
+    "No transitive equivalence or whole PR approval",
+    "Claude private current HEAD NOT CONTRASTADO"
+  ],
+  "helper": {
+    "model": "gpt-6-luna",
+    "reasoning": "low",
+    "task": "Bounded read-only consumer comparison",
+    "closed": true
+  }
+}

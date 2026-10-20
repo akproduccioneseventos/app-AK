@@ -40,10 +40,10 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-09",
-        "commit": "497ee725",
+        "fecha": "2026-10-20",
+        "commit": "2ccdb385",
         "hallazgos": 2,
-        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
+        "reporte": "Auditoría 149 de Codex (PR 1324): pagos de proveedores por nombre → órdenes 185 y 193"
       },
       "nota": "Auditoría 81: cuotas sin sesión, parte de la mañana y cobros a confirmar, arreglados el 9/10. Falta que Codex la vuelva a mirar."
     },
@@ -109,10 +109,10 @@
       "estado": "con-hallazgos",
       "nota": "Auditoría 71: el guardado general cambiaba campos de plata sin contabilidad (operador y portal). Arreglado el 6/10; falta que Codex la vuelva a mirar.",
       "ultimaRevision": {
-        "fecha": "2026-10-06",
-        "commit": "e52c078",
-        "hallazgos": 2,
-        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+        "fecha": "2026-10-20",
+        "commit": "2852f088",
+        "hallazgos": 1,
+        "reporte": "Auditoría 150 de Codex (PR 1324): guardar devuelve costos y sueldos ajenos → orden 198"
       }
     },
     {
@@ -170,10 +170,10 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-10",
-        "commit": "9a054620",
-        "hallazgos": 2,
-        "reporte": "Auditorías 94-96 de Codex (órdenes 144 a 148)"
+        "fecha": "2026-10-20",
+        "commit": "2ccdb385",
+        "hallazgos": 1,
+        "reporte": "Auditoría 149 de Codex (PR 1324): la cola de la puerta borra escaneos nuevos → orden 195"
       },
       "nota": "Auditorías 94 y 96: QR descargado (147) y Video de Vida (148), arreglados y publicados el 11/10 (148 pasó el retest 98). Falta que Codex mire el QR."
     },

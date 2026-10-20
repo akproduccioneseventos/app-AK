@@ -1281,6 +1281,39 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 175 → pregunta 4
 - Orden 176 → pregunta 56
 - Orden 177 → pregunta 41
+- Orden 178 → pregunta 64
+- Orden 179 → pregunta 7
+- Orden 180 → pregunta 65
+- Orden 181 → pregunta 58
+- Orden 182 → pregunta 67
+- Orden 183 → pregunta 68
+- Orden 184 → pregunta 70
+- Orden 185 → pregunta 71
+- Orden 186 → pregunta 72
+- Orden 187 → pregunta 73
+- Orden 188 → pregunta 69
+- Orden 189 → pregunta 3
+- Orden 190 → pregunta 35
+- Orden 191 → pregunta 3
+- Orden 192 → pregunta 22
+- Orden 193 → pregunta 69
+- Orden 194 → pregunta 81
+- Orden 195 → pregunta 27
+- Orden 196 → pregunta 82
+- Orden 197 → pregunta 71
+- Orden 198 → pregunta 68
+- Auditoria Gemini 20/10 (despertador bloqueado por la puerta) → pregunta 74
+- Auditoria Gemini 20/10 (eco de WhatsApp sin isEcho) → pregunta 75
+- Auditoria Gemini 20/10 (ingreso con Google sin perfil) → pregunta 76
+- Auditoria Gemini 20/10 (decoración del portal pide sesión) → pregunta 77
+- Auditoria Gemini 20/10 (preguntas de seguridad sin tope) → pregunta 78
+- Auditoria Gemini 20/10 (portal sin llegadas ni fotos) → pregunta 79
+- Auditoria Gemini 20/10 (parámetros que se pierden entre pantallas) → pregunta 80
+- Auditoria Gemini 20/10 (álbum al disco de todos, otra vez) → pregunta 81
+- Auditoria Gemini 16/10 (encabezados impresos) → pregunta 64
+- Auditoria Gemini 16/10 (menu con puertas cerradas) → pregunta 65
+- Auditoria Gemini 16/10 (galeria sin Vogue) → pregunta 66
+- Auditoria Gemini 16/10 (botones repetidos) → pregunta 67
 - Auditoria 132 (lista de pedidos listos desconocida) → pregunta 50
 - Auditoria 131 (fallo de marca DJ no informado) → pregunta 9
 - Auditoria 130 (portal y estado del reporte) → pregunta 50

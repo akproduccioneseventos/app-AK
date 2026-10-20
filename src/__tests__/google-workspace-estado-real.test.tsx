@@ -17,6 +17,11 @@ jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => ({ ok: true })),
   requirePermiso: jest.fn(async () => ({ ok: true })),
 }));
+// Las cuentas del servidor leen los roles por acá (orden 197): mismo dato que el mock de getRoles.
+jest.mock('@/lib/roles/leer-roles-interno', () => ({
+  leerRolesInterno: () => require('@/app/actions/roles').getRoles(),
+}));
+
 jest.mock('@/app/actions/roles', () => ({ getRoles: jest.fn(async () => []) }));
 jest.mock('@/lib/auth/session-token', () => ({ verifySession: jest.fn() }));
 jest.mock('@/lib/auth/event-access', () => ({ requireEventPermission: jest.fn() }));

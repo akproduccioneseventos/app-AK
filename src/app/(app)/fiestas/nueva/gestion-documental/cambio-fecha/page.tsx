@@ -208,7 +208,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
           </div>
         </div>
 
-        <header className="mb-6 print:mb-4">
+        <header className="cabecera-documento mb-6 print:mb-4">
             {logoUrl && (
                 <div className="w-full h-24 print:h-20 mb-4 relative">
                     <WatermarkedImage src={logoUrl} alt="Marca de agua" containerClassName='w-full h-full'/>

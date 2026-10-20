@@ -1,0 +1,27 @@
+{
+  "sourceSha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "pdf": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\150-comercial-aceptacion-artifacts\\150-comercial-movil-viaje--e0c17--prospecto-CRM-tras-recarga-chromium-mobile\\attachments\\presupuesto-movil-145cb601e79a9d2023a4969640208a27012b3ccb.pdf",
+  "pdfSha256": "3074ed27bb088509c72837ba13431fe8c43e133f7d201aa4acee21598bb78ede",
+  "pages": [
+    {
+      "number": 1,
+      "width": 595.28,
+      "height": 841.89,
+      "textCharacters": 1008,
+      "render": "150-presupuesto-movil-pagina-1.png"
+    },
+    {
+      "number": 2,
+      "width": 595.28,
+      "height": 841.89,
+      "textCharacters": 1194,
+      "render": "150-presupuesto-movil-pagina-2.png"
+    }
+  ],
+  "expectedTotal": 84838,
+  "itemCount": 20,
+  "missingNamesExactText": [],
+  "text": "\nAK PRODUCCIONES\nFIESTAS Y EVENTOS\nRef. pres_public_e8d103e2d966526e22966106\nPresupuesto para Cumplea\u00f1os\nEmitido: 20/10/2026\nV\u00e1lido hasta: 19/11/2026\nCLIENTE INVITADOSQA movil ak-mobile-1792492494961-ee4e0m 50 personas\nFECHA DEL EVENTO PAQUETE5/11/2026 Paquete intermedio \nSERVICIO / CATEGOR\u00cdA CANT. UNITARIO TOTAL\nPERSONAL\nMozo 2 $\u00a02.990 $\u00a05.980\nMozo de cocina 2 $\u00a02.990 $\u00a05.980\nSERVICIO DE BEBIDAS\nBarra de tragos 50 $\u00a0399 $\u00a019.950\nSERVICIO DE CATERING\nManteler\u00eda completa 50 $\u00a079 $\u00a03.950\nMobiliario completo 50 $\u00a075 $\u00a03.750\nVajilla Completa 50 $\u00a079 $\u00a03.950\nSERVICIO DE DECORACI\u00d3N\nCuadro de firmas 1 $\u00a02.990 $\u00a02.990\nServicio de Decoraci\u00f3n 1 $\u00a014.990 $\u00a014.990\nSERVICIO DE DISCOTECA\nServicio de Discoteca 1 $\u00a09.900 $\u00a09.900\nSERVICIO DE ENTRETENIMIENTO\nFotocabina 1 $\u00a02.990 $\u00a02.990\nSERVICIO DE FOTOGRAF\u00cdA\nFotograf\u00eda de exteriores 1 $\u00a03.990 $\u00a03.990\nFotograf\u00eda de la fiesta 1 $\u00a09.990 $\u00a09.990\nSERVICIO DE REPOSTER\u00cdA\nMesa dulce con fuente de chocolate 50 $\u00a0119 $\u00a05.950\nAK Producciones | Salto, Uruguay P\u00e1gina 1 de 2\nAK PRODUCCIONES\nPresupuesto - continuaci\u00f3n\nRef. pres_public_e8d103e2d966526e22966106\nSERVICIO / CATEGOR\u00cdA CANT. UNITARIO TOTAL\nTorta Principal 50 $\u00a0109 $\u00a05.450\nREGALOS INCLUIDOS\nInvitaciones digitales\nIncluido sin cargo\n1 - INCLUIDO\nOrganizamos de la fiesta\nIncluido sin cargo\n1 - INCLUIDO\nMesa de caf\u00e9\nIncluido sin cargo\n1 - INCLUIDO\nAlbum digital\nIncluido sin cargo\n1 - INCLUIDO\nVideo de vida\nIncluido sin cargo\n1 - INCLUIDO\nPantalla gigante y proyector\nIncluido sin cargo\n1 - INCLUIDO\nSubtotal $\u00a0122.710\nServicios incluidos sin cargo -$\u00a022.900\nBonificaci\u00f3n (15%) -$\u00a014.972\nPRECIO VIGENTE $\u00a084.838\nValor aproximado por persona $\u00a01.697\nRESERV\u00c1 TU FECHA Y ASEGUR\u00c1 LA PROMOCI\u00d3N\nPara confirmar la promoci\u00f3n y reservar todos los servicios, se requiere una se\u00f1a de $5.000. El presupuesto es v\u00e1lido\npor 30 d\u00edas.\nLos valores corresponden a eventos realizados en 2026.\nLa fecha se reserva cuando AK Producciones confirma la disponibilidad, recibe la se\u00f1a y se firma el contrato.\nVer propuesta personalizada:\nhttp://127.0.0.1:3300/presupuestos/pres_public_e8d103e2d966526e22966106/ver?cliente=1&token=9a7e290a9c9f6c9cfd587428452f852a2d1fc26cdde5220734c63c\nAK Producciones | Salto, Uruguay P\u00e1gina 2 de 2",
+  "scope": "Actual mobile download, text extraction and renders; visual acceptance separate",
+  "a4AllPages": true
+}

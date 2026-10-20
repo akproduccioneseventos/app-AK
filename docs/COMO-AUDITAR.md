@@ -1114,3 +1114,147 @@ Tampoco alcanza con que inputValue sea correcto: mirar la captura con texto
 escrito y medir color/fondo reales. Un Input text-foreground en tema claro
 sobre un fondo oscuro daba contraste1.0013 y parecia vacio. Probar lectura y
 placeholder en PC/celular (texto normal, umbral4.5), no solo clases de jsdom.
+
+## Preguntas 64 a 67 - auditoría de Gemini (16/10/2026)
+
+Las sumó la auditoría "con lupa" de Gemini: cuatro formas que ninguna pregunta anterior miraba.
+
+### 64. Lo que se imprime, ¿sale entero?
+
+Una regla general de impresión (`@media print` en `globals.css`) escondía todo `header` para sacar la
+barra de la app, y se llevaba la cabecera de 21 documentos: contratos y recibos de sueldo salían sin logo,
+título ni cliente. Codex lo vio en uno solo. Se mira con `page.emulateMedia({ media: 'print' })` en cada
+documento imprimible, no en uno, y se lee qué quedó: el nombre del cliente, el título y la fecha tienen que
+estar. Toda regla `display:none` de impresión se recorre contra todos los que imprimen.
+
+### 65. Lo que la pantalla ofrece, ¿lo puede usar quien la está viendo?
+
+El menú le mostraba a un operador "Pagos Rápidos", "Panel Contable" y "Facturas"; al tocarlos, el servidor
+lo rechazaba. El servidor estaba bien: el defecto es ofrecer una puerta cerrada. Para cada perfil
+(`PERMISOS_POR_PERFIL`), cada botón visible tiene que llevar a algo que ese perfil puede abrir. Es la
+pregunta 41 (lo que la pantalla ofrece, el servidor lo acepta) mirada por perfil.
+
+### 66. Cuando se suma una opción nueva (una estación, una categoría), ¿la tienen todas las listas que filtran por ella?
+
+El álbum filtraba por Vogue y la galería del invitado no; el portal ofrecía cuatro extras y no las tres
+estaciones más nuevas. Se busca el `id` de la opción (`'bogue'`, `'touchpix'`) en todos los lugares que
+arman pestañas, filtros o listas de opciones, y se compara con una lista que ya la tiene.
+
+### 67. ¿Dos botones llevan al mismo lugar?
+
+En el portal del cliente "Documentos" y "Contrato" abrían la misma pantalla, igual que "Video de Vida" y
+"Fotografía"; en el tablero, "Nuevo Lead" y "CRM". No rompe nada, pero confunde. En cada grilla o menú se
+listan los `href` y se buscan repetidos.
+
+### 68. Lo que una pantalla le esconde a un perfil, ¿viaja igual adentro de un objeto más grande?
+
+La lista de empleados le escondía los sueldos a la secretaria, pero la fiesta viajaba entera con lo que
+cobra cada persona (`personalAsignado[].eventSalary`), y la pantalla de recibos se los mostraba. Para cada
+dato protegido por un permiso, se busca **en qué objetos más grandes va metido** (la fiesta, el
+presupuesto, el cliente) y se mira qué perfiles reciben ese objeto entero. Y al revés: si se lo saca al
+leer, **al guardar** el objeto sin ese dato no tiene que borrarlo (pregunta 38).
+
+**Ampliada el 20/10 (Codex 150, orden 198):** también **lo que DEVUELVE un guardado**. `saveFiesta`
+reponía la plata para guardar y devolvía la fiesta entera, con costos y sueldos ajenos. Se busca cada
+`return { ..., fiesta: … }` o `updatedFiesta` de una acción, no sólo lo que se lee.
+
+### 69. Una función "interna" sin permiso, ¿vive en un archivo `'use server'`?
+
+La entrega de la orden 183 (propuesta 1333) agregó `updateGestionCostosInterno` sin pedir permiso, para
+que la sincronización automática pudiera guardar costos. Pero la exportó desde `costos.actions.ts`, que
+empieza con `'use server'`: **todo lo que se exporta de ahí se puede llamar desde el navegador**. "Interna"
+era sólo el nombre. Lo frenó el candado de la plata. Al verificar: una función que se saltea el permiso
+vive en un archivo **sin** `'use server'` (con `import 'server-only'`), y la acción pública la llama.
+
+### 70. Una fecha sin hora (la del evento, un vencimiento), ¿se muestra el mismo día en Uruguay?
+
+Codex 143 (orden 184): la hoja de cocina guardaba 2027-08-08 y mostraba el 7/8 en Uruguay, porque leía la
+fecha como medianoche de Greenwich. Una fecha "civil" se arma con año, mes y día, nunca con
+`new Date('AAAA-MM-DD')`, y la prueba corre con la zona `America/Montevideo`.
+
+### 71. Dos registros con el mismo nombre, ¿la cuenta los distingue por su identificador?
+
+Codex 148 (orden 185): al guardar la fiesta, los pagos a proveedores se reponían buscando por nombre; con dos
+proveedores de igual nombre, uno se quedaba con la plata del otro. Si hay `id`, se empareja por `id`; el
+nombre sólo para filas viejas sin `id`, y sólo si no es ambiguo.
+
+### 72. Un número de teléfono local, ¿sale con el 598 cuando arma el enlace de WhatsApp?
+
+Codex 136 (orden 186): el recordatorio de la agenda armaba `wa.me/099...` y WhatsApp no lo abría. Todo enlace
+de WhatsApp pasa por la misma función que agrega el prefijo del país.
+
+### 73. Una lista de nombres permitidos, ¿acepta nombres que el lenguaje trae de fábrica?
+
+Codex 138 (orden 187): `esPerfilValido` preguntaba `valor in PERMISOS_POR_PERFIL`, y `"toString"` o `"constructor"`
+pasaban como perfiles. Se pregunta con `Object.hasOwn` (o `hasOwnProperty`), nunca con `in`.
+
+### 74. Lo que llama una máquina de afuera (despertador, webhook), ¿pasa la puerta general de la app?
+
+Gemini, 20/10 (orden 194): el despertador de cada 15 minutos llama a `/api/cron-despachador` con su
+clave, pero `src/middleware.ts` manda a `/login` todo lo que no tiene cookie y no figura en
+`src/lib/auth/public-paths.ts`. La ruta revisaba su clave, sus pruebas daban verde… porque **llamaban a
+la ruta directo, salteando la puerta**. Ya estaba anotado en `YA-RESUELTO.md` ("cron sin cookie dio
+HTML") y nadie lo arregló. Se busca: toda ruta de `src/app/api/` que mire `CRON_SECRET`,
+`TAREAS_SECRET` o una firma de webhook tiene que figurar como pública, y su prueba pasa por
+`isPublicPath`, no sólo por el manejador.
+
+### 75. Una función que se cuida sola con un dato opcional, ¿quien la llama le pasa ese dato?
+
+Gemini, 20/10 (orden 194): `atenderAlEquipo` ignora los ecos si `isEcho` viene en verdadero, y el
+webhook no se lo pasa nunca (tampoco `to`, `type` ni el audio). La protección existe y no se prende.
+Se busca: parámetros opcionales de los que depende un `if` de seguridad o de plata; se mira cada
+llamada y se comprueba que lo mande.
+
+### 76. Todos los lugares que arman la sesión, ¿guardan los mismos datos que después mira el permiso?
+
+Gemini, 20/10 (orden 194): el ingreso con clave guarda `perfil`; el ingreso con Google no, y
+`perfilDe` cae a `secretaria` (o a dueño si falta el rol). Y once acciones miran `role !== 'admin'` en
+vez del perfil, así que rol y perfil pueden decir cosas distintas. Se busca: cada `writeSessionCookie`
+con los mismos campos, y ningún permiso decidido por `role`.
+
+### 77. Lo que el cliente o el invitado puede hacer sin sesión, ¿termina en algo que pide sesión del equipo?
+
+Amplía la 24 al portal del cliente. Gemini, 20/10 (orden 194): `updateDecoracion` con `allowPortal`
+guarda y después llama a `syncDecoGastosToModule`, que pide sesión: la decoración queda guardada y el
+cliente ve "no se pudo guardar". Se busca: cada acción con `allowPortal`, `publicRsvp` o token de
+invitado, y **todo lo que llama después**, hasta el final.
+
+### 78. Una acción pública que prueba una clave o respuestas, ¿tiene tope de intentos? Y si recibe un id de usuario, ¿mira que sea el de la sesión?
+
+Gemini, 20/10 (orden 194): `resetPasswordWithQuestions` se puede probar sin límite; `changePassword`
+recibe cualquier `userId`. Se busca: acciones sin sesión que comparan claves, PIN, respuestas o códigos
+(van con `enforcePublicRateLimit`), y acciones que reciben `userId`, `empleadoId` o `clienteId` del
+navegador.
+
+### 79. Lo que una pantalla lee de una versión recortada, ¿viaja en esa versión?
+
+La inversa de la 68. Gemini, 20/10 (orden 194): el portal del cliente recibe la fiesta por una lista
+blanca (`mapGuest` en `src/lib/client-portal/public-fiesta.ts`) que no trae `checkedIn` ni
+`photosUploaded`: la pantalla dice siempre "0 llegaron" y "faltan fotos". Se busca: cada campo que
+lee una pantalla pública, contra lo que deja pasar su recorte.
+
+### 80. Lo que una pantalla le pasa a otra (enlace, parámetro, estado), ¿la otra lo lee con ese nombre?
+
+Gemini, 20/10 (orden 194): el simulador manda `&adultos=` y el otro lee `guests`; el plato elegido
+queda en un estado que no llega a lo que se guarda; el enlace a confirmar pierde `guestId` y el de
+"mi mesa" al hub también. Se busca: cada `href` y `router.push` con parámetros, contra el
+`searchParams.get` de la pantalla de destino; y cada estado que se muestra elegido, contra lo que se
+manda al guardar.
+
+### 81. El arreglo y su control, ¿miran la forma en toda la app o sólo el archivo donde apareció?
+
+**Es la que explica por qué "vuelven" cosas ya arregladas** (dueño, 20/10). El álbum que mandaba al
+disco de todos los clientes se arregló en una pantalla y su control leía sólo esa; la misma línea
+seguía en `src/app/post-fiesta/[fiestaId]/page.tsx`. **`node scripts/formas-ya-arregladas.mjs`** toma
+cada forma que un control prohíbe en un archivo y la busca en toda la app. Se corre al juntar cada
+entrega; lo que encuentra se confirma y va a una orden. Y un control nuevo que prohíbe una forma se
+escribe recorriendo `src/`, no un archivo.
+
+### 82. Lo que dice el asistente, la voz o un agente, ¿sale de los datos o es un texto fijo que parece un dato?
+
+Entrega 1337 (orden 196): el Contador de "los dots" contestaba "este mes se cobraron $240.000 y restan
+$85.000" siempre igual; la acción "ejecutada automáticamente" no hacía nada; el borrador de WhatsApp
+"dejado listo en Mi Día" no se guardaba en ningún lado, y una acción desconocida respondía "recibida y
+registrada". Todo con pruebas en verde. Se busca: cada respuesta del asistente que nombre un número, una
+acción hecha o algo guardado, y se sigue hasta el dato o el guardado que la respalda. El control
+`src/__tests__/el-asistente-no-inventa-plata.test.ts` frena los importes escritos a mano.

@@ -151,8 +151,12 @@ function CancelacionParcialContent({ fiestaId }: { fiestaId: string | null }) {
       if (navigator.share && navigator.canShare(shareData)) await navigator.share(shareData);
       else throw new Error();
     } catch {
-      navigator.clipboard.writeText(shareData.url);
-      toast({ title: 'Enlace copiado', description: 'El enlace fue copiado al portapapeles.' });
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        toast({ title: 'Enlace copiado', description: 'El enlace fue copiado al portapapeles.' });
+      } catch {
+        toast({ variant: 'destructive', title: 'No se pudo copiar', description: `Copiá este enlace a mano: ${shareData.url}` });
+      }
     }
   };
 
@@ -187,7 +191,7 @@ function CancelacionParcialContent({ fiestaId }: { fiestaId: string | null }) {
           </div>
         </div>
 
-        <header className="mb-6 print:mb-4">
+        <header className="cabecera-documento mb-6 print:mb-4">
           <h1 className="text-xl font-bold text-center">CONSTANCIA DE CANCELACIÓN PARCIAL DE SERVICIOS</h1>
         </header>
 

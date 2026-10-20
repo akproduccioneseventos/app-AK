@@ -91,6 +91,16 @@ describe('perfiles y permisos', () => {
       expect(esPerfilValido('jefe-supremo')).toBe(false);
       expect(perfilDe({ perfil: 'jefe-supremo', role: 'user' })).toBe('secretaria');
     });
+
+    it('rechaza propiedades heredadas como constructor, toString o __proto__ sin romper', () => {
+      expect(esPerfilValido('constructor')).toBe(false);
+      expect(esPerfilValido('toString')).toBe(false);
+      expect(esPerfilValido('__proto__')).toBe(false);
+
+      expect(perfilDe({ perfil: 'constructor', role: 'user' })).toBe('secretaria');
+      expect(perfilDe({ perfil: 'toString', role: 'user' })).toBe('secretaria');
+      expect(perfilDe({ perfil: '__proto__', role: 'user' })).toBe('secretaria');
+    });
   });
 
   it('los perfiles que se asignan al equipo son los cuatro de adentro', () => {

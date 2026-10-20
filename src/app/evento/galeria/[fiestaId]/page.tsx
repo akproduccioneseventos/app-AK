@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { toast } from '@/hooks/use-toast';
 import {
   Download,
   Share2,
@@ -36,7 +37,7 @@ import {
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'invitados';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'vogue' | 'totem' | 'invitados';
 
 /**
  * Extrae 128 números normalizados desde un cuadro del video capturado en el teléfono.
@@ -204,6 +205,16 @@ export default function GaleriaPage() {
           p.sourceModule === 'espejoMagicoIA',
       );
     }
+    if (activeTab === 'vogue') {
+      return posts.filter(
+        (p) => p.sourceModule === 'bogue' || p.sourceModule === 'vogue' || p.sourceModule === 'cabinaVogue',
+      );
+    }
+    if (activeTab === 'totem') {
+      return posts.filter(
+        (p) => p.sourceModule === 'totem' || p.sourceModule === 'totemIA' || p.sourceModule === 'pantallasTotem',
+      );
+    }
     if (activeTab === 'invitados') return posts.filter((p) => p.source === 'guest');
     return posts;
   }, [posts, activeTab, selectedPersona]);
@@ -238,7 +249,7 @@ export default function GaleriaPage() {
         await navigator.share({ title: 'Galería de la Fiesta', url });
       } else {
         await navigator.clipboard.writeText(url);
-        alert('Enlace copiado al portapapeles');
+        toast({ title: 'Enlace copiado', description: 'El enlace se copió al portapapeles.' });
       }
     } catch {}
   };
@@ -414,6 +425,8 @@ export default function GaleriaPage() {
               { id: 'fotocabina', label: '📸 Fotocabina' },
               { id: '360', label: '🌐 360°' },
               { id: 'espejo', label: '✨ Espejo' },
+              { id: 'vogue', label: '🎬 Vogue' },
+              { id: 'totem', label: '🤖 Tótem IA' },
               { id: 'invitados', label: '📱 Invitados' },
             ].map((tab) => (
               <button

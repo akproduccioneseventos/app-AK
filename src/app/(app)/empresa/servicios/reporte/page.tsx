@@ -112,7 +112,7 @@ export default function ReporteServiciosPage() {
           </div>
         </div>
 
-        <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
+        <header className="cabecera-documento mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
           <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">
             <Sparkles className="w-6 h-6 print:w-5 print:h-5" /> Reporte de Catálogo de Servicios
           </h1>

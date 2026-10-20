@@ -1,0 +1,110 @@
+{
+  "source": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "5c2d2aa0adfd7753d5399058cbca74b74a9613e2f3e921d9f296895319a58cf8",
+    "src/lib/fiesta/recortar-para-afuera.ts": "5b1e86f4ca350851d92b77cbcc1b381f7eee140411e5e71c55a390bd87941fce",
+    "src/lib/fiesta/reponer-la-plata.ts": "cf002fc2f179720d6d2df17b5ff79974417c2dbc8a08eb33d77e1d206f731d20",
+    "src/lib/auth/equipo-de-la-fiesta.ts": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+    "src/app/actions/fiesta/fiesta.actions.ts": "14d2b85b0669b4355c4079a7fa997924d37f7801bf36a52883778dea4fdfba18"
+  },
+  "cases": [
+    {
+      "kind": "secretaria",
+      "actorProfile": "secretaria",
+      "allowedByRealTeam": true,
+      "inputHasCosts": false,
+      "rejected": false,
+      "writes": 1,
+      "responseHasCosts": true,
+      "returnedCosts": {
+        "total": 9500
+      },
+      "returnedSupplierPayment": 60.3,
+      "storedCosts": {
+        "total": 9500
+      },
+      "salaryLeak": true,
+      "returnedStaffSalary": 3000,
+      "pass": false
+    },
+    {
+      "kind": "personal",
+      "actorProfile": "personal",
+      "allowedByRealTeam": false,
+      "inputHasCosts": false,
+      "rejected": true,
+      "writes": 0,
+      "responseHasCosts": false,
+      "returnedCosts": null,
+      "returnedSupplierPayment": null,
+      "storedCosts": {
+        "total": 9500
+      },
+      "salaryLeak": false,
+      "returnedStaffSalary": null,
+      "pass": true
+    },
+    {
+      "kind": "cliente",
+      "actorProfile": "cliente",
+      "allowedByRealTeam": false,
+      "inputHasCosts": false,
+      "rejected": true,
+      "writes": 0,
+      "responseHasCosts": false,
+      "returnedCosts": null,
+      "returnedSupplierPayment": null,
+      "storedCosts": {
+        "total": 9500
+      },
+      "salaryLeak": false,
+      "returnedStaffSalary": null,
+      "pass": true
+    },
+    {
+      "kind": "prospecto",
+      "actorProfile": "prospecto",
+      "allowedByRealTeam": false,
+      "inputHasCosts": false,
+      "rejected": true,
+      "writes": 0,
+      "responseHasCosts": false,
+      "returnedCosts": null,
+      "returnedSupplierPayment": null,
+      "storedCosts": {
+        "total": 9500
+      },
+      "salaryLeak": false,
+      "returnedStaffSalary": null,
+      "pass": true
+    },
+    {
+      "kind": "invitado",
+      "actorProfile": "invitado",
+      "allowedByRealTeam": false,
+      "inputHasCosts": false,
+      "rejected": true,
+      "writes": 0,
+      "responseHasCosts": false,
+      "returnedCosts": null,
+      "returnedSupplierPayment": null,
+      "storedCosts": {
+        "total": 9500
+      },
+      "salaryLeak": false,
+      "returnedStaffSalary": null,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "pass": 4,
+    "fail": 1
+  },
+  "scope": "Five additional profiles only; actual action/gate/profile model, fake session and database; no portal credential",
+  "limits": [
+    "No real signed HTTP, SDK persistence, production or real financial data",
+    "Secretaria starts from redacted input; profits and salaries restored from fake storage are not echoed input",
+    "Cliente/prospecto/invitado denial is without portal credential, not rejection of their dedicated portal flows"
+  ],
+  "appEdited": false
+}

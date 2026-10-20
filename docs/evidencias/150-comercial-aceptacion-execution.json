@@ -1,0 +1,64 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "started": "2026-10-20T10:34:45.541Z",
+  "fixture": "Modo JSON local autorizado; NO acepta el guardado SDK de produccion.",
+  "children": [
+    {
+      "label": "serve",
+      "pid": 14648,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+        "start",
+        "--hostname",
+        "127.0.0.1",
+        "--port",
+        "3300"
+      ]
+    },
+    {
+      "label": "playwright",
+      "pid": 2760,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "139-playwright.config.ts",
+        "150-comercial-movil.spec.ts",
+        "--project=chromium-mobile",
+        "--output",
+        "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\150-comercial-aceptacion-artifacts"
+      ]
+    }
+  ],
+  "realServices": false,
+  "snapshots": 61,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-20T10:34:50.599Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "testSha256": "d1666b5b7a130e4bd77bb26d3ab2873162d19685913f786021bdaf667503ae10",
+  "testName": "150-comercial-movil.spec.ts",
+  "exitCode": 0,
+  "restored": [
+    "src\\data\\crm-leads.json",
+    "src\\data\\presupuestos.json",
+    "data\\crm-leads.json",
+    "data\\presupuestos.json"
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-20T10:35:29.137Z"
+}

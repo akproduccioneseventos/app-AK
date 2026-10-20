@@ -191,3 +191,16 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     siguen a la vista.
 49. **¿Tu prueba se saltea en el celular?** Si la pantalla la usa alguien con el celular, no: corre en
     los dos.
+50. **¿Tu pantalla se imprime?** Miralá en modo impresión: el título, el cliente y la fecha tienen que salir.
+51. **¿Agregaste un botón o una tarjeta?** Que lo vea sólo el perfil que lo puede usar, y que no repita el
+    destino de otro botón de la misma pantalla.
+52. **¿Sumaste una opción nueva (estación, categoría)?** Buscá su `id` en todas las listas y filtros que
+    ya tienen las otras, y sumala ahí también.
+53. **¿Tu dato es de plata o de sueldos?** Fijate si viaja adentro de la fiesta o del presupuesto a perfiles
+    que no lo ven en su pantalla propia. Y si lo sacás al leer, que guardar no lo borre.
+54. **¿Hiciste una versión "interna" que no pide permiso?** No la exportes de un archivo `'use server'`:
+    ahí todo se puede llamar desde el navegador. Va en un archivo aparte con `import 'server-only'`.
+55. **¿Lo que arreglaste está repetido en otro archivo?** Corré `node scripts/formas-ya-arregladas.mjs` y
+    buscá la misma línea en toda la app. Y tu prueba, que recorra `src/`, no sólo tu archivo.
+56. **¿Lo que mandás de una pantalla a otra llega con el mismo nombre?** Parámetros del enlace, campos
+    del recorte que ve el cliente y datos opcionales de los que depende una protección.

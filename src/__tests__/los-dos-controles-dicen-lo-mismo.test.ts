@@ -34,7 +34,8 @@ function correr(script: string): string {
     maxBuffer: 20 * 1024 * 1024,
   });
   ultimaCorrida[script] = `salida ${r.status} señal ${r.signal} error ${r.error?.message || '-'}\n` +
-    `stderr: ${(r.stderr || '').slice(0, 800)}\nstdout: ${(r.stdout || '').slice(0, 1500)}`;
+    `stderr: ${(r.stderr || '').slice(0, 800)}\nlargo: ${(r.stdout || '').length}\n` +
+    `stdout (final, donde van las cuentas): ${(r.stdout || '').slice(-2500)}`;
   return r.stdout || '';
 }
 const ultimaCorrida: Record<string, string> = {};

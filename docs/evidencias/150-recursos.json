@@ -1,0 +1,13 @@
+{
+  "source": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+  "status": "QA_BUILD_NOT_STARTED_RESOURCE_GUARD",
+  "guardBytes": 2147483648,
+  "attempts": 2,
+  "secondAttemptMaxWaitMs": 600000,
+  "exactWaitDurationRecorded": false,
+  "ownBuildStarted": false,
+  "ownBuildReceiptProduced": false,
+  "otherProcessesStopped": false,
+  "scope": "QA preflight refusal; NOT an application build failure",
+  "resume": "node docs/evidencias/150-entorno.mjs prepare wait"
+}

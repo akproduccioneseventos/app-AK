@@ -375,7 +375,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
   const handleClaimGift = async (gift: GiftItem) => {
       if (isPreview || gift.isClaimed) return;
-      const guestName = prompt("Para reservar este regalo, dinos tu nombre:");
+      const guestName = prompt("Para reservar este regalo, decinos tu nombre:");
       if (!guestName) return;
 
       const res = await claimGift(fiesta.id, gift.id, guestName);

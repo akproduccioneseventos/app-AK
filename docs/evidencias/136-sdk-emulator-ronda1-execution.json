@@ -1,0 +1,31 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "mode": "emulator",
+  "child": 17932,
+  "command": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools/java21/jdk-21.0.12.1+1/bin/java.exe",
+  "args": [
+    "-Xmx512m",
+    "-jar",
+    "C:/Users/Usuario/.cache/firebase/emulators/cloud-firestore-emulator-v1.22.0.jar",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "8085",
+    "--project_id",
+    "demo-ak-producciones",
+    "--single_project_mode",
+    "true",
+    "--single_project_mode_error",
+    "true",
+    "--rules",
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\firestore.rules"
+  ],
+  "started": "2026-10-16T11:41:39.196Z",
+  "emulator": "127.0.0.1:8085",
+  "project": "demo-ak-producciones",
+  "credentials": "none; isolated HOME/config, localhost emulator only",
+  "status": "stopped",
+  "code": 4294967295,
+  "finished": "2026-10-16T11:57:31.217Z"
+}

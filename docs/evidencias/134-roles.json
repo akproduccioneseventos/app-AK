@@ -1,0 +1,76 @@
+{
+  "sourceSha": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "roles": [
+    {
+      "id": "dueno",
+      "definition": "src/lib/auth/perfiles.ts",
+      "fullRoleAccepted": false,
+      "requiredEvidence": "Link allowed and denied operations for this actual profile; synthetic generic team session does not identify a profile.",
+      "doorwayScenarioIds": [],
+      "doorwayAssociationMeaning": "URL/scenario association only, not an authorization matrix for Perfil"
+    },
+    {
+      "id": "secretaria",
+      "definition": "src/lib/auth/perfiles.ts",
+      "fullRoleAccepted": false,
+      "requiredEvidence": "Link allowed and denied operations for this actual profile; synthetic generic team session does not identify a profile.",
+      "doorwayScenarioIds": [],
+      "doorwayAssociationMeaning": "URL/scenario association only, not an authorization matrix for Perfil"
+    },
+    {
+      "id": "operador",
+      "definition": "src/lib/auth/perfiles.ts",
+      "fullRoleAccepted": false,
+      "requiredEvidence": "Link allowed and denied operations for this actual profile; synthetic generic team session does not identify a profile.",
+      "doorwayScenarioIds": [],
+      "doorwayAssociationMeaning": "URL/scenario association only, not an authorization matrix for Perfil"
+    },
+    {
+      "id": "personal",
+      "definition": "src/lib/auth/perfiles.ts",
+      "fullRoleAccepted": false,
+      "requiredEvidence": "Link allowed and denied operations for this actual profile; synthetic generic team session does not identify a profile.",
+      "doorwayScenarioIds": [],
+      "doorwayAssociationMeaning": "URL/scenario association only, not an authorization matrix for Perfil"
+    },
+    {
+      "id": "cliente",
+      "definition": "src/lib/auth/perfiles.ts",
+      "fullRoleAccepted": false,
+      "requiredEvidence": "Link allowed and denied operations for this actual profile; synthetic generic team session does not identify a profile.",
+      "doorwayScenarioIds": [],
+      "doorwayAssociationMeaning": "URL/scenario association only, not an authorization matrix for Perfil"
+    },
+    {
+      "id": "prospecto",
+      "definition": "src/lib/auth/perfiles.ts",
+      "fullRoleAccepted": false,
+      "requiredEvidence": "Link allowed and denied operations for this actual profile; synthetic generic team session does not identify a profile.",
+      "doorwayScenarioIds": [],
+      "doorwayAssociationMeaning": "URL/scenario association only, not an authorization matrix for Perfil"
+    },
+    {
+      "id": "invitado",
+      "definition": "src/lib/auth/perfiles.ts",
+      "fullRoleAccepted": false,
+      "requiredEvidence": "Link allowed and denied operations for this actual profile; synthetic generic team session does not identify a profile.",
+      "doorwayScenarioIds": [],
+      "doorwayAssociationMeaning": "URL/scenario association only, not an authorization matrix for Perfil"
+    }
+  ],
+  "assistantPersonasAreNotAuthorizationProfiles": [
+    "Caja",
+    "Ventas",
+    "Marketing",
+    "Eventos",
+    "Fiesta",
+    "Agenda"
+  ],
+  "externalActors": [
+    "cliente-con-clave",
+    "invitado-con-enlace",
+    "proveedor-con-token",
+    "operador-de-estacion-con-token"
+  ],
+  "fullRoleCoverage": false
+}
