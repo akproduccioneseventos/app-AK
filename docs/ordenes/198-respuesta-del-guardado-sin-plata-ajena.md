@@ -3,14 +3,17 @@
 **Va en la propuesta CHICA de la orden 197**, porque esto ya está en la app publicada: guardar una fiesta
 le devuelve al navegador costos, pagos a proveedores y sueldos ajenos aunque el perfil no los pueda ver.
 
-**El barrido de Claude encontró la misma forma en otros dos lugares** (pregunta 68), y son peores
-porque piden sólo sesión, así que llega también el perfil `personal`:
+**El barrido de Claude encontró la misma forma en otros cuatro lugares** (pregunta 68). Al perfil
+`personal` no le llega: lo frena `soloEquipo`. Sí le llega a la secretaria y al operador asignado:
 
 - `src/app/actions/fiesta/reuniones.actions.ts` ~27: devuelve `updatedFiesta` entera, con sólo
   `requireAppSession`.
 - `src/app/actions/multiagent.ts` ~589 (`crearTareaDesdeMultiagente`): devuelve `fiesta: updatedFiesta`
   entera, con sólo `requireAppSession`.
 
+- `src/app/actions/fiesta/fiesta.actions.ts` ~1434 (`suspenderFiestaAction`) y ~1446
+  (`reactivarFiestaAction`): devuelven la fiesta entera. Las piden contabilidad o administración, así
+  que a la secretaria le llegan costos y sueldos.
 - `src/app/(app)/fiestas/nueva/invitados.actions.ts`: devuelve la fiesta entera y **nadie lo importa**.
   Se borra.
 
@@ -18,7 +21,11 @@ porque piden sólo sesión, así que llega también el perfil `personal`:
 
 - Lo que se devuelve pasa por `recortarFiestaPorPerfil` (o `paraAfuera` si no es del equipo).
 - Si la pantalla que llama no usa la fiesta devuelta, no se devuelve: alcanza con `success`.
-- Además, las dos acciones de arriba piden el permiso del área: `ORGANIZACION`.
+- `recortarFiestaPorPerfil` todavía no existe en la rama de Claude: lo trae la orden 183, por la
+  orden 188. Si no llegó, crealo en `src/lib/fiesta/recortar-para-afuera.ts`: saca `gestionCostos` a
+  quien no tiene `GANANCIAS`, y saca `eventSalary` de `personalAsignado` a quien no tiene `SUELDOS`.
+- La causa de fondo es que `getFiestaById` le da la fiesta entera a todo el equipo (orden 183).
+  Arreglado eso, los retornos dejan de filtrar.
 
 Lo que sigue es el informe de Codex, tal cual:
 

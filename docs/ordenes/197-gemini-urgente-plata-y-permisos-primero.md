@@ -33,9 +33,11 @@ Lo que hay que hacer está escrito, con archivo y línea, en las órdenes de ori
    - el eco de WhatsApp;
    - ganancias y sueldos;
    - el portal del proveedor.
-5. **Orden 198, entera:** lo que devuelve un guardado le mostraba costos y sueldos ajenos a quien no
+5. **Orden 183, entera** (viene dentro de la 188): la fiesta le llega entera a la secretaria y al
+   operador, con costos y sueldos ajenos. Es la causa de fondo de la 198.
+6. **Orden 198, entera:** lo que devuelve un guardado le mostraba costos y sueldos ajenos a quien no
    tiene permiso (lo encontró Codex; Claude sumó dos lugares más).
-6. **Orden 193, bloques 4 y 5:** saldos sin el ajuste anual, y un cobro a confirmar contado como
+7. **Orden 193, bloques 4 y 5:** saldos sin el ajuste anual, y un cobro a confirmar contado como
    ganancia.
 
 Si un bloque se traba, entregá los otros y avisá cuál faltó. **No esperes a tenerlos todos.**

@@ -35,6 +35,7 @@ Codex sólo audita.
 - Pagos a proveedores con el mismo nombre (desde el 16/10).
 - Despertador bloqueado: las tareas automáticas no corren solas (desde el 20/10).
 - Ingreso con Google sin perfil, preguntas de seguridad sin tope, cambio de clave sin sesión, eco de WhatsApp (desde el 20/10).
+- La fiesta entera (costos y sueldos ajenos) le llega a la secretaria y al operador (desde el 16/10, orden 183).
 - Guardar una fiesta le devuelve costos y sueldos ajenos a quien no tiene permiso (desde el 20/10, orden 198).
 - Saldos sin el ajuste anual y un cobro a confirmar contado como ganancia (desde el 20/10).
 
