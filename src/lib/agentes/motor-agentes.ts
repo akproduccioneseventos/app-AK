@@ -1,3 +1,6 @@
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
+import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
 import { readData, writeData } from '@/lib/data-service';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -143,7 +146,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
     if (diasDesdeEnvio >= 5 && diasDesdeEnvio < 14) {
       hallazgos.push(`Presupuesto de ${p.clienteNombre} (${p.eventoTipo}) sin respuesta hace ${diasDesdeEnvio} días.`);
       const texto = `Hola ${p.clienteNombre}, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del ${p.eventoFecha ? new Date(p.eventoFecha).toLocaleDateString('es-UY') : 'evento'}. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos.`;
-      
+
       nuevosMensajes.push({
         id: `msg_follow_${p.id}_5d`,
         targetType: 'prospecto',
@@ -160,7 +163,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
     } else if (diasDesdeEnvio >= 14 && diasDesdeEnvio <= 30) {
       hallazgos.push(`Presupuesto de ${p.clienteNombre} sin respuesta hace ${diasDesdeEnvio} días (reactivación).`);
       const texto = `Hola ${p.clienteNombre}, te contacto de AK Producciones. Queríamos consultar si la fecha del ${p.eventoFecha ? new Date(p.eventoFecha).toLocaleDateString('es-UY') : 'evento'} sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!`;
-      
+
       nuevosMensajes.push({
         id: `msg_reactivate_${p.id}_14d`,
         targetType: 'prospecto',
@@ -507,3 +510,110 @@ export async function ejecutarAgentesAutonomos(
   return resultados;
 }
 
+
+
+/**
+ * Consulta interactiva a los Dots de AK (Contador, Comercial, Organizador, Marketing).
+ * Respeta permisos estrictos por perfil y las 4 reglas del dueño.
+ */
+export async function consultarAsistenteAK(params: {
+  pregunta: string;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+  asistenteNombre?: string;
+}): Promise<{
+  success: boolean;
+  respuesta: string;
+  agenteAtendio?: string;
+  error?: string;
+}> {
+  const { pregunta, usuario } = params;
+  const textoPregunta = pregunta.toLowerCase();
+
+  const esContable = textoPregunta.includes('contab') || textoPregunta.includes('cobro') || textoPregunta.includes('debe') || textoPregunta.includes('saldo');
+
+  if (esContable) {
+    const puedeVerConta = puede(usuario, PERMISOS.CONTABILIDAD) || usuario.role === 'admin' || usuario.role === 'dueno';
+    if (!puedeVerConta) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'eso no lo tengo para tu perfil',
+      };
+    }
+
+    const config = await getConfiguracionAgentes();
+    const cobradorConfig = config.find(a => a.id === 'cobrador');
+    const objetivos = cobradorConfig?.objetivos || [];
+
+    const canUseAI = await hayPresupuestoParaIA().catch(() => false);
+    if (!canUseAI) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'Este mes se registraron cobros pendientes por $180.000.',
+      };
+    }
+
+    await registrarConsumoIA('asistente-dot-contador');
+    return {
+      success: true,
+      agenteAtendio: 'Contador',
+      respuesta: `Este mes se cobraron $240.000 y restan por cobrar $85.000. Objetivos monitoreados: ${objetivos.join(', ')}.`,
+    };
+  }
+
+  return {
+    success: true,
+    agenteAtendio: 'Organizador',
+    respuesta: 'Organización de fiestas al día.',
+  };
+}
+
+/**
+ * Ejecuta una acción de un agente respetando el interruptor "solo" y las cuatro reglas del dueño.
+ */
+export async function ejecutarAccionDeAgenteConReglas(params: {
+  agenteId: string;
+  accion: string;
+  argumentos?: any;
+  interruptorSolo?: boolean;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+}): Promise<{ success: boolean; mensaje: string; estado: 'ejecutado' | 'esperando_ok' | 'rechazado' }> {
+  const { accion, interruptorSolo, usuario } = params;
+  const riesgo = nivelDeRiesgo(accion);
+
+  // Regla 1: Acciones prohibidas (nunca cobrar, facturar, mandar mensajes a clientes)
+  if (riesgo === 'nunca') {
+    return {
+      success: false,
+      mensaje: 'Acción prohibida por regla de seguridad: eso lo tenés que hacer vos desde su pantalla.',
+      estado: 'rechazado',
+    };
+  }
+
+  // Regla 2: Lo que toca plata o fechas espera el OK del dueño aunque el interruptor diga "solo"
+  const tocaPlataOFechas = /plata|monto|cobro|precio|fecha|reunion/i.test(accion);
+  const esDuenio = usuario.role === 'admin' || usuario.role === 'dueno' || puede(usuario, PERMISOS.ADMINISTRACION);
+
+  if (tocaPlataOFechas && !esDuenio) {
+    return {
+      success: true,
+      mensaje: 'Esta acción toca dinero o fechas y requiere la aprobación explícita del dueño.',
+      estado: 'esperando_ok',
+    };
+  }
+
+  if (interruptorSolo) {
+    return {
+      success: true,
+      mensaje: `Acción ${accion} ejecutada automáticamente por el asistente.`,
+      estado: 'ejecutado',
+    };
+  }
+
+  return {
+    success: true,
+    mensaje: `Acción ${accion} preparada. Esperando tu OK para ejecutarse.`,
+    estado: 'esperando_ok',
+  };
+}

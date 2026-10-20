@@ -300,8 +300,13 @@ export async function launchGame(
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     // Una trivia lleva SU respuesta correcta (la elige el operador al lanzar) y nace sin revelar:
     // ese dato no sale hacia los celulares hasta que se revela (ver `ocultarRespuestaCorrecta`).
-    if (game.type === 'trivia' && !(game.options || []).some((o) => o.id === game.correctOptionId)) {
-      return { success: false, error: 'Elegí cuál es la respuesta correcta antes de lanzar la trivia.' };
+    if (game.type === 'trivia') {
+      if (fiesta.triviaGame && fiesta.triviaGame.confirmadaPorEquipo === false) {
+        return { success: false, error: 'La trivia debe ser confirmada por el equipo antes de jugar.' };
+      }
+      if (!(game.options || []).some((o) => o.id === game.correctOptionId)) {
+        return { success: false, error: 'Elegí cuál es la respuesta correcta antes de lanzar la trivia.' };
+      }
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { isFinished: _f, respuestaRevelada: _r, topJugadores: _t, tableLeaderboard: _l, ...limpio } = game;

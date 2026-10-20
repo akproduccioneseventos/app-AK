@@ -1,6 +1,7 @@
 /**
  * Publicador real en Meta Graph API (Facebook Fanpage e Instagram Business).
  * IMPORTANTE: Nada se publica automáticamente; siempre requiere aprobación humana explícita.
+ * Soporta fotos, videos en Facebook y REELS en Instagram.
  */
 
 export interface MetaPublishResult {
@@ -15,9 +16,10 @@ export async function publishToFacebookPage(options: {
   pageAccessToken: string;
   message: string;
   imageUrl?: string;
+  videoUrl?: string;
   linkUrl?: string;
 }): Promise<MetaPublishResult> {
-  const { pageId, pageAccessToken, message, imageUrl, linkUrl } = options;
+  const { pageId, pageAccessToken, message, imageUrl, videoUrl, linkUrl } = options;
 
   if (!pageId || !pageAccessToken) {
     return {
@@ -27,19 +29,24 @@ export async function publishToFacebookPage(options: {
   }
 
   try {
-    const isPhotoPost = Boolean(imageUrl && imageUrl.startsWith('http'));
-    const endpoint = isPhotoPost
-      ? `https://graph.facebook.com/v19.0/${pageId}/photos`
-      : `https://graph.facebook.com/v19.0/${pageId}/feed`;
+    const isVideoPost = Boolean(videoUrl && videoUrl.startsWith('http'));
+    const isPhotoPost = Boolean(!isVideoPost && imageUrl && imageUrl.startsWith('http'));
 
+    let endpoint: string;
     const body: Record<string, string> = {
       access_token: pageAccessToken,
     };
 
-    if (isPhotoPost && imageUrl) {
+    if (isVideoPost && videoUrl) {
+      endpoint = `https://graph.facebook.com/v19.0/${pageId}/videos`;
+      body.file_url = videoUrl;
+      body.description = message;
+    } else if (isPhotoPost && imageUrl) {
+      endpoint = `https://graph.facebook.com/v19.0/${pageId}/photos`;
       body.url = imageUrl;
       body.caption = message;
     } else {
+      endpoint = `https://graph.facebook.com/v19.0/${pageId}/feed`;
       body.message = message;
       if (linkUrl && linkUrl.startsWith('http')) {
         body.link = linkUrl;
@@ -84,9 +91,11 @@ export async function publishToInstagramBusiness(options: {
   instagramAccountId: string;
   pageAccessToken: string;
   caption: string;
-  imageUrl: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  isReel?: boolean;
 }): Promise<MetaPublishResult> {
-  const { instagramAccountId, pageAccessToken, caption, imageUrl } = options;
+  const { instagramAccountId, pageAccessToken, caption, imageUrl, videoUrl, isReel } = options;
 
   if (!instagramAccountId || !pageAccessToken) {
     return {
@@ -95,25 +104,36 @@ export async function publishToInstagramBusiness(options: {
     };
   }
 
-  if (!imageUrl || !imageUrl.startsWith('http')) {
+  const isVideo = Boolean(videoUrl || isReel);
+  const mediaUrl = videoUrl || imageUrl;
+
+  if (!mediaUrl || !mediaUrl.startsWith('http')) {
     return {
       success: false,
-      error: 'Instagram requiere una imagen accesible públicamente (URL https://) para publicar.',
+      error: 'Instagram requiere una imagen o video accesible públicamente (URL https://) para publicar.',
     };
   }
 
   try {
-    // Paso 1: Crear contenedor de medio
+    // Paso 1: Crear contenedor de medio (Foto o REELS)
+    const containerBody: Record<string, string> = {
+      caption,
+      access_token: pageAccessToken,
+    };
+
+    if (isVideo) {
+      containerBody.media_type = 'REELS';
+      containerBody.video_url = mediaUrl;
+    } else {
+      containerBody.image_url = mediaUrl;
+    }
+
     const containerRes = await fetch(
       `https://graph.facebook.com/v19.0/${instagramAccountId}/media`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image_url: imageUrl,
-          caption,
-          access_token: pageAccessToken,
-        }),
+        body: JSON.stringify(containerBody),
       }
     );
 
@@ -129,6 +149,27 @@ export async function publishToInstagramBusiness(options: {
     }
 
     const creationId = containerData.id;
+
+    // Si es REELS, esperar a que el contenedor diga FINISHED
+    if (isVideo) {
+      let statusContainer = 'IN_PROGRESS';
+      let intentos = 0;
+      while (statusContainer !== 'FINISHED' && intentos < 10) {
+        await new Promise((r) => setTimeout(r, 1000));
+        intentos++;
+        const checkRes = await fetch(
+          `https://graph.facebook.com/v19.0/${creationId}?fields=status_code&access_token=${pageAccessToken}`
+        );
+        const checkData = await checkRes.json().catch(() => ({}));
+        statusContainer = checkData.status_code || statusContainer;
+        if (statusContainer === 'ERROR') {
+          return {
+            success: false,
+            error: 'Instagram falló al procesar el video de Reel: status ERROR',
+          };
+        }
+      }
+    }
 
     // Paso 2: Publicar el contenedor creado
     const publishRes = await fetch(

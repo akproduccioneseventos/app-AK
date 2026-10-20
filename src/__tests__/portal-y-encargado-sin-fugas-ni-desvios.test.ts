@@ -7,8 +7,8 @@ const RAIZ = process.cwd();
 // /portal-cliente/[id]/musica), nunca a las del equipo.
 describe('Portal del cliente sin desvíos', () => {
   it('el módulo Documentos del portal del cliente lleva al contrato y no al menú de comida', () => {
-    const portalSource = fs.readFileSync(path.join(RAIZ, 'src/app/portal/page.tsx'), 'utf8');
-    const lineaDocumentos = portalSource
+    const portalModulesSource = fs.readFileSync(path.join(RAIZ, 'src/lib/portal/portal-modules.ts'), 'utf8');
+    const lineaDocumentos = portalModulesSource
       .split('\n')
       .find((line) => line.includes("id: 'documentos'"));
 
@@ -19,7 +19,7 @@ describe('Portal del cliente sin desvíos', () => {
 
   it('los atajos de módulos del portal nunca mandan al cliente a las pantallas privadas del equipo (/fiestas/nueva)', () => {
     const redirectSource = fs.readFileSync(
-      path.join(RAIZ, 'src/app/portal/[fiestaId]/[module]/page.tsx'),
+      path.join(RAIZ, 'src/lib/portal/portal-redirects.ts'),
       'utf8'
     );
 

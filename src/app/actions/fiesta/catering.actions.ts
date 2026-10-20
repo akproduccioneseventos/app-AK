@@ -6,6 +6,7 @@ import type { FiestaEnPlanificacion, CompraProveedorEstado, Tarea } from '@/type
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 import { requireEventPermission } from '@/lib/auth/event-access';
@@ -55,7 +56,7 @@ export async function updateShoppingListStatus(
         // organización; marcar que se le PAGÓ al proveedor es plata, de insumos o contabilidad.
         // El permiso sale de lo que se PIDE cambiar, no de comparar con una lectura que otro
         // puede cambiar un instante después.
-        const actual = await getFiestaById(fiestaId);
+        const actual = await getFiestaById(fiestaId, LECTURA_COMPLETA);
         if (!actual) throw new Error("Fiesta no encontrada");
         const cambios = cambiosPedidos(leidos ?? actual.estadosCompra ?? [], estados);
         if (cambios.length === 0) return { success: true };

@@ -109,6 +109,7 @@ export function perfilDesdeRolViejo(role: string | undefined | null): Perfil {
 
 export function perfilDe(user: { perfil?: string; role?: string } | undefined | null): Perfil {
   if (esPerfilValido(user?.perfil)) return user.perfil;
+  if (esPerfilValido(user?.role)) return user.role;
   return perfilDesdeRolViejo(user?.role);
 }
 

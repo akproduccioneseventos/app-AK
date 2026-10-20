@@ -267,6 +267,8 @@ async function publicarSinReclamo(
           pageAccessToken: conn.pageAccessToken,
           caption: targetPost.text,
           imageUrl: targetPost.mediaUrl,
+          videoUrl: targetPost.mediaType === 'video' ? targetPost.mediaUrl : undefined,
+          isReel: targetPost.mediaType === 'video',
         });
 
         if (igResult.success) publishedTo.push('Instagram');
@@ -444,7 +446,7 @@ async function publicarSinReclamo(
         retryCount: failedRetryCount,
         lastError: errorMsg,
         lastAttemptAt: new Date().toISOString(),
-        status: willMarkFailed ? 'Falló' : targetPost.status,
+        status: 'Con error',
         updatedAt: new Date().toISOString(),
       };
 

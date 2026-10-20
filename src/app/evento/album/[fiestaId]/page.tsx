@@ -42,6 +42,7 @@ import { bajarRecuerdosParaZip, resumirEntrega } from '@/lib/album/armar-zip-del
 import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
 import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
+import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 
 type ViewMode = 'libro' | 'cuadricula';
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
@@ -242,16 +243,7 @@ export default function PublicAlbumPage() {
   };
 
   const filteredPosts = useMemo(() => {
-    if (activeTab === 'todas') return posts;
-    if (activeTab === 'fotocabina') return posts.filter((p) => p.sourceModule === 'fotocabina');
-    if (activeTab === '360') return posts.filter((p) => p.sourceModule === 'plataforma_360');
-    if (activeTab === 'espejo') return posts.filter((p) => p.sourceModule === 'espejo_magico');
-    if (activeTab === 'bogue') return posts.filter((p) => p.sourceModule === 'bogue' || p.sourceModule === 'boomerang');
-    if (activeTab === 'buzon') return posts.filter((p) => p.sourceModule === 'buzon' || p.sourceModule === 'capsulaTiempo');
-    if (activeTab === 'invitados') {
-      return posts.filter((p) => !p.sourceModule || p.sourceModule === 'muro' || p.sourceModule === 'invitado');
-    }
-    return posts;
+    return filtrarPorEstacion(posts, activeTab);
   }, [posts, activeTab]);
 
   const showNext = useCallback(() => {

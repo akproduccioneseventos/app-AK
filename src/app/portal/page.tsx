@@ -109,23 +109,23 @@ const PORTAL_EXTRA_DEFINITIONS = [
   },
   {
     id: 'totem_touch_ia',
-    titulo: 'Tótem Touch Interactivo con IA',
+    titulo: 'Tótem Touch IA',
     descripcion: 'Pantalla táctil vertical de 55 pulgadas con IA, fotos personalizadas y trivia interactiva.',
-    aliases: ['totem', 'totem touch', 'totem ia', 'pantalla interactiva'],
-    icono: '📱',
+    aliases: ['totem touch', 'tótem touch', 'face swap', 'totem', 'pantalla interactiva'],
+    icono: '🤖',
   },
   {
-    id: 'cabina_vogue',
-    titulo: 'Cabina Vogue Neon / Boomerang',
+    id: 'vogue_boomerang',
+    titulo: 'Cabina Vogue (boomerangs y GIFs)',
     descripcion: 'Túnel de luces LED y efecto de moda para videos de alto impacto.',
-    aliases: ['vogue', 'cabina vogue', 'bogue', 'boomerang'],
-    icono: '✨',
+    aliases: ['vogue', 'bogue', 'cabina vogue', 'boomerang'],
+    icono: '💎',
   },
   {
-    id: 'espejo_magico_ia',
-    titulo: 'Espejo Mágico Táctil con IA',
+    id: 'espejo_magico',
+    titulo: 'Espejo mágico',
     descripcion: 'Firma en pantalla gigante con props digitales e impresión fotográfica instantánea.',
-    aliases: ['espejo', 'espejo magico', 'espejo ia'],
+    aliases: ['espejo magico', 'espejo mágico', 'espejo', 'espejo ia'],
     icono: '🪞',
   },
 ] as const;
@@ -145,39 +145,7 @@ function getPublicServicePriceLabel(service?: ServicioEmpresa): string {
     : formatCurrency(amount);
 }
 
-type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey' | 'accessPhase' | 'liveAccessDaysBefore' | 'cuentasBancarias' | 'simuladorInvitadosConfig' | 'clientServiceChangeRequests'>;
-
-type PortalModule = {
-  id: ModuleId;
-  label: string;
-  icon: LucideIcon;
-  href?: (fiestaId: string) => string;
-};
-
-const portalModules: PortalModule[] = [
-  { id: 'checklist', label: 'Mis Tareas', icon: CheckSquare },
-  { id: 'itinerario', label: 'Cronograma', icon: Clock3 },
-  { id: 'musica', label: 'Sugerencias Musicales', icon: Music, href: (id) => `/portal-cliente/${id}/musica` },
-  { id: 'videoVida', label: 'Video de Vida', icon: Video, href: (id) => `/portal-cliente/${id}/fotos-video` },
-  { id: 'listaRegalos', label: 'Regalos', icon: Gift, href: (id) => `/invitacion/${id}#regalos` },
-  { id: 'documentos', label: 'Documentos', icon: FileText, href: (id) => `/portal/${id}/contrato` },
-  { id: 'notasCliente', label: 'Notas', icon: NotebookText },
-  { id: 'paginaPublica', label: 'Invitación Web', icon: Globe, href: (id) => `/invitacion/${id}` },
-  { id: 'fotografiaYFilmacion', label: 'Fotografía', icon: Sparkles, href: (id) => `/portal-cliente/${id}/fotos-video` },
-  { id: 'moodboard', label: 'Propuesta de Decoración', icon: Palette, href: (id) => `/portal/${id}/decoracion` },
-  { id: 'serviciosContratados', label: 'Servicios Contratados', icon: Package },
-  { id: 'ubicacion', label: 'Ubicación del Evento', icon: MapPin },
-  { id: 'menu', label: 'Menú del Evento', icon: UtensilsCrossed, href: (id) => `/portal-cliente/${id}/menu` },
-  { id: 'cartaTragos', label: 'Carta de Tragos', icon: GlassWater },
-  { id: 'dressCode', label: 'Dress Code', icon: Shirt },
-  { id: 'faq', label: 'Preguntas Frecuentes', icon: HelpCircle },
-  { id: 'informarPago', label: 'Informar Pago', icon: CreditCard },
-  { id: 'pagos', label: 'Estado de Pagos', icon: CreditCard },
-  { id: 'calculadoraBebidas', label: 'Calculadora de Bebidas y Extras', icon: GlassWater },
-  { id: 'invitados', label: 'Lista de Invitados', icon: Users, href: (id) => `/portal-cliente/${id}/confirmar-invitados` },
-  { id: 'simuladorInvitados', label: 'Cambiar cantidad de invitados', icon: Users },
-  { id: 'contrato', label: 'Contrato', icon: FileSignature, href: (id) => `/portal/${id}/contrato` },
-];
+import { portalModules, PASOS_PORTAL } from '@/lib/portal/portal-modules';
 
 function hasVisibleFlag(value: unknown): value is { visible: boolean } {
   return typeof value === 'object' && value !== null && 'visible' in value;
@@ -1054,37 +1022,48 @@ function ClientPortalContent() {
             </PortalSection>
           )}
 
-          <PortalSection title="Accesos rápidos" icon={ArrowRight}>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {modulesForQuickAccess.map((module) => {
-                const Icon = module.icon;
-                const href = module.id === 'informarPago'
-                  ? `/portal/c/${settings.accessKey || fiesta.id}`
-                  : module.href?.(fiesta.id);
-                return href ? (
-                  <Link key={module.id} href={href} className="ak-public-action p-4">
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="font-semibold text-sm">{module.label}</p>
-                        <p className="text-xs text-muted-foreground">Abrir módulo</p>
-                      </div>
-                    </div>
-                  </Link>
-                ) : (
-                  <div key={module.id} className="ak-public-card-soft p-4">
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="font-semibold text-sm">{module.label}</p>
-                        <p className="text-xs text-muted-foreground">Disponible en esta pantalla</p>
-                      </div>
-                    </div>
+          {/* El portal del cliente en 5 pasos (Orden 182) */}
+          <div className="space-y-6">
+            {PASOS_PORTAL.map(({ paso, titulo, descripcion }) => {
+              const modulesPaso = modulesForQuickAccess.filter((m) => m.paso === paso);
+              if (modulesPaso.length === 0) return null;
+
+              return (
+                <PortalSection key={paso} title={titulo} icon={ArrowRight}>
+                  <p className="text-xs text-muted-foreground mb-3 -mt-1 font-medium">{descripcion}</p>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {modulesPaso.map((module) => {
+                      const Icon = module.icon;
+                      const href = module.id === 'informarPago'
+                        ? `/portal/c/${settings.accessKey || fiesta.id}`
+                        : module.href?.(fiesta.id);
+                      return href ? (
+                        <Link key={module.id} href={href} className="ak-public-action p-4">
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-semibold text-sm">{module.label}</p>
+                              <p className="text-xs text-muted-foreground">Abrir módulo</p>
+                            </div>
+                          </div>
+                        </Link>
+                      ) : (
+                        <div key={module.id} className="ak-public-card-soft p-4">
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-semibold text-sm">{module.label}</p>
+                              <p className="text-xs text-muted-foreground">Disponible en esta pantalla</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
-          </PortalSection>
+                </PortalSection>
+              );
+            })}
+          </div>
         </div>
       </div>
 

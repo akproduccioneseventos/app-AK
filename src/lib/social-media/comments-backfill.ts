@@ -19,19 +19,46 @@ const STATE_FILE = 'social-comments-backfill-state.json';
 const AJUSTES_RESPUESTAS_FILE = 'marketing-respuestas-comentarios.json';
 
 export interface AjustesRespuestasComentarios {
-  activo: boolean;
+  activo?: boolean;
+  comentarios: boolean;
+  mensajesDirectos: boolean;
   actualizadoAt?: string;
 }
 
 export async function getAjustesRespuestasComentarios(): Promise<AjustesRespuestasComentarios> {
-  const guardados = await readData<AjustesRespuestasComentarios>(AJUSTES_RESPUESTAS_FILE, { activo: false });
-  return { ...guardados, activo: guardados?.activo === true };
+  const guardados = await readData<any>(AJUSTES_RESPUESTAS_FILE, {});
+  const comentarios = guardados?.comentarios !== undefined ? Boolean(guardados.comentarios) : (guardados?.activo !== undefined ? Boolean(guardados.activo) : true);
+  const mensajesDirectos = guardados?.mensajesDirectos !== undefined ? Boolean(guardados.mensajesDirectos) : true;
+  return {
+    activo: comentarios,
+    comentarios,
+    mensajesDirectos,
+    actualizadoAt: guardados?.actualizadoAt,
+  };
 }
 
-export async function setAjustesRespuestasComentarios(activo: boolean): Promise<AjustesRespuestasComentarios> {
-  const ajustes = { activo, actualizadoAt: new Date().toISOString() };
-  await writeData(AJUSTES_RESPUESTAS_FILE, ajustes);
-  return ajustes;
+export async function setAjustesRespuestasComentarios(
+  opciones: { comentarios?: boolean; mensajesDirectos?: boolean } | boolean
+): Promise<AjustesRespuestasComentarios> {
+  const current = await getAjustesRespuestasComentarios();
+  let nuevos: AjustesRespuestasComentarios;
+  if (typeof opciones === 'boolean') {
+    nuevos = {
+      activo: opciones,
+      comentarios: opciones,
+      mensajesDirectos: current.mensajesDirectos,
+      actualizadoAt: new Date().toISOString(),
+    };
+  } else {
+    nuevos = {
+      activo: opciones.comentarios !== undefined ? opciones.comentarios : current.comentarios,
+      comentarios: opciones.comentarios !== undefined ? opciones.comentarios : current.comentarios,
+      mensajesDirectos: opciones.mensajesDirectos !== undefined ? opciones.mensajesDirectos : current.mensajesDirectos,
+      actualizadoAt: new Date().toISOString(),
+    };
+  }
+  await writeData(AJUSTES_RESPUESTAS_FILE, nuevos);
+  return nuevos;
 }
 
 export function limpiarNumerosDePrecio(texto: string): string {

@@ -4,6 +4,7 @@ import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera,
@@ -601,6 +602,11 @@ export default function EspejoMagicoPage() {
 
     // Scale drawing coordinates back to canvas original size
     ctx.drawImage(drawCanvas, 0, 0, baseCanvas.width, baseCanvas.height);
+    dibujarFiltroDeCara(ctx, baseCanvas, fiesta?.station?.filtrosActivos?.[0] || 'mis15', [], {
+      nombreAgasajado: fiesta?.nombreAgasajado,
+      tipoCelebracion: fiesta?.tipoCelebracion,
+      primaryColor: fiesta?.primaryColor,
+    });
   };
 
   const addSticker = (emoji: string) => {

@@ -313,6 +313,44 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
       estado('escuchando', { segundosMaximos });
       return;
     }
+
+    if (mensaje.toolCall) {
+      const functionCalls = mensaje.toolCall.functionCalls || [];
+      const functionResponses: any[] = [];
+      for (const fc of functionCalls) {
+        try {
+          const res = await fetch('/api/asistente/voz-en-vivo/accion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: fc.id,
+              accion: fc.name,
+              argumentos: fc.args,
+            }),
+          });
+          const data = await res.json();
+          functionResponses.push({
+            id: fc.id,
+            name: fc.name,
+            response: data,
+          });
+        } catch (err: any) {
+          functionResponses.push({
+            id: fc.id,
+            name: fc.name,
+            response: { error: err.message || 'Error al ejecutar acción' },
+          });
+        }
+      }
+      if (!cerrada && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          toolResponse: {
+            functionResponses,
+          },
+        }));
+      }
+      return;
+    }
     const contenido = mensaje.serverContent;
     if (!contenido) return;
     if (contenido.interrupted) {
