@@ -1183,3 +1183,65 @@ de WhatsApp pasa por la misma función que agrega el prefijo del país.
 
 Codex 138 (orden 187): `esPerfilValido` preguntaba `valor in PERMISOS_POR_PERFIL`, y `"toString"` o `"constructor"`
 pasaban como perfiles. Se pregunta con `Object.hasOwn` (o `hasOwnProperty`), nunca con `in`.
+
+### 74. Lo que llama una máquina de afuera (despertador, webhook), ¿pasa la puerta general de la app?
+
+Gemini, 20/10 (orden 194): el despertador de cada 15 minutos llama a `/api/cron-despachador` con su
+clave, pero `src/middleware.ts` manda a `/login` todo lo que no tiene cookie y no figura en
+`src/lib/auth/public-paths.ts`. La ruta revisaba su clave, sus pruebas daban verde… porque **llamaban a
+la ruta directo, salteando la puerta**. Ya estaba anotado en `YA-RESUELTO.md` ("cron sin cookie dio
+HTML") y nadie lo arregló. Se busca: toda ruta de `src/app/api/` que mire `CRON_SECRET`,
+`TAREAS_SECRET` o una firma de webhook tiene que figurar como pública, y su prueba pasa por
+`isPublicPath`, no sólo por el manejador.
+
+### 75. Una función que se cuida sola con un dato opcional, ¿quien la llama le pasa ese dato?
+
+Gemini, 20/10 (orden 194): `atenderAlEquipo` ignora los ecos si `isEcho` viene en verdadero, y el
+webhook no se lo pasa nunca (tampoco `to`, `type` ni el audio). La protección existe y no se prende.
+Se busca: parámetros opcionales de los que depende un `if` de seguridad o de plata; se mira cada
+llamada y se comprueba que lo mande.
+
+### 76. Todos los lugares que arman la sesión, ¿guardan los mismos datos que después mira el permiso?
+
+Gemini, 20/10 (orden 194): el ingreso con clave guarda `perfil`; el ingreso con Google no, y
+`perfilDe` cae a `secretaria` (o a dueño si falta el rol). Y once acciones miran `role !== 'admin'` en
+vez del perfil, así que rol y perfil pueden decir cosas distintas. Se busca: cada `writeSessionCookie`
+con los mismos campos, y ningún permiso decidido por `role`.
+
+### 77. Lo que el cliente o el invitado puede hacer sin sesión, ¿termina en algo que pide sesión del equipo?
+
+Amplía la 24 al portal del cliente. Gemini, 20/10 (orden 194): `updateDecoracion` con `allowPortal`
+guarda y después llama a `syncDecoGastosToModule`, que pide sesión: la decoración queda guardada y el
+cliente ve "no se pudo guardar". Se busca: cada acción con `allowPortal`, `publicRsvp` o token de
+invitado, y **todo lo que llama después**, hasta el final.
+
+### 78. Una acción pública que prueba una clave o respuestas, ¿tiene tope de intentos? Y si recibe un id de usuario, ¿mira que sea el de la sesión?
+
+Gemini, 20/10 (orden 194): `resetPasswordWithQuestions` se puede probar sin límite; `changePassword`
+recibe cualquier `userId`. Se busca: acciones sin sesión que comparan claves, PIN, respuestas o códigos
+(van con `enforcePublicRateLimit`), y acciones que reciben `userId`, `empleadoId` o `clienteId` del
+navegador.
+
+### 79. Lo que una pantalla lee de una versión recortada, ¿viaja en esa versión?
+
+La inversa de la 68. Gemini, 20/10 (orden 194): el portal del cliente recibe la fiesta por una lista
+blanca (`mapGuest` en `src/lib/client-portal/public-fiesta.ts`) que no trae `checkedIn` ni
+`photosUploaded`: la pantalla dice siempre "0 llegaron" y "faltan fotos". Se busca: cada campo que
+lee una pantalla pública, contra lo que deja pasar su recorte.
+
+### 80. Lo que una pantalla le pasa a otra (enlace, parámetro, estado), ¿la otra lo lee con ese nombre?
+
+Gemini, 20/10 (orden 194): el simulador manda `&adultos=` y el otro lee `guests`; el plato elegido
+queda en un estado que no llega a lo que se guarda; el enlace a confirmar pierde `guestId` y el de
+"mi mesa" al hub también. Se busca: cada `href` y `router.push` con parámetros, contra el
+`searchParams.get` de la pantalla de destino; y cada estado que se muestra elegido, contra lo que se
+manda al guardar.
+
+### 81. El arreglo y su control, ¿miran la forma en toda la app o sólo el archivo donde apareció?
+
+**Es la que explica por qué "vuelven" cosas ya arregladas** (dueño, 20/10). El álbum que mandaba al
+disco de todos los clientes se arregló en una pantalla y su control leía sólo esa; la misma línea
+seguía en `src/app/post-fiesta/[fiestaId]/page.tsx`. **`node scripts/formas-ya-arregladas.mjs`** toma
+cada forma que un control prohíbe en un archivo y la busca en toda la app. Se corre al juntar cada
+entrega; lo que encuentra se confirma y va a una orden. Y un control nuevo que prohíbe una forma se
+escribe recorriendo `src/`, no un archivo.

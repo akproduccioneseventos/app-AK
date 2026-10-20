@@ -4,7 +4,7 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión
 propuesta 1323 (`7230f9d02`). **Nada de esta tanda está publicado todavía.**
 
 ## En qué se está
-Esperando UNA entrega de Gemini con las órdenes 188 a 193 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
+Esperando UNA entrega de Gemini con las órdenes 188 a 194 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
 Codex sólo audita.
 
 ## Terminado en esta tanda
@@ -26,6 +26,9 @@ Codex sólo audita.
 - **Orden 192:** un solo centro de presencia y redes, bandeja única de mensajes, respuestas solas con reglas.
 - **Barrido de las 73 preguntas** (20/10): registro `docs/barridos.json` + control que lo exige.
   Lo confirmado (plata incluida) va en la **orden 193**; ~25 preguntas quedaron "parcial".
+- **Orden 194:** 36 de 45 hallazgos de la auditoría de Gemini (20/10) eran ciertos. Lo urgente: el despertador
+  no llega a la app. Preguntas 74–81 y `npm run formas-ya-arregladas` (lo arreglado en un archivo, buscado en todo).
+- **Despertador de Claude cada hora:** revisa solo lo que entreguen Gemini y Codex (decisión del dueño 20/10).
 - Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
 
 ## A medias / trabado

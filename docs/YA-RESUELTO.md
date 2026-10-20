@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Auditoría de Gemini: 36 de 45 ciertos, y por qué volvían
+
+- **Falsos positivos verificados, no se vuelven a reportar:**
+  - 16: el equipo de la fiesta se busca por el email del empleado.
+  - 27: la lista por enlace no nombra cocina ni recepción.
+  - 32: "Servicios retirados" no filtra por salón.
+  - 34: el presupuesto guarda la fecha con hora.
+  - 41: esas acciones de invitados no las llama nadie.
+  - 44: el recorte público deja id y nombre del invitado.
+  - 7: los posteos comparan versiones al guardar.
+- **Del script `formas-ya-arregladas`, inocentes:**
+  - el botón de la bandeja que marca "enviado" lo toca una persona;
+  - "concilia solo" en facturas es un comentario;
+  - el tótem conserva las fotos si se corta la señal;
+  - recepción y el muro social piden permiso;
+  - la clave del portal se quita en `public-fiesta.ts`;
+  - las capturas de la fotocabina y de la 360 no duplican el id;
+  - "ya está en la galería" sale sólo con la original publicada;
+  - el enlace de la carga lleva su token;
+  - el desglose del recibo suma el total;
+  - "cinco días" en el parte es un comentario.
+- **Lo cierto va en la orden 194.** Por qué volvían, y el control nuevo: pregunta 81 y
+  `npm run formas-ya-arregladas`.
+
 ## 16/10/2026 - Barrido con las preguntas 64 a 67
 
 - **64 (impresión):** fuera de los 21 documentos de la orden 178, nada más se pierde al imprimir: `aside`, `nav` y los roles ocultos no tienen contenido de documento; los `button` ocultos son controles.

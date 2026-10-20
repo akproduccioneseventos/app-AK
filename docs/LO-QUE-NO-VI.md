@@ -1297,6 +1297,15 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 191 → pregunta 3
 - Orden 192 → pregunta 22
 - Orden 193 → pregunta 69
+- Orden 194 → pregunta 81
+- Auditoria Gemini 20/10 (despertador bloqueado por la puerta) → pregunta 74
+- Auditoria Gemini 20/10 (eco de WhatsApp sin isEcho) → pregunta 75
+- Auditoria Gemini 20/10 (ingreso con Google sin perfil) → pregunta 76
+- Auditoria Gemini 20/10 (decoración del portal pide sesión) → pregunta 77
+- Auditoria Gemini 20/10 (preguntas de seguridad sin tope) → pregunta 78
+- Auditoria Gemini 20/10 (portal sin llegadas ni fotos) → pregunta 79
+- Auditoria Gemini 20/10 (parámetros que se pierden entre pantallas) → pregunta 80
+- Auditoria Gemini 20/10 (álbum al disco de todos, otra vez) → pregunta 81
 - Auditoria Gemini 16/10 (encabezados impresos) → pregunta 64
 - Auditoria Gemini 16/10 (menu con puertas cerradas) → pregunta 65
 - Auditoria Gemini 16/10 (galeria sin Vogue) → pregunta 66

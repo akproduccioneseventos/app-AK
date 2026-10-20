@@ -11,7 +11,7 @@
     },
     "3": {
       "fecha": "2026-10-20",
-      "resultado": "sin hallazgos"
+      "resultado": "parcial: el barrido de la mañana dio sin hallazgos y Gemini encontró casos esa noche (orden 194); se vuelve a barrer en la orden 194"
     },
     "4": {
       "fecha": "2026-10-20",
@@ -95,7 +95,7 @@
     },
     "24": {
       "fecha": "2026-10-20",
-      "resultado": "sin hallazgos: afiche pide sesión: herramienta del equipo"
+      "resultado": "parcial: el barrido de la mañana dio sin hallazgos y Gemini encontró casos esa noche (orden 194); se vuelve a barrer en la orden 194"
     },
     "25": {
       "fecha": "2026-10-20",
@@ -139,7 +139,7 @@
     },
     "35": {
       "fecha": "2026-10-20",
-      "resultado": "sin hallazgos: candado de la plata"
+      "resultado": "parcial: el barrido de la mañana dio sin hallazgos y Gemini encontró casos esa noche (orden 194); se vuelve a barrer en la orden 194"
     },
     "36": {
       "fecha": "2026-10-20",
@@ -292,6 +292,38 @@
     "73": {
       "fecha": "2026-10-20",
       "resultado": "confirmado → orden 193: catálogo público y landings aceptan 'constructor'"
+    },
+    "74": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 194: /api/cron-despachador y /api/despertar bloqueados por la puerta; el barrido de las otras rutas va en la orden 194"
+    },
+    "75": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 194: el webhook de WhatsApp no pasa isEcho, to ni type; parcial: barrer el resto en la orden 194"
+    },
+    "76": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 194: ingreso con Google sin perfil y 11 acciones que miran role"
+    },
+    "77": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 194: decoración desde el portal; parcial: recorrer cada allowPortal/publicRsvp en la orden 194"
+    },
+    "78": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 194: preguntas de seguridad sin tope y changePassword (este, en la 193)"
+    },
+    "79": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 194: el portal del cliente no recibe checkedIn ni photosUploaded"
+    },
+    "80": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 194: simulador, confirmar asistencia, mi mesa y formulario del invitado"
+    },
+    "81": {
+      "fecha": "2026-10-20",
+      "resultado": "confirmado → orden 194: post-fiesta manda al disco de todos; formas-ya-arregladas encontró candidatos que se confirman en la orden 194"
     }
   }
 }
