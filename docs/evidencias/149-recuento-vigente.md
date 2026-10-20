@@ -1,5 +1,9 @@
 #149 - Recuento vigente sin reabrir viajes ya probados
 
+Actualizacion20/10 posterior:150-cierre.md prevalece. Viajecomercialmovil
+YA CERRADO1PASS en7230JSONlocal.193/195incorporan185/186;196nuevo de salida.
+No reabrir movil por usar el estado anterior de esta recopilacion.
+
 20/10/2026UTC. Main7230f9d02b32805952a185f704a0208bd5d643e6 sin cambios.
 Recuento145 contiene la tabla de14areas; aplicar este delta y146-149 antes
 de usarlo. No es otra ejecucion total de la app ni certificado de lanzamiento.

@@ -271,7 +271,7 @@
     },
     "68": {
       "fecha": "2026-10-20",
-      "resultado": "sin hallazgos: google-workspace manda a cada empleado sólo su sueldo"
+      "resultado": "confirmado → orden 198: saveFiesta, reuniones.actions y crearTareaDesdeMultiagente devuelven la fiesta entera (el barrido de la mañana miraba sólo lecturas)"
     },
     "69": {
       "fecha": "2026-10-20",

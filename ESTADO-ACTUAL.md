@@ -35,10 +35,11 @@ Codex sólo audita.
 - Pagos a proveedores con el mismo nombre (desde el 16/10).
 - Despertador bloqueado: las tareas automáticas no corren solas (desde el 20/10).
 - Ingreso con Google sin perfil, preguntas de seguridad sin tope, cambio de clave sin sesión, eco de WhatsApp (desde el 20/10).
+- Guardar una fiesta le devuelve costos y sueldos ajenos a quien no tiene permiso (desde el 20/10, orden 198).
 - Saldos sin el ajuste anual y un cobro a confirmar contado como ganancia (desde el 20/10).
 
 ## Revisado hasta (lo usa el despertador de cada hora)
-- Codex 1324: `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
+- Codex 1324: `2852f0881` (auditoría 150 juntada; su 196 pasó a ser la **198**). Antes `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
 - Gemini 1337: `45a0b1d47` (órdenes 188 a 192) → **devuelta con la orden 196**; faltan 193 a 195.
 - 1325 a 1329: viejas, superadas por las órdenes 188 a 194; no se revisan de nuevo.
 

@@ -49,6 +49,40 @@ Verificado por Claude contra el código, de sus siete hallazgos de roles y porta
 - **Se volvió atrás el cambio de Gemini en el Encargado** (`src/lib/multiagent/encargado.ts`), que les ocultaba el total del presupuesto a los organizadores sin contabilidad. No era una fuga: `getPresupuestos` ya les saca los cobros y la app les muestra el total en sus pantallas a propósito (`nivelDePresupuestos`, nivel "operativo"). Cambiar quién ve qué es decisión del dueño; si lo quiere, se pide.
 - Las órdenes 176 y 177 traían líneas de prueba con la palabra "LISTA" delante y dos bloques sin comprobación: se corrigieron para que `npm run ordenes?` las lea.
 ## 20/10/2026UTC - Codex149: consumidores185, cola186 (renumerada orden 195 por Claude) y estado real de entregas
+## 20/10/2026 - Codex150 (su orden 196 pasó a ser la 198): viaje movil cerrado, tanda1337 y salida de guardado
+
+-CERRADO viajecomercialmovil antes omitido133:1PASS/0FAIL/0SKIP Pixel7,
+  main7230/build135. Presupuesto/prospecto unicos,FacebookUTM,PDF,2contactos
+  interceptados, CRMtrasrecarga/documentos persistentes. SOLOJSONlocal,noSDK.
+  GatePASS_COMMERCIAL_MOBILE_MAIN_JSON_ONLY.61JSON restaurados,diffQA0,servicios
+  propios cerrados. No repetirPC/CRM136/cliente141 ni ese movil sin cambios.
+-PDF real:2paginasA4,20servicios completos,total84838,p/p1697,regalosclaros;
+  ambas paginas revisadas. Enlace NOdesborda(margen40.31pt), sospecha descartada.
+  Tres fallos previos eranQA(columna plegada/oraculo de metadatos/campoitems
+  incorrecto), archivados con fuentes/logs/descargas: NO tresbugs de app.
+-1337fuente45a0b1d4,baseClaude860aa8c2 NOmain. Leidas193/194/195:193bloque2
+  YArecoge185variantes;195renumera186/mismoID. No reencargarlas como nuevas.
+  150 cuerpos reales6casos4PASS2FAIL;cola reescrita3casos2PASS1FAIL. Sigue
+  pendiente deesas ordenes, NO SDK ni todaPR aceptada. Helperidentidad pasa
+  guardado entero, losotros consumidores fallan; no decirquenoexistearreglo.
+-NUEVO196Claude: saveFiesta devuelvegestionCostos/pagos aloperador sinpermiso;
+  modelo real yaccion real con sesion/asignacion/transacciondobles. Control
+  recortarFiestaPorPerfilPASS,2variantesFAIL UNAcausa. Nofiltracionreal/HTTP
+  firmado demostrados. Consumidorcliente pagina-web ->useAutoSave ->saveFiesta.
+  Fortalecido con guardiaREAL de asignacion:4casos3PASS1FAIL; asignado entra
+  SINcostos yrecibeCONcostos; noasignado/anonimo rechazados,dueno permitido.
+  Solo verifySession/read/transaccion dobles. No otra causa ni0errores.
+  Ampliado a7perfiles deESTEguardado, no7portales. Personal/cliente/prospecto/
+  invitado sincredencialportal rechazados. Secretaria entra porlarama sin
+  transaccion yrecibe sueldo3000 AJENO(sec150 vsop150), sinhaberlo enviado.
+  Caso separado evita confundir con su propio recibo; totalcontable nojuzgado.
+-150entorno prepare dosvecesrechazado porguardia2GiB, segundaespera maxima10min;
+  NO buildcorrio,nocertificafalloapp. Preparadas fasesmobile/date/agenda para
+  fuente45. No usar build14217d. Dosagentescerrados, no appedit/merge.
+-FiltroPublicaciones no consumido es solo pistaESTATICA,sin orden porahora.
+  Privadosnopublicados NO CONTRASTADOS. No14areas/todosroles/0errores.
+
+## 20/10/2026UTC - Codex149: consumidores185, cola186 y estado real de entregas
 
 -1330-1335 CERRADAS SIN FUSION; main sigue7230.1333helper4PASS148 no llego
   a1329abierta, que mantiene el helper viejo. Conservar arreglo al integrar,

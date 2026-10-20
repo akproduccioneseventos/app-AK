@@ -13,10 +13,15 @@ const record = JSON.parse(fs.readFileSync(path.join(dir, '135-entorno.json')));
 const source = '7230f9d02b32805952a185f704a0208bd5d643e6';
 const local = process.argv[2] === 'json';
 const mobile = process.argv[3] === 'mobile';
-const namespace = process.env.AK_QA_EVIDENCE_NAMESPACE;
+const commercial = process.argv[4] === 'commercial';
+if (commercial && (!local || !mobile)) throw new Error('Commercial150 is local JSON mobile only');
+const testName = commercial ? '150-comercial-movil.spec.ts' : '139-cliente-persistencia.spec.ts';
+const testSource = path.join(root, commercial ? 'docs/evidencias' : 'tests/e2e', testName);
+const namespace = process.env.AK_QA_EVIDENCE_NAMESPACE || process.argv[5];
 if (namespace && !/^[a-z0-9-]+$/.test(namespace)) throw new Error('Invalid evidence namespace');
 if (namespace && fs.existsSync(path.join(dir, `${namespace}-execution.json`))) throw new Error('Evidence namespace already used');
-const prefix = namespace || (local ? (mobile ? '139-json-mobile' : '139-json') : (process.argv[2] === 'sdk-final' ? '139-sdk-final' : '139'));
+const prefix = namespace || (commercial ? '150-comercial' : (local ? (mobile ? '139-json-mobile' : '139-json') : (process.argv[2] === 'sdk-final' ? '139-sdk-final' : '139')));
+if (fs.existsSync(path.join(dir, `${prefix}-execution.json`))) throw new Error('Preserve prior execution receipt');
 const qa = record.qa;
 const sha = (b) => crypto.createHash('sha256').update(b).digest('hex');
 const git = (args) => spawnSync('git', args, { cwd: qa, encoding: 'utf8' });
@@ -85,11 +90,12 @@ try {
     if (local ? h.services.firebase : !h.services.firebase) throw new Error('Unexpected Firebase mode');
     return h;
   }, 90_000);
-  fs.copyFileSync(path.join(root, 'tests/e2e/139-cliente-persistencia.spec.ts'), path.join(qa, 'tests/e2e/139-cliente-persistencia.spec.ts'));
+  fs.copyFileSync(testSource, path.join(qa, 'tests/e2e', testName));
   fs.copyFileSync(path.join(dir, '139-playwright.config.ts'), path.join(qa, '139-playwright.config.ts'));
-  receipt.testSha256 = sha(fs.readFileSync(path.join(root, 'tests/e2e/139-cliente-persistencia.spec.ts')));
+  receipt.testSha256 = sha(fs.readFileSync(testSource));
+  receipt.testName = testName;
   const run = launch('playwright', process.execPath, [path.join(qa, 'node_modules/@playwright/test/cli.js'), 'test',
-    '--config', '139-playwright.config.ts', '139-cliente-persistencia.spec.ts', ...(mobile ? ['--project=chromium-mobile'] : []), '--output', path.join(dir, `${prefix}-artifacts`)],
+    '--config', '139-playwright.config.ts', testName, ...(mobile ? ['--project=chromium-mobile'] : []), '--output', path.join(dir, `${prefix}-artifacts`)],
     { AK_QA_RESULTS: path.join(dir, `${prefix}-results.json`), AK_QA_CLIENT_STORAGE: local ? 'json' : 'sdk' });
   receipt.exitCode = await new Promise((yes, no) => { run.once('exit', yes); run.once('error', no); });
   process.exitCode = receipt.exitCode === 0 ? 0 : 1;

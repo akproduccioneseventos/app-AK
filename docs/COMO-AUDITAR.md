@@ -1154,6 +1154,10 @@ dato protegido por un permiso, se busca **en qué objetos más grandes va metido
 presupuesto, el cliente) y se mira qué perfiles reciben ese objeto entero. Y al revés: si se lo saca al
 leer, **al guardar** el objeto sin ese dato no tiene que borrarlo (pregunta 38).
 
+**Ampliada el 20/10 (Codex 150, orden 198):** también **lo que DEVUELVE un guardado**. `saveFiesta`
+reponía la plata para guardar y devolvía la fiesta entera, con costos y sueldos ajenos. Se busca cada
+`return { ..., fiesta: … }` o `updatedFiesta` de una acción, no sólo lo que se lee.
+
 ### 69. Una función "interna" sin permiso, ¿vive en un archivo `'use server'`?
 
 La entrega de la orden 183 (propuesta 1333) agregó `updateGestionCostosInterno` sin pedir permiso, para

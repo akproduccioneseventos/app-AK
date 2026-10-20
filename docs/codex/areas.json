@@ -109,10 +109,10 @@
       "estado": "con-hallazgos",
       "nota": "Auditoría 71: el guardado general cambiaba campos de plata sin contabilidad (operador y portal). Arreglado el 6/10; falta que Codex la vuelva a mirar.",
       "ultimaRevision": {
-        "fecha": "2026-10-06",
-        "commit": "e52c078",
-        "hallazgos": 2,
-        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+        "fecha": "2026-10-20",
+        "commit": "2852f088",
+        "hallazgos": 1,
+        "reporte": "Auditoría 150 de Codex (PR 1324): guardar devuelve costos y sueldos ajenos → orden 198"
       }
     },
     {

@@ -33,7 +33,9 @@ Lo que hay que hacer está escrito, con archivo y línea, en las órdenes de ori
    - el eco de WhatsApp;
    - ganancias y sueldos;
    - el portal del proveedor.
-5. **Orden 193, bloques 4 y 5:** saldos sin el ajuste anual, y un cobro a confirmar contado como
+5. **Orden 198, entera:** lo que devuelve un guardado le mostraba costos y sueldos ajenos a quien no
+   tiene permiso (lo encontró Codex; Claude sumó dos lugares más).
+6. **Orden 193, bloques 4 y 5:** saldos sin el ajuste anual, y un cobro a confirmar contado como
    ganancia.
 
 Si un bloque se traba, entregá los otros y avisá cuál faltó. **No esperes a tenerlos todos.**
