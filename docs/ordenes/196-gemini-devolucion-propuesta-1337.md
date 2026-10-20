@@ -92,6 +92,21 @@ Archivo: `src/lib/agentes/motor-agentes.ts`.
 - El guardado de `social-mensajes-directos.json` (~81) lee y reescribe la lista entera: usá el guardado
   con turno (pregunta 22).
 
+## Bloque 6 — tres pruebas que tu entrega pone en rojo
+
+En la rama de Claude pasan; con tu entrega fallan (corrida completa: 809 de 811 archivos en verde):
+
+- `src/__tests__/la-voz-en-vivo-ruta.test.ts`:
+  - ~181, "si el primer modelo no existe prueba el siguiente": espera
+    `gemini-2.5-flash-native-audio-preview-12-2025` y recibe `gemini-3.8-live`. Cambiaste el orden de
+    los modelos de voz en `src/lib/asistente/voz-en-vivo.ts`; el respaldo tiene que seguir andando.
+  - ~161: se pasa de tiempo porque la ruta ahora lee `crm-leads.json` de la base y espera 3,5 segundos.
+    La ficha de voz no puede quedar esperando la base: armala con lo que ya hay o en paralelo.
+- `src/__tests__/orden-168-pantallas-avisan-la-falla.test.tsx` ~99: se pasa de tiempo. Con
+  `getFiestas` rechazado, la pantalla tiene que mostrar el aviso de reintento enseguida.
+
+**No cambies las pruebas para que pasen**: arreglá lo que marcan.
+
 ## Qué NO tocar
 
 - Lo que ya anda de la lista de arriba.
