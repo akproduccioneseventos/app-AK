@@ -50,7 +50,7 @@ Hoy ninguna pantalla las importa, y Next 15 no publica las que nadie usa. **Igua
 Cuando los dos tienen `proveedorId` distinto, igual se emparejan por nombre:
 
 - `src/app/actions/fiesta/fiesta.actions.ts` ~163 y ~192;
-- `src/app/actions/fiesta/catering.actions.ts` ~26 (`mismoProveedor`);
+- `src/app/actions/fiesta/catering.actions.ts` ~26 (`mismoProveedor`). Codex lo reprodujo (orden 185, devolución 149): `updateShoppingListStatus` marca pedido el proveedor B y **borra el pago de A** si se llaman igual, y `pideCambiarLaPlata` (`fiesta.actions.ts`) rechaza una lista sin cambios. Si los dos tienen id, manda el id; el nombre sólo vale para filas viejas sin id;
 - `src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx` ~334, ~388 y ~530.
 
 En el ~334, además, **le reescribe el id** al de otro (`estadoProveedor.proveedorId = proveedorId //

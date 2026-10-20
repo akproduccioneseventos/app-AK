@@ -48,6 +48,25 @@ Verificado por Claude contra el código, de sus siete hallazgos de roles y porta
 - Entraron la portada nueva (plan Argon), "Vogue" y la ortografía (órdenes 176 y 177), y el arreglo del portal del cliente: el botón **Documentos** abre el contrato y los atajos viejos del portal ya no mandan al cliente a pantallas del equipo.
 - **Se volvió atrás el cambio de Gemini en el Encargado** (`src/lib/multiagent/encargado.ts`), que les ocultaba el total del presupuesto a los organizadores sin contabilidad. No era una fuga: `getPresupuestos` ya les saca los cobros y la app les muestra el total en sus pantallas a propósito (`nivelDePresupuestos`, nivel "operativo"). Cambiar quién ve qué es decisión del dueño; si lo quiere, se pide.
 - Las órdenes 176 y 177 traían líneas de prueba con la palabra "LISTA" delante y dos bloques sin comprobación: se corrigieron para que `npm run ordenes?` las lea.
+## 20/10/2026UTC - Codex149: consumidores185, cola186 (renumerada orden 195 por Claude) y estado real de entregas
+
+-1330-1335 CERRADAS SIN FUSION; main sigue7230.1333helper4PASS148 no llego
+  a1329abierta, que mantiene el helper viejo. Conservar arreglo al integrar,
+  no repetir148 ni afirmar despliegue. PrivadoClaude/Gemini NO CONTRASTADO.
+-149proveedores:2PASS/2FAIL consumidoresAST reales. Predicado rechaza pagos
+  intactos; catering cambiaBpedido y reemplazaA60.30 porB200 conigualnombre/
+  distintoID. Auth/read/transaccion dobles, noSDK. Catering mismoblobmain7230/
+  1329/1333.185 ampliada, no orden duplicada ni toda185 cerrada porhelperPASS.
+-149puerta:2PASS/1FAIL callback real. Aesperando, se agregaB; confirmarA borraB
+  sin enviarlo.186 devuelve181, fuente1329, no cola publicada enmain. No dos
+  ingresos servidor demostrados; ACK perdido conservaA. No repetir sin fuente
+  nueva. Total7casos4PASS3FAIL, dos familias, no tresbugs independientes.
+-Recuento149 conserva3D/agenda/DJ135,cliente141,cabecera178142. Agente reabria
+  viajes desde134antiguo: conclusion descartada al contrastar recibos nuevos.
+  No reemitirlos. No14areas/roles/controles completos ni0errores certificados.
+-Dos agentes economicos cerrados; sin app/build/servidores ni datos reales.
+  SHA/limites/entradas/observados en149JSON y149-recuento-vigente.md.
+
 ## 18/10/2026 - Codex148:185 helper corregido y4regresiones aprobadas
 
 -PR1333ABIERTA fuente03cd87d59dcdd35ac26108d3d7fe979b6a4bf83b:1suite real

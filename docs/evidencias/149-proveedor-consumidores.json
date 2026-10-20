@@ -1,0 +1,200 @@
+{
+  "source": "03cd87d59dcdd35ac26108d3d7fe979b6a4bf83b",
+  "candidate": "b8491bda3f25aadc71f36f42d5878a47261bb1bf",
+  "sameConsumerSources": true,
+  "hashes": {
+    "src/app/actions/fiesta/fiesta.actions.ts": "c09684e4f9fd69e67231b954771e4854ad06e7ec47863434ac2dc44b7f806de1",
+    "src/app/actions/fiesta/catering.actions.ts": "c9e29ad74644994bae46519f01a29a3a27ae3aa614ba1fe5c58d6ac1fdbffa53",
+    "src/lib/fiesta/reponer-la-plata.ts": "94b3e0c061a4f1ca93f984a527df9e195f71edd4a703c54bd592a594b675701e"
+  },
+  "results": [
+    {
+      "name": "unchanged payments, different names",
+      "scope": "Real partial-save predicate only",
+      "expectedReject": false,
+      "actualReject": false,
+      "pass": true
+    },
+    {
+      "name": "unchanged payments, same names",
+      "scope": "Real partial-save predicate only",
+      "expectedReject": false,
+      "actualReject": true,
+      "pass": false
+    },
+    {
+      "name": "actual catering action changing only pedido, different names",
+      "scope": "Actual action body; auth/read/transaction storage are explicit in-memory doubles",
+      "before": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "input": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "expected": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "observed": [
+        {
+          "proveedorId": "a",
+          "proveedor": "A",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "B",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "outcome": {
+        "success": true
+      },
+      "transactionCalls": 1,
+      "requestedPermissions": [
+        [
+          "insumos",
+          "organizacion"
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "name": "actual catering action changing only pedido, same names",
+      "scope": "Actual action body; auth/read/transaction storage are explicit in-memory doubles",
+      "before": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "input": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "expected": [
+        {
+          "proveedorId": "a",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 60.3
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "observed": [
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": true,
+          "pagado": true,
+          "montoPagado": 200
+        },
+        {
+          "proveedorId": "b",
+          "proveedor": "Proveedor QA",
+          "pedido": false,
+          "pagado": true,
+          "montoPagado": 200
+        }
+      ],
+      "outcome": {
+        "success": true
+      },
+      "transactionCalls": 1,
+      "requestedPermissions": [
+        [
+          "insumos",
+          "contabilidad"
+        ]
+      ],
+      "pass": false
+    }
+  ],
+  "summary": {
+    "pass": 2,
+    "fail": 2
+  },
+  "scope": "Real AST-extracted partial-save predicate and catering action, controlled dependencies only",
+  "appEdited": false,
+  "realData": false,
+  "network": false,
+  "fullAuthenticatedAction": false,
+  "sdkPersistence": false,
+  "limits": [
+    "No browser, SDK, real session, payment, deployment or whole-PR acceptance",
+    "Helper185 previously passed; these are distinct actual consumer variants, not a rerun of148",
+    "Private Claude HEAD NO CONTRASTADO",
+    "PR1333 closed without merge; main unchanged7230"
+  ]
+}

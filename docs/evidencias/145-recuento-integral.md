@@ -1,5 +1,10 @@
 #145 - Recuento acumulado: auditado, corregido y pendiente
 
+Actualizacion20/10UTC:149-recuento-vigente.md prevalece para estados actuales.
+1330-1335 cerradas SIN merge;185helper mantiene4PASS148 pero149 reproduce
+dos variantes de consumidores sincorregir.186 devuelve cola offline1329,
+2PASS/1FAIL. No reabrir135/141/178142 desde la tabla historica de abajo.
+
 Actualizacion18/10: ver146-147-cierre y148-cierre-proveedor.1328 incorpora
 correcciones171/172/184 ademas179/180;14634controles ligerosPASS, noUI.
 147detecta185; PR1333 la corrige y148aprueba4regresiones del helper, no accion

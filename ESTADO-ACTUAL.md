@@ -4,7 +4,7 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión
 propuesta 1323 (`7230f9d02`). **Nada de esta tanda está publicado todavía.**
 
 ## En qué se está
-Esperando UNA entrega de Gemini con las órdenes 188 a 194 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
+Esperando UNA entrega de Gemini con las órdenes 188 a 195 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
 Codex sólo audita.
 
 ## Terminado en esta tanda
@@ -30,6 +30,10 @@ Codex sólo audita.
   no llega a la app. Preguntas 74–81 y `npm run formas-ya-arregladas` (lo arreglado en un archivo, buscado en todo).
 - **Despertador de Claude cada hora:** revisa solo lo que entreguen Gemini y Codex (decisión del dueño 20/10).
 - Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
+
+## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1324: `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
+- 1325 a 1329: viejas, superadas por las órdenes 188 a 194; no se revisan de nuevo.
 
 ## A medias / trabado
 - Órdenes 180–183 y 185 siguen sin entrar: van dentro de la devolución 188.
