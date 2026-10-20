@@ -46,7 +46,7 @@ function DEVUELVEN_ENTERO_CONFIRMADOS(): string[] {
 }
 
 // `return { ..., fiesta: x }`, `updatedFiesta: x`, `presupuesto: x` sin recorte en la misma línea.
-const DEVUELVE_ENTERO = /return\s*\{[^}\n]*\b(fiesta|updatedFiesta)\s*:\s*(?=\S)(?!recortar|paraAfuera|null|undefined)/;
+const DEVUELVE_ENTERO = /return\s*\{[^}\n]*\b(fiesta|updatedFiesta)\s*:\s*(?=\S)(?!(?:await\s+)?(?:recortar|paraAfuera)|null|undefined)/;
 
 export function useServerFueraDeApp(): string[] {
   return archivos(join(RAIZ, 'src'))
