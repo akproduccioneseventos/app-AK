@@ -1,3 +1,4 @@
+import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import type { GestionCostosData, PagoProveedor } from '@/types/fiesta';
 import type { PagoCliente } from '@/types/presupuesto';
 
@@ -163,7 +164,7 @@ export function calcularGananciaDeEvento(
   let recargosCobrados = 0;
   let cobrosSinComisionInformada = 0;
   for (const cobro of pagosCliente ?? []) {
-    if (cobro?.proveedorPago !== 'mercadopago' || cobro?.estadoPago === 'rechazado') continue;
+    if (cobro?.proveedorPago !== 'mercadopago' || !isConfirmedClientPayment(cobro)) continue;
     if (typeof cobro.comisionProveedor !== 'number' || !Number.isFinite(cobro.comisionProveedor)) {
       cobrosSinComisionInformada += 1;
       continue;

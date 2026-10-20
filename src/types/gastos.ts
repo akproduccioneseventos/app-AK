@@ -1,4 +1,3 @@
-
 export type CategoriaGasto =
   | 'Compra de Equipo'
   | 'Reparaciones y Mantenimiento'
@@ -28,4 +27,12 @@ export interface GastoGeneral {
   monto: number;
   notas?: string;
   idempotencyKey?: string;
+}
+
+export interface ExtractReceiptDataOutput {
+  vendor: string;
+  date: string;
+  amount: number;
+  confidence: 'alta' | 'media' | 'baja';
+  notes: string;
 }

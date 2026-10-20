@@ -19,7 +19,7 @@ import * as logger from '@/lib/logger';
 import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
 import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
-import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+import { PERMISOS, puede, type Permiso } from '@/lib/auth/perfiles';
 import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
 import { canalDelProspecto, sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
@@ -329,7 +329,7 @@ export async function scheduleCrmMeeting(leadId: string, date: string, title?: s
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar leads.' };
+    if (!puede(auth.user, PERMISOS.CRM) && !puede(auth.user, PERMISOS.ADMINISTRACION) && auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar leads.' };
 
     // Un prospecto que ya firmó no se borra. Su presupuesto quedaría sin dueño y
     // se pierde de dónde vino esa venta: al buscar el origen de un cobro no
@@ -368,7 +368,7 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
     try {
         const auth = await verifySession();
         if (!auth.success) return { success: false, error: auth.error };
-        if (auth.user?.role !== 'admin') {
+        if (!puede(auth.user, PERMISOS.ADMINISTRACION) && auth.user?.role !== 'admin') {
             return { success: false, error: 'Acceso restringido a administradores.' };
         }
         const leads = await getCrmLeads();

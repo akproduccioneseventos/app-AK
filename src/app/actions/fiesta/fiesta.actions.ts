@@ -160,7 +160,7 @@ function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanific
   if (Array.isArray(copia.estadosCompra)) {
     const antes = guardada?.estadosCompra || [];
     copia.estadosCompra = (copia.estadosCompra as Record<string, unknown>[]).map((e) => {
-      const previo = antes.find((o) => (o.proveedorId && o.proveedorId === e.proveedorId) || o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
+      const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
       const r = { ...e };
       for (const k of PAGO_DE_LA_COMPRA) {
         if (previo && k in previo) r[k] = previo[k]; else delete r[k];
@@ -189,7 +189,7 @@ function pideCambiarLaPlata(parcial: Partial<FiestaEnPlanificacion>, guardada: F
   if (Array.isArray(p.estadosCompra)) {
     const antes = (guardada?.estadosCompra || []) as unknown as Record<string, unknown>[];
     return (p.estadosCompra as Record<string, unknown>[]).some((e) => {
-      const previo = antes.find((o) => (o.proveedorId && o.proveedorId === e.proveedorId) || o.proveedor === e.proveedor);
+      const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor);
       return PAGO_DE_LA_COMPRA.some((k) => !mismoValor(e[k], previo?.[k]));
     });
   }
@@ -303,8 +303,10 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
       const r = await actualizarFiesta(datos.id, (actual) => reponerLaPlata(datos, actual));
       if (!r.success) return { success: false, error: 'No se pudo guardar el evento.' };
       const { verifySession } = await import('@/lib/auth/session-token');
-      if (!(await verifySession()).success) return { success: true };
-      return { success: true, fiesta: r.updatedFiesta ?? datos };
+      const sesion = await verifySession();
+      if (!sesion.success) return { success: true };
+      const { recortarFiestaPorPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
+      return { success: true, fiesta: recortarFiestaPorPerfil(r.updatedFiesta ?? datos, sesion.user) };
     }
     fiestaData = reponerLaPlata(fiestaData, null);
   }
@@ -314,8 +316,10 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     // A quien no es del equipo no se le devuelve la fiesta entera: varias acciones públicas
     // devuelven directo lo que contesta esto (ver recortar-para-afuera).
     const { verifySession } = await import('@/lib/auth/session-token');
-    if (!(await verifySession()).success) return { success: true };
-    return { success: true, fiesta: fiestaData };
+    const sesion = await verifySession();
+    if (!sesion.success) return { success: true };
+    const { recortarFiestaPorPerfil } = await import('@/lib/fiesta/recortar-para-afuera');
+    return { success: true, fiesta: recortarFiestaPorPerfil(fiestaData, sesion.user) };
   } catch (error: any) {
     return { success: false, error: "No se pudo guardar el evento." };
   }

@@ -1,4 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
 
 /**
  * LO QUE VIAJA A QUIEN NO ES DEL EQUIPO (25 de septiembre de 2026).
@@ -116,4 +117,42 @@ export function reponerLoRecortado(
     });
   }
   return salida as unknown as FiestaEnPlanificacion;
+}
+
+/**
+ * Recorta los campos sensibles de plata según el perfil de un miembro del equipo (Orden 183 y 198).
+ */
+export function recortarFiestaPorPerfil(
+  fiesta: FiestaEnPlanificacion,
+  usuario: { role?: string; profile?: string; perfil?: string; permissions?: string[] } | null | undefined,
+): FiestaEnPlanificacion {
+  const copia: Record<string, unknown> = { ...fiesta };
+
+  if (!puede(usuario ?? null, PERMISOS.SUELDOS)) {
+    if (Array.isArray(fiesta.personalAsignado)) {
+      copia.personalAsignado = fiesta.personalAsignado.map((p) => {
+        const { eventSalary: _eventSalary, ...resto } = p as unknown as Record<string, unknown>;
+        return resto;
+      });
+    }
+  }
+
+  if (!puede(usuario ?? null, PERMISOS.GANANCIAS)) {
+    delete copia.gestionCostos;
+  }
+
+  if (!puede(usuario ?? null, PERMISOS.CONTABILIDAD)) {
+    delete copia.pagosProveedores;
+    delete copia.planDePagos;
+    delete copia.clientPaymentNotifications;
+    delete copia.contratoDatos;
+    if (Array.isArray(fiesta.estadosCompra)) {
+      copia.estadosCompra = fiesta.estadosCompra.map((e) => {
+        const { pagado: _pagado, montoPagado: _montoPagado, ...resto } = e as unknown as Record<string, unknown>;
+        return resto;
+      });
+    }
+  }
+
+  return copia as unknown as FiestaEnPlanificacion;
 }

@@ -623,7 +623,8 @@ function soloElDia(valor: string): string {
 }
 
 export async function revisarAgendaDeAK(): Promise<RevisionDeAgenda> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { ok: false, error: permiso.error || 'Acceso restringido a administradores.', revisados: 0, sobrantes: [] };
 
   const cuentas = await readAccounts();
   const cuentaEmpresa = await freshConnectedAccount(cuentas.find((c) => c.kind === 'company'));
@@ -703,7 +704,8 @@ export async function revisarAgendaDeAK(): Promise<RevisionDeAgenda> {
 export async function limpiarAgendaDeAK(
   idsABorrar: string[],
 ): Promise<{ ok: boolean; borrados: number; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { ok: false, borrados: 0, error: permiso.error || 'Acceso restringido a administradores.' };
 
   if (!Array.isArray(idsABorrar) || idsABorrar.length === 0) {
     return { ok: true, borrados: 0 };

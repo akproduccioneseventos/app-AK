@@ -58,20 +58,25 @@ export const PERMISOS_POR_PERFIL: Record<Perfil, readonly Permiso[]> = {
   operador: [PERMISOS.NOCHE, PERMISOS.ORGANIZACION],
 
   // Cada empleado ve lo suyo: su recibo y a qué fiesta está asignado. Eso se
-  // resuelve por pantalla, no por permiso: no entra a ningún módulo del equipo.
+  // filtra en cada pantalla, no por permiso general.
   personal: [],
 
-  // Los tres de afuera no entran a la aplicación del equipo. Tienen sus propias
-  // puertas: el portal con su clave, el enlace de la invitación, el CRM.
+  // El que contrató la fiesta: ve su presupuesto, su contrato, sus invitados,
+  // la música y las fotos.
   cliente: [],
+
+  // El que todavía no contrató: sólo ve su presupuesto y habla con Sofía.
   prospecto: [],
+
+  // El que va a la fiesta: ve la invitación, pide canciones y sube fotos.
   invitado: [],
 };
 
+/** El nombre que se le muestra a las personas. */
 export const NOMBRE_DEL_PERFIL: Record<Perfil, string> = {
   dueno: 'Dueño',
-  secretaria: 'Secretaria / Administración',
-  operador: 'Operador de fiesta',
+  secretaria: 'Secretaria',
+  operador: 'Operador',
   personal: 'Personal',
   cliente: 'Cliente',
   prospecto: 'Prospecto',
@@ -104,6 +109,9 @@ export function esPerfilValido(valor: unknown): valor is Perfil {
  * lo que hay que cerrar.
  */
 export function perfilDesdeRolViejo(role: string | undefined | null): Perfil {
+  if (role === 'dueno' || role === 'secretaria' || role === 'operador' || role === 'personal') {
+    return role;
+  }
   return role === 'admin' ? 'dueno' : 'secretaria';
 }
 
@@ -116,17 +124,6 @@ export function puede(
   user: { perfil?: string; role?: string } | undefined | null,
   permiso: Permiso,
 ): boolean {
-  // Sin usuario no se puede nada.
-  //
-  // Antes, preguntar por alguien que no existe devolvia los permisos de
-  // secretaria, que incluyen ver plata. Venia de la conversion de las cuentas
-  // viejas: el que no tiene perfil cargado se trata como secretaria, y eso esta
-  // bien para una cuenta de verdad, pero no para la ausencia de cuenta. Una
-  // pantalla que preguntaba antes de terminar de cargar la sesion mostraba
-  // numeros que no le correspondian.
-  //
-  // La conversion de las cuentas viejas sigue igual: esto solo cambia el caso en
-  // que no hay nadie.
   if (!user) return false;
   return PERMISOS_POR_PERFIL[perfilDe(user)].includes(permiso);
 }

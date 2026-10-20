@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
 import { buildAttachmentContext } from '@/lib/assistant/assistant-pro-capabilities';

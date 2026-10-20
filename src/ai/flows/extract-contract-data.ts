@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 /**
  * @fileOverview Flujo de IA optimizado para documentos de AK Producciones.
  */

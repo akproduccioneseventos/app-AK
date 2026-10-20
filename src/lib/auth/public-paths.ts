@@ -85,9 +85,13 @@ export const PUBLIC_PATH_PREFIXES = [
   '/invitado',
   '/club-uruguay',
   '/pago',
+  '/api/cron',
 ] as const;
 
 export const PUBLIC_EXACT_PATHS = new Set([
+  '/api/cron-despachador',
+  '/api/despertar',
+  '/api/meta/webhook',
   '/',
   '/api/health',
   // El "instalador" de una estacion suelta. No entrega datos de la fiesta: solo

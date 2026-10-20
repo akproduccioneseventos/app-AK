@@ -77,6 +77,11 @@ export async function POST(request: NextRequest) {
     let phone: string | null = null;
     let messageText: string | null = null;
     let clientName: string | undefined;
+    let isEcho = false;
+    let metaTo: string | undefined;
+    let messageType: string | undefined;
+    let messageId: string | undefined;
+    let mediaId: string | undefined;
 
     // Parse Meta (WhatsApp Business API) format
     let referencia: ReferenciaDeOrigen | null = null;
@@ -102,6 +107,11 @@ export async function POST(request: NextRequest) {
 
         if (messageData) {
           phone = messageData.from;
+          messageId = messageData.id;
+          messageType = messageData.type;
+          metaTo = value?.metadata?.display_phone_number;
+          if (messageData.type === 'audio') mediaId = messageData.audio?.id;
+          if (messageData.type === 'image') mediaId = messageData.image?.id;
           const msgType = messageData.type;
           if (msgType === 'audio') {
             messageText = messageData.audio?.id ? `[AUDIO:${messageData.audio.id}]` : '[AUDIO]';
@@ -163,6 +173,11 @@ export async function POST(request: NextRequest) {
     const atencionEquipo = await atenderAlEquipo({
       from: phone,
       text: messageText,
+      isEcho,
+      to: metaTo,
+      type: messageType as any,
+      messageId,
+      mediaId,
     });
     if (atencionEquipo.atendido) {
       return NextResponse.json({

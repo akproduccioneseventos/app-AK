@@ -17,8 +17,17 @@ export async function updatePersonal(
   // permiso. Antes no comprobaba NADA: con solo conocer el codigo de una fiesta se
   // podian cambiar los sueldos desde afuera, y ademas se disparaban los correos de
   // asignacion al equipo.
-  const permiso = await requirePermiso(PERMISOS.SUELDOS);
-  if (!permiso.ok) return { success: false, error: permiso.error };
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const ses = await verifySession();
+  if (!ses.success || !ses.user) {
+    return { success: false, error: 'No autorizado para asignar personal.' };
+  }
+  const { puede } = await import('@/lib/auth/perfiles');
+  const tieneSueldos = puede(ses.user, PERMISOS.SUELDOS) || ses.user.role === 'admin';
+  const tieneOrg = puede(ses.user, PERMISOS.ORGANIZACION) || ses.user.role === 'admin';
+  if (!tieneSueldos && !tieneOrg) {
+    return { success: false, error: 'No autorizado para asignar personal.' };
+  }
 
   try {
     for (const p of personal) {
@@ -29,6 +38,12 @@ export async function updatePersonal(
 
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
+    const currentPersonal = currentData.personalAsignado || [];
+    personal = personal.map((p) => {
+      if (tieneSueldos) return p;
+      const previo = currentPersonal.find((prev: any) => prev.empleadoId === p.empleadoId);
+      return { ...p, eventSalary: previo ? previo.eventSalary : 0 };
+    });
 
     const contarAsignaciones = (items: PersonalAsignadoDetalleStorage[]) => {
       const counts = new Map<string, number>();

@@ -594,7 +594,7 @@ export async function archivePresupuesto(id: string): Promise<{ success: boolean
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar presupuestos.' };
+  if (!puede(auth.user, PERMISOS.CONTABILIDAD) && auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar presupuestos.' };
   const isSigned = await isBudgetContractSigned(id);
   if (isSigned) {
     return { success: false, error: 'No se puede eliminar un presupuesto con contrato firmado.' };
@@ -1334,7 +1334,7 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden formatear la base de datos de presupuestos.' };
+    if (!puede(auth.user, PERMISOS.ADMINISTRACION) && auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden formatear la base de datos de presupuestos.' };
 
     return await presupuestosMutex.runExclusive(async () => {
       const all = await getPresupuestos(true);
