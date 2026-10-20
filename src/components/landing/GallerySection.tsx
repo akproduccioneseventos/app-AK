@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image, { type ImageLoaderProps } from "next/image";
 import {
   Camera,
@@ -217,6 +217,20 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
     setLightboxIndex(null);
   }, [activeCategory, activeSubCategory]);
 
+  // Orden 199: el foco entra al visor al abrirlo y, al cerrarlo, vuelve a la foto elegida.
+  const visorAbierto = lightboxIndex !== null;
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!visorAbierto) return;
+    const focusFrame = requestAnimationFrame(() => closeButtonRef.current?.focus());
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      const previo = previousFocusRef.current;
+      if (previo && previo.isConnected) previo.focus();
+    };
+  }, [visorAbierto]);
+
   useEffect(() => {
     if (lightboxIndex === null) return;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -333,7 +347,10 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                         ease: [0.22, 1, 0.36, 1] as const,
                       }
                 }
-                onClick={() => setLightboxIndex(index)}
+                onClick={() => {
+                  previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                  setLightboxIndex(index);
+                }}
                 className="group relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-neutral-200 text-left shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-700"
                 aria-label={`Abrir foto: ${visible.titulo || image.alt}`}
               >
@@ -397,6 +414,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
             aria-label="Vista ampliada de la galería"
           >
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={() => setLightboxIndex(null)}
               className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/20"

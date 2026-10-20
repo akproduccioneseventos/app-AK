@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Lo chico de las órdenes 199, 193 y 202, hecho por Claude
+
+- **El foco en los visores (199).** El video de ayuda del simulador y del Video de Vida lleva el foco al
+  botón Cerrar al abrir, cierra con Escape y devuelve el foco al botón que lo abrió. La galería de la
+  portada lleva el foco adentro y, al cerrar, vuelve a la foto elegida si sigue en pantalla.
+- **La fecha del seguimiento al prospecto (Codex 159).** El borrador decía "7/8/2027" para una fiesta
+  del 8 de agosto; ahora usa `formatearFechaEvento` ("8 de agosto de 2027").
+- **Las mesas del plano (202, bloque 4): falso positivo.** Ya salen según los invitados en
+  `generarEscenaAutomatica`; se sacó el import suelto de `contarMesas`.
+
+```comprobar
+usa: formatearFechaEvento(p.eventoFecha) en src/lib/agentes/motor-agentes.ts
+usa: previousFocusRef.current = document.activeElement en src/components/landing/GallerySection.tsx
+prueba: src/__tests__/orden-199-el-foco-vuelve-y-la-fecha-del-seguimiento.test.tsx
+```
+
 ## 20/10/2026 - Una orden ya no se cumple con un comentario (entrega 1341 de Gemini, cerrada)
 
 - La 1341 dio por hechas las órdenes 180, 181 y 183 con comentarios que nombraban lo pedido, imports sin

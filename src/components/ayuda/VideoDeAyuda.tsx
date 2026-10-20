@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { getVideosDeAyuda } from '@/app/actions/videos-de-ayuda';
 import type { VideoAyudaInfo } from '@/lib/videos-de-ayuda';
@@ -14,6 +14,23 @@ export interface VideoDeAyudaProps {
 export function VideoDeAyuda({ lugar, className = '', initialVideo }: VideoDeAyudaProps) {
   const [video, setVideo] = useState<VideoAyudaInfo | null>(initialVideo ?? null);
   const [abierto, setAbierto] = useState(false);
+  const botonCerrarRef = useRef<HTMLButtonElement>(null);
+  const focoAnteriorRef = useRef<HTMLElement | null>(null);
+
+  // Orden 199: al abrir, el foco entra al visor; Escape cierra; al cerrar vuelve al botón que lo abrió.
+  useEffect(() => {
+    if (!abierto) return;
+    const cuadro = requestAnimationFrame(() => botonCerrarRef.current?.focus());
+    const alApretar = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAbierto(false);
+    };
+    window.addEventListener('keydown', alApretar);
+    return () => {
+      cancelAnimationFrame(cuadro);
+      window.removeEventListener('keydown', alApretar);
+      focoAnteriorRef.current?.focus();
+    };
+  }, [abierto]);
 
   useEffect(() => {
     let activo = true;
@@ -45,7 +62,10 @@ export function VideoDeAyuda({ lugar, className = '', initialVideo }: VideoDeAyu
     <>
       <button
         type="button"
-        onClick={() => setAbierto(true)}
+        onClick={() => {
+          focoAnteriorRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          setAbierto(true);
+        }}
         className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-full transition-colors shadow-sm dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900 ${className}`}
         aria-label="¿Cómo se usa? Ver video de ayuda"
       >
@@ -69,6 +89,7 @@ export function VideoDeAyuda({ lugar, className = '', initialVideo }: VideoDeAyu
                 {video.titulo || 'Video de ayuda'}
               </h3>
               <button
+                ref={botonCerrarRef}
                 type="button"
                 onClick={() => setAbierto(false)}
                 className="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors"

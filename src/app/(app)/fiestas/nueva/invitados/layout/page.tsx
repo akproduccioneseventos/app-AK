@@ -15,7 +15,6 @@ import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, La
 import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { contarMesas } from '@/lib/mesas/contar-mesas';
 import { generarEscenaAutomatica } from '@/lib/decoracion/generar-layout-automatico';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
