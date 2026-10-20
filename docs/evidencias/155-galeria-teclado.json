@@ -1,0 +1,83 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "hashes": {
+    "src/components/landing/GallerySection.tsx": "cb814010887955b6b52cdee278f4f3bf6c66b4d6316c54d35e284d16eb0df77d",
+    "src/lib/utils.ts": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+    "src/lib/reportes/rango-de-dias.ts": "e64cb6a73f65c7f6f4d3b848783dd42be63abe0acf6f7e525ddb20875ed3956f",
+    "src/lib/next-image-url.ts": "96625c1d47ff7dddc67d55cf750e9f11a98ebf5b89c6b5b1638c38496e974dd6",
+    "src/lib/galeria/texto-de-la-foto.ts": "ac29b0c0c8ae2d645813aa018521baf7408c29854d69e58fa9dcd8634aa70c1e",
+    "src/components/landing/gallery-media-utils.ts": "aa38827afe414711190856b8cbe6d8b4f8b394d73a5517cbcb92e2751b4f82e1"
+  },
+  "cases": [
+    {
+      "name": "positive-control-initial-focus",
+      "pass": true,
+      "observed": "<button data-control-inner=\"true\">Interior</button>"
+    },
+    {
+      "name": "open-real-gallery",
+      "pass": true,
+      "observed": {
+        "picture": "https://qa.invalid/qa155-a.jpg"
+      }
+    },
+    {
+      "name": "gallery-initial-focus-inside",
+      "pass": false,
+      "observed": "<button type=\"button\" class=\"group relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-neutral-200 text-left shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-700\" aria-label=\"Abrir foto: Evento QA155a\"><div class=\"absolute inset-0 animate-pulse bg-neutral-300\" aria-hidden=\"true\"></div><img alt=\"Evento ficticio QA155a\" decoding=\"async\" data-nimg=\"fill\" class=\"object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03] motion-reduce:transition-none transition-opacity duration-300 opacity-0\" style=\"position: absolute; height: 100%; width: 100%; left: 0px; top: 0px; right: 0px; bottom: 0px; color: transparent;\" src=\"https://qa.invalid/qa155-a.jpg\"><div class=\"absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/35\"></div><span class=\"absolute left-3 top-3 bg-white/95 px-2 py-1 text-[10px] font-bold text-slate-800\">Eventos</span><span class=\"absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2\"><span class=\"line-clamp-2 bg-black/70 px-2 py-1 text-xs font-semibold text-white\">Evento QA155a</span><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-zoom-in h-5 w-5 shrink-0 text-white opacity-0 transition-opacity group-hover:opacity-100\"><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" x2=\"16.65\" y1=\"21\" y2=\"16.65\"></line><line x1=\"11\" x2=\"11\" y1=\"8\" y2=\"14\"></line><line x1=\"8\" x2=\"14\" y1=\"11\" y2=\"11\"></line></svg></span></button>"
+    },
+    {
+      "name": "arrow-right-next-photo",
+      "pass": true,
+      "observed": {
+        "picture": "https://qa.invalid/qa155-b.jpg"
+      }
+    },
+    {
+      "name": "arrow-left-previous-photo",
+      "pass": true,
+      "observed": {
+        "picture": "https://qa.invalid/qa155-a.jpg"
+      }
+    },
+    {
+      "name": "arrow-left-wraps",
+      "pass": true,
+      "observed": {
+        "picture": "https://qa.invalid/qa155-c.jpg"
+      }
+    },
+    {
+      "name": "focus-can-enter-close-button",
+      "pass": true,
+      "observed": "<button type=\"button\" class=\"absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/20\" aria-label=\"Cerrar galería\" title=\"Cerrar galería\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-x h-5 w-5\"><path d=\"M18 6 6 18\"></path><path d=\"m6 6 12 12\"></path></svg></button>"
+    },
+    {
+      "name": "escape-closes-gallery",
+      "pass": true,
+      "observed": {
+        "remainingDialogs": 0
+      }
+    },
+    {
+      "name": "gallery-restores-trigger-focus",
+      "pass": false,
+      "observed": {
+        "activeTag": "BODY",
+        "activeLabel": null
+      }
+    }
+  ],
+  "summary": {
+    "pass": 7,
+    "fail": 2
+  },
+  "scope": "Actual GallerySection, framer-motion, next/image and raw Radix positive control rendered with React in jsdom; synthetic images and document keyboard events",
+  "limits": [
+    "Not native browser/Tab traversal, actual screen-reader or visual QA",
+    "No network image loading, production data, provider calls or app edits",
+    "Two failed focus assertions can be one modal-focus defect, not two bugs"
+  ],
+  "browserAttempt": "In-app browser createTab navigation timeout, then Page.getFrameTree timeout; not classified as app failure",
+  "appEdited": false
+}

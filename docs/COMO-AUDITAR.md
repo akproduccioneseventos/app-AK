@@ -1258,3 +1258,12 @@ $85.000" siempre igual; la acción "ejecutada automáticamente" no hacía nada; 
 registrada". Todo con pruebas en verde. Se busca: cada respuesta del asistente que nombre un número, una
 acción hecha o algo guardado, y se sigue hasta el dato o el guardado que la respalda. El control
 `src/__tests__/el-asistente-no-inventa-plata.test.ts` frena los importes escritos a mano.
+
+### 83. Un visor o ventana hecho a mano (`role="dialog"` sin el Dialog de Radix), ¿lleva el foco adentro, cierra con Escape y devuelve el foco a lo que lo abrió?
+
+Codex 155 (orden 199): en la galería de la portada, abrir una foto con el teclado dejaba el foco detrás del
+visor y, al cerrar, el foco quedaba en la nada: quien navega con teclado o lector de pantalla pierde su lugar.
+Los visores de video y de historias de la portada ya lo hacían bien (guardan `document.activeElement` y lo
+vuelven a enfocar). Se busca `role="dialog"` y `aria-modal` en `src/` y, en los que no importan
+`@/components/ui/dialog`, se miran las tres cosas.
+

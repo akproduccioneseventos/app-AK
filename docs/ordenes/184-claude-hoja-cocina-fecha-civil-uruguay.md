@@ -1,5 +1,10 @@
 # Orden184 - Fecha civil de la hoja de cocina en Uruguay
 
+**Estado actual:** CERRADA la fecha civil por151,2PASS UTC/Uruguay sobre
+2e5363f259461a31bf6b31807872c227855415de, pantalla y medio print. Entrada
+2027-08-08 conserva8/8; codigo relacionado sin cambio hasta main894d.
+Ver154-cierre.md y151-date-source.spec.ts. El fallo143 siguiente es historico.
+
 ID estable: AK-CODEX-143-COCINA-FECHA-CIVIL.
 Responsable: Claude (comida/fechas operativas). Codex solo audita/documenta.
 P2. NUEVO defecto reproducido, NO correccion realizada. No afecta las porciones.

@@ -1,0 +1,13 @@
+{
+  "source": "253838732287c2704d78113d15ace9c025cb82c9",
+  "started": "2026-10-20T13:25:55.004Z",
+  "realServices": false,
+  "snapshotCount": 76,
+  "environment": "Clean unit env: no forced browser JSON/provider flags; isolated HOME and absent credentials sentinel",
+  "run": {
+    "pid": 9360,
+    "exitCode": 1
+  },
+  "sourceDiff": "",
+  "finished": "2026-10-20T13:36:09.645Z"
+}

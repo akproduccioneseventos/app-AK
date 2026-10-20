@@ -1,0 +1,488 @@
+{
+  "source": "2e5363f259461a31bf6b31807872c227855415de",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-20T12:57:05.188Z",
+    "version": "2e5363f259461a31bf6b31807872c227855415de · compilada 2026-10-20T12:31:41.882Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 10
+  },
+  "ids": {
+    "saveFiesta": "4014ee8509b95b6754f0bec9b0c97427928d01c300"
+  },
+  "cases": [
+    {
+      "kind": "save",
+      "perfil": "dueno",
+      "status": 200,
+      "success": true,
+      "allowed": true,
+      "changedFiles": [
+        "data\\fiestas\\qa151_dueno_8f6451dc-b0e9-46ce-a848-c795f34ddf4f.json",
+        "src\\data\\fiestas\\qa151_dueno_8f6451dc-b0e9-46ce-a848-c795f34ddf4f.json"
+      ],
+      "fieldsPreserved": true,
+      "forbiddenOutput": false,
+      "salaryAfter": [
+        3000,
+        3000
+      ],
+      "pass": true,
+      "response": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"4BNHkXYX9Yk0F0GR4M2BW\"}\n1:{\"success\":true,\"fiesta\":{\"id\":\"qa151_dueno_8f6451dc-b0e9-46ce-a848-c795f34ddf4f\",\"configuracion\":\"$T0:0:configuracion\",\"gestionCostos\":\"$T0:0:gestionCostos\",\"personalAsignado\":\"$T0:0:personalAsignado\",\"estadosCompra\":\"$T0:0:estadosCompra\",\"planDePagos\":\"$T0:0:planDePagos\",\"invitacionDigital\":\"$T0:0:invitacionDigital\"}}\n",
+      "responseHeaders": {
+        "x-frame-options": "DENY",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "permissions-policy": "camera=(self), microphone=(self), geolocation=(self)",
+        "x-xss-protection": "0",
+        "content-security-policy-report-only": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.googleapis.com https://graph.facebook.com; frame-src 'self' https://www.youtube.com https://open.spotify.com https://www.google.com https://maps.google.com https://*.canva.site; object-src 'none'; base-uri 'self'; form-action 'self'",
+        "x-request-id": "30188188",
+        "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+        "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+        "x-action-revalidated": "[[],0,0]",
+        "x-nextjs-cache": "HIT",
+        "x-nextjs-prerender": "1",
+        "content-type": "text/x-component",
+        "content-encoding": "gzip",
+        "date": "Tue, 20 Oct 2026 12:57:06 GMT",
+        "connection": "keep-alive",
+        "keep-alive": "timeout=5",
+        "transfer-encoding": "chunked"
+      },
+      "persisted": [
+        {
+          "file": "data\\fiestas\\qa151_dueno_8f6451dc-b0e9-46ce-a848-c795f34ddf4f.json",
+          "value": {
+            "id": "qa151_dueno_8f6451dc-b0e9-46ce-a848-c795f34ddf4f",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            },
+            "invitacionDigital": {
+              "titulo": "Edicion QA151 dueno"
+            }
+          }
+        },
+        {
+          "file": "src\\data\\fiestas\\qa151_dueno_8f6451dc-b0e9-46ce-a848-c795f34ddf4f.json",
+          "value": {
+            "id": "qa151_dueno_8f6451dc-b0e9-46ce-a848-c795f34ddf4f",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            },
+            "invitacionDigital": {
+              "titulo": "Edicion QA151 dueno"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "save",
+      "perfil": "secretaria",
+      "status": 200,
+      "success": true,
+      "allowed": true,
+      "changedFiles": [
+        "data\\fiestas\\qa151_secretaria_16f09c7b-df3e-45be-a51e-b5576a2f8ca2.json",
+        "src\\data\\fiestas\\qa151_secretaria_16f09c7b-df3e-45be-a51e-b5576a2f8ca2.json"
+      ],
+      "fieldsPreserved": false,
+      "forbiddenOutput": false,
+      "salaryAfter": [
+        null,
+        null
+      ],
+      "pass": false,
+      "response": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"4BNHkXYX9Yk0F0GR4M2BW\"}\n1:{\"success\":true,\"fiesta\":{\"id\":\"qa151_secretaria_16f09c7b-df3e-45be-a51e-b5576a2f8ca2\",\"configuracion\":\"$T0:0:configuracion\",\"personalAsignado\":[{\"empleadoId\":\"otro151\",\"rolId\":\"dj\"}],\"estadosCompra\":\"$T0:0:estadosCompra\",\"planDePagos\":\"$T0:0:planDePagos\",\"invitacionDigital\":\"$T0:0:invitacionDigital\"}}\n",
+      "responseHeaders": {
+        "x-frame-options": "DENY",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "permissions-policy": "camera=(self), microphone=(self), geolocation=(self)",
+        "x-xss-protection": "0",
+        "content-security-policy-report-only": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.googleapis.com https://graph.facebook.com; frame-src 'self' https://www.youtube.com https://open.spotify.com https://www.google.com https://maps.google.com https://*.canva.site; object-src 'none'; base-uri 'self'; form-action 'self'",
+        "x-request-id": "bea3f5d9",
+        "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+        "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+        "x-action-revalidated": "[[],0,0]",
+        "x-nextjs-cache": "HIT",
+        "x-nextjs-prerender": "1",
+        "content-type": "text/x-component",
+        "content-encoding": "gzip",
+        "date": "Tue, 20 Oct 2026 12:57:06 GMT",
+        "connection": "keep-alive",
+        "keep-alive": "timeout=5",
+        "transfer-encoding": "chunked"
+      },
+      "persisted": [
+        {
+          "file": "data\\fiestas\\qa151_secretaria_16f09c7b-df3e-45be-a51e-b5576a2f8ca2.json",
+          "value": {
+            "id": "qa151_secretaria_16f09c7b-df3e-45be-a51e-b5576a2f8ca2",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj"
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            },
+            "invitacionDigital": {
+              "titulo": "Edicion QA151 secretaria"
+            },
+            "gestionCostos": {
+              "total": 9500
+            }
+          }
+        },
+        {
+          "file": "src\\data\\fiestas\\qa151_secretaria_16f09c7b-df3e-45be-a51e-b5576a2f8ca2.json",
+          "value": {
+            "id": "qa151_secretaria_16f09c7b-df3e-45be-a51e-b5576a2f8ca2",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj"
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            },
+            "invitacionDigital": {
+              "titulo": "Edicion QA151 secretaria"
+            },
+            "gestionCostos": {
+              "total": 9500
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "save",
+      "perfil": "personal",
+      "status": 500,
+      "success": false,
+      "allowed": false,
+      "changedFiles": [],
+      "fieldsPreserved": true,
+      "forbiddenOutput": false,
+      "salaryAfter": [],
+      "pass": true,
+      "response": "0:{\"a\":\"$@1\",\"f\":\"\",\"b\":\"4BNHkXYX9Yk0F0GR4M2BW\"}\n1:E{\"digest\":\"2680308751\"}\n",
+      "responseHeaders": {
+        "x-frame-options": "DENY",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "permissions-policy": "camera=(self), microphone=(self), geolocation=(self)",
+        "x-xss-protection": "0",
+        "content-security-policy-report-only": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.googleapis.com https://graph.facebook.com; frame-src 'self' https://www.youtube.com https://open.spotify.com https://www.google.com https://maps.google.com https://*.canva.site; object-src 'none'; base-uri 'self'; form-action 'self'",
+        "x-request-id": "4b0461e4",
+        "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+        "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+        "x-action-revalidated": "[[],0,0]",
+        "x-nextjs-cache": "HIT",
+        "x-nextjs-prerender": "1",
+        "content-type": "text/x-component",
+        "content-encoding": "gzip",
+        "date": "Tue, 20 Oct 2026 12:57:06 GMT",
+        "connection": "keep-alive",
+        "keep-alive": "timeout=5",
+        "transfer-encoding": "chunked"
+      },
+      "persisted": [
+        {
+          "file": "data\\fiestas\\qa151_personal_0522d8cc-bc3f-4803-a5f0-baab3f820c07.json",
+          "value": {
+            "id": "qa151_personal_0522d8cc-bc3f-4803-a5f0-baab3f820c07",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "file": "src\\data\\fiestas\\qa151_personal_0522d8cc-bc3f-4803-a5f0-baab3f820c07.json",
+          "value": {
+            "id": "qa151_personal_0522d8cc-bc3f-4803-a5f0-baab3f820c07",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "save",
+      "perfil": "anonymous",
+      "status": 307,
+      "success": false,
+      "allowed": false,
+      "changedFiles": [],
+      "fieldsPreserved": true,
+      "forbiddenOutput": false,
+      "salaryAfter": [],
+      "pass": true,
+      "response": "http://localhost:3300/login?redirect=%2Ffiestas%2Fnueva%2Fpagina-web",
+      "responseHeaders": {
+        "x-frame-options": "DENY",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "permissions-policy": "camera=(self), microphone=(self), geolocation=(self)",
+        "x-xss-protection": "0",
+        "content-security-policy-report-only": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.googleapis.com https://graph.facebook.com; frame-src 'self' https://www.youtube.com https://open.spotify.com https://www.google.com https://maps.google.com https://*.canva.site; object-src 'none'; base-uri 'self'; form-action 'self'",
+        "location": "http://localhost:3300/login?redirect=%2Ffiestas%2Fnueva%2Fpagina-web",
+        "date": "Tue, 20 Oct 2026 12:57:06 GMT",
+        "connection": "keep-alive",
+        "keep-alive": "timeout=5",
+        "transfer-encoding": "chunked"
+      },
+      "persisted": [
+        {
+          "file": "data\\fiestas\\qa151_anonymous_53dc056d-6926-4139-9546-4d186673eaca.json",
+          "value": {
+            "id": "qa151_anonymous_53dc056d-6926-4139-9546-4d186673eaca",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "file": "src\\data\\fiestas\\qa151_anonymous_53dc056d-6926-4139-9546-4d186673eaca.json",
+          "value": {
+            "id": "qa151_anonymous_53dc056d-6926-4139-9546-4d186673eaca",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "pass": 3,
+    "fail": 1
+  },
+  "fixturesRemoved": true,
+  "scope": "Actual compiled Next server actions, signed synthetic sessions and local JSON persistence; no function mocks",
+  "limits": [
+    "Not Firestore SDK atomic path, production, OAuth or real user/data",
+    "Only full save in these four session cases; not every action or role"
+  ]
+}
