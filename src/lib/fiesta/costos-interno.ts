@@ -1,9 +1,6 @@
 import 'server-only';
 import type { GestionCostosData } from '@/types/fiesta';
 import { updateFiestaPartial } from '@/app/actions/fiesta/fiesta.actions';
-import * as CostosActions from '@/app/actions/fiesta/costos.actions';
-
-const enCurso = new Set<string>();
 
 /**
  * Actualización interna de costos para sincronizaciones automáticas desde el servidor
@@ -26,16 +23,6 @@ export async function updateGestionCostosInterno(
           };
         }
       }
-    }
-  }
-
-  const fnPublica = CostosActions.updateGestionCostos as unknown as { _isMockFunction?: boolean } | undefined;
-  if (fnPublica && fnPublica._isMockFunction && !enCurso.has(fiestaId)) {
-    enCurso.add(fiestaId);
-    try {
-      return await CostosActions.updateGestionCostos(fiestaId, costos);
-    } finally {
-      enCurso.delete(fiestaId);
     }
   }
 

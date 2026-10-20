@@ -119,12 +119,16 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   }, [activeTab, cargarBandeja]);
 
   useEffect(() => {
-    getAjustesRespuestasComentarios().then((aj) => {
-      setAjustesRespuestas({
-        comentarios: aj.comentarios,
-        mensajesDirectos: aj.mensajesDirectos,
-      });
-    }).catch(() => {});
+    if (typeof getAjustesRespuestasComentarios === 'function') {
+      getAjustesRespuestasComentarios().then((aj) => {
+        if (aj) {
+          setAjustesRespuestas({
+            comentarios: aj.comentarios,
+            mensajesDirectos: aj.mensajesDirectos,
+          });
+        }
+      }).catch(() => {});
+    }
   }, []);
   // La tarjeta "Moderación y Comentarios" de Marketing llega con ?tab=comentarios y abre esa solapa.
   useEffect(() => {

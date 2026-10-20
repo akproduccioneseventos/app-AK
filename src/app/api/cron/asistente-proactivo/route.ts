@@ -204,7 +204,7 @@ export async function GET(request: Request) {
 
   // 8. AVISOS PROACTIVOS AL EQUIPO (Push con server-messaging)
   let avisoDuenioRes = null;
-  const ajustes = await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true }));
+  const ajustes = typeof getAsistenteSettings === 'function' ? await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true })) : { avisosProactivosActivos: true };
   const avisosPrendidos = (ajustes as any).avisosProactivosActivos !== false;
 
   // Respetar horario de descanso: nunca entre las 23 y las 8 en Uruguay

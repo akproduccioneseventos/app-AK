@@ -58,6 +58,8 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
  * nadie logueado**. Marcar todo el archivo taparía las otras.
  */
 const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
+  'crowd-sync.ts:getCrowdSyncStateAction':
+    'los celulares de los invitados en la pista consultan el show de luces sincronizado.',
   'games.actions.ts:getMiProgresoDeJuegos':
     'la llama el celular del invitado para ver SU puntaje de trivia y SUS misiones cumplidas. ' +
     'Reconoce al jugador con `resolverJugador` (enlace personal comprobado o id de teléfono) y ' +
