@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 20/10/2026 - Codex155: foco de galeria, friccion nueva PENDIENTE199
+
+-No esperar solo coders: se avanzo un criterio independiente no aceptado por los
+  cierres151-154. Main894d; Claude publicofc5e solo STATE,1337sigue45a0. Gallery
+  y sus modulos cargados sin cambios entre esos HEAD; privados NO CONTRASTADOS.
+-Componente real GallerySection con React/framer/next-image en DOM aislado:
+  7PASS/2FAIL deUNAfriccion. Abre, flechas y Escape funcionan; el foco queda en
+  tarjeta detras del modal y al cerrar desde dentro queda enBODY. Radix positivo
+  SI mueve foco. Orden199 para Gemini en misma tanda, NO implementada por Codex.
+-Consumidor REAL: AsyncGallerySection -> GaleriaUnificadaSection -> GallerySection.
+  No confundir resultado del componente con Tab nativo/lector/galeria completa.
+-Sonda inicial tenia parentesis extra; siguiente control appDialog cancelaba
+  autofocus deliberadamente y no servia como positivo. Ambos archivos conservados,
+  no fallos app ni orden para cambiar Dialog global. Ver155-galeria-foco.md.
+-Cua timeout/CDP/kernel no prueba fallo web; no se completo viaje nativo. Luna no
+  pudo leer recibos en su entorno y fue cerrado, no se atribuyen resultados.
+-No appedit/build/merge ni datos reales. Compartir conClaude en PR1340; mantener
+  cierres previos porSHA/alcance, no mas amplia por docs ni certificar0errores.
+
 ## 20/10/2026 - Codex151-154: cierres comprobados y limites, no cero errores
 
 -Entregada PR1340 BORRADOR,rama codex/154-cierre-verificado-20261020. Payload
