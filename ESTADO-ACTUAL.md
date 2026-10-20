@@ -31,8 +31,8 @@ en vezdeleerRolesInterno yrequireEquipo otro recorte. No equivalencia transitiva
 153buildinterrumpido NOaceptado. No repetir amplia/build/grafo por docs oigualapp.
 Mantener150simuladorPDFCRM/141clienteSDK/1353DagendaDJ/142cabecera porSHA.
 134421rutas14areas7roles esinventario, NO todocontrol ni auditoria total aceptada.
-QA156-159 logica/RequestResponseenproceso, NO viajesHTTP/UI. Preflight844644KiB
-libres no permitebuildpesado; no procesos ajenos detenidos. AgenteLuna cerrado.
+QA156-159 logica/RequestResponseenproceso, NO viajesHTTP/UI. RAM cierre258992KiB
+libres: bloquea mas QA/build; se pidio liberar memoria. No procesos ajenos detenidos.
 19originales dueno buscando,noinsistir; OAuth/modelo/voz/integraciones/hardware
 reales no certificados. QA nunca datos/cuentas/cargos/mensajes reales.
 Siguiente: resto de criterios no cubiertos y retest SOLO delta entregado; no0errores.

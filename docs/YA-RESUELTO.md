@@ -2,6 +2,9 @@
 
 ## 20/10/2026 - Codex156-159:102casos,95PASS/7FAIL, tres causas PENDIENTES
 
+-Bloqueo de recursos al cierre: Get-CimInstance midio258992KiB libres, unos253MiB
+  de RAM. No se inicia otro QA pesado ni build con ese margen; se pidio al dueno
+  liberar memoria, no detener procesos ajenos. Esto NO es un fallo de la app.
 -Fuente894d; Claude publicofc5e soloSTATE,1337/45a0 sigue pendiente. Codex no
   programa ni fusiona. Se continuaron cuatro bloques independientes sin esperar
   coders ni repetir builds/amplias/171/184/186/198. Ver159-consolidado.json.
