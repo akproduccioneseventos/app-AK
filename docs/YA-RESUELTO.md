@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Barrido completo de las 26 preguntas que estaban "a medias"
+
+Pedido del dueño: que todo lo de Codex desde el principio esté arreglado, con su pregunta, y buscado en toda
+la app. Las 26 preguntas marcadas "parcial" se terminaron. Lo de plata y permisos lo arregló Claude:
+
+- La lista de presupuestos avisa si no pudo leer (antes decía "no hay presupuestos" y alguien los cargaba de nuevo).
+- El chat con Sofía pasa los invitados al simulador manual (antes arrancaba con 50).
+- El portal del cliente muestra todas las cuentas bancarias (antes cortaba en 2).
+- Sin Meta conectada, pausar una campaña no dice que salió.
+- Cinco acciones que pedían sólo sesión ahora piden permiso, y una (`extractReceiptDataAction`) lo pedía y no
+  miraba la respuesta. El control `un-permiso-que-no-se-mira-no-frena` frena esa forma en toda la app.
+
+Lo demás va en la orden 207 para Gemini.
+
+```comprobar
+usa: readDataConDetalle<Presupuesto[]> en src/app/actions/presupuestos.ts
+usa: &guests= en src/app/simulador-ak/page.tsx
+no-usa: cuentasBancarias.slice(0, 2) en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+prueba: src/__tests__/un-permiso-que-no-se-mira-no-frena.test.ts
+prueba: src/__tests__/la-lista-de-presupuestos-no-dice-vacia-si-no-leyo.test.ts
+```
+
 ## 21/10/2026 - Orden 185: el pago de un proveedor no se le copia a otro del mismo nombre
 
 - Al guardar la fiesta, el pago de cada compra se repone desde lo guardado, y se buscaba por nombre: con
