@@ -1,5 +1,32 @@
 # Orden205 - Devolucion agrupada de PR1344
 
+## Retest 21/10: PR1346, no volver a programar los casos ya aprobados
+
+Fuente nueva d95c35ba27c6ff5a3c1a8adac28e29c3ff02ae09, rama
+gemini/ordenes-205-206. Evidencias180/182: los27 controles del alcance anterior
+ahora PASS. Los parrafos siguientes sobre bfde son HISTORICOS, no27 fallos
+actuales. Los dos casos nuevos de180 siguen FAIL; no son otra orden205:
+
+- VOZ-DOS-INSTANCIAS: mismo actor/id/carga, primer guardado y reintento en otra
+  instancia del modulo crean2tareas, esperado1. Los permisos antes del cache,
+  la confirmacion y la concurrencia dentro de UNA instancia ya pasan.
+  El Map y el mutex locales no identifican durablemente un intento. Claude
+  revisa identidad/actor/carga/confirmacion y persistencia atomica. Conservar
+  nuevas tareas deliberadas; nunca deduplicar por telefono/nombre/fecha.
+- META-DOS-INSTANCIAS: dos mid distintos, lectura simultanea del mismo estado,
+  dos respuestas200/guardados1, solo1mensaje al final. Mutex por modulo ya
+  resuelve UNA instancia, no dos. Gemini corrige el consumidor de almacenamiento
+  con revision de Claude de la atomicidad; conservar HMAC, mid y canalInstagram
+  que ahora pasan. No rehacer el webhook entero.
+
+180 carga los cuerpos POST y AsyncMutex reales en dos modulos separados con
+almacen compartido controlado y barrera de lectura. Es reproduccion compuesta,
+NO prueba de dos servidores Cloud Run, HTTP firmado o proveedor externo.
+Agregar prueba con almacenamiento fiel/emulador al entregar el arreglo.
+No se reabre AR como novedad: ya esta devuelta por Claude en orden208, junto
+con el barrido207. No contradecir ese trabajo activo ni copiar ramas enteras.
+NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
+
 Entrega bfde3916a43afdb700cc0828722268db7b3ea2c1; base108e17b4387237fc921ea12e8d1eb65b20f62ac9.
 Claude publico despues daefbdc00b7a43f4f252dcca6e7d9565d4d30d10.
 NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS. Contrastar HEAD nuevo antes
@@ -84,4 +111,6 @@ usa: atenderProspectoAnuncioWhatsApp( en src/app/api/whatsapp/webhook/route.ts
 usa: filtrarPorEstacion( en src/app/evento/album/[fiestaId]/page.tsx
 prueba: docs/evidencias/171-entrega-1344.mjs
 prueba: docs/evidencias/174-consumidores-1344.mjs
+prueba: docs/evidencias/180-retest-entrega-1346.mjs
+prueba: docs/evidencias/182-retest-consumidores-1346.mjs
 ```

@@ -127,3 +127,37 @@ Avisos de `npm audit` (entradas): antes 1 critico / 20 altos / 87 moderados
 (108); despues 0 / 20 / 71 (91). Unicos (GHSA): 30 a 13. Siguen quedando altos
 de produccion (OpenTelemetry via genkit), por eso la linea `prueba:` del bloque
 comprobar no se cambia.
+
+## Delta observado 21/10/2026 - PR1346, revision Claude con Gemini
+
+NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
+No repetir los arreglos correctos del14/10. Fuente actual de este retest:
+d95c35ba27c6ff5a3c1a8adac28e29c3ff02ae09. Evidencia184 consulta el registro
+sobre package/lock congelados, sin instalar dependencias, ejecutar scripts ni
+heredar npmrc/credenciales. Totales de entradas audit:91(1critica/12altas/78moderadas)
+y omit=dev68(1critica/9altas/58moderadas). No son91defectos de la app ni prueban
+alcanzabilidad de esas dependencias desde una peticion publica.
+
+Regresion NUEVA del arbol frente a42a25a319fe06a9fec40e75e5b23c01addef8ce2:
+mind-ar1.2.5 -> canvas2.11.2 -> @mapbox/node-pre-gyp1.0.11 -> tar6.2.1,
+en node_modules/@mapbox/node-pre-gyp/node_modules/tar, sin marca dev.
+El tar raiz7.5.21 SI esta corregido; no culpar otra vez a firebase-tools.
+El override actual tar@>=7.0.0<7.5.21 no incluye6.2.1. Advisory verificado:
+[GHSA-23hp-3jrh-7fpw](https://github.com/advisories/GHSA-23hp-3jrh-7fpw),
+rango<=7.5.18, corregido7.5.19. No se ejecuto un archivo malicioso ni se afirma
+que el servidor publicado extraiga TAR enviados por invitados.
+
+Resolver o justificar alcance de esa NUEVA cadena en la entrega AR; conservar
+el resto del criterio de esta orden. No forzar tar7 sobre node-pre-gyp que pide6
+sin demostrar compatibilidad, no npm audit fix --force, no downgrade de Next,
+Tailwind o Jest por el consejo automatico de npm. Revisar si canvas/pre-gyp son
+necesarios para el import real de AR en navegador y su compilador, sin dejar
+un import ficticio ni romper la prueba de video requerida en208. Claude conserva
+la decision de seguridad y compatibilidad; Gemini programa su bloque AR.
+No confundir resolver esta regresion con resolver todos los avisos estructurales.
+
+```comprobar
+archivo: package-lock.json
+usa: mind-ar en src/app/evento/ar/[fiestaId]/page.tsx
+prueba: docs/evidencias/184-dependencias-entrega-1346.mjs
+```

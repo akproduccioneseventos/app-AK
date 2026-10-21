@@ -1,0 +1,156 @@
+{
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "contrast": "16e197cc3591bf0812c1e8910c880d83f04eb94b",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-166-vjtu7f",
+  "buildFinished": "2026-10-21T11:35:49.179Z",
+  "started": "2026-10-21T15:45:20.654Z",
+  "realServices": false,
+  "appEdited": false,
+  "equivalence": {
+    "src/app/personal/[empleadoId]/page.tsx": "7f969b6c1a548f2f464a010d5d5901f625ff1942",
+    "src/app/actions/google-workspace.ts": "dd3935221f2fe06d276bb2e0c22f063bdfc4df3e",
+    "src/lib/auth/session-token.ts": "d6bb484f24168f5ca15fa77c84a3be38d7fe7f12",
+    "src/lib/auth/perfiles.ts": "f15d0c1ef38ded15137bbb393ccbca2bb6470d76",
+    "src/middleware.ts": "fb0d7789e344b8cc4f313c03d3240995ad6f0b43",
+    "src/lib/auth/public-paths.ts": "b5540bc73df569553d3b1e4a68fd65c522fef693",
+    "src/lib/google-workspace.ts": "df616e1d369a00c703353412251c3b6c773ca760",
+    "src/lib/fiesta/leer-fiestas.ts": "ddccc4ae5c258caf43cb854ef508b5c0d86eca94",
+    "src/lib/roles/leer-roles-interno.ts": "ca538c2eef693ffec64bdaf7fc829f60e42a5dd4",
+    "src/lib/data-service.ts": "b68054b107010a199b8481a1855c1c0b21e7e5a7"
+  },
+  "cases": [
+    {
+      "id": "positive-own-portal-before-negative-cases",
+      "pass": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "id": "http-role-secretaria",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "deniedPage": true,
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-operador",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "deniedPage": true,
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-cliente",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "deniedPage": true,
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-prospecto",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "deniedPage": true,
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-invitado",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "deniedPage": true,
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-tampered",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "deniedPage": true,
+        "bytes": 24954
+      }
+    },
+    {
+      "id": "http-role-expired",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "deniedPage": true,
+        "bytes": 24954
+      }
+    },
+    {
+      "id": "http-other-employee-denied",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "deniedPage": true
+      }
+    }
+  ],
+  "observations": [],
+  "serverPid": 472,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-21T15:45:26.212Z",
+    "version": "108e17b4387237fc921ea12e8d1eb65b20f62ac9 · compilada 2026-10-21T11:22:17.916Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "nativeNotRun": {
+    "reason": "Reuse ten passing PC/Pixel7 UI cases from179; retry only the eight QA status expectations plus fresh positive control"
+  },
+  "snapshotCount": 76,
+  "sourceDiff": "",
+  "finished": "2026-10-21T15:45:40.256Z",
+  "summary": {
+    "total": 9,
+    "pass": 9,
+    "fail": 0
+  },
+  "limits": [
+    "Actual Next build108e, signed synthetic sessions and local JSON data; named source consumers match public daef, not a full daef build",
+    "No creation/payment/notification/OAuth flow, external browser requests blocked, no new app code",
+    "HTML absence checks include SSR/RSC response; UI only where native steps completed; not seven complete role portals"
+  ]
+}

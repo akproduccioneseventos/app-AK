@@ -1,5 +1,35 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Codex176-185: delta1346, portal empleado y consumidores finales
+
+- Fuentesmain9b7ee982,Claude16e197cc,Gemini1346d95c35ba. Cambios privados no
+  publicados NO CONTRASTADOS. Codex soloQA/documentacion, noappedit/merge.
+-178 fuenteClaude c3e8f59(igualsrc16e):86casos85PASS/1FAIL.60guardias con
+  firmas/verificador reales;6pagosID,12fechas civiles,8syncpersonal. NUEVO209:
+  cocina antes deatencion sinMozoexacto asigna4cocina/0atencion para100personas.
+  NOcambiar reglas/salarios deldueno. Almacen/efectos dobles, noBDreal.
+-179/181 CIERRAN23criterios distintos portal empleado:13HTTP+10nativosPCPixel7,
+  recarga/propios/ajeno/7negativos. Build108e con10blobs consumidores iguales16e,
+  noequivalenciatotal.8FAILiniciales erancriterioQA HTTP:200streaming+notfound
+  NOexposicion.181corrigecriterio9PASS, no32controles.177OOMlimiteQA archivado.
+-180/182 fuente1346:27criterios previos205 AHORAPASS. No reencargar bfde.
+ 180doscasosNUEVOS FAIL: vozmismointento en2modulos2tareas;Metadosmodulos
+  dosmid/dos200guardados1/solounpersistido. Mismo205 ampliado, nootraorden.
+  POST/mutex reales, almacen compartidocontrolado; NOCloudRun/HTTPfirmado.
+-183 proveedorDOM12criterios11PASS/1FAIL. Botones/tarea/nota/relectura/fallos
+  guardar pasan. NUEVO209:rejectedlecturainicial deja spinner sinerror.
+  Acciones/toast/params controlados;noHTTPproveedor/SDK.204SDK173siguecerrada.
+-184auditlockd95:91entradasall(1crit/12high/78mod),68prod(1/9/58), sininstalar
+  niscripts. NUEVAcadenamind-ar/canvas/node-pre-gyp/tar6.2.1,sinmarcadev;
+ 125lock42a25solo teniatar7.5.21dev. Raiztar7.5.21SIGUEcorregida.163ampliada,
+  noreabrirfirebaseCLI/noforce. GHSA23hp verificado,noexplotabilidadafirmada.
+-185consolida resultados,4falloscomportamiento+1cadenadependencia, no0errores.
+  ARvideo/207 YAdevueltos208porClaude, nohallazgosnuevos.166/167solo108e,
+  noaceptancianuevaconjunta. ManualduenoNOpendienteCodex.176borradorhistorico.
+ 421rutas/14areas/6401AST sigueninventario, noaceptacionporcontrol/estado/rol.
+  Unayudante cerrado;QA179/181 restaura76JSON/sourceDiff0,servicioscerrados.
+  EntregaunaPR1345, nocompilar/grafo por docs ni repetir fuentes sin delta.
+
 ## 21/10/2026 - Codex171-175: entrega1344 devuelta,199/204 comprobadas en Claude nuevo
 
 -1344bfde/base108e auditada:17122casos11PASS/11FAIL,1745casos2PASS/3FAIL.
