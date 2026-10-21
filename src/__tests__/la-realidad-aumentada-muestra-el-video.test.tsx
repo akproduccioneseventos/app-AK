@@ -1,3 +1,7 @@
+/**
+ * Prueba de la pantalla /evento/ar/[fiestaId]
+ * Comprueba que el video se reproduce sobre la tarjeta al detectarla con MindAR
+ */
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { toPublicSocialEvent } from '@/lib/social-fiesta/public-event';
