@@ -1467,8 +1467,10 @@ lo que hice?* Si es lo segundo, no se manda.
   personal**: se destaca el trabajo en equipo y el organizador. Amplía la regla de agosto de no prometer plazos ni precios. Lo hace la orden 96,
   bloque 5.
 
-- **Personal por invitados (28 de septiembre de 2026).** Un mozo de cocina y un mozo de atención
-  **cada 25 invitados** (`applyAutomaticStaffByGuests`). Las islas pueden ahorrar vajilla, **no
+- **Personal por invitados (28 de septiembre de 2026, precisado el 21 de octubre).** Un mozo de cocina y un mozo de atención
+  **cada 25 invitados** (`applyAutomaticStaffByGuests`). En la cocina **primero va el chef** y después un ayudante cada
+  25 (100 invitados = chef y 3 ayudantes); un **utilero cada 30**; el **barman** cobra $2000 hasta 99 invitados, $2800
+  de 100 a 150, y con más de 150 van dos a $2000 (`src/lib/fiesta/personal-por-invitados.ts`). Las islas pueden ahorrar vajilla, **no
   mozos**. Y la IA del blog escribe con respaldo: busca páginas del rubro y los datos de AK, y no
   afirma lo que no está ahí (orden 96, bloque 6).
 

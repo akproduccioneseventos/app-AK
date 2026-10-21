@@ -64,6 +64,8 @@ llamen a la misma, y sumala con 24 horas. La prueba comprueba que el despachador
 
 ## Bloque 7 — Para consultar con el dueño, NO programar
 
+**Contestado el 21/10/2026 y ya hecho por Claude** (`src/lib/fiesta/personal-por-invitados.ts`). No se toca.
+
 El personal automático por invitados: el blog dice "un mozo de cocina y un mozo de atención cada 25"
 (`applyAutomaticStaffByGuests`), pero el motor real (`fiesta.actions.ts` ~980-988) pone mozo cada 25, ayudante
 de cocina cada 50, utilero cada 25 y barman cada 75. Claude se lo preguntó al dueño; no lo toques.

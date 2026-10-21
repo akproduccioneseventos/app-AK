@@ -47,4 +47,6 @@ usa: formatearFechaEvento en src/lib/album/armar-album.ts
 no-usa: new Date(fiesta.configuracion.fechaEvento).toLocaleDateString en src/app/evento/album/[fiestaId]/page.tsx
 no-usa: d.getDate()))}` en src/components/invitacion/AddToCalendarButton.tsx
 archivo: src/lib/fechas/formato-fecha-evento.ts
+usa: parseEventDate en src/app/(app)/fiestas/nueva/tareas/client.tsx
+usa: formatearFechaEvento en src/app/(app)/eventos/page.tsx
 ```
