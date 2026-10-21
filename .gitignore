@@ -178,3 +178,9 @@ data/asistente/
 src/data/asistente/
 data/insumos-ajuste-pendiente.json
 src/data/insumos-ajuste-pendiente.json
+# Los escribe la app al entrar durante las pruebas de navegador (21/10/2026)
+data/scheduled-messages.json
+data/company-info.json
+data/empleados.json
+data/invoice-template-settings.json
+data/ajustes-llegada.json
