@@ -1,5 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Codex171-175: entrega1344 devuelta,199/204 comprobadas en Claude nuevo
+
+-1344bfde/base108e auditada:17122casos11PASS/11FAIL,1745casos2PASS/3FAIL.
+ 14aserciones NO14bugs.205 agrupa devolucion196/202/203, no appedit/merge.
+- Vozcache antes depermiso devuelve resultado deldueno aloperador con mismoID;
+  confirmacion mismoid noavanza ysimultaneos2tareas. Lectura fallida=ausencia.
+  Borrador escrito no aparece enoutbox; mailtrue no pasa alsecretario.
+- WAhandler ReferenceError llamada noimportada,catch200/0atencion;helper dice
+  completo:true con0borradores antefalse/throw. MetaHMACbien,concurrentes2->1,
+  IGnumerico comoMessenger. Album pierde capsulaTiempo;ARDTO noactiva ystart
+  doble anuncia deteccion sin evento. JSON171/174 con hashes/limites.
+- Sospecha delagente album/invitados DESCARTADA, guard sigue.171crypto/buffer
+  son erroresQA archivados, noapp. Positivos conservados, unaLuna cerrada.
+- Claude daefbdc00b7a43f4f252dcca6e7d9565d4d30d10 YA corrige199/204.
+ 17218PASS DOMreal/user-event;17310PASS SDKREAL sin cambios perdidos ni
+  reactivacion/tokenviejo,0docs/cleanup200/cerrados. CORREGIDAS porClaude y
+  comprobadas POR ALCANCE, noHTTP/UIproveedor/buildnuevo. No reemitir199/204.
+- Decision nueva: MANUAL deldueno noespendienteCodex. Conservarhistoricos y
+  limites, no inventar prueba tecnica.175cierre diferencia esas responsabilidades.
+-166/167805suites5010PASS siguen108e NOdaef/bfde. No amplia pesada RAM<2GiB.
+  Lockbfde139nuevas/1versioncambiada/0hostsajenos, no npmseguridadcompleta.
+
+```comprobar
+prueba: docs/evidencias/171-entrega-1344.mjs
+prueba: docs/evidencias/172-retest-foco-claude.mjs
+prueba: docs/evidencias/173-retest-proveedor-sdk.mjs
+prueba: docs/evidencias/174-consumidores-1344.mjs
+```
+
 ## 21/10/2026 - Continuacion166-169: build, regresion ySDK real, sin cierre total
 
 -Al liberarse RAM se compilo108e17b4387237fc921ea12e8d1eb65b20f62ac9 en copia
