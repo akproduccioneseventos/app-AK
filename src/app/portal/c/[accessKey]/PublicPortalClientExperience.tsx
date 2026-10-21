@@ -1520,7 +1520,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <div className="rounded-lg border p-4">
                   <div className="mb-3 flex items-center gap-3"><IconBlock icon={CreditCard} color={eventColor} /><div><p className="font-black">Informar pago</p><InfoBadge tone="action">Cliente participa</InfoBadge></div></div>
                   <div className="space-y-3 text-sm text-slate-600">
-                    {cuentasBancarias.length > 0 && cuentasBancarias.slice(0, 2).map((cuenta: any) => <div key={cuenta.id || cuenta.numero} className="rounded-lg bg-slate-50 p-3"><p className="font-semibold text-slate-900">{cuenta.banco}</p><p>{cuenta.titular}</p><p>{cuenta.numero}</p></div>)}
+                    {cuentasBancarias.length > 0 && cuentasBancarias.map((cuenta: any) => <div key={cuenta.id || cuenta.numero} className="rounded-lg bg-slate-50 p-3"><p className="font-semibold text-slate-900">{cuenta.banco}</p><p>{cuenta.titular}</p><p>{cuenta.numero}</p></div>)}
                     <Button onClick={() => setPaymentModalOpen(true)} style={{ background: eventColor }}><Upload className="h-4 w-4" /> Informar pago</Button>
                     {paymentSummary.pendingReviewCount > 0 && <p className="rounded-lg bg-amber-50 p-3 text-amber-900">Tenés pagos informados esperando revisión de AK.</p>}
                   </div>
