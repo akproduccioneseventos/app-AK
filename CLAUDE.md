@@ -1825,6 +1825,7 @@ con otra cara.
 | Una orden de plata de Claude quedaba a medias y la lista decía "ningún error abierto" | `src/__tests__/las-ordenes-de-plata-de-claude-estan-hechas.test.ts` |
 | Un hallazgo se arreglaba sin buscarlo en el resto de la app porque su pregunta ya figuraba barrida | `hallazgos` en `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 | El portal del proveedor perdía un toque de dos y reactivaba accesos; la secretaria borraba la cédula del personal al guardar | `src/__tests__/provider-portal-actions.test.ts` y `src/__tests__/la-secretaria-no-borra-la-cedula-del-personal.test.ts` |
+| Elegir por nombre parcial: los mozos de salón caían en la cocina, y el asistente cambiaba el precio o agendaba la cita de otro | `src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts` y `src/__tests__/el-asistente-no-confunde-contactos-parecidos.test.ts` |
 
 ### Cómo se elige el matafuego
 

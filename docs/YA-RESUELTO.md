@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Codex 178: el mozo de salón no cae en el rol de cocina
+
+- Al armar el personal, "Mozo" buscaba el primer rol que lo contuviera. Con un catálogo "Mozo de
+  Cocina, Mozo de Atención", los 4 mozos de salón de una fiesta de 100 quedaban en la cocina. Ahora
+  `buscarRol` busca primero el nombre exacto y no pasa a otro puesto: no elige uno que diga "cocina"
+  o "ayudante" si lo buscado no lo dice. Las cantidades y los sueldos no cambiaron. Con esa forma
+  (pregunta 87) se barrió la app y aparecieron dos más en el asistente: "barra" le cambiaba el precio a
+  la primera barra del catálogo, y "Ana" le agendaba la cita a "Mariana Pérez". Ahora, si hay varios
+  parecidos, pregunta cuál y no toca nada. El resto del
+  informe (voz y Meta en dos servidores, el portal del proveedor y la dependencia de la realidad
+  aumentada) va en la orden 208 para Gemini.
+
+```comprobar
+usa: buscarRol(roles, roleSearch) en src/app/actions/fiesta/fiesta.actions.ts
+prueba: src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts
+prueba: src/__tests__/el-asistente-no-confunde-contactos-parecidos.test.ts
+prueba: src/__tests__/assistant-actions.test.ts
+```
+
 ## 21/10/2026 - El personal de cada fiesta sale de las reglas del dueño
 
 - El dueño fijó las reglas: en la cocina una persona cada 25 invitados y la primera es el chef (100
@@ -100,6 +119,36 @@ usa: formatearFechaEvento(p.eventoFecha) en src/lib/agentes/motor-agentes.ts
 usa: previousFocusRef.current = document.activeElement en src/components/landing/GallerySection.tsx
 prueba: src/__tests__/orden-199-el-foco-vuelve-y-la-fecha-del-seguimiento.test.tsx
 ```
+
+## 21/10/2026 - Codex176-185: delta1346, portal empleado y consumidores finales
+
+- Fuentesmain9b7ee982,Claude16e197cc,Gemini1346d95c35ba. Cambios privados no
+  publicados NO CONTRASTADOS. Codex soloQA/documentacion, noappedit/merge.
+-178 fuenteClaude c3e8f59(igualsrc16e):86casos85PASS/1FAIL.60guardias con
+  firmas/verificador reales;6pagosID,12fechas civiles,8syncpersonal. NUEVO209:
+  cocina antes deatencion sinMozoexacto asigna4cocina/0atencion para100personas.
+  NOcambiar reglas/salarios deldueno. Almacen/efectos dobles, noBDreal.
+-179/181 CIERRAN23criterios distintos portal empleado:13HTTP+10nativosPCPixel7,
+  recarga/propios/ajeno/7negativos. Build108e con10blobs consumidores iguales16e,
+  noequivalenciatotal.8FAILiniciales erancriterioQA HTTP:200streaming+notfound
+  NOexposicion.181corrigecriterio9PASS, no32controles.177OOMlimiteQA archivado.
+-180/182 fuente1346:27criterios previos205 AHORAPASS. No reencargar bfde.
+ 180doscasosNUEVOS FAIL: vozmismointento en2modulos2tareas;Metadosmodulos
+  dosmid/dos200guardados1/solounpersistido. Mismo205 ampliado, nootraorden.
+  POST/mutex reales, almacen compartidocontrolado; NOCloudRun/HTTPfirmado.
+-183 proveedorDOM12criterios11PASS/1FAIL. Botones/tarea/nota/relectura/fallos
+  guardar pasan. NUEVO209:rejectedlecturainicial deja spinner sinerror.
+  Acciones/toast/params controlados;noHTTPproveedor/SDK.204SDK173siguecerrada.
+-184auditlockd95:91entradasall(1crit/12high/78mod),68prod(1/9/58), sininstalar
+  niscripts. NUEVAcadenamind-ar/canvas/node-pre-gyp/tar6.2.1,sinmarcadev;
+ 125lock42a25solo teniatar7.5.21dev. Raiztar7.5.21SIGUEcorregida.163ampliada,
+  noreabrirfirebaseCLI/noforce. GHSA23hp verificado,noexplotabilidadafirmada.
+-185consolida resultados,4falloscomportamiento+1cadenadependencia, no0errores.
+  ARvideo/207 YAdevueltos208porClaude, nohallazgosnuevos.166/167solo108e,
+  noaceptancianuevaconjunta. ManualduenoNOpendienteCodex.176borradorhistorico.
+ 421rutas/14areas/6401AST sigueninventario, noaceptacionporcontrol/estado/rol.
+  Unayudante cerrado;QA179/181 restaura76JSON/sourceDiff0,servicioscerrados.
+  EntregaunaPR1345, nocompilar/grafo por docs ni repetir fuentes sin delta.
 
 ## 21/10/2026 - Codex171-175: entrega1344 devuelta,199/204 comprobadas en Claude nuevo
 

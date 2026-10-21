@@ -207,3 +207,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 57. **¿Lo que pide la orden lo hace el código, o sólo aparece el nombre?** Un comentario con la palabra o
     un import que no se usa **no cumple nada**, y `npm run ordenes?` ya no los cuenta. Y una prueba que
     sólo dice `expect(true)` no prueba nada: el control `una-orden-no-se-cumple-con-un-comentario` la frena.
+58. **¿Elegís algo por su nombre con `includes`?** Primero el nombre exacto. Si hay varios parecidos,
+    preguntá cuál: no te quedes con el primero. "Mozo" no es "Mozo de Cocina" y "Ana" no es "Mariana".

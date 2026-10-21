@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-10-21T16:14:14.309Z",
+  "pr": 1345,
+  "url": "https://github.com/akproduccioneseventos/app-AK/pull/1345",
+  "state": "OPEN",
+  "head": "52f48007902245cdbbb0d91dbf7b43c258186104",
+  "tree": "ba78ffa961d7396431b026880a7b2d6108cb422d",
+  "remoteTree": "ba78ffa961d7396431b026880a7b2d6108cb422d",
+  "manifestFilesVerified": 37,
+  "orders": {
+    "docs/ordenes/163-claude-dependencias-residuales-sin-force.md": "6dc5ec2a8b136cf0d1e90611506bbb8a91293541",
+    "docs/ordenes/205-devolucion-1344-con-resultados.md": "97dd9aa2a07d2c8c8f5b3dc834b3b6f797aecbfa",
+    "docs/ordenes/209-consumidores-personal-proveedor.md": "56d26e5484d7fda89fca57cda4d8401e58a6c55f"
+  },
+  "appChanged": false,
+  "merged": false,
+  "scope": "Delivered audit documents and observed receipts, NOT whole-app acceptance",
+  "documentChecks": {
+    "accentos": {
+      "exitCode": 0,
+      "files": 3110
+    },
+    "diffCachedCheck": {
+      "exitCode": 0
+    }
+  }
+}

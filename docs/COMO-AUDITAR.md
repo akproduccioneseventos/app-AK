@@ -1291,3 +1291,11 @@ dueño preguntaba cuánto le deben; con el mismo número, un operador recibía l
 `Map`/caché de resultados por id en `src/app` y `src/lib`, y se mira que el permiso vaya primero y que el
 resultado quede atado a quién lo pidió.
 
+
+### 87. Cuando se elige un registro por su nombre (un rol, un servicio, un contacto), ¿puede caer en otro que contiene la misma palabra?
+
+Codex 178 (orden 209): al armar el personal, "Mozo" agarraba el primer rol que lo contuviera, y con
+"Mozo de Cocina, Mozo de Atención" los mozos de salón quedaban en la cocina. El barrido encontró lo mismo
+en el asistente: "barra" cambiaba el precio de la primera barra del catálogo, y "Ana" le agendaba la cita a
+"Mariana Pérez". Se busca `.find(` con `.includes(` sobre `nombre`/`name` en `src/`. Se mira que vaya
+primero el nombre exacto y que, si hay más de uno parecido, se pregunte en vez de elegir.
