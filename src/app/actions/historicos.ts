@@ -1,7 +1,7 @@
-
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem } from '@/lib/data-service';
+import { idDelIntento } from '@/lib/intento-en-servidor';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -44,12 +44,26 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
     }
 
     try {
-        // 1. Create and Save Customer
-        const customerId = `cust_hist_${Date.now()}`;
+        const rawIntento = formData.get('idIntento') || formData.get('intentoId');
+        const intentoKey = idDelIntento('hist', rawIntento);
+        const seed = intentoKey || `hist_${Date.now()}`;
+
+        const customerId = `cust_${seed}`;
+        const presupuestoId = `pres_${seed}`;
+        const pagoId = `pago_${seed}`;
+
+        // Idempotencia: si ya existe el presupuesto de este intento, no duplicar cobro
+        const presupuestosPrevios = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+        if (intentoKey && presupuestosPrevios.some(p => p.id === presupuestoId)) {
+            return { success: true };
+        }
+
+        const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+
+        // 1. Create and Save Customer (de a un registro)
         let uniqueFilename: string | undefined = undefined;
 
         if (contractFile && contractFile.size > 0) {
-            // no-mira-el-resultado: preparar la carpeta; si no se puede, el guardado siguiente avisa
             await ensureDirectoryExists(CONTRACTS_DIR);
             uniqueFilename = `contract_${customerId}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
             const bytes = await contractFile.arrayBuffer();
@@ -63,9 +77,16 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             estadoCliente: 'Antiguo',
             contractFileName: uniqueFilename,
         };
-        const customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
-        customers.push(newCustomer);
-        await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.name || '').localeCompare(b.name || ''));
+
+        if (!SIN_BASE()) {
+            await createDataItem('customers.json', 'clientes', customerId, newCustomer);
+        } else {
+            const customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
+            if (!customers.some(c => c.id === customerId)) {
+                customers.push(newCustomer);
+                await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.name || '').localeCompare(b.name || ''));
+            }
+        }
 
         // 2. Create simplified Presupuesto Items
         const items: ItemPresupuestado[] = [{
@@ -81,8 +102,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             precioBase: montoTotal,
         }];
 
-        // 3. Create a simplified Presupuesto
-        const presupuestoId = `pres_hist_${Date.now()}`;
+        // 3. Create a simplified Presupuesto (de a un registro)
         const newPresupuesto: Presupuesto = {
             id: presupuestoId,
             clienteNombre: clienteNombre,
@@ -94,7 +114,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             costoTotalEstimado: montoTotal,
             totalConDescuento: montoTotal,
             pagosCliente: [{
-                id: `pago_hist_${Date.now()}`,
+                id: pagoId,
                 fecha: eventoFecha,
                 monto: montoTotal,
                 metodoPago: 'Otro',
@@ -107,9 +127,15 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             notas: `Registro histórico cargado el ${new Date().toLocaleDateString()}. Contrato adjunto.`
         };
 
-        const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-        presupuestos.push(newPresupuesto);
-        await writeData(PRESUPUESTOS_FILE, presupuestos);
+        if (!SIN_BASE()) {
+            await createDataItem('presupuestos.json', 'presupuestos', presupuestoId, newPresupuesto);
+        } else {
+            const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+            if (!presupuestos.some(p => p.id === presupuestoId)) {
+                presupuestos.push(newPresupuesto);
+                await writeData(PRESUPUESTOS_FILE, presupuestos);
+            }
+        }
 
         // 4. Create a simplified, PAID Invoice
         const newInvoice: Omit<Invoice, 'id'> = {
@@ -118,7 +144,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             issueDate: eventoFecha,
             dueDate: eventoFecha,
             items: [{
-                id: `item_hist_${Date.now()}`,
+                id: `item_${seed}`,
                 description: `Servicios históricos para ${clienteNombre}`,
                 quantity: 1, unitPrice: montoTotal, total: montoTotal,
             }],
@@ -128,7 +154,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             currency: 'UYU',
             vendorName: 'AK Producciones',
             payments: [{
-                id: `pay_hist_${Date.now()}`,
+                id: `pay_${seed}`,
                 paymentDate: eventoFecha,
                 amount: montoTotal,
                 method: 'Otro',
@@ -159,7 +185,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         if (!histRes.success) throw new Error(histRes.error || "No se pudo guardar el registro histórico.");
 
         // 6. Save the Fiesta as an ACTIVE (but archived) event
-        const fiestaId = `fiesta_hist_${Date.now()}`;
+        const fiestaId = `fiesta_${seed}`;
         const newFiesta: FiestaEnPlanificacion = {
             ...initialFiestaActualData,
             id: fiestaId,
@@ -181,7 +207,6 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         }
 
         // 7. Notification
-        // no-mira-el-resultado: notificacion accesoria para el equipo, la fiesta historica ya se guardo
         await createNotification({
           mensaje: `Se cargó el evento histórico de ${clienteNombre}.`,
           href: `/contabilidad/fiestas-historicas`,
@@ -194,7 +219,6 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         return { success: false, error: error.message || "Un error desconocido ocurrió durante el proceso." };
     }
 }
-
 
 export async function extractContractDataAction(input: { fileDataUri: string }) {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);

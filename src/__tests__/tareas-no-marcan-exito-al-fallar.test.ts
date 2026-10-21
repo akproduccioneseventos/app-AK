@@ -26,6 +26,7 @@ jest.mock('@/lib/agentes/motor-agentes', () => ({
 }));
 jest.mock('@/lib/whatsapp/avisos-al-cliente', () => ({ correrTareaAvisosAlCliente: jest.fn().mockResolvedValue({}) }));
 jest.mock('@/lib/invitaciones/recordatorio-no-abiertas', () => ({ correrTareaRecordarInvitacionNoAbierta: jest.fn().mockResolvedValue({}) }));
+jest.mock('@/lib/invitaciones/recordatorio-invitados', () => ({ correrTareaRecordatorioInvitados: jest.fn().mockResolvedValue({ success: true, ok: true }) }));
 
 import { ponerAlDiaAlEntrar } from '@/lib/automatico/al-entrar-a-la-app';
 import { resetearLockEnMemoria } from '@/lib/automatico/control-concurrencia';

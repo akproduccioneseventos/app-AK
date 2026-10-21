@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -39,7 +38,7 @@ export default function ProveedoresPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   const ALL_TIPOS: TipoRegistroProveedor[] = ['Proveedor', 'Servicio Subcontratado'];
   const [tipoFilter, setTipoFilter] = useState<Record<TipoRegistroProveedor, boolean>>({
     'Proveedor': true,
@@ -78,7 +77,7 @@ export default function ProveedoresPage() {
       const result = await deleteProveedorAction(id);
       if (result.success) {
         toast({ title: "Registro Eliminado", description: `El registro "${name || id}" ha sido eliminado.` });
-        fetchProveedores(); 
+        fetchProveedores();
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
       }

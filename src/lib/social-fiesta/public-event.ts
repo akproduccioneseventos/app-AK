@@ -40,6 +40,7 @@ export type PublicSocialEvent = Pick<
   };
   tieneRealidadAumentada?: boolean;
   mindTargetUrl?: string;
+  arVideoUrl?: string;
 };
 
 export function toPublicSocialEvent(
@@ -101,17 +102,10 @@ export function toPublicSocialEvent(
         ? []
         : (fiesta.socialGallerySettings?.carasPreparadas || fiesta.carasIndexadas?.length ? fiesta.carasIndexadas : undefined),
     tieneRealidadAumentada: Boolean(
-      (fiesta as any).tieneRealidadAumentada ||
-      (fiesta as any).mindTargetUrl ||
-      (fiesta as any).invitacionMindUrl ||
-      (fiesta as any).invitacionDigital?.arConfig?.enabled ||
-      (fiesta as any).invitacionConfig?.arConfig?.enabled
+      (fiesta.invitacionDigital?.realidadAumentada?.mindTargetUrl && fiesta.invitacionDigital?.realidadAumentada?.videoUrl) ||
+      (fiesta as any).tieneRealidadAumentada
     ),
-    mindTargetUrl:
-      (fiesta as any).mindTargetUrl ||
-      (fiesta as any).invitacionMindUrl ||
-      (fiesta as any).invitacionDigital?.arConfig?.mindTargetUrl ||
-      (fiesta as any).invitacionConfig?.arConfig?.mindTargetUrl ||
-      undefined,
+    mindTargetUrl: fiesta.invitacionDigital?.realidadAumentada?.mindTargetUrl || (fiesta as any).mindTargetUrl || undefined,
+    arVideoUrl: fiesta.invitacionDigital?.realidadAumentada?.videoUrl || undefined,
   };
 }

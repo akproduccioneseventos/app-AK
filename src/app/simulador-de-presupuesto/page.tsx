@@ -1,6 +1,7 @@
+'use client';
+
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
-'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';

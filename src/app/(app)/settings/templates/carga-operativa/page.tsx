@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent, useMemo } from 'react';
@@ -65,7 +64,7 @@ export default function MasterCargaOperativaPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
-  
+
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
@@ -129,7 +128,7 @@ export default function MasterCargaOperativaPage() {
 
   const handleCatalogItemSelected = (selectedAsset: ServicioEmpresa) => {
     if (!categoryForCatalogSelect) return;
-    
+
     const newItem: CargaOperativaItem = {
       id: `item_${Date.now()}_${selectedAsset.id}`,
       nombre: selectedAsset.nombre,
@@ -138,7 +137,7 @@ export default function MasterCargaOperativaPage() {
       cargado: false,
       origenId: selectedAsset.id,
     };
-    
+
     setListaDeCarga(prev => ({
       ...prev,
       categorias: (prev.categorias || []).map(cat =>
@@ -149,13 +148,13 @@ export default function MasterCargaOperativaPage() {
     }));
     toast({ description: `"${selectedAsset.nombre}" añadido a la plantilla.` });
   };
-  
+
   const openSelectFromCatalogModal = (category: CargaOperativaCategoria) => {
     setCategoryForCatalogSelect(category);
     setCatalogSearchTerm('');
     setIsCatalogModalOpen(true);
   };
-  
+
   const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
     setListaDeCarga(prev => ({
       ...prev,
@@ -177,7 +176,7 @@ export default function MasterCargaOperativaPage() {
       ),
     }));
   };
-  
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over, activatorEvent } = event;
     const categoryId = (activatorEvent.target as HTMLElement).closest('[data-category-id]')?.getAttribute('data-category-id');
@@ -196,12 +195,12 @@ export default function MasterCargaOperativaPage() {
         });
     }
   };
-  
+
   const filteredCatalogItems = useMemo(() => {
     if (!catalogSearchTerm) return activosCatalogo;
     const lowerSearch = catalogSearchTerm.toLowerCase();
     return activosCatalogo.filter(
-      item => item.nombre.toLowerCase().includes(lowerSearch) || 
+      item => item.nombre.toLowerCase().includes(lowerSearch) ||
               item.categoria?.toLowerCase().includes(lowerSearch)
     );
   }, [activosCatalogo, catalogSearchTerm]);
@@ -256,7 +255,7 @@ export default function MasterCargaOperativaPage() {
                     </Button>
                 </div>
                 {activosCatalogo.length === 0 && <p className="text-xs text-muted-foreground text-center mb-2">No hay ítems en el catálogo de activos para seleccionar.</p>}
-                
+
                 <ScrollArea className="h-auto max-h-[300px] rounded-md border p-2">
                     {category.items && category.items.length > 0 ? (
                     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

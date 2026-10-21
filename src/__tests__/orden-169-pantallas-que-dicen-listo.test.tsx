@@ -104,6 +104,8 @@ jest.mock('@/lib/auth/require-session', () => ({
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn().mockResolvedValue([]),
   writeData: jest.fn().mockResolvedValue(true),
+  createDataItem: jest.fn().mockResolvedValue(true),
+  mutateDataItem: jest.fn().mockResolvedValue(true),
 }));
 
 // Imports de componentes y acciones

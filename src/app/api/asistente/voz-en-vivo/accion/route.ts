@@ -7,10 +7,12 @@ import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
 
-// Cache en memoria para idempotencia: evita ejecutar dos veces el mismo toolCall por usuario
-const toolCallCache = new Map<string, any>();
-// Coordinación de peticiones concurrentes para el mismo id e intento
-const inFlightPromises = new Map<string, Promise<any>>();
+interface IntentoVoz {
+  clave: string;
+  estado: 'esperando' | 'en-curso' | 'hecho';
+  resultado?: any;
+  actualizadoEn: string;
+}
 
 export async function POST(request: Request) {
   // 1. Pide sesión de un usuario del equipo con permisos reales (no perfil personal sin permisos)
@@ -86,63 +88,126 @@ export async function POST(request: Request) {
     }
   }
 
-  // Clave de cache ligada al actor y al id del intento
-  const cacheKey = `${usuario.email || (usuario as any).userId || 'anon'}:${accion}:${id || 'sin-id'}`;
+  const usuarioId = (usuario as any).userId || usuario.email || 'anon';
+  const clave = `${usuarioId}:${accion}:${id}`;
 
-  // Idempotencia: si el id ya se ejecutó para este usuario, devolvemos el resultado anterior,
-  // A MENOS que se esté enviando confirmado: true y el resultado previo estuviera esperando confirmación.
-  if (id && toolCallCache.has(cacheKey)) {
-    const cached = toolCallCache.get(cacheKey);
-    if (!(confirmado && cached?.esperandoConfirmacion)) {
-      return NextResponse.json(cached);
+  // Deduplicación en base de datos transaccional si viene id
+  if (id) {
+    let existente: IntentoVoz | null = null;
+    let pasaAEnCurso = false;
+
+    await mutateGenericJsonArray<IntentoVoz>('asistente-intentos-voz.json', (lista) => {
+      const previo = lista.find((item) => item.clave === clave);
+      if (previo) {
+        if (confirmado && previo.estado === 'esperando') {
+          pasaAEnCurso = true;
+          return lista.map((item) =>
+            item.clave === clave
+              ? { ...item, estado: 'en-curso' as const, actualizadoEn: new Date().toISOString() }
+              : item
+          );
+        }
+        existente = previo;
+        return lista;
+      }
+
+      // No existe
+      if (riesgo === 'nunca') {
+        const rechazo: IntentoVoz = {
+          clave,
+          estado: 'hecho',
+          resultado: {
+            success: false,
+            error: 'Eso lo tenés que hacer vos desde su pantalla',
+            mensaje: 'Eso lo tenés que hacer vos desde su pantalla',
+          },
+          actualizadoEn: new Date().toISOString(),
+        };
+        existente = rechazo;
+        return [...lista, rechazo];
+      }
+
+      if (riesgo === 'pregunta' && !confirmado) {
+        const espera: IntentoVoz = {
+          clave,
+          estado: 'esperando',
+          resultado: {
+            success: true,
+            esperandoConfirmacion: true,
+            mensaje: `Voy a hacer esto: ${accion.replace(/_/g, ' ')}. ¿Lo hago?`,
+          },
+          actualizadoEn: new Date().toISOString(),
+        };
+        existente = espera;
+        return [...lista, espera];
+      }
+
+      // Se agrega en en-curso
+      pasaAEnCurso = true;
+      const nuevo: IntentoVoz = {
+        clave,
+        estado: 'en-curso',
+        actualizadoEn: new Date().toISOString(),
+      };
+      return [...lista, nuevo];
+    });
+
+    const intentoExistente = existente as IntentoVoz | null;
+    if (intentoExistente && !pasaAEnCurso) {
+      if (intentoExistente.estado === 'hecho' || intentoExistente.estado === 'esperando') {
+        return NextResponse.json(intentoExistente.resultado);
+      }
+      // Si está en 'en-curso', esperar a que el otro servidor complete la transacción a 'hecho'
+      const limite = Date.now() + 2000;
+      while (Date.now() < limite) {
+        await new Promise((r) => setTimeout(r, 20));
+        let verificado: IntentoVoz | undefined;
+        await mutateGenericJsonArray<IntentoVoz>('asistente-intentos-voz.json', (lista) => {
+          verificado = lista.find((item) => item.clave === clave);
+          return lista;
+        });
+        if ((verificado as IntentoVoz | undefined)?.estado === 'hecho') {
+          return NextResponse.json((verificado as IntentoVoz).resultado);
+        }
+      }
+      return NextResponse.json(intentoExistente.resultado || { success: true, estado: 'en-curso' });
+    }
+  } else {
+    // Sin id: evaluar riesgo de inmediato sin deduplicar
+    if (riesgo === 'nunca') {
+      await registrarAccionAsistente({
+        pedido: accion,
+        accion,
+        canal: 'voz_en_vivo',
+        nivel: 'nunca',
+        resultado: 'rechazado_por_regla_del_dueno',
+        usuarioIdentificado: usuario.email,
+      }).catch(() => {});
+      return NextResponse.json({
+        success: false,
+        error: 'Eso lo tenés que hacer vos desde su pantalla',
+        mensaje: 'Eso lo tenés que hacer vos desde su pantalla',
+      });
+    }
+
+    if (riesgo === 'pregunta' && !confirmado) {
+      await registrarAccionAsistente({
+        pedido: accion,
+        accion,
+        canal: 'voz_en_vivo',
+        nivel: 'pregunta',
+        resultado: 'esperando_confirmacion_del_usuario',
+        usuarioIdentificado: usuario.email,
+      }).catch(() => {});
+      return NextResponse.json({
+        success: true,
+        esperandoConfirmacion: true,
+        mensaje: `Voy a hacer esto: ${accion.replace(/_/g, ' ')}. ¿Lo hago?`,
+      });
     }
   }
 
-  // Coordinar peticiones concurrentes para el mismo id
-  if (id && inFlightPromises.has(cacheKey)) {
-    const cachedResult = await inFlightPromises.get(cacheKey);
-    return NextResponse.json(cachedResult);
-  }
-
-  if (riesgo === 'nunca') {
-    await registrarAccionAsistente({
-      pedido: accion,
-      accion,
-      canal: 'voz_en_vivo',
-      nivel: 'nunca',
-      resultado: 'rechazado_por_regla_del_dueno',
-      usuarioIdentificado: usuario.email,
-    }).catch(() => {});
-
-    const resp = {
-      success: false,
-      error: 'Eso lo tenés que hacer vos desde su pantalla',
-      mensaje: 'Eso lo tenés que hacer vos desde su pantalla',
-    };
-    if (id) toolCallCache.set(cacheKey, resp);
-    return NextResponse.json(resp);
-  }
-
-  if (riesgo === 'pregunta' && !confirmado) {
-    await registrarAccionAsistente({
-      pedido: accion,
-      accion,
-      canal: 'voz_en_vivo',
-      nivel: 'pregunta',
-      resultado: 'esperando_confirmacion_del_usuario',
-      usuarioIdentificado: usuario.email,
-    }).catch(() => {});
-
-    const resp = {
-      success: true,
-      esperandoConfirmacion: true,
-      mensaje: `Voy a hacer esto: ${accion.replace(/_/g, ' ')}. ¿Lo hago?`,
-    };
-    if (id) toolCallCache.set(cacheKey, resp);
-    return NextResponse.json(resp);
-  }
-
-  // Función de ejecución real coordinable para llamadas concurrentes
+  // Función de ejecución real
   const ejecutarAccion = async () => {
     let respuestaEjecucion: any = { success: true };
 
@@ -266,7 +331,6 @@ export async function POST(request: Request) {
           const targetPhone = argumentos.telefono || argumentos.targetPhone || '';
           const messageText = argumentos.mensaje || argumentos.messageText || '';
 
-          // Contrato esperado por src/app/(app)/contabilidad/crm/outbox/page.tsx
           const nuevoBorrador = {
             id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
             targetName,
@@ -329,24 +393,26 @@ export async function POST(request: Request) {
       usuarioIdentificado: usuario.email,
     }).catch(() => {});
 
-    if (id) {
-      toolCallCache.set(cacheKey, respuestaEjecucion);
-    }
-
     return respuestaEjecucion;
   };
 
+  const resp = await ejecutarAccion();
+
+  // Si tiene id, pasar a 'hecho' con el resultado en la transacción
   if (id) {
-    const promise = ejecutarAccion();
-    inFlightPromises.set(cacheKey, promise);
-    try {
-      const resp = await promise;
-      return NextResponse.json(resp);
-    } finally {
-      inFlightPromises.delete(cacheKey);
-    }
+    await mutateGenericJsonArray<IntentoVoz>('asistente-intentos-voz.json', (lista) => {
+      return lista.map((item) =>
+        item.clave === clave
+          ? {
+              ...item,
+              estado: 'hecho' as const,
+              resultado: resp,
+              actualizadoEn: new Date().toISOString(),
+            }
+          : item
+      );
+    });
   }
 
-  const resp = await ejecutarAccion();
   return NextResponse.json(resp);
 }

@@ -1,5 +1,6 @@
-import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
+
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -58,10 +59,10 @@ export default function DashboardPage() {
 
   // Calculate metrics
   const activeEventsCount = fiestas.length;
-  
+
   const totalGuests = fiestas.reduce((acc, f) => acc + (f.invitados?.length || 0), 0);
   const scheduledEventsCount = fiestas.filter((fiesta) => Boolean(fiesta.configuracion?.fechaEvento)).length;
-  
+
   // Pending tasks (vendors not paid fully, etc.)
   let totalPendingTasks = 0;
   fiestas.forEach(f => {

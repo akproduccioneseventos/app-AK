@@ -201,6 +201,7 @@ export default function ContratosSettingsPage() {
                 <button
                   key={item.id}
                   onClick={() => selectTemplate(item)}
+                  aria-pressed={selectedId === item.id}
                   className={`w-full text-left p-3 rounded-xl border transition ${selectedId === item.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}
                 >
                   <div className="flex items-center justify-between gap-2">

@@ -593,7 +593,7 @@ export async function archivePresupuesto(id: string): Promise<{ success: boolean
 }
 
 /** Hard-delete: permanently removes the presupuesto and cleans up CRM lead references and linked fiesta. */
-export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string; aviso?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden eliminar presupuestos.' };

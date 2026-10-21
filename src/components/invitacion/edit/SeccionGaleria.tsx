@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData } from '@/types/fiesta';
@@ -20,7 +19,7 @@ export const SeccionGaleriaEditor: React.FC<Props> = ({ data, update, fiestaId }
   const handleFieldChange = (field: keyof typeof data, value: any) => {
     update({ ...data, [field]: value });
   };
-  
+
   const handleAddPhoto = (url: string) => {
     const newPhotos = [...(data.fotos || []), url];
     update({ ...data, fotos: newPhotos });

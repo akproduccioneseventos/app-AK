@@ -1,7 +1,8 @@
+'use server';
+
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 
-'use server';
 
 import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest, MensajePortalCliente } from '@/types/fiesta';
 export type { MensajePortalCliente };

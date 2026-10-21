@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData, TextWithStyle } from '@/types/fiesta';
@@ -39,7 +38,7 @@ export const SeccionBienvenidaEditor: React.FC<Props> = ({ data, update, fiestaI
           value={data.titulo.text || ''}
           onChange={(e) => handleTextStyleChange('titulo', { text: e.target.value })}
         />
-        <TextStyleEditor 
+        <TextStyleEditor
           style={data.titulo.style || {}}
           onStyleChange={(newStyle) => handleTextStyleChange('titulo', { style: newStyle })}
         />
@@ -51,7 +50,7 @@ export const SeccionBienvenidaEditor: React.FC<Props> = ({ data, update, fiestaI
           onChange={(e) => handleTextStyleChange('texto', { text: e.target.value })}
           rows={4}
         />
-         <TextStyleEditor 
+         <TextStyleEditor
           style={data.texto.style || {}}
           onStyleChange={(newStyle) => handleTextStyleChange('texto', { style: newStyle })}
         />

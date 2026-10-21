@@ -7,6 +7,7 @@ import { Camera, ArrowLeft, AlertCircle, Sparkles, Volume2, VolumeX, RefreshCw }
 import { Button } from '@/components/ui/button';
 import { getPublicSocialEvent } from '@/app/actions/social-gallery';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
+import * as THREE from 'three';
 
 /**
  * Realidad Aumentada de Invitación Impresa con MindAR.
@@ -51,14 +52,18 @@ export default function EventoRealidadAumentadaPage() {
         throw new Error('Tu navegador no permite acceso a la cámara. Probá en Chrome o Safari.');
       }
 
-      // Carga dinámica de mind-ar sólo en esta pantalla del navegador
+      // Carga dinámica de mind-ar local vendor
       // @ts-ignore
-      const { MindARThree } = await import('mind-ar/dist/mindar-image-three.prod.js').catch(() => {
-        return { MindARThree: null };
-      });
+      const mindarModule = await import('@/lib/vendor/mind-ar/mindar-image-three.prod.js').catch(() => null);
+      const MindARThree = mindarModule?.MindARThree;
 
-      if (containerRef.current && MindARThree) {
-        const mindarThree = new MindARThree({
+      if (!MindARThree) {
+        setCameraError('No pudimos inicializar la realidad aumentada. Probá en otro navegador.');
+        return;
+      }
+
+      if (containerRef.current) {
+        const mindarThree: any = new (MindARThree as any)({
           container: containerRef.current,
           imageTargetSrc: mindTargetUrl,
           filterMinCF: 0.0001,
@@ -66,9 +71,17 @@ export default function EventoRealidadAumentadaPage() {
         });
         mindArInstanceRef.current = mindarThree;
 
-        // Configuración de anclaje y eventos de detección real del marcador
-        const anchor = mindarThree.addAnchor ? mindarThree.addAnchor(0) : null;
+        // Configuración de anclaje y textura de video montada sobre el plano
+        const anchor: any = mindarThree.addAnchor ? mindarThree.addAnchor(0) : null;
         if (anchor) {
+          if (videoRef.current) {
+            const texture = new THREE.VideoTexture(videoRef.current);
+            const geometry = new THREE.PlaneGeometry(1, 1);
+            const material = new THREE.MeshBasicMaterial({ map: texture });
+            const plane = new THREE.Mesh(geometry, material);
+            anchor.group?.add?.(plane);
+          }
+
           anchor.onTargetFound = () => {
             setArTargetDetected(true);
             if (videoRef.current) {
@@ -83,23 +96,7 @@ export default function EventoRealidadAumentadaPage() {
           };
         }
 
-        // Listener de eventos en la instancia si está soportado
-        if (typeof mindarThree.on === 'function') {
-          mindarThree.on('targetFound', () => {
-            setArTargetDetected(true);
-            if (videoRef.current) {
-              videoRef.current.play().catch(() => {});
-            }
-          });
-          mindarThree.on('targetLost', () => {
-            setArTargetDetected(false);
-            if (videoRef.current) {
-              videoRef.current.pause();
-            }
-          });
-        }
-
-        // Inicia el tracking de la cámara. La detección se dispara SOLO por el evento targetFound (Codex 171/205)
+        // Inicia el tracking de la cámara
         await mindarThree.start();
       }
     } catch (err: any) {
@@ -154,6 +151,16 @@ export default function EventoRealidadAumentadaPage() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-white select-none">
+      {/* Video de la fiesta reproducido sobre la tarjeta */}
+      <video
+        ref={videoRef}
+        src={fiesta?.arVideoUrl}
+        playsInline
+        muted={isAudioMuted}
+        loop
+        crossOrigin="anonymous"
+        style={{ display: 'none' }}
+      />
       {/* Contenedor WebGL para MindAR */}
       <div ref={containerRef} className="absolute inset-0 z-0 w-full h-full" />
 

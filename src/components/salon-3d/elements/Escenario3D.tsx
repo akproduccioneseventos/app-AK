@@ -1,5 +1,6 @@
-// @ts-nocheck
 'use client';
+
+// @ts-nocheck
 
 import React from 'react';
 

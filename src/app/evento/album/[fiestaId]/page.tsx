@@ -1,5 +1,6 @@
-import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
+
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';

@@ -292,7 +292,13 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { webpack }) => {
+  webpack: (config, { isServer, webpack }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
       (warning) => {

@@ -1,5 +1,6 @@
-import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
+
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 import React, { useState, useEffect } from 'react';
 import { getHistorialFiestas } from '@/app/actions/fiesta-actual';

@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { readData, writeData } from '@/lib/data-service';
-import { AsyncMutex } from '@/lib/mutex';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { MetaMensajeDirecto } from '@/lib/mensajes/bandeja-unica';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const ARCHIVO_MENSAJES = 'social-mensajes-directos.json';
-const metaWebhookMutex = new AsyncMutex();
 
 function obtenerMetaAppSecret(): string | null {
   return process.env.META_APP_SECRET || process.env.META_CLIENT_SECRET || process.env.FACEBOOK_APP_SECRET || null;
@@ -58,7 +56,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/meta/webhook
  * Recepción de mensajes directos de Instagram y Messenger.
- * Comprueba X-Hub-Signature-256, determina canal por payload.object y muta atómicamente con mutex por mid.
+ * Comprueba X-Hub-Signature-256, determina canal por payload.object y muta transaccionalmente con mutateGenericJsonArray.
  */
 export async function POST(request: NextRequest) {
   // 1. Obtener cuerpo crudo para validar la firma HMAC-SHA256
@@ -113,21 +111,12 @@ export async function POST(request: NextRequest) {
 
   let agregadosCount = 0;
   if (incomingMessages.length > 0) {
-    // Mutación atómica con mutex para evitar condiciones de carrera entre peticiones concurrentes (Codex 171/205)
-    await metaWebhookMutex.runExclusive(async () => {
-      const guardados = await readData<MetaMensajeDirecto[]>(ARCHIVO_MENSAJES, []);
+    await mutateGenericJsonArray<MetaMensajeDirecto>(ARCHIVO_MENSAJES, (guardados) => {
       const midsExistentes = new Set(guardados.map((m) => m.mid));
-      const paraAgregar: MetaMensajeDirecto[] = [];
-      for (const m of incomingMessages) {
-        if (!midsExistentes.has(m.mid)) {
-          midsExistentes.add(m.mid);
-          paraAgregar.push(m);
-        }
-      }
+      const paraAgregar = incomingMessages.filter((m) => !midsExistentes.has(m.mid));
       agregadosCount = paraAgregar.length;
-      if (agregadosCount > 0) {
-        await writeData(ARCHIVO_MENSAJES, [...guardados, ...paraAgregar]);
-      }
+      if (agregadosCount === 0) return null;
+      return [...guardados, ...paraAgregar];
     });
   }
 

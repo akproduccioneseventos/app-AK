@@ -69,7 +69,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
 import { calcularNitidez } from '@/lib/album/elegir-las-mejores';
-import { enqueueOfflineAction, getPendingOfflineActions } from '@/lib/offline/offline-action-queue';
+import { enqueueOfflineAction } from '@/lib/offline/offline-action-queue';
 import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
 import {
   waitForInitialPublicLoad,

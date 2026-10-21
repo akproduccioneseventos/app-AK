@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData } from '@/types/fiesta';

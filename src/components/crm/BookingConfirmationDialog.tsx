@@ -1,5 +1,6 @@
-import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
+
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";

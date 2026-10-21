@@ -15,6 +15,18 @@ jest.mock('@/lib/data-service', () => ({
   }),
 }));
 
+jest.mock('@/lib/generic-json-store', () => ({
+  mutateGenericJsonArray: jest.fn(async (file: string, cambiar: (lista: any[]) => any[] | null) => {
+    if (file === 'social-mensajes-directos.json') {
+      const actual = [...mockDmsStore];
+      const nueva = cambiar(actual);
+      if (nueva) mockDmsStore = nueva;
+      return nueva;
+    }
+    return null;
+  }),
+}));
+
 import { POST } from '@/app/api/meta/webhook/route';
 
 describe('El webhook de Meta no acepta firmas falsas', () => {
