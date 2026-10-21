@@ -1,6 +1,5 @@
-'use client';
-
 /* eslint-disable @next/next/no-img-element */
+'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
@@ -185,8 +184,8 @@ function GuestModuleContent() {
 
   const nombreEvento = fiesta.configuracion.nombreEvento || 'El Evento';
   // Validate hex color to prevent CSS injection
-  const accentColor = /^#[0-9A-Fa-f]{3,8}$/.test(settings.customAccentColor || '')
-    ? settings.customAccentColor!
+  const accentColor = /^#[0-9A-Fa-f]{3,8}$/.test(settings.customAccentColor || '') 
+    ? settings.customAccentColor! 
     : '#9333ea';
 
   return (

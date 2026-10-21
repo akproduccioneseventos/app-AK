@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -25,7 +26,7 @@ export default function TaskTemplatesPage() {
   const [templates, setTemplates] = useState<TaskTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
-
+  
   const fetchTemplates = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -106,3 +107,4 @@ export default function TaskTemplatesPage() {
   );
 }
 
+    
