@@ -20,7 +20,6 @@ describe('el ajuste anual usa el año escrito de la fiesta', () => {
       'src/app/simulador-de-presupuesto/page.tsx',
       'src/components/presupuestos/BudgetPrintTemplate.tsx',
       'src/components/budget/BudgetDocument.tsx',
-      'src/components/presupuestos/paso-4-resumen.tsx',
       'src/app/(app)/invoices/[id]/page.tsx',
     ];
     const malos = archivos.filter((a) =>

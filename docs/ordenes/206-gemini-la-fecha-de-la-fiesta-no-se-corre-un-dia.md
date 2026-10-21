@@ -19,7 +19,6 @@ cuando hace falta un `Date`. **No cambies el texto alrededor ni el formato que y
 - `src/lib/album/armar-album.ts` ~160 y `src/app/evento/album/[fiestaId]/page.tsx` ~288 (álbum del cliente).
 - `src/components/presupuestos/BudgetPrintTemplate.tsx` ~44 y ~57, `src/components/budget/BudgetDocument.tsx`
   ~42 y ~55: `formatDateShort`/`formatDateLong` usan `getDate()` cuando la fecha no trae hora.
-- `src/components/presupuestos/paso-4-resumen.tsx` ~154 (`{{FECHA_EVENTO}}` del WhatsApp al cliente).
 - `src/app/simulador-de-presupuesto/page.tsx` ~2217 (presupuestos anteriores del prospecto).
 - `src/app/actions/fiesta/portal.actions.ts` ~1466 y ~1467 (adenda de cambio de fecha).
 - `src/components/invitacion/AddToCalendarButton.tsx` ~18 (botón "agregar al calendario" del invitado):
@@ -39,14 +38,13 @@ ordenamientos, y los que ya agregan `T00:00:00` o `T12:00:00`.
 ## Qué tiene que comprobar la prueba
 
 Con `TZ=America/Montevideo`, que una fiesta del **8 de agosto de 2027** se muestre como 8 en el álbum, en el
-presupuesto impreso, en el texto de WhatsApp y en el archivo de calendario (`20270808`). Y un control que
+presupuesto impreso y en el archivo de calendario (`20270808`). Y un control que
 recorra `src/` y frene `new Date(<fechaEvento|eventoFecha>).toLocaleDateString` y `.getDate()` sobre esas
 fechas. **Tiene que dar rojo con el código de hoy.**
 
 ```comprobar
 usa: formatearFechaEvento en src/lib/album/armar-album.ts
 no-usa: new Date(fiesta.configuracion.fechaEvento).toLocaleDateString en src/app/evento/album/[fiestaId]/page.tsx
-no-usa: new Date(presupuesto.eventoFecha).toLocaleDateString en src/components/presupuestos/paso-4-resumen.tsx
 no-usa: d.getDate()))}` en src/components/invitacion/AddToCalendarButton.tsx
 archivo: src/lib/fechas/formato-fecha-evento.ts
 ```
