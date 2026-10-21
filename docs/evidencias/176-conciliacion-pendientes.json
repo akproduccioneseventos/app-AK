@@ -1,0 +1,92 @@
+{
+  "id": "176-conciliacion-pendientes",
+  "status": "historical-agent-draft-superseded-by-185-cierre-y-recuento.md",
+  "kind": "fixed-audit-closure-register",
+  "baseSources": [
+    "docs/evidencias/134-conciliacion.json",
+    "docs/evidencias/134-conciliacion.md",
+    "docs/evidencias/134-roles.json",
+    "docs/evidencias/165-recuento-areas.json",
+    "docs/evidencias/175-cierre-tecnico-y-entrega.md",
+    "docs/evidencias/134-recibos-recientes.json"
+  ],
+  "inventoryMeaning": "Routes, AST candidates, area links and profiles are inventory/reference data, not accepted controls or evidence that an area was never exercised.",
+  "controlCount": {
+    "status": "not-countable-from-available-evidence",
+    "statement": "No se puede contar cada control con estas fuentes; no hay cifra verificable de controles totales o pendientes."
+  },
+  "pending": [
+    {
+      "id": "P1",
+      "category": "retest-programming",
+      "title": "Retest only a newly contrasted programming delta",
+      "source": "175-cierre-tecnico-y-entrega.md: order 205 groups the 171/174 feedback; no duplicate 196/202/203 work.",
+      "observableClosure": "Record target HEAD and affected consumers, run only impacted probes, and preserve their results; no retest for an unchanged SHA."
+    },
+    {
+      "id": "P2",
+      "category": "ui-http",
+      "title": "Order 172 dock overlap retest",
+      "source": "134-recibos-recientes.json: ModuleNavigationDock overlaps the Evento heading; order 172 remains pending. 175 says receipt 172 is instead the passing DOM focus test.",
+      "observableClosure": "On the affected route and viewport, show no overlap and retain applicable route/HTTP results; do not conflate with the focus receipt."
+    },
+    {
+      "id": "P3",
+      "category": "ui-http",
+      "title": "Provider/integration live HTTP and UI evidence",
+      "source": "175-cierre-tecnico-y-entrega.md: 171/174 use doubles; no provider HTTP/panel or real payments were tested.",
+      "observableClosure": "Capture authorized request/response and visible resulting state, or mark not executable; doubles do not close this item. No real charges without authorization."
+    },
+    {
+      "id": "P4",
+      "category": "ui-http",
+      "title": "Close only explicitly partial or omitted UI/HTTP scenarios",
+      "source": "134-conciliacion.md and 165-recuento-areas.json define focal/historical scopes; 134-recibos-recientes.json preserves partial, omitted and failed traversal cases.",
+      "observableClosure": "For each scenario actually left open in its receipt, record route, viewport, visible final state and HTTP status where applicable; reuse same-scope passing evidence."
+    },
+    {
+      "id": "P5",
+      "category": "complete-matrix",
+      "title": "Acceptance matrix by real control, state and authorization profile",
+      "source": "134-conciliacion.json reports 6401 AST candidates and 0 individually accepted controls; 134-roles.json lists seven profiles without per-profile allow/deny acceptance; 165-recuento-areas.json says inventory plus focal receipts, not a complete matrix.",
+      "observableClosure": "Link each real control to action, state, actual profile, allowed/denied observed outcome and receipt. Do not infer a count from AST candidates, routes or profiles.",
+      "countStatus": "not-countable-from-available-evidence"
+    },
+    {
+      "id": "P6",
+      "category": "final-validation",
+      "title": "Final exact-SHA validation record",
+      "source": "175-cierre-tecnico-y-entrega.md explicitly says current receipts do not certify every state/control/profile or globally certify the app.",
+      "observableClosure": "The validation owner records exact SHA, scope, executed checks, results and errors, distinguishing code correction, passing test and verified deployment. This documentation task runs no app/build."
+    }
+  ],
+  "preservedClosures": [
+    {
+      "id": "199",
+      "status": "corrected-and-tested-within-scope",
+      "evidence": "175: receipt 172 DOM focus test; native keyboard/build coverage not claimed."
+    },
+    {
+      "id": "204",
+      "status": "corrected-and-tested-within-scope",
+      "evidence": "175: receipt 173 SDK tests within the stated change; no provider HTTP/panel coverage claimed."
+    },
+    {
+      "id": "200-201-and-earlier-listed-closures",
+      "status": "preserve-within-stated-scope",
+      "evidence": "175 explicitly retains these prior closures by scope."
+    }
+  ],
+  "ownerManualWork": "Excluded from Codex pending items.",
+  "notClaimed": [
+    "All areas were fully audited",
+    "No errors remain",
+    "A numeric total of controls can be derived",
+    "A correction, accepted test and deployment verification are equivalent"
+  ],
+  "verification": {
+    "file": "docs/evidencias/176-conciliacion-pendientes.md and docs/evidencias/176-conciliacion-pendientes.json",
+    "uses": "134/165 inventories and 175 closure with cited receipts",
+    "test": "pending: JSON parse and source/criterion correspondence; no UI/HTTP, app or build executed"
+  }
+}

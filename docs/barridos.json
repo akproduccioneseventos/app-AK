@@ -344,6 +344,10 @@
     "86": {
       "fecha": "2026-10-21",
       "resultado": "en la app publicada no hay cachés de resultados por id antes del permiso (sólo la búsqueda pública de Spotify, que no tiene datos de nadie). El caso está en la entrega 1344, sin fusionar: orden 205."
+    },
+    "87": {
+      "fecha": "2026-10-21",
+      "resultado": "búsqueda de .find(...nombre/name...includes(...)) en src/: 4 casos. El rol del personal (arreglado), el precio de un servicio por el asistente y la cita a un contacto (arreglados, con prueba). Las etapas del CRM buscan 'presupuesto' en etapas propias: no es hallazgo. El pago por nombre de cliente ya preguntaba si había varios."
     }
   },
   "hallazgos": {
@@ -378,6 +382,10 @@
     "orden-207": {
       "fecha": "2026-10-21",
       "resultado": "es el barrido completo de las 26 preguntas parciales; además apareció un permiso que no se miraba (gastos) y se buscó en toda la app: un solo caso, con control."
+    },
+    "orden-209": {
+      "fecha": "2026-10-21",
+      "resultado": "pregunta 87 nueva, barrida en toda la app: 3 casos arreglados por Claude. El portal del proveedor, la voz y Meta en dos servidores van en la orden 208 para Gemini."
     }
   }
 }

@@ -1,10 +1,9 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la
-propuesta 1342 (`9b7ee982c`, 20/10): con las órdenes 197, 200 y 201 y el control que no deja cumplir con un comentario.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1347 (`09ea4138f`, 21/10): reglas de personal del dueño, permisos del barrido completo y arreglos de plata.
 
 ## En qué se está
-Esperando que Gemini complete la propuesta 1346 con la orden 208 (incluye la 207). Las reglas de personal del dueño (21/10) ya están en la rama; falta publicarlas a la versión principal.
+Esperando que Gemini complete la propuesta 1346 con la orden 208 (incluye la 207 y, desde Codex 1345, voz y Meta en dos servidores, el portal del proveedor y la realidad aumentada sin el paquete mind-ar).
 Codex sólo audita.
 
 ## Terminado en esta tanda
@@ -35,6 +34,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1345 (`89d968d6b`, auditorías 176-185): juntado. El rol de cocina y la pregunta 87 (precio y cita por nombre parcial) los arregló Claude; el resto, orden 208.
 - Gemini 1346 (`d95c35ba2`, órdenes 205 y 206): compila y Jest en verde; **devuelta con la orden 208** (la realidad aumentada sin video, prueba de mentira, `paso-4-resumen` tocado y falta la 207). Sigue en la misma propuesta.
 - Gemini 1344 (`bfde3916a`): devuelta con la **orden 205** (Codex) y la **206** (fechas). Abierta, sin fusionar.
 - Codex 1345: `1cb47af06` (antes `f776ae29e`) (auditorías 160-169 juntadas): orden 204 del proveedor y el Tab de la 199 arreglados por Claude.

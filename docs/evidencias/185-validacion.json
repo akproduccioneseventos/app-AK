@@ -1,0 +1,22 @@
+{
+  "gate": "PASS_RECEIPTS_SOURCE_AND_DOCUMENTS_ONLY_NOT_APP_ACCEPTANCE",
+  "checkedAt": "2026-10-21T16:12:04.874Z",
+  "passed": [
+    "source-hashes-in-executed-receipts",
+    "178-claude-runtime-delta-unchanged-through-public16e",
+    "179-181-corrected-only-the-eight-negative-http-criteria",
+    "180-182-old-scope27pass-new-distributed-scope2fail",
+    "183-provider-rendered-consumer11pass1fail",
+    "184-advisory-reports-complete-no-install-or-lock-mutation",
+    "orders-resolve-current-files-symbols-consumers-and-probes",
+    "state-under40lines-and-only-docs-changed"
+  ],
+  "files": 37,
+  "syntaxAndJsonChecked": true,
+  "appTestsRerun": false,
+  "appBuilt": false,
+  "dependencyTraceChecked": true,
+  "currentBehaviorFailures": 4,
+  "dependencyChainsRequiringReview": 1,
+  "allAppCertified": false
+}

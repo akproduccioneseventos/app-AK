@@ -23,8 +23,19 @@ export function barmanPorInvitados(invitados: number): { cantidad: number; sueld
   return { cantidad: 1, sueldo: 2000 };
 }
 
-/** Primero el nombre exacto: "Barman" no tiene que caer en "Ayudante de Barman", que está antes en la lista. */
+/**
+ * Primero el nombre exacto. Si no está, el que lo contiene, pero sin pasar a otro puesto: "Barman" no
+ * cae en "Ayudante de Barman" ni "Mozo" en "Mozo de Cocina" (Codex 178: con un catálogo "Mozo de
+ * Cocina, Mozo de Atención", los mozos de salón quedaban todos en la cocina).
+ */
+const OTRO_PUESTO = ['cocina', 'ayudante'];
+const sinTildes = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+
 export function buscarRol<T extends { nombre: string }>(roles: T[], buscado: string): T | undefined {
-  const b = buscado.trim().toLowerCase();
-  return roles.find(r => r.nombre.trim().toLowerCase() === b) ?? roles.find(r => r.nombre.toLowerCase().includes(b));
+  const b = sinTildes(buscado);
+  const exacto = roles.find(r => sinTildes(r.nombre) === b);
+  if (exacto) return exacto;
+  const contienen = roles.filter(r => sinTildes(r.nombre).includes(b));
+  const mismoPuesto = contienen.filter(r => OTRO_PUESTO.every(p => b.includes(p) || !sinTildes(r.nombre).includes(p)));
+  return mismoPuesto[0];
 }
