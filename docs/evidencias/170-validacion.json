@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-10-21T12:13:19.294Z",
+  "base": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "appDiff": "",
+  "whitespaceFullDeltaPass": true,
+  "preservedOriginalContexts": 2,
+  "baselineSummary": {
+    "suites": 805,
+    "passedSuites": 805,
+    "failedSuites": 0,
+    "tests": 5010,
+    "pass": 5010,
+    "fail": 0,
+    "pending": 0,
+    "todo": 0
+  },
+  "sameSdkFailureFamily": true,
+  "allAppCertified": false,
+  "why": "Packaging gate only; no repeated app validation or changed behavior results"
+}

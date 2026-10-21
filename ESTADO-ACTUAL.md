@@ -35,6 +35,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1345: `f776ae29e` (auditorías 160-169 juntadas): orden 204 del proveedor y el Tab de la 199 arreglados por Claude.
 - Codex 1340: `588fd64d7` (auditorías 156-159 juntadas: órdenes 200 y 201 de permisos arregladas por Claude; la fecha del seguimiento quedó en la 193 para Gemini). Antes `fdc24539a` (auditoría 155 juntada: foco de la galería pública → orden 199, con el video de ayuda sumado por el barrido de la pregunta 83). Antes `9301e146c` (auditorías 151-154 sobre la publicada 894d0160): sin hallazgos nuevos; confirma cerradas 171, 184 y 186; sigue abierta la 172 (dock en celular), ya pedida a Gemini. La 1324 quedó cerrada al entrar en la 1339.
 - Codex 1324: `2852f0881` (auditoría 150 juntada; su 196 pasó a ser la **198**). Antes `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
 - Claude hizo lo chico (20/10): orden 199 (foco de los visores), fecha del seguimiento (Codex 159) y las mesas de la 202 (falso positivo). A Gemini le quedan la 196 y la 202 (bloques 1 y 3).

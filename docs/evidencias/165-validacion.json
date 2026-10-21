@@ -1,0 +1,109 @@
+{
+  "checkedAt": "2026-10-21T10:58:50.945Z",
+  "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+  "candidate": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "receipts": [
+    {
+      "name": "160-retest-portales-tareas",
+      "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+      "sha256": "5cc96ea5fbe2fb4ebf193043c47a78a7ea4f777269a5ae9ecf97917b02d2f047",
+      "summary": {
+        "total": 34,
+        "pass": 34,
+        "fail": 0
+      },
+      "scope": "Orders200/201: actual portal/action/profile/guard/raw-filter/calendar/token-DTO and cron/gate/engine bodies composed with fictional I/O",
+      "limits": [
+        "No real session cookie, HTTP server, Firestore transaction or Google OAuth/network",
+        "Calendar helpers real; fixture collections and accounts controlled, no external sync or delivery certified",
+        "Cron two actual handlers and engines, conditional no-secret fixture; not production configuration or all eleven engines"
+      ]
+    },
+    {
+      "name": "161-galeria-video-retest",
+      "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+      "sha256": "f4b235d3f2723ad175e90c11b5c2cfcde757542c9a41dd9417f96eee255a331c",
+      "summary": {
+        "total": 16,
+        "pass": 14,
+        "fail": 2
+      },
+      "scope": "Actual GallerySection/VideoDeAyuda React components, real framer-motion/NextImage/Radix; user-event Tab/Shift+Tab DOM with positive trap control",
+      "limits": [
+        "Not native browser keyboard or assistive technology; no image/YouTube network, no mobile visual acceptance",
+        "Video action returns empty fictitious catalog; initialVideo supplied, no real fetch",
+        "Public Claude candidate108e, not main9b7 or deployment"
+      ]
+    },
+    {
+      "name": "162-seguimiento-fecha-retest",
+      "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+      "sha256": "1a44fe16feb0841680fd95bf931b4757836e11ca3706b45e5778705fdc90b1ca",
+      "summary": {
+        "total": 8,
+        "pass": 8,
+        "fail": 0
+      },
+      "scope": "Actual draft-generator and formatter, 5day/14day branches, UTC/Uruguay, civil date with and without human time suffix",
+      "limits": [
+        "Fictitious message/budget storage and log; no delivery, HTTP, database, model or production",
+        "Claude public108e candidate, not main9b7"
+      ]
+    },
+    {
+      "name": "163-proveedor-concurrencia",
+      "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+      "sha256": "9c99edb94b5ef73c67208007a753568ead1ebf458f3d87086622113baac767a7",
+      "summary": {
+        "total": 10,
+        "pass": 4,
+        "fail": 6
+      },
+      "scope": "Actual provider actions and data-service updateDataItem/mutateDataItem transaction bodies; controlled interleaving over two fictitious documents",
+      "limits": [
+        "Firestore transaction/storage is a serialized protocol double, NOT SDK/emulator/concurrency timing or native UI",
+        "Revocation/rotation directly mutate fixture at transaction boundary, not a separately executed admin action",
+        "No payment/salary/cost, external account, real supplier, message or hardware"
+      ]
+    },
+    {
+      "name": "164-once-tareas-respuestas",
+      "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+      "sha256": "b91ca359ce955e7400bae04d7bd6c24df697364d60d1cbbf4df6fda90fde9339",
+      "summary": {
+        "total": 84,
+        "pass": 84,
+        "fail": 0
+      },
+      "scope": "Eleven actual cron handlers, all21 exported HTTP method bodies, actual key/throttle/redaction gate; success/wrong-key/throttle/anonymous",
+      "limits": [
+        "All business engines, network/model/provider/push/WhatsApp/lock/backends are controlled doubles; no external delivery or concurrency certified",
+        "In-process Request/Response/NextResponse.json adapter, not Next middleware/cookies/HTTP or deployed CRON_SECRET",
+        "The two engine compositions are tested separately in160; this84case breadth is handler-contract acceptance only"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 152,
+    "pass": 144,
+    "fail": 8
+  },
+  "distinctPendingCauses": 2,
+  "syntaxCount": 9,
+  "jsonCount": 6,
+  "stateLines": 39,
+  "appDiff": "",
+  "whitespacePass": true,
+  "sourceSelfhashesPass": 5,
+  "currentRouteCount": 421,
+  "resources": {
+    "freeMemoryBytes": 2222432256,
+    "heavyQaMinimumBytes": 2147483648,
+    "heavyQaStarted": false
+  },
+  "limits": [
+    "Multiple source SHAs; not one frozen release acceptance",
+    "No new wide Jest/build/native run, no production/OAuth/hardware/19originals acceptance"
+  ],
+  "allAppCertified": false
+}

@@ -1,0 +1,95 @@
+{
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "testSha256": "5793eb7a1754309092e633d105cb9aaf4a3313cfbe376474fdd7f05e3f19084e",
+  "runs": [
+    {
+      "exitCode": 0,
+      "stderr": "",
+      "timezone": "UTC",
+      "hashes": {
+        "src/lib/fechas/formato-fecha-evento.ts": "f181a9dfb8d694670b7aecb8c8a42bb432c2cdc275038db74420d3321de4d34a",
+        "src/lib/agentes/motor-agentes.ts": "05c20cadb2dab31b2c8b7e7b2c6a7bb2f6f5e28850a38b90901e7891107603b2"
+      },
+      "cases": [
+        {
+          "timezone": "UTC",
+          "days": 6,
+          "date": "2027-08-08",
+          "pass": true,
+          "messageText": "Hola Cliente ficticio QA162, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del 8 de agosto de 2027. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos."
+        },
+        {
+          "timezone": "UTC",
+          "days": 6,
+          "date": "2027-08-08 de 21 a 04 hs",
+          "pass": true,
+          "messageText": "Hola Cliente ficticio QA162, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del 8 de agosto de 2027 de 21 a 04 hs. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos."
+        },
+        {
+          "timezone": "UTC",
+          "days": 15,
+          "date": "2027-08-08",
+          "pass": true,
+          "messageText": "Hola Cliente ficticio QA162, te contacto de AK Producciones. Queríamos consultar si la fecha del 8 de agosto de 2027 sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!"
+        },
+        {
+          "timezone": "UTC",
+          "days": 15,
+          "date": "2027-08-08 de 21 a 04 hs",
+          "pass": true,
+          "messageText": "Hola Cliente ficticio QA162, te contacto de AK Producciones. Queríamos consultar si la fecha del 8 de agosto de 2027 de 21 a 04 hs sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!"
+        }
+      ]
+    },
+    {
+      "exitCode": 0,
+      "stderr": "",
+      "timezone": "America/Montevideo",
+      "hashes": {
+        "src/lib/fechas/formato-fecha-evento.ts": "f181a9dfb8d694670b7aecb8c8a42bb432c2cdc275038db74420d3321de4d34a",
+        "src/lib/agentes/motor-agentes.ts": "05c20cadb2dab31b2c8b7e7b2c6a7bb2f6f5e28850a38b90901e7891107603b2"
+      },
+      "cases": [
+        {
+          "timezone": "America/Montevideo",
+          "days": 6,
+          "date": "2027-08-08",
+          "pass": true,
+          "messageText": "Hola Cliente ficticio QA162, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del 8 de agosto de 2027. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos."
+        },
+        {
+          "timezone": "America/Montevideo",
+          "days": 6,
+          "date": "2027-08-08 de 21 a 04 hs",
+          "pass": true,
+          "messageText": "Hola Cliente ficticio QA162, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del 8 de agosto de 2027 de 21 a 04 hs. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos."
+        },
+        {
+          "timezone": "America/Montevideo",
+          "days": 15,
+          "date": "2027-08-08",
+          "pass": true,
+          "messageText": "Hola Cliente ficticio QA162, te contacto de AK Producciones. Queríamos consultar si la fecha del 8 de agosto de 2027 sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!"
+        },
+        {
+          "timezone": "America/Montevideo",
+          "days": 15,
+          "date": "2027-08-08 de 21 a 04 hs",
+          "pass": true,
+          "messageText": "Hola Cliente ficticio QA162, te contacto de AK Producciones. Queríamos consultar si la fecha del 8 de agosto de 2027 de 21 a 04 hs sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "pass": 8,
+    "fail": 0
+  },
+  "scope": "Actual draft-generator and formatter, 5day/14day branches, UTC/Uruguay, civil date with and without human time suffix",
+  "limits": [
+    "Fictitious message/budget storage and log; no delivery, HTTP, database, model or production",
+    "Claude public108e candidate, not main9b7"
+  ],
+  "appEdited": false
+}

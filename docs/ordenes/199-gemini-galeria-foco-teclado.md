@@ -2,7 +2,8 @@
 
 **NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.** Responsable Gemini.
 ID estable: AK-CODEX-155-GALERIA-FOCO. Estado: FRICCION P2 reproducida en DOM,
-pendiente correccion y retest nativo. Va con la tanda abierta, no otra propuesta.
+correccion PARCIAL contrastada en Claude108e;166 confirma el pendiente nativo.
+Va con la tanda abierta, no otra propuesta.
 
 Main894d01603e0e03cebc8f90a6ccf869ef86bbe1de. Consumidor y modulos cargados
 iguales en1337HEAD45a0; Claude publicofc5e606a solo cambia el traspaso.
@@ -50,10 +51,42 @@ Escape cierra (línea ~206); al cerrar, devolver el foco al ref guardado (línea
 global ni el video en sí. La prueba (Jest con jsdom) abre con el botón, mira que el foco quede en Cerrar,
 aprieta Escape y mira que el foco vuelva al botón que lo abrió; tiene que dar rojo con el archivo de hoy.
 
+## Retest Codex161 - 21/10/2026, conservar lo corregido
+
+Claude publico `108e17b4387237fc921ea12e8d1eb65b20f62ac9`, NO main9b7.
+Los componentes REALES pasan entrada de foco, Escape y retorno, tanto galeria
+como video. La galeria conserva flechas/vuelta y retorno al cerrar por boton.
+16controles:14PASS/2FAIL. Los dos FAIL son la MISMA aceptacion restante:
+Tab desde ultimo control lleva foco a Despues fuera del visor; Shift+Tab desde
+Cerrar vuelve a una tarjeta de la galeria detras del visor. El control Radix
+real SI mantiene el foco dentro con el mismo user-event. No repetir autofocus
+ni modificar Dialog global; falta contener el recorrido mientras siga abierto.
+
+Evidencia:161-galeria-video-retest.json/mjs. Tab es simulado en DOM/jsdom,
+NO teclado nativo ni lector de pantalla. NativePC/Pixel7 sigue PENDIENTE.
+La primera sonda no esperaba el RAF posterior al commit de React: sus fallos
+de autofocus son QA, conservados en161-inicial-tiempo-raf, NO fallos de app.
+La sonda final espera el cuadro y tiene control positivo de efecto+RAF.
+No se ha certificado el encierro del foco del video ni toda la orden.
+
+## Confirmacion nativa166 - mismo candidato108e, sin otra orden
+
+Compilacion166 exit0 con tipos/lint. En Chromium escritorio real, Tab sale del
+visor a una resena de la pagina y Shift+Tab tambien sale; Escape devuelve a
+la foto. Es el MISMO pendiente de contencion199, ahora tambien nativo, no otro
+bug. Pixel7: tap/autofocus/flechas/Escape/retorno1PASS en recibo166-mobile.
+Primer intento movil fallo por selector que incluia el skeleton Suspense;
+se conserva fuente/resultado inicial y solo se repitio movil con selector de
+galeria noocupada. No se repitio el falloPC ni se conto ese falloQA como app.
+Imagenes ficticias servidas por interceptor y motionreduce: no se acepta
+clasificacion de fotos, carga externa, animacion o estetica completa por166.
+
 ```comprobar
 archivo: src/components/landing/GallerySection.tsx
 usa: GallerySection en src/components/landing/GaleriaUnificadaSection.tsx
 prueba: docs/evidencias/155-galeria-teclado.mjs
+prueba: docs/evidencias/161-galeria-video-retest.mjs
+prueba: docs/evidencias/166-galeria-nativa.spec.ts
 usa: document.activeElement en src/components/ayuda/VideoDeAyuda.tsx
 usa: Escape en src/components/ayuda/VideoDeAyuda.tsx
 ```
