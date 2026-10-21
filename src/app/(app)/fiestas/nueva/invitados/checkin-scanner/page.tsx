@@ -1,4 +1,3 @@
-// ak_checkin_pendientes_
 
 'use client';
 

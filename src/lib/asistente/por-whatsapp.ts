@@ -78,7 +78,7 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
     if (y.length === 2) y = '20' + y;
     res.fecha = y + '-' + m + '-' + d;
   } else if (mFechaTexto) {
-    const meses = {
+    const meses: Record<string, string> = {
       enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
       julio: '07', agosto: '08', setiembre: '09', septiembre: '09', octubre: '10', noviembre: '11', diciembre: '12'
     };
@@ -133,34 +133,15 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
     };
   }
 
-  // Tenemos los 3 datos: llamamos a generateBudgetAndLeadFromSimulator
-  const simulacion = await generateBudgetAndLeadFromSimulator(
-    {
-      clienteNombre: params.name || ('Prospecto WhatsApp ' + params.phone.slice(-4)),
-      clienteContacto: params.phone,
-      eventoFecha: datos.fecha,
-      invitados: datos.invitados,
-      salonFiestas: datos.salon,
-      adultos: datos.invitados,
-      ninos: 0,
-      subtotal: 0,
-      costoEstimado: 0,
-      serviciosIncluidos: [],
-    },
-    {
-      source: 'simulator_assistant',
-      eventoTipo: 'Evento (Anuncio WhatsApp)',
-      salonFiestas: datos.salon,
-    }
-  );
+  // Tenemos los 3 datos: armamos el enlace al simulador pre-cargado con fecha, invitados y salón
+  const queryParams = new URLSearchParams();
+  queryParams.set('fecha', datos.fecha);
+  queryParams.set('guests', String(datos.invitados));
+  queryParams.set('salon', datos.salon);
+  queryParams.set('source', 'whatsapp_ad');
+  const linkSimulador = 'https://akproducciones.uy/simulador-de-presupuesto?' + queryParams.toString();
 
-  const presupuestoId = simulacion.presupuestoId;
-  const token = simulacion.token;
-  const linkPresupuesto = presupuestoId
-    ? ('https://akproducciones.uy/presupuestos/' + presupuestoId + '/ver' + (token ? '?token=' + token : ''))
-    : undefined;
-
-  // Aviso al dueño / equipo y dejar borrador en bandeja de salida (sin plazos ni precios prometidos)
+  // Guardar borrador en bandeja de salida con el link al simulador precargado
   try {
     const { saveScheduledMessage } = await import('@/app/actions/scheduled-messages');
     const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
@@ -169,29 +150,25 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
         channel: 'whatsapp',
         targetPhone: params.phone,
         targetName: params.name || 'Prospecto',
-        messageText: 'Hola! Te compartimos el presupuesto preliminar para tu fiesta: ' + (linkPresupuesto || '') + '. Quedamos a disposición para coordinar los detalles.',
+        messageText: '¡Hola! Podés ver tu propuesta personalizada y ajustar los detalles en el simulador: ' + linkSimulador + '. Quedamos a las órdenes para coordinar sin compromiso.',
         scheduledFor: new Date().toISOString(),
-        status: 'draft',
+        status: 'pendiente',
         ruleKey: 'presupuesto-anuncio:' + params.phone,
       },
       WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-      { idEstable: 'draft_presupuesto_anuncio_' + params.phone + '_' + (presupuestoId || 'temp') }
+      { idEstable: 'draft_presupuesto_anuncio_' + params.phone }
     );
   } catch (err) {
     console.warn('[WhatsApp] No se pudo guardar borrador en bandeja de salida:', err);
   }
 
-  const respuestaTexto = linkPresupuesto
-    ? ('¡Perfecto! Te preparamos un presupuesto estimado que podés revisar acá: ' + linkPresupuesto + '. Nuestro equipo lo va a revisar y te contactará para coordinar sin compromiso.')
-    : '¡Perfecto! Ya anotamos tus datos y te preparamos la propuesta. Un asesor del equipo te va a contactar a la brevedad.';
+  const respuestaTexto = '¡Perfecto! Te preparamos el simulador con tu fecha (' + datos.fecha + '), ' + datos.invitados + ' invitados en ' + datos.salon + ': ' + linkSimulador + ' para revisar sin compromiso.';
 
   return {
     completo: true,
     faltantes: [],
     respuestaTexto,
-    presupuestoId,
-    token,
-    linkPresupuesto,
+    linkPresupuesto: linkSimulador,
   };
 }
 

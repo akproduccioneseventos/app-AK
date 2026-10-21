@@ -1,4 +1,3 @@
-// escaneadoEn
 'use server';
 
 import { idDelIntento, type OpcionesDeIntento } from '@/lib/intento-en-servidor';

@@ -1,4 +1,3 @@
-// FranjaTranquilidad
 /**
  * BudgetDocument — Unified formal budget document component for AK Producciones.
  * Resolves duplicate templates across step 4 summary, Client Portal `/ver`, and PDF exports.

@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 
   // Si requiere confirmación y toca fechas o dinero, sólo el dueño lo confirma
   if (riesgo === 'pregunta' && confirmado) {
-    const esDuenio = usuario.role === 'admin' || puede(usuario, PERMISOS.ADMINISTRACION);
+    const esDuenio = puede(usuario, PERMISOS.ADMINISTRACION);
     const tocaPlataOFechas = /reunion|fecha|gasto|precio|cobro|pago/i.test(accion);
     if (tocaPlataOFechas && !esDuenio) {
       return NextResponse.json(

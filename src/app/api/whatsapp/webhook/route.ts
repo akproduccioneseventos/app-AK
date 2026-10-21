@@ -210,6 +210,20 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Si viene de la publicidad y trae los datos de la fiesta, se atiende el prospecto de anuncio
+    const atencionAnuncio = await atenderProspectoAnuncioWhatsApp({
+      phone,
+      name: clientName,
+      text: messageText,
+    });
+    if (atencionAnuncio.completo) {
+      return NextResponse.json({
+        status: 'ok',
+        tipo: 'prospecto_anuncio_simulador',
+        completo: true,
+      }, { status: 200 });
+    }
+
     const result = await processIncomingMessage(phone, messageText, clientName, WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
 
     if (!result.success) {
