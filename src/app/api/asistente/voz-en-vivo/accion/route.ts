@@ -186,6 +186,7 @@ export async function POST(request: Request) {
         nivel: 'nunca',
         resultado: 'rechazado_por_regla_del_dueno',
         usuarioIdentificado: usuario.email,
+      // no pasa nada si falla: es el registro de lo que hizo el asistente; la respuesta ya está decidida.
       }).catch(() => {});
       return NextResponse.json({
         success: false,
@@ -202,6 +203,7 @@ export async function POST(request: Request) {
         nivel: 'pregunta',
         resultado: 'esperando_confirmacion_del_usuario',
         usuarioIdentificado: usuario.email,
+      // no pasa nada si falla: es el registro de lo que hizo el asistente; la respuesta ya está decidida.
       }).catch(() => {});
       return NextResponse.json({
         success: true,
@@ -395,6 +397,7 @@ export async function POST(request: Request) {
       nivel: riesgo,
       resultado: respuestaEjecucion.mensaje || respuestaEjecucion.error || 'ok',
       usuarioIdentificado: usuario.email,
+    // no pasa nada si falla: es el registro de lo que hizo el asistente; la respuesta ya está decidida.
     }).catch(() => {});
 
     return respuestaEjecucion;

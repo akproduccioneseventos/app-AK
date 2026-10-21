@@ -207,6 +207,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         }
 
         // 7. Notification
+        // no-mira-el-resultado: notificacion accesoria para el equipo, la fiesta historica ya se guardo
         await createNotification({
           mensaje: `Se cargó el evento histórico de ${clienteNombre}.`,
           href: `/contabilidad/fiestas-historicas`,

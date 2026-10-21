@@ -60,9 +60,13 @@ export default function FeedbackPage() {
     loadData();
   }, [loadData]);
 
-  const handleCopyToClipboard = (url: string) => {
-    navigator.clipboard.writeText(url);
-    toast({ title: "Enlace Copiado" });
+  const handleCopyToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ title: "Enlace copiado" });
+    } catch {
+      toast({ title: "No se pudo copiar", description: url, variant: "destructive" });
+    }
   };
 
 
@@ -352,7 +356,7 @@ export default function FeedbackPage() {
                          <Button variant="secondary" size="sm" onClick={() => handlePublishTestimonial(t)} disabled={!t.isApproved}>
                             <Send className="w-4 h-4 mr-2"/> Publicar
                          </Button>
-                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => {navigator.clipboard.writeText(t.testimonialText); toast({title:"Copiado!"})}}><ClipboardCopy className="w-4 h-4"/></Button>
+                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => handleCopyToClipboard(t.testimonialText)}><ClipboardCopy className="w-4 h-4"/></Button>
                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteTestimonial(t.id)}><Trash2 className="w-4 h-4"/></Button>
                     </div>
                 </div>

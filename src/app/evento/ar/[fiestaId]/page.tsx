@@ -85,6 +85,7 @@ export default function EventoRealidadAumentadaPage() {
           anchor.onTargetFound = () => {
             setArTargetDetected(true);
             if (videoRef.current) {
+              // no pasa nada si falla: el teléfono puede frenar el arranque solo; el video sigue a un toque.
               videoRef.current.play().catch(() => {});
             }
           };
