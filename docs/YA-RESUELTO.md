@@ -1,5 +1,79 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Continuacion166-169: build, regresion ySDK real, sin cierre total
+
+-Al liberarse RAM se compilo108e17b4387237fc921ea12e8d1eb65b20f62ac9 en copia
+  QA aislada:exit0, tipos/lint.167 en MISMA fuente:805suites5010tests PASS,
+  0fallos/omitidos/todo. Fixture blog canonico delGit repuesto SOLO para test;
+  76JSON restaurados ydiffQAfuentes0. No otra amplia si app108e no cambia.
+-166PC confirmaTab/ShiftTab fuera de galeria, MISMA friccion199 ya existente.
+  Pixel7focal1PASS tap/autofocus/flechas/Escape/retorno. Primer movil fallo por
+  selector que incluia skeleton: QA archivado; noappbug ni repetirfalloPC.
+  Imagenes interceptadasSVG ymotionreduce: no prueba de fotos/estetica/movimiento.
+-168 refuerza204 de163 con FirestoreAdminSDK REAL al emulador propio:10casos
+  4PASS/6FAIL, mismas causas snapshot viejo. Transaccionactual pierde tareas/
+  nota/llegada aun respondiendo success y puede restauraractivo/tokenviejo.
+  PositivomutateDataItem conserva dos tareas con retrySDK. Lecturas coordinadas,
+  revocacion/rotacion inyectadas porSDK; respaldoadaptado; noHTTP/UI/produccion.
+  0documentos alcerrar,cleanupAPI200,Java/SDK cerrados, QAfuentes0. No otra204.
+-Metadato packageScriptsDiffer de166 heredado decia true: package igual9b7/108e.
+  Corregido SOLO ese flag, originalguardado; source/build no se alteraron.
+-169 consolida160-168 y enlaza14areas. No cada control/estado/rol aceptado,
+  no toda193/Gemini devuelta, no integraciones/hardware/19originales ni0errores.
+  No appedit/merge. DosLuna acotados cerrados. Evidencia con su tanda, no docs solas.
+
+```comprobar
+prueba: docs/evidencias/166-galeria-nativa.spec.ts
+prueba: docs/evidencias/167-regresion.mjs
+prueba: docs/evidencias/168-proveedor-sdk.mjs
+prueba: docs/evidencias/169-validar.mjs
+```
+
+## 21/10/2026 - Codex160-165: cierres200/201 por contrato,199 parcial y204 nueva
+
+-Main fuente9b7ee982c5d6ff1377fccc0490abc85a9cfd8419. Candidato Claude publico
+  108e17b4387237fc921ea12e8d1eb65b20f62ac9 distinto de main; privado desconocido.
+  PR1340 integrada, esta tanda usa rama nueva codex/160-contraste-correcciones-20261021.
+-160:34PASS, portal propio ID/correo/7perfiles, dos empleados con sueldos
+  diferentes y tres fiestas, cuenta/URL sin datos ajenos ni tokens y lecturas
+  generales aun denegadas.200 CORREGIDA por Claude, contrato funcional probado;
+  noHTTP/cookies/UI/OAuth/SDK real. La conexionGoogle se simula, no se certifica.
+-164:84PASS, oncehandlers/21metodosGETPOST con puerta real y motores DOBLES.
+  Sinclave respuesta recortada, conclave detalle, wrong401/freno429 sin ejecutar
+  ni marcar.160 ademas compone los dosmotores originales reales.201 CORREGIDA
+  porClaude/aceptada SOLO respuesta, no11integraciones/tareas reales publicadas.
+-161 sobre108e:14PASS/2FAIL,199 PARCIAL. Entrada/retorno/Escape de galeria/video
+  ya funcionan; Tab/ShiftTab salen del visor galeria. Radix positivo contiene
+  foco. DOM/user-event, no teclado nativo. Conservar lo corregido, no nueva199.
+-162 sobre108e:8PASS,seguimiento5/14dias UTCUy dice8agosto y conserva sufijo
+  horario. Cierra SOLO consumidor ampliado159 en193; no toda193 ni envio real.
+-163 NUEVA204/Claude: diezcasos4PASS/6FAIL deUNA familia. Snapshot proveedor
+  leido antes de transaccion pisa tarea/nota/llegada concurrente o restaura
+  activo/tokenviejo. Ambas acciones responden success. Cuerpos reales de acciones
+  y updateDataItem contra protocoloBD DOBLE serializado, NO SDK/Firestore/UI.
+  Revocar/rotar se inyecto en fixture, no flujo administrativo real. No pagos.
+  Positivo mutateDataItem real compone dos cambios; proveedorB intacto donde
+  se comprobo. Simbolos comparados main9b7/Claude108e/Gemini45a; no otraorden185.
+-165:152casos144PASS/8FAIL; dos causas pendientes, no8bugs. No appedit/merge,
+  build/amplia/grafo repetidos. Recuento14areas enlaza historicos por alcance,
+  no declara cada ruta/control/rol aprobado. Ver165-recuento-y-limites.md.
+-QA archivado:161 arranco sin user-event; instalado SOLO en .qa-tools externo.
+  Su primer recibo no esperaba RAF tras commit: autofocus falsopositivo,
+  arreglada la espera con positivoRAF y preservado inicial.163 extractor fallo
+  por constexportada, se carga modulo real de marcas. No defectos de producto.
+-RAM bajo2GiB: no build/navegador pesado ni detener ajenos. Luna documental
+  cerrado, cero servicios/datos propios. DNS GitHub fallo; no confundir commit
+  local con entrega sin verificar remoto.19originales/cuentas/modelo/voz/
+  Hosting/hardware y matriz completa siguen sin certificado. No ceroerrores.
+
+```comprobar
+prueba: docs/evidencias/160-retest-portales-tareas.mjs
+prueba: docs/evidencias/161-galeria-video-retest.mjs
+prueba: docs/evidencias/162-seguimiento-fecha-retest.mjs
+prueba: docs/evidencias/163-proveedor-concurrencia.mjs
+prueba: docs/evidencias/164-once-tareas-respuestas.mjs
+```
+
 ## 20/10/2026 - Una orden ya no se cumple con un comentario (entrega 1341 de Gemini, cerrada)
 
 - La 1341 dio por hechas las órdenes 180, 181 y 183 con comentarios que nombraban lo pedido, imports sin

@@ -2,7 +2,8 @@
 
 **NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.** Responsable Claude,
 por permisos y sueldos. ID: AK-CODEX-156-PERSONAL-LECTURAS-PREVIAS. P1 funcional.
-Pendiente de correccion; no implementado por Codex. Juntar con la tanda abierta.
+CORREGIDA por Claude en main9b7; Codex160 acepta el contrato funcional de
+acciones/guardias/recorte. UI/HTTP/OAuth real pendientes, no aceptacion global.
 
 Fuente reproducida:894d01603e0e03cebc8f90a6ccf869ef86bbe1de. Claude publico
 16a9407c solo cambia docs/QA, sin appdiff. Contrastar nuevo HEAD antes de implementar.
@@ -54,8 +55,22 @@ Historico: YA-RESUELTO del11/8 afirma solucionado el portal propio, y la prueba
 release-security-boundaries solo busca texto de isOwnPortal. No cubre este fallo
 de composicion con permisos de las lecturas actuales. No reabrir la politica.
 
+## Retest160 - 21/10/2026
+
+Fuente `9b7ee982c5d6ff1377fccc0490abc85a9cfd8419`. El camino real usa lector
+interno estrecho y filtro de asignaciones, sin abrir los listados generales.
+Dos personas y tres fiestas (una archivada): A ve1500.25/700.50, no9000.75/8000.50
+deB ni la fiesta ajena. Propio porID/correo, otros perfiles/anonimo y lecturas
+generales denegadas comprobados. Cuenta publica sin access/refresh tokens,
+calendarTemplateUrl sin sueldo ajeno; conexion propia guarda solo su credencial.
+Guardar cuenta ajena/corporativa sin permiso se rechaza sin llamada ni escritura.
+160-retest-portales-tareas:34PASS incluye esta orden y dos cron de201.
+Lectores/guardias/calendario reales, colecciones/sesion y Google controlados.
+NO servidorHTTP/cookies/SDK/pantalla ni autorizacion Google real. No reprogramar.
+
 ```comprobar
 archivo: src/app/actions/google-workspace.ts
 usa: getEmployeeWorkspacePortal en src/app/personal/[empleadoId]/page.tsx
 prueba: docs/evidencias/156-portales-cruzados.mjs
+prueba: docs/evidencias/160-retest-portales-tareas.mjs
 ```
