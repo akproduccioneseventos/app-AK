@@ -86,8 +86,8 @@
       "resultado": "confirmado → orden 193: errores-humanos sin try por registro; alertas-errores-humanos devuelve [] al fallar"
     },
     "22": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: 275 writeData: falta ver cuáles reescriben la lista sin marca de lectura"
+      "fecha": "2026-10-21",
+      "resultado": "barrido de updateDataItem tras la orden 204: portal del proveedor, ficha del personal y proveedores pasan a mutateDataItem sobre el registro actual; la ficha del personal además borraba cédula y nacimiento cuando la guardaba la secretaria. Menús queda igual: es la edición entera de un formulario. Antes: parcial: 275 writeData: falta ver cuáles reescriben la lista sin marca de lectura"
     },
     "23": {
       "fecha": "2026-10-20",

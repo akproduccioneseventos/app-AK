@@ -1794,6 +1794,7 @@ con otra cara.
 | Se sumaban preguntas al método y nadie las buscaba en el resto de la app | `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 | Una orden figuraba hecha con un comentario o un import sin usar, y pruebas que sólo decían `expect(true)` | `enCodigoQueCorre` en `scripts/ordenes-cumplidas.mjs` con `src/__tests__/una-orden-no-se-cumple-con-un-comentario.test.ts` |
 | La tarea sin clave devolvía nombres de clientes, y el empleado no llegaba a su portal | `src/__tests__/codex-156-158-portal-propio-y-tareas-recortadas.test.ts` |
+| El portal del proveedor perdía un toque de dos y reactivaba accesos; la secretaria borraba la cédula del personal al guardar | `src/__tests__/provider-portal-actions.test.ts` y `src/__tests__/la-secretaria-no-borra-la-cedula-del-personal.test.ts` |
 
 ### Cómo se elige el matafuego
 

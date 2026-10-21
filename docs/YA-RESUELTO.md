@@ -7,12 +7,16 @@
   en el medio volvía a quedar activo. Ahora cada acción cambia sólo su parte con `mutateDataItem`, sobre el
   registro actual, y vuelve a mirar token, activo y vencimiento adentro del cambio.
 - **Tab y Shift+Tab dan la vuelta adentro** del visor de la galería y del video de ayuda.
+- **Barrido de la misma forma (pregunta 22):** la ficha del personal, guardada por la secretaria, **borraba
+  la cédula, la fecha de nacimiento y el contrato** (ella los lee vacíos). Ahora lo personal lo cambia sólo
+  quien tiene SUELDOS, y la ficha del personal y la de proveedores se guardan sobre el registro actual.
 
 ```comprobar
 usa: cambiarAccesoDelProveedor(token en src/app/actions/provider-portal.ts
 no-usa: updateDataItem en src/app/actions/provider-portal.ts
 usa: mantenerElFocoAdentro(event, en src/components/landing/GallerySection.tsx
 prueba: src/__tests__/provider-portal-actions.test.ts
+prueba: src/__tests__/la-secretaria-no-borra-la-cedula-del-personal.test.ts
 ```
 
 ## 20/10/2026 - Lo chico de las órdenes 199, 193 y 202, hecho por Claude
