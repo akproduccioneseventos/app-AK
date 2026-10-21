@@ -4,7 +4,7 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión
 propuesta 1342 (`9b7ee982c`, 20/10): con las órdenes 197, 200 y 201 y el control que no deja cumplir con un comentario.
 
 ## En qué se está
-Esperando UNA entrega de Gemini con las órdenes 188 a 195 (el dueño le pega el mensaje con la rama). Claude revisa, corre la puerta y fusiona.
+Esperando que Gemini complete la propuesta 1346 con la orden 208 (incluye la 207). Las reglas de personal del dueño (21/10) ya están en la rama; falta publicarlas a la versión principal.
 Codex sólo audita.
 
 ## Terminado en esta tanda
@@ -35,6 +35,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Gemini 1346 (`d95c35ba2`, órdenes 205 y 206): compila y Jest en verde; **devuelta con la orden 208** (la realidad aumentada sin video, prueba de mentira, `paso-4-resumen` tocado y falta la 207). Sigue en la misma propuesta.
 - Gemini 1344 (`bfde3916a`): devuelta con la **orden 205** (Codex) y la **206** (fechas). Abierta, sin fusionar.
 - Codex 1345: `1cb47af06` (antes `f776ae29e`) (auditorías 160-169 juntadas): orden 204 del proveedor y el Tab de la 199 arreglados por Claude.
 - Codex 1340: `588fd64d7` (auditorías 156-159 juntadas: órdenes 200 y 201 de permisos arregladas por Claude; la fecha del seguimiento quedó en la 193 para Gemini). Antes `fdc24539a` (auditoría 155 juntada: foco de la galería pública → orden 199, con el video de ayuda sumado por el barrido de la pregunta 83). Antes `9301e146c` (auditorías 151-154 sobre la publicada 894d0160): sin hallazgos nuevos; confirma cerradas 171, 184 y 186; sigue abierta la 172 (dock en celular), ya pedida a Gemini. La 1324 quedó cerrada al entrar en la 1339.
