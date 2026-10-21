@@ -1,0 +1,233 @@
+{
+  "auditParent": "1cb47af0631c0d14a0812f398a24e2c12fae037b",
+  "sources": {
+    "main": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+    "claude": "16e197cc3591bf0812c1e8910c880d83f04eb94b",
+    "gemini": "d95c35ba27c6ff5a3c1a8adac28e29c3ff02ae09"
+  },
+  "fileHashScope": "SHA256 of observed worktree bytes; gitBlobs record Git clean-normalized content for remote comparison",
+  "files": {
+    "ESTADO-ACTUAL.md": "231617c59c8b6166f88e8c87ee221febda714111adb2c8e98f118ceb7f1c9921",
+    "docs/YA-RESUELTO.md": "2fff0442ff47f705d59463b03401e94f628bc5733a61835d101049108740e5b6",
+    "docs/evidencias/176-conciliacion-pendientes.json": "229b50d79b7ac0cb70ee01d599d8b4abbb66a7645843ff05864a9d04f7669a61",
+    "docs/evidencias/176-conciliacion-pendientes.md": "681e01cc233c64db7ed1c607f60722a7563aafa0e38a8e21f7b4785bb6bb66e5",
+    "docs/evidencias/177-incidencia-qa.md": "98e48cec9cb14fa43a2c02dbefae7aa3f47d3b1bf5cfd3fe03178d7e468acead",
+    "docs/evidencias/177-inicial-limite-qa.json": "2ea60deb5d59cf1d9e7db3538cca9a7c5a16676f980fdea24e042ad1f5a53d0e",
+    "docs/evidencias/177-inicial-limite-qa.log.gz": "3793050a5fe2e13a5caa3b4ede1e435e29c1675a0b01992fab2b097a7ed9642a",
+    "docs/evidencias/177-inicial-limite-qa.mjs": "0f9c2833673c7376dd39e980cde4e86f23c33bb7f606fe2ecdc068a1174c3d3d",
+    "docs/evidencias/177-memoria-preflight.json": "6672c49c1bb326021abad1288c2d31976f54148504140d632091518c0050bce7",
+    "docs/evidencias/177-portal-personal-http-ui.mjs": "6dd52210ceec01b05a282314eda2d857e2565640e7101b194f7a07e385ee02af",
+    "docs/evidencias/178-claude-delta-contratos.json": "aca3c8f7377c119adfeb67d7838f67e0616b58577f853d5d5b541b62b570803a",
+    "docs/evidencias/178-claude-delta-contratos.mjs": "ef8f7d46258a3e0d657f593b99eae088f85562a597df3b481dfaf3b8b18f06ed",
+    "docs/evidencias/179-memoria-preflight.json": "3a008646b16d16feae8419043097449fe99cc2b5d1cc62fccfe9f9623a90995d",
+    "docs/evidencias/179-personal-pc.png": "5259966a6bfcbe2c59093a506f94508450a528c1284e665b39dbfee315f35bc5",
+    "docs/evidencias/179-personal-pixel7.png": "f8a73a7ae1e697db9b9545272422b7964c560cb4bdf7f0a227228105a88578eb",
+    "docs/evidencias/179-portal-personal-http-ui.mjs": "b01d2a538a81e31d2fa8062b906adc2fba3f38291fe5444603b9f97da5b8cc20",
+    "docs/evidencias/179-portal-personal-resultados.json": "d4cbdf027cce3b0c437efa623e23a81a8dccdeea03e44c5ba808678c10e3eb52",
+    "docs/evidencias/179-servidor.log.gz": "ef86d6e0853a49eba12cdb8ebb33baf50671acfd3e65e4b4c31186dc4cc4e57d",
+    "docs/evidencias/180-retest-entrega-1346.json": "b04cafe0d5cc16769c0a3cee7f285515fb3a4f3e2e055955b43d29323c67ded9",
+    "docs/evidencias/180-retest-entrega-1346.mjs": "18c4101733cb695d15578dbca7db659813a22fbedb5cf53112bf745dcd47bc17",
+    "docs/evidencias/181-http-denegaciones-personal.mjs": "661cd79bdb9742875ed0b263fd90bfdeae6432f680409ddb85245628ce59c362",
+    "docs/evidencias/181-http-denegaciones-resultados.json": "a0bdecfd823d6defca577d8bfaf61c9467e1a5be271f90208dddc8ae0c35dc05",
+    "docs/evidencias/181-memoria-preflight.json": "4384c7e10cda23bb009eab504a303f8aa828bc7f6b86b39fc4c23fe4fd195b7c",
+    "docs/evidencias/181-servidor.log.gz": "c4ad0a8e0805bf3db9b06285c8c4352251552e18c15d79a5bedb3a4ae9444476",
+    "docs/evidencias/182-retest-consumidores-1346.json": "4a91ffbce4a3247903b56a4c4de4c292b34fd2bffa5c655f1a990a7bd04fb15e",
+    "docs/evidencias/182-retest-consumidores-1346.mjs": "a874891d71fcebebf65d1a9b74fed3c718a63dbfbcf6c1de9a9701581cae9727",
+    "docs/evidencias/183-proveedor-consumidor-dom.json": "34a15b4ab001ca5000cb9d05a6cc474e99538e27a9f62374783ee7d3518493ec",
+    "docs/evidencias/183-proveedor-consumidor-dom.mjs": "a13359e95479f5fd5cc9da7c85f06e228e370644b09fa5a36defb7d9b290ffbf",
+    "docs/evidencias/184-dependencias-entrega-1346.json": "bf72f8a9678f7efe51810f78b6d55dc3e2e4c6cbb00c55bf278e6605894ad18f",
+    "docs/evidencias/184-dependencias-entrega-1346.mjs": "3876f18337259a1b4f7987d1fb41312b7ab00afa26b94a719aee9dadb122f2a6",
+    "docs/evidencias/184-npm-audit-all.json.gz": "910c5c3b7677f75a2c2543b2250651a60040d526390f2ca4a98df3b6d240381d",
+    "docs/evidencias/184-npm-audit-production.json.gz": "bdb74d7cace41627355e5660927fa4370ac5f82ab1d0f599aeb8c159f7743aa5",
+    "docs/evidencias/185-cierre-y-recuento.md": "33543c2cbaa583264beea69128e793726cbb4f4d441046879e05e9447b2f244e",
+    "docs/evidencias/185-validar.mjs": "cf4df6c8c2228246ec6417d96ca508dc8e3afe1ac7d2690dbe437a739290bfc1",
+    "docs/ordenes/163-claude-dependencias-residuales-sin-force.md": "ec26ed40c7b1056e5d05e2b4caa990b770414ee4d82720e54268488da4673262",
+    "docs/ordenes/205-devolucion-1344-con-resultados.md": "58ddfb1ffdaecfe65147485be5e2d91125e936231cf321281160ce78b9973b3e",
+    "docs/ordenes/209-consumidores-personal-proveedor.md": "72a66cf77b8ac2370325dfd9e56f88e44be3f9bf37d6b54d38fee65c904543f8"
+  },
+  "dependencyTrace": {
+    "source": "d95c35ba27c6ff5a3c1a8adac28e29c3ff02ae09",
+    "baseline": "42a25a319fe06a9fec40e75e5b23c01addef8ce2",
+    "packages": [
+      {
+        "path": "node_modules/mind-ar",
+        "version": "1.2.5",
+        "resolved": "https://registry.npmjs.org/mind-ar/-/mind-ar-1.2.5.tgz",
+        "integrity": "sha512-YsbiNYaNbI/AMSXYfL+c/vJaFD/RB8uKtAOhmMyOkGZ0vBnEM8+KPh3ee8BH35ldtVudziJpv62qqV6dns/Evw==",
+        "license": "MIT",
+        "dependencies": {
+          "@mediapipe/tasks-vision": "^0.10.9",
+          "@msgpack/msgpack": "^2.8.0",
+          "@tensorflow/tfjs": "^4.16.0",
+          "@vitejs/plugin-basic-ssl": "^1.1.0",
+          "canvas": "^2.10.2",
+          "mathjs": "^11.6.0",
+          "ml-matrix": "^6.10.4",
+          "svd-js": "^1.1.1",
+          "tinyqueue": "^2.0.3"
+        },
+        "engines": {
+          "node": ">=14.0.0"
+        },
+        "peerDependencies": {
+          "three": ">=0.136.0"
+        }
+      },
+      {
+        "path": "node_modules/mind-ar/node_modules/canvas",
+        "version": "2.11.2",
+        "resolved": "https://registry.npmjs.org/canvas/-/canvas-2.11.2.tgz",
+        "integrity": "sha512-ItanGBMrmRV7Py2Z+Xhs7cT+FNt5K0vPL4p9EZ/UX/Mu7hFbkxSjKF2KVtPwX7UYWp7dRKnrTvReflgrItJbdw==",
+        "hasInstallScript": true,
+        "license": "MIT",
+        "dependencies": {
+          "@mapbox/node-pre-gyp": "^1.0.0",
+          "nan": "^2.17.0",
+          "simple-get": "^3.0.3"
+        },
+        "engines": {
+          "node": ">=6"
+        }
+      },
+      {
+        "path": "node_modules/@mapbox/node-pre-gyp",
+        "version": "1.0.11",
+        "resolved": "https://registry.npmjs.org/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.11.tgz",
+        "integrity": "sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==",
+        "license": "BSD-3-Clause",
+        "dependencies": {
+          "detect-libc": "^2.0.0",
+          "https-proxy-agent": "^5.0.0",
+          "make-dir": "^3.1.0",
+          "node-fetch": "^2.6.7",
+          "nopt": "^5.0.0",
+          "npmlog": "^5.0.1",
+          "rimraf": "^3.0.2",
+          "semver": "^7.3.5",
+          "tar": "^6.1.11"
+        },
+        "bin": {
+          "node-pre-gyp": "bin/node-pre-gyp"
+        }
+      },
+      {
+        "path": "node_modules/@mapbox/node-pre-gyp/node_modules/tar",
+        "version": "6.2.1",
+        "resolved": "https://registry.npmjs.org/tar/-/tar-6.2.1.tgz",
+        "integrity": "sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==",
+        "deprecated": "Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me",
+        "license": "ISC",
+        "dependencies": {
+          "chownr": "^2.0.0",
+          "fs-minipass": "^2.0.0",
+          "minipass": "^5.0.0",
+          "minizlib": "^2.1.1",
+          "mkdirp": "^1.0.3",
+          "yallist": "^4.0.0"
+        },
+        "engines": {
+          "node": ">=10"
+        }
+      },
+      {
+        "path": "node_modules/tar",
+        "version": "7.5.21",
+        "resolved": "https://registry.npmjs.org/tar/-/tar-7.5.21.tgz",
+        "integrity": "sha512-XdhtCvlMywwxpCW8YEq3lOXBJpUPTR2OHHcwLPO3HwsJqOHa2Ok/oJ7ruGzp+JrKoRPVCzJwAdEjqLW/vNRPHA==",
+        "dev": true,
+        "license": "BlueOak-1.0.0",
+        "dependencies": {
+          "@isaacs/fs-minipass": "^4.0.0",
+          "chownr": "^3.0.0",
+          "minipass": "^7.1.2",
+          "minizlib": "^3.1.0",
+          "yallist": "^5.0.0"
+        },
+        "engines": {
+          "node": ">=18"
+        }
+      }
+    ],
+    "advisory": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
+    "exploitabilityCertified": false
+  },
+  "gitBlobs": {
+    "ESTADO-ACTUAL.md": "1052434f4d62ed5ebda7f2db59bc16fab08f4b98",
+    "docs/YA-RESUELTO.md": "b0264cc6f8ab4409879593c1af0241e02538e514",
+    "docs/evidencias/176-conciliacion-pendientes.json": "8314a5a16daaf493fc833b59eae815392c385fd7",
+    "docs/evidencias/176-conciliacion-pendientes.md": "9c467f422648aa9c7c281672daf6dad646f63ac2",
+    "docs/evidencias/177-incidencia-qa.md": "d860ed54d470a2970f3d39bdeee029fd403ecca9",
+    "docs/evidencias/177-inicial-limite-qa.json": "584a69cfc25164318c07ecff54be4a8006378e8c",
+    "docs/evidencias/177-inicial-limite-qa.log.gz": "15f49dd059c64b85ab0f66fa6f348e4745b02127",
+    "docs/evidencias/177-inicial-limite-qa.mjs": "792ee72927011516cd6e7d410ac38b7cc088f65d",
+    "docs/evidencias/177-memoria-preflight.json": "e0d49fb4d30ce8a35f5964d5608740346aa1b261",
+    "docs/evidencias/177-portal-personal-http-ui.mjs": "05e85fb2f3d6d318d958853fcdf2c39cd9dc84e2",
+    "docs/evidencias/178-claude-delta-contratos.json": "b039bd2c7ccc05fae275e21e2d9fd06a62518a31",
+    "docs/evidencias/178-claude-delta-contratos.mjs": "f57074b1d2b98e0afe9f702401b878a792fc78b1",
+    "docs/evidencias/179-memoria-preflight.json": "b42b68189473101e9db2ee959a74ea924f3e7fe3",
+    "docs/evidencias/179-personal-pc.png": "3f457c801bee18479dddcd2916b14076d4e3536b",
+    "docs/evidencias/179-personal-pixel7.png": "a6eed864eef58559caa6676613fc5d437e10ed70",
+    "docs/evidencias/179-portal-personal-http-ui.mjs": "122cfc52061777d5d4b63fe9866171089b1cdc2f",
+    "docs/evidencias/179-portal-personal-resultados.json": "dd5520a3404f5a1d2adac5f80fcad6d18d03be01",
+    "docs/evidencias/179-servidor.log.gz": "7438467409046b3efdd75dd5aaff60c258997cce",
+    "docs/evidencias/180-retest-entrega-1346.json": "4fc967a38f8bfdb5b1dbf66376d07af30be903dc",
+    "docs/evidencias/180-retest-entrega-1346.mjs": "65dfc47b8b4dc24a2c28030216b129b63c82efe2",
+    "docs/evidencias/181-http-denegaciones-personal.mjs": "4db14dbd79b941c459f8453ab4b6f8536ddb788b",
+    "docs/evidencias/181-http-denegaciones-resultados.json": "60fc0979823a0661e3f92621c59e617d98fb31bf",
+    "docs/evidencias/181-memoria-preflight.json": "e4b23b660f4bb130e2b4e13a63a16d027c756c78",
+    "docs/evidencias/181-servidor.log.gz": "5cc91d44edaa978498225319960183ab90c59488",
+    "docs/evidencias/182-retest-consumidores-1346.json": "2408fb81520bd3f51e40c88868391b2ffb308c88",
+    "docs/evidencias/182-retest-consumidores-1346.mjs": "39ab8e6864bf60b007cdd94cfd8d517844abdd1c",
+    "docs/evidencias/183-proveedor-consumidor-dom.json": "b99f4c13673c3b005e1fd204be27d46f13b0160e",
+    "docs/evidencias/183-proveedor-consumidor-dom.mjs": "5906da86847f79aff3effaec3c1344c55a9bd712",
+    "docs/evidencias/184-dependencias-entrega-1346.json": "82ef6556b60ff92796c3f726b49c2b242dbcc474",
+    "docs/evidencias/184-dependencias-entrega-1346.mjs": "39ee8f74b7af135f09f9f77b5d1f032d55a1ed10",
+    "docs/evidencias/184-npm-audit-all.json.gz": "022c7e39e5e85cf8936ae4e23ebf10b34c4aa9be",
+    "docs/evidencias/184-npm-audit-production.json.gz": "7c7016aa3bf04006608749bd5c4b0b4d5bd41ff6",
+    "docs/evidencias/185-cierre-y-recuento.md": "68d2b8ce77e5422008a27d775dd12011b3e48097",
+    "docs/evidencias/185-validar.mjs": "390db986daa5cbae91c080b7a40680ea9b1bf768",
+    "docs/ordenes/163-claude-dependencias-residuales-sin-force.md": "6dc5ec2a8b136cf0d1e90611506bbb8a91293541",
+    "docs/ordenes/205-devolucion-1344-con-resultados.md": "97dd9aa2a07d2c8c8f5b3dc834b3b6f797aecbfa",
+    "docs/ordenes/209-consumidores-personal-proveedor.md": "56d26e5484d7fda89fca57cda4d8401e58a6c55f"
+  },
+  "behaviorFindings": [
+    {
+      "id": "PERSONAL-ROL-ATENCION",
+      "evidence": "178",
+      "order": "209",
+      "owner": "Claude",
+      "status": "FAIL-composed-action"
+    },
+    {
+      "id": "PROVEEDOR-LECTURA-RECHAZADA",
+      "evidence": "183",
+      "order": "209",
+      "owner": "Gemini",
+      "status": "FAIL-real-DOM-controlled-action"
+    },
+    {
+      "id": "VOZ-DOS-INSTANCIAS",
+      "evidence": "180",
+      "order": "205",
+      "owner": "Claude",
+      "status": "FAIL-two-modules-controlled-store"
+    },
+    {
+      "id": "META-DOS-INSTANCIAS",
+      "evidence": "180",
+      "order": "205",
+      "owner": "Gemini-review-Claude",
+      "status": "FAIL-two-modules-controlled-store"
+    }
+  ],
+  "dependencyFinding": {
+    "id": "DEPENDENCIA-TAR-AR",
+    "evidence": "184",
+    "order": "163",
+    "exploitationDemonstrated": false
+  },
+  "allControlsAccepted": false,
+  "allAreasAccepted": false,
+  "manualOwnerWorkInCodexPending": false,
+  "productionChanged": false
+}

@@ -1,0 +1,449 @@
+{
+  "source": "d95c35ba27c6ff5a3c1a8adac28e29c3ff02ae09",
+  "checkedAt": "2026-10-21T15:59:35.005Z",
+  "hashes": {
+    "package.json": "f494188d02c70ae909d763e9875df7221a09f4c508f96d9b1671c4ca665c0961",
+    "package-lock.json": "9810a6e60decb1ebcefe1db7207031c5c62905479cf5b7ff9676ef527d69dc26"
+  },
+  "runs": [
+    {
+      "scope": "all",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "",
+      "counts": {
+        "info": 0,
+        "low": 0,
+        "moderate": 78,
+        "high": 12,
+        "critical": 1,
+        "total": 91
+      },
+      "uniqueAdvisories": 22,
+      "advisories": [
+        {
+          "name": "@opentelemetry/core",
+          "severity": "moderate",
+          "title": "OpenTelemetry Core: Unbounded memory allocation in W3C Baggage propagation",
+          "range": "<2.8.0",
+          "url": "https://github.com/advisories/GHSA-8988-4f7v-96qf"
+        },
+        {
+          "name": "@opentelemetry/instrumentation-tedious",
+          "severity": "moderate",
+          "title": "Multiple @opentelemetry/instrumentation-* packages expose database username via unconditional db.user span attribute",
+          "range": "<0.40.0",
+          "url": "https://github.com/advisories/GHSA-qqmp-wf37-98f9"
+        },
+        {
+          "name": "@opentelemetry/propagator-jaeger",
+          "severity": "high",
+          "title": "OpenTelemetry JavaScript: Denial of service in `JaegerPropagator` via unhandled exception on a malformed header",
+          "range": "<2.9.0",
+          "url": "https://github.com/advisories/GHSA-45rx-2jwx-cxfr"
+        },
+        {
+          "name": "braces",
+          "severity": "high",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "range": "<=3.0.3",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        },
+        {
+          "name": "postcss-selector-parser",
+          "severity": "moderate",
+          "title": "PostCSS: Quadratic complexity in flat selector parsing allows CPU exhaustion",
+          "range": "<7.1.6",
+          "url": "https://github.com/advisories/GHSA-rj75-hqrm-r3gf"
+        },
+        {
+          "name": "re2",
+          "severity": "moderate",
+          "title": "re2: Out-of-bounds heap read in `exec`/`test`/`match` via attacker-influenced `lastIndex` on a non-ASCII subject → uncatchable process crash (DoS)",
+          "range": "<=1.25.1",
+          "url": "https://github.com/advisories/GHSA-ff84-5f28-78qj"
+        },
+        {
+          "name": "re2",
+          "severity": "moderate",
+          "title": "re2: Global `String.prototype.match` with an empty-matchable pattern never advances → infinite loop with unbounded native memory growth (DoS)",
+          "range": "<=1.25.1",
+          "url": "https://github.com/advisories/GHSA-6hxr-mr5r-9836"
+        },
+        {
+          "name": "re2",
+          "severity": "moderate",
+          "title": "node-re2: Out-of-bounds heap read in `replace`/`split` via a `Buffer` ending in a truncated multi-byte UTF-8 character → adjacent heap memory disclosed to JavaScript",
+          "range": "<=1.26.0",
+          "url": "https://github.com/advisories/GHSA-j4r3-hg7j-8chg"
+        },
+        {
+          "name": "re2",
+          "severity": "moderate",
+          "title": "node-re2: String.prototype.replace(re2, template) aborts the Node process (uncatchable ToLocalChecked on empty MaybeLocal) when the result exceeds V8's max string length",
+          "range": "<=1.25.0",
+          "url": "https://github.com/advisories/GHSA-8hcv-x26h-mcgp"
+        },
+        {
+          "name": "sprintf-js",
+          "severity": "moderate",
+          "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+          "range": "<=1.1.3",
+          "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+          "range": "<7.5.7",
+          "url": "https://github.com/advisories/GHSA-34x7-hfp2-rc4v"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+          "range": "<=7.5.2",
+          "url": "https://github.com/advisories/GHSA-8qq5-rm4j-mr97"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+          "range": "<7.5.8",
+          "url": "https://github.com/advisories/GHSA-83g3-92jg-28cx"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+          "range": "<=7.5.9",
+          "url": "https://github.com/advisories/GHSA-qffp-2rhf-9h96"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+          "range": "<=7.5.10",
+          "url": "https://github.com/advisories/GHSA-9ppj-qmqm-q256"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+          "range": "<=7.5.3",
+          "url": "https://github.com/advisories/GHSA-r6q2-hw4h-h46w"
+        },
+        {
+          "name": "tar",
+          "severity": "moderate",
+          "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+          "range": "<=7.5.15",
+          "url": "https://github.com/advisories/GHSA-vmf3-w455-68vh"
+        },
+        {
+          "name": "tar",
+          "severity": "moderate",
+          "title": "node-tar: Process crash via PAX numeric path type confusion",
+          "range": "<=7.5.17",
+          "url": "https://github.com/advisories/GHSA-w8wr-v893-vjvp"
+        },
+        {
+          "name": "tar",
+          "severity": "critical",
+          "title": "node-tar: Decompression/parse DoS via unlimited input",
+          "range": "<=7.5.18",
+          "url": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+          "range": "<=7.5.17",
+          "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w"
+        },
+        {
+          "name": "tar",
+          "severity": "moderate",
+          "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+          "range": "<=7.5.16",
+          "url": "https://github.com/advisories/GHSA-gvwx-54wh-qm9j"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+          "range": "<=7.5.20",
+          "url": "https://github.com/advisories/GHSA-r292-9mhp-454m"
+        }
+      ],
+      "directDependencies": [
+        {
+          "name": "@ducanh2912/next-pwa",
+          "severity": "high",
+          "range": ">=6.1.1",
+          "fixAvailable": {
+            "name": "@ducanh2912/next-pwa",
+            "version": "6.1.0",
+            "isSemVerMajor": true
+          }
+        },
+        {
+          "name": "@genkit-ai/google-genai",
+          "severity": "moderate",
+          "range": "*",
+          "fixAvailable": false
+        },
+        {
+          "name": "eslint-config-next",
+          "severity": "high",
+          "range": ">=14.3.0-canary.0",
+          "fixAvailable": {
+            "name": "eslint-config-next",
+            "version": "14.2.35",
+            "isSemVerMajor": true
+          }
+        },
+        {
+          "name": "firebase-tools",
+          "severity": "high",
+          "range": ">=6.9.0",
+          "fixAvailable": {
+            "name": "firebase-tools",
+            "version": "14.23.0",
+            "isSemVerMajor": true
+          }
+        },
+        {
+          "name": "genkit",
+          "severity": "moderate",
+          "range": "0.6.0-dev.2 - 1.0.0-rc.19 || >=1.0.4",
+          "fixAvailable": false
+        },
+        {
+          "name": "jest",
+          "severity": "moderate",
+          "range": ">=25.1.0",
+          "fixAvailable": {
+            "name": "jest",
+            "version": "25.0.0",
+            "isSemVerMajor": true
+          }
+        },
+        {
+          "name": "mind-ar",
+          "severity": "moderate",
+          "range": "*",
+          "fixAvailable": false
+        },
+        {
+          "name": "tailwindcss",
+          "severity": "high",
+          "range": "<=0.0.0-oxide-insiders.ff2c25f || 0.5.0 - 3.4.19",
+          "fixAvailable": {
+            "name": "tailwindcss",
+            "version": "4.3.3",
+            "isSemVerMajor": true
+          }
+        },
+        {
+          "name": "ts-jest",
+          "severity": "moderate",
+          "range": ">=25.10.0-alpha.1",
+          "fixAvailable": {
+            "name": "ts-jest",
+            "version": "25.5.1",
+            "isSemVerMajor": true
+          }
+        }
+      ]
+    },
+    {
+      "scope": "production",
+      "exitCode": 1,
+      "signal": null,
+      "stderr": "",
+      "counts": {
+        "info": 0,
+        "low": 0,
+        "moderate": 58,
+        "high": 9,
+        "critical": 1,
+        "total": 68
+      },
+      "uniqueAdvisories": 18,
+      "advisories": [
+        {
+          "name": "@opentelemetry/core",
+          "severity": "moderate",
+          "title": "OpenTelemetry Core: Unbounded memory allocation in W3C Baggage propagation",
+          "range": "<2.8.0",
+          "url": "https://github.com/advisories/GHSA-8988-4f7v-96qf"
+        },
+        {
+          "name": "@opentelemetry/instrumentation-tedious",
+          "severity": "moderate",
+          "title": "Multiple @opentelemetry/instrumentation-* packages expose database username via unconditional db.user span attribute",
+          "range": "<0.40.0",
+          "url": "https://github.com/advisories/GHSA-qqmp-wf37-98f9"
+        },
+        {
+          "name": "@opentelemetry/propagator-jaeger",
+          "severity": "high",
+          "title": "OpenTelemetry JavaScript: Denial of service in `JaegerPropagator` via unhandled exception on a malformed header",
+          "range": "<2.9.0",
+          "url": "https://github.com/advisories/GHSA-45rx-2jwx-cxfr"
+        },
+        {
+          "name": "braces",
+          "severity": "high",
+          "title": "braces vulnerable to stack-exhaustion denial of service through deeply nested patterns",
+          "range": "<=3.0.3",
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm"
+        },
+        {
+          "name": "postcss-selector-parser",
+          "severity": "moderate",
+          "title": "PostCSS: Quadratic complexity in flat selector parsing allows CPU exhaustion",
+          "range": "<7.1.6",
+          "url": "https://github.com/advisories/GHSA-rj75-hqrm-r3gf"
+        },
+        {
+          "name": "sprintf-js",
+          "severity": "moderate",
+          "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+          "range": "<=1.1.3",
+          "url": "https://github.com/advisories/GHSA-hp3w-g68c-fv3c"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+          "range": "<7.5.7",
+          "url": "https://github.com/advisories/GHSA-34x7-hfp2-rc4v"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+          "range": "<=7.5.2",
+          "url": "https://github.com/advisories/GHSA-8qq5-rm4j-mr97"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+          "range": "<7.5.8",
+          "url": "https://github.com/advisories/GHSA-83g3-92jg-28cx"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+          "range": "<=7.5.9",
+          "url": "https://github.com/advisories/GHSA-qffp-2rhf-9h96"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+          "range": "<=7.5.10",
+          "url": "https://github.com/advisories/GHSA-9ppj-qmqm-q256"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+          "range": "<=7.5.3",
+          "url": "https://github.com/advisories/GHSA-r6q2-hw4h-h46w"
+        },
+        {
+          "name": "tar",
+          "severity": "moderate",
+          "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+          "range": "<=7.5.15",
+          "url": "https://github.com/advisories/GHSA-vmf3-w455-68vh"
+        },
+        {
+          "name": "tar",
+          "severity": "moderate",
+          "title": "node-tar: Process crash via PAX numeric path type confusion",
+          "range": "<=7.5.17",
+          "url": "https://github.com/advisories/GHSA-w8wr-v893-vjvp"
+        },
+        {
+          "name": "tar",
+          "severity": "critical",
+          "title": "node-tar: Decompression/parse DoS via unlimited input",
+          "range": "<=7.5.18",
+          "url": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+          "range": "<=7.5.17",
+          "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w"
+        },
+        {
+          "name": "tar",
+          "severity": "moderate",
+          "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+          "range": "<=7.5.16",
+          "url": "https://github.com/advisories/GHSA-gvwx-54wh-qm9j"
+        },
+        {
+          "name": "tar",
+          "severity": "high",
+          "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+          "range": "<=7.5.20",
+          "url": "https://github.com/advisories/GHSA-r292-9mhp-454m"
+        }
+      ],
+      "directDependencies": [
+        {
+          "name": "@ducanh2912/next-pwa",
+          "severity": "high",
+          "range": ">=6.1.1",
+          "fixAvailable": {
+            "name": "@ducanh2912/next-pwa",
+            "version": "6.1.0",
+            "isSemVerMajor": true
+          }
+        },
+        {
+          "name": "@genkit-ai/google-genai",
+          "severity": "moderate",
+          "range": "*",
+          "fixAvailable": false
+        },
+        {
+          "name": "genkit",
+          "severity": "moderate",
+          "range": "0.6.0-dev.2 - 1.0.0-rc.19 || >=1.0.4",
+          "fixAvailable": false
+        },
+        {
+          "name": "mind-ar",
+          "severity": "moderate",
+          "range": "*",
+          "fixAvailable": false
+        },
+        {
+          "name": "tailwindcss",
+          "severity": "high",
+          "range": "<=0.0.0-oxide-insiders.ff2c25f || 0.5.0 - 3.4.19",
+          "fixAvailable": {
+            "name": "tailwindcss",
+            "version": "4.3.3",
+            "isSemVerMajor": true
+          }
+        }
+      ]
+    }
+  ],
+  "appChanged": false,
+  "dependenciesInstalled": false,
+  "scriptsExecuted": false,
+  "scope": "Registry advisory lookup for frozen lock only; no exploitability, reachability or application-wide security acceptance",
+  "temporaryWorkspaceRemoved": true
+}

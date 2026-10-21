@@ -37,6 +37,16 @@ describe('el personal sale de las reglas del dueño', () => {
     expect(buscarRol(roles, 'Mozo')?.nombre).toBe('Mozo ');
   });
 
+  it('Codex 178: "Mozo" va al mozo de atención, nunca al de cocina', () => {
+    const catalogo = ['Mozo de Cocina', 'Mozo de Atención', 'Chef', 'Ayudante de Cocina', 'Utilero', 'Barman'].map(nombre => ({ nombre }));
+    expect(buscarRol(catalogo, 'Mozo')?.nombre).toBe('Mozo de Atención');
+    expect(buscarRol(catalogo, 'Ayudante de Cocina')?.nombre).toBe('Ayudante de Cocina');
+    expect(buscarRol(catalogo, 'Chef')?.nombre).toBe('Chef');
+    // Si sólo existe el de cocina, no se inventa: mejor una vacante menos que mozos de salón en la cocina.
+    expect(buscarRol([{ nombre: 'Mozo de Cocina' }], 'Mozo')).toBeUndefined();
+    expect(buscarRol([{ nombre: 'Ayudante de Barman' }], 'Barman')).toBeUndefined();
+  });
+
   it('las dos pantallas que arman el personal usan las reglas', () => {
     const leer = (a: string) => fs.readFileSync(path.join(process.cwd(), a), 'utf8');
     const fiesta = leer('src/app/actions/fiesta/fiesta.actions.ts');
