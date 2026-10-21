@@ -40,12 +40,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-21",
-        "commit": "108e17b4",
-        "hallazgos": 1,
-        "reporte": "Auditoría 160-169 de Codex (PR 1345)"
+        "fecha": "2026-10-20",
+        "commit": "2ccdb385",
+        "hallazgos": 2,
+        "reporte": "Auditoría 149 de Codex (PR 1324): pagos de proveedores por nombre → órdenes 185 y 193"
       },
-      "nota": "Auditoría 163/168: el portal del proveedor pisaba cambios simultáneos y reactivaba accesos; arreglado por Claude (orden 204). Falta que Codex retestee el delta."
+      "nota": "Auditoría 81: cuotas sin sesión, parte de la mañana y cobros a confirmar, arreglados el 9/10. Falta que Codex la vuelva a mirar."
     },
     {
       "id": "contrato",
@@ -226,7 +226,7 @@
         "hallazgos": 1,
         "reporte": "Auditoría 155 de Codex (PR 1340)"
       },
-      "nota": "Auditoría 155/166: foco y Tab del visor de la galería y del video de ayuda; arreglado por Claude (orden 199). Falta retest."
+      "nota": "Auditoría 155 (20/10): foco del visor de la galería pública; orden 199 (con el video de ayuda del simulador)."
     },
     {
       "id": "redes",
@@ -244,7 +244,8 @@
         "src/app/api/social-media-assets",
         "src/app/(app)/empresa/galeria",
         "src/app/(app)/settings/biblioteca-visual-ak",
-        "src/lib/presencia-digital/publicador.ts"
+        "src/lib/presencia-digital/publicador.ts",
+        "src/app/api/meta"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {

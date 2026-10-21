@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -35,13 +36,7 @@ import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents } from '@
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-UY', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
-  } catch (e) {
-    return "Fecha inválida";
-  }
+  return formatearFechaEvento(dateString);
 };
 
 export default function GestorFiestasPage() {

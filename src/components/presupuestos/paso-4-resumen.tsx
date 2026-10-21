@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 'use client';
 
@@ -150,9 +151,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     // Use the configurable budgetShareTemplate when available; fall back to hardcoded text
     const template = waTemplates?.budgetShareTemplate;
     if (template) {
-      const fechaEvento = presupuesto.eventoFecha
-        ? new Date(presupuesto.eventoFecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })
-        : '';
+      const fechaEvento = presupuesto.eventoFecha ? formatearFechaEvento(presupuesto.eventoFecha) : '';
       const baseText = template
         .replace(/\{\{NOMBRE\}\}/g, presupuesto.clienteNombre || '')
         .replace(/\{\{FECHA_EVENTO\}\}/g, fechaEvento)

@@ -57,9 +57,12 @@ import {
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
 import { getAlertasGlobalesConLeidas } from "@/app/actions/alertas.actions";
+import { getMisPermisos } from "@/app/actions/sesion";
+import { PERMISOS, type Permiso } from "@/lib/auth/perfiles";
 
 type NavItem = {
   title: string;
+  permiso?: Permiso;
   href: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   active?: (pathname: string) => boolean;
@@ -108,31 +111,31 @@ const navGroups: NavGroup[] = [
       { title: "Gestión de Empresa", href: "/empresa", icon: Building2, highlight: true, active: (pathname) => pathname === "/empresa" },
 
       // 1. Vender
-      { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, subgroup: "Vender", active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads") },
-      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, subgroup: "Vender", highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos") },
-      { title: "Clientes", href: "/customers", icon: Users, subgroup: "Vender" },
+      { title: "Prospectos", href: "/contabilidad/crm", permiso: PERMISOS.CRM, icon: KanbanSquare, subgroup: "Vender", active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads") },
+      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, subgroup: "Vender", highlight: true, permiso: PERMISOS.CRM, active: (pathname) => isPathActive(pathname, "/presupuestos") },
+      { title: "Clientes", href: "/customers", icon: Users, subgroup: "Vender", permiso: PERMISOS.CRM },
       { title: "Simulador IA", href: "/simulador-ak", icon: Wand2, subgroup: "Vender" },
 
       // 2. Plata
-      { title: "Pagos Rápidos", href: "/pagos-rapidos", icon: Wallet, subgroup: "Plata", highlight: true },
-      { title: "Panel Contable", href: "/empresa/contabilidad", icon: BarChart3, subgroup: "Plata" },
-      { title: "Facturas", href: "/invoices", icon: FileText, subgroup: "Plata" },
-      { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare, subgroup: "Plata" },
-      { title: "Métricas del Negocio", href: "/empresa/dashboard", icon: TrendingUp, subgroup: "Plata" },
+      { title: "Pagos Rápidos", href: "/pagos-rapidos", icon: Wallet, subgroup: "Plata", highlight: true, permiso: PERMISOS.CONTABILIDAD },
+      { title: "Panel Contable", href: "/empresa/contabilidad", icon: BarChart3, subgroup: "Plata", permiso: PERMISOS.CONTABILIDAD },
+      { title: "Facturas", href: "/invoices", icon: FileText, subgroup: "Plata", permiso: PERMISOS.CONTABILIDAD },
+      { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare, subgroup: "Plata", permiso: PERMISOS.CONTABILIDAD },
+      { title: "Métricas del Negocio", href: "/empresa/dashboard", icon: TrendingUp, subgroup: "Plata", permiso: PERMISOS.GANANCIAS },
 
       // 3. Recursos
-      { title: "Comida / Menús", href: "/empresa/menus", icon: ChefHat, subgroup: "Recursos" },
-      { title: "Lista de Compras", href: "/compras", icon: ShoppingCart, subgroup: "Recursos" },
+      { title: "Comida / Menús", href: "/empresa/menus", icon: ChefHat, subgroup: "Recursos", permiso: PERMISOS.INSUMOS },
+      { title: "Lista de Compras", href: "/compras", icon: ShoppingCart, subgroup: "Recursos", permiso: PERMISOS.INSUMOS },
       { title: "Salones", href: "/empresa/salones", icon: DoorOpen, subgroup: "Recursos" },
       { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package, subgroup: "Recursos" },
-      { title: "Proveedores", href: "/proveedores", icon: Building2, subgroup: "Recursos" },
-      { title: "Empleados", href: "/empleados", icon: Briefcase, subgroup: "Recursos" },
+      { title: "Proveedores", href: "/proveedores", icon: Building2, subgroup: "Recursos", permiso: PERMISOS.INSUMOS },
+      { title: "Empleados", href: "/empleados", icon: Briefcase, subgroup: "Recursos", permiso: PERMISOS.ADMINISTRACION },
 
       // 4. Marketing
-      { title: "Marketing y Difusión", href: "/empresa/marketing", icon: Target, subgroup: "Marketing", highlight: true },
-      { title: "Redes Sociales", href: "/empresa/redes-sociales", icon: Camera, subgroup: "Marketing" },
-      { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, subgroup: "Marketing" },
-      { title: "Rendimiento Anuncios", href: "/contabilidad/crm/marketing-ads", icon: TrendingUp, subgroup: "Marketing" },
+      { title: "Marketing y Difusión", href: "/empresa/marketing", icon: Target, subgroup: "Marketing", highlight: true, permiso: PERMISOS.CRM },
+      { title: "Redes Sociales", href: "/empresa/redes-sociales", icon: Camera, subgroup: "Marketing", permiso: PERMISOS.CRM },
+      { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, subgroup: "Marketing", permiso: PERMISOS.CRM },
+      { title: "Rendimiento Anuncios", href: "/contabilidad/crm/marketing-ads", icon: TrendingUp, subgroup: "Marketing", permiso: PERMISOS.CRM },
       { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion", icon: Tv, subgroup: "Marketing" },
     ],
   },
@@ -140,16 +143,16 @@ const navGroups: NavGroup[] = [
     label: "Configuración",
     emoji: "⚙️",
     items: [
-      { title: "Ajustes Generales", href: "/settings", icon: Settings, active: (pathname) => pathname === "/settings" },
-      { title: "Tareas Automáticas", href: "/settings/tareas-automaticas", icon: Zap },
-      { title: "Conexiones", href: "/settings/sincronizaciones", icon: LinkIcon },
-      { title: "WhatsApp", href: "/settings/whatsapp", icon: MessageCircle },
-      { title: "Cláusulas de Contrato", href: "/settings/contratos/clausulas", icon: Scale },
+      { title: "Ajustes Generales", href: "/settings", icon: Settings, permiso: PERMISOS.ADMINISTRACION, active: (pathname) => pathname === "/settings" },
+      { title: "Tareas Automáticas", href: "/settings/tareas-automaticas", icon: Zap, permiso: PERMISOS.ADMINISTRACION },
+      { title: "Conexiones", href: "/settings/sincronizaciones", icon: LinkIcon, permiso: PERMISOS.ADMINISTRACION },
+      { title: "WhatsApp", href: "/settings/whatsapp", icon: MessageCircle, permiso: PERMISOS.ADMINISTRACION },
+      { title: "Cláusulas de Contrato", href: "/settings/contratos/clausulas", icon: Scale, permiso: PERMISOS.ADMINISTRACION },
       { title: "Seguridad", href: "/settings/account", icon: ShieldCheck },
-      { title: "Promociones", href: "/settings/promos", icon: Tag },
-      { title: "Asistente IA", href: "/settings/ai-assistant", icon: Bot },
-      { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak", icon: Cpu },
-      { title: "Laboratorio Experimental", href: "/settings/feature-flags", icon: Wand2 },
+      { title: "Promociones", href: "/settings/promos", icon: Tag, permiso: PERMISOS.ADMINISTRACION },
+      { title: "Asistente IA", href: "/settings/ai-assistant", icon: Bot, permiso: PERMISOS.ADMINISTRACION },
+      { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak", icon: Cpu, permiso: PERMISOS.ADMINISTRACION },
+      { title: "Laboratorio Experimental", href: "/settings/feature-flags", icon: Wand2, permiso: PERMISOS.ADMINISTRACION },
     ],
   },
 ];
@@ -158,6 +161,17 @@ export function MainNav() {
   const pathname = usePathname();
   const [urgentAlertCount, setUrgentAlertCount] = useState(0);
   const [totalUnreadCount, setTotalUnreadCount] = useState(0);
+  const [misPermisos, setMisPermisos] = useState<Permiso[] | null>(null);
+
+  useEffect(() => {
+    let montado = true;
+    getMisPermisos().then((res) => {
+      if (montado) setMisPermisos(res.permisos);
+    }).catch(() => {
+      if (montado) setMisPermisos([]);
+    });
+    return () => { montado = false; };
+  }, []);
   const prevPathname = React.useRef("");
 
   const refreshAlertCount = React.useCallback(() => {
@@ -227,6 +241,13 @@ export function MainNav() {
 
         {navGroups.map((group) => {
           let lastSubgroup = "";
+          const itemsVisibles = group.items.filter((item) => {
+            if (!item.permiso) return true;
+            if (!misPermisos) return false;
+            return misPermisos.includes(item.permiso);
+          });
+          if (itemsVisibles.length === 0) return null;
+
           return (
             <SidebarGroup key={group.label} className="p-0 space-y-2">
               <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 px-3 flex items-center justify-between">
@@ -235,7 +256,7 @@ export function MainNav() {
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu className="space-y-1">
-                  {group.items.map((item) => {
+                  {itemsVisibles.map((item) => {
                     const active = isActive(item);
                     const Icon = item.icon;
                     const showSubgroupHeader = item.subgroup && item.subgroup !== lastSubgroup;

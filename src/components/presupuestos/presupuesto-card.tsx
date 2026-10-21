@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
 
 import type { Presupuesto } from '@/types/presupuesto';

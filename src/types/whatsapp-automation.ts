@@ -35,6 +35,7 @@ export interface WhatsAppAutomationRule {
   customTemplate?: string; // If templateType === 'personalizado'
   enabled: boolean;
   targetType: 'prospecto' | 'cliente';
+  channel?: 'whatsapp' | 'email' | string;
   sendingMode?: WhatsAppSendingMode; // 'manual_click' (default) or 'automatic'
   createdAt: string;
 }

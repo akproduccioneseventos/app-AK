@@ -38,6 +38,8 @@ export type PublicSocialEvent = Pick<
     trivia: { nombre: string; puntos: number }[];
     cazadores: { nombre: string; puntos: number }[];
   };
+  tieneRealidadAumentada?: boolean;
+  mindTargetUrl?: string;
 };
 
 export function toPublicSocialEvent(
@@ -98,5 +100,18 @@ export function toPublicSocialEvent(
       fiesta.socialGallerySettings?.modoCaras === 'apagado'
         ? []
         : (fiesta.socialGallerySettings?.carasPreparadas || fiesta.carasIndexadas?.length ? fiesta.carasIndexadas : undefined),
+    tieneRealidadAumentada: Boolean(
+      (fiesta as any).tieneRealidadAumentada ||
+      (fiesta as any).mindTargetUrl ||
+      (fiesta as any).invitacionMindUrl ||
+      (fiesta as any).invitacionDigital?.arConfig?.enabled ||
+      (fiesta as any).invitacionConfig?.arConfig?.enabled
+    ),
+    mindTargetUrl:
+      (fiesta as any).mindTargetUrl ||
+      (fiesta as any).invitacionMindUrl ||
+      (fiesta as any).invitacionDigital?.arConfig?.mindTargetUrl ||
+      (fiesta as any).invitacionConfig?.arConfig?.mindTargetUrl ||
+      undefined,
   };
 }

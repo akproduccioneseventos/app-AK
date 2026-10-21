@@ -35,6 +35,7 @@ import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 import { armarAlbumInteligente, type AlbumDigitalCompleto, type RecuerdoAlbum } from '@/lib/album/armar-album';
@@ -242,16 +243,10 @@ export default function PublicAlbumPage() {
   };
 
   const filteredPosts = useMemo(() => {
-    if (activeTab === 'todas') return posts;
-    if (activeTab === 'fotocabina') return posts.filter((p) => p.sourceModule === 'fotocabina');
-    if (activeTab === '360') return posts.filter((p) => p.sourceModule === 'plataforma_360');
-    if (activeTab === 'espejo') return posts.filter((p) => p.sourceModule === 'espejo_magico');
-    if (activeTab === 'bogue') return posts.filter((p) => p.sourceModule === 'bogue' || p.sourceModule === 'boomerang');
-    if (activeTab === 'buzon') return posts.filter((p) => p.sourceModule === 'buzon' || p.sourceModule === 'capsulaTiempo');
     if (activeTab === 'invitados') {
       return posts.filter((p) => !p.sourceModule || p.sourceModule === 'muro' || p.sourceModule === 'invitado');
     }
-    return posts;
+    return filtrarPorEstacion(posts, activeTab);
   }, [posts, activeTab]);
 
   const showNext = useCallback(() => {

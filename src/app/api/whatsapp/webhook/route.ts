@@ -10,6 +10,7 @@ import {
   correspondeContestarSolo,
   type ReferenciaDeOrigen,
 } from '@/lib/whatsapp/vino-de-la-publicidad';
+import { atenderProspectoAnuncioWhatsApp } from '@/lib/asistente/por-whatsapp';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -208,6 +209,20 @@ export async function POST(request: NextRequest) {
         respondido: false,
         motivo: 'No viene de la publicidad: contesta una persona.',
       });
+    }
+
+    // Si viene de la publicidad y trae los datos de la fiesta, se atiende el prospecto de anuncio
+    const atencionAnuncio = await atenderProspectoAnuncioWhatsApp({
+      phone,
+      name: clientName,
+      text: messageText,
+    });
+    if (atencionAnuncio.completo) {
+      return NextResponse.json({
+        status: 'ok',
+        tipo: 'prospecto_anuncio_simulador',
+        completo: true,
+      }, { status: 200 });
     }
 
     const result = await processIncomingMessage(phone, messageText, clientName, WHATSAPP_WEBHOOK_INTERNAL_TOKEN);

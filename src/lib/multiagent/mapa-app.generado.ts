@@ -502,6 +502,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/evento/actual/checkin",
     "/evento/actual/mesa",
     "/evento/album/:fiestaId",
+    "/evento/ar/:fiestaId",
     "/evento/barra",
     "/evento/barra/:fiestaId",
     "/evento/barra/:fiestaId/barman",
