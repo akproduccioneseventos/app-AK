@@ -327,6 +327,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                   { id: 'totem', label: 'Tótem LED', icon: Smartphone, color: 'hover:border-emerald-500/50 hover:bg-emerald-500/5' },
                   { id: 'fotocabina', label: 'Fotocabina', icon: Camera, color: 'hover:border-amber-500/50 hover:bg-amber-500/5' },
                   { id: 'espejo-magico', label: 'Espejo Mágico', icon: Sparkles, color: 'hover:border-pink-500/50 hover:bg-pink-500/5' },
+                  { id: 'bogue', label: 'Vogue', icon: Sparkles, color: 'hover:border-fuchsia-500/50 hover:bg-fuchsia-500/5' },
                   { id: 'touchpix', label: 'Touchpix AI', icon: Wand2, color: 'hover:border-cyan-500/50 hover:bg-cyan-500/5' },
                   { id: 'buzon', label: 'Buzón Saludos', icon: Mic, color: 'hover:border-violet-500/50 hover:bg-violet-500/5' },
                   { id: 'video-vida', label: 'Video de Vida', icon: Film, color: 'hover:border-orange-500/50 hover:bg-orange-500/5' },
