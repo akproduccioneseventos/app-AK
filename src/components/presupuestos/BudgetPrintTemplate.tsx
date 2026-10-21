@@ -14,6 +14,7 @@ import Image from 'next/image';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import type { AnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
 import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
+import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -141,7 +142,7 @@ export default function BudgetPrintTemplate({
     ? annualProjection.rows
     : annualAdjustmentAmount > 0
       ? [{
-          year: new Date(presupuesto.eventoFecha || presupuesto.timestamp).getFullYear(),
+          year: anioDeLaFechaDelEvento(presupuesto.eventoFecha) ?? new Date(presupuesto.timestamp).getFullYear(),
           total: totalFinal + annualAdjustmentAmount,
           adjustmentAmount: annualAdjustmentAmount,
         }]

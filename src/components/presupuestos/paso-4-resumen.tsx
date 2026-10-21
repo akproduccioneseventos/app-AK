@@ -13,6 +13,7 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { BudgetDisplaySettings, WhatsAppTemplates } from '@/types/settings';
 import Image from 'next/image';
 import { calculateBudgetFinancials } from '@/lib/budget/financial-guardrails';
+import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 
 // Company Info Constants
 const COMPANY_NAME_BRAND = "AK PRODUCCIONES";
@@ -205,7 +206,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
   
-  const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
+  const eventYear = anioDeLaFechaDelEvento(presupuesto.eventoFecha) ?? 0;
   const currentYear = new Date().getFullYear();
   const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
   const isContracted = presupuesto?.estado === 'Aceptado' || presupuesto?.estado === 'Facturado';

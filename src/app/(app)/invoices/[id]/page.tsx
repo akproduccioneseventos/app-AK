@@ -22,6 +22,7 @@ import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { InvoiceTemplateSettings } from '@/types/settings';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { montoEnLetras } from '@/lib/money/monto-en-letras';
+import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 
 const formatCurrency = (amount: number, currency: string = 'UYU') => {
   const fractionDigits = currency.toUpperCase() === 'UYU' ? 0 : 2;
@@ -69,7 +70,7 @@ export default function ViewInvoicePage() {
         );
         if (linkedBudget?.eventoFecha) {
             const yearCreated = new Date(linkedBudget.timestamp).getFullYear();
-            const yearEvent = new Date(linkedBudget.eventoFecha).getFullYear();
+            const yearEvent = anioDeLaFechaDelEvento(linkedBudget.eventoFecha) ?? new Date(linkedBudget.eventoFecha).getFullYear();
             if (yearEvent > yearCreated) {
                 setAjusteText(`INCLUYE AJUSTE ${linkedBudget.ajusteAnualPorcentaje ?? 15}% ANUAL (${yearCreated} A ${yearEvent})`);
             }

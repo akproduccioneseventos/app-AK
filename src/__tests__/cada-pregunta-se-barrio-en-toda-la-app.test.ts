@@ -28,6 +28,27 @@ function barridos(): Record<string, Barrido> {
   return JSON.parse(leer('docs/barridos.json')).preguntas;
 }
 
+function barridosPorHallazgo(): Record<string, Barrido> {
+  return JSON.parse(leer('docs/barridos.json')).hallazgos || {};
+}
+
+/**
+ * 21/10/2026, pedido del dueño ("otro error de esos, mejorá"): la fecha corrida de Codex 159 se arregló y
+ * NO se buscó en el resto de la app, porque su pregunta (la 70) ya figuraba barrida de antes. Barrer una
+ * pregunta una vez no alcanza: CADA hallazgo nuevo se busca en toda la app, aunque su pregunta sea vieja.
+ * Desde la orden 199 y la auditoría 159, cada línea de LO-QUE-NO-VI necesita su barrido propio.
+ */
+const DESDE_ORDEN = 199;
+const DESDE_AUDITORIA = 159;
+function hallazgosQueNecesitanBarrido(): string[] {
+  const texto = leer('docs/LO-QUE-NO-VI.md');
+  const ordenes = [...texto.matchAll(/^- Orden (\d+) → pregunta \d+/gm)]
+    .map((m) => Number(m[1])).filter((n) => n >= DESDE_ORDEN).map((n) => `orden-${n}`);
+  const auditorias = [...texto.matchAll(/^- Auditoria (\d+) .*→ pregunta \d+/gm)]
+    .map((m) => Number(m[1])).filter((n) => n >= DESDE_AUDITORIA).map((n) => `auditoria-${n}`);
+  return [...new Set([...ordenes, ...auditorias])];
+}
+
 describe('cada pregunta del método se buscó en toda la app', () => {
   it('ninguna pregunta del método queda sin su barrido anotado', () => {
     const ultima = ultimaPreguntaDelMetodo();
@@ -50,5 +71,16 @@ describe('cada pregunta del método se buscó en toda la app', () => {
     expect(nombradas.length).toBeGreaterThan(0);
     const malas = nombradas.filter((n) => n < 1 || n > ultima || !anotados[String(n)]);
     expect(malas).toEqual([]);
+  });
+
+  it('cada hallazgo nuevo se buscó en toda la app, aunque su pregunta ya estuviera barrida', () => {
+    const hechos = barridosPorHallazgo();
+    const necesitan = hallazgosQueNecesitanBarrido();
+    expect(necesitan.length).toBeGreaterThan(0);
+    const faltan = necesitan.filter((k) => {
+      const b = hechos[k];
+      return !b || !/^\d{4}-\d{2}-\d{2}$/.test(b.fecha) || !b.resultado?.trim();
+    });
+    expect(faltan).toEqual([]);
   });
 });

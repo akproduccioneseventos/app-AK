@@ -1,5 +1,5 @@
 {
-  "nota": "Registro de barridos: cada pregunta de docs/COMO-AUDITAR.md buscada en todo src/. 'parcial' = falta terminar (orden 193, bloque 9). Lo controla src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts.",
+  "nota": "Registro de barridos: cada pregunta de docs/COMO-AUDITAR.md buscada en todo src/. 'parcial' = falta terminar (orden 193, bloque 9). Lo controla src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts. Desde el 21/10/2026 también 'hallazgos': cada hallazgo nuevo (orden desde la 199, auditoría desde la 159) con su búsqueda propia en toda la app, aunque su pregunta ya estuviera barrida.",
   "preguntas": {
     "1": {
       "fecha": "2026-10-20",
@@ -340,6 +340,24 @@
     "85": {
       "fecha": "2026-10-20",
       "resultado": "las 11 rutas que abren la puerta de las tareas recortan la respuesta sin clave; el control recorre todas las rutas de src/app/api"
+    }
+  },
+  "hallazgos": {
+    "orden-199": {
+      "fecha": "2026-10-20",
+      "resultado": "4 visores hechos a mano; aparecio el video de ayuda (VideoDeAyuda) con la misma falla. Arreglados los dos, con Tab incluido."
+    },
+    "orden-200": {
+      "fecha": "2026-10-20",
+      "resultado": "ninguna otra funcion del camino del personal frena antes de ver lo suyo."
+    },
+    "orden-201": {
+      "fecha": "2026-10-20",
+      "resultado": "las 11 rutas que abren la puerta de las tareas recortan sin clave; el control recorre src/app/api entero."
+    },
+    "orden-204": {
+      "fecha": "2026-10-21",
+      "resultado": "3 guardados de ficha entera: personal (la secretaria borraba cedula y nacimiento) y proveedores pasan a mutateDataItem; menus queda (edicion entera del formulario)."
     }
   }
 }
