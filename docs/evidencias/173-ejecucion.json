@@ -1,0 +1,15 @@
+{
+  "source": "daefbdc00b7a43f4f252dcca6e7d9565d4d30d10",
+  "started": "2026-10-21T12:54:46.777Z",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-166-vjtu7f",
+  "actualSdk": true,
+  "realServices": false,
+  "memoryPlan": "No Next/browser/build; Java heap256MiB, Node heap192MiB, guard768MiB",
+  "emulatorPid": 4944,
+  "probePid": 2020,
+  "exitCode": 0,
+  "cleanupStatus": 200,
+  "finished": "2026-10-21T12:55:16.986Z",
+  "sourceDiff": "",
+  "gitExit": 0
+}

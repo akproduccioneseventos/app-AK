@@ -1109,6 +1109,31 @@ arreglo llega a la app.
   cada uno.
 - El despertador le avisa al dueño si alguno pasa de 2 días.
 
+### 42. Arreglar un hallazgo sin buscarlo en el resto de la app porque su pregunta "ya estaba barrida"
+
+**Pasó el 21 de octubre de 2026.** Arreglé la fecha corrida un día en el mensaje de seguimiento (Codex
+159) y no busqué la misma forma en otros lugares: la pregunta 70, la de las fechas, figuraba barrida de
+antes. El dueño: *"otro error de esos, mejorá"*.
+
+**Qué era lo cierto:** una pregunta barrida una vez no encuentra lo que se escribió después. Cada
+hallazgo nuevo es un aviso de que la forma volvió, y hay que buscarla de nuevo.
+
+**Qué se hace distinto, y ya está enganchado:** `docs/barridos.json` lleva `hallazgos`, uno por cada
+línea nueva de `LO-QUE-NO-VI.md` (órdenes desde la 199, auditorías desde la 159), con su búsqueda propia.
+Sin esa línea, `cada-pregunta-se-barrio-en-toda-la-app.test.ts` no deja publicar. Y un hallazgo que se
+agrega adentro de una orden vieja ("ampliación") lleva igual su línea "- Auditoria N → pregunta M".
+
+### 43. Decir "ningún error de plata abierto" con una orden de plata mía a medias
+
+**Pasó el 21 de octubre de 2026.** La orden 185 (el pago de un proveedor se le copiaba a otro del mismo
+nombre) figuraba "FALTA" en `ordenes?` desde el 18/10, y en `ESTADO-ACTUAL.md` escribí "ningún error de
+plata abierto". Lo encontré al cruzar todo lo de Codex desde el principio, porque lo pidió el dueño.
+
+**Qué era lo cierto:** `ordenes?` informa y no frena; una orden mía a medias no le saltaba a nadie.
+
+**Qué se hace distinto, y ya está enganchado:** `las-ordenes-de-plata-de-claude-estan-hechas.test.ts` frena
+la publicación si una orden `-claude-` está a medias.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1794,6 +1819,9 @@ con otra cara.
 | Se sumaban preguntas al método y nadie las buscaba en el resto de la app | `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 | Una orden figuraba hecha con un comentario o un import sin usar, y pruebas que sólo decían `expect(true)` | `enCodigoQueCorre` en `scripts/ordenes-cumplidas.mjs` con `src/__tests__/una-orden-no-se-cumple-con-un-comentario.test.ts` |
 | La tarea sin clave devolvía nombres de clientes, y el empleado no llegaba a su portal | `src/__tests__/codex-156-158-portal-propio-y-tareas-recortadas.test.ts` |
+| Un permiso pedido sin mirar la respuesta dejaba pasar a cualquiera | `src/__tests__/un-permiso-que-no-se-mira-no-frena.test.ts` |
+| Una orden de plata de Claude quedaba a medias y la lista decía "ningún error abierto" | `src/__tests__/las-ordenes-de-plata-de-claude-estan-hechas.test.ts` |
+| Un hallazgo se arreglaba sin buscarlo en el resto de la app porque su pregunta ya figuraba barrida | `hallazgos` en `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 | El portal del proveedor perdía un toque de dos y reactivaba accesos; la secretaria borraba la cédula del personal al guardar | `src/__tests__/provider-portal-actions.test.ts` y `src/__tests__/la-secretaria-no-borra-la-cedula-del-personal.test.ts` |
 
 ### Cómo se elige el matafuego

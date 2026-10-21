@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
@@ -279,13 +280,7 @@ export default function PublicAlbumPage() {
   }, [lightboxIndex, showNext, showPrev, viewMode, paginaActual, albumDigital.totalPaginas]);
 
   const nombreFiesta = fiesta?.configuracion?.nombreEvento || 'Álbum del Evento';
-  const fechaFiesta = fiesta?.configuracion?.fechaEvento
-    ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString('es-UY', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
-    : '';
+  const fechaFiesta = fiesta?.configuracion?.fechaEvento ? formatearFechaEvento(fiesta.configuracion.fechaEvento) : '';
 
   const paginaItems = paginaActual > 0 ? albumDigital.paginas[paginaActual - 1]?.recuerdos || [] : [];
 

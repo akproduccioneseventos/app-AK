@@ -1,6 +1,7 @@
 'use server';
 
-import { requireAdminSession, requireAppSession } from '@/lib/auth/require-session';
+import { requireAdminSession, requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   estadoDeLasTareas,
   estadoDelDespertador,
@@ -91,7 +92,9 @@ export async function dispararTareasVencidasDeFondo(): Promise<{
  * Ejecuta una tarea puntual a pedido del operador desde el panel.
  */
 export async function ejecutarTareaManual(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  // Publica en redes y escribe la nota del blog: es del dueño, no de cualquier sesión (pregunta 35).
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
 
   try {
     if (id === 'generate-blog-post') {

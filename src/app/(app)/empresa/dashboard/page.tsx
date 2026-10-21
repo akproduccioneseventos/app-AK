@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -151,7 +152,7 @@ export default function DashboardPage() {
                   <div>
                     <h3 className="font-bold text-slate-800">{fiesta.configuracion?.nombreEvento || 'Fiesta sin nombre'}</h3>
                     <p className="text-sm text-slate-500">
-                      {fiesta.configuracion?.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString() : 'Sin fecha'} • {fiesta.configuracion?.tipoCelebracion || 'Evento'}
+                      {fiesta.configuracion?.fechaEvento ? formatearFechaEvento(fiesta.configuracion.fechaEvento) : 'Sin fecha'} • {fiesta.configuracion?.tipoCelebracion || 'Evento'}
                     </p>
                   </div>
                   <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity"><Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>

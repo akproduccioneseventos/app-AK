@@ -33,6 +33,8 @@ jest.mock('@/lib/firebase/server', () => ({ dbAdmin: mockDb }));
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (file: string,fallback: any) => file === 'presupuestos.json'
     ? [...mockRecords].filter(([p])=>p.startsWith('presupuestos/')).map(([,v])=>copy(v)) : fallback),
+  readDataConDetalle: jest.fn(async (file: string,fallback: any) => ({ huboFalla: false, valor: file === 'presupuestos.json'
+    ? [...mockRecords].filter(([p])=>p.startsWith('presupuestos/')).map(([,v])=>copy(v)) : fallback })),
   writeData: jest.fn(),
   mutateDataItem: jest.fn(async (_f: string,c: string,id: string,fn: any) => {
   const key=c+'/'+id, current=mockRecords.get(key); if (!current) return null;

@@ -2,7 +2,7 @@
 
 import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto';
 import { buscarGemeloCargadoAMano, esEspejoDeFactura } from '@/lib/budget/pago-duplicado';
-import { readData, writeData, mutateDataItem } from '@/lib/data-service';
+import { readDataConDetalle, readData, writeData, mutateDataItem } from '@/lib/data-service';
 // Nota: este archivo NO debe llamar a `saveInvoice` ni a `addPaymentToInvoice`.
 // Esas dos esperan el turno del candado de facturas, y a su vez llaman de vuelta
 // a los presupuestos: si el llamado va en ese sentido, la operacion se queda
@@ -110,7 +110,9 @@ export async function getPresupuestos(includeArchived = false): Promise<Presupue
   if (!auth.success) throw new Error('No autorizado');
   const nivel = nivelDePresupuestos(auth.user);
   if (!nivel) throw new Error('Tu perfil no tiene acceso a los presupuestos.');
-  const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+  // Pregunta 50: si la base no contestó, se avisa; "no hay presupuestos" haría que alguien los cargue de nuevo.
+  const { valor: all, huboFalla } = await readDataConDetalle<Presupuesto[]>(PRESUPUESTOS_FILE, []);
+  if (huboFalla && all.length === 0) throw new Error('No se pudieron leer los presupuestos. Probá de nuevo en un momento.');
   const visibles = includeArchived ? all : all.filter(p => !p.archived);
   return nivel === 'completo' ? visibles : visibles.map(sinCobros);
 }

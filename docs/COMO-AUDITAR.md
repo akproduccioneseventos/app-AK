@@ -1283,3 +1283,11 @@ puerta ya decía "sin clave, la respuesta va recortada" y nadie la recortaba. Ah
 tarea pasa por `respuestaDeLaTarea`, y `codex-156-158-portal-propio-y-tareas-recortadas.test.ts` lo exige
 en todas las rutas que abren la puerta.
 
+### 86. Una respuesta guardada para no repetir trabajo, ¿se devuelve antes de mirar quién la pide?
+
+Codex 171 (orden 205, sobre la entrega 1344 de Gemini): la acción de voz guardaba en memoria el resultado
+de cada pedido por su número y, si el número se repetía, lo devolvía **antes** de mirar el permiso. El
+dueño preguntaba cuánto le deben; con el mismo número, un operador recibía la respuesta. Se busca todo
+`Map`/caché de resultados por id en `src/app` y `src/lib`, y se mira que el permiso vaya primero y que el
+resultado quede atado a quién lo pidió.
+

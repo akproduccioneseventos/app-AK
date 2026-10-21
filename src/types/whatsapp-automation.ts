@@ -35,7 +35,6 @@ export interface WhatsAppAutomationRule {
   customTemplate?: string; // If templateType === 'personalizado'
   enabled: boolean;
   targetType: 'prospecto' | 'cliente';
-  channel?: 'whatsapp' | 'email' | string;
   sendingMode?: WhatsAppSendingMode; // 'manual_click' (default) or 'automatic'
   createdAt: string;
 }
@@ -54,6 +53,7 @@ export interface ScheduledMessage {
   // Message details
   templateType: MessageTemplateType;
   messageText: string; // Pre-rendered text
+  channel?: 'whatsapp' | 'email' | string;
   // Scheduling
   scheduledAt: string; // ISO - when it should be sent
   status: ScheduledMessageStatus;

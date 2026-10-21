@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
 
 'use server';
@@ -1463,8 +1464,8 @@ export async function changeEventDate(
     const updatedItems = [...(presupuesto.itemsPresupuestados || []), penaltyItem];
 
     // Format new document
-    const originalDateFmt = new Date(fiesta.configuracion?.fechaEvento || '').toLocaleDateString('es-UY');
-    const newDateFmt = new Date(payload.newDate).toLocaleDateString('es-UY');
+    const originalDateFmt = fiesta.configuracion?.fechaEvento ? formatearFechaEvento(fiesta.configuracion.fechaEvento) : '—';
+    const newDateFmt = formatearFechaEvento(payload.newDate);
     const timestampStr = new Date().toISOString().replace(/[:.]/g, '-');
     const docId = `cambio_fecha_${timestampStr}`;
     const filename = `cambio_fecha_${fiestaId}_${timestampStr}.txt`;

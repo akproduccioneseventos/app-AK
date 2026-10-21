@@ -1,37 +1,37 @@
 {
-  "nota": "Registro de barridos: cada pregunta de docs/COMO-AUDITAR.md buscada en todo src/. 'parcial' = falta terminar (orden 193, bloque 9). Lo controla src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts.",
+  "nota": "Registro de barridos: cada pregunta de docs/COMO-AUDITAR.md buscada en todo src/. 'parcial' = falta terminar (orden 193, bloque 9). Lo controla src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts. Desde el 21/10/2026 también 'hallazgos': cada hallazgo nuevo (orden desde la 199, auditoría desde la 159) con su búsqueda propia en toda la app, aunque su pregunta ya estuviera barrida.",
   "preguntas": {
     "1": {
       "fecha": "2026-10-20",
       "resultado": "sin hallazgos: control lo-automatico-tiene-que-haber-pasado.test.ts"
     },
     "2": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: falta correr scripts/lo-que-se-dijo-es-lo-que-es.mjs --todo"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: lo-que-se-dijo --todo da 6 sin llamador, todos en órdenes salvo getConversacionesAsistenteCliente (decisión del dueño) → orden 207"
     },
     "3": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: el barrido de la mañana dio sin hallazgos y Gemini encontró casos esa noche (orden 194); se vuelve a barrer en la orden 194"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: Meta Ads simulaba éxito sin token (arreglado por Claude); testimonios de muestra ya decididos"
     },
     "4": {
       "fecha": "2026-10-20",
       "resultado": "sin hallazgos: controles ninguna-pantalla-miente y nada-inventado-en-pantalla"
     },
     "5": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: sin control mecánico; no se recorrieron las pantallas públicas"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10 (lectura de código): sin promesas prohibidas; dudosos \"100%\" sin cambiar (decisión comercial)"
     },
     "6": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: falta comprobar que cada carpeta de src/app/api/cron la dispare el programador publicado"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: 11 rutas; recordatorio-a-los-invitados sin disparador → orden 207 bloque 1"
     },
     "7": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: parámetros opcionales que nadie pasa: no buscado a fondo"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: parámetros sin uso en applyAutomaticStaffByGuests y getPendingOfflineActions → orden 207"
     },
     "8": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: falta correr lo-que-se-dijo-es-lo-que-es criterio C"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: formas-que-mienten 14 lugares; 8 carteles de copiado → orden 207 bloque 6"
     },
     "9": {
       "fecha": "2026-10-20",
@@ -58,8 +58,8 @@
       "resultado": "sin hallazgos"
     },
     "15": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: listas largas: no buscado"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: cuentas bancarias del portal cortadas en 2 (arreglado por Claude); 3 listas más → orden 207"
     },
     "16": {
       "fecha": "2026-10-20",
@@ -74,8 +74,8 @@
       "resultado": "sin hallazgos"
     },
     "19": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: no se barrieron todas las pantallas con datos en la dirección"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: gestión documental y costo de la fiesta quedan cargando → orden 207 bloque 4"
     },
     "20": {
       "fecha": "2026-10-20",
@@ -94,12 +94,12 @@
       "resultado": "sin hallazgos"
     },
     "24": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: el barrido de la mañana dio sin hallazgos y Gemini encontró casos esa noche (orden 194); se vuelve a barrer en la orden 194"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: 168 funciones seguidas; sólo registerGuestLiveInterest con base caída (menor)"
     },
     "25": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: escrituras en dos pasos: no verificado"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: deletePresupuesto, deleteCustomer, processHistoricRecord e deleteInvoice → orden 207 bloque 5"
     },
     "26": {
       "fecha": "2026-10-20",
@@ -114,16 +114,16 @@
       "resultado": "sin hallazgos: textos de cliente sin garantía/24/7/congelar"
     },
     "29": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: portal-cliente href #catering/#invitados/#pagos sin confirmar condición"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: portal-cliente y pase del invitado con la misma condición; sin hallazgos"
     },
     "30": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: ?algo= contra searchParams.get: no barrido"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: tab= sin lector (avisos del portal y en-vivo) → orden 207; adultos/ninos al simulador arreglado por Claude"
     },
     "31": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: formateadores de fecha/hora/monto: no barrido"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: formatearFechaEvento y la tira conservan el texto; sin hallazgos"
     },
     "32": {
       "fecha": "2026-10-20",
@@ -138,16 +138,16 @@
       "resultado": "sin hallazgos"
     },
     "35": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: el barrido de la mañana dio sin hallazgos y Gemini encontró casos esa noche (orden 194); se vuelve a barrer en la orden 194"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: 282 exportadas con sólo sesión, 60 revisadas a mano; 5 sin permiso y 1 con permiso ignorado, arregladas por Claude con control nuevo"
     },
     "36": {
       "fecha": "2026-10-20",
       "resultado": "confirmado → orden 193: saldo sin ajuste anual en parte-manana, errores-humanos, motor-agentes, customers"
     },
     "37": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: datos de prueba contra src/types: no barrido"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: fixtures tipados con forma real; sin hallazgos"
     },
     "38": {
       "fecha": "2026-10-20",
@@ -158,16 +158,16 @@
       "resultado": "sin hallazgos"
     },
     "40": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: ~20 runTransaction sin revisar contadores externos"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: 34 runTransaction y ~60 mutadores; reinician bien, 2 cosméticos"
     },
     "41": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: no se recorrieron todas las pantallas con enlace"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: acciones de las pantallas sin cuenta no exigen cuenta; sin hallazgos"
     },
     "42": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: sin búsqueda mecánica de unidades"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: personas e invitaciones rotuladas bien; sin hallazgos"
     },
     "43": {
       "fecha": "2026-10-20",
@@ -178,12 +178,12 @@
       "resultado": "confirmado → orden 193: ganancia-evento ~165 cuenta cobros a confirmar"
     },
     "45": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: no se barrieron los que llaman funciones con candado"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: sin puertas que se salteen el candado"
     },
     "46": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: sin barrido"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: estaciones con hasEntertainmentGuestAccess; sin hallazgos propios"
     },
     "47": {
       "fecha": "2026-10-20",
@@ -198,8 +198,8 @@
       "resultado": "confirmado → orden 193: cámaras que quedan prendidas en bogue y espejo; resto probable"
     },
     "50": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: 51 catch que devuelven vacío sin trazar hasta la pantalla"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: presupuestos (arreglado por Claude); agenda y calendario → orden 207 bloque 4"
     },
     "51": {
       "fecha": "2026-10-20",
@@ -218,12 +218,12 @@
       "resultado": "sin hallazgos"
     },
     "55": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: falta el diff de package.json de las mayores subidas"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: ninguna biblioteca de pantalla subida de versión mayor"
     },
     "56": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: avisos fijos en celular sin confirmar que tapen botones"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10 (lectura de código): 39 fijos, ninguno tapa una acción; dudoso el conserje del hub en 390 px"
     },
     "57": {
       "fecha": "2026-10-20",
@@ -234,8 +234,8 @@
       "resultado": "confirmado → orden 193: applyPlaybookToFiesta duplica al reintentar"
     },
     "59": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: diálogos Nuevo/Agregar fuera del CRM sin revisar"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: 17 diálogos limpian y conservan; dudosos accesos-personal y admin/usuarios"
     },
     "60": {
       "fecha": "2026-10-20",
@@ -250,8 +250,8 @@
       "resultado": "sin hallazgos"
     },
     "63": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: 189 select sin revisar uno por uno"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: 6 hallazgos de accesibilidad → orden 207 bloque 6"
     },
     "64": {
       "fecha": "2026-10-20",
@@ -262,8 +262,8 @@
       "resultado": "sin hallazgos"
     },
     "66": {
-      "fecha": "2026-10-20",
-      "resultado": "parcial: listas por estación sin confirmar todas"
+      "fecha": "2026-10-21",
+      "resultado": "completo 21/10: álbum, kiosco y centro sin todas las estaciones → orden 207 bloque 2"
     },
     "67": {
       "fecha": "2026-10-20",
@@ -340,6 +340,44 @@
     "85": {
       "fecha": "2026-10-20",
       "resultado": "las 11 rutas que abren la puerta de las tareas recortan la respuesta sin clave; el control recorre todas las rutas de src/app/api"
+    },
+    "86": {
+      "fecha": "2026-10-21",
+      "resultado": "en la app publicada no hay cachés de resultados por id antes del permiso (sólo la búsqueda pública de Spotify, que no tiene datos de nadie). El caso está en la entrega 1344, sin fusionar: orden 205."
+    }
+  },
+  "hallazgos": {
+    "orden-199": {
+      "fecha": "2026-10-20",
+      "resultado": "4 visores hechos a mano; aparecio el video de ayuda (VideoDeAyuda) con la misma falla. Arreglados los dos, con Tab incluido."
+    },
+    "orden-200": {
+      "fecha": "2026-10-20",
+      "resultado": "ninguna otra funcion del camino del personal frena antes de ver lo suyo."
+    },
+    "orden-201": {
+      "fecha": "2026-10-20",
+      "resultado": "las 11 rutas que abren la puerta de las tareas recortan sin clave; el control recorre src/app/api entero."
+    },
+    "orden-204": {
+      "fecha": "2026-10-21",
+      "resultado": "3 guardados de ficha entera: personal (la secretaria borraba cedula y nacimiento) y proveedores pasan a mutateDataItem; menus queda (edicion entera del formulario)."
+    },
+    "auditoria-159": {
+      "fecha": "2026-10-21",
+      "resultado": "26 lugares con la fecha de la fiesta corrida un día en Uruguay: lo de plata (año del ajuste anual en simulador, presupuesto, resumen y factura) lo arregló Claude con anioDeLaFechaDelEvento; el resto, orden 206 para Gemini."
+    },
+    "orden-205": {
+      "fecha": "2026-10-21",
+      "resultado": "cachés de resultados por id antes del permiso: ninguna en la app publicada; el caso vive en la entrega 1344 (orden 205)."
+    },
+    "orden-206": {
+      "fecha": "2026-10-21",
+      "resultado": "es el mismo barrido de la auditoría 159: la lista entera está en la orden 206."
+    },
+    "orden-207": {
+      "fecha": "2026-10-21",
+      "resultado": "es el barrido completo de las 26 preguntas parciales; además apareció un permiso que no se miraba (gastos) y se buscó en toda la app: un solo caso, con control."
     }
   }
 }

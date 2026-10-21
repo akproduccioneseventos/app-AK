@@ -17,6 +17,7 @@ const archivos: Record<string, any> = {};
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
+  requirePermisoAlguno: jest.fn(async () => undefined),
   requirePermiso: jest.fn(async () => ({ ok: true, user: {} })),
   hasAppSession: jest.fn(async () => true),
 }));

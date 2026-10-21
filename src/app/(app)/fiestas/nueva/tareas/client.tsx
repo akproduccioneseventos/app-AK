@@ -1,3 +1,4 @@
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 'use client';
 
@@ -206,7 +207,7 @@ function TareasEventoContent() {
     }
 
     setIsSyncing(true);
-    const eventDate = new Date(fiestaEventDate);
+    const eventDate = parseEventDate(fiestaEventDate) || new Date(fiestaEventDate);
     
     let mondayForCatering = startOfWeek(eventDate, { weekStartsOn: 1 });
     if (eventDate.getDay() === 1 || eventDate.getDay() === 2) {

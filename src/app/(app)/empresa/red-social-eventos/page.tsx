@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
 
 import React, { useState, useEffect, useCallback, startTransition } from 'react';
@@ -230,7 +231,7 @@ export default function RedSocialEventosPage() {
                         {feed.nombreEvento}
                       </td>
                       <td className="py-4 px-4 text-slate-500">
-                        {feed.fechaEvento ? new Date(feed.fechaEvento).toLocaleDateString('es-ES') : 'Sin fecha'}
+                        {feed.fechaEvento ? formatearFechaEvento(feed.fechaEvento) : 'Sin fecha'}
                       </td>
                       <td className="py-4 px-4">
                         <Badge className={`rounded-xl px-2.5 py-0.5 font-bold border ${statusColors[feed.temporalStatus] || ''}`} variant="outline">

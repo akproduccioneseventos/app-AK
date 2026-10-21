@@ -1,3 +1,4 @@
+import { parseEventDate } from '@/lib/public-experience/event-date';
 'use client';
 
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
@@ -635,7 +636,7 @@ function PlannerDashboardContent() {
         <div className="sm:hidden">
             <KpiCard title="Ingreso" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado)).split(',')[0]} icon={DollarSign} />
         </div>
-        <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
+        <KpiCard title="Fecha" value={parseEventDate(fiesta.configuracion.fechaEvento!)?.toLocaleDateString('es-ES', {month: 'short', day: 'numeric'}) || 'Sin fecha'} icon={Calendar} />
       </div>
 
       {prepScore && (

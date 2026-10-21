@@ -177,8 +177,10 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
     // borraba el contrato o la factura de verdad, el guardado le fallaba despues, y
     // quedaba la ficha apuntando a un archivo que ya no existe.
     //
-    // Subir un documento si pedia permiso; borrarlo, no.
-    await requireAppSession();
+    // Subir un documento si pedia permiso; borrarlo, no. Ahora pide el mismo que subir (barrido de la
+    // pregunta 35, 21/10/2026): con sólo sesión, el personal borraba el contrato o la factura.
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, error: permiso.error };
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");

@@ -1,3 +1,4 @@
+import { parseEventDate } from '@/lib/public-experience/event-date';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 'use client';
 

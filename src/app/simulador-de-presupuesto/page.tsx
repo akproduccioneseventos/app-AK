@@ -87,6 +87,7 @@ import {
 } from '@/lib/simulator/package-customization';
 import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 
 const COMMERCIAL_TIMER_SECONDS = 15 * 60;
 const COMMERCIAL_TIMER_STORAGE_KEY = 'ak-simulator-commercial-timer';
@@ -597,7 +598,7 @@ function SimuladorContent() {
         const precioReal = 36000;
         const precioBasePromo = 16900;
 
-        const eventYear = eventoFecha ? new Date(eventoFecha).getFullYear() : 2026;
+        const eventYear = anioDeLaFechaDelEvento(eventoFecha) ?? 2026;
         const diffYears = Math.max(0, eventYear - 2026);
         const adjustmentPct = DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE || 15;
         const multiplier = 1 + (diffYears * (adjustmentPct / 100));
