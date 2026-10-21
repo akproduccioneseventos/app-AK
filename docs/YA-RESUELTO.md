@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - El personal de cada fiesta sale de las reglas del dueño
+
+- El dueño fijó las reglas: en la cocina una persona cada 25 invitados y la primera es el chef (100
+  invitados = chef y 3 ayudantes); un utilero cada 30; el barman cobra $2000 hasta 99 invitados, $2800 de
+  100 a 150, y con más de 150 van dos a $2000 cada uno. Antes había un ayudante cada 50 y ningún chef, un
+  utilero cada 25 y un barman cada 75 al sueldo de la ficha. Además "Barman" caía en "Ayudante de Barman"
+  (estaba antes en la lista), y la línea "Mozo de cocina" del presupuesto se contaba como mozos. Todo vive
+  en `src/lib/fiesta/personal-por-invitados.ts`, y lo usan el armado automático y la pantalla de personal.
+  Lo que se le cobra al cliente en el presupuesto no cambió. Entre 141 y 150 invitados se tomó $2800.
+
+```comprobar
+usa: personalDeCocina(guests) en src/app/actions/fiesta/fiesta.actions.ts
+usa: utilerosPorInvitados(totalGuests) en src/app/(app)/fiestas/nueva/personal/page.tsx
+prueba: src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts
+```
+
 ## 21/10/2026 - Barrido completo de las 26 preguntas que estaban "a medias"
 
 Pedido del dueño: que todo lo de Codex desde el principio esté arreglado, con su pregunta, y buscado en toda
