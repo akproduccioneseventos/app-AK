@@ -34,6 +34,167 @@ export interface ResultadoAtencionEquipo {
   audioEnviado?: boolean;
 }
 
+export interface DatosPresupuestoProspecto {
+  fecha?: string;
+  invitados?: number;
+  salon?: string;
+}
+
+export interface ResultadoPresupuestoProspecto {
+  completo: boolean;
+  faltantes: string[];
+  respuestaTexto: string;
+  presupuestoId?: string;
+  token?: string;
+  linkPresupuesto?: string;
+}
+
+/**
+ * Extrae fecha, cantidad de invitados y salón del texto de un prospecto de anuncio.
+ */
+export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuestoProspecto {
+  const t = (texto || '').trim();
+  const res: DatosPresupuestoProspecto = {};
+
+  // 1. Invitados: ej "120 personas", "150 invitados", "para 80", etc.
+  const mInvitados = t.match(/(\d{1,4})\s*(?:personas|invitados|adultos|pax)/i) ||
+                     t.match(/(?:para|seriamos|somos)\s*(\d{1,4})/i);
+  if (mInvitados) {
+    const cant = parseInt(mInvitados[1], 10);
+    if (cant > 0) res.invitados = cant;
+  }
+
+  // 2. Fecha: ej "2027-08-08", "15/11/2026", "15 de noviembre de 2026", etc.
+  const mFechaIso = t.match(/\b(\d{4}-\d{2}-\d{2})\b/);
+  const mFechaSlash = t.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})\b/);
+  const mFechaTexto = t.match(/\b(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|setiembre|septiembre|octubre|noviembre|diciembre)(?:\s+de(?:l)?\s+(\d{4}))?\b/i);
+
+  if (mFechaIso) {
+    res.fecha = mFechaIso[1];
+  } else if (mFechaSlash) {
+    const d = mFechaSlash[1].padStart(2, '0');
+    const m = mFechaSlash[2].padStart(2, '0');
+    let y = mFechaSlash[3];
+    if (y.length === 2) y = '20' + y;
+    res.fecha = y + '-' + m + '-' + d;
+  } else if (mFechaTexto) {
+    const meses = {
+      enero: '01', febrero: '02', marzo: '03', abril: '04', mayo: '05', junio: '06',
+      julio: '07', agosto: '08', setiembre: '09', septiembre: '09', octubre: '10', noviembre: '11', diciembre: '12'
+    };
+    const d = mFechaTexto[1].padStart(2, '0');
+    const m = meses[mFechaTexto[2].toLowerCase()] || '01';
+    const y = mFechaTexto[3] || '2027';
+    res.fecha = y + '-' + m + '-' + d;
+  }
+
+  // 3. Salón: ej "salon Los Robles", "salón: Club Uruguay", "en Club Uruguay", etc.
+  const mSalon = t.match(/(?:en el salon|en salon|en el sal[oó]n|en sal[oó]n|sal[oó]n:|salon:?)\s+([^,\.\n]+)/i) ||
+                 t.match(/(?:en)\s+([A-ZÁÉÍÓÚ][a-záéíóúA-ZÁÉÍÓÚ0-9\s]{3,30})/);
+  if (mSalon) {
+    const s = mSalon[1].trim();
+    if (s && !/^(cuanto|enero|febrero|marzo|abril|mayo|junio|julio|agosto|setiembre|septiembre|octubre|noviembre|diciembre)/i.test(s)) {
+      res.salon = s;
+    }
+  }
+
+  return res;
+}
+
+/**
+ * Atiende a un prospecto que llega desde un anuncio de WhatsApp.
+ * Si faltan fecha, invitados o salón, le pregunta lo que falta sin llamar al simulador.
+ * Con los tres datos, llama a generateBudgetAndLeadFromSimulator y prepara el borrador
+ * sin dar nada por cerrado ni prometer precios ni plazos.
+ */
+export async function atenderProspectoAnuncioWhatsApp(params: {
+  phone: string;
+  name?: string;
+  text: string;
+  datosPrevios?: DatosPresupuestoProspecto;
+}): Promise<ResultadoPresupuestoProspecto> {
+  const nuevos = extraerDatosPresupuestoProspecto(params.text);
+  const datos: DatosPresupuestoProspecto = {
+    ...params.datosPrevios,
+    ...Object.fromEntries(Object.entries(nuevos).filter(([_, v]) => v !== undefined)),
+  };
+
+  const faltantes: string[] = [];
+  if (!datos.fecha) faltantes.push('la fecha aproximada');
+  if (!datos.invitados) faltantes.push('la cantidad estimada de invitados');
+  if (!datos.salon) faltantes.push('el salón o zona del evento');
+
+  if (faltantes.length > 0) {
+    const listaFaltantes = faltantes.join(', ');
+    return {
+      completo: false,
+      faltantes,
+      respuestaTexto: '¡Hola! Para prepararte una propuesta a medida necesitamos saber: ' + listaFaltantes + '. ¿Nos podrías confirmar esos detalles? 😊',
+    };
+  }
+
+  // Tenemos los 3 datos: llamamos a generateBudgetAndLeadFromSimulator
+  const simulacion = await generateBudgetAndLeadFromSimulator(
+    {
+      clienteNombre: params.name || ('Prospecto WhatsApp ' + params.phone.slice(-4)),
+      clienteContacto: params.phone,
+      eventoFecha: datos.fecha,
+      invitados: datos.invitados,
+      salonFiestas: datos.salon,
+      adultos: datos.invitados,
+      ninos: 0,
+      subtotal: 0,
+      costoEstimado: 0,
+      serviciosIncluidos: [],
+    },
+    {
+      source: 'simulator_assistant',
+      eventoTipo: 'Evento (Anuncio WhatsApp)',
+      salonFiestas: datos.salon,
+    }
+  );
+
+  const presupuestoId = simulacion.presupuestoId;
+  const token = simulacion.token;
+  const linkPresupuesto = presupuestoId
+    ? ('https://akproducciones.uy/presupuestos/' + presupuestoId + '/ver' + (token ? '?token=' + token : ''))
+    : undefined;
+
+  // Aviso al dueño / equipo y dejar borrador en bandeja de salida (sin plazos ni precios prometidos)
+  try {
+    const { saveScheduledMessage } = await import('@/app/actions/scheduled-messages');
+    const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
+    await saveScheduledMessage(
+      {
+        channel: 'whatsapp',
+        targetPhone: params.phone,
+        targetName: params.name || 'Prospecto',
+        messageText: 'Hola! Te compartimos el presupuesto preliminar para tu fiesta: ' + (linkPresupuesto || '') + '. Quedamos a disposición para coordinar los detalles.',
+        scheduledFor: new Date().toISOString(),
+        status: 'draft',
+        ruleKey: 'presupuesto-anuncio:' + params.phone,
+      },
+      WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
+      { idEstable: 'draft_presupuesto_anuncio_' + params.phone + '_' + (presupuestoId || 'temp') }
+    );
+  } catch (err) {
+    console.warn('[WhatsApp] No se pudo guardar borrador en bandeja de salida:', err);
+  }
+
+  const respuestaTexto = linkPresupuesto
+    ? ('¡Perfecto! Te preparamos un presupuesto estimado que podés revisar acá: ' + linkPresupuesto + '. Nuestro equipo lo va a revisar y te contactará para coordinar sin compromiso.')
+    : '¡Perfecto! Ya anotamos tus datos y te preparamos la propuesta. Un asesor del equipo te va a contactar a la brevedad.';
+
+  return {
+    completo: true,
+    faltantes: [],
+    respuestaTexto,
+    presupuestoId,
+    token,
+    linkPresupuesto,
+  };
+}
+
 const ECHO_LOG_FILE = 'asistente-echoes-log.json';
 
 /**

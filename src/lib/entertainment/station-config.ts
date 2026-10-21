@@ -360,3 +360,50 @@ export function getEntertainmentOperatorPath(
       return null;
   }
 }
+
+/**
+ * Filtra publicaciones por estación o tipo de recuerdo compartido.
+ * Usado por la Galería y el Álbum del recuerdo.
+ */
+export function filtrarPorEstacion(posts: any[], pestana: string): any[] {
+  if (!posts || !Array.isArray(posts)) return [];
+  if (!pestana || pestana === 'todas') return posts;
+
+  if (pestana === 'fotocabina') {
+    return posts.filter((p) => p.sourceModule === 'fotocabina');
+  }
+  if (pestana === '360') {
+    return posts.filter(
+      (p) => p.sourceModule === 'plataforma360' || p.sourceModule === 'plataforma_360',
+    );
+  }
+  if (pestana === 'espejo') {
+    return posts.filter(
+      (p) =>
+        p.sourceModule === 'espejoMagico' ||
+        p.sourceModule === 'espejo_magico' ||
+        p.sourceModule === 'espejoMagicoFoto' ||
+        p.sourceModule === 'espejoMagicoFirma',
+    );
+  }
+  if (pestana === 'bogue' || pestana === 'vogue') {
+    return posts.filter(
+      (p) => p.sourceModule === 'bogue' || p.sourceModule === 'boomerang',
+    );
+  }
+  if (pestana === 'touchpix') {
+    return posts.filter(
+      (p) => p.sourceModule === 'touchpix' || p.sourceModule === 'espejoMagicoIA',
+    );
+  }
+  if (pestana === 'buzon') {
+    return posts.filter(
+      (p) =>
+        p.sourceModule === 'buzon' ||
+        p.sourceModule === 'audio_guestbook' ||
+        p.sourceModule === 'vhs_guestbook',
+    );
+  }
+
+  return posts.filter((p) => p.sourceModule === pestana);
+}

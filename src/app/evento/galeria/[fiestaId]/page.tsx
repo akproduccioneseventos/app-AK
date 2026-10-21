@@ -21,6 +21,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 import { SUAVE, DURACION } from '@/lib/motion';
 import {
   getPublicSocialEvent,
@@ -183,40 +184,12 @@ export default function GaleriaPage() {
   }, [selfieResult, rejectedDudosas, confirmedDudosas, posts]);
 
   const filteredPosts = useMemo(() => {
-    // Si hay una persona seleccionada en la grilla de caras
     if (selectedPersona) {
       const setIds = new Set(selectedPersona.fotoIds);
       return posts.filter((p) => setIds.has(p.id));
     }
-
-    if (activeTab === 'todas') return posts;
-    if (activeTab === 'fotocabina') return posts.filter((p) => p.sourceModule === 'fotocabina');
-    if (activeTab === '360')
-      return posts.filter(
-        (p) => p.sourceModule === 'plataforma360' || p.sourceModule === 'plataforma_360',
-      );
-    if (activeTab === 'espejo') {
-      return posts.filter(
-        (p) =>
-          p.sourceModule === 'espejoMagico' ||
-          p.sourceModule === 'espejo_magico' ||
-          p.sourceModule === 'espejoMagicoFoto' ||
-          p.sourceModule === 'espejoMagicoFirma' ||
-          p.sourceModule === 'espejoMagicoIA',
-      );
-    }
-    if (activeTab === 'vogue') {
-      return posts.filter(
-        (p) => p.sourceModule === 'bogue' || p.sourceModule === 'vogue' || p.sourceModule === 'cabinaVogue',
-      );
-    }
-    if (activeTab === 'totem') {
-      return posts.filter(
-        (p) => p.sourceModule === 'totem' || p.sourceModule === 'totemIA' || p.sourceModule === 'pantallasTotem',
-      );
-    }
     if (activeTab === 'invitados') return posts.filter((p) => p.source === 'guest');
-    return posts;
+    return filtrarPorEstacion(posts, activeTab);
   }, [posts, activeTab, selectedPersona]);
 
   useEffect(() => {
