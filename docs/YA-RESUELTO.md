@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Orden 185: el pago de un proveedor no se le copia a otro del mismo nombre
+
+- Al guardar la fiesta, el pago de cada compra se repone desde lo guardado, y se buscaba por nombre: con
+  dos proveedores que se llaman igual, el pago del primero se le copiaba al segundo. Ahora
+  `compraGuardadaDeCadaUna` (`src/lib/fiesta/reponer-la-plata.ts`) empareja por `proveedorId` y, sin id, por
+  nombre y orden. La orden figuraba a medias desde el 18/10 y nadie lo vio: `ordenes?` informa y no frena.
+  Ahora las órdenes `-claude-` a medias frenan la publicación.
+
+```comprobar
+usa: compraGuardadaDeCadaUna(antes, nuevas) en src/app/actions/fiesta/fiesta.actions.ts
+prueba: src/__tests__/reponer-plata-identidad-proveedor.test.ts
+prueba: src/__tests__/las-ordenes-de-plata-de-claude-estan-hechas.test.ts
+```
+
 ## 21/10/2026 - El ajuste anual con fiestas del 1 de enero, y cada hallazgo con su propia búsqueda
 
 - `new Date("2027-01-01").getFullYear()` en Uruguay da 2026: el ajuste anual del simulador, del presupuesto
