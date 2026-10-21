@@ -340,6 +340,10 @@
     "85": {
       "fecha": "2026-10-20",
       "resultado": "las 11 rutas que abren la puerta de las tareas recortan la respuesta sin clave; el control recorre todas las rutas de src/app/api"
+    },
+    "86": {
+      "fecha": "2026-10-21",
+      "resultado": "en la app publicada no hay cachés de resultados por id antes del permiso (sólo la búsqueda pública de Spotify, que no tiene datos de nadie). El caso está en la entrega 1344, sin fusionar: orden 205."
     }
   },
   "hallazgos": {
@@ -358,6 +362,18 @@
     "orden-204": {
       "fecha": "2026-10-21",
       "resultado": "3 guardados de ficha entera: personal (la secretaria borraba cedula y nacimiento) y proveedores pasan a mutateDataItem; menus queda (edicion entera del formulario)."
+    },
+    "auditoria-159": {
+      "fecha": "2026-10-21",
+      "resultado": "26 lugares con la fecha de la fiesta corrida un día en Uruguay: lo de plata (año del ajuste anual en simulador, presupuesto, resumen y factura) lo arregló Claude con anioDeLaFechaDelEvento; el resto, orden 206 para Gemini."
+    },
+    "orden-205": {
+      "fecha": "2026-10-21",
+      "resultado": "cachés de resultados por id antes del permiso: ninguna en la app publicada; el caso vive en la entrega 1344 (orden 205)."
+    },
+    "orden-206": {
+      "fecha": "2026-10-21",
+      "resultado": "es el mismo barrido de la auditoría 159: la lista entera está en la orden 206."
     }
   }
 }
