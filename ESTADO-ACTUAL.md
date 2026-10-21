@@ -1,9 +1,9 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1348 (`218e62ce3`, 21/10): mozos de salón en su rol, el asistente no elige por nombre parcial, y Codex 176-185 juntado.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1349 (`fa3b492b8`, 21/10): la entrega de Gemini 1346 (órdenes 205 a 208) con los ajustes de Claude.
 
 ## En qué se está
-Gemini 1346 (órdenes 205 a 208) juntada en la rama; falta publicarla. Codex sigue auditando.
+Gemini 1346 publicada en la 1349 y cerrada. Pendientes de Gemini: órdenes 180 a 195 (devueltas en la 1337). Codex sigue auditando.
 Codex sólo audita.
 
 ## Terminado en esta tanda
