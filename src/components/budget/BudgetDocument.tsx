@@ -16,6 +16,7 @@ import {
 import { presentacionComercialMercadoPago, calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 import { buildPresupuestoNarrative } from '@/lib/budget/budget-narrative';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
+import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -170,7 +171,7 @@ export default function BudgetDocument({
     ? annualProjection.rows
     : annualAdjustmentAmount > 0
       ? [{
-          year: new Date(presupuesto.eventoFecha || presupuesto.timestamp).getFullYear(),
+          year: anioDeLaFechaDelEvento(presupuesto.eventoFecha) ?? new Date(presupuesto.timestamp).getFullYear(),
           total: totalFinal + annualAdjustmentAmount,
           adjustmentAmount: annualAdjustmentAmount,
         }]

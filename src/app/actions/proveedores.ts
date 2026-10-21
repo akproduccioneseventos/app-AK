@@ -3,7 +3,7 @@
 
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { Proveedor, NuevoProveedorFormData } from '@/types/proveedor';
-import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
+import { createDataItem, deleteDataItem, readData, mutateDataItem } from '@/lib/data-service';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
@@ -92,13 +92,16 @@ async function saveProveedorInterno(
   }
   try {
     if ('id' in proveedorData && proveedorData.id) {
-      const updated = await updateDataItem(
+      // Sobre la ficha como está al guardar (pregunta 22): el turno cuida un solo servidor.
+      const cambios = proveedorData as Partial<Proveedor>;
+      const updated = await mutateDataItem<Proveedor>(
         PROVEEDORES_FILE,
         PROVEEDORES_COLLECTION,
         proveedorId,
-        finalProveedorData,
+        (actual) => ({ ...actual, ...cambios, id: actual.id }),
       );
       if (!updated) return { success: false, error: `Proveedor con ID ${proveedorId} no encontrado.` };
+      finalProveedorData = updated;
     } else {
       await createDataItem(PROVEEDORES_FILE, PROVEEDORES_COLLECTION, proveedorId, finalProveedorData);
     }

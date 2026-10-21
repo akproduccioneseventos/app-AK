@@ -141,7 +141,8 @@ export async function deleteGastoGeneral(id: string): Promise<{ success: boolean
 
 
 export async function extractReceiptDataAction(input: { receiptDataUri: string }) {
-  await requirePermiso(PERMISOS.CONTABILIDAD);
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) throw new Error(permiso.error);
   const { hayPresupuestoParaIA } = await import('@/lib/ai/consumo-servidor');
   if (!(await hayPresupuestoParaIA())) {
     throw new Error('Presupuesto de IA alcanzado para este período.');

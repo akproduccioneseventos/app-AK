@@ -6,6 +6,7 @@ const mockGetFiestaById = jest.fn();
 jest.mock('@/lib/auth/require-session', () => ({
   ...jest.requireActual('@/lib/auth/require-session'),
   requireAppSession: jest.fn(async () => undefined),
+  requirePermisoAlguno: jest.fn(async () => undefined),
 }));
 
 jest.mock('@/lib/data-service', () => ({

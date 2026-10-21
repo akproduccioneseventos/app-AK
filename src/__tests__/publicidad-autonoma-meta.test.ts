@@ -33,6 +33,19 @@ describe('Publicidad Autónoma de Meta Ads con Freno de Mano', () => {
     // Resetear memoria y tope mensual en 0
     (require('@/lib/data-service') as any).__clearMemory();
     await guardarTopeDeGasto(0);
+    // Meta conectada (de mentira): sin cuenta, ninguna acción dice que salió (barrido del 21/10/2026).
+    process.env.META_ADS_ACCESS_TOKEN = 'token-de-prueba';
+    (global as any).fetch = jest.fn(async () => ({ ok: true, json: async () => ({ success: true }) }));
+  });
+
+  afterEach(() => {
+    delete process.env.META_ADS_ACCESS_TOKEN;
+  });
+
+  it('sin Meta conectada, pausar no dice que salió', async () => {
+    delete process.env.META_ADS_ACCESS_TOKEN;
+    const res = await pausarCampana('camp-1', 'Campaña Bodas 15', 'gasto alto');
+    expect(res.success).toBe(false);
   });
 
   it('pausar una campaña siempre se ejecuta con éxito porque reduce el gasto', async () => {

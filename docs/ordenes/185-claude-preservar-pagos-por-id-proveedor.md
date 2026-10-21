@@ -83,7 +83,7 @@ la regresion de la accion autorizada y persistencia sobre el SHA integrado.
 archivo: src/lib/fiesta/reponer-la-plata.ts
 usa: reponerLaPlata en src/app/actions/fiesta/fiesta.actions.ts
 prueba: src/__tests__/reponer-plata-identidad-proveedor.test.ts
-prueba: PENDIENTE src/__tests__/guardar-fiesta-preserva-identidad-proveedor.test.ts
+usa: compraGuardadaDeCadaUna(antes, nuevas) en src/app/actions/fiesta/fiesta.actions.ts
 archivo: src/app/actions/fiesta/catering.actions.ts
 usa: updateShoppingListStatus en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
 prueba: docs/evidencias/149-proveedor-consumidores.mjs

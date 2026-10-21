@@ -1,6 +1,6 @@
 # Orden 202 — Devolución de la 1341 y dos trampas viejas que destapó el control
 
-Responsable: **Gemini**. Va en la **misma propuesta** que la orden 196 (devolución de la 1337) y la 199,
+Responsable: **Gemini**. Va en la **misma propuesta** que la orden 196 (devolución de la 1337). La 199 ya la hizo Claude. Se entrega
 contra la rama `claude/app-debug-stabilize-m70e6z` actualizada. **Una sola propuesta.** Antes de entregar,
 leé `docs/ANTES-DE-ENTREGAR.md` entera, sobre todo la pregunta 57.
 
@@ -54,13 +54,11 @@ pregunta fecha, cantidad de invitados y salón, y con eso llama a `generateBudge
 plazos ni precios prometidos. La prueba comprueba que con fecha, invitados y salón se llama a la función
 con esos datos, y que sin alguno de los tres pregunta lo que falta y no la llama.
 
-## Bloque 4 — La cuenta de mesas en el plano (orden 75)
+## Bloque 4 — Ya resuelto por Claude (20/10/2026)
 
-`src/app/(app)/fiestas/nueva/invitados/layout/page.tsx` línea ~18 importa `contarMesas`
-(`src/lib/mesas/contar-mesas.ts`) y no lo usa. La orden 75 pedía que la primera versión del plano arme las
-mesas **con esa cuenta**, la misma de todas las pantallas. Usala donde hoy se calcula la cantidad de mesas
-del armado automático, y que la prueba compare la cantidad de mesas del plano con `contarMesas` para dos
-cantidades de invitados distintas.
+Lo de las mesas no era una trampa: el plano ya arma las mesas según los invitados en
+`generarEscenaAutomatica` (`src/lib/decoracion/generar-layout-automatico.ts`). El import suelto de
+`contarMesas` se sacó y la comprobación de la orden 75 apunta a esa función. **No hay nada que hacer acá.**
 
 ## Qué NO tocar
 
@@ -71,8 +69,9 @@ usa: filtrarPorEstacion( en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: filtrarPorEstacion( en src/app/evento/album/[fiestaId]/page.tsx
 usa: getMisPermisos( en src/components/main-nav.tsx
 usa: generateBudgetAndLeadFromSimulator( en src/lib/asistente/por-whatsapp.ts
-usa: contarMesas( en src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
 prueba: src/__tests__/una-orden-no-se-cumple-con-un-comentario.test.ts
+# Bloque 4: las mesas ya salen de la escena automática
+usa: generarEscenaAutomatica( en src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
 # Bloque 2: lo de la 183 sigue donde está
 usa: reponerLoDelPerfil en src/lib/fiesta/recortar-para-afuera.ts
 ```

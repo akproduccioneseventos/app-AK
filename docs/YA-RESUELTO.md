@@ -1,5 +1,213 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - El personal de cada fiesta sale de las reglas del dueño
+
+- El dueño fijó las reglas: en la cocina una persona cada 25 invitados y la primera es el chef (100
+  invitados = chef y 3 ayudantes); un utilero cada 30; el barman cobra $2000 hasta 99 invitados, $2800 de
+  100 a 150, y con más de 150 van dos a $2000 cada uno. Antes había un ayudante cada 50 y ningún chef, un
+  utilero cada 25 y un barman cada 75 al sueldo de la ficha. Además "Barman" caía en "Ayudante de Barman"
+  (estaba antes en la lista), y la línea "Mozo de cocina" del presupuesto se contaba como mozos. Todo vive
+  en `src/lib/fiesta/personal-por-invitados.ts`, y lo usan el armado automático y la pantalla de personal.
+  Lo que se le cobra al cliente en el presupuesto no cambió. Entre 141 y 150 invitados se tomó $2800.
+
+```comprobar
+usa: personalDeCocina(guests) en src/app/actions/fiesta/fiesta.actions.ts
+usa: utilerosPorInvitados(totalGuests) en src/app/(app)/fiestas/nueva/personal/page.tsx
+prueba: src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts
+```
+
+## 21/10/2026 - Barrido completo de las 26 preguntas que estaban "a medias"
+
+Pedido del dueño: que todo lo de Codex desde el principio esté arreglado, con su pregunta, y buscado en toda
+la app. Las 26 preguntas marcadas "parcial" se terminaron. Lo de plata y permisos lo arregló Claude:
+
+- La lista de presupuestos avisa si no pudo leer (antes decía "no hay presupuestos" y alguien los cargaba de nuevo).
+- El chat con Sofía pasa los invitados al simulador manual (antes arrancaba con 50).
+- El portal del cliente muestra todas las cuentas bancarias (antes cortaba en 2).
+- Sin Meta conectada, pausar una campaña no dice que salió.
+- Cinco acciones que pedían sólo sesión ahora piden permiso, y una (`extractReceiptDataAction`) lo pedía y no
+  miraba la respuesta. El control `un-permiso-que-no-se-mira-no-frena` frena esa forma en toda la app.
+
+Lo demás va en la orden 207 para Gemini.
+
+```comprobar
+usa: readDataConDetalle<Presupuesto[]> en src/app/actions/presupuestos.ts
+usa: &guests= en src/app/simulador-ak/page.tsx
+no-usa: cuentasBancarias.slice(0, 2) en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+prueba: src/__tests__/un-permiso-que-no-se-mira-no-frena.test.ts
+prueba: src/__tests__/la-lista-de-presupuestos-no-dice-vacia-si-no-leyo.test.ts
+```
+
+## 21/10/2026 - Orden 185: el pago de un proveedor no se le copia a otro del mismo nombre
+
+- Al guardar la fiesta, el pago de cada compra se repone desde lo guardado, y se buscaba por nombre: con
+  dos proveedores que se llaman igual, el pago del primero se le copiaba al segundo. Ahora
+  `compraGuardadaDeCadaUna` (`src/lib/fiesta/reponer-la-plata.ts`) empareja por `proveedorId` y, sin id, por
+  nombre y orden. La orden figuraba a medias desde el 18/10 y nadie lo vio: `ordenes?` informa y no frena.
+  Ahora las órdenes `-claude-` a medias frenan la publicación.
+
+```comprobar
+usa: compraGuardadaDeCadaUna(antes, nuevas) en src/app/actions/fiesta/fiesta.actions.ts
+prueba: src/__tests__/reponer-plata-identidad-proveedor.test.ts
+prueba: src/__tests__/las-ordenes-de-plata-de-claude-estan-hechas.test.ts
+```
+
+## 21/10/2026 - El ajuste anual con fiestas del 1 de enero, y cada hallazgo con su propia búsqueda
+
+- `new Date("2027-01-01").getFullYear()` en Uruguay da 2026: el ajuste anual del simulador, del presupuesto
+  impreso, del resumen y de la factura se calculaba con un año de menos. Ahora usan
+  `anioDeLaFechaDelEvento`, que lee el año tal como está escrito. El resto de la fecha corrida (sólo
+  pantalla) va en la orden 206 para Gemini.
+- `cada-pregunta-se-barrio-en-toda-la-app.test.ts` exige un barrido propio por cada hallazgo nuevo
+  (`hallazgos` en `docs/barridos.json`), aunque su pregunta ya estuviera barrida (error 42 de CLAUDE.md).
+
+```comprobar
+usa: anioDeLaFechaDelEvento(eventoFecha) en src/app/simulador-de-presupuesto/page.tsx
+prueba: src/__tests__/el-ajuste-anual-usa-el-anio-de-la-fiesta.test.ts
+```
+
+## 21/10/2026 - Orden 204 (portal del proveedor) y Tab en los visores (199), por Claude
+
+- **El portal del proveedor ya no pisa cambios ni reactiva accesos.** Las acciones leían la ficha antes de
+  guardar y la guardaban entera: dos toques a la vez perdían uno, y un acceso desactivado o con token nuevo
+  en el medio volvía a quedar activo. Ahora cada acción cambia sólo su parte con `mutateDataItem`, sobre el
+  registro actual, y vuelve a mirar token, activo y vencimiento adentro del cambio.
+- **Tab y Shift+Tab dan la vuelta adentro** del visor de la galería y del video de ayuda.
+- **Barrido de la misma forma (pregunta 22):** la ficha del personal, guardada por la secretaria, **borraba
+  la cédula, la fecha de nacimiento y el contrato** (ella los lee vacíos). Ahora lo personal lo cambia sólo
+  quien tiene SUELDOS, y la ficha del personal y la de proveedores se guardan sobre el registro actual.
+
+```comprobar
+usa: cambiarAccesoDelProveedor(token en src/app/actions/provider-portal.ts
+no-usa: updateDataItem en src/app/actions/provider-portal.ts
+usa: mantenerElFocoAdentro(event, en src/components/landing/GallerySection.tsx
+prueba: src/__tests__/provider-portal-actions.test.ts
+prueba: src/__tests__/la-secretaria-no-borra-la-cedula-del-personal.test.ts
+```
+
+## 20/10/2026 - Lo chico de las órdenes 199, 193 y 202, hecho por Claude
+
+- **El foco en los visores (199).** El video de ayuda del simulador y del Video de Vida lleva el foco al
+  botón Cerrar al abrir, cierra con Escape y devuelve el foco al botón que lo abrió. La galería de la
+  portada lleva el foco adentro y, al cerrar, vuelve a la foto elegida si sigue en pantalla.
+- **La fecha del seguimiento al prospecto (Codex 159).** El borrador decía "7/8/2027" para una fiesta
+  del 8 de agosto; ahora usa `formatearFechaEvento` ("8 de agosto de 2027").
+- **Las mesas del plano (202, bloque 4): falso positivo.** Ya salen según los invitados en
+  `generarEscenaAutomatica`; se sacó el import suelto de `contarMesas`.
+
+```comprobar
+usa: formatearFechaEvento(p.eventoFecha) en src/lib/agentes/motor-agentes.ts
+usa: previousFocusRef.current = document.activeElement en src/components/landing/GallerySection.tsx
+prueba: src/__tests__/orden-199-el-foco-vuelve-y-la-fecha-del-seguimiento.test.tsx
+```
+
+## 21/10/2026 - Codex171-175: entrega1344 devuelta,199/204 comprobadas en Claude nuevo
+
+-1344bfde/base108e auditada:17122casos11PASS/11FAIL,1745casos2PASS/3FAIL.
+ 14aserciones NO14bugs.205 agrupa devolucion196/202/203, no appedit/merge.
+- Vozcache antes depermiso devuelve resultado deldueno aloperador con mismoID;
+  confirmacion mismoid noavanza ysimultaneos2tareas. Lectura fallida=ausencia.
+  Borrador escrito no aparece enoutbox; mailtrue no pasa alsecretario.
+- WAhandler ReferenceError llamada noimportada,catch200/0atencion;helper dice
+  completo:true con0borradores antefalse/throw. MetaHMACbien,concurrentes2->1,
+  IGnumerico comoMessenger. Album pierde capsulaTiempo;ARDTO noactiva ystart
+  doble anuncia deteccion sin evento. JSON171/174 con hashes/limites.
+- Sospecha delagente album/invitados DESCARTADA, guard sigue.171crypto/buffer
+  son erroresQA archivados, noapp. Positivos conservados, unaLuna cerrada.
+- Claude daefbdc00b7a43f4f252dcca6e7d9565d4d30d10 YA corrige199/204.
+ 17218PASS DOMreal/user-event;17310PASS SDKREAL sin cambios perdidos ni
+  reactivacion/tokenviejo,0docs/cleanup200/cerrados. CORREGIDAS porClaude y
+  comprobadas POR ALCANCE, noHTTP/UIproveedor/buildnuevo. No reemitir199/204.
+- Decision nueva: MANUAL deldueno noespendienteCodex. Conservarhistoricos y
+  limites, no inventar prueba tecnica.175cierre diferencia esas responsabilidades.
+-166/167805suites5010PASS siguen108e NOdaef/bfde. No amplia pesada RAM<2GiB.
+  Lockbfde139nuevas/1versioncambiada/0hostsajenos, no npmseguridadcompleta.
+
+```comprobar
+prueba: docs/evidencias/171-entrega-1344.mjs
+prueba: docs/evidencias/172-retest-foco-claude.mjs
+prueba: docs/evidencias/173-retest-proveedor-sdk.mjs
+prueba: docs/evidencias/174-consumidores-1344.mjs
+```
+
+## 21/10/2026 - Continuacion166-169: build, regresion ySDK real, sin cierre total
+
+-Al liberarse RAM se compilo108e17b4387237fc921ea12e8d1eb65b20f62ac9 en copia
+  QA aislada:exit0, tipos/lint.167 en MISMA fuente:805suites5010tests PASS,
+  0fallos/omitidos/todo. Fixture blog canonico delGit repuesto SOLO para test;
+  76JSON restaurados ydiffQAfuentes0. No otra amplia si app108e no cambia.
+-166PC confirmaTab/ShiftTab fuera de galeria, MISMA friccion199 ya existente.
+  Pixel7focal1PASS tap/autofocus/flechas/Escape/retorno. Primer movil fallo por
+  selector que incluia skeleton: QA archivado; noappbug ni repetirfalloPC.
+  Imagenes interceptadasSVG ymotionreduce: no prueba de fotos/estetica/movimiento.
+-168 refuerza204 de163 con FirestoreAdminSDK REAL al emulador propio:10casos
+  4PASS/6FAIL, mismas causas snapshot viejo. Transaccionactual pierde tareas/
+  nota/llegada aun respondiendo success y puede restauraractivo/tokenviejo.
+  PositivomutateDataItem conserva dos tareas con retrySDK. Lecturas coordinadas,
+  revocacion/rotacion inyectadas porSDK; respaldoadaptado; noHTTP/UI/produccion.
+  0documentos alcerrar,cleanupAPI200,Java/SDK cerrados, QAfuentes0. No otra204.
+-Metadato packageScriptsDiffer de166 heredado decia true: package igual9b7/108e.
+  Corregido SOLO ese flag, originalguardado; source/build no se alteraron.
+-169 consolida160-168 y enlaza14areas. No cada control/estado/rol aceptado,
+  no toda193/Gemini devuelta, no integraciones/hardware/19originales ni0errores.
+  No appedit/merge. DosLuna acotados cerrados. Evidencia con su tanda, no docs solas.
+-Empaquetado170: diffcheck del delta completo encontro espacios finales en
+  dos error-context generados. Originales preservados .md.gz y copia legible
+  solo normalizada; sin cambiar pruebas/resultados. Gate ampliado al delta
+  completo desde9b7.170-manifest es lista final;169-manifest queda historico.
+
+```comprobar
+prueba: docs/evidencias/166-galeria-nativa.spec.ts
+prueba: docs/evidencias/167-regresion.mjs
+prueba: docs/evidencias/168-proveedor-sdk.mjs
+prueba: docs/evidencias/169-validar.mjs
+```
+
+## 21/10/2026 - Codex160-165: cierres200/201 por contrato,199 parcial y204 nueva
+
+-Main fuente9b7ee982c5d6ff1377fccc0490abc85a9cfd8419. Candidato Claude publico
+  108e17b4387237fc921ea12e8d1eb65b20f62ac9 distinto de main; privado desconocido.
+  PR1340 integrada, esta tanda usa rama nueva codex/160-contraste-correcciones-20261021.
+-160:34PASS, portal propio ID/correo/7perfiles, dos empleados con sueldos
+  diferentes y tres fiestas, cuenta/URL sin datos ajenos ni tokens y lecturas
+  generales aun denegadas.200 CORREGIDA por Claude, contrato funcional probado;
+  noHTTP/cookies/UI/OAuth/SDK real. La conexionGoogle se simula, no se certifica.
+-164:84PASS, oncehandlers/21metodosGETPOST con puerta real y motores DOBLES.
+  Sinclave respuesta recortada, conclave detalle, wrong401/freno429 sin ejecutar
+  ni marcar.160 ademas compone los dosmotores originales reales.201 CORREGIDA
+  porClaude/aceptada SOLO respuesta, no11integraciones/tareas reales publicadas.
+-161 sobre108e:14PASS/2FAIL,199 PARCIAL. Entrada/retorno/Escape de galeria/video
+  ya funcionan; Tab/ShiftTab salen del visor galeria. Radix positivo contiene
+  foco. DOM/user-event, no teclado nativo. Conservar lo corregido, no nueva199.
+-162 sobre108e:8PASS,seguimiento5/14dias UTCUy dice8agosto y conserva sufijo
+  horario. Cierra SOLO consumidor ampliado159 en193; no toda193 ni envio real.
+-163 NUEVA204/Claude: diezcasos4PASS/6FAIL deUNA familia. Snapshot proveedor
+  leido antes de transaccion pisa tarea/nota/llegada concurrente o restaura
+  activo/tokenviejo. Ambas acciones responden success. Cuerpos reales de acciones
+  y updateDataItem contra protocoloBD DOBLE serializado, NO SDK/Firestore/UI.
+  Revocar/rotar se inyecto en fixture, no flujo administrativo real. No pagos.
+  Positivo mutateDataItem real compone dos cambios; proveedorB intacto donde
+  se comprobo. Simbolos comparados main9b7/Claude108e/Gemini45a; no otraorden185.
+-165:152casos144PASS/8FAIL; dos causas pendientes, no8bugs. No appedit/merge,
+  build/amplia/grafo repetidos. Recuento14areas enlaza historicos por alcance,
+  no declara cada ruta/control/rol aprobado. Ver165-recuento-y-limites.md.
+-QA archivado:161 arranco sin user-event; instalado SOLO en .qa-tools externo.
+  Su primer recibo no esperaba RAF tras commit: autofocus falsopositivo,
+  arreglada la espera con positivoRAF y preservado inicial.163 extractor fallo
+  por constexportada, se carga modulo real de marcas. No defectos de producto.
+-RAM bajo2GiB: no build/navegador pesado ni detener ajenos. Luna documental
+  cerrado, cero servicios/datos propios. DNS GitHub fallo; no confundir commit
+  local con entrega sin verificar remoto.19originales/cuentas/modelo/voz/
+  Hosting/hardware y matriz completa siguen sin certificado. No ceroerrores.
+
+```comprobar
+prueba: docs/evidencias/160-retest-portales-tareas.mjs
+prueba: docs/evidencias/161-galeria-video-retest.mjs
+prueba: docs/evidencias/162-seguimiento-fecha-retest.mjs
+prueba: docs/evidencias/163-proveedor-concurrencia.mjs
+prueba: docs/evidencias/164-once-tareas-respuestas.mjs
+```
+
 ## 20/10/2026 - Una orden ya no se cumple con un comentario (entrega 1341 de Gemini, cerrada)
 
 - La 1341 dio por hechas las órdenes 180, 181 y 183 con comentarios que nombraban lo pedido, imports sin

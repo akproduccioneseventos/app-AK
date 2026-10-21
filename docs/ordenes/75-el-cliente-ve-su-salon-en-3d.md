@@ -93,7 +93,7 @@ pregunta antes.
 
 ```comprobar
 archivo: src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
-usa: contarMesas en src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
+usa: generarEscenaAutomatica( en src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
 prueba: src/__tests__/el-salon-se-arma-solo-con-lo-contratado.test.ts
 ```
 

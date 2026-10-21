@@ -1,4 +1,5 @@
 'use server';
+import { compraGuardadaDeCadaUna } from '@/lib/fiesta/reponer-la-plata';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS, puede } from '@/lib/auth/perfiles';
@@ -58,6 +59,7 @@ import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera, recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
+import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -164,9 +166,11 @@ function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanific
     else delete copia[campo];
   }
   if (Array.isArray(copia.estadosCompra)) {
-    const antes = guardada?.estadosCompra || [];
-    copia.estadosCompra = (copia.estadosCompra as Record<string, unknown>[]).map((e) => {
-      const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
+    const antes = (guardada?.estadosCompra || []) as unknown as Record<string, unknown>[];
+    const nuevas = copia.estadosCompra as Record<string, unknown>[];
+    const previos = compraGuardadaDeCadaUna(antes, nuevas);
+    copia.estadosCompra = nuevas.map((e, i) => {
+      const previo = previos[i];
       const r = { ...e };
       for (const k of PAGO_DE_LA_COMPRA) {
         if (previo && k in previo) r[k] = previo[k]; else delete r[k];
@@ -194,8 +198,10 @@ function pideCambiarLaPlata(parcial: Partial<FiestaEnPlanificacion>, guardada: F
   if (CAMPOS_DE_PLATA_Y_CONTRATO.some((campo) => campo in p && !mismoValor(p[campo], g[campo]))) return true;
   if (Array.isArray(p.estadosCompra)) {
     const antes = (guardada?.estadosCompra || []) as unknown as Record<string, unknown>[];
-    return (p.estadosCompra as Record<string, unknown>[]).some((e) => {
-      const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor);
+    const nuevas = p.estadosCompra as Record<string, unknown>[];
+    const previos = compraGuardadaDeCadaUna(antes, nuevas);
+    return nuevas.some((e, i) => {
+      const previo = previos[i];
       // Sin la casilla (llegó recortada por el perfil, orden 183) no pide cambiarla: se conserva.
       return PAGO_DE_LA_COMPRA.some((k) => k in e && !mismoValor(e[k], previo?.[k]));
     });
@@ -959,32 +965,38 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     // 2. CÁLCULO DE PERSONAL AUTOMÁTICO (VACANTES)
     const personalReq: PersonalAsignadoDetalleStorage[] = [];
 
-    const addVacantes = (roleSearch: string, qty: number) => {
-        const rol = roles.find(r => r.nombre.toLowerCase().includes(roleSearch.toLowerCase()));
+    const addVacantes = (roleSearch: string, qty: number, sueldo?: number) => {
+        const rol = buscarRol(roles, roleSearch);
         if (rol) {
             for (let i = 0; i < qty; i++) {
                 personalReq.push({
                     empleadoId: '', // Vacante
                     rolId: rol.id,
-                    eventSalary: rol.sueldoPorEvento
+                    eventSalary: sueldo ?? rol.sueldoPorEvento
                 });
             }
         }
     };
 
-    // Regla: 1 mozo cada 25 invitados (si hay catering)
+    // Regla: 1 mozo cada 25 invitados (si hay catering). Cocina, regla del dueño (21/10/2026): una
+    // persona cada 25 invitados, y la primera es el chef. 100 invitados = chef + 3 ayudantes.
     if (modulos.catering) {
         addVacantes('Mozo', Math.ceil(guests / 25));
-        addVacantes('Ayudante de Cocina', Math.ceil(guests / 50));
+        const cocina = personalDeCocina(guests);
+        addVacantes(roles.some(r => r.nombre.toLowerCase().includes('chef')) ? 'Chef' : 'Cocinero', cocina.chef);
+        addVacantes('Ayudante de Cocina', cocina.ayudantes);
     }
 
-    // Regla: 1 utilero cada 25 invitados para logística
-    addVacantes('Utilero', Math.ceil(guests / 25));
+    // Regla: 1 utilero cada 30 invitados para logística (dueño, 21/10/2026)
+    addVacantes('Utilero', utilerosPorInvitados(guests));
 
     // Regla: Especialistas según presupuesto
     if (modulos.musica) addVacantes('DJ', 1);
     if (hasItem('asado')) addVacantes('Asador', 1);
-    if (hasItem('barra') || hasItem('trago')) addVacantes('Barman', Math.ceil(guests / 75));
+    if (hasItem('barra') || hasItem('trago')) {
+        const barra = barmanPorInvitados(guests);
+        addVacantes('Barman', barra.cantidad, barra.sueldo);
+    }
 
     // Solo actualizar si no hay personal asignado manualmente aún para no borrar trabajo
     if (!updatedFiesta.personalAsignado || updatedFiesta.personalAsignado.length === 0) {

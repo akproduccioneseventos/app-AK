@@ -55,8 +55,9 @@ async function ejecutarLlamadaGraphApi(
 ): Promise<{ success: boolean; data?: any; error?: string }> {
   const accessToken = process.env.META_ADS_ACCESS_TOKEN;
   if (!accessToken) {
-    // Si no hay token de Meta en el entorno, actúa en modo simulado seguro para pruebas y desarrollo.
-    return { success: true, data: { simulated: true } };
+    // Sin cuenta de Meta conectada no se hizo nada: decir "campaña pausada" sería mentir (pregunta 3,
+    // barrido del 21/10/2026).
+    return { success: false, error: 'Meta Ads no está conectado: no se cambió ninguna campaña.' };
   }
 
   try {
