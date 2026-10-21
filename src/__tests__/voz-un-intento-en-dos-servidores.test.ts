@@ -114,4 +114,34 @@ describe('Voz en vivo - Un intento en dos servidores', () => {
     expect(intentos[0].estado).toBe('hecho');
     expect(intentos[0].clave).toBe('user-456:crear_tarea:pedido-voz-duplicado-123');
   }, 15000);
+
+  test('si la base repite la transacción porque otro servidor ya anotó el intento, no se crea la tarea', async () => {
+    // Firestore vuelve a llamar a la función si otro escribió en el medio. El primer intento vio la lista
+    // vacía y se creyó primero; lo que anotó ese intento descartado no puede quedar (21/10/2026).
+    let primera = true;
+    const mutateConReintento = async (filePath: string, cambiar: (lista: any[]) => any[] | null) => {
+      if (filePath === 'asistente-intentos-voz.json' && primera) {
+        primera = false;
+        cambiar(JSON.parse(JSON.stringify(storeGlobal.get(filePath) || [])));
+        storeGlobal.set(filePath, [{ clave: 'user-456:crear_tarea:pedido-123', estado: 'hecho', resultado: { success: true, deOtroServidor: true } }]);
+      }
+      const nueva = cambiar(JSON.parse(JSON.stringify(storeGlobal.get(filePath) || [])));
+      if (nueva !== null) storeGlobal.set(filePath, JSON.parse(JSON.stringify(nueva)));
+      return nueva;
+    };
+    let post: any;
+    jest.isolateModules(() => {
+      jest.doMock('@/lib/auth/equipo-de-la-fiesta', () => ({ usuarioDelEquipo: jest.fn(async () => ({ email: 'o@ak.com', userId: 'user-456' })) }));
+      jest.doMock('@/lib/auth/perfiles', () => ({ puede: jest.fn(() => true), PERMISOS: { ORGANIZACION: 'organizacion', CONTABILIDAD: 'contabilidad', ADMINISTRACION: 'admin' } }));
+      jest.doMock('@/lib/asistente/que-puede-hacer-solo', () => ({ nivelDeRiesgo: jest.fn(() => 'seguro'), registrarAccionAsistente: jest.fn(async () => {}) }));
+      jest.doMock('@/lib/generic-json-store', () => ({ mutateGenericJsonArray: jest.fn(mutateConReintento) }));
+      post = require('@/app/api/asistente/voz-en-vivo/accion/route').POST;
+    });
+    const res = await post(new NextRequest('http://localhost/api/asistente/voz-en-vivo/accion', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'pedido-123', accion: 'crear_tarea', argumentos: { titulo: 'Hielo' } }),
+    }));
+    expect((await res.json()).deOtroServidor).toBe(true);
+    expect(storeGlobal.get('tasks.json')).toHaveLength(0);
+  }, 15000);
 });

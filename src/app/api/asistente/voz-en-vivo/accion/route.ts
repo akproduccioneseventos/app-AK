@@ -97,6 +97,10 @@ export async function POST(request: Request) {
     let pasaAEnCurso = false;
 
     await mutateGenericJsonArray<IntentoVoz>('asistente-intentos-voz.json', (lista) => {
+      // La base puede repetir esta función si otro servidor escribió en el medio: lo del intento
+      // descartado no cuenta (si no, los dos servidores creían ser los primeros y la tarea salía dos veces).
+      existente = null;
+      pasaAEnCurso = false;
       const previo = lista.find((item) => item.clave === clave);
       if (previo) {
         if (confirmado && previo.estado === 'esperando') {
@@ -164,7 +168,7 @@ export async function POST(request: Request) {
         let verificado: IntentoVoz | undefined;
         await mutateGenericJsonArray<IntentoVoz>('asistente-intentos-voz.json', (lista) => {
           verificado = lista.find((item) => item.clave === clave);
-          return lista;
+          return null; // sólo mira: no reescribe la lista cada 20 milésimas
         });
         if ((verificado as IntentoVoz | undefined)?.estado === 'hecho') {
           return NextResponse.json((verificado as IntentoVoz).resultado);
