@@ -1,5 +1,7 @@
 'use client';
 
+import { parseEventDate } from '@/lib/public-experience/event-date';
+
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -337,6 +339,34 @@ function PlannerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
+  const tab = searchParams.get('tab');
+
+  useEffect(() => {
+    if (!tab || !fiestaId) return;
+    const tabLower = tab.toLowerCase();
+    const mapaRutas: Record<string, string> = {
+      'portal-cliente': `/fiestas/nueva/portal-cliente?fiestaId=${fiestaId}`,
+      'portalcliente': `/fiestas/nueva/portal-cliente?fiestaId=${fiestaId}`,
+      pagos: `/fiestas/nueva/plan-pagos?fiestaId=${fiestaId}`,
+      planpagos: `/fiestas/nueva/plan-pagos?fiestaId=${fiestaId}`,
+      invitados: `/fiestas/nueva/invitados?fiestaId=${fiestaId}`,
+      musica: `/fiestas/nueva/musica?fiestaId=${fiestaId}`,
+      itinerario: `/fiestas/nueva/itinerario?fiestaId=${fiestaId}`,
+      tareas: `/fiestas/nueva/tareas?fiestaId=${fiestaId}`,
+      documentos: `/fiestas/nueva/gestion-documental?fiestaId=${fiestaId}`,
+      costos: `/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}`,
+    };
+
+    if (mapaRutas[tabLower]) {
+      router.push(mapaRutas[tabLower]);
+    } else {
+      const match = modules.find(m => m.id.toLowerCase() === tabLower);
+      if (match) {
+        const dest = match.href.startsWith('/') ? `${match.href}?fiestaId=${fiestaId}` : `/fiestas/nueva/${match.href}?fiestaId=${fiestaId}`;
+        router.push(dest);
+      }
+    }
+  }, [tab, fiestaId, router]);
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [modulosContratados, setModulosContratados] = useState<ModulosContratados>(defaultModulosContratados);
@@ -635,7 +665,7 @@ function PlannerDashboardContent() {
         <div className="sm:hidden">
             <KpiCard title="Ingreso" value={new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(Number(fiesta.configuracion.presupuestoEstimado)).split(',')[0]} icon={DollarSign} />
         </div>
-        <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
+        <KpiCard title="Fecha" value={parseEventDate(fiesta.configuracion.fechaEvento!)?.toLocaleDateString('es-ES', {month: 'short', day: 'numeric'}) || 'Sin fecha'} icon={Calendar} />
       </div>
 
       {prepScore && (

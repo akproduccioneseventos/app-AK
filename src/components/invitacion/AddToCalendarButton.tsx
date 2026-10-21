@@ -11,13 +11,21 @@ interface AddToCalendarButtonProps {
 }
 
 function toCalDate(iso: string): string {
-  // Format: YYYYMMDDTHHmmss
-  const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, '0');
-  return (
-    `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}` +
-    `T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`
-  );
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const ymd = `${match[1]}${match[2]}${match[3]}`;
+    const d = new Date(iso);
+    if (iso.includes('T') && !Number.isNaN(d.getTime())) {
+      return `${ymd}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+    }
+    return `${ymd}T000000`;
+  }
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  return `${y}${m}${day}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
 }
 
 function addHours(iso: string, hours: number): string {

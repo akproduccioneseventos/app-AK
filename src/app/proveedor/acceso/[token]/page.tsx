@@ -51,6 +51,7 @@ export default function ProveedorAccessPage() {
   const [loading, setLoading] = useState(true);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [conexionError, setConexionError] = useState<string | null>(null);
 
   const loadAccess = useCallback(async () => {
     if (!token) {
@@ -59,16 +60,23 @@ export default function ProveedorAccessPage() {
       return;
     }
     setLoading(true);
-    const result = await getProveedorByToken(token);
-    if (!result.success || !result.data) {
+    setConexionError(null);
+    try {
+      const result = await getProveedorByToken(token);
+      if (!result.success || !result.data) {
+        setProvider(null);
+        setError(result.error || 'El acceso no existe o fue desactivado.');
+      } else {
+        setProvider(result.data);
+        setNotes(result.data.notas || '');
+        setError(null);
+      }
+    } catch {
       setProvider(null);
-      setError(result.error || 'El acceso no existe o fue desactivado.');
-    } else {
-      setProvider(result.data);
-      setNotes(result.data.notas || '');
-      setError(null);
+      setConexionError('No pudimos abrir tu acceso. Revisá la conexión y tocá Reintentar');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [token]);
 
   useEffect(() => {
@@ -107,6 +115,19 @@ export default function ProveedorAccessPage() {
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <Loader2 className="h-9 w-9 animate-spin text-cyan-700" />
       </div>
+    );
+  }
+
+  if (conexionError) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+        <div className="max-w-md w-full bg-white border border-slate-200 rounded-xl p-6 text-center space-y-4 shadow-sm">
+          <p className="text-sm text-slate-700">{conexionError}</p>
+          <Button onClick={() => void loadAccess()} className="w-full bg-cyan-700 hover:bg-cyan-800 text-white">
+            Reintentar
+          </Button>
+        </div>
+      </main>
     );
   }
 

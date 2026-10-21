@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { SocialPost, SocialPlatform } from '@/types/social-media';

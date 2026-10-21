@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -115,7 +114,15 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
         };
 
         switch (selectedSection.tipo) {
-            case 'cabecera': return <SeccionCabeceraEditor data={data.cabecera} update={(newData) => update({ cabecera: { ...data.cabecera, ...newData } })} fiestaId={fiestaId || undefined} />;
+            case 'cabecera': return (
+                <SeccionCabeceraEditor
+                    data={data.cabecera}
+                    update={(newData) => update({ cabecera: { ...data.cabecera, ...newData } })}
+                    realidadAumentada={data.realidadAumentada}
+                    updateRealidadAumentada={(newAR) => update({ realidadAumentada: { ...data.realidadAumentada, ...newAR } })}
+                    fiestaId={fiestaId || undefined}
+                />
+            );
             case 'bienvenida': return <SeccionBienvenidaEditor {...props} data={props.data as any} />;
             case 'cuentaRegresiva': return <SeccionCuentaRegresivaEditor {...props} data={props.data as any} />;
             case 'detallesEvento': return <SeccionDetallesEventoEditor {...props} data={props.data as any} />;
@@ -155,12 +162,12 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
                                     <Label htmlFor={`visible-${selectedSectionId}`} className="font-normal">Mostrar esta sección</Label>
                                     <Switch
                                         id={`visible-${selectedSectionId}`}
-                                        checked={currentDataForVisibility?.visible}
+                                        checked={(currentDataForVisibility as any)?.visible}
                                         onCheckedChange={handleVisibilityChange}
                                     />
                                 </div>
                             )}
-                            {currentDataForVisibility?.visible && renderEditor()}
+                            {(currentDataForVisibility as any)?.visible && renderEditor()}
                         </CardContent>
                     </Card>
                 </div>

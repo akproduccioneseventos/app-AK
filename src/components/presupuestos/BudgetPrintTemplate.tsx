@@ -1,3 +1,5 @@
+import { parseEventDate } from '@/lib/public-experience/event-date';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 /**
  * BudgetPrintTemplate — Shared formal budget print layout for AK Producciones.
  *
@@ -41,10 +43,10 @@ function formatCurrency(amount?: number): string {
 function formatDateShort(dateString?: string): string {
   if (!dateString) return '—';
   try {
-    const d = new Date(dateString);
-    const day = dateString.includes('T') ? d.getUTCDate() : d.getDate();
-    const month = dateString.includes('T') ? d.getUTCMonth() + 1 : d.getMonth() + 1;
-    const year = dateString.includes('T') ? d.getUTCFullYear() : d.getFullYear();
+    const d = parseEventDate(dateString) || new Date(dateString);
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
     return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
   } catch {
     return '—';
@@ -54,15 +56,7 @@ function formatDateShort(dateString?: string): string {
 function formatDateLong(dateString?: string): string {
   if (!dateString) return '—';
   try {
-    const d = new Date(dateString);
-    const day = dateString.includes('T') ? d.getUTCDate() : d.getDate();
-    const month = dateString.includes('T') ? d.getUTCMonth() : d.getMonth();
-    const year = dateString.includes('T') ? d.getUTCFullYear() : d.getFullYear();
-    return new Date(year, month, day).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
+    return formatearFechaEvento(dateString);
   } catch {
     return '—';
   }

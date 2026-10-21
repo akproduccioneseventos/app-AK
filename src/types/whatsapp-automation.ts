@@ -53,6 +53,7 @@ export interface ScheduledMessage {
   // Message details
   templateType: MessageTemplateType;
   messageText: string; // Pre-rendered text
+  channel?: 'whatsapp' | 'email' | string;
   // Scheduling
   scheduledAt: string; // ISO - when it should be sent
   status: ScheduledMessageStatus;

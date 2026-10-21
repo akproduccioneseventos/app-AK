@@ -277,6 +277,7 @@ function ExperienciaContent() {
                             type="button"
                             size="sm"
                             variant={menuElegido === m ? 'default' : 'outline'}
+                            aria-pressed={menuElegido === m}
                             onClick={() => setMenuElegido(m)}
                             className={menuElegido === m ? 'bg-amber-500 text-black font-semibold' : 'border-slate-700 text-xs'}
                           >

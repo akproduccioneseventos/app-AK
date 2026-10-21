@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { FiestaEnPlanificacion, DocumentoTipo } from '@/types/fiesta';
 import { getFiestaById, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
 import { useSearchParams } from 'next/navigation';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 import { Suspense } from 'react';
 
 const ALL_DOC_TYPES: { value: DocumentoTipo; label: string }[] = [
@@ -69,7 +70,7 @@ function GestionDocumentalContent() {
       }
     }
   };
-  
+
   const handleUpload = async () => {
     if (!fileToUpload || !fiestaId) {
       toast({ title: "No hay archivo", description: "Selecciona un archivo para subir.", variant: "destructive" });
@@ -86,7 +87,7 @@ function GestionDocumentalContent() {
     formData.append('docType', docType);
     formData.append('customName', customName);
     formData.append('fiestaId', fiestaId);
-    
+
     try {
       const result = await uploadDocumentoFiesta(formData);
       if (result.success) {
@@ -119,7 +120,7 @@ function GestionDocumentalContent() {
       toast({ title: "Error al Eliminar", description: err.message, variant: "destructive" });
     }
   };
-  
+
   const handleDownloadAll = async () => {
     if (!fiesta) return;
     setIsDownloading(true);
@@ -147,6 +148,7 @@ function GestionDocumentalContent() {
     }
   };
 
+  if (!fiestaId) return <EventSelectionRequired moduleName="la gestión documental" />;
   if (isLoading || !fiesta) {
     return <div className="p-8 max-w-3xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
@@ -160,7 +162,7 @@ function GestionDocumentalContent() {
         </div>
         <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link></Button>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Subir Nuevo Documento</CardTitle>
@@ -196,7 +198,7 @@ function GestionDocumentalContent() {
           </Button>
         </CardFooter>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Documentos de la Fiesta</CardTitle>

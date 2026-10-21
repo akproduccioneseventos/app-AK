@@ -15,6 +15,17 @@ import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, ponerSesionDelEqui
 const DATA = path.join(process.cwd(), 'src', 'data');
 const MENSAJES = path.join(DATA, 'scheduled-messages.json');
 const EMPRESA = path.join(DATA, 'company-info.json');
+// La app lee primero `data/` y después `src/data/`. Si otra prueba hizo que la app escribiera en
+// `data/` (desde el 21/10/2026 el recordatorio a los invitados corre al entrar a la app), esa copia
+// tapa la que siembra esta prueba. Se siembra y se restaura también la de `data/`.
+const DATA_RAIZ = path.join(process.cwd(), 'data');
+const MENSAJES_RAIZ = path.join(DATA_RAIZ, 'scheduled-messages.json');
+const EMPRESA_RAIZ = path.join(DATA_RAIZ, 'company-info.json');
+const leerSiHay = (f: string) => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : null);
+const devolver = (f: string, antes: string | null) => {
+  if (antes === null) fs.rmSync(f, { force: true });
+  else fs.writeFileSync(f, antes);
+};
 
 const fiesta: any = crearFiestaDeEstaNoche({ id: `e2e_orden86_${Date.now()}` });
 fiesta.contratoServicioTexto = 'Contrato de prueba de la orden 86.';
@@ -31,6 +42,8 @@ fiesta.presupuestoId = 'pre_e2e_orden86';
 
 let mensajesAntes: string | null = null;
 let empresaAntes: string | null = null;
+let mensajesRaizAntes: string | null = null;
+let empresaRaizAntes: string | null = null;
 
 test.beforeAll(() => {
   guardarFiesta(fiesta);
@@ -39,6 +52,10 @@ test.beforeAll(() => {
   // Guardar la ficha pide nombre y RUT (salen en contratos y facturas): la de prueba los trae.
   const empresa = empresaAntes ? JSON.parse(empresaAntes) : {};
   fs.writeFileSync(EMPRESA, JSON.stringify({ ...empresa, companyName: 'AK Producciones', companyTaxId: '210000000019', cuentasBancariasPortal: [] }, null, 2));
+  mensajesRaizAntes = leerSiHay(MENSAJES_RAIZ);
+  empresaRaizAntes = leerSiHay(EMPRESA_RAIZ);
+  fs.mkdirSync(DATA_RAIZ, { recursive: true });
+  fs.copyFileSync(EMPRESA, EMPRESA_RAIZ);
   fs.writeFileSync(MENSAJES, JSON.stringify([{
     id: 'msg_orden86_mail',
     targetType: 'cliente',
@@ -52,6 +69,7 @@ test.beforeAll(() => {
     scheduledAt: new Date().toISOString(),
     status: 'pendiente',
   }], null, 2));
+  fs.copyFileSync(MENSAJES, MENSAJES_RAIZ);
 });
 
 test.afterAll(() => {
@@ -60,6 +78,8 @@ test.afterAll(() => {
   else fs.writeFileSync(MENSAJES, mensajesAntes);
   if (empresaAntes === null) fs.rmSync(EMPRESA, { force: true });
   else fs.writeFileSync(EMPRESA, empresaAntes);
+  devolver(MENSAJES_RAIZ, mensajesRaizAntes);
+  devolver(EMPRESA_RAIZ, empresaRaizAntes);
 });
 
 test.describe('Orden 86: las pantallas nuevas hacen lo que dicen', () => {

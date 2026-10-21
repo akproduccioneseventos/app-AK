@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
@@ -143,7 +142,7 @@ export async function getAllTestimonials(): Promise<Testimonial[]> {
 export async function saveTestimonial(testimonialData: Omit<Testimonial, 'id' | 'createdAt' | 'isApproved'>): Promise<{ success: boolean, testimonial?: Testimonial, error?: string }> {
   await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
   const allTestimonials = await getTestimonialsInternal();
-  
+
   if (allTestimonials.some(t => t.feedbackId === testimonialData.feedbackId)) {
     return { success: false, error: "Ya existe un testimonio para este feedback." };
   }
@@ -255,7 +254,7 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
 
 export async function requestGoogleReviewManual(feedbackId: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CRM);
-  
+
   const allFeedback = await readData<FeedbackSubmission[]>(FEEDBACK_FILE, []);
   const index = allFeedback.findIndex(fb => fb.id === feedbackId);
   if (index === -1) {
@@ -272,7 +271,7 @@ export async function requestGoogleReviewManual(feedbackId: string): Promise<{ s
   }
 
   const result = await enviarPedidoDeResena(feedback, company);
-  
+
   if (result.success) {
     allFeedback[index].googleReviewRequested = true;
     if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {

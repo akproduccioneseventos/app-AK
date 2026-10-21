@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -46,7 +45,7 @@ export default function InvitationTemplatesPage() {
   useEffect(() => {
     fetchTemplates();
   }, [fetchTemplates]);
-  
+
   const handleCreateNewTemplate = async () => {
     setIsProcessing(true);
     try {
@@ -91,7 +90,7 @@ export default function InvitationTemplatesPage() {
       setProcessingId(null);
     }
   };
-  
+
   const handleDuplicateTemplate = async (id: string, name: string) => {
     setProcessingId(id);
     try {

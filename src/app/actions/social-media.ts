@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { SocialPost } from '@/types/social-media';

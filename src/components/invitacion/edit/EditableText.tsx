@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, type KeyboardEvent, type FocusEvent } from 'react';
@@ -33,7 +32,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
     fontSize: style.fontSize || 'inherit',
     color: style.color || 'inherit',
   };
-  
+
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);

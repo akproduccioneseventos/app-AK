@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { BebidasData } from '@/types/fiesta';

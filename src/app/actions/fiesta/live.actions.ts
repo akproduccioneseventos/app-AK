@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { LiveEventState, CargaOperativaItem } from '@/types/fiesta';
@@ -47,7 +46,7 @@ export async function toggleArrival(fiestaId: string, deliveryId: string): Promi
   await requireAppSession();
     return updateLiveState(fiestaId, state => ({
         ...state,
-        entregas: state.entregas.map(e => 
+        entregas: state.entregas.map(e =>
             e.id === deliveryId ? { ...e, llego: !e.llego, timestampLlegada: !e.llego ? new Date().toISOString() : undefined } : e
         )
     }));

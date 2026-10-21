@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Entrega de Gemini 1346 (órdenes 205 a 208) juntada, con un arreglo de Claude
+
+- Entra la entrega de Gemini 1346. Las fechas ya no se corren un día. El barrido de la 207 está hecho. La
+  realidad aumentada muestra el video sobre la invitación, sin el paquete `mind-ar`: los archivos del
+  navegador quedaron copiados en `src/lib/vendor/mind-ar/`. La voz y Meta ya no duplican ni pierden con
+  dos servidores, y el portal del proveedor ya no queda cargando si se corta la señal.
+- Al revisarla apareció un caso: si la base repetía el guardado del intento de voz (porque otro servidor
+  escribió en el medio), lo que había anotado el intento descartado seguía valiendo. Los dos servidores
+  creían ser los primeros y la tarea salía dos veces. Ahora el intento se arranca de cero en cada vuelta,
+  y la espera sólo lee: antes reescribía la lista cada 20 milésimas.
+
+```comprobar
+usa: pasaAEnCurso = false; en src/app/api/asistente/voz-en-vivo/accion/route.ts
+prueba: src/__tests__/voz-un-intento-en-dos-servidores.test.ts
+```
+
 ## 21/10/2026 - Codex 178: el mozo de salón no cae en el rol de cocina
 
 - Al armar el personal, "Mozo" buscaba el primer rol que lo contuviera. Con un catálogo "Mozo de

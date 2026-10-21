@@ -1,9 +1,9 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1347 (`09ea4138f`, 21/10): reglas de personal del dueño, permisos del barrido completo y arreglos de plata.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1348 (`218e62ce3`, 21/10): mozos de salón en su rol, el asistente no elige por nombre parcial, y Codex 176-185 juntado.
 
 ## En qué se está
-Esperando que Gemini complete la propuesta 1346 con la orden 208 (incluye la 207 y, desde Codex 1345, voz y Meta en dos servidores, el portal del proveedor y la realidad aumentada sin el paquete mind-ar).
+Gemini 1346 (órdenes 205 a 208) juntada en la rama; falta publicarla. Codex sigue auditando.
 Codex sólo audita.
 
 ## Terminado en esta tanda
@@ -35,7 +35,7 @@ Codex sólo audita.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
 - Codex 1345 (`89d968d6b`, auditorías 176-185): juntado. El rol de cocina y la pregunta 87 (precio y cita por nombre parcial) los arregló Claude; el resto, orden 208.
-- Gemini 1346 (`d95c35ba2`, órdenes 205 y 206): compila y Jest en verde; **devuelta con la orden 208** (la realidad aumentada sin video, prueba de mentira, `paso-4-resumen` tocado y falta la 207). Sigue en la misma propuesta.
+- Gemini 1346 (`512881c25`, órdenes 205 a 208): revisada y juntada; compila, 5.075 pruebas en verde. Claude arregló la voz con la base que repite el guardado.
 - Gemini 1344 (`bfde3916a`): devuelta con la **orden 205** (Codex) y la **206** (fechas). Abierta, sin fusionar.
 - Codex 1345: `1cb47af06` (antes `f776ae29e`) (auditorías 160-169 juntadas): orden 204 del proveedor y el Tab de la 199 arreglados por Claude.
 - Codex 1340: `588fd64d7` (auditorías 156-159 juntadas: órdenes 200 y 201 de permisos arregladas por Claude; la fecha del seguimiento quedó en la 193 para Gemini). Antes `fdc24539a` (auditoría 155 juntada: foco de la galería pública → orden 199, con el video de ayuda sumado por el barrido de la pregunta 83). Antes `9301e146c` (auditorías 151-154 sobre la publicada 894d0160): sin hallazgos nuevos; confirma cerradas 171, 184 y 186; sigue abierta la 172 (dock en celular), ya pedida a Gemini. La 1324 quedó cerrada al entrar en la 1339.

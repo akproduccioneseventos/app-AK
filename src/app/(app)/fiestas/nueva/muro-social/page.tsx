@@ -1,5 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
+
+/* eslint-disable @next/next/no-img-element */
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -2034,6 +2035,7 @@ function MuroSocialContent() {
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Estilo visual</Label>
                 <select
+                  aria-label="Estilo visual"
                   className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                   value={settings.audioRhythm?.visualStyle ?? 'neon-bars'}
                   onChange={(e) => updateAudioRhythmSettings({ visualStyle: e.target.value as NonNullable<SocialGallerySettings['audioRhythm']>['visualStyle'] })}

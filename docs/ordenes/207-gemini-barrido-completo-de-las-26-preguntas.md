@@ -78,4 +78,8 @@ usa: EventSelectionRequired en src/app/(app)/fiestas/nueva/gestion-documental/pa
 usa: readDataConDetalle en src/app/actions/agenda.ts
 usa: idDelIntento en src/app/actions/historicos.ts
 prueba: src/__tests__/un-permiso-que-no-se-mira-no-frena.test.ts
+usa: tabParam en src/app/(app)/fiestas/nueva/en-vivo/page.tsx
+# Bloque 6
+usa: pitchText en src/app/(app)/presupuestos/[id]/edit/page.tsx
+archivo: src/lib/fiesta/personal-por-invitados.ts
 ```

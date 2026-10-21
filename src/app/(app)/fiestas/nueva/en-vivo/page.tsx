@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -7,17 +6,17 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-    Zap, Loader2, CircleCheckBig, Truck, Users, 
-    PartyPopper, Bell, RefreshCw, 
-    ArrowLeft, ClipboardList, Info, Check, X, ShieldAlert, 
+import {
+    Zap, Loader2, CircleCheckBig, Truck, Users,
+    PartyPopper, Bell, RefreshCw,
+    ArrowLeft, ClipboardList, Info, Check, X, ShieldAlert,
     PackageSearch, RotateCcw, Share2, Wallet, PlusCircle, Clock, TriangleAlert
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, marcarHitoProgramaFiestaActual } from '@/app/actions/fiesta-actual';
-import { 
-    toggleArrival, setStaffCheckIn, confirmProtagonistArrival, 
-    resetArrivalRadar, addIncidente, resolveIncidente, toggleReturnItem 
+import {
+    toggleArrival, setStaffCheckIn, confirmProtagonistArrival,
+    resetArrivalRadar, addIncidente, resolveIncidente, toggleReturnItem
 } from '@/app/actions/fiesta/live.actions';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
@@ -40,6 +39,14 @@ function LiveEventDashboardContent() {
     const { toast } = useToast();
     const searchParams = useSearchParams();
     const fiestaId = searchParams.get('fiestaId');
+    const tabParam = searchParams.get('tab');
+    const [activeTab, setActiveTab] = useState(tabParam || 'operaciones');
+
+    useEffect(() => {
+        if (tabParam) {
+            setActiveTab(tabParam);
+        }
+    }, [tabParam]);
 
     const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
     const [empleados, setEmpleados] = useState<Empleado[]>([]);
@@ -82,7 +89,7 @@ function LiveEventDashboardContent() {
 
     useEffect(() => {
         loadData();
-        const interval = setInterval(() => loadData(false), 10000); 
+        const interval = setInterval(() => loadData(false), 10000);
         return () => clearInterval(interval);
     }, [loadData]);
 
@@ -213,7 +220,7 @@ function LiveEventDashboardContent() {
                     )}
                 </AnimatePresence>
 
-                <Tabs defaultValue="operaciones" className="w-full">
+                <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue="operaciones" className="w-full">
                     <TabsList className="grid w-full grid-cols-4 bg-slate-900 h-16 p-1 rounded-2xl border border-white/5 mb-8">
                         <TabsTrigger value="operaciones" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Panel de Comando</TabsTrigger>
                         <TabsTrigger value="modos" className="rounded-xl font-black uppercase text-xs tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white">Modos</TabsTrigger>

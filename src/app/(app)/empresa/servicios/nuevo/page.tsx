@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -42,7 +41,7 @@ function NuevoServicioContent() {
     proveedor: '',
     tramosDePrecio: [{id: 'tramo_1', desde: 0, hasta: 50, precio: 0}],
   });
-  
+
   useEffect(() => {
     async function loadData() {
         try {
@@ -59,8 +58,8 @@ function NuevoServicioContent() {
         setFormData(prev => ({...prev, subcategoria: subcategoriaParam}));
     }
   }, [categoriaParam, subcategoriaParam])
-  
-  const backUrl = (categoriaParam && subcategoriaParam) 
+
+  const backUrl = (categoriaParam && subcategoriaParam)
     ? `/empresa/servicios/${categoriaParam}/${subcategoriaParam}`
     : '/empresa/servicios';
 
@@ -108,9 +107,9 @@ function NuevoServicioContent() {
       toast({ title: "Campos Requeridos", description: "Nombre y Categoría son obligatorios.", variant: "destructive" });
       return;
     }
-    
+
     setIsSaving(true);
-    
+
     const dataToSave: Omit<ServicioEmpresa, 'id'> = {
       ...formData,
       nombre: formData.nombre.trim(),
@@ -136,7 +135,7 @@ function NuevoServicioContent() {
       setIsSaving(false);
     }
   };
-  
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -151,7 +150,7 @@ function NuevoServicioContent() {
             Volver
           </Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl">Detalles del Servicio</CardTitle>
@@ -178,7 +177,7 @@ function NuevoServicioContent() {
             </div>
 
             <Separator/>
-            
+
             <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 space-y-4">
                 <h3 className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
                     <Save className="w-4 h-4"/> Configuración Financiera (Costos)
@@ -214,9 +213,9 @@ function NuevoServicioContent() {
                     <p className="text-[10px] text-muted-foreground uppercase tracking-tighter">Este valor se usará para calcular automáticamente la rentabilidad del evento.</p>
                 </div>
             </div>
-             
+
              <Separator/>
-             
+
              <div className="space-y-3">
                  <Label className="text-base font-medium">Cálculo de Precio de Venta *</Label>
                  <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} disabled={isSaving} required>
@@ -229,7 +228,7 @@ function NuevoServicioContent() {
                     </SelectContent>
                  </Select>
              </div>
-             
+
             {formData.calculationMethod === 'fijo' && (
                 <div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value)} disabled={isSaving} min="0" step="any" className="h-12 rounded-xl text-lg font-bold"/></div>
             )}

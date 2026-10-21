@@ -262,6 +262,11 @@ export default async function CierreMundialPage(props: PageProps) {
                   <div key={fix.label} aria-disabled="true" className="rounded-2xl border border-amber-200 bg-white/60 p-4">{content}</div>
                 );
               })}
+              {suite.urgentFixes.length > 8 && (
+                <p className="text-xs text-center text-amber-800 font-medium col-span-full pt-2">
+                  y {suite.urgentFixes.length - 8} más
+                </p>
+              )}
             </CardContent>
           </Card>
         )}

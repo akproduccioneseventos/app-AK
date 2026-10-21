@@ -349,7 +349,7 @@ function PantallasTotemContent() {
                           )}
                         </Button>
                       </div>
-                      
+
                       {totem.heroPhotoUrl && (
                         <div className="flex flex-wrap gap-2 p-3 rounded-2xl border bg-slate-50 mt-1 max-h-40 overflow-y-auto">
                           {totem.heroPhotoUrl.split(/[\n,]+/).map((url) => url.trim()).filter(Boolean).map((url, i) => (
@@ -431,7 +431,7 @@ function SelectLike({ label, value, options, onChange }: { label: string; value:
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <select className="h-11 w-full rounded-md border bg-white px-3 text-sm font-semibold" value={value} onChange={(event) => onChange(event.target.value)}>
+      <select aria-label={label} className="h-11 w-full rounded-md border bg-white px-3 text-sm font-semibold" value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => <option key={option} value={option}>{option}</option>)}
       </select>
     </div>

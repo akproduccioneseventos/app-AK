@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -99,7 +98,7 @@ export default function CrmAgendaPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <ScheduleNewMeetingDialog 
+      <ScheduleNewMeetingDialog
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
         onMeetingScheduled={fetchMeetings}
@@ -144,8 +143,8 @@ export default function CrmAgendaPage() {
                     </Button>
                 </div>
             ) : (
-                <DashboardCalendar 
-                  occupiedDates={meetingDates} 
+                <DashboardCalendar
+                  occupiedDates={meetingDates}
                   selected={selectedDate}
                   onSelect={setSelectedDate}
                 />

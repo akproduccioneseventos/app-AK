@@ -1,5 +1,7 @@
 'use client';
 
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 import React, { useState, useEffect } from 'react';
 import { getHistorialFiestas } from '@/app/actions/fiesta-actual';
 import { Button } from '@/components/ui/button';
@@ -54,9 +56,7 @@ export default function DecoMuestrario({ onLoadDecoracion }: DecoMuestrarioProps
           const elementos = fiesta.decoracion?.vistaDecorativa?.elementos ?? [];
           const paleta = fiesta.decoracion?.paletaColores;
           const colores = paleta ? [paleta.primary, paleta.secondary, paleta.accent] : [];
-          const fecha = fiesta.configuracion?.fechaEvento
-            ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
-            : 'Sin fecha';
+          const fecha = fiesta.configuracion?.fechaEvento ? formatearFechaEvento(fiesta.configuracion.fechaEvento) : 'Sin fecha';
 
           return (
             <div

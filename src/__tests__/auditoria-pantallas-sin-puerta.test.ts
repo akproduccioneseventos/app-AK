@@ -33,6 +33,7 @@ const SE_LLEGA_POR_FUERA = new Set([
   'invitado',     // portal personal, llega por su enlace
   'logistica',    // pantalla del coordinador
   'dj',           // pantalla del DJ
+  'ar',           // realidad aumentada, se entra por QR en la fiesta
 ]);
 
 function carpetasDeEvento(): string[] {

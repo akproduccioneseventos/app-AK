@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -37,7 +36,7 @@ export default function FeedbackPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [fiestaIdActual, setFiestaIdActual] = useState<string>('');
   const [generatingFeedbackId, setGeneratingFeedbackId] = useState<string | null>(null);
-  
+
   // State for post creation dialog
   const [postToCreate, setPostToCreate] = useState<Partial<SocialPost> | null>(null);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -60,10 +59,14 @@ export default function FeedbackPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
-  const handleCopyToClipboard = (url: string) => {
-    navigator.clipboard.writeText(url);
-    toast({ title: "Enlace Copiado" });
+
+  const handleCopyToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ title: "Enlace copiado" });
+    } catch {
+      toast({ title: "No se pudo copiar", description: url, variant: "destructive" });
+    }
   };
 
 
@@ -76,7 +79,7 @@ export default function FeedbackPage() {
     toast({ title: `Testimonio ${!currentStatus ? 'aprobado' : 'desaprobado'}.` });
     await loadData();
   };
-  
+
   const handleDeleteTestimonial = async (id: string) => {
      const result = await deleteTestimonial(id);
      if (!result.success) {
@@ -111,7 +114,7 @@ export default function FeedbackPage() {
       setGeneratingFeedbackId(null);
     }
   };
-  
+
   const handlePublishTestimonial = (testimonial: Testimonial) => {
     setPostToCreate({
       text: `"${testimonial.testimonialText}" - ${testimonial.clientName}`,
@@ -135,7 +138,7 @@ export default function FeedbackPage() {
   };
 
   const feedbackSinTestimonio = feedbackList.filter(fb => !testimonials.some(t => t.feedbackId === fb.id));
-  
+
   const feedbackLink = typeof window !== 'undefined' && fiestaIdActual ? `${window.location.origin}/feedback/${fiestaIdActual}` : '';
 
   // NPS Analytics
@@ -161,7 +164,7 @@ export default function FeedbackPage() {
           }}
           postToDuplicate={postToCreate as import('@/types/social-media').SocialPost | null} // Using duplicate to pre-fill text
       />
-     
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <Star className="w-8 h-8 text-primary" />
@@ -169,7 +172,7 @@ export default function FeedbackPage() {
         </div>
         <Button asChild variant="outline"><Link href="/settings"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Configuración</Link></Button>
       </div>
-      
+
       <Card className="shadow-md bg-blue-50 border-blue-200">
         <CardHeader>
             <CardTitle className="text-blue-800 text-lg flex items-center gap-2"><Info className="w-5 h-5"/>¿Cómo funciona?</CardTitle>
@@ -297,7 +300,7 @@ export default function FeedbackPage() {
           }
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Testimonios Guardados</CardTitle>
@@ -353,7 +356,7 @@ export default function FeedbackPage() {
                          <Button variant="secondary" size="sm" onClick={() => handlePublishTestimonial(t)} disabled={!t.isApproved}>
                             <Send className="w-4 h-4 mr-2"/> Publicar
                          </Button>
-                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => {navigator.clipboard.writeText(t.testimonialText); toast({title:"Copiado!"})}}><ClipboardCopy className="w-4 h-4"/></Button>
+                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => handleCopyToClipboard(t.testimonialText)}><ClipboardCopy className="w-4 h-4"/></Button>
                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteTestimonial(t.id)}><Trash2 className="w-4 h-4"/></Button>
                     </div>
                 </div>

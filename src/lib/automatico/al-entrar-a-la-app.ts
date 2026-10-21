@@ -47,6 +47,7 @@ const CADA_CUANTO = {
   prospectos_seguimiento: 24 * 60 * 60 * 1000,
   avisos_cliente: 24 * 60 * 60 * 1000,
   recordar_invitacion: 24 * 60 * 60 * 1000,
+  recordatorio_invitados: 24 * 60 * 60 * 1000,
   asistente_proactivo: 60 * 60 * 1000,
 } as const;
 
@@ -62,6 +63,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   prospectos_seguimiento: 'prospectos-seguimiento',
   avisos_cliente: 'avisos-al-cliente',
   recordar_invitacion: 'recordar-invitacion-no-abierta',
+  recordatorio_invitados: 'recordatorio-a-los-invitados',
   asistente_proactivo: 'asistente-proactivo',
 };
 
@@ -212,6 +214,13 @@ export async function ponerAlDiaAlEntrar(
         correr: async () => {
           const { correrTareaAvisosAlCliente } = await import('@/lib/whatsapp/avisos-al-cliente');
           return correrTareaAvisosAlCliente();
+        },
+      },
+      {
+        nombre: 'recordatorio_invitados',
+        correr: async () => {
+          const { correrTareaRecordatorioInvitados } = await import('@/lib/invitaciones/recordatorio-invitados');
+          return correrTareaRecordatorioInvitados();
         },
       },
       {

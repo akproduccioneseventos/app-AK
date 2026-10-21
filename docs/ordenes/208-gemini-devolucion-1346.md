@@ -146,6 +146,7 @@ Las reglas de personal (`src/lib/fiesta/personal-por-invitados.ts`), cobros, pre
 ajuste anual.
 
 ```comprobar
+archivo: src/components/presupuestos/paso-4-resumen.tsx
 usa: realidadAumentada en src/components/invitacion/edit/SeccionCabecera.tsx
 usa: arVideoUrl en src/app/evento/ar/[fiestaId]/page.tsx
 usa: realidadAumentada en src/lib/social-fiesta/public-event.ts
