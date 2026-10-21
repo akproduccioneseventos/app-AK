@@ -21,6 +21,10 @@
 -169 consolida160-168 y enlaza14areas. No cada control/estado/rol aceptado,
   no toda193/Gemini devuelta, no integraciones/hardware/19originales ni0errores.
   No appedit/merge. DosLuna acotados cerrados. Evidencia con su tanda, no docs solas.
+-Empaquetado170: diffcheck del delta completo encontro espacios finales en
+  dos error-context generados. Originales preservados .md.gz y copia legible
+  solo normalizada; sin cambiar pruebas/resultados. Gate ampliado al delta
+  completo desde9b7.170-manifest es lista final;169-manifest queda historico.
 
 ```comprobar
 prueba: docs/evidencias/166-galeria-nativa.spec.ts

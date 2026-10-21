@@ -25,7 +25,7 @@ desactivar/rotar durante intento restauraactivo/tokenviejo. No pagos.
 Acciones+updateDataItem/mutateDataItem reales, readData/respaldo adaptados.
 0documentos SDK,cleanup200,Java/Next/test/agentes propios cerrados,QAfuentes0.
 163protocoloDOBLE historico conservado;168NOHTTP/UI ni proveedorreal.
-169-cierre-consolidado.md/validacion: doscausas pendientes, no0errores.
+169-cierre-consolidado.md y170-manifest: doscausas pendientes, no0errores.
 Cierres151/154:171/184/186/198 por alcance;172dock aun pendiente.
 Conservar150comercialPDFCRM,141clienteSDK,1353D/agendaDJ,157tokens7estaciones.
 134421rutas14areas7roles6401AST NO aceptacion accion/estado/rol de cada control.

@@ -36,7 +36,7 @@ const observed={source,desktop:observation(desktop),mobile:observation(mobile[0]
 assert.equal(observed.desktop.nativeTabContainment,false);assert.equal(observed.mobile.escapeAndReturn,true);
 fs.writeFileSync(path.join(dir,'169-native-observed.json'),JSON.stringify(observed,null,2)+'\n');
 assert.equal(git(['diff','--name-only',base,'--','src','scripts','package.json','package-lock.json']),'');
-assert.equal(git(['diff','--check']),'');
+assert.equal(git(['diff','--check',base]),'');
 const stateLines=fs.readFileSync(path.join(root,'ESTADO-ACTUAL.md'),'utf8').trimEnd().split(/\r?\n/).length;assert.ok(stateLines<=40);
 const stableFiles=['src/app/actions/google-workspace.ts','src/lib/automatico/puerta-de-las-tareas.ts','src/app/actions/provider-portal.ts','src/lib/data-service.ts'];
 const equalBlobFiles=stableFiles.map(file=>{const main=git(['rev-parse',`${base}:${file}`]),candidate=git(['rev-parse',`${source}:${file}`]);assert.equal(main,candidate);return{file,blob:main};});

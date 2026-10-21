@@ -931,7 +931,7 @@ Call log:
 
 ```ts
   1   | import { expect, test, type Page, type TestInfo } from '@playwright/test';
-  2   | 
+  2   |
   3   | const BASE_URL = 'http://127.0.0.1:3300';
   4   | const AISLADO = process.env.AK_ENTORNO_AISLADO === 'true'
   5   |   && process.env.AK_USE_LOCAL_JSON_ONLY === 'true'
@@ -941,10 +941,10 @@ Call log:
   9   | const CERRAR = 'button[aria-label="Cerrar galería"]';
   10  | const FOTOS = ['Prueba nativa galería 166 foto uno', 'Prueba nativa galería 166 foto dos'];
   11  | const SVG_QA = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="20" viewBox="0 0 32 20"><rect width="32" height="20" fill="#d71920"/></svg>';
-  12  | 
+  12  |
   13  | test.use({ serviceWorkers: 'block', baseURL: BASE_URL });
   14  | test.skip(!AISLADO, 'Solo runner ficticio local: AK_ENTORNO_AISLADO, AK_USE_LOCAL_JSON_ONLY y 127.0.0.1:3300 requeridos.');
-  15  | 
+  15  |
   16  | async function guardarEvidencia(page: Page, testInfo: TestInfo, observations: Record<string, unknown>) {
   17  |   observations.finalUrl = page.url();
   18  |   observations.finalFocus = await page.evaluate(() => {
@@ -962,7 +962,7 @@ Call log:
   30  |     body: await page.screenshot({ fullPage: true }).catch(() => Buffer.from('')),
   31  |   });
   32  | }
-  33  | 
+  33  |
   34  | async function preparar(page: Page, testInfo: TestInfo, observations: Record<string, unknown>) {
   35  |   await page.route('**/*', async (route) => {
   36  |     const url = new URL(route.request().url());
@@ -981,7 +981,7 @@ Call log:
   49  |     }
   50  |     await route.continue();
   51  |   });
-  52  | 
+  52  |
   53  |   const health = await page.request.get('/api/health');
   54  |   const body = await health.json().catch(() => ({}));
   55  |   observations.health = { status: health.status(), version: body.version, services: body.services };
@@ -999,7 +999,7 @@ Call log:
   66  |   for (const title of FOTOS) await expect(section.getByRole('button', { name: new RegExp(title) })).toBeVisible();
   67  |   observations.galleryLoaded = true;
   68  | }
-  69  | 
+  69  |
   70  | test('Pixel 7: abre tarjeta, enfoca cerrar, navega con flechas, Escape cierra y devuelve foco', async ({ page }, testInfo) => {
   71  |   testInfo.setTimeout(90_000);
   72  |   const observed: Record<string, unknown> = { source: 'Claude108e17b4387237fc921ea12e8d1eb65b20f62ac9', device: 'Pixel 7', case: 'entrada-flechas-escape-retorno' };
@@ -1021,7 +1021,7 @@ Call log:
   88  |     await page.keyboard.press('ArrowLeft');
   89  |     await expect(dialog.locator('img')).toHaveAttribute('src', initialPicture!);
   90  |     observed.arrowLeft = true;
-  91  | 
+  91  |
   92  |     await page.keyboard.press('Escape');
   93  |     await expect(dialog).toBeHidden();
   94  |     await expect(firstCard).toBeFocused();
@@ -1030,7 +1030,7 @@ Call log:
   97  |     await guardarEvidencia(page, testInfo, observed);
   98  |   }
   99  | });
-  100 | 
+  100 |
   101 | test('Chromium desktop: Tab y Shift+Tab nativos permanecen dentro del visor abierto', async ({ page }, testInfo) => {
   102 |   testInfo.setTimeout(90_000);
   103 |   const observed: Record<string, unknown> = { source: 'Claude108e17b4387237fc921ea12e8d1eb65b20f62ac9', device: 'Desktop Chrome', case: 'native-tab-containment' };
@@ -1043,7 +1043,7 @@ Call log:
   110 |     const dialog = page.locator(DIALOGO);
   111 |     await expect(dialog).toBeVisible();
   112 |     await expect.poll(() => page.evaluate(() => document.activeElement?.getAttribute('aria-label'))).toBe('Cerrar galería');
-  113 | 
+  113 |
   114 |     const focusables = dialog.locator('button:visible');
   115 |     const count = await focusables.count();
   116 |     expect(count).toBeGreaterThanOrEqual(4);
@@ -1052,7 +1052,7 @@ Call log:
   119 |       const dialogNode = document.querySelector('[role="dialog"][aria-label="Vista ampliada de la galería"]');
   120 |       return { inside: Boolean(active && dialogNode?.contains(active)), label: active?.getAttribute('aria-label') || '' };
   121 |     });
-  122 | 
+  122 |
   123 |     for (let i = 0; i < count + 2; i++) {
   124 |       await page.keyboard.press('Tab');
   125 |       const state = await focusState();
@@ -1078,5 +1078,5 @@ Call log:
   145 |     await guardarEvidencia(page, testInfo, observed);
   146 |   }
   147 | });
-  148 | 
+  148 |
 ```

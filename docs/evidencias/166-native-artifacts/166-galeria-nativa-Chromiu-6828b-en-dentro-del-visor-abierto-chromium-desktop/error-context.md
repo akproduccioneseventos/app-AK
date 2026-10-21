@@ -978,7 +978,7 @@ Received: false
   49  |     }
   50  |     await route.continue();
   51  |   });
-  52  | 
+  52  |
   53  |   const health = await page.request.get('/api/health');
   54  |   const body = await health.json().catch(() => ({}));
   55  |   observations.health = { status: health.status(), version: body.version, services: body.services };
@@ -995,7 +995,7 @@ Received: false
   66  |   for (const title of FOTOS) await expect(section.getByRole('button', { name: new RegExp(title) })).toBeVisible();
   67  |   observations.galleryLoaded = true;
   68  | }
-  69  | 
+  69  |
   70  | test('Pixel 7: abre tarjeta, enfoca cerrar, navega con flechas, Escape cierra y devuelve foco', async ({ page }, testInfo) => {
   71  |   testInfo.setTimeout(90_000);
   72  |   const observed: Record<string, unknown> = { source: 'Claude108e17b4387237fc921ea12e8d1eb65b20f62ac9', device: 'Pixel 7', case: 'entrada-flechas-escape-retorno' };
@@ -1017,7 +1017,7 @@ Received: false
   88  |     await page.keyboard.press('ArrowLeft');
   89  |     await expect(dialog.locator('img')).toHaveAttribute('src', initialPicture!);
   90  |     observed.arrowLeft = true;
-  91  | 
+  91  |
   92  |     await page.keyboard.press('Escape');
   93  |     await expect(dialog).toBeHidden();
   94  |     await expect(firstCard).toBeFocused();
@@ -1026,7 +1026,7 @@ Received: false
   97  |     await guardarEvidencia(page, testInfo, observed);
   98  |   }
   99  | });
-  100 | 
+  100 |
   101 | test('Chromium desktop: Tab y Shift+Tab nativos permanecen dentro del visor abierto', async ({ page }, testInfo) => {
   102 |   testInfo.setTimeout(90_000);
   103 |   const observed: Record<string, unknown> = { source: 'Claude108e17b4387237fc921ea12e8d1eb65b20f62ac9', device: 'Desktop Chrome', case: 'native-tab-containment' };
@@ -1039,7 +1039,7 @@ Received: false
   110 |     const dialog = page.locator(DIALOGO);
   111 |     await expect(dialog).toBeVisible();
   112 |     await expect.poll(() => page.evaluate(() => document.activeElement?.getAttribute('aria-label'))).toBe('Cerrar galería');
-  113 | 
+  113 |
   114 |     const focusables = dialog.locator('button:visible');
   115 |     const count = await focusables.count();
   116 |     expect(count).toBeGreaterThanOrEqual(4);
@@ -1048,7 +1048,7 @@ Received: false
   119 |       const dialogNode = document.querySelector('[role="dialog"][aria-label="Vista ampliada de la galería"]');
   120 |       return { inside: Boolean(active && dialogNode?.contains(active)), label: active?.getAttribute('aria-label') || '' };
   121 |     });
-  122 | 
+  122 |
   123 |     for (let i = 0; i < count + 2; i++) {
   124 |       await page.keyboard.press('Tab');
   125 |       const state = await focusState();
@@ -1075,5 +1075,5 @@ Received: false
   145 |     await guardarEvidencia(page, testInfo, observed);
   146 |   }
   147 | });
-  148 | 
+  148 |
 ```

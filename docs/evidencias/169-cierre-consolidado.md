@@ -82,6 +82,12 @@ fotografias/categorias/estetica/animacion/YouTube reales. CapturaPC revisada.
 Dos agentes Luna acotados (recuento/spec), cerrados. El director conservo riesgos.
 No servicios SDK/Next/Java propios abiertos. No tocaron procesos ajenos ni app.
 Los archivos originales deQA se restauraron; ver recibos/gates y169-validacion.
+Al preparar la entrega, git detecto espacios finales en dos error-context.md
+generados por Playwright. Se conservaron los bytes originales como .md.gz y se
+normalizo SOLO espacio final en las copias legibles; no casos ni resultados.
+El gate inicial169 no miraba untracked en diff-check: se amplio al delta desde
+main9b7.170-manifest/validacion es la entrega final;169-manifest queda historico
+del payload iniciale1265706c. No fue un nuevo fallo de la aplicacion.
 GitHub tuvo DNS transitoria, luego ls-remote volvio a responder. La entrega solo
 se confirma al comparar arbol/blobs remotos. Claude incorpora esta evidencia
 con su tanda; NO fusionar documentacion sola ni app nueva desde esta propuesta.
