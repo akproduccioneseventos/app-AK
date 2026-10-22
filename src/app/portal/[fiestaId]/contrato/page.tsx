@@ -21,6 +21,13 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 
+/** sha256 en hexadecimal, igual que la huella que guarda el servidor en la constancia. */
+async function huellaDelTexto(texto: string): Promise<string> {
+  const datos = new TextEncoder().encode(texto);
+  const resumen = await crypto.subtle.digest('SHA-256', datos);
+  return Array.from(new Uint8Array(resumen)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 
 function formatCurrency(amount: number) {
@@ -102,13 +109,16 @@ export default function ClientContractPage() {
 
     setIsSaving(true);
     try {
-        const result = await signContractDigitally(fiestaId, signerFullName.trim(), acceptedPlanPagos);
+        // La huella del texto que el cliente tiene en pantalla: si el contrato cambió después de que lo
+        // abrió, el servidor no le atribuye la versión nueva (Codex 240, C4).
+        const huellaVista = await huellaDelTexto(fiesta.contratoServicioTexto || '');
+        const result = await signContractDigitally(fiestaId, signerFullName.trim(), acceptedPlanPagos, huellaVista);
         if (result.success) {
             toast({ title: "¡Constancia Registrada!", description: "Se ha registrado tu firma digital como constancia en el portal." });
             await loadData();
         } else throw new Error(result.error);
-    } catch {
-        toast({ title: "No pudimos registrar tu firma", description: "Intentá nuevamente. Si el problema continúa, contactá a tu organizador.", variant: "destructive" });
+    } catch (e: any) {
+        toast({ title: "No pudimos registrar tu firma", description: e?.message || "Intentá nuevamente. Si el problema continúa, contactá a tu organizador.", variant: "destructive" });
     } finally {
         setIsSaving(false);
     }

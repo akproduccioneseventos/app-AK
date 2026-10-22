@@ -214,3 +214,10 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 60. **¿Cambiaste un guardado por otro?** Hacé la lista de lo que controlaba el viejo (permiso, contrato
     firmado, recálculo, avisos) y comprobá que el nuevo lo haga. Ganar en un lado y perder un control en
     el otro ya pasó con las aprobaciones del portal.
+61. **¿Deshacés algo si falla?** Deshacé sobre el dato de ahora, no sobre el que leíste al principio:
+    restá lo tuyo, o volvé un valor sólo si nadie lo cambió. Y lo que decide si se escribe (firma,
+    saldo, estado) miralo adentro de la transacción, no antes.
+62. **¿El cliente acepta o firma algo?** Que la pantalla mande lo que vio (la huella del texto) y que el
+    servidor lo compare al guardar. Lo aceptado lo escribe sólo su acción, nunca el guardado general.
+63. **¿Tu tarea programada le escribe a alguien?** Entonces no va en la lista de las que corren sin clave.
+    Y si falla a mitad, no la anotes como corrida ni dejes el día consumido.

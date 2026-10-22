@@ -229,3 +229,61 @@ describe('aprobar pedidos del cliente cambia el presupuesto de verdad (Codex 204
     expect(fiesta.configuracion.invitadosEstimados).toBe(102);
   });
 });
+
+describe('aprobar mientras pasa otra cosa (Codex 217-218, orden 213-claude)', () => {
+  const pedirMenu = (adultosDelta: number) =>
+    submitClientMenuChangeRequest('f1', { adultosDelta, ninosAdolescentesDelta: 0, montoAdicional: 40 * adultosDelta, nuevoTotalEstimado: 1000 });
+
+  it('si el contrato se firma entre la primera lectura y la aprobación, no se aprueba ni se toca el presupuesto', async () => {
+    await pedirMenu(2);
+    const id = fiesta.clientMenuChangeRequests[0].id;
+    const { getFiestaById } = jest.requireMock('@/app/actions/fiesta/fiesta.actions');
+    (getFiestaById as jest.Mock).mockImplementationOnce(async () => {
+      const vista = copia(fiesta); // todavía sin firma
+      fiesta.contratoFirmaInfo = { isSigned: true }; // se firma justo después
+      return vista;
+    });
+    const r = await approveClientMenuChangeRequest('f1', id);
+    expect(r.success).toBe(false);
+    expect(r.error).toMatch(/adenda/);
+    expect(fiesta.clientMenuChangeRequests[0].status).toBe('pendiente');
+    expect(fiesta.configuracion.invitadosEstimados).toBe(100);
+    expect(presupuestos[0].totalConDescuento).toBe(1000);
+  });
+
+  it('si el contrato se firma DESPUÉS de aprobar, la aprobación ya hecha queda', async () => {
+    await pedirMenu(2);
+    expect((await approveClientMenuChangeRequest('f1', fiesta.clientMenuChangeRequests[0].id)).success).toBe(true);
+    fiesta.contratoFirmaInfo = { isSigned: true };
+    expect(fiesta.clientMenuChangeRequests[0].status).toBe('aprobada');
+    expect(fiesta.configuracion.invitadosEstimados).toBe(102);
+  });
+
+  it('A falla y deshace lo suyo DESPUÉS de que B aprobó: quedan los invitados de B', async () => {
+    await pedirMenu(2);
+    await pedirMenu(3);
+    const [a, b] = fiesta.clientMenuChangeRequests.map((r: any) => r.id);
+    const { mutateDataItem } = jest.requireMock('@/lib/data-service');
+    let soltarA!: () => void;
+    const pausa = new Promise<void>((r) => { soltarA = r; });
+    (mutateDataItem as jest.Mock).mockImplementationOnce(async () => { await pausa; throw new Error('La base no contesta'); });
+    const aprobandoA = approveClientMenuChangeRequest('f1', a);
+    await esperar(); await esperar();
+    expect((await approveClientMenuChangeRequest('f1', b)).success).toBe(true);
+    soltarA();
+    expect((await aprobandoA).success).toBe(false);
+    const estado = Object.fromEntries(fiesta.clientMenuChangeRequests.map((r: any) => [r.id, r.status]));
+    expect(estado[a]).toBe('pendiente');
+    expect(estado[b]).toBe('aprobada');
+    expect(fiesta.configuracion.invitadosEstimados).toBe(103);
+  });
+
+  it('A falla sola: la fiesta vuelve a como estaba', async () => {
+    await pedirMenu(2);
+    const { mutateDataItem } = jest.requireMock('@/lib/data-service');
+    (mutateDataItem as jest.Mock).mockImplementationOnce(async () => { throw new Error('La base no contesta'); });
+    expect((await approveClientMenuChangeRequest('f1', fiesta.clientMenuChangeRequests[0].id)).success).toBe(false);
+    expect(fiesta.configuracion.invitadosEstimados).toBe(100);
+    expect(fiesta.clientMenuChangeRequests[0].status).toBe('pendiente');
+  });
+});

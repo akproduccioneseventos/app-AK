@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url));
+const previous=JSON.parse(fs.readFileSync(path.join(root,'docs/evidencias/209-ejecucion.json'),'utf8'));
+assert.equal(previous.phase,'finished');assert.equal(previous.sourceDiff,'');
+const excluded=['136-maestros.spec.ts','137-maestros.spec.ts','139-cliente-persistencia.spec.ts'];
+const selected=previous.manifest.map(item=>path.basename(item.original)).filter(file=>!excluded.includes(file));
+assert.ok(selected.length>100);assert.equal(new Set(selected).size,selected.length);
+const note={source:previous.source,selectedSpecs:selected.length,selected,excluded,reason:'Known JSON atomic-write incompatibility, NOT an app acceptance or a new bug. Active portal207 already has its own completed receipt213. Remaining regression source is unchanged frozen build206; incomplete209 is NOT reused as PASS.'};
+const file=path.join(root,'docs/evidencias/214-seleccion.json');assert.equal(fs.existsSync(file),false,'Preserve selection');fs.writeFileSync(file,JSON.stringify(note,null,2)+'\n');
+const child=spawn(process.execPath,['docs/evidencias/213-esperar-recursos.mjs'],{cwd:root,env:{...process.env,AK_AUDIT_RUN_ID:'214',AK_AUDIT_SPEC_FILTER:selected.join(','),AK_AUDIT_SKIP_PORTAL:'true'},stdio:'inherit'});
+process.exitCode=await new Promise((yes,no)=>{child.once('exit',yes);child.once('error',no);});

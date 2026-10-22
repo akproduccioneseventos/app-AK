@@ -1316,3 +1316,51 @@ nuevo. Antes de cambiar un guardado, se lista qué controles hace el viejo (perm
 recálculo, normalización, aviso al CRM) y se mira que el nuevo los haga o diga por qué no hacen falta.
 Se buscan los `mutarPresupuesto(` y `mutateDataItem<Presupuesto>` de `src/` y se mira si cambian la
 estructura del presupuesto (invitados, renglones, descuento) sin mirar la firma.
+
+### 90. Un control que se mira ANTES de la transacción, y un "deshacer" que vuelve a una foto vieja: ¿aguantan que otro haga algo en el medio?
+
+Codex 217-218 (orden 213-claude). Las aprobaciones del portal miraban la firma del contrato en la primera
+lectura. Si se firmaba antes de la escritura, el extra entraba igual. Y al fallar el presupuesto, la
+fiesta volvía a la configuración leída al principio, borrando lo que otro aprobó en el medio.
+
+Dos cosas se miran:
+
+1. Todo control que decide si se escribe (firma, saldo, estado, permiso del dueño del dato) va adentro
+   de la transacción, sobre el dato que se va a guardar.
+2. Todo "deshacer" o "volver atrás" trabaja sobre el dato de AHORA. Resta lo suyo, o vuelve un valor
+   sólo si sigue siendo el que puso él.
+
+Se buscan en `src/app/actions` y `src/lib` los `catch` y los "revertir/deshacer/rollback" que guardan
+algo leído antes (`...antes`, `status: xAntes.status`, `writeData(archivo, original...)`).
+
+### 91. Cuando el cliente acepta o firma algo, ¿queda registrado lo que VIO, y sólo por el camino de firmar?
+
+Codex 240 (orden 216-claude). La firma del portal guardaba la huella del texto de ese momento, no la del
+que el cliente tenía en pantalla. Si el equipo lo cambiaba en el medio, se le atribuía el nuevo. Además, la
+constancia se podía reescribir por el guardado general, y dos firmas a la vez se pisaban.
+
+Se miran tres cosas en cada aceptación del cliente:
+
+1. Que la pantalla mande qué versión vio (huella, versión o fecha) y que el servidor la compare adentro
+   de la escritura.
+2. Que lo que se aceptó sólo lo escriba su acción, y que el guardado general lo deje como está.
+3. Que el resumen que se le muestra antes de aceptar salga de sus datos reales. Si no se pueden leer,
+   se dice, sin importes por defecto.
+
+Se buscan en `src/app/actions` las acciones con `verifyPortalSession` que guardan una aceptación, una
+firma o una aprobación del cliente.
+
+### 92. Una tarea que corre sin clave, ¿le escribe a alguien? Y si falla a mitad, ¿queda anotada como corrida?
+
+Codex 249-250 (orden 217). El recordatorio a los invitados mandaba WhatsApp y Gmail, y estaba en la lista
+de "las que no hacen daño". La pregunta 85 miraba qué contestaba la ruta, no qué hacía.
+
+Además se mira:
+
+- Si una reserva o un envío fallan, ¿la corrida se anota igual como hecha?
+- ¿El día queda consumido sin haberse mandado nada?
+
+Se recorre `TAREAS_QUE_NO_HACEN_DANO` en `src/lib/automatico/puerta-de-las-tareas.ts` y, por cada una, se
+busca en su motor `sendMetaWhatsAppMessage`, `sendGoogleGmailMessage` o cualquier envío a una persona
+que no sea el dueño.
+

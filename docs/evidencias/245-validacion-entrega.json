@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-22T11:13:13.901Z",
+  "base": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+  "scripts": [
+    {
+      "name": "240-ejecutar.mjs",
+      "exit": 0
+    },
+    {
+      "name": "240-firma-cliente-sdk.mjs",
+      "exit": 0
+    },
+    {
+      "name": "242-ejecutar.mjs",
+      "exit": 0
+    },
+    {
+      "name": "242-solicitudes-portal-sdk.mjs",
+      "exit": 0
+    }
+  ],
+  "contract240": {
+    "total": 11,
+    "pass": 6,
+    "fail": 5
+  },
+  "retest242": {
+    "total": 2,
+    "pass": 2,
+    "fail": 0
+  },
+  "appDiff": [],
+  "stateLines": 38,
+  "services": "Emulators exited, both cleanup200/0docs per execution receipts; no agent remains from241.",
+  "scope": "Documentation and audit syntax integrity, not app-wide build/typecheck/lint or zero-error certificate."
+}

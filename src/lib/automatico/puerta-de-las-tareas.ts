@@ -69,7 +69,9 @@ const TAREAS_QUE_NO_HACEN_DANO: ReadonlySet<NombreDeTareaProgramada> = new Set([
   'prospectos-seguimiento',
   'recordatorio-a-los-invitados',
   'avisos-al-cliente',
-  'recordar-invitacion-no-abierta',
+  // 'recordar-invitacion-no-abierta' NO va acá: manda WhatsApp y Gmail a los invitados. Sin clave,
+  // cualquiera de afuera la disparaba (Codex 249, R1). Corre igual todos los días por dentro, al
+  // entrar el equipo a la app (`al-entrar-a-la-app.ts`), que no pasa por esta puerta.
   // Los recordatorios entraron el 20 de agosto, despues de comprobar que **no le
   // escriben a nadie**: dejan el mensaje en la bandeja de salida con estado
   // pendiente, y una persona lo manda con un toque desde su propio WhatsApp.

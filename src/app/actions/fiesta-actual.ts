@@ -134,7 +134,7 @@ export async function updateGestionCostosFiestaActual(fiestaId: string, costos: 
 export async function updateFotografiaYFilmacionFiestaActual(fiestaId: string, fotografia: FotografiaYFilmacionData) { return await FotografiaModule.updateFotografiaYFilmacion(fiestaId, fotografia); }
 export async function uploadDocumentoFiesta(formData: FormData) { return await DocumentosModule.uploadDocumento(formData); }
 export async function deleteDocumentoFiesta(fiestaId: string, docId: string) { return await DocumentosModule.deleteDocumento(fiestaId, docId); }
-export async function signContractDigitally(fiestaId: string, name: string, acceptedPlanPagos?: boolean) { return await DocumentosModule.signContractDigitally(fiestaId, name, acceptedPlanPagos); }
+export async function signContractDigitally(fiestaId: string, name: string, acceptedPlanPagos?: boolean, huellaVista?: string) { return await DocumentosModule.signContractDigitally(fiestaId, name, acceptedPlanPagos, huellaVista); }
 export async function uploadPhysicalContract(formData: FormData) { return await DocumentosModule.uploadPhysicalContract(formData); }
 export async function getContractSigningSummary(fiestaId: string) { return await DocumentosModule.getContractSigningSummary(fiestaId); }
 

@@ -55,6 +55,7 @@ import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion
 import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
+import { conLaConstanciaGuardada } from '@/lib/fiesta/constancia-de-firma';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
@@ -326,7 +327,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     if (await getFiestaByIdRaw(fiestaData.id)) {
       const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
       const datos = fiestaData;
-      const r = await actualizarFiesta(datos.id, (actual) => reponer(datos, actual));
+      const r = await actualizarFiesta(datos.id, (actual) => conLaConstanciaGuardada(reponer(datos, actual), actual));
       if (!r.success) return { success: false, error: 'No se pudo guardar el evento.' };
       if (!quienGuarda.success) return { success: true };
       return { success: true, fiesta: recortarFiestaPorPerfil(r.updatedFiesta ?? datos, usuarioQueGuarda) };
@@ -335,6 +336,8 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   }
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaData.id}.json`;
+    const { getFiestaByIdRaw: leerGuardada } = await import('@/lib/fiesta/get-fiesta-raw');
+    fiestaData = conLaConstanciaGuardada(fiestaData, await leerGuardada(fiestaData.id));
     await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
     // A quien no es del equipo no se le devuelve la fiesta entera: varias acciones públicas
     // devuelven directo lo que contesta esto (ver recortar-para-afuera).
@@ -353,6 +356,10 @@ export async function updateFiestaPartial(
   partialData: Partial<FiestaEnPlanificacion>,
   options?: { allowPortal?: boolean }
 ): Promise<{ success: boolean; error?: string }> {
+  // La constancia de la firma digital sólo la escribe `signContractDigitally` (Codex 240, C2).
+  if ('firmaDigitalConstancia' in (partialData as Record<string, unknown>)) {
+    return { success: false, error: 'La constancia de la firma sólo se registra firmando desde el portal.' };
+  }
   if (options?.allowPortal) {
     await requireFiestaWriteAccess(fiestaId);
     if (!(await esEquipoParaFiesta(fiestaId))) {

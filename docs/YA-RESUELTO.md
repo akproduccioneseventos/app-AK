@@ -1,5 +1,71 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex247-250 motores automaticos
+
+Orden217 NUEVA, NOcorregida:2498criterios4PASS4FAIL son CUATRO causas del
+recordatorio noabierto, no defecto del recorte201. SinCRON_SECRET, puerta publica
+permite llegar al remitente; fecha reprogramada no se reevalua en reserva;
+rechazo403+contingenciafallida consumen dia; reservafallida se marca corridaok.
+R2/R3confirmadas250 conactualizador/transaccionSDKdemo:2FAIL/0docs/cleanup200,
+NOdosbugsmas. Fuentes249 igualesbaa/1353b91.248respuesta vacia era incierta:
+NOjustifica reenvio ciego;249/250 rechazo controlado explicito. No proveedorrreal,
+HTTPservidor ni configuracionCRONdeproduccion certificados.4controlesPASS249.
+247publicador2asercionesPASS, solo frontera15min nueva;PROCESSING control yaexistia.
+Ayudante cerrado. Error exit1por[] del harness corregido/preservadoSINrepetir ni
+reescribirrecibo; no falloapp ni exit0 original. Ver251 para limites. No11motores
+completos/14areas/0errores. No meter envio dentro del callback transaccional.
+
+## 22/10/2026 - Codex240/242: contrato y cierre213
+
+Mainbaa034fd2 integra1355/213.242 repite los DOS intercalados218 conSDKreal:
+2PASS0FAIL, firma intercalada conserva1000 y rollbackA conserva28/1120deB.
+Orden213 CERRADA por ese alcance; no reabrir por fallos historicos218.
+240accionescontrato/permisos/HMAC+SDKreal:11criterios6PASS5FAIL, CUATRO causas
+NUEVAS216/Claude: resumen0/20000/0 para cliente conpresupuesto100000/30000/70000;
+partialcliente falsifica constancia; firmaBconcurrente pisaA; se acepta textoB
+no visto (clientevioA). Los dos FAILdelresumen NOson dosbugs. NOcorregidas.
+16fuentesefectivas+pagina identicas9d/baa/b91 en240-contraste-fuentes.json.
+NoHTTP/nativo/PDF/validezlegal, notificacionescontroladas, NOreserva/cargo/papel.
+Politica25/9 sigue intacta.240/242cleanup200/0docs yprocesos cerrados.241soloindice,
+no aceptaciondeareas ni reaperturadeordenesantiguas. Nunca14areas por14criterios.
+
+## 22/10/2026 - Codex237 voz/Meta candidato
+2378PASS enb91: dosinstancias/IDs/retry yoperadorfinanzasdenegado;Meta firmaHMAC,
+dosmensajesdistintos/repetidos/canalIG. Adaptadorde transaccionoptimista,
+identidaddeequipo/proveedorcontrolados, NOFirestore/voz/modelo/canalreal.
+No equivale a asistentesautonomos completos. Proteccionegress activa.
+
+## 22/10/2026 - Codex233 candidato1353, entretenimiento
+Fuente b91,12criterios9PASS3FAIL; orden214/Gemini delta191. SonTRES causas:
+tresconsumidores pasan[] ydibujadornunca recibecaras; guiño/cejas flags sin
+efecto(2FAILmisma causa); ruletacambia3100/6100/9100. No seisbugs por estaciones.
+FotocabinaSIpasacarasref; marcosSIseconsumen. El primerinforme230 era incorrecto
+al no hallarlos; principal rectifico conGitAST yTSlocaldisponible. No reencargar
+ausenciadeconsumidor ni instalartool por230. Espiacanvas/puntossinteticos,NO
+modelo/pixeles/camarareal. Nofiltrosdecaraa360(191diceNO),preservarmarcos.
+
+## 22/10/2026 - Codex221-229: retests de main y candidato1353
+Main9d:221SDK9PASS(A9),222SDK12PASS(A1/A2),223compuesto15PASS(A5/A6/PIN/fechas),
+224DOM14PASS1FAIL(A3/A4cerrados,A7persiste),225DOM8PASS(A10zero/10/errores).
+No son areas enteras limpias.226 compara archivos efectivos conb91: nucleoigual;
+public-fiesta distinto impidio homologar224/225, ejecutadas227/228ENb91:
+14PASS1FAIL y8PASS.229 reproduceA8DTOpierdeelalbum. A7/A8 siguen212/Gemini,
+NO reencargar ni contabilizar como nuevos.219 cinco pasos: solo contrasteestatico.
+Los nuevos213/Claude siguen siendo DOS intercalados confirmados218SDK, no cinco
+por sumar sondas/recurrencias. TodosSDKemuladores0docs/cleanup200/cerrados.
+
+## 22/10/2026 - Codex216/218:211 contrastada, dos intercalados nuevos
+
+Main9d1a07f99 incorpora1352/211.21614PASS cierra B1-B5 por su alcance compuesto,
+NO14areas.2172FAIL y218SDKreal2FAIL son las MISMASdoscausas nuevas213/Claude:
+firma guardada entre lectura/escritura no protege1000->1200; compensacion A
+fallida pisa invitadosevento25, aunque Baprobo+3 ypresupuesto28/1120. No reemitir211.
+218sin excepcionQA,0fiestas/0presupuestos/cleanup200/procesos cerrados.
+Blobportal.actionsf313igual en1353b91; no homologacion de toda1353 ni cambiosprivados.
+213nativo8PASS4FAIL enfa3b eshistorico:doscausas210A7/A8,NO cuatro nuevas.
+215solo DOSbloques terminados52casos49PASS/1SKIP/2inconclusos; restoCANCELADO al
+llegar entrega nueva. No1144PASS/no appbug por configs retiradas. Ver220recuento.
+
 ## 22/10/2026 - Codex203/204 y build206 cerrado, misma PR1350
 
 204final sourcefa3b:12criterios4PASS/8FAIL, CINCOcausas nuevas211/Claude,
@@ -80,6 +146,70 @@ prueba: docs/evidencias/194-portal-controles-version-nueva.mjs
 prueba: docs/evidencias/195-portal-operaciones-contrato.mjs
 prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
 prueba: docs/evidencias/197-voz-meta-correcciones.mjs
+```
+
+## 22/10/2026 - Orden 217 (Codex 249-250), R1: el recordatorio que manda no se dispara desde afuera
+
+- El recordatorio a los invitados que no abrieron la invitación **manda** WhatsApp y Gmail, y estaba en
+  la lista de tareas que corren sin clave. Sin `CRON_SECRET`, cualquiera desde internet lo disparaba.
+  Salió de esa lista: sin clave, la puerta contesta 503 y el motor no corre.
+- La tarea sigue corriendo sola todos los días, por dentro, cuando el equipo entra a la app
+  (`al-entrar-a-la-app.ts`), que no pasa por esta puerta.
+- Barrido de la pregunta 92: de las tareas sin clave, ninguna otra le escribe a un cliente o invitado.
+  El asistente proactivo le avisa al dueño sólo las alertas nuevas.
+- R2, R3 y R4 (fecha reprogramada, envío fallido que consume el día, reserva fallida anotada como
+  corrida) son del motor: van a Gemini, en el bloque 6 de la orden 215.
+
+```comprobar
+usa: correrTareaRecordarInvitacionNoAbierta en src/lib/automatico/al-entrar-a-la-app.ts
+prueba: src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts
+```
+
+## 22/10/2026 - Orden 216-claude (Codex 240): la firma del contrato desde el portal
+
+- **C1, el resumen antes de firmar:** el cliente sin cuenta del equipo veía total 0, seña de $20.000 y
+  saldo vacío, porque su presupuesto se leía sin el enlace. Ahora se lee con el enlace de ESE
+  presupuesto (`generateBudgetToken`), después de verificar el portal. Si no se puede leer, lo dice y
+  no inventa importes.
+- **C2, la constancia falsificable:** el guardado parcial aceptaba una constancia nueva con cualquier
+  nombre y fecha. Ahora el parcial la rechaza y el guardado entero la deja como estaba
+  (`conLaConstanciaGuardada`). Sólo la escribe `signContractDigitally`.
+- **C3, dos firmas a la vez:** las dos "salían bien" y la segunda pisaba a la primera. Ahora la firma
+  se decide adentro de la escritura: queda la primera y sale un solo aviso.
+- **C4, el texto que el cliente vio:** la pantalla manda la huella del texto que tiene abierto. Si el
+  equipo lo cambió después, no se firma y se le pide recargar.
+- **No cambia:** la constancia sigue sin contratar, reservar, cobrar ni reemplazar el papel.
+
+```comprobar
+usa: generateBudgetToken en src/app/actions/fiesta/documentos.actions.ts
+usa: conLaConstanciaGuardada en src/app/actions/fiesta/fiesta.actions.ts
+usa: huellaVista en src/app/actions/fiesta/documentos.actions.ts
+usa: huellaDelTexto en src/app/portal/[fiestaId]/contrato/page.tsx
+prueba: src/__tests__/contrato-constancia-version-y-permisos.test.ts
+```
+
+## 22/10/2026 - Orden 213-claude (Codex 217-218): aprobar mientras pasa otra cosa
+
+- **La firma que llega en el medio:** el contrato se miraba en la primera lectura de la fiesta. Si se
+  firmaba entre esa lectura y la aprobación, el extra igual entraba al presupuesto. Ahora la firma se
+  vuelve a mirar **adentro** de la escritura que toma el pedido (`rechazarSi` de `tomarSolicitud`). Si
+  se firma después de aprobado, lo aprobado queda.
+- **Deshacer sin pisar a otro:** si el presupuesto fallaba, la fiesta volvía a la foto que se leyó al
+  aprobar. Si otra persona había aprobado otro pedido en el medio, le borraba sus invitados.
+  - Ahora `devolverAPendiente` deshace sobre la fiesta de AHORA.
+  - Un pedido que suma (menú) resta lo suyo.
+  - Uno que pone un número fijo (invitados) vuelve atrás sólo si nadie lo cambió después
+    (`deshacerSiNadieLoToco`).
+- **Barrido de la pregunta 90:** al sacar un cobro de factura que no llegó al presupuesto, el estado
+  volvía a la foto vieja. Con el cobro de otro adentro quedaba "Borrador". Ahora se cuenta sobre los
+  pagos que quedan (`estadoAlSacarElPago`, en `invoices.ts`).
+
+```comprobar
+usa: rechazarSi en src/app/actions/fiesta/portal.actions.ts
+usa: deshacerSiNadieLoToco en src/app/actions/fiesta/portal.actions.ts
+usa: estadoAlSacarElPago en src/app/actions/invoices.ts
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts
 ```
 
 ## 22/10/2026 - Orden 211 (Codex 203-206): aprobar los pedidos del cliente, de verdad
