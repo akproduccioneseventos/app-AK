@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex240/242: contrato y cierre213
+
+Mainbaa034fd2 integra1355/213.242 repite los DOS intercalados218 conSDKreal:
+2PASS0FAIL, firma intercalada conserva1000 y rollbackA conserva28/1120deB.
+Orden213 CERRADA por ese alcance; no reabrir por fallos historicos218.
+240accionescontrato/permisos/HMAC+SDKreal:11criterios6PASS5FAIL, CUATRO causas
+NUEVAS216/Claude: resumen0/20000/0 para cliente conpresupuesto100000/30000/70000;
+partialcliente falsifica constancia; firmaBconcurrente pisaA; se acepta textoB
+no visto (clientevioA). Los dos FAILdelresumen NOson dosbugs. NOcorregidas.
+16fuentesefectivas+pagina identicas9d/baa/b91 en240-contraste-fuentes.json.
+NoHTTP/nativo/PDF/validezlegal, notificacionescontroladas, NOreserva/cargo/papel.
+Politica25/9 sigue intacta.240/242cleanup200/0docs yprocesos cerrados.241soloindice,
+no aceptaciondeareas ni reaperturadeordenesantiguas. Nunca14areas por14criterios.
+
 ## 22/10/2026 - Codex237 voz/Meta candidato
 2378PASS enb91: dosinstancias/IDs/retry yoperadorfinanzasdenegado;Meta firmaHMAC,
 dosmensajesdistintos/repetidos/canalIG. Adaptadorde transaccionoptimista,
