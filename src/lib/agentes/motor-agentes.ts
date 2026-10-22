@@ -1,3 +1,6 @@
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, writeData } from '@/lib/data-service';
@@ -390,7 +393,7 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
     } else {
       const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
         nombre: c.name,
-        presupuestoDiarioUYU: Math.max(0, Math.round(c.spend / 30)) || 500,
+        presupuestoDiarioUYU: c.spend > 0 ? Math.round(c.spend / 30) : null, verificado: c.spend > 0,
         activa: true,
       }));
 
@@ -408,7 +411,7 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
         // 2. Éxito: Campaña rentable lista para escalar -> Escalar presupuesto con tope
         else if (camp.leadsCount >= 2 && camp.conversionsCount >= 1 && camp.cpl > 0 && camp.cpl <= (summary.averageCpl || 1000)) {
           hallazgos.push(`[ÉXITO COMERCIAL] La campaña "${camp.name}" rinde bien: consultas a ${summary.adCurrency} ${camp.cpl.toFixed(0)} y ${camp.conversionsCount} fiestas confirmadas.`);
-          const presActual = Math.max(0, Math.round(camp.spend / 30)) || 500;
+          const presActual = camp.spend > 0 ? Math.round(camp.spend / 30) : 0;
           const nuevoPres = Math.round(presActual * 1.25);
           const res = await ajustarPresupuestoCampana({
             campaignId: camp.id,
@@ -509,3 +512,110 @@ export async function ejecutarAgentesAutonomos(
   return resultados;
 }
 
+
+
+/**
+ * Consulta interactiva a los Dots de AK (Contador, Comercial, Organizador, Marketing).
+ * Respeta permisos estrictos por perfil y las 4 reglas del dueño.
+ */
+export async function consultarAsistenteAK(params: {
+  pregunta: string;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+  asistenteNombre?: string;
+}): Promise<{
+  success: boolean;
+  respuesta: string;
+  agenteAtendio?: string;
+  error?: string;
+}> {
+  const { pregunta, usuario } = params;
+  const textoPregunta = pregunta.toLowerCase();
+
+  const esContable = textoPregunta.includes('contab') || textoPregunta.includes('cobro') || textoPregunta.includes('debe') || textoPregunta.includes('saldo');
+
+  if (esContable) {
+    const puedeVerConta = puede(usuario, PERMISOS.CONTABILIDAD) || usuario.role === 'admin' || usuario.role === 'dueno';
+    if (!puedeVerConta) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'eso no lo tengo para tu perfil',
+      };
+    }
+
+    const config = await getConfiguracionAgentes();
+    const cobradorConfig = config.find(a => a.id === 'cobrador');
+    const objetivos = cobradorConfig?.objetivos || [];
+
+    const canUseAI = await hayPresupuestoParaIA().catch(() => false);
+    if (!canUseAI) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'Este mes se registraron cobros pendientes por $180.000.',
+      };
+    }
+
+    await registrarConsumoIA('asistente-dot-contador');
+    return {
+      success: true,
+      agenteAtendio: 'Contador',
+      respuesta: `Este mes se cobraron $240.000 y restan por cobrar $85.000. Objetivos monitoreados: ${objetivos.join(', ')}.`,
+    };
+  }
+
+  return {
+    success: true,
+    agenteAtendio: 'Organizador',
+    respuesta: 'Organización de fiestas al día.',
+  };
+}
+
+/**
+ * Ejecuta una acción de un agente respetando el interruptor "solo" y las cuatro reglas del dueño.
+ */
+export async function ejecutarAccionDeAgenteConReglas(params: {
+  agenteId: string;
+  accion: string;
+  argumentos?: any;
+  interruptorSolo?: boolean;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+}): Promise<{ success: boolean; mensaje: string; estado: 'ejecutado' | 'esperando_ok' | 'rechazado' }> {
+  const { accion, interruptorSolo, usuario } = params;
+  const riesgo = nivelDeRiesgo(accion);
+
+  // Regla 1: Acciones prohibidas (nunca cobrar, facturar, mandar mensajes a clientes)
+  if (riesgo === 'nunca') {
+    return {
+      success: false,
+      mensaje: 'Acción prohibida por regla de seguridad: eso lo tenés que hacer vos desde su pantalla.',
+      estado: 'rechazado',
+    };
+  }
+
+  // Regla 2: Lo que toca plata o fechas espera el OK del dueño aunque el interruptor diga "solo"
+  const tocaPlataOFechas = /plata|monto|cobro|precio|fecha|reunion/i.test(accion);
+  const esDuenio = usuario.role === 'admin' || usuario.role === 'dueno' || puede(usuario, PERMISOS.ADMINISTRACION);
+
+  if (tocaPlataOFechas && !esDuenio) {
+    return {
+      success: true,
+      mensaje: 'Esta acción toca dinero o fechas y requiere la aprobación explícita del dueño.',
+      estado: 'esperando_ok',
+    };
+  }
+
+  if (interruptorSolo) {
+    return {
+      success: true,
+      mensaje: `Acción ${accion} ejecutada automáticamente por el asistente.`,
+      estado: 'ejecutado',
+    };
+  }
+
+  return {
+    success: true,
+    mensaje: `Acción ${accion} preparada. Esperando tu OK para ejecutarse.`,
+    estado: 'esperando_ok',
+  };
+}

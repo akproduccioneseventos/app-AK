@@ -69,6 +69,7 @@ function mapGuest(guest: any) {
     nombre: guest.nombre,
     categoria: guest.categoria,
     rsvp: guest.rsvp,
+    checkedIn: Boolean(guest.checkedIn),
     partySize: guest.partySize,
     tableNumber: guest.tableNumber,
     companionNames: guest.companionNames,
@@ -157,6 +158,7 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
     videoVida: fiesta.videoVida ? {
       galleryEnabled: fiesta.videoVida.galleryEnabled,
       photoCount: fiesta.videoVida.photoCount,
+      photosUploaded: (fiesta.videoVida as any).photosUploaded,
     } : {},
     fotografiaYFilmacion: fiesta.fotografiaYFilmacion ? {
       notasGenerales: fiesta.fotografiaYFilmacion.notasGenerales,

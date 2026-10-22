@@ -22,11 +22,13 @@ import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
+import { hoyEnUruguay } from '@/lib/utils';
 
 function PlanPagosContent() {
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId') ?? '';
   const { toast } = useToast();
+  const [markingPaidId, setMarkingPaidId] = useState<string | null>(null);
 
   const [plan, setPlan] = useState<PlanDePagos | null>(null);
   const [cuotas, setCuotas] = useState<CuotaPlanPago[]>([]);
@@ -161,16 +163,21 @@ function PlanPagosContent() {
   };
 
   const handleMarkPaid = async (cuotaId: string) => {
-    if (!fiestaId) return;
-    const result = await updateCuotaEstado(fiestaId, cuotaId, {
-      estado: 'pagado',
-      fechaPago: new Date().toISOString().split('T')[0],
-    });
-    if (result.success) {
-      toast({ title: 'Cuota marcada como pagada' });
-      fetchPlan();
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    if (!fiestaId || markingPaidId) return;
+    setMarkingPaidId(cuotaId);
+    try {
+      const result = await updateCuotaEstado(fiestaId, cuotaId, {
+        estado: 'pagado',
+        fechaPago: hoyEnUruguay(),
+      });
+      if (result.success) {
+        toast({ title: 'Cuota marcada como pagada' });
+        fetchPlan();
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } finally {
+      setMarkingPaidId(null);
     }
   };
 
@@ -343,6 +350,7 @@ function PlanPagosContent() {
                     size="sm"
                     variant="outline"
                     className="border-green-500 text-green-600 hover:bg-green-50"
+                    disabled={markingPaidId === cuota.id}
                     onClick={() => handleMarkPaid(cuota.id)}
                   >
                     <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
@@ -489,11 +497,11 @@ function PlanPagosContent() {
             </div>
             {previewNotif.comprobanteUrl || previewNotif.comprobanteBase64 ? (
               (() => {
-                const url = previewNotif.comprobanteUrl 
+                const url = previewNotif.comprobanteUrl
                   ? `/api/storage/signed-url?path=${encodeURIComponent(previewNotif.comprobanteUrl)}`
                   : previewNotif.comprobanteBase64;
                 const isPdf = previewNotif.comprobanteNombre?.toLowerCase().endsWith('.pdf') || previewNotif.comprobanteUrl?.toLowerCase().endsWith('.pdf');
-                
+
                 if (isPdf) {
                   return (
                     <div className="w-full h-80 border rounded-xl overflow-hidden flex flex-col">
@@ -504,7 +512,7 @@ function PlanPagosContent() {
                     </div>
                   );
                 }
-                
+
                 return (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={url} alt="Comprobante" className="w-full rounded-xl max-h-80 object-contain" />

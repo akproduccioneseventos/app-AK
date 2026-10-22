@@ -17,6 +17,8 @@ import { AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { getMisPermisos } from '@/app/actions/sesion';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -83,6 +85,7 @@ function RecibosDePagoContent() {
   const [selectedEmpleadoId, setSelectedEmpleadoId] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [tienePermisoSueldos, setTienePermisoSueldos] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [recibosConfig, setRecibosConfig] = useState<RecibosConfig>(defaultRecibosConfig);
@@ -135,6 +138,14 @@ function RecibosDePagoContent() {
     setIsLoading(true);
     setError(null);
     try {
+      const misPermisos = await getMisPermisos();
+      if (!misPermisos.permisos.includes(PERMISOS.SUELDOS)) {
+        setTienePermisoSueldos(false);
+        setIsLoading(false);
+        return;
+      }
+      setTienePermisoSueldos(true);
+
       const [fiestasData, empleadosData, rolesData, settings] = await Promise.all([
         getAllFiestas(),
         getEmpleados(),
@@ -171,7 +182,7 @@ function RecibosDePagoContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handlePrint = () => {
     window.print();
   };
@@ -326,7 +337,7 @@ function RecibosDePagoContent() {
       printWindow.close();
     }, 200);
   };
-  
+
   const handleAutoSaveSalary = async (updatedStaff: typeof assignedStaffDetails) => {
     if (!fiestaId) return;
     setIsSaving(true);
@@ -359,7 +370,7 @@ function RecibosDePagoContent() {
     setAssignedStaffDetails(updated);
     handleAutoSaveSalary(updated);
   };
-  
+
   const handleSaveChanges = async () => {
     setIsSaving(true);
     if (!fiestaId) {
@@ -391,11 +402,26 @@ function RecibosDePagoContent() {
     const ids = new Set(allFiestas.flatMap(f => (f.personalAsignado || []).map(p => p.empleadoId)));
     return allEmpleados.filter(e => ids.has(e.id));
   }, [allFiestas, allEmpleados]);
-  
+
   if (isLoading) {
     return <div className="p-8 max-w-4xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
-  
+
+  if (tienePermisoSueldos === false) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 max-w-lg mx-auto">
+        <AlertTriangle className="w-12 h-12 text-amber-500 mb-4" />
+        <h1 className="text-xl font-bold">Esta parte la ve quien tiene permiso de sueldos</h1>
+        <p className="text-muted-foreground mt-2 text-sm">
+          No contás con el permiso para ver o editar los recibos de sueldo del personal de la fiesta.
+        </p>
+        <Button asChild variant="outline" className="mt-6">
+          <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>Volver a la fiesta</Link>
+        </Button>
+      </div>
+    );
+  }
+
   if (error || !fiesta) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
@@ -469,7 +495,7 @@ function RecibosDePagoContent() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-        
+
         <header className="cabecera-documento mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
             {recibosConfig.showLogo && (
               <div className="w-full h-24 print:h-20 mb-4 relative">
@@ -566,7 +592,7 @@ function RecibosDePagoContent() {
                     <p>Monto: {formatCurrency(detail.employerContribution)} ({detail.rol?.porcentajeAportesPatronales || 0}%)</p>
                   </div>
                  )}
-                  
+
                  {recibosConfig.showFirmas && (
                   <div className="mt-8 print:mt-10 flex justify-between items-end">
                     <div className="w-2/5 border-t text-center pt-1"><p className="text-xs print:text-[8pt]">Firma del Empleado</p></div>

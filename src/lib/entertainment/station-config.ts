@@ -71,6 +71,8 @@ export interface EntertainmentStationRuntimeConfig {
   recorteSinTela?: boolean;
   /** Fondo seleccionado para el muro en vivo / pantalla gigante. */
   fondoMuro?: string;
+  /** Filtros de cara activos habilitados por el operador para esta estación. */
+  filtrosActivos?: string[];
 }
 
 export interface PublicEntertainmentEvent {
@@ -361,51 +363,103 @@ export function getEntertainmentOperatorPath(
   }
 }
 
+export type PestanaEstacion =
+  | 'todas'
+  | 'fotocabina'
+  | '360'
+  | 'espejo'
+  | 'bogue'
+  | 'vogue'
+  | 'touchpix'
+  | 'totem'
+  | 'buzon'
+  | 'invitados'
+  | 'mensajes';
+
 /**
- * Filtra publicaciones por estación o tipo de recuerdo compartido.
- * Usado por la Galería y el Álbum del recuerdo.
+ * Filtra publicaciones de la noche según la pestaña seleccionada, reconociendo
+ * todas las variantes de nombres de módulo guardadas por las estaciones en vivo.
  */
-export function filtrarPorEstacion(posts: any[], pestana: string): any[] {
-  if (!posts || !Array.isArray(posts)) return [];
-  if (!pestana || pestana === 'todas') return posts;
+export function filtrarPorEstacion<T extends { sourceModule?: string | null; source?: string | null }>(
+  posts: T[],
+  pestana: string
+): T[] {
+  if (pestana === 'todas') return posts;
 
   if (pestana === 'fotocabina') {
     return posts.filter((p) => p.sourceModule === 'fotocabina');
   }
+
   if (pestana === '360') {
     return posts.filter(
-      (p) => p.sourceModule === 'plataforma360' || p.sourceModule === 'plataforma_360',
+      (p) => p.sourceModule === 'plataforma360' || p.sourceModule === 'plataforma_360'
     );
   }
+
   if (pestana === 'espejo') {
     return posts.filter(
       (p) =>
         p.sourceModule === 'espejoMagico' ||
         p.sourceModule === 'espejo_magico' ||
         p.sourceModule === 'espejoMagicoFoto' ||
-        p.sourceModule === 'espejoMagicoFirma',
-    );
-  }
-  if (pestana === 'bogue' || pestana === 'vogue') {
-    return posts.filter(
-      (p) => p.sourceModule === 'bogue' || p.sourceModule === 'boomerang',
-    );
-  }
-  if (pestana === 'touchpix') {
-    return posts.filter(
-      (p) => p.sourceModule === 'touchpix' || p.sourceModule === 'espejoMagicoIA',
-    );
-  }
-  if (pestana === 'buzon') {
-    return posts.filter(
-      (p) =>
-        p.sourceModule === 'buzon' ||
-        p.sourceModule === 'capsulaTiempo' ||
-        p.sourceModule === 'capsula_tiempo' ||
-        p.sourceModule === 'audio_guestbook' ||
-        p.sourceModule === 'vhs_guestbook',
+        p.sourceModule === 'espejoMagicoFirma' ||
+        p.sourceModule === 'espejoMagicoIA'
     );
   }
 
-  return posts.filter((p) => p.sourceModule === pestana);
+  if (pestana === 'bogue' || pestana === 'vogue') {
+    return posts.filter(
+      (p) =>
+        p.sourceModule === 'bogue' ||
+        p.sourceModule === 'vogue' ||
+        p.sourceModule === 'cabinaVogue' ||
+        p.sourceModule === 'boomerang'
+    );
+  }
+
+  if (pestana === 'touchpix' || pestana === 'totem') {
+    return posts.filter(
+      (p) =>
+        p.sourceModule === 'touchpix' ||
+        p.sourceModule === 'espejoMagicoIA' ||
+        p.sourceModule === 'totem' ||
+        p.sourceModule === 'totemIA' ||
+        p.sourceModule === 'pantallasTotem'
+    );
+  }
+
+  if (pestana === 'buzon') {
+    return posts.filter(
+      (p) => p.sourceModule === 'buzon' || p.sourceModule === 'capsulaTiempo'
+    );
+  }
+
+  if (pestana === 'invitados') {
+    return posts.filter(
+      (p) =>
+        p.source === 'guest' ||
+        !p.sourceModule ||
+        p.sourceModule === 'muro' ||
+        p.sourceModule === 'invitado'
+    );
+  }
+
+  return posts;
+}
+
+export function estaEstacionHabilitada(
+  fiesta: any,
+  moduleId: any
+): boolean {
+  if (!fiesta) return true;
+  if (moduleId === 'barra') return true;
+  if (moduleId === 'buzon') {
+    return (
+      fiesta.guestPortalSettings?.showBuzon !== false &&
+      fiesta.others?.entretenimiento?.modules?.capsulaTiempo?.enabled !== false
+    );
+  }
+  const modKey = moduleId === 'totems' ? 'totems' : moduleId;
+  const mod = fiesta.others?.entretenimiento?.modules?.[modKey];
+  return mod?.enabled !== false;
 }

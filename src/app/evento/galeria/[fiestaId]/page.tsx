@@ -21,7 +21,6 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
-import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 import { SUAVE, DURACION } from '@/lib/motion';
 import {
   getPublicSocialEvent,
@@ -37,14 +36,18 @@ import {
 } from '@/lib/caras/agrupar-caras';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
+import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
+import { extraerDescriptorFacial } from '@/lib/caras/extractor-facial';
 
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'vogue' | 'totem' | 'invitados';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'vogue' | 'touchpix' | 'totem' | 'invitados';
 
 /**
  * Extrae 128 números normalizados desde un cuadro del video capturado en el teléfono.
  * Todo corre en el navegador local, NUNCA se manda ninguna imagen al servidor.
  */
-function extraerVectorLocal(video: HTMLVideoElement): VectorDeCara | null {
+async function extraerVectorLocal(video: HTMLVideoElement): Promise<VectorDeCara | null> {
+  const descriptorReal = await extraerDescriptorFacial(video);
+  if (descriptorReal) return descriptorReal;
   try {
     const canvas = document.createElement('canvas');
     canvas.width = 160;
@@ -98,7 +101,7 @@ export default function GaleriaPage() {
   // apuntando a una estacion (`?estacion=fotocabina`). **Se valida contra la
   // lista**: lo que llega por la direccion lo escribe cualquiera, y un valor
   // inventado tiene que caer en "todas", no romper la pantalla.
-  const FILTROS: FilterTab[] = ['todas', 'fotocabina', '360', 'espejo', 'invitados'];
+  const FILTROS: FilterTab[] = ['todas', 'fotocabina', '360', 'espejo', 'bogue', 'vogue', 'touchpix', 'totem', 'invitados'];
   const filtroPedido = useSearchParams().get('estacion') as FilterTab | null;
   const filtroInicial: FilterTab =
     filtroPedido && FILTROS.includes(filtroPedido) ? filtroPedido : 'todas';
@@ -188,7 +191,6 @@ export default function GaleriaPage() {
       const setIds = new Set(selectedPersona.fotoIds);
       return posts.filter((p) => setIds.has(p.id));
     }
-    if (activeTab === 'invitados') return posts.filter((p) => p.source === 'guest');
     return filtrarPorEstacion(posts, activeTab);
   }, [posts, activeTab, selectedPersona]);
 
@@ -299,7 +301,7 @@ export default function GaleriaPage() {
       for (let i = 0; i < 3; i++) {
         await new Promise((resolve) => setTimeout(resolve, 300));
         if (videoRef.current) {
-          const v = extraerVectorLocal(videoRef.current);
+          const v = await extraerVectorLocal(videoRef.current);
           if (v) vectoresExtraidos.push(v);
         }
       }
@@ -398,8 +400,8 @@ export default function GaleriaPage() {
               { id: 'fotocabina', label: '📸 Fotocabina' },
               { id: '360', label: '🌐 360°' },
               { id: 'espejo', label: '✨ Espejo' },
-              { id: 'vogue', label: '🎬 Vogue' },
-              { id: 'totem', label: '🤖 Tótem IA' },
+              ...(posts.some(p => p.sourceModule === 'bogue' || p.sourceModule === 'vogue' || p.sourceModule === 'cabinaVogue' || p.sourceModule === 'boomerang') ? [{ id: 'bogue', label: '💎 Vogue' }] : []),
+              ...(posts.some(p => p.sourceModule === 'touchpix' || p.sourceModule === 'espejoMagicoIA' || p.sourceModule === 'totem' || p.sourceModule === 'totemIA' || p.sourceModule === 'pantallasTotem') ? [{ id: 'touchpix', label: '🤖 Tótem IA' }] : []),
               { id: 'invitados', label: '📱 Invitados' },
             ].map((tab) => (
               <button

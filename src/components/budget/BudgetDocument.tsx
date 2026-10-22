@@ -66,6 +66,57 @@ function getItemUnitLabel(item: ItemPresupuestado): string {
   return 'serv.';
 }
 
+export function FranjaTranquilidad({
+  itemsRegalo = [],
+  mostrarMercadoPago = true,
+}: {
+  itemsRegalo?: ItemPresupuestado[];
+  mostrarMercadoPago?: boolean;
+}) {
+  return (
+    <section className="mb-4 rounded-xl border border-emerald-200/90 bg-emerald-50/60 p-3.5 print:border-slate-300 print:bg-slate-50 print:p-2.5">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <p className="text-[11px] font-black uppercase tracking-wider text-emerald-950 print:text-slate-900">
+            Tranquilidad incluida con tu fiesta
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 print:text-[8pt]">
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-emerald-700">✓</span>
+            <span>Reservás tu fecha con una seña</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-emerald-700">✓</span>
+            <span>Plan de pagos mensuales a tu medida</span>
+          </div>
+          {mostrarMercadoPago && (
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-emerald-700">✓</span>
+              <span>Hasta 12 cuotas con tarjeta</span>
+            </div>
+          )}
+          {itemsRegalo.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 sm:col-span-2 mt-1 pt-1 border-t border-emerald-200/50">
+              <Gift className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span className="font-bold text-emerald-900">Regalos bonificados:</span>
+              {itemsRegalo.map((r, idx) => (
+                <span
+                  key={(r as any).id || r.idServicioCatalogo || idx}
+                  className="inline-flex items-center gap-1 rounded bg-white/90 border border-emerald-300/80 px-2 py-0.5 text-[10px] font-semibold text-emerald-800"
+                >
+                  {r.nombreServicio} <span className="text-[9px] uppercase font-black text-emerald-600">(Incluido)</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export interface BudgetDocumentProps {
   presupuesto: Presupuesto;
   logoUrl?: string | null;
@@ -374,6 +425,12 @@ export default function BudgetDocument({
           );
         })()}
 
+        {/* Franja de tranquilidad (Orden 181): regalos, tarjeta, seña y plan de pagos sin tocar números */}
+        <FranjaTranquilidad
+          itemsRegalo={(presupuesto.itemsPresupuestados || (presupuesto as any).items || []).filter((i: any) => i.esRegalo)}
+          mostrarMercadoPago={Boolean(presentacionMercadoPago)}
+        />
+
         {/* Items table */}
         {showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
           <section className="mb-4">
@@ -465,7 +522,7 @@ export default function BudgetDocument({
                             key={`${catIdx}-${itemIdx}`}
                             className="bg-white border-b border-slate-200"
                           >
-                            <td 
+                            <td
                               className="border border-slate-200 px-3 py-2 align-top"
                               style={{ color: item.esRegalo ? '#dc2626' : '#334155' }}
                             >
@@ -569,7 +626,7 @@ export default function BudgetDocument({
             <span>💳 Opciones de Pago & Transparencia Financiera</span>
             <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full font-bold">Mercado Pago / Transferencia</span>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-slate-700">
             <div className="bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm">
               <p className="font-extrabold text-slate-900 flex items-center justify-between">

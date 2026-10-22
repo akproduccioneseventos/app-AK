@@ -3,7 +3,7 @@
 import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, CostoItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
-import { guardarCostosInterno } from '@/lib/fiesta/costos-interno';
+import { guardarCostosInterno, updateGestionCostosInterno } from '@/lib/fiesta/costos-interno';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
@@ -192,7 +192,7 @@ async function sincronizarGastosDeco(
       costosItems: [...otherItems, ...decoItems],
     };
 
-    const guardado = await guardarCostosInterno(fiestaId, updatedCostos);
+    const guardado = await updateGestionCostosInterno(fiestaId, updatedCostos);
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudieron sincronizar los costos de decoración.' };
     }

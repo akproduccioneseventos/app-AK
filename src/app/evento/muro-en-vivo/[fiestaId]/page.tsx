@@ -1,4 +1,5 @@
 'use client';
+import { CrowdSyncShow } from '@/components/evento/CrowdSyncShow';
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
@@ -534,6 +535,8 @@ export default function MuroEnVivoPage() {
       data-tamano-mosaico={settings?.tamanoFotosMosaico || 'mediana'}
       style={stageBackgroundStyle}
     >
+
+      <CrowdSyncShow fiestaId={fiestaId} />
 
       {/* Efecto destello cámara en pantalla completa al entrar foto nueva */}
       {showCameraFlash && <div className="ak-live-flash-overlay" />}
@@ -1626,11 +1629,33 @@ function ScreenMediaSlide({
   const isVideo = item.type === 'video' || isVideoUrl(item.mediaUrl);
   const portrait = item.layout === 'portrait';
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-black">
+    <div className="absolute inset-0 flex items-center justify-center bg-black overflow-hidden">
+      {/* Fondo ambiental difuminado para formato 16:9 sin franjas negras */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {isVideo ? (
+          <video
+            src={item.mediaUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover opacity-30 filter blur-3xl scale-125 select-none"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={item.mediaUrl}
+            alt=""
+            className="w-full h-full object-cover opacity-30 filter blur-3xl scale-125 select-none"
+          />
+        )}
+        <div className="absolute inset-0 bg-slate-950/40" />
+      </div>
+
       {!mediaLoaded && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/90 text-white/50">
           <div className="space-y-3 text-center">
-            <div className="w-12 h-12 mx-auto rounded-full border-4 border-white/10 border-t-indigo-500 animate-spin" />
+            <div className="w-12 h-12 mx-auto rounded-full border-4 border-white/10 border-t-amber-500 animate-spin" />
             <p className="text-xs font-black uppercase tracking-[0.25em] text-white/40">Cargando diapositiva…</p>
           </div>
         </div>
@@ -1645,7 +1670,7 @@ function ScreenMediaSlide({
           preload="auto"
           onPlay={() => setMediaLoaded(true)}
           onLoadedData={() => setMediaLoaded(true)}
-          className={portrait ? 'h-full w-auto max-w-full object-cover' : 'w-full h-full object-cover'}
+          className="relative z-10 max-h-[92vh] max-w-[96vw] object-contain rounded-2xl shadow-2xl"
         />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
@@ -1653,7 +1678,7 @@ function ScreenMediaSlide({
           src={item.mediaUrl}
           alt={item.title}
           onLoad={() => setMediaLoaded(true)}
-          className={portrait ? 'h-full w-auto max-w-full object-cover' : 'w-full h-full object-cover'}
+          className="relative z-10 max-h-[92vh] max-w-[96vw] object-contain rounded-2xl shadow-2xl"
         />
       )}
     </div>

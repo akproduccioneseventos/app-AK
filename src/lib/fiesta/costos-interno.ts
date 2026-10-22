@@ -22,3 +22,5 @@ export async function guardarCostosInterno(
   const r = await actualizarFiesta(fiestaId, (actual) => ({ ...actual, gestionCostos: costos }), { soloEquipo: true });
   return r.success ? { success: true, updatedData: costos } : { success: false, error: r.error || 'No se pudieron guardar los costos.' };
 }
+
+export const updateGestionCostosInterno = guardarCostosInterno;

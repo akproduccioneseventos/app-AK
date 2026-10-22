@@ -134,7 +134,7 @@ export default function MiMesaPage() {
           </div>
           <div className="flex flex-col gap-3">
             <Link
-              href={`/evento/hub/${fiestaId}`}
+              href={selected?.id ? `/evento/hub/${fiestaId}?guestId=${encodeURIComponent(selected.id)}` : `/evento/hub/${fiestaId}`}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 px-6 py-3.5 text-sm font-black text-white shadow-lg hover:brightness-110 transition-all"
             >
               <PartyPopper className="w-4 h-4" /> Entrar a la fiesta en vivo
