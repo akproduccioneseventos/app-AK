@@ -103,7 +103,8 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
       if (result.success && result.fiestaId) {
         toast({
           title: "¡Contratación Exitosa!",
-          description: "Se ha creado el cliente y activado el evento automáticamente.",
+          description: result.aviso || "Se ha creado el cliente y activado el evento automáticamente.",
+          ...(result.aviso ? { variant: "destructive" as const } : {}),
         });
         onConfirmed(result.fiestaId);
       } else {

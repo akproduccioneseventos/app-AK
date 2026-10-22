@@ -533,40 +533,19 @@ export async function approveClientPayment(
     if (!permiso.ok) return { success: false, error: permiso.error };
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
-
-    const notifications = fiesta.clientPaymentNotifications ?? [];
-    const initialTransition = transitionPaymentNotification(notifications, notificationId, 'aprobado');
-    const notif = initialTransition.notification;
-    if (!initialTransition.changed) return { success: true, approvedAt: notif.approvedAt };
-
     // Sin presupuesto no hay donde acreditar el cobro: marcarlo "aprobado" y mandar el mail al
     // cliente seria decirle que su pago esta acreditado sin estarlo.
     if (!fiesta.presupuestoId) {
       return { success: false, error: 'La fiesta no tiene presupuesto: no se puede acreditar el pago.' };
     }
 
-    // First register the money. If the budget rejects it (for example over saldo),
-    // keep the notification pending so it can be reviewed correctly.
-    {
-      const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
-        fecha: new Date().toISOString(),
-        monto: notif.monto,
-        metodoPago: 'Transferencia Bancaria',
-        referencia: `Pago verificado desde Portal VIP (${notif.id})`,
-      });
-      if (!paymentResult.success) {
-        return { success: false, error: paymentResult.error || 'No se pudo registrar el pago en el presupuesto.' };
-      }
-    }
-
-    let updatedNotif = initialTransition.notification;
-    // El mail sale solo si ESTA llamada hizo el cambio de pendiente a aprobado, dentro de la
-    // actualizacion (que se relee). Si otra llamada se adelanto, no se repite el mail.
+    // 1) Se TOMA el aviso adentro de la escritura de la fiesta: si otra persona lo rechazó en el
+    //    medio, acá se entera y no se cobra nada. Antes el cobro se anotaba primero, con el aviso
+    //    leído afuera, y un rechazo simultáneo dejaba "rechazado" con el cobro sumado (auditoría
+    //    contable del 22/10).
+    let updatedNotif: ClientPaymentNotification | null = null;
     let esteLlamadoLoAprobo = false;
-    // Con `actualizarFiesta` la fiesta se relee y se guarda en una transaccion: dos aprobaciones a
-    // la vez ya no ven las dos "pendiente". El cobro en si no se duplica: el presupuesto ignora
-    // una referencia repetida.
-    const updateResult = await actualizarFiesta(fiestaId, currentFiesta => {
+    const tomado = await actualizarFiesta(fiestaId, currentFiesta => {
       esteLlamadoLoAprobo = false;
       const transition = transitionPaymentNotification(
         currentFiesta.clientPaymentNotifications ?? [],
@@ -575,20 +554,43 @@ export async function approveClientPayment(
       );
       updatedNotif = transition.notification;
       esteLlamadoLoAprobo = transition.changed;
-      return {
-        ...currentFiesta,
-        clientPaymentNotifications: transition.notifications,
-      };
+      return transition.changed
+        ? { ...currentFiesta, clientPaymentNotifications: transition.notifications }
+        : currentFiesta;
     });
-    if (!updateResult.success) return updateResult;
+    if (!tomado.success || !updatedNotif) return { success: false, error: tomado.error || 'No se pudo aprobar el aviso.' };
+    const notif: ClientPaymentNotification = updatedNotif;
+
+    // 2) Recién ahora el cobro. Si el aviso ya estaba aprobado (un reintento, o un corte entre los
+    //    dos pasos), se vuelve a pedir igual: el presupuesto ignora una referencia repetida.
+    const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
+      fecha: new Date().toISOString(),
+      monto: notif.monto,
+      metodoPago: 'Transferencia Bancaria',
+      referencia: `Pago verificado desde Portal VIP (${notif.id})`,
+    });
+    if (!paymentResult.success) {
+      // El presupuesto no lo tomó (por ejemplo, supera el saldo): el aviso vuelve a pendiente para
+      // revisarlo bien. Sólo si lo aprobó ESTA llamada y sigue aprobado por ella.
+      if (esteLlamadoLoAprobo) {
+        await actualizarFiesta(fiestaId, currentFiesta => ({
+          ...currentFiesta,
+          clientPaymentNotifications: (currentFiesta.clientPaymentNotifications ?? []).map(n =>
+            n.id === notificationId && n.estado === 'aprobado' && n.approvedAt === notif.approvedAt
+              ? { ...n, estado: 'pendiente', approvedAt: undefined }
+              : n),
+        }));
+      }
+      return { success: false, error: paymentResult.error || 'No se pudo registrar el pago en el presupuesto.' };
+    }
 
     if (esteLlamadoLoAprobo) {
-      notifyClientPaymentApproved(fiestaId, updatedNotif).catch((error) => {
+      notifyClientPaymentApproved(fiestaId, notif).catch((error) => {
         console.warn('[Google Workspace] No se pudo enviar mail de pago aprobado:', error);
       });
     }
 
-    return { success: true, approvedAt: updatedNotif.approvedAt };
+    return { success: true, approvedAt: notif.approvedAt };
   } catch (e: any) {
     return { success: false, error: sanitizeActionError(e) };
   }
@@ -604,7 +606,10 @@ export async function rejectClientPayment(
     if (!permiso.ok) return { success: false, error: permiso.error };
     let updatedNotif: ClientPaymentNotification | null = null;
     let changed = false;
-    const result = await updateFiestaData(fiestaId, currentFiesta => {
+    // Adentro de la escritura de la fiesta: antes leía afuera y guardaba la fiesta entera, y un
+    // rechazo simultáneo a una aprobación volvía el aviso a "rechazado" con el cobro ya sumado.
+    const result = await actualizarFiesta(fiestaId, currentFiesta => {
+      changed = false;
       const transition = transitionPaymentNotification(
         currentFiesta.clientPaymentNotifications ?? [],
         notificationId,
@@ -617,14 +622,15 @@ export async function rejectClientPayment(
         clientPaymentNotifications: transition.notifications,
       };
     });
+    if (!result.success) return { success: false, error: result.error };
 
-    if (result.success && updatedNotif && changed) {
+    if (updatedNotif && changed) {
       notifyClientPaymentRejected(fiestaId, updatedNotif).catch((error) => {
         console.warn('[Google Workspace] No se pudo enviar mail de pago rechazado:', error);
       });
     }
 
-    return result;
+    return { success: true };
   } catch (e: any) {
     return { success: false, error: sanitizeActionError(e) };
   }

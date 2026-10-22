@@ -108,7 +108,6 @@ export async function updateProgramaFiestaActual(fiestaId: string, programa: any
 
 // --- PERSONAL Y PAGOS ---
 export async function updatePersonalFiestaActual(fiestaId: string, personal: any[]) { return await PersonalModule.updatePersonal(fiestaId, personal); }
-export async function updatePagosProveedoresFiestaActual(fiestaId: string, pagos: PagoProveedor[]) { return await PagosModule.updatePagosProveedores(fiestaId, pagos); }
 export async function agregarPagoProveedorFiestaActual(fiestaId: string, pago: PagoProveedor) { return await PagosModule.agregarPagoProveedor(fiestaId, pago); }
 
 // --- PORTAL Y PÁGINA WEB ---
@@ -160,6 +159,11 @@ export async function updateContratoFiestaActual(fiestaId: string, text: string,
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (fiesta?.contratoFirmaInfo?.isSigned) {
       return { success: false, error: 'No se puede modificar el contrato una vez firmado.' };
+    }
+    // Firmado en el portal también: cambiar el texto dejaba la constancia con la huella de un texto
+    // que ya no es el que se muestra (auditoría contable 22/10). El del salón es aparte.
+    if (tipo === 'servicios' && fiesta?.firmaDigitalConstancia) {
+      return { success: false, error: 'El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda.' };
     }
     return await FiestaModule.updateFiestaPartial(fiestaId, {
       ...(tipo === 'servicios' ? { contratoServicioTexto: text } : {}),

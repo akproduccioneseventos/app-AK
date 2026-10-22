@@ -1843,6 +1843,7 @@ con otra cara.
 | Una firma que llegaba en el medio no frenaba la aprobación, y deshacer un pedido fallido borraba los invitados que otro aprobó | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` y `src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts` |
 | La firma del contrato en el portal: resumen en cero, constancia falsificable, dos firmas que se pisaban y un texto que el cliente no vio | `src/__tests__/contrato-constancia-version-y-permisos.test.ts` |
 | El recordatorio que manda a los invitados se podía disparar desde internet sin clave | `src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts` |
+| Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
 
 ### Cómo se elige el matafuego
 

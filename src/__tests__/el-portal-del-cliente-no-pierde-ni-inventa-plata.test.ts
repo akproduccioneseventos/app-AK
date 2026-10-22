@@ -40,7 +40,7 @@ jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
 }));
 jest.mock('@/lib/notifications/create-notification', () => ({ createNotification: jest.fn(async () => undefined) }));
 jest.mock('@/app/actions/google-workspace-extended', () => ({
-  notifyClientPaymentApproved: jest.fn(), notifyClientPaymentRejected: jest.fn(), notifyClientPaymentSubmitted: jest.fn(async () => undefined),
+  notifyClientPaymentApproved: jest.fn(async () => undefined), notifyClientPaymentRejected: jest.fn(async () => undefined), notifyClientPaymentSubmitted: jest.fn(async () => undefined),
 }));
 jest.mock('@/lib/firebase/storage', () => ({ uploadToStorage: (...a: any[]) => subir(...a) }));
 jest.mock('@/lib/commercial/public-rate-limit', () => ({ enforcePublicRateLimit: jest.fn() }));
@@ -73,6 +73,7 @@ jest.mock('@/lib/data-service', () => ({
 import {
   submitClientPayment, cancelServicesOrParty, submitClientMenuChangeRequest, submitClientServiceAddRequest,
   approveClientServiceChangeRequest, rejectClientServiceChangeRequest, approveClientMenuChangeRequest,
+  approveClientPayment, rejectClientPayment,
 } from '@/app/actions/fiesta/portal.actions';
 import { totalTrasCancelar } from '@/lib/budget/total-tras-cancelar';
 
@@ -285,5 +286,35 @@ describe('aprobar mientras pasa otra cosa (Codex 217-218, orden 213-claude)', ()
     expect((await approveClientMenuChangeRequest('f1', fiesta.clientMenuChangeRequests[0].id)).success).toBe(false);
     expect(fiesta.configuracion.invitadosEstimados).toBe(100);
     expect(fiesta.clientMenuChangeRequests[0].status).toBe('pendiente');
+  });
+});
+
+describe('aprobar y rechazar un aviso de pago a la vez (revisión contable 22/10)', () => {
+  const aviso = () => ({ id: 'n1', monto: 5000, estado: 'pendiente', fecha: '2026-10-20' });
+  const cobrar = () => jest.requireMock('@/app/actions/presupuestos').addPagoToPresupuesto as jest.Mock;
+  beforeEach(() => { fiesta.clientPaymentNotifications = [aviso()]; cobrar().mockClear(); cobrar().mockImplementation(async () => ({ success: true })); });
+
+  it('si otro lo rechazó antes, aprobar no cobra nada', async () => {
+    const [r, a] = await Promise.all([rejectClientPayment('f1', 'n1'), approveClientPayment('f1', 'n1')]);
+    expect(r.success).toBe(true);
+    expect(a.success).toBe(false);
+    expect(cobrar()).not.toHaveBeenCalled();
+    expect(fiesta.clientPaymentNotifications[0].estado).toBe('rechazado');
+  });
+
+  it('si se aprobó primero, rechazar no lo vuelve a "rechazado" y el cobro queda una vez', async () => {
+    const a = await approveClientPayment('f1', 'n1');
+    const r = await rejectClientPayment('f1', 'n1');
+    expect(a.success).toBe(true);
+    expect(r.success).toBe(false);
+    expect(cobrar()).toHaveBeenCalledTimes(1);
+    expect(fiesta.clientPaymentNotifications[0].estado).toBe('aprobado');
+  });
+
+  it('si el presupuesto no toma el cobro, el aviso vuelve a pendiente', async () => {
+    cobrar().mockImplementation(async () => ({ success: false, error: 'Supera el saldo' }));
+    const a = await approveClientPayment('f1', 'n1');
+    expect(a.success).toBe(false);
+    expect(fiesta.clientPaymentNotifications[0].estado).toBe('pendiente');
   });
 });

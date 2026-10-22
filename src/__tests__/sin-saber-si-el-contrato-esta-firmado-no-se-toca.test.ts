@@ -48,3 +48,23 @@ describe('sin saber si el contrato está firmado, no se toca el presupuesto', ()
     expect((await archivePresupuesto('p1')).success).toBe(true);
   });
 });
+
+describe('un formulario abierto de antes no deshace la factura (revisión contable 22/10)', () => {
+  it('guardar con estado viejo deja el presupuesto Facturado y con su factura', async () => {
+    fiestasFallan = false;
+    escribir.mockClear();
+    const guardado = { id: 'p1', clienteNombre: 'Ana', itemsPresupuestados: [], invitadosCantidad: 100, estado: 'Facturado', invoiceId: 'inv-9', ajusteAnualActivo: true };
+    const ds = jest.requireMock('@/lib/data-service');
+    (ds.readData as jest.Mock).mockResolvedValue([guardado]);
+    (ds.readDataConDetalle as jest.Mock).mockResolvedValue({ valor: [guardado], huboFalla: false });
+    const { updatePresupuesto } = await import('@/app/actions/presupuestos');
+    const viejo = { id: 'p1', clienteNombre: 'Ana Pérez', itemsPresupuestados: [], invitadosCantidad: 100, estado: 'Enviado' } as any;
+    const r = await updatePresupuesto(viejo);
+    expect(r.success).toBe(true);
+    const lista = (escribir.mock.calls.at(-1) as unknown[])[1] as any[];
+    const p = lista.find((x) => x.id === 'p1');
+    expect(p.estado).toBe('Facturado');
+    expect(p.invoiceId).toBe('inv-9');
+    expect(p.clienteNombre).toBe('Ana Pérez');
+  });
+});
