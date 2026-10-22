@@ -72,7 +72,7 @@ jest.mock('@/lib/data-service', () => ({
 
 import {
   submitClientPayment, cancelServicesOrParty, submitClientMenuChangeRequest, submitClientServiceAddRequest,
-  approveClientServiceChangeRequest, rejectClientServiceChangeRequest,
+  approveClientServiceChangeRequest, rejectClientServiceChangeRequest, approveClientMenuChangeRequest,
 } from '@/app/actions/fiesta/portal.actions';
 import { totalTrasCancelar } from '@/lib/budget/total-tras-cancelar';
 
@@ -173,5 +173,59 @@ describe('el portal del cliente no pierde ni inventa plata (orden 210)', () => {
     await submitClientServiceAddRequest('f1', { servicioId: 's2', nombreServicio: 'Glitter', cantidad: 1, precioBase: 50, ajustePorcentaje: 0, montoAdicional: 50, nuevoTotalEstimado: 1250 });
     await rejectClientServiceChangeRequest('f1', fiesta.clientServiceChangeRequests[1].id);
     expect(permisoAlguno).toHaveBeenCalled();
+  });
+});
+
+describe('aprobar pedidos del cliente cambia el presupuesto de verdad (Codex 204, orden 211)', () => {
+  const pedirServicio = (cantidad: number, precioBase: number) => submitClientServiceAddRequest('f1', {
+    servicioId: 's1', nombreServicio: 'Cabina', cantidad, precioBase, ajustePorcentaje: 0, montoAdicional: precioBase, nuevoTotalEstimado: 1000 + precioBase,
+  });
+
+  it('B1: con el contrato firmado no se aprueba ni se toca el presupuesto', async () => {
+    fiesta.contratoFirmaInfo = { isSigned: true };
+    await pedirServicio(1, 200);
+    const r = await approveClientServiceChangeRequest('f1', fiesta.clientServiceChangeRequests[0].id);
+    expect(r.success).toBe(false);
+    expect(r.error).toMatch(/adenda/);
+    expect(fiesta.clientServiceChangeRequests[0].status).toBe('pendiente');
+    expect(presupuestos[0].itemsPresupuestados).toHaveLength(2);
+  });
+
+  it('B1/B4: si el presupuesto no se puede guardar, el pedido vuelve a pendiente; el reintento lo suma una vez', async () => {
+    await pedirServicio(1, 200);
+    const id = fiesta.clientServiceChangeRequests[0].id;
+    const { mutateDataItem } = jest.requireMock('@/lib/data-service');
+    (mutateDataItem as jest.Mock).mockImplementationOnce(async () => { throw new Error('La base no contesta'); });
+    const fallo = await approveClientServiceChangeRequest('f1', id);
+    expect(fallo.success).toBe(false);
+    expect(fiesta.clientServiceChangeRequests[0].status).toBe('pendiente');
+    expect(presupuestos[0].itemsPresupuestados).toHaveLength(2);
+
+    expect((await approveClientServiceChangeRequest('f1', id)).success).toBe(true);
+    expect(presupuestos[0].itemsPresupuestados).toHaveLength(3);
+    expect(presupuestos[0].totalConDescuento).toBe(1200);
+  });
+
+  it('B3: dos unidades de un extra suman su total una vez, no el doble', async () => {
+    await pedirServicio(2, 400);
+    await approveClientServiceChangeRequest('f1', fiesta.clientServiceChangeRequests[0].id);
+    expect(presupuestos[0].totalConDescuento).toBe(1400);
+    const renglon = presupuestos[0].itemsPresupuestados[2];
+    expect(renglon.precioUnitario).toBe(200);
+    expect(renglon.costoTotalItem).toBe(400);
+  });
+
+  it('B2: más adultos aprobados llegan al desglose del presupuesto, y el precio por persona se recalcula', async () => {
+    presupuestos[0] = {
+      ...presupuestos[0], invitadosAdultos: 25, invitadosNinos: 0, invitadosAdolescentes: 0, invitadosCantidad: 25,
+      itemsPresupuestados: [{ ...item('menu', 1000), calculationMethod: 'porPersona', precioUnitario: 40, precioUnitarioPresupuesto: 40 }],
+      costoTotalEstimado: 1000, totalConDescuento: 1000,
+    };
+    await submitClientMenuChangeRequest('f1', { adultosDelta: 2, ninosAdolescentesDelta: 0, montoAdicional: 80, nuevoTotalEstimado: 1080 });
+    const r = await approveClientMenuChangeRequest('f1', fiesta.clientMenuChangeRequests[0].id);
+    expect(r.success).toBe(true);
+    expect(presupuestos[0].invitadosAdultos).toBe(27);
+    expect(presupuestos[0].totalConDescuento).toBe(1080);
+    expect(fiesta.configuracion.invitadosEstimados).toBe(102);
   });
 });

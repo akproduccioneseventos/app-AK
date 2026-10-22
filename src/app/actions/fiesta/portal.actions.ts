@@ -69,6 +69,8 @@ import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { mutarPresupuesto } from '@/lib/budget/mutar-presupuesto';
 import { totalTrasCancelar } from '@/lib/budget/total-tras-cancelar';
+import { presupuestoRecalculado } from '@/lib/budget/recalcular-presupuesto';
+import type { Presupuesto } from '@/types/presupuesto';
 
 export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -796,40 +798,89 @@ async function devolverAPendiente(fiestaId: string, campo: CampoDeSolicitud, req
   }) as FiestaEnPlanificacion);
 }
 
+/**
+ * Aprobar un pedido del cliente que cambia el presupuesto (Codex 204, orden 211):
+ * - con el contrato firmado NO se toca el presupuesto: el pedido sigue pendiente y se dice por qué
+ *   (antes se aprobaba igual, y en la versión del 22/10 a la madrugada hasta se saltaba el bloqueo);
+ * - sin presupuesto, o si guardarlo falla, el pedido vuelve a pendiente: nada de "aprobado" a medias;
+ * - el presupuesto se rehace con la misma cuenta que el guardado normal (`presupuestoRecalculado`), no
+ *   sumando a mano al total;
+ * - cada pedido deja su marca en el presupuesto: un reintento no lo suma dos veces.
+ */
+async function aprobarConPresupuesto<T extends { id: string; status: string }>(
+  fiestaId: string,
+  campo: CampoDeSolicitud,
+  requestId: string,
+  cambiarFiesta: (solicitud: T, fiesta: FiestaEnPlanificacion) => Partial<FiestaEnPlanificacion> & { solicitud: T },
+  cambiarPresupuesto: (solicitud: T, presupuesto: Presupuesto) => Presupuesto,
+): Promise<{ success: boolean; error?: string }> {
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+  if (!fiesta.presupuestoId) {
+    return { success: false, error: 'La fiesta no tiene presupuesto: el pedido queda pendiente hasta cargarlo.' };
+  }
+  if (fiesta.contratoFirmaInfo?.isSigned) {
+    return {
+      success: false,
+      error: 'El contrato ya está firmado: este cambio necesita una adenda. El pedido queda pendiente y el presupuesto no se tocó.',
+    };
+  }
+
+  let fiestaAntes: Partial<FiestaEnPlanificacion> = {};
+  const tomada = await tomarSolicitud<T>(fiestaId, campo, requestId, (solicitud, actual) => {
+    const cambio = cambiarFiesta(solicitud, actual);
+    fiestaAntes = Object.fromEntries(
+      Object.keys(cambio).filter((k) => k !== 'solicitud').map((k) => [k, (actual as any)[k]]),
+    ) as Partial<FiestaEnPlanificacion>;
+    return cambio;
+  });
+  if (!tomada.ok) return { success: false, error: tomada.error };
+
+  const marca = `solicitud:${requestId}`;
+  try {
+    const resultado = await mutarPresupuesto(fiesta.presupuestoId, (actual) => {
+      const marcas: string[] = Array.isArray(actual.ajustesAplicados) ? actual.ajustesAplicados : [];
+      if (marcas.includes(marca)) return null;
+      const cambiado = cambiarPresupuesto(tomada.solicitud, actual);
+      return presupuestoRecalculado({ ...cambiado, ajustesAplicados: [...marcas, marca] });
+    });
+    if (!resultado.encontrado) {
+      await devolverAPendiente(fiestaId, campo, requestId, fiestaAntes);
+      return { success: false, error: 'No se encontró el presupuesto: el pedido queda pendiente.' };
+    }
+  } catch (errorPresupuesto) {
+    await devolverAPendiente(fiestaId, campo, requestId, fiestaAntes);
+    throw errorPresupuesto;
+  }
+  return { success: true };
+}
+
 export async function approveClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    let invitadosAntes = 0;
-    const tomada = await tomarSolicitud<NonNullable<FiestaEnPlanificacion['clientMenuChangeRequests']>[number]>(
-      fiestaId, 'clientMenuChangeRequests', requestId, (request, actual) => {
-        invitadosAntes = actual.configuracion.invitadosEstimados ?? 0;
-        return {
-          solicitud: { ...request, status: 'aprobada' },
-          configuracion: {
-            ...actual.configuracion,
-            invitadosEstimados: invitadosAntes + request.adultosDelta + request.ninosAdolescentesDelta,
-          },
-        };
-      });
-    if (!tomada.ok) return { success: false, error: tomada.error };
-    const request = tomada.solicitud;
-
-    if (tomada.fiesta.presupuestoId) {
-      try {
-        await mutarPresupuesto(tomada.fiesta.presupuestoId, (presupuesto) => ({
-          ...presupuesto,
-          invitadosCantidad: (presupuesto.invitadosCantidad ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta,
-          totalConDescuento: (presupuesto.totalConDescuento ?? 0) + request.montoAdicional,
-          totalFinal: (presupuesto.totalFinal ?? 0) + request.montoAdicional,
-        }));
-      } catch (errorPresupuesto) {
-        await devolverAPendiente(fiestaId, 'clientMenuChangeRequests', requestId, {
-          configuracion: { ...tomada.fiesta.configuracion, invitadosEstimados: invitadosAntes },
-        });
-        throw errorPresupuesto;
-      }
-    }
-    return { success: true };
+    type Pedido = NonNullable<FiestaEnPlanificacion['clientMenuChangeRequests']>[number];
+    // Los menores del pedido van como niños: el portal los pide juntos y los estima al precio de
+    // niño (`estimateGuestIncrease`). Sumarlos sólo al total dejaba el desglose y el precio viejos (B2).
+    return await aprobarConPresupuesto<Pedido>(
+      fiestaId, 'clientMenuChangeRequests', requestId,
+      (request, actual) => ({
+        solicitud: { ...request, status: 'aprobada' },
+        configuracion: {
+          ...actual.configuracion,
+          invitadosEstimados: (actual.configuracion.invitadosEstimados ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta,
+          ...(typeof actual.configuracion.invitadosAdultos === 'number'
+            ? { invitadosAdultos: actual.configuracion.invitadosAdultos + request.adultosDelta } : {}),
+          ...(typeof actual.configuracion.invitadosNinos === 'number'
+            ? { invitadosNinos: actual.configuracion.invitadosNinos + request.ninosAdolescentesDelta } : {}),
+        },
+      }),
+      (request, presupuesto) => ({
+        ...presupuesto,
+        invitadosAdultos: (presupuesto.invitadosAdultos ?? 0) + request.adultosDelta,
+        invitadosNinos: (presupuesto.invitadosNinos ?? 0) + request.ninosAdolescentesDelta,
+        invitadosCantidad: (presupuesto.invitadosCantidad ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta,
+      }),
+    );
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
   }
@@ -952,41 +1003,27 @@ export async function approveClientGuestCountChangeRequest(
 ): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    let configuracionAntes: FiestaEnPlanificacion['configuracion'] | null = null;
-    const tomada = await tomarSolicitud<ClientGuestCountChangeRequest>(
-      fiestaId, 'clientGuestCountChangeRequests', requestId, (request, actual) => {
-        configuracionAntes = actual.configuracion;
-        return {
-          solicitud: { ...request, status: 'aprobada', resueltoAt: new Date().toISOString() },
-          configuracion: {
-            ...actual.configuracion,
-            invitadosEstimados: request.total,
-            invitadosAdultos: request.adultos,
-            invitadosAdolescentes: request.adolescentes,
-            invitadosNinos: request.ninos,
-          },
-        };
-      });
-    if (!tomada.ok) return { success: false, error: tomada.error };
-    const request = tomada.solicitud;
-
     // El presupuesto manda: de ahí sale lo que se compra y se cocina.
-    if (tomada.fiesta.presupuestoId) {
-      try {
-        await mutarPresupuesto(tomada.fiesta.presupuestoId, (presupuesto) => ({
-          ...presupuesto,
-          invitadosCantidad: request.total,
+    return await aprobarConPresupuesto<ClientGuestCountChangeRequest>(
+      fiestaId, 'clientGuestCountChangeRequests', requestId,
+      (request, actual) => ({
+        solicitud: { ...request, status: 'aprobada', resueltoAt: new Date().toISOString() },
+        configuracion: {
+          ...actual.configuracion,
+          invitadosEstimados: request.total,
           invitadosAdultos: request.adultos,
           invitadosAdolescentes: request.adolescentes,
           invitadosNinos: request.ninos,
-        }));
-      } catch (errorPresupuesto) {
-        await devolverAPendiente(fiestaId, 'clientGuestCountChangeRequests', requestId,
-          configuracionAntes ? { configuracion: configuracionAntes } : {});
-        throw errorPresupuesto;
-      }
-    }
-    return { success: true };
+        },
+      }),
+      (request, presupuesto) => ({
+        ...presupuesto,
+        invitadosCantidad: request.total,
+        invitadosAdultos: request.adultos,
+        invitadosAdolescentes: request.adolescentes,
+        invitadosNinos: request.ninos,
+      }),
+    );
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
   }
@@ -1013,14 +1050,16 @@ export async function rejectClientGuestCountChangeRequest(
 export async function approveClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    const tomada = await tomarSolicitud<NonNullable<FiestaEnPlanificacion['clientServiceChangeRequests']>[number]>(
-      fiestaId, 'clientServiceChangeRequests', requestId, (request) => ({ solicitud: { ...request, status: 'aprobada' } }));
-    if (!tomada.ok) return { success: false, error: tomada.error };
-    const request = tomada.solicitud;
-
-    if (tomada.fiesta.presupuestoId) {
-      try {
-        await mutarPresupuesto(tomada.fiesta.presupuestoId, (presupuesto) => ({
+    type Pedido = NonNullable<FiestaEnPlanificacion['clientServiceChangeRequests']>[number];
+    return await aprobarConPresupuesto<Pedido>(
+      fiestaId, 'clientServiceChangeRequests', requestId,
+      (request) => ({ solicitud: { ...request, status: 'aprobada' } }),
+      (request, presupuesto) => {
+        // `precioBase` es el total del renglón (unitario del catálogo por cantidad), sin el ajuste anual,
+        // que el presupuesto suma aparte. Poner ese total como unitario lo multiplicaba dos veces (B3).
+        const cantidad = Math.max(1, Number(request.cantidad) || 1);
+        const unitario = Math.round((Number(request.precioBase) || 0) / cantidad);
+        return {
           ...presupuesto,
           itemsPresupuestados: [
             ...(presupuesto.itemsPresupuestados ?? []),
@@ -1028,21 +1067,16 @@ export async function approveClientServiceChangeRequest(fiestaId: string, reques
               idServicioCatalogo: request.servicioId,
               nombreServicio: request.nombreServicio,
               categoriaServicio: request.categoria ?? 'Otros Servicios',
-              cantidad: request.cantidad,
-              precioUnitario: request.precioBase,
-              precioUnitarioPresupuesto: request.precioBase,
-              costoTotalItem: request.montoAdicional,
+              cantidad,
+              calculationMethod: 'fijo',
+              precioUnitario: unitario,
+              precioUnitarioPresupuesto: unitario,
+              costoTotalItem: unitario * cantidad,
             },
           ],
-          totalConDescuento: (presupuesto.totalConDescuento ?? 0) + request.montoAdicional,
-          totalFinal: (presupuesto.totalFinal ?? 0) + request.montoAdicional,
-        }));
-      } catch (errorPresupuesto) {
-        await devolverAPendiente(fiestaId, 'clientServiceChangeRequests', requestId);
-        throw errorPresupuesto;
-      }
-    }
-    return { success: true };
+        };
+      },
+    );
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
   }

@@ -1306,3 +1306,13 @@ Codex 201 (orden 210, A10): el portal calculaba el ajuste anual con `Number(...)
 con ajuste 0 a propósito le mostraba y le pedía al cliente un 15% de más. Se buscan `|| <número>` sobre
 porcentajes, precios, descuentos, sueldos y montos en `src/`. El valor por defecto va sólo cuando falta
 el dato (`== null`), no cuando vale 0.
+
+### 89. Cuando un guardado se cambia por otro (de `updatePresupuesto` a una transacción, por ejemplo), ¿el nuevo hace TODOS los controles que hacía el viejo?
+
+Codex 204 (orden 211): Claude pasó las aprobaciones del portal a `mutarPresupuesto` para que no se
+sumaran dos veces, y con eso se salteó lo que hacía `updatePresupuesto`: frenar si el contrato está
+firmado y rehacer la cuenta desde los renglones. El arreglo quedó publicado unas horas con un agujero
+nuevo. Antes de cambiar un guardado, se lista qué controles hace el viejo (permiso, contrato firmado,
+recálculo, normalización, aviso al CRM) y se mira que el nuevo los haga o diga por qué no hacen falta.
+Se buscan los `mutarPresupuesto(` y `mutateDataItem<Presupuesto>` de `src/` y se mira si cambian la
+estructura del presupuesto (invitados, renglones, descuento) sin mirar la firma.

@@ -1,10 +1,10 @@
-# Orden 211 — Portal del cliente: lo que se ve (Codex 193-194, orden 210)
+# Orden 212 — Portal del cliente: lo que se ve (Codex 193-194, orden 210)
 
 **Rama:** arrancá de `claude/app-debug-stabilize-m70e6z` actualizada (traé los cambios primero).
 **Una sola propuesta** contra esa rama, con los tres bloques. Si un bloque se traba, entregá el resto
 igual y decí cuál faltó. Antes de decir "terminé", leé `docs/ANTES-DE-ENTREGAR.md`.
 
-**Lo de plata de la orden 210 ya lo hizo Claude**: el aviso de pago, el comprobante, las cancelaciones,
+**Lo de plata de las órdenes 210 y 211 ya lo hizo Claude**: el aviso de pago, el comprobante, las cancelaciones,
 los pedidos y el ajuste anual en 0. Eso no se toca.
 
 Todo pasa en `src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx` y en

@@ -1,5 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex203/204 y build206 cerrado, misma PR1350
+
+204final sourcefa3b:12criterios4PASS/8FAIL, CINCOcausas nuevas211/Claude,
+no ocho errores independientes ni arreglo hecho. Aprobaciones ignoran fallo de
+updatePresupuesto (firma/escritura/ausencia); +2adultos deja fiesta27 pero
+presupuesto25/1000 ytotalFinal1080; dos extras200 terminan800/total1800 envez
+400/1400; fallafiesta tras guardar presupuesto yretry duplica extra; si falla
+leer firma la guarda la trata como nofirmado y permite modificar. Motor,
+normalizador,mutex,guardia de estructura yacciones reales; persistencia/CRM/
+sesion/sync controlados, NO SDK/HTTP/realcobro. No quitar proteccion del contrato.
+203:3salidas ICS capturadas conservan fecha civil/medianoche/1enero. Observacion
+TZflotante es RIESGO/PROPUESTA, NO otro bug confirmado del importador; RFC5545
+lo permite. Ver revisionprincipal203; no reencargarporallPass/FAILcontradictorio.
+Ayudante cerrado.205preflight rechazo768MiB antes de casos/servidor, NOappbug.
+Herramienta esbuild0.28.2 SOLO.qa-tools/native205, no dependencia de produccion.
+206 compila copiaQAfa3b tras medirse3GiB ysinotraNext/Jest. No usar .nextviejo.
+Artefactodepsreutilizado:unico delta lock @types/estree1.0.8instalado/1.0.9lock,
+documentado; no npmci limpio ni validacion de eseparcheTipos.206 termino exit0,
+tipos/lint ysourceDiffvacio.209 selecciono1172casos, NO loscompleto: interrumpida
+porJSONsin altasatomicas yRAM16MiB conbuildajena. No inventarPASS/bugsdeapp.
+76JSONrestaurados, servidor/pruebaspropios cerrados.213esperarecursos paraportal.
+Codex SOLOaudita, no appedit/merge; no pararprocesos ajenos ni otra corrida pesada.
+
 ## 21/10/2026 - Extension Codex200/201 en la MISMA210/PR1350
 
 NO corregido aun en mainfa3b: A9 solicitudes de menu/servicio distintas se pisan:
@@ -59,6 +82,30 @@ prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
 prueba: docs/evidencias/197-voz-meta-correcciones.mjs
 ```
 
+## 22/10/2026 - Orden 211 (Codex 203-206): aprobar los pedidos del cliente, de verdad
+
+- **Error mío de la madrugada del 22/10, ya publicado:** al pasar las aprobaciones a una transacción
+  para que no sumaran dos veces, se salteó el bloqueo de contrato firmado. Lo encontró Codex. Ahora
+  `aprobarConPresupuesto` (en `portal.actions.ts`) hace esto:
+  - Con el contrato firmado no aprueba: el pedido queda pendiente y dice que hace falta una adenda.
+  - Sin presupuesto, o si guardarlo falla, el pedido vuelve a pendiente.
+  - Rehace el presupuesto con la cuenta del guardado normal (`presupuestoRecalculado`, en
+    `src/lib/budget/recalcular-presupuesto.ts`).
+  - Deja una marca por pedido, para que un reintento no lo sume dos veces.
+- **Adultos y menores:** los adultos aprobados ahora llegan al desglose y el precio por persona se
+  recalcula. Los menores del pedido van como niños, que es como el portal los estima.
+- **Dos unidades de un extra:** ya no se multiplican dos veces. `precioBase` es el total del renglón,
+  sin el ajuste anual.
+- **Contrato sin leer:** si no se puede leer la fiesta, ya no se trata el contrato como "no firmado"
+  (`estadoDelContrato`). Archivar, borrar y cambiar un presupuesto frenan con un aviso cierto.
+
+```comprobar
+usa: aprobarConPresupuesto< en src/app/actions/fiesta/portal.actions.ts
+usa: estadoDelContrato en src/app/actions/presupuestos.ts
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts
+```
+
 ## 22/10/2026 - Orden 210 (Codex 186-202): la plata del portal del cliente
 
 - **Aviso de pago:** dos toques a la vez dejaban dos avisos del mismo pago. Ahora se busca el repetido
@@ -82,7 +129,7 @@ prueba: docs/evidencias/197-voz-meta-correcciones.mjs
   - Rechazar un pedido pedía sólo sesión; ahora pide contabilidad o CRM.
   - El pedido de cambio de invitados se guarda sobre la lista actual.
 - Lo que es de pantalla (el formulario de pago que no abría, la entrega de fotos que no llegaba y la
-  tarjeta Pagos que cerraba la sección) va en la orden 211 para Gemini.
+  tarjeta Pagos que cerraba la sección) va en la orden 212 para Gemini.
 
 ```comprobar
 usa: tomarSolicitud< en src/app/actions/fiesta/portal.actions.ts

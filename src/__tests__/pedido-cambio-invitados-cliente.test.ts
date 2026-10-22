@@ -73,8 +73,8 @@ describe('pedido de cambio de invitados desde el portal del cliente', () => {
       portalActions.indexOf('export async function approveClientGuestCountChangeRequest'),
       portalActions.indexOf('export async function rejectClientGuestCountChangeRequest'),
     );
-    // Orden 210: el presupuesto se cambia adentro de su transacción.
-    expect(aprobar).toContain('mutarPresupuesto');
+    // Orden 210/211: el presupuesto se cambia adentro de su transacción y con la cuenta de siempre.
+    expect(aprobar).toContain('aprobarConPresupuesto<ClientGuestCountChangeRequest>');
     expect(aprobar).toContain('invitadosAdultos');
     expect(aprobar).toContain('invitadosAdolescentes');
     expect(aprobar).toContain('invitadosNinos');
@@ -87,7 +87,8 @@ describe('pedido de cambio de invitados desde el portal del cliente', () => {
     );
     // Orden 210: aprobar y rechazar pasan por `tomarSolicitud`, que mira "pendiente" adentro de la
     // escritura (dos aprobaciones a la vez no suman dos veces).
-    expect(aprobar.split('tomarSolicitud<').length - 1).toBe(2);
+    expect(aprobar).toContain('aprobarConPresupuesto<ClientGuestCountChangeRequest>');
+    expect(aprobar).toContain('tomarSolicitud<ClientGuestCountChangeRequest>');
     expect(portalActions).toMatch(/if \(solicitud\.status !== 'pendiente'\) \{ error = 'La solicitud ya fue procesada\.'/);
   });
 });
