@@ -59,6 +59,39 @@ prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
 prueba: docs/evidencias/197-voz-meta-correcciones.mjs
 ```
 
+## 22/10/2026 - Orden 210 (Codex 186-202): la plata del portal del cliente
+
+- **Aviso de pago:** dos toques a la vez dejaban dos avisos del mismo pago. Ahora se busca el repetido
+  adentro de la escritura.
+- **Comprobante:** si no se subía, se perdía en silencio y el reintento devolvía el aviso viejo sin
+  subirlo. Ahora se avisa, y el reintento lo agrega al mismo aviso.
+- **Segunda cancelación:** anunciaba devolución aunque quedaba deuda, porque olvidaba la multa anterior.
+- **Cancelación total con descuento fijo:** descontaba dos veces.
+- Lo guardado, el documento y lo que ve el cliente salen ahora de la misma cuenta
+  (`totalTrasCancelar`, en `src/lib/budget/total-tras-cancelar.ts`): los servicios llevan su descuento
+  y las multas van enteras.
+- **El presupuesto con la sesión del portal:** el cliente con sesión y el enlace de SU presupuesto no
+  lo veía, y el portal decía "falta el presupuesto". Un error al leerlo ahora se dice como error, no como
+  "falta".
+- **Pedidos del cliente:** dos pedidos a la vez decían que se habían guardado y quedaba uno.
+- **Ajuste anual:** un 0 puesto a propósito ya no se vuelve 15.
+- **Barrido de la misma forma en `portal.actions`:**
+  - Aprobar a la vez el mismo pedido del cliente sumaba el extra dos veces al presupuesto. Ahora
+    aprobar y rechazar pasan por `tomarSolicitud`, que mira "pendiente" adentro de la escritura.
+  - Si el presupuesto no se puede tocar, la solicitud vuelve a quedar pendiente.
+  - Rechazar un pedido pedía sólo sesión; ahora pide contabilidad o CRM.
+  - El pedido de cambio de invitados se guarda sobre la lista actual.
+- Lo que es de pantalla (el formulario de pago que no abría, la entrega de fotos que no llegaba y la
+  tarjeta Pagos que cerraba la sección) va en la orden 211 para Gemini.
+
+```comprobar
+usa: tomarSolicitud< en src/app/actions/fiesta/portal.actions.ts
+usa: totalTrasCancelar(updatedItems en src/app/actions/fiesta/portal.actions.ts
+usa: errorPresupuesto={errorPresupuesto} en src/app/portal/c/[accessKey]/page.tsx
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/el-cliente-con-sesion-ve-su-presupuesto.test.ts
+```
+
 ## 21/10/2026 - Entrega de Gemini 1346 (órdenes 205 a 208) juntada, con un arreglo de Claude
 
 - Entra la entrega de Gemini 1346. Las fechas ya no se corren un día. El barrido de la 207 está hecho. La

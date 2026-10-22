@@ -199,8 +199,12 @@ export default async function PublicPortalPage(props: PageProps) {
     catalogServices = [];
   }
 
+  let errorPresupuesto = false;
   const presupuesto = fiesta.presupuestoId
-    ? await getPresupuestoById(fiesta.presupuestoId, budgetToken).catch(() => null)
+    ? await getPresupuestoById(fiesta.presupuestoId, budgetToken).catch(() => {
+        errorPresupuesto = true;
+        return null;
+      })
     : null;
 
   const portalFiesta = mapFiestaToPortalDTO(fiesta, accessKey);
@@ -214,6 +218,7 @@ export default async function PublicPortalPage(props: PageProps) {
       presupuesto={portalPresupuesto}
       catalogServices={catalogServices}
       errorCatalogo={errorCatalogo}
+      errorPresupuesto={errorPresupuesto}
       ajusteAnualPorcentaje={budgetSettings.annualAdjustmentPercentage ?? 15}
     />
   );
