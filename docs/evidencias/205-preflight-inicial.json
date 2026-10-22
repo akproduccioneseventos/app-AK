@@ -1,0 +1,7 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "observed": "The lightweight native-component harness stopped at its initial768MiB free-memory guard before loading dependencies or generating a bundle. No criteria ran and no server or browser started.",
+  "classification": "QA_RESOURCE_GUARD_NOT_APP_FAILURE",
+  "followup": "A later resource measurement showed more than3GiB free and no other Next/Jest compilation. Prefer the actual frozen-source QA build206, not the partial component harness, while these resources are available.",
+  "toolInstalledOutsideApp": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools/native205 esbuild0.28.2, ignore-scripts. No app dependency modified."
+}

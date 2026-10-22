@@ -823,7 +823,7 @@ function deshacerSiNadieLoToco(antes: Record<string, unknown>, despues: Record<s
     for (const k of claves) {
       if (JSON.stringify(config[k]) === JSON.stringify(despues[k])) config[k] = antes[k];
     }
-    return { configuracion: config as FiestaEnPlanificacion['configuracion'] };
+    return { configuracion: config as unknown as FiestaEnPlanificacion['configuracion'] };
   };
 }
 
@@ -866,7 +866,7 @@ async function aprobarConPresupuesto<T extends { id: string; status: string }>(
     configAntes = {};
     configDespues = {};
     const nueva = (cambio.configuracion ?? {}) as Record<string, unknown>;
-    const vieja = (actual.configuracion ?? {}) as Record<string, unknown>;
+    const vieja = (actual.configuracion ?? {}) as unknown as Record<string, unknown>;
     for (const k of Object.keys(nueva)) {
       if (JSON.stringify(nueva[k]) !== JSON.stringify(vieja[k])) {
         configAntes[k] = vieja[k];

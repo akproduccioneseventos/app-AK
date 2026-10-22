@@ -356,6 +356,10 @@
     "89": {
       "fecha": "2026-10-22",
       "resultado": "se buscaron todos los `mutarPresupuesto(` y `mutateDataItem<Presupuesto>` de src/. Las aprobaciones del portal (mías, de la madrugada del 22/10) cambiaban invitados y renglones sin mirar la firma: arregladas con `aprobarConPresupuesto`. Cancelar y cambiar la fecha desde el portal tocan contratos firmados a propósito (son la multa y el recargo del contrato). 'Marcar enviado' y los cobros no cambian la estructura: no son hallazgo."
+    },
+    "90": {
+      "fecha": "2026-10-22",
+      "resultado": "se buscaron los catch y los 'revertir/deshacer/rollback' de src/app/actions y src/lib que guardan algo leído antes. Las aprobaciones del portal (firma mirada antes y deshacer con la foto vieja) y el estado de la factura al sacar un cobro que no llegó al presupuesto: arreglados por Claude, con prueba. Borrar una factura vuelve la lista original, pero la factura borrada no tenía cobros y la lista entera ya no pisa lo de otro (marca de lectura): no es hallazgo. Los ajustes de precio y la barra ya deshacen sobre el dato de ahora."
     }
   },
   "hallazgos": {
@@ -402,6 +406,14 @@
     "orden-211": {
       "fecha": "2026-10-22",
       "resultado": "pregunta 89 nueva y barrida (ver arriba). B5 (un error de lectura daba 'contrato no firmado'): estadoDelContrato ahora dice 'no se sabe' y frena archivar, borrar y cambiar. Arreglado todo por Claude, con prueba."
+    },
+    "orden-213": {
+      "fecha": "2026-10-22",
+      "resultado": "pregunta 90 nueva y barrida (ver arriba): un caso más en facturas, arreglado."
+    },
+    "orden-214": {
+      "fecha": "2026-10-22",
+      "resultado": "los filtros que esperan caras que no llegan viven en la entrega 1353, todavía sin publicar: van en la orden 214 para Gemini, en la misma propuesta que la 215."
     }
   }
 }

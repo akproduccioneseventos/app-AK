@@ -648,6 +648,16 @@ async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount
   }
 }
 
+/**
+ * El estado de la factura al sacar UN pago que no llegó al presupuesto. Se cuenta sobre los pagos que
+ * quedan AHORA, no se vuelve a la foto de antes: si en el medio otro cobro la dejó pagada, volver a la
+ * foto la mostraba impaga estando cobrada (pregunta 90, barrido de Codex 218).
+ */
+function estadoAlSacarElPago(actual: Invoice, restantes: Payment[], estadoAntes: Invoice['status']): Invoice['status'] {
+  const base = actual.status === 'Paid' ? (estadoAntes === 'Paid' ? 'Sent' : estadoAntes) : actual.status;
+  return estadoTrasElPago({ ...actual, status: base }, restantes);
+}
+
 function estadoTrasElPago(invoice: Invoice, pagos: Payment[]): Invoice['status'] {
   const totalPaid = pagos.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
   if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
@@ -747,15 +757,15 @@ async function pasarCobroAlPresupuesto(
       const facturas = await leerFacturasSinGuardia();
       const i = facturas.findIndex((f) => f.id === invoiceId);
       if (i >= 0) {
-        facturas[i] = { ...facturas[i], payments: (facturas[i].payments || []).filter((p) => p.id !== pago.id), status: invoiceAntes.status };
+        const restantes = (facturas[i].payments || []).filter((p) => p.id !== pago.id);
+        facturas[i] = { ...facturas[i], payments: restantes, status: estadoAlSacarElPago(facturas[i], restantes, invoiceAntes.status) };
         await writeData(INVOICES_FILE, facturas);
       }
     } else {
-      await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => ({
-        ...actual,
-        payments: (actual.payments || []).filter((p) => p.id !== pago.id),
-        status: invoiceAntes.status,
-      }));
+      await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => {
+        const restantes = (actual.payments || []).filter((p) => p.id !== pago.id);
+        return { ...actual, payments: restantes, status: estadoAlSacarElPago(actual, restantes, invoiceAntes.status) };
+      });
     }
   } catch (rollbackError) {
     logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
