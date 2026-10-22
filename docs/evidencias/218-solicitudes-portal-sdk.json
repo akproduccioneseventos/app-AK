@@ -1,0 +1,204 @@
+{
+  "source": "9d1a07f99b8d6972995ff8c2b9f1a5a1ac4a81de",
+  "checkedAt": "2026-10-22T04:47:16.260Z",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/lib/calculations.ts": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/lib/budget/recalcular-presupuesto.ts": "efccff7dcc58807398fdebe5a9bc38d5fbf8bdeba8b3203e87f7dedba8dd9705",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/app/actions/fiesta/fiesta.actions.ts": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/lib/data-service.ts": "89e1ab7ca0a6efee931bce2a4c26ef83c429c364fcffe7b74bebeee86f8c781a",
+    "src/lib/budget/mutar-presupuesto.ts": "b951d277c90115b68d16a7eb0c532e45021d6d87a830572109c8e8a6459d09e4",
+    "src/app/actions/fiesta/portal.actions.ts": "d3a7a7cde4c170a48ca10f735b19454f9470601fdcbe8136964d3e5a5ee52b83"
+  },
+  "cases": [
+    {
+      "id": "signature-committed-before-party-transaction",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "party": {
+          "id": "qa218-party",
+          "presupuestoId": "qa218-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio218",
+            "invitadosEstimados": 25
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa218-menu-A",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80
+            },
+            {
+              "id": "qa218-menu-B",
+              "status": "pendiente",
+              "adultosDelta": 3,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 120
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa218-extra",
+              "status": "aprobada",
+              "servicioId": "qa218-service",
+              "nombreServicio": "Extra QA218",
+              "cantidad": 1,
+              "precioBase": 200,
+              "montoAdicional": 200,
+              "ajustePorcentaje": 0
+            }
+          ],
+          "contratoFirmaInfo": {
+            "isSigned": true
+          },
+          "_syncedAt": "2026-10-22T04:47:15.795Z"
+        },
+        "budget": {
+          "id": "qa218-budget",
+          "estado": "Borrador",
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosNinos": 0,
+          "invitadosAdolescentes": 0,
+          "totalConDescuento": 1200,
+          "costoTotalEstimado": 1200,
+          "totalFinal": 1000,
+          "pagosCliente": [],
+          "ajusteAnualPorcentaje": 0,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa218-menu",
+              "nombreServicio": "Menu QA218",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            },
+            {
+              "idServicioCatalogo": "qa218-service",
+              "nombreServicio": "Extra QA218",
+              "categoriaServicio": "Otros Servicios",
+              "cantidad": 1,
+              "calculationMethod": "fijo",
+              "precioUnitario": 200,
+              "precioUnitarioPresupuesto": 200,
+              "costoTotalItem": 200
+            }
+          ],
+          "ajustesAplicados": [
+            "solicitud:qa218-extra"
+          ],
+          "saldo": 1200,
+          "_syncedAt": "2026-10-22T04:47:15.844Z"
+        }
+      }
+    },
+    {
+      "id": "compensation-after-other-real-SDK-approval",
+      "pass": false,
+      "observed": {
+        "firstResult": {
+          "success": false,
+          "error": "QA218_BUDGET_WRITE_FAILED_BEFORE_COMMIT"
+        },
+        "secondResult": {
+          "success": true
+        },
+        "party": {
+          "id": "qa218-party",
+          "presupuestoId": "qa218-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio218",
+            "invitadosEstimados": 25
+          },
+          "contratoFirmaInfo": {
+            "isSigned": false
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa218-menu-A",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80
+            },
+            {
+              "id": "qa218-menu-B",
+              "status": "aprobada",
+              "adultosDelta": 3,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 120
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa218-extra",
+              "status": "pendiente",
+              "servicioId": "qa218-service",
+              "nombreServicio": "Extra QA218",
+              "cantidad": 1,
+              "precioBase": 200,
+              "montoAdicional": 200,
+              "ajustePorcentaje": 0
+            }
+          ],
+          "_syncedAt": "2026-10-22T04:47:16.121Z"
+        },
+        "budget": {
+          "id": "qa218-budget",
+          "estado": "Borrador",
+          "invitadosCantidad": 28,
+          "invitadosAdultos": 28,
+          "invitadosNinos": 0,
+          "invitadosAdolescentes": 0,
+          "totalConDescuento": 1120,
+          "costoTotalEstimado": 1120,
+          "totalFinal": 1000,
+          "pagosCliente": [],
+          "ajusteAnualPorcentaje": 0,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa218-menu",
+              "nombreServicio": "Menu QA218",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1120
+            }
+          ],
+          "ajustesAplicados": [
+            "solicitud:qa218-menu-B"
+          ],
+          "saldo": 1120,
+          "_syncedAt": "2026-10-22T04:47:16.074Z"
+        }
+      }
+    }
+  ],
+  "cleanup": {
+    "fiestas": 0,
+    "presupuestos": 0
+  },
+  "summary": {
+    "total": 2,
+    "pass": 0,
+    "fail": 2
+  },
+  "appEdited": false,
+  "realServices": false,
+  "scope": "Actual approval state machine, canonical calculation, generic fiesta transaction, actualizarFiesta and data-service mutateDataItem with real Firebase Admin SDK/demo emulator. Owner identity/access predicate and scheduling controlled; collection validator/cleaner/fallback refresh isolated. Signature state written by SDK, NOT real signing endpoint. No HTTP/native browser, real credentials, charge, other roles or production claim."
+}

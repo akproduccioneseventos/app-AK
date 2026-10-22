@@ -1,6 +1,6 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1351 (`b64ed1c27`, 22/10): la plata del portal del cliente (orden 210).
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1352 (`9d1a07f99`, 22/10): aprobaciones del portal y el bloqueo del contrato firmado (orden 211).
 
 ## En qué se está
 Codex 186-206: orden 210 publicada (1351); orden 211 (aprobaciones y contrato firmado, incluye un error mío ya publicado) hecha, falta publicar. Para Gemini: orden 212 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
@@ -34,6 +34,8 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1354 (`8ef06a7f4`, auditorías 213-239): juntado. Las dos fallas de plata de las aprobaciones (firma que llega en el medio, deshacer que pisaba a otro) las arregló Claude (orden 213-claude); filtros → orden 214 para Gemini.
+- Gemini 1353 (`b91bdbeff`, órdenes 180 a 195): devuelta con la **orden 215** (más la 214 de Codex). No compila (1 error), 38 pruebas fallan, y la bandeja de mensajes quedaba sin permiso. Abierta, sin fusionar.
 - Codex 1345 (`89d968d6b`, auditorías 176-185): juntado. El rol de cocina y la pregunta 87 (precio y cita por nombre parcial) los arregló Claude; el resto, orden 208.
 - Codex 192 (`f80113d35`, auditorías 186-202): juntado. Orden 210: plata del portal hecha por Claude; orden 212 para Gemini.
 - Gemini 1346 (`512881c25`, órdenes 205 a 208): revisada y juntada; compila, 5.075 pruebas en verde. Claude arregló la voz con la base que repite el guardado.

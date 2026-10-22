@@ -1316,3 +1316,20 @@ nuevo. Antes de cambiar un guardado, se lista qué controles hace el viejo (perm
 recálculo, normalización, aviso al CRM) y se mira que el nuevo los haga o diga por qué no hacen falta.
 Se buscan los `mutarPresupuesto(` y `mutateDataItem<Presupuesto>` de `src/` y se mira si cambian la
 estructura del presupuesto (invitados, renglones, descuento) sin mirar la firma.
+
+### 90. Un control que se mira ANTES de la transacción, y un "deshacer" que vuelve a una foto vieja: ¿aguantan que otro haga algo en el medio?
+
+Codex 217-218 (orden 213-claude). Las aprobaciones del portal miraban la firma del contrato en la primera
+lectura. Si se firmaba antes de la escritura, el extra entraba igual. Y al fallar el presupuesto, la
+fiesta volvía a la configuración leída al principio, borrando lo que otro aprobó en el medio.
+
+Dos cosas se miran:
+
+1. Todo control que decide si se escribe (firma, saldo, estado, permiso del dueño del dato) va adentro
+   de la transacción, sobre el dato que se va a guardar.
+2. Todo "deshacer" o "volver atrás" trabaja sobre el dato de AHORA. Resta lo suyo, o vuelve un valor
+   sólo si sigue siendo el que puso él.
+
+Se buscan en `src/app/actions` y `src/lib` los `catch` y los "revertir/deshacer/rollback" que guardan
+algo leído antes (`...antes`, `status: xAntes.status`, `writeData(archivo, original...)`).
+

@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url));
+const selection=JSON.parse(fs.readFileSync(path.join(root,'docs/evidencias/214-seleccion.json'),'utf8'));
+const previous=JSON.parse(fs.readFileSync(path.join(root,'docs/evidencias/214-ejecucion.json'),'utf8'));
+assert.equal(previous.phase,'finished');assert.equal(previous.sourceDiff,'');
+const file=path.join(root,'docs/evidencias/215-seleccion.json');assert.equal(fs.existsSync(file),false);
+fs.writeFileSync(file,JSON.stringify({...selection,batchSize:6,reason:'Same assertions, frozen build and selected specs as214; six files collected per process to bound RAM, JSON snapshot restored between groups. Interrupted214 is NOT an acceptance.'},null,2)+'\n');
+const child=spawn(process.execPath,['docs/evidencias/213-esperar-recursos.mjs'],{cwd:root,env:{...process.env,AK_AUDIT_RUN_ID:'215',AK_AUDIT_SPEC_FILTER:selection.selected.join(','),AK_AUDIT_SKIP_PORTAL:'true',AK_AUDIT_BATCH_SIZE:'6'},stdio:'inherit'});
+process.exitCode=await new Promise((yes,no)=>{child.once('exit',yes);child.once('error',no);});
