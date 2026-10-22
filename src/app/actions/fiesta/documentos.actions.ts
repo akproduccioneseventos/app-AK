@@ -10,6 +10,7 @@ import { addDays } from 'date-fns';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getPresupuestoById } from '../presupuestos';
+import { resolveDepositAmount } from '@/lib/fiesta/sena-del-contrato';
 import { generateBudgetToken } from '@/lib/auth/session-token';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { verifyPortalSession } from '@/lib/security/portal-session';
@@ -91,33 +92,6 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
   } catch (e: any) {
     return { success: false, error: e.message };
   }
-}
-
-/** Resolves the booking deposit amount for a fiesta from its linked presupuesto. */
-async function resolveDepositAmount(fiesta: FiestaEnPlanificacion): Promise<number> {
-  if (fiesta.presupuestoId) {
-    try {
-      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
-      if (presupuesto) {
-        if (presupuesto.senia && presupuesto.senia > 0) {
-          return presupuesto.senia;
-        }
-        const total = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-        if (total > 0) {
-          return Math.round(total * 0.2);
-        }
-      }
-    } catch {
-      // fall through to default
-    }
-  }
-  // Check plan de pagos for a seña cuota
-  const seniaCuota = fiesta.planDePagos?.cuotas?.find(c =>
-    c.descripcion?.toLowerCase().includes('seña') || c.descripcion?.toLowerCase().includes('señal')
-  );
-  if (seniaCuota && seniaCuota.monto > 0) return seniaCuota.monto;
-
-  return DEFAULT_DEPOSIT_AMOUNT; // fallback default
 }
 
 /**
@@ -391,6 +365,9 @@ async function dejarLaFiestaContratada(
         if (!hasDeposit) {
             try {
                 const depositAmount = await resolveDepositAmount(fiesta);
+                if (depositAmount === null) {
+                    throw new Error('No se pudo leer el presupuesto para calcular la seña: el recibo queda pendiente.');
+                }
                 const depositResult = await registerBookingDeposit({
                     fiestaId: fiesta.id,
                     amount: depositAmount,

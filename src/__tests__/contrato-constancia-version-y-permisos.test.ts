@@ -181,3 +181,15 @@ describe('C2: el guardado general no falsifica la constancia', () => {
     expect(fiesta().clientNotes).toBe('Traemos torta');
   });
 });
+
+describe('después de firmar en el portal, el texto del contrato no se cambia (revisión contable 22/10)', () => {
+  it('ni desde la pantalla del equipo ni desde el portal: hace falta una adenda', async () => {
+    await signContractDigitally('f1', 'Ana', false, huella(TEXTO_A));
+    const equipo = await updateFiestaPartial('f1', { contratoServicioTexto: 'Versión B' } as any);
+    const portal = await updateFiestaPartial('f1', { contratoServicioTexto: 'Versión B' } as any, { allowPortal: true });
+    expect(equipo.success).toBe(false);
+    expect(equipo.error).toMatch(/adenda/);
+    expect(portal.success).toBe(false);
+    expect(fiesta().contratoServicioTexto).toBe(TEXTO_A);
+  });
+});

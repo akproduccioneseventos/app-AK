@@ -549,6 +549,18 @@ async function guardarPresupuestoSinTurno(
         avisoCrm = 'El presupuesto se guardó, pero no se pudo actualizar el seguimiento comercial del cliente.';
     }
 
+    // Lo que deciden sus propios caminos no lo vuelve atrás un formulario abierto de antes: la
+    // factura (markPresupuestoAsFacturado) y la firma del contrato. Antes, guardar una pantalla vieja
+    // devolvía un presupuesto Facturado a su estado anterior y perdía el número de factura
+    // (auditoría contable 22/10).
+    if (oldBudget.estado === 'Facturado') {
+      updated.estado = 'Facturado';
+      updated.ajusteAnualActivo = oldBudget.ajusteAnualActivo ?? updated.ajusteAnualActivo;
+    }
+    if (oldBudget.invoiceId) updated.invoiceId = oldBudget.invoiceId;
+    const firmaGuardada = (oldBudget as Presupuesto & { fechaFirmaContrato?: string }).fechaFirmaContrato;
+    if (firmaGuardada) (updated as Presupuesto & { fechaFirmaContrato?: string }).fechaFirmaContrato = firmaGuardada;
+
     presupuestos[index] = updated;
     try {
       await writeData(PRESUPUESTOS_FILE, presupuestos);

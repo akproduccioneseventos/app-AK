@@ -15,6 +15,13 @@ const datos: any = {};
 // Los costos que recalcula el servidor se guardan por costos-interno (orden 183): mismo destino que
 // el updateFiestaPartial de mentira de esta prueba.
 jest.mock('@/lib/fiesta/costos-interno', () => ({
+  // Desde la revisión contable del 22/10 las cuentas automáticas calculan sobre los costos de ESE
+  // momento: se leen de la fiesta de mentira y se guardan por el mismo camino de la prueba.
+  mutarCostosInterno: async (id: string, cambiar: (c: any) => any) => {
+    const f = await require('@/app/actions/fiesta/fiesta.actions').getFiestaById(id);
+    const costos = cambiar((f && f.gestionCostos) || { costosItems: [], ingresosTotalesEstimados: 0 });
+    return require('@/lib/fiesta/costos-interno').guardarCostosInterno(id, costos);
+  },
   guardarCostosInterno: async (id: string, costos: unknown) => {
     const r = await require('@/app/actions/fiesta/fiesta.actions').updateFiestaPartial(id, { gestionCostos: costos });
     return r?.success ? { success: true, updatedData: costos } : { success: false, error: r?.error };

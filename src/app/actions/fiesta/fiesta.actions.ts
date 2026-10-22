@@ -360,6 +360,14 @@ export async function updateFiestaPartial(
   if ('firmaDigitalConstancia' in (partialData as Record<string, unknown>)) {
     return { success: false, error: 'La constancia de la firma sólo se registra firmando desde el portal.' };
   }
+  // Con la constancia puesta, el texto que firmó el cliente no se cambia por el guardado parcial.
+  if ('contratoServicioTexto' in (partialData as Record<string, unknown>)) {
+    const { getFiestaByIdRaw: leerGuardada } = await import('@/lib/fiesta/get-fiesta-raw');
+    const guardada = await leerGuardada(fiestaId);
+    if (guardada?.firmaDigitalConstancia && guardada.contratoServicioTexto !== partialData.contratoServicioTexto) {
+      return { success: false, error: 'El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda.' };
+    }
+  }
   if (options?.allowPortal) {
     await requireFiestaWriteAccess(fiestaId);
     if (!(await esEquipoParaFiesta(fiestaId))) {

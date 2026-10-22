@@ -157,6 +157,49 @@ prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
 prueba: docs/evidencias/197-voz-meta-correcciones.mjs
 ```
 
+## 22/10/2026 - Revisión contable y de contratos con ayudantes (pedido del dueño: "todo lo contable y contratos")
+
+Cinco ayudantes revisaron cobros, facturas, presupuestos, contratos, y gastos, costos y sueldos, con
+las preguntas de perfil, dos a la vez, "dice que sí sin mirar" y reintento. Claude confirmó en el código
+cada hallazgo antes de arreglarlo.
+
+- **Aviso de pago aprobado y rechazado a la vez:** el cobro se anotaba antes de tomar el aviso. Con un
+  rechazo en el medio quedaba "rechazado" con la plata sumada.
+  - Ahora `approveClientPayment` toma el aviso adentro de la escritura y después cobra.
+  - Si el presupuesto no toma el cobro, el aviso vuelve a pendiente.
+  - `rejectClientPayment` dejó de guardar la fiesta entera leída antes.
+- **Costos automáticos que borraban un costo cargado a mano:** lavandería, decoración y "sincronizar
+  todo" calculan ahora sobre los costos de ese momento (`mutarCostosInterno`).
+- **Presupuesto Facturado vuelto atrás por un formulario viejo:** el guardado conserva "Facturado", el
+  número de factura y la fecha de firma.
+- **Seña que la factura no aceptaba, callada:** `registerContractDeposit` mira lo que contesta la
+  factura y la confirmación de reserva lo avisa en pantalla.
+- **Texto del contrato cambiado después de la firma en el portal:** con la constancia puesta, hace falta
+  una adenda. Lo frenan `updateContratoFiestaActual` y el guardado parcial.
+- **Seña de $20.000 inventada:** si el presupuesto no se puede leer, el recibo queda pendiente con el
+  motivo (`resolveDepositAmount` en `src/lib/fiesta/sena-del-contrato.ts`).
+- **Se sacó `updatePagosProveedores`:** reemplazaba la lista entera y no la usaba nadie. Queda
+  `agregarPagoProveedor`.
+- **Descartado o consultado al dueño, no arreglado:**
+  - el PIN de cancelación vacío;
+  - la cuota marcada "pagada" en el plan, que no anota el cobro en el presupuesto;
+  - el CRM, que cambia precios por el guardado general;
+  - la factura marcada "Pagada" sin cobros;
+  - los documentos que se suben con cualquier sesión.
+
+```comprobar
+usa: mutarCostosInterno en src/app/actions/fiesta/costos.actions.ts
+usa: mutarCostosInterno en src/app/actions/fiesta/decoracion.actions.ts
+usa: resolveDepositAmount en src/app/actions/fiesta/documentos.actions.ts
+usa: avisoFactura en src/app/actions/crm.ts
+usa: firmaDigitalConstancia en src/app/actions/fiesta-actual.ts
+no-usa: updatePagosProveedores en src/app/actions/fiesta/pagos.actions.ts
+prueba: src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts
+prueba: src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts
+```
+
 ## 22/10/2026 - Orden 217 (Codex 249-250), R1: el recordatorio que manda no se dispara desde afuera
 
 - El recordatorio a los invitados que no abrieron la invitación **manda** WhatsApp y Gmail, y estaba en
