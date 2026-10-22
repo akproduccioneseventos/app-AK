@@ -1,0 +1,7 @@
+{
+  "commit": "d1da90d7905820aecda04897218ad096fe562e2f",
+  "expectedTree": "bcfffc7da8ef0c02c4f9f30ad4e5639a34d658df",
+  "observed": "The first delivery-check request passed the commit SHA to the trees endpoint; response.sha identified that reference rather than the expected tree and the assertion stopped before comparing blobs.",
+  "classification": "QA_REFERENCE_ERROR_NOT_APP_OR_DELIVERY_DEFECT",
+  "correction": "Read git/commits first and use its verified tree.sha to request the tree. No acceptance assertion removed."
+}

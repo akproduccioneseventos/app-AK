@@ -1,0 +1,15 @@
+{
+  "source": "09ea4138f5146cd2dfa6b792eda31cc04c30843f",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-190-V691kW",
+  "started": "2026-10-21T17:42:27.501Z",
+  "actualSdk": true,
+  "realServices": false,
+  "freeBytesAtStart": 1378250752,
+  "memoryPlan": "Java256MiB Node192MiB no Next/browser/build",
+  "appEdited": false,
+  "emulatorPid": 7972,
+  "probePid": 17120,
+  "exitCode": 1,
+  "cleanupStatus": 200,
+  "finished": "2026-10-21T17:42:37.582Z"
+}

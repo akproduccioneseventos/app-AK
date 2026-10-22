@@ -1,9 +1,9 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1348 (`218e62ce3`, 21/10): mozos de salón en su rol, el asistente no elige por nombre parcial, y Codex 176-185 juntado.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1349 (`fa3b492b8`, 21/10): la entrega de Gemini 1346 (órdenes 205 a 208) con los ajustes de Claude.
 
 ## En qué se está
-Gemini 1346 (órdenes 205 a 208) juntada en la rama; falta publicarla. Codex sigue auditando.
+Codex 186-202 (orden 210, portal del cliente): plata arreglada por Claude el 22/10, falta publicar. Para Gemini: orden 211 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
 Codex sólo audita.
 
 ## Terminado en esta tanda
@@ -35,6 +35,7 @@ Codex sólo audita.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
 - Codex 1345 (`89d968d6b`, auditorías 176-185): juntado. El rol de cocina y la pregunta 87 (precio y cita por nombre parcial) los arregló Claude; el resto, orden 208.
+- Codex 192 (`f80113d35`, auditorías 186-202): juntado. Orden 210: plata del portal hecha por Claude; orden 211 para Gemini.
 - Gemini 1346 (`512881c25`, órdenes 205 a 208): revisada y juntada; compila, 5.075 pruebas en verde. Claude arregló la voz con la base que repite el guardado.
 - Gemini 1344 (`bfde3916a`): devuelta con la **orden 205** (Codex) y la **206** (fechas). Abierta, sin fusionar.
 - Codex 1345: `1cb47af06` (antes `f776ae29e`) (auditorías 160-169 juntadas): orden 204 del proveedor y el Tab de la 199 arreglados por Claude.

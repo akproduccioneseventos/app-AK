@@ -9,7 +9,7 @@ export type { MensajePortalCliente };
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
-import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '../presupuestos';
+import { addPagoToPresupuesto, getPresupuestoById } from '../presupuestos';
 import { createNotification } from '@/lib/notifications/create-notification';
 import {
   notifyClientPaymentApproved,
@@ -67,6 +67,8 @@ function createRequestId(prefix: string) {
 
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
+import { mutarPresupuesto } from '@/lib/budget/mutar-presupuesto';
+import { totalTrasCancelar } from '@/lib/budget/total-tras-cancelar';
 
 export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -286,7 +288,7 @@ export async function submitClientPayment(
   monto: number,
   comprobanteBase64?: string,
   comprobanteNombre?: string
-): Promise<{ success: boolean; notificationId?: string; error?: string }> {
+): Promise<{ success: boolean; notificationId?: string; error?: string; aviso?: string }> {
   if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const safeMonto = normalizeClientPaymentAmount(monto);
@@ -300,18 +302,24 @@ export async function submitClientPayment(
     // el cliente toca el boton, tarda, y vuelve a tocar. Si ya hay un aviso
     // pendiente por el mismo monto de hace menos de diez minutos, se toma como el
     // mismo y se devuelve el que ya estaba.
-    const HACE_DIEZ_MINUTOS = Date.now() - 10 * 60 * 1000;
-    const yaInformado = (fiesta.clientPaymentNotifications ?? []).find((aviso) => {
+    // Codex 188-190 (orden 210, A1): esa busqueda se hacia ANTES de guardar, y dos toques
+    // solapados dejaban dos avisos. Ahora se busca adentro de la escritura, sobre la lista actual.
+    const esElMismoAviso = (aviso: ClientPaymentNotification) => {
       if (aviso.estado !== 'pendiente') return false;
       if (normalizeClientPaymentAmount(aviso.monto) !== safeMonto) return false;
       const cuando = new Date(aviso.timestamp ?? 0).getTime();
-      return Number.isFinite(cuando) && cuando >= HACE_DIEZ_MINUTOS;
-    });
-    if (yaInformado) {
+      return Number.isFinite(cuando) && cuando >= Date.now() - 10 * 60 * 1000;
+    };
+    const yaInformado = (fiesta.clientPaymentNotifications ?? []).find(esElMismoAviso);
+    // Si el aviso que ya estaba trae su comprobante, no hay nada que subir.
+    if (yaInformado && (yaInformado.comprobanteUrl || !comprobanteBase64)) {
       return { success: true, notificationId: yaInformado.id };
     }
 
-    let comprobanteUrl = undefined;
+    // A2: si el comprobante no se pudo subir, se dice. Antes se guardaba el aviso con el nombre
+    // del archivo y sin el archivo, y el reintento devolvia el aviso viejo sin volver a subirlo.
+    let comprobanteUrl: string | undefined = undefined;
+    let comprobanteFallo = false;
     if (comprobanteBase64) {
       try {
         const matches = comprobanteBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
@@ -325,29 +333,55 @@ export async function submitClientPayment(
 
           await uploadToStorage(buffer, storagePath, mimeType, false);
           comprobanteUrl = storagePath;
+        } else {
+          comprobanteFallo = true;
         }
       } catch (uploadError) {
         console.error('[Portal Action] Failed to upload receipt to Storage:', uploadError);
+        comprobanteFallo = true;
       }
     }
 
-    const notification: ClientPaymentNotification = {
+    const nuevo: ClientPaymentNotification = {
       id: `cpn_${crypto.randomUUID()}`,
       monto: safeMonto,
       comprobanteUrl, // Store only the path!
-      comprobanteNombre,
+      comprobanteNombre: comprobanteUrl ? comprobanteNombre : undefined,
       estado: 'pendiente',
       timestamp: new Date().toISOString(),
     };
 
     // Se agrega el aviso sobre la fiesta de ESE momento (auditoría 71): el guardado general ya no
     // deja que el cliente cambie los avisos de pago, y además pisaba lo que otro guardó recién.
-    const guardado = await actualizarFiesta(fiestaId, (actual) => ({
-      ...actual,
-      clientPaymentNotifications: [...(actual.clientPaymentNotifications ?? []), notification],
-    }));
+    // La transaccion puede repetirse: lo que anoto una vuelta descartada no cuenta.
+    let notification: ClientPaymentNotification = nuevo;
+    let esNuevo = true;
+    const guardado = await actualizarFiesta(fiestaId, (actual) => {
+      notification = nuevo;
+      esNuevo = true;
+      const avisos = actual.clientPaymentNotifications ?? [];
+      const previo = avisos.find(esElMismoAviso);
+      if (!previo) return { ...actual, clientPaymentNotifications: [...avisos, nuevo] };
+      esNuevo = false;
+      if (previo.comprobanteUrl || !comprobanteUrl) {
+        notification = previo;
+        return actual;
+      }
+      // El mismo aviso recupera el comprobante que le faltaba, sin duplicar el importe.
+      notification = { ...previo, comprobanteUrl, comprobanteNombre };
+      return {
+        ...actual,
+        clientPaymentNotifications: avisos.map((a) => (a.id === previo.id ? notification : a)),
+      };
+    });
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo registrar el pago informado.' };
+    }
+    const avisoComprobante = comprobanteFallo
+      ? 'El pago quedó informado, pero el comprobante no se pudo subir. Volvé a adjuntarlo con el mismo monto y se agrega a este aviso.'
+      : undefined;
+    if (!esNuevo) {
+      return { success: true, notificationId: notification.id, aviso: avisoComprobante };
     }
 
     // no-mira-el-resultado: aviso interno al panel; el pago informado ya quedo guardado
@@ -361,7 +395,7 @@ export async function submitClientPayment(
       console.warn('[Google Workspace] No se pudo enviar mail de pago informado:', error);
     });
 
-    return { success: true, notificationId: notification.id };
+    return { success: true, notificationId: notification.id, aviso: avisoComprobante };
   } catch (e: any) {
     return { success: false, error: sanitizeActionError(e) };
   }
@@ -398,10 +432,13 @@ export async function submitClientMenuChangeRequest(
       notaCliente: payload.notaCliente?.trim() || undefined,
     };
 
-    const guardado = await saveFiesta({
-      ...fiesta,
-      clientMenuChangeRequests: [...(fiesta.clientMenuChangeRequests ?? []), nextRequest],
-    });
+    // Codex 200 (orden 210, A9): se agrega sobre la lista ACTUAL, adentro de la escritura. Antes se
+    // armaba la lista desde la lectura previa y saveFiesta la reponía entera: de dos pedidos
+    // simultáneos quedaba uno, y los dos decían que se habían guardado.
+    const guardado = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
+      clientMenuChangeRequests: [...(actual.clientMenuChangeRequests ?? []), nextRequest],
+    }));
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo guardar la solicitud de cambio de menú.' };
     }
@@ -460,10 +497,13 @@ export async function submitClientServiceAddRequest(
       notaCliente: payload.notaCliente?.trim() || undefined,
     };
 
-    const guardado = await saveFiesta({
-      ...fiesta,
-      clientServiceChangeRequests: [...(fiesta.clientServiceChangeRequests ?? []), nextRequest],
-    });
+    // Codex 200 (orden 210, A9): se agrega sobre la lista ACTUAL, adentro de la escritura. Antes se
+    // armaba la lista desde la lectura previa y saveFiesta la reponía entera: de dos pedidos
+    // simultáneos quedaba uno, y los dos decían que se habían guardado.
+    const guardado = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
+      clientServiceChangeRequests: [...(actual.clientServiceChangeRequests ?? []), nextRequest],
+    }));
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo guardar la solicitud de servicio extra.' };
     }
@@ -710,35 +750,84 @@ export async function addClientMusicSuggestion(
   return result;
 }
 
+type CampoDeSolicitud = 'clientMenuChangeRequests' | 'clientServiceChangeRequests' | 'clientGuestCountChangeRequests';
+
+/**
+ * Pasa UNA solicitud del cliente de "pendiente" a otro estado adentro de la escritura de la fiesta.
+ * Antes se leía la fiesta, se marcaba y se guardaba entera (`saveFiesta`): dos personas aprobando a la
+ * vez veían las dos "pendiente" y el extra se sumaba dos veces al presupuesto, y lo que el cliente
+ * pidió en el medio se perdía (Codex 200, orden 210). Devuelve la solicitud como estaba antes.
+ */
+async function tomarSolicitud<T extends { id: string; status: string }>(
+  fiestaId: string,
+  campo: CampoDeSolicitud,
+  requestId: string,
+  cambiar: (solicitud: T, fiesta: FiestaEnPlanificacion) => Partial<FiestaEnPlanificacion> & { solicitud: T },
+): Promise<{ ok: true; solicitud: T; fiesta: FiestaEnPlanificacion } | { ok: false; error: string }> {
+  let error: string | null = null;
+  let tomada: T | null = null;
+  let vista: FiestaEnPlanificacion | null = null;
+  const guardado = await actualizarFiesta(fiestaId, (actual) => {
+    error = null;
+    tomada = null;
+    vista = actual;
+    const lista = ((actual as any)[campo] ?? []) as T[];
+    const solicitud = lista.find((r) => r.id === requestId);
+    if (!solicitud) { error = 'Solicitud no encontrada'; return actual; }
+    if (solicitud.status !== 'pendiente') { error = 'La solicitud ya fue procesada.'; return actual; }
+    tomada = solicitud;
+    const { solicitud: nueva, ...resto } = cambiar(solicitud, actual);
+    return { ...actual, ...resto, [campo]: lista.map((r) => (r.id === requestId ? nueva : r)) } as FiestaEnPlanificacion;
+  });
+  if (!guardado.success) return { ok: false, error: guardado.error || 'No se pudo guardar.' };
+  const fiesta = guardado.updatedFiesta ?? vista;
+  if (error || !tomada || !fiesta) return { ok: false, error: error || 'Solicitud no encontrada' };
+  return { ok: true, solicitud: tomada, fiesta };
+}
+
+/** Si el presupuesto no se pudo tocar, la solicitud vuelve a quedar pendiente: nada a medias. */
+async function devolverAPendiente(fiestaId: string, campo: CampoDeSolicitud, requestId: string, antes: Partial<FiestaEnPlanificacion> = {}) {
+  await actualizarFiesta(fiestaId, (actual) => ({
+    ...actual,
+    ...antes,
+    [campo]: (((actual as any)[campo] ?? []) as Array<{ id: string; status: string }>).map((r) =>
+      r.id === requestId ? { ...r, status: 'pendiente', resueltoAt: undefined, motivoRechazo: undefined } : r,
+    ),
+  }) as FiestaEnPlanificacion);
+}
+
 export async function approveClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+    let invitadosAntes = 0;
+    const tomada = await tomarSolicitud<NonNullable<FiestaEnPlanificacion['clientMenuChangeRequests']>[number]>(
+      fiestaId, 'clientMenuChangeRequests', requestId, (request, actual) => {
+        invitadosAntes = actual.configuracion.invitadosEstimados ?? 0;
+        return {
+          solicitud: { ...request, status: 'aprobada' },
+          configuracion: {
+            ...actual.configuracion,
+            invitadosEstimados: invitadosAntes + request.adultosDelta + request.ninosAdolescentesDelta,
+          },
+        };
+      });
+    if (!tomada.ok) return { success: false, error: tomada.error };
+    const request = tomada.solicitud;
 
-    const requests = fiesta.clientMenuChangeRequests ?? [];
-    const requestIndex = requests.findIndex(r => r.id === requestId);
-    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
-
-    const request = requests[requestIndex];
-    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
-
-    request.status = 'aprobada';
-
-    fiesta.configuracion.invitadosEstimados = (fiesta.configuracion.invitadosEstimados ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta;
-    if (fiesta.presupuestoId) {
-      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
-      if (presupuesto) {
-        presupuesto.invitadosCantidad = (presupuesto.invitadosCantidad ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta;
-        presupuesto.totalConDescuento = (presupuesto.totalConDescuento ?? 0) + request.montoAdicional;
-        presupuesto.totalFinal = (presupuesto.totalFinal ?? 0) + request.montoAdicional;
-        await updatePresupuesto(presupuesto);
+    if (tomada.fiesta.presupuestoId) {
+      try {
+        await mutarPresupuesto(tomada.fiesta.presupuestoId, (presupuesto) => ({
+          ...presupuesto,
+          invitadosCantidad: (presupuesto.invitadosCantidad ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta,
+          totalConDescuento: (presupuesto.totalConDescuento ?? 0) + request.montoAdicional,
+          totalFinal: (presupuesto.totalFinal ?? 0) + request.montoAdicional,
+        }));
+      } catch (errorPresupuesto) {
+        await devolverAPendiente(fiestaId, 'clientMenuChangeRequests', requestId, {
+          configuracion: { ...tomada.fiesta.configuracion, invitadosEstimados: invitadosAntes },
+        });
+        throw errorPresupuesto;
       }
-    }
-
-    const guardado = await saveFiesta(fiesta);
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'No se pudo guardar la aprobación del cambio de menú.' };
     }
     return { success: true };
   } catch (err: any) {
@@ -747,36 +836,18 @@ export async function approveClientMenuChangeRequest(fiestaId: string, requestId
 }
 
 export async function rejectClientMenuChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  // Rechazar un pedido del cliente es lo mismo que aprobarlo: no cualquier sesión (antes pedía sólo sesión).
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
-
-    const requests = fiesta.clientMenuChangeRequests ?? [];
-    const requestIndex = requests.findIndex(r => r.id === requestId);
-    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
-
-    const request = requests[requestIndex];
-    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
-
-    request.status = 'rechazada';
-    const guardado = await saveFiesta(fiesta);
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'No se pudo guardar el rechazo del cambio de menú.' };
-    }
+    const tomada = await tomarSolicitud<NonNullable<FiestaEnPlanificacion['clientMenuChangeRequests']>[number]>(
+      fiestaId, 'clientMenuChangeRequests', requestId, (request) => ({ solicitud: { ...request, status: 'rechazada' } }));
+    if (!tomada.ok) return { success: false, error: tomada.error };
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
   }
 }
 
-/**
- * El cliente pide cambiar la cantidad de invitados desde su portal.
- *
- * El contrato deja bajar hasta 10% y subir hasta 30%. El pedido NO se aplica
- * solo: queda pendiente y lo resuelve AK, porque subir invitados mueve el precio
- * y hay que confirmar disponibilidad con el salón.
- */
 export async function submitClientGuestCountChangeRequest(
   fiestaId: string,
   payload: {
@@ -837,12 +908,23 @@ export async function submitClientGuestCountChangeRequest(
       notaCliente: payload.notaCliente?.trim() || undefined,
     };
 
-    const guardado = await saveFiesta({
-      ...fiesta,
-      clientGuestCountChangeRequests: [...pedidosPrevios, nextRequest],
+    // Sobre la lista ACTUAL y adentro de la escritura (orden 210): dos pedidos a la vez no se
+    // pisan, y el "uno pendiente por vez" se mira sobre lo guardado, no sobre la lectura previa.
+    let yaHabiaPendiente = false;
+    const guardado = await actualizarFiesta(fiestaId, (actual) => {
+      const lista = actual.clientGuestCountChangeRequests ?? [];
+      yaHabiaPendiente = lista.some(p => p.status === 'pendiente');
+      if (yaHabiaPendiente) return actual;
+      return { ...actual, clientGuestCountChangeRequests: [...lista, nextRequest] };
     });
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo guardar la solicitud de cambio de invitados.' };
+    }
+    if (yaHabiaPendiente) {
+      return {
+        success: false,
+        error: 'Ya tenés un pedido de cambio de invitados esperando respuesta. Te contestamos a la brevedad.',
+      };
     }
 
     // no-mira-el-resultado: aviso interno al panel; el pedido de cambio de invitados ya quedo guardado
@@ -870,49 +952,40 @@ export async function approveClientGuestCountChangeRequest(
 ): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+    let configuracionAntes: FiestaEnPlanificacion['configuracion'] | null = null;
+    const tomada = await tomarSolicitud<ClientGuestCountChangeRequest>(
+      fiestaId, 'clientGuestCountChangeRequests', requestId, (request, actual) => {
+        configuracionAntes = actual.configuracion;
+        return {
+          solicitud: { ...request, status: 'aprobada', resueltoAt: new Date().toISOString() },
+          configuracion: {
+            ...actual.configuracion,
+            invitadosEstimados: request.total,
+            invitadosAdultos: request.adultos,
+            invitadosAdolescentes: request.adolescentes,
+            invitadosNinos: request.ninos,
+          },
+        };
+      });
+    if (!tomada.ok) return { success: false, error: tomada.error };
+    const request = tomada.solicitud;
 
-    const requests = fiesta.clientGuestCountChangeRequests ?? [];
-    const index = requests.findIndex(r => r.id === requestId);
-    if (index === -1) return { success: false, error: 'Solicitud no encontrada' };
-
-    const request = requests[index];
-    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
-
-    requests[index] = { ...request, status: 'aprobada', resueltoAt: new Date().toISOString() };
-
-    // El presupuesto manda: de ahí sale lo que se compra y se cocina. Se
-    // actualiza primero y despues la fiesta se sincroniza sola desde el
-    // presupuesto, que es el orden que ya usa el resto del sistema.
-    if (fiesta.presupuestoId) {
-      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
-      if (presupuesto) {
-        await updatePresupuesto({
+    // El presupuesto manda: de ahí sale lo que se compra y se cocina.
+    if (tomada.fiesta.presupuestoId) {
+      try {
+        await mutarPresupuesto(tomada.fiesta.presupuestoId, (presupuesto) => ({
           ...presupuesto,
           invitadosCantidad: request.total,
           invitadosAdultos: request.adultos,
           invitadosAdolescentes: request.adolescentes,
           invitadosNinos: request.ninos,
-        });
+        }));
+      } catch (errorPresupuesto) {
+        await devolverAPendiente(fiestaId, 'clientGuestCountChangeRequests', requestId,
+          configuracionAntes ? { configuracion: configuracionAntes } : {});
+        throw errorPresupuesto;
       }
     }
-
-    const guardado = await saveFiesta({
-      ...fiesta,
-      clientGuestCountChangeRequests: requests,
-      configuracion: {
-        ...fiesta.configuracion,
-        invitadosEstimados: request.total,
-        invitadosAdultos: request.adultos,
-        invitadosAdolescentes: request.adolescentes,
-        invitadosNinos: request.ninos,
-      },
-    });
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'No se pudo guardar la aprobación del cambio de invitados.' };
-    }
-
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
@@ -924,27 +997,13 @@ export async function rejectClientGuestCountChangeRequest(
   requestId: string,
   motivo?: string,
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
-
-    const requests = fiesta.clientGuestCountChangeRequests ?? [];
-    const index = requests.findIndex(r => r.id === requestId);
-    if (index === -1) return { success: false, error: 'Solicitud no encontrada' };
-    if (requests[index].status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
-
-    requests[index] = {
-      ...requests[index],
-      status: 'rechazada',
-      motivoRechazo: motivo?.trim() || undefined,
-      resueltoAt: new Date().toISOString(),
-    };
-
-    const guardado = await saveFiesta({ ...fiesta, clientGuestCountChangeRequests: requests });
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'No se pudo guardar el rechazo del cambio de invitados.' };
-    }
+    const tomada = await tomarSolicitud<ClientGuestCountChangeRequest>(
+      fiestaId, 'clientGuestCountChangeRequests', requestId, (request) => ({
+        solicitud: { ...request, status: 'rechazada', motivoRechazo: motivo?.trim() || undefined, resueltoAt: new Date().toISOString() },
+      }));
+    if (!tomada.ok) return { success: false, error: tomada.error };
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
@@ -954,41 +1013,34 @@ export async function rejectClientGuestCountChangeRequest(
 export async function approveClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+    const tomada = await tomarSolicitud<NonNullable<FiestaEnPlanificacion['clientServiceChangeRequests']>[number]>(
+      fiestaId, 'clientServiceChangeRequests', requestId, (request) => ({ solicitud: { ...request, status: 'aprobada' } }));
+    if (!tomada.ok) return { success: false, error: tomada.error };
+    const request = tomada.solicitud;
 
-    const requests = fiesta.clientServiceChangeRequests ?? [];
-    const requestIndex = requests.findIndex(r => r.id === requestId);
-    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
-
-    const request = requests[requestIndex];
-    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
-
-    request.status = 'aprobada';
-
-    if (fiesta.presupuestoId) {
-      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
-      if (presupuesto) {
-        const items = presupuesto.itemsPresupuestados ?? [];
-        items.push({
-          idServicioCatalogo: request.servicioId,
-          nombreServicio: request.nombreServicio,
-          categoriaServicio: request.categoria ?? 'Otros Servicios',
-          cantidad: request.cantidad,
-          precioUnitario: request.precioBase,
-          precioUnitarioPresupuesto: request.precioBase,
-          costoTotalItem: request.montoAdicional,
-        });
-        presupuesto.itemsPresupuestados = items;
-        presupuesto.totalConDescuento = (presupuesto.totalConDescuento ?? 0) + request.montoAdicional;
-        presupuesto.totalFinal = (presupuesto.totalFinal ?? 0) + request.montoAdicional;
-        await updatePresupuesto(presupuesto);
+    if (tomada.fiesta.presupuestoId) {
+      try {
+        await mutarPresupuesto(tomada.fiesta.presupuestoId, (presupuesto) => ({
+          ...presupuesto,
+          itemsPresupuestados: [
+            ...(presupuesto.itemsPresupuestados ?? []),
+            {
+              idServicioCatalogo: request.servicioId,
+              nombreServicio: request.nombreServicio,
+              categoriaServicio: request.categoria ?? 'Otros Servicios',
+              cantidad: request.cantidad,
+              precioUnitario: request.precioBase,
+              precioUnitarioPresupuesto: request.precioBase,
+              costoTotalItem: request.montoAdicional,
+            },
+          ],
+          totalConDescuento: (presupuesto.totalConDescuento ?? 0) + request.montoAdicional,
+          totalFinal: (presupuesto.totalFinal ?? 0) + request.montoAdicional,
+        }));
+      } catch (errorPresupuesto) {
+        await devolverAPendiente(fiestaId, 'clientServiceChangeRequests', requestId);
+        throw errorPresupuesto;
       }
-    }
-
-    const guardado = await saveFiesta(fiesta);
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'No se pudo guardar la aprobación del servicio extra.' };
     }
     return { success: true };
   } catch (err: any) {
@@ -997,23 +1049,11 @@ export async function approveClientServiceChangeRequest(fiestaId: string, reques
 }
 
 export async function rejectClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
-
-    const requests = fiesta.clientServiceChangeRequests ?? [];
-    const requestIndex = requests.findIndex(r => r.id === requestId);
-    if (requestIndex === -1) return { success: false, error: 'Solicitud no encontrada' };
-
-    const request = requests[requestIndex];
-    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
-
-    request.status = 'rechazada';
-    const guardado = await saveFiesta(fiesta);
-    if (!guardado.success) {
-      return { success: false, error: guardado.error || 'No se pudo guardar el rechazo del servicio extra.' };
-    }
+    const tomada = await tomarSolicitud<NonNullable<FiestaEnPlanificacion['clientServiceChangeRequests']>[number]>(
+      fiestaId, 'clientServiceChangeRequests', requestId, (request) => ({ solicitud: { ...request, status: 'rechazada' } }));
+    if (!tomada.ok) return { success: false, error: tomada.error };
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
@@ -1238,19 +1278,8 @@ Firma AK Producciones: _________________   Fecha: __/__/____
 
       updatedItems = remainingItems;
 
-      // Recalculate new total
-      const remainingSubtotal = remainingItems
-        .filter(item => !item.esRegalo && item.idServicioCatalogo !== 'multa_cancelacion_total' && !item.idServicioCatalogo.startsWith('multa_cancelacion_'))
-        .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
-
-      let discount = 0;
-      if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
-        discount = presupuesto.descuentoTipo === 'porcentaje'
-          ? Math.round(remainingSubtotal * presupuesto.descuentoValor / 100)
-          : presupuesto.descuentoValor;
-      }
-
-      nuevoTotal = Math.max(0, remainingSubtotal - discount) + penaltyTotal;
+      // Nuevo total: con TODAS las multas guardadas, no sólo la de esta vez (orden 210, A5).
+      nuevoTotal = totalTrasCancelar(remainingItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
 
       docContent = `============================================================
            AK PRODUCCIONES - CONTRATO DE CANCELACIÓN PARCIAL
@@ -1300,13 +1329,10 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       .filter(item => !item.esRegalo)
       .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
 
-    let discount = 0;
-    if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
-      discount = presupuesto.descuentoTipo === 'porcentaje'
-        ? Math.round((presupuesto.costoTotalEstimado - penaltyTotal) * presupuesto.descuentoValor / 100)
-        : presupuesto.descuentoValor;
-    }
-    presupuesto.totalConDescuento = Math.max(0, presupuesto.costoTotalEstimado - discount);
+    // La misma cuenta que el documento y la respuesta (orden 210, A5 y A6): la multa no lleva
+    // descuento, que ya estaba en el total del que sale.
+    presupuesto.totalConDescuento = totalTrasCancelar(updatedItems, presupuesto.descuentoTipo, presupuesto.descuentoValor);
+    nuevoTotal = presupuesto.totalConDescuento;
     // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
     presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
 

@@ -153,9 +153,11 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
   const sessionAuth = await verifySession();
 
   let soloOperativo = false;
-  if (sessionAuth.success) {
-    const nivel = nivelDePresupuestos(sessionAuth.user);
-    if (!nivel) return null;
+  // Con una sesión que no ve presupuestos (el cliente con su sesión del portal), vale igual el
+  // enlace de ESE presupuesto: antes devolvía nada y el portal decía "falta el presupuesto"
+  // (Codex 193, orden 210, A3). El enlace sólo abre su propio documento, nunca otro.
+  const nivel = sessionAuth.success ? nivelDePresupuestos(sessionAuth.user) : null;
+  if (nivel) {
     soloOperativo = nivel === 'operativo';
   } else {
     if (!token) {

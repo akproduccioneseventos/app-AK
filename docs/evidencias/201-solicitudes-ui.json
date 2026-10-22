@@ -1,0 +1,148 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "checkedAt": "2026-10-22T01:54:09.653Z",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/session-token.ts": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/app/actions/presupuestos.ts": "74042b3ab13058a2afc935b3c950fea2f7046cb123a0c24e96447ed31fe30a04",
+    "src/lib/client-portal/public-fiesta.ts": "f4ba97d29f9fec0e991ac9563ac8d0c0b2131b7f4866079ad55f775ed2d4e350",
+    "src/app/actions/fiesta/portal.actions.ts": "d7dcefbbb0b2f0fc589c3ceb297a20bfd2707c80201d07a461f7a1e4b30dace0",
+    "src/app/portal/c/[accessKey]/page.tsx": "3b5f1d1138cb746a79f40c25079868792ad10967fbbdc676943f12c4015b8681",
+    "src/lib/social-fiesta/public-event.ts": "4c74ca26ab91927e0cc5cee24aef9973a7fbd35026d1f5afff6dab6717e68ea0",
+    "src/lib/client-portal/public-guest-stats.ts": "f6ddebf44e434c7b2718a37fc9a96a007cba2dea23640fec09d0759fe15ceda7",
+    "src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx": "b28172bf0c82a39b5fe33094e8ab6b19d7eb3abce0730173a1841650a57a8893",
+    "src/lib/fiesta-defaults.ts": "6384cfacc43c88be942f0e1588a3d1796d15b4d2bc8e8eef2796ce5176549f65",
+    "src/lib/public-contact.ts": "1073a6ef91bf42c6d91754b48fdca0d260a3131186b4a6a3d2d39b8f14fb31fa",
+    "src/lib/social-wall-defaults.ts": "62e3c98db62babbbf21198e13956e9b8cfa1bd529dbc6affdc6bc6e0783b9327",
+    "src/lib/zona-digital-adolescentes.ts": "75516b4c408b0a0919028a35d84441920ccf2b83a4514967c4c055477b8c9b8d",
+    "src/components/ui/accordion.tsx": "1cc98c2ab5106d8d476f1da4aa8dd535198a8113513b2c918938ea76d90bbbc9",
+    "src/lib/utils.ts": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+    "src/lib/reportes/rango-de-dias.ts": "e64cb6a73f65c7f6f4d3b848783dd42be63abe0acf6f7e525ddb20875ed3956f",
+    "src/components/ui/button.tsx": "6af925415b5056d9526d3dbcdbca140ef8f09a1afbba85576d008cf5e9000646",
+    "src/components/ui/input.tsx": "a83bd3bb38fb1eb55370d0c81557814ca41ce7d75d2786eb6f4830c40f7f4572",
+    "src/components/ui/textarea.tsx": "6d2c1753fa2c3caca5ca3f329fc5ea0c63dae85c55b79cf5f133a8a26fb8e723",
+    "src/components/ui/label.tsx": "2eac8fbb04002c42b0fbc4062d20d131e421796eaf65c37d2049e29e42ecbc5a",
+    "src/components/ui/empty-state.tsx": "db4b9ca38a8d0691ea7b29cb8e8024fdcfac20b17ca959b677b96d518c03b9bc",
+    "src/lib/client-portal/client-portal-summary.ts": "21a1045b07f0d3ed25c1c38819ac1baefb1ff63c272841f406c98de34c7143b9",
+    "src/lib/commercial/contact.ts": "2fc208917d4a633ede28e7a5b6215f23af83954d5300af5b2df8f167899aac4b",
+    "src/lib/budget/saldo-con-ajuste.ts": "e414b4998115b620b20d63a3c6876fc6a6ec8b8420f6ffcafff82ddee8fb00f7",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/lib/calculations.ts": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+    "src/lib/client-portal/access-phases.ts": "b3fda1582800a697c8f7e95885c52db2bf33a8bfbf3311b4e94e4f657dde77ea",
+    "src/lib/calendar-links.ts": "8f6bed597060d83415616cacd14b098ca6051d5cb06b04e12befaffecd6f88d4",
+    "src/lib/portal/cuenta-regresiva.ts": "4b2422aa9bdc69cceaa1b36ae2c4772d731752f8506d074ad6ab1a3cd2388265",
+    "src/lib/portal/foto-de-portada.ts": "1243f994b378a979eaff959c773a3a92c97cbef486ac2dc5d82afc6a763a2be1"
+  },
+  "cases": [
+    {
+      "id": "catalogue-extra-visible-positive",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "empty-increase-does-not-create-request",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "explicit-zero-adjustment-keeps-guest-estimate-zero",
+      "pass": false,
+      "observed": {
+        "request": {
+          "id": "menu_change_request_067cae57-8653-4feb-a2a1-eac60fbd6527",
+          "createdAt": "2026-10-22T01:54:05.961Z",
+          "status": "pendiente",
+          "adultosDelta": 2,
+          "ninosAdolescentesDelta": 0,
+          "montoAdicional": 92,
+          "nuevoTotalEstimado": 1092
+        },
+        "configuredPercentage": 0,
+        "uiHas15": true
+      }
+    },
+    {
+      "id": "guest-request-only-pending-not-budget-rewrite",
+      "pass": true,
+      "observed": {
+        "request": {
+          "id": "menu_change_request_067cae57-8653-4feb-a2a1-eac60fbd6527",
+          "createdAt": "2026-10-22T01:54:05.961Z",
+          "status": "pendiente",
+          "adultosDelta": 2,
+          "ninosAdolescentesDelta": 0,
+          "montoAdicional": 92,
+          "nuevoTotalEstimado": 1092
+        },
+        "budgetTotal": 1000
+      }
+    },
+    {
+      "id": "explicit-zero-adjustment-keeps-extra-at-catalogue-price",
+      "pass": false,
+      "observed": {
+        "request": {
+          "id": "service_change_request_cb464524-b661-45da-a62e-bf5fc2ead1fc",
+          "createdAt": "2026-10-22T01:54:06.174Z",
+          "status": "pendiente",
+          "servicioId": "qa201-extra",
+          "nombreServicio": "Extra ficticio QA201",
+          "cantidad": 1,
+          "precioBase": 200,
+          "ajustePorcentaje": 15,
+          "montoAdicional": 230,
+          "nuevoTotalEstimado": 1230
+        },
+        "configuredPercentage": 0
+      }
+    },
+    {
+      "id": "explicit-ten-percent-positive-control",
+      "pass": true,
+      "observed": {
+        "request": {
+          "id": "service_change_request_6903d0f2-5d5a-4291-95e4-69fca7280205",
+          "createdAt": "2026-10-22T01:54:06.786Z",
+          "status": "pendiente",
+          "servicioId": "qa201-extra",
+          "nombreServicio": "Extra ficticio QA201",
+          "cantidad": 1,
+          "precioBase": 200,
+          "ajustePorcentaje": 10,
+          "montoAdicional": 220,
+          "nuevoTotalEstimado": 1220
+        }
+      }
+    },
+    {
+      "id": "extra-save-error-visible-and-keeps-note",
+      "pass": true,
+      "observed": {
+        "note": "Conservar nota QA201",
+        "requests": 1
+      }
+    },
+    {
+      "id": "guest-save-error-visible-and-keeps-increase",
+      "pass": true,
+      "observed": {}
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "pass": 6,
+    "fail": 2
+  },
+  "observedErrors": [],
+  "appEdited": false,
+  "realServices": false,
+  "limits": "Actual active page/React handlers and request actions, portal JWT and controlled store/read/notifications. Catalog fixture200 and25guests. No NextHTTP, Firestore, formal budget approval or real charge. Zero configuration and ten-percent positive controls; not a new pricing policy.",
+  "generator": {
+    "baseFile": "/C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal/docs/evidencias/194-portal-controles-version-nueva.mjs",
+    "baseSha256": "bcb28346b1c79d0c8d4e53cbb78f4853a2db0e770e8c790171722fc47824e17f",
+    "programSha256": "16f53ce18fd7f17e2e849fe1ee7a0cd8f23a0bfc6b15101ed83029aa1917f681",
+    "childExit": 0
+  }
+}

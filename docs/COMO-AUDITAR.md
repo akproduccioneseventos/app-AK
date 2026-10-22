@@ -1299,3 +1299,10 @@ Codex 178 (orden 209): al armar el personal, "Mozo" agarraba el primer rol que l
 en el asistente: "barra" cambiaba el precio de la primera barra del catálogo, y "Ana" le agendaba la cita a
 "Mariana Pérez". Se busca `.find(` con `.includes(` sobre `nombre`/`name` en `src/`. Se mira que vaya
 primero el nombre exacto y que, si hay más de uno parecido, se pregunte en vez de elegir.
+
+### 88. Un valor por defecto escrito con `||` (`Number(x) || 15`), ¿pisa un 0 puesto a propósito?
+
+Codex 201 (orden 210, A10): el portal calculaba el ajuste anual con `Number(...) || 15`. Un presupuesto
+con ajuste 0 a propósito le mostraba y le pedía al cliente un 15% de más. Se buscan `|| <número>` sobre
+porcentajes, precios, descuentos, sueldos y montos en `src/`. El valor por defecto va sólo cuando falta
+el dato (`== null`), no cuando vale 0.
