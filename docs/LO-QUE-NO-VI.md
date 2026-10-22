@@ -1315,6 +1315,7 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 208 → propia de Claude
 - Orden 209 → pregunta 87
 - Orden 210 → pregunta 88
+- Orden 211 → pregunta 89
 - Orden 212 → propia de Claude
 - Auditoria Gemini 20/10 (despertador bloqueado por la puerta) → pregunta 74
 - Auditoria Gemini 20/10 (eco de WhatsApp sin isEcho) → pregunta 75

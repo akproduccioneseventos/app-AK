@@ -3,7 +3,7 @@
 Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1351 (`b64ed1c27`, 22/10): la plata del portal del cliente (orden 210).
 
 ## En qué se está
-Codex 186-202 (orden 210): plata del portal publicada en la 1351. Para Gemini: orden 212 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
+Codex 186-206: orden 210 publicada (1351); orden 211 (aprobaciones y contrato firmado, incluye un error mío ya publicado) hecha, falta publicar. Para Gemini: orden 212 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
 Codex sólo audita.
 
 ## Terminado en esta tanda

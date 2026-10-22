@@ -82,6 +82,30 @@ prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
 prueba: docs/evidencias/197-voz-meta-correcciones.mjs
 ```
 
+## 22/10/2026 - Orden 211 (Codex 203-206): aprobar los pedidos del cliente, de verdad
+
+- **Error mío de la madrugada del 22/10, ya publicado:** al pasar las aprobaciones a una transacción
+  para que no sumaran dos veces, se salteó el bloqueo de contrato firmado. Lo encontró Codex. Ahora
+  `aprobarConPresupuesto` (en `portal.actions.ts`) hace esto:
+  - Con el contrato firmado no aprueba: el pedido queda pendiente y dice que hace falta una adenda.
+  - Sin presupuesto, o si guardarlo falla, el pedido vuelve a pendiente.
+  - Rehace el presupuesto con la cuenta del guardado normal (`presupuestoRecalculado`, en
+    `src/lib/budget/recalcular-presupuesto.ts`).
+  - Deja una marca por pedido, para que un reintento no lo sume dos veces.
+- **Adultos y menores:** los adultos aprobados ahora llegan al desglose y el precio por persona se
+  recalcula. Los menores del pedido van como niños, que es como el portal los estima.
+- **Dos unidades de un extra:** ya no se multiplican dos veces. `precioBase` es el total del renglón,
+  sin el ajuste anual.
+- **Contrato sin leer:** si no se puede leer la fiesta, ya no se trata el contrato como "no firmado"
+  (`estadoDelContrato`). Archivar, borrar y cambiar un presupuesto frenan con un aviso cierto.
+
+```comprobar
+usa: aprobarConPresupuesto< en src/app/actions/fiesta/portal.actions.ts
+usa: estadoDelContrato en src/app/actions/presupuestos.ts
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts
+```
+
 ## 22/10/2026 - Orden 210 (Codex 186-202): la plata del portal del cliente
 
 - **Aviso de pago:** dos toques a la vez dejaban dos avisos del mismo pago. Ahora se busca el repetido

@@ -7,6 +7,11 @@ Fuente EJECUTADA fa3b492b8f1d6a77433a92f4d63b665cfea3747c, main observado.
 Claude6e67caa14 runtime igual. Verificar cualquier entrega posterior antes de
 programar. Codex no implemento correcciones ni modifico contratos del negocio.
 
+**Hecha por Claude el 22/10/2026.** Antes de esta orden, la madrugada del 22/10 Claude había pasado las
+aprobaciones a `mutarPresupuesto` (orden 210) y con eso se salteaba el bloqueo de contrato firmado: lo
+encontró esta auditoría y quedó corregido acá. `updatePresupuesto` ya no se usa en las aprobaciones; la
+cuenta es `presupuestoRecalculado`, la misma del guardado normal.
+
 ## Sonda y consumidor
 
 204 final:12criterios4PASS/8FAIL, CINCO causas, no ocho bugs independientes.
@@ -90,7 +95,10 @@ archivo: src/app/actions/fiesta/portal.actions.ts
 usa: approveClientMenuChangeRequest en src/app/(app)/fiestas/nueva/portal-cliente/page.tsx
 usa: approveClientServiceChangeRequest en src/app/(app)/fiestas/nueva/portal-cliente/page.tsx
 archivo: src/app/actions/presupuestos.ts
-usa: updatePresupuesto en src/app/actions/fiesta/portal.actions.ts
-usa: guardarPresupuestoSinTurno en src/app/actions/presupuestos.ts
+usa: presupuestoRecalculado en src/app/actions/fiesta/portal.actions.ts
+usa: aprobarConPresupuesto< en src/app/actions/fiesta/portal.actions.ts
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts
+usa: estadoDelContrato en src/app/actions/presupuestos.ts
 prueba: docs/evidencias/204-aprobaciones-portal-presupuesto.mjs
 ```

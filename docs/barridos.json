@@ -352,6 +352,10 @@
     "88": {
       "fecha": "2026-10-22",
       "resultado": "búsqueda de `|| <número>` sobre ajustes, porcentajes, precios, descuentos, montos y sueldos en src/: un caso real (el ajuste anual del portal del cliente, arreglado). El precio tachado del Club Uruguay en el simulador es de muestra y nunca vale 0: no es hallazgo."
+    },
+    "89": {
+      "fecha": "2026-10-22",
+      "resultado": "se buscaron todos los `mutarPresupuesto(` y `mutateDataItem<Presupuesto>` de src/. Las aprobaciones del portal (mías, de la madrugada del 22/10) cambiaban invitados y renglones sin mirar la firma: arregladas con `aprobarConPresupuesto`. Cancelar y cambiar la fecha desde el portal tocan contratos firmados a propósito (son la multa y el recargo del contrato). 'Marcar enviado' y los cobros no cambian la estructura: no son hallazgo."
     }
   },
   "hallazgos": {
@@ -394,6 +398,10 @@
     "orden-210": {
       "fecha": "2026-10-22",
       "resultado": "pregunta 88 nueva, barrida. Además se buscó en todo portal.actions la misma forma de A1/A9 (leer la fiesta, cambiar y guardarla entera): aparecieron aprobar/rechazar los pedidos del cliente (el extra se sumaba dos veces al aprobar a la vez, y rechazar pedía sólo sesión) y el pedido de cambio de invitados; arreglados por Claude con prueba. A7, A8 y F1 van a la orden 212 para Gemini."
+    },
+    "orden-211": {
+      "fecha": "2026-10-22",
+      "resultado": "pregunta 89 nueva y barrida (ver arriba). B5 (un error de lectura daba 'contrato no firmado'): estadoDelContrato ahora dice 'no se sabe' y frena archivar, borrar y cambiar. Arreglado todo por Claude, con prueba."
     }
   }
 }
