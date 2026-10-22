@@ -1,0 +1,145 @@
+{
+  "source": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+  "candidate": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+  "checkedAt": "2026-10-22T11:24:03.004Z",
+  "hashes": {
+    "src/lib/presencia-digital/publicador.ts": {
+      "source": "8c566fa892ede593f375136d4f5702eaaeb063155570ca0c5a44efbb92dcd236",
+      "candidate": "8c566fa892ede593f375136d4f5702eaaeb063155570ca0c5a44efbb92dcd236",
+      "equal": true
+    },
+    "src/app/api/cron/publicar-programados/route.ts": {
+      "source": "6b80bef9f3555f0e6db059c07d83b99758cd0fd5aad79870bb91920ad76b718e",
+      "candidate": "6b80bef9f3555f0e6db059c07d83b99758cd0fd5aad79870bb91920ad76b718e",
+      "equal": true
+    }
+  },
+  "cases": [
+    {
+      "id": "fresh-claim-not-stolen",
+      "pass": true,
+      "expected": "Reclamo de menos de 15 min conserva exclusión; no invoca proveedor.",
+      "observed": {
+        "calls": 0,
+        "result": {
+          "ok": true,
+          "totalPendientes": 1,
+          "procesados": 1,
+          "publicados": [],
+          "listosParaCopiar": [],
+          "fallados": [],
+          "omitidosPorTope": 0
+        },
+        "claimAfter": "2026-10-22T11:45:00.001Z"
+      }
+    },
+    {
+      "id": "expired-claim-reclaimed",
+      "pass": true,
+      "expected": "Reclamo vencido permite un intento; PROCESSING conserva Programado y publishId, sin reportar publicado/fallado.",
+      "observed": {
+        "calls": 1,
+        "result": {
+          "ok": true,
+          "totalPendientes": 1,
+          "procesados": 1,
+          "publicados": [],
+          "listosParaCopiar": [],
+          "fallados": [],
+          "omitidosPorTope": 0
+        },
+        "stored": {
+          "id": "qa-post-247",
+          "platform": "TikTok",
+          "status": "Programado",
+          "text": "Fixture QA",
+          "mediaUrl": "https://qa.invalid/fake.mp4",
+          "mediaType": "video",
+          "publishDate": "2026-10-22T11:00:00.000Z",
+          "publishId": "qa-uncertain-247",
+          "updatedAt": "2026-10-22T11:24:03.004Z"
+        }
+      }
+    }
+  ],
+  "initialHarnessAttemptPreserved": {
+    "summary": {
+      "total": 2,
+      "pass": 1,
+      "fail": [
+        {
+          "id": "fresh-claim-not-stolen",
+          "pass": false,
+          "expected": "Reclamo de menos de 15 min conserva exclusión; no invoca proveedor.",
+          "observed": {
+            "calls": 1,
+            "result": {
+              "ok": true,
+              "totalPendientes": 1,
+              "procesados": 1,
+              "publicados": [],
+              "listosParaCopiar": [],
+              "fallados": [],
+              "omitidosPorTope": 0
+            }
+          }
+        }
+      ]
+    },
+    "cases": [
+      {
+        "id": "fresh-claim-not-stolen",
+        "pass": false,
+        "expected": "Reclamo de menos de 15 min conserva exclusión; no invoca proveedor.",
+        "observed": {
+          "calls": 1,
+          "result": {
+            "ok": true,
+            "totalPendientes": 1,
+            "procesados": 1,
+            "publicados": [],
+            "listosParaCopiar": [],
+            "fallados": [],
+            "omitidosPorTope": 0
+          }
+        }
+      },
+      {
+        "id": "expired-claim-reclaimed",
+        "pass": true,
+        "expected": "Reclamo vencido permite un intento; PROCESSING conserva Programado y publishId, sin reportar publicado/fallado.",
+        "observed": {
+          "calls": 1,
+          "result": {
+            "ok": true,
+            "totalPendientes": 1,
+            "procesados": 1,
+            "publicados": [],
+            "listosParaCopiar": [],
+            "fallados": [],
+            "omitidosPorTope": 0
+          },
+          "stored": {
+            "id": "qa-post-247",
+            "platform": "TikTok",
+            "status": "Programado",
+            "text": "Fixture QA",
+            "mediaUrl": "https://qa.invalid/fake.mp4",
+            "mediaType": "video",
+            "publishDate": "2026-10-22T11:00:00.000Z",
+            "publishId": "qa-uncertain-247",
+            "updatedAt": "2026-10-22T11:23:55.019Z"
+          }
+        }
+      }
+    ]
+  },
+  "summary": {
+    "total": 2,
+    "pass": 2,
+    "fail": []
+  },
+  "appEdited": false,
+  "realServices": false,
+  "adapters": "Module source via git show + TypeScript transpilation; in-memory social-posts data/atomic mutation and deterministic TikTok PROCESSING adapter; all other imports inert; env only AK_USE_LOCAL_JSON_ONLY=false."
+}
