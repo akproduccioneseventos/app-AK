@@ -98,11 +98,40 @@ orden, decí cuál y por qué en la propuesta; no la debilites.
 - `src/app/api/asistente/voz-en-vivo/cliente/route.ts`: el día se cuenta con
   `new Date().toISOString()`, que es la hora de Greenwich. Usá `hoyEnUruguay()` de `@/lib/utils`.
 
+## Bloque 6 — El recordatorio a los invitados que no abrieron (Codex 249-250, orden 217: R2, R3 y R4)
+
+El R1 (que se disparaba sin clave) ya lo arregló Claude. Faltan tres, todos en
+`src/lib/invitaciones/recordatorio-no-abiertas.ts` (`correrTareaRecordarInvitacionNoAbierta`) y su ruta
+`src/app/api/cron/recordar-invitacion-no-abierta/route.ts`. Leé el detalle en
+`docs/ordenes/217-recordatorios-autorizacion-fecha-y-fallos.md`.
+
+- **R2, la fecha reprogramada:** adentro de la reserva (el `actualizarFiesta` que anota a quién se le
+  manda), volvé a calcular los días con la fecha de la fiesta de ESE momento. Usá
+  `diasHastaEnUruguay` de `@/lib/utils` y una función nueva `tocaRecordarHoy(fechaEvento, ahora)`, que
+  dice si cae en la ventana de 21 o de 10 días. Si ya no toca, no se reserva ni se manda.
+- **R3, envío y respaldo fallidos:** si el proveedor rechazó (error conocido) y el respaldo tampoco se
+  guardó, el día reservado se libera para que la próxima corrida lo reintente. Usá
+  `liberarReservaDelDia`. Si el resultado es incierto (no hubo respuesta), NO se reintenta: queda
+  marcado `revisarEnvio: true` para que lo mire una persona.
+- **R4, la reserva fallida:** si el `actualizarFiesta` de la reserva falla, el motor devuelve
+  `reservasFallidas` > 0 y `corrio: false`. La ruta no llama a `marcarCorrida` en ese caso.
+- **No toques:** la puerta (`puerta-de-las-tareas.ts`), el envío afuera de la transacción, el antiduplos
+  y los teléfonos guardados.
+- **Prueba:** sumá los casos al archivo de Claude `src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts`,
+  con el motor de verdad y la base de mentira que devuelve copias.
+  - Fecha cambiada a 2 meses entre la lista y la reserva → 0 envíos.
+  - 403 del proveedor y respaldo fallido → la segunda corrida del mismo día lo reintenta (2 intentos).
+  - Sin respuesta del proveedor → 1 intento y `revisarEnvio`.
+  - Reserva fallida → `marcarCorrida` no se llama.
+
 ## Qué NO tocar
 
 Cobros, presupuestos, el ajuste anual y las reglas de personal (`personal-por-invitados.ts`).
 
 ```comprobar
+usa: tocaRecordarHoy en src/lib/invitaciones/recordatorio-no-abiertas.ts
+usa: liberarReservaDelDia en src/lib/invitaciones/recordatorio-no-abiertas.ts
+usa: reservasFallidas en src/app/api/cron/recordar-invitacion-no-abierta/route.ts
 usa: avisosProactivosActivos en src/lib/asistente/avisar-al-duenio.ts
 prueba: src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts
 usa: hoyEnUruguay en src/app/api/asistente/voz-en-vivo/cliente/route.ts

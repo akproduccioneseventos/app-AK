@@ -219,3 +219,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     saldo, estado) miralo adentro de la transacción, no antes.
 62. **¿El cliente acepta o firma algo?** Que la pantalla mande lo que vio (la huella del texto) y que el
     servidor lo compare al guardar. Lo aceptado lo escribe sólo su acción, nunca el guardado general.
+63. **¿Tu tarea programada le escribe a alguien?** Entonces no va en la lista de las que corren sin clave.
+    Y si falla a mitad, no la anotes como corrida ni dejes el día consumido.

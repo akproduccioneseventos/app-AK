@@ -1350,3 +1350,17 @@ Se miran tres cosas en cada aceptación del cliente:
 Se buscan en `src/app/actions` las acciones con `verifyPortalSession` que guardan una aceptación, una
 firma o una aprobación del cliente.
 
+### 92. Una tarea que corre sin clave, ¿le escribe a alguien? Y si falla a mitad, ¿queda anotada como corrida?
+
+Codex 249-250 (orden 217). El recordatorio a los invitados mandaba WhatsApp y Gmail, y estaba en la lista
+de "las que no hacen daño". La pregunta 85 miraba qué contestaba la ruta, no qué hacía.
+
+Además se mira:
+
+- Si una reserva o un envío fallan, ¿la corrida se anota igual como hecha?
+- ¿El día queda consumido sin haberse mandado nada?
+
+Se recorre `TAREAS_QUE_NO_HACEN_DANO` en `src/lib/automatico/puerta-de-las-tareas.ts` y, por cada una, se
+busca en su motor `sendMetaWhatsAppMessage`, `sendGoogleGmailMessage` o cualquier envío a una persona
+que no sea el dueño.
+

@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex247-250 motores automaticos
+
+Orden217 NUEVA, NOcorregida:2498criterios4PASS4FAIL son CUATRO causas del
+recordatorio noabierto, no defecto del recorte201. SinCRON_SECRET, puerta publica
+permite llegar al remitente; fecha reprogramada no se reevalua en reserva;
+rechazo403+contingenciafallida consumen dia; reservafallida se marca corridaok.
+R2/R3confirmadas250 conactualizador/transaccionSDKdemo:2FAIL/0docs/cleanup200,
+NOdosbugsmas. Fuentes249 igualesbaa/1353b91.248respuesta vacia era incierta:
+NOjustifica reenvio ciego;249/250 rechazo controlado explicito. No proveedorrreal,
+HTTPservidor ni configuracionCRONdeproduccion certificados.4controlesPASS249.
+247publicador2asercionesPASS, solo frontera15min nueva;PROCESSING control yaexistia.
+Ayudante cerrado. Error exit1por[] del harness corregido/preservadoSINrepetir ni
+reescribirrecibo; no falloapp ni exit0 original. Ver251 para limites. No11motores
+completos/14areas/0errores. No meter envio dentro del callback transaccional.
+
 ## 22/10/2026 - Codex240/242: contrato y cierre213
 
 Mainbaa034fd2 integra1355/213.242 repite los DOS intercalados218 conSDKreal:
@@ -131,6 +146,23 @@ prueba: docs/evidencias/194-portal-controles-version-nueva.mjs
 prueba: docs/evidencias/195-portal-operaciones-contrato.mjs
 prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
 prueba: docs/evidencias/197-voz-meta-correcciones.mjs
+```
+
+## 22/10/2026 - Orden 217 (Codex 249-250), R1: el recordatorio que manda no se dispara desde afuera
+
+- El recordatorio a los invitados que no abrieron la invitación **manda** WhatsApp y Gmail, y estaba en
+  la lista de tareas que corren sin clave. Sin `CRON_SECRET`, cualquiera desde internet lo disparaba.
+  Salió de esa lista: sin clave, la puerta contesta 503 y el motor no corre.
+- La tarea sigue corriendo sola todos los días, por dentro, cuando el equipo entra a la app
+  (`al-entrar-a-la-app.ts`), que no pasa por esta puerta.
+- Barrido de la pregunta 92: de las tareas sin clave, ninguna otra le escribe a un cliente o invitado.
+  El asistente proactivo le avisa al dueño sólo las alertas nuevas.
+- R2, R3 y R4 (fecha reprogramada, envío fallido que consume el día, reserva fallida anotada como
+  corrida) son del motor: van a Gemini, en el bloque 6 de la orden 215.
+
+```comprobar
+usa: correrTareaRecordarInvitacionNoAbierta en src/lib/automatico/al-entrar-a-la-app.ts
+prueba: src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts
 ```
 
 ## 22/10/2026 - Orden 216-claude (Codex 240): la firma del contrato desde el portal

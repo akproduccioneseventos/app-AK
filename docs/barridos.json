@@ -364,6 +364,10 @@
     "91": {
       "fecha": "2026-10-22",
       "resultado": "se buscaron en src/app/actions las acciones con verifyPortalSession o enlace del presupuesto que guardan una aceptación, firma o aprobación del cliente. Sólo la firma del contrato registra una aceptación de un texto: arreglada (huella vista, adentro de la escritura, sólo por su acción). Los pedidos de cambio del cliente son pedidos, no aceptaciones, y su importe lo rehace el servidor al aprobar."
+    },
+    "92": {
+      "fecha": "2026-10-22",
+      "resultado": "se recorrieron las 10 tareas de TAREAS_QUE_NO_HACEN_DANO buscando envíos en sus motores. Sólo recordar-invitacion-no-abierta le escribía a invitados (WhatsApp y Gmail): salió de la lista (Claude, con prueba). recordatorio-a-los-invitados y avisos-al-cliente dejan el mensaje en la bandeja con envío manual; asistente-proactivo avisa sólo al dueño. La corrida anotada con la reserva fallida (R4) y el día consumido sin envío (R3) van a Gemini en la orden 215, bloque 6."
     }
   },
   "hallazgos": {
@@ -422,6 +426,10 @@
     "orden-216": {
       "fecha": "2026-10-22",
       "resultado": "pregunta 91 nueva y barrida (ver arriba): un solo caso, el de la orden, arreglado por Claude con prueba."
+    },
+    "orden-217": {
+      "fecha": "2026-10-22",
+      "resultado": "pregunta 92 nueva y barrida (ver arriba). R1 arreglado por Claude; R2-R4, motor del recordatorio, en la orden 215 bloque 6 para Gemini."
     }
   }
 }
