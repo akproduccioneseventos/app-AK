@@ -1,6 +1,6 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1357 (`e2ecb92ae`, 22/10): firma del contrato en el portal (orden 216-claude) y el recordatorio que no se dispara sin clave (orden 217, R1).
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1358 (`725e62ba2`, 22/10): revisión contable y de contratos (avisos de pago a la vez, costos automáticos, factura, seña, texto firmado).
 
 ## En qué se está
 Codex 186-206: orden 210 publicada (1351); orden 211 (aprobaciones y contrato firmado, incluye un error mío ya publicado) hecha, falta publicar. Para Gemini: orden 212 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
