@@ -393,7 +393,7 @@
     },
     "orden-210": {
       "fecha": "2026-10-22",
-      "resultado": "pregunta 88 nueva, barrida. Además se buscó en todo portal.actions la misma forma de A1/A9 (leer la fiesta, cambiar y guardarla entera): aparecieron aprobar/rechazar los pedidos del cliente (el extra se sumaba dos veces al aprobar a la vez, y rechazar pedía sólo sesión) y el pedido de cambio de invitados; arreglados por Claude con prueba. A7, A8 y F1 van a la orden 211 para Gemini."
+      "resultado": "pregunta 88 nueva, barrida. Además se buscó en todo portal.actions la misma forma de A1/A9 (leer la fiesta, cambiar y guardarla entera): aparecieron aprobar/rechazar los pedidos del cliente (el extra se sumaba dos veces al aprobar a la vez, y rechazar pedía sólo sesión) y el pedido de cambio de invitados; arreglados por Claude con prueba. A7, A8 y F1 van a la orden 212 para Gemini."
     }
   }
 }

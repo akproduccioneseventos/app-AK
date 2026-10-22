@@ -82,7 +82,7 @@ prueba: docs/evidencias/197-voz-meta-correcciones.mjs
   - Rechazar un pedido pedía sólo sesión; ahora pide contabilidad o CRM.
   - El pedido de cambio de invitados se guarda sobre la lista actual.
 - Lo que es de pantalla (el formulario de pago que no abría, la entrega de fotos que no llegaba y la
-  tarjeta Pagos que cerraba la sección) va en la orden 211 para Gemini.
+  tarjeta Pagos que cerraba la sección) va en la orden 212 para Gemini.
 
 ```comprobar
 usa: tomarSolicitud< en src/app/actions/fiesta/portal.actions.ts
