@@ -1,8 +1,8 @@
 # Recuento unico - 22/10/2026
 
-Main observado baa034fd25ab77b886e7096105a6114f0336bfdc. CandidatoGemini1353b91.
-EntregaClaude1357:675a908a61997147a138fcca1bb7982c22acddf1 ABIERTA, no retesteada.
-Indice consolidado de165/169/198/202/220 y cierres216-250. No nueva ejecucion.
+Main observado725e62ba2f909578628fad47402d125ed9632c70. CandidatoGemini1353b91.
+EntregaClaude1357 integrada;254/255 retestean C1-C4 y217R1, ver256-cierre.
+Indice consolidado de165/169/198/202/220 y cierres216-255. No prueba nueva por indice.
 AUDITADO = hay comprobaciones concretas del area, NO toda el area aceptada.
 CORREGIDO/COMPROBADO = cierre por el alcance y fuente de su recibo; no prueba
 automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCodex.
@@ -46,8 +46,8 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 
 | Pendiente concreto | Responsable/estado contrastado |
 | --- | --- |
-|4causas contrato: resumen, constancia alterable, firma concurrente, texto no visto|216/Claude; entrega1357 informa correccion; Codex NOla retesteo|
-|Recordatorio sinclave puede llamar remitente|217R1/Claude; entrega1357 informa correccion; Codex NOla retesteo|
+|4causas contrato: resumen, constancia alterable, firma concurrente, texto no visto|CERRADAS por254SDK11PASS en725, no todaelarea contrato ni todoslosguardados|
+|Recordatorio sinclave puede llamar remitente|CERRADA por2553PASS en725; no proveedor/HTTPreal|
 |Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|217R2/R3/R4 Gemini; Claude los agrega a215bloque6; sin delta nuevo verificado|
 |Boton Informar pago sin formulario y enlace de album perdido|212/Gemini;227/229 confirman en1353b91; no corregido en fuente contrastada|
 |Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|214/Gemini;233 confirma en1353b91; no corregido en fuente contrastada|
