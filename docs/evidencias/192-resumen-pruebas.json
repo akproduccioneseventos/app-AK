@@ -1,0 +1,62 @@
+{
+  "title": "Consolidacion de pruebas portal cliente y retest staff",
+  "date": "2026-10-21",
+  "receipts": [
+    {
+      "file": "188-portal-cliente-consumidores-final.json",
+      "source": "09ea4138f5146cd2dfa6b792eda31cc04c30843f",
+      "counts": { "total": 15, "pass": 10, "fail": 5 },
+      "observedAccounts": [
+        { "id": "qa188-bank-1", "bank": "Banco ficticio QA188-1", "holder": "Titular QA188-1", "number": "CUENTA-QA188-1", "visible": true },
+        { "id": "qa188-bank-2", "bank": "Banco ficticio QA188-2", "holder": "Titular QA188-2", "number": "CUENTA-QA188-2", "visible": true },
+        { "id": "qa188-bank-3", "bank": "Banco ficticio QA188-3", "holder": "Titular QA188-3", "number": "CUENTA-QA188-3", "visible": true }
+      ],
+      "failIds": [
+        "client-report-payment-button-opens-form",
+        "budget-read-failure-not-shown-as-missing",
+        "valid-public-link-with-client-app-session-keeps-own-budget",
+        "concurrent-same-payment-report-one-pending",
+        "failed-receipt-upload-retry-can-recover-or-reports-error"
+      ]
+    },
+    {
+      "file": "189-portal-cliente-controles-final.json",
+      "source": "09ea4138f5146cd2dfa6b792eda31cc04c30843f",
+      "counts": { "total": 16, "pass": 13, "fail": 3 },
+      "observedAccounts": [],
+      "failIds": [
+        "official-delivery-survives-active-page-mapper",
+        "official-delivery-link-reachable-in-active-client-ui",
+        "payment-shortcut-keeps-open-section-open"
+      ],
+      "classification": {
+        "officialDelivery": "Los dos FAIL corresponden a un defecto: la entrega oficial no sobrevive al mapper activo ni queda alcanzable en la UI del cliente.",
+        "paymentShortcut": "Friccion: al usar el atajo, la seccion previamente abierta queda cerrada. No se agrupa con el defecto de entrega."
+      }
+    },
+    {
+      "file": "190-pago-informado-sdk.json",
+      "source": "09ea4138f5146cd2dfa6b792eda31cc04c30843f",
+      "counts": { "total": 11, "pass": 9, "fail": 2 },
+      "observedAccounts": [],
+      "failIds": [
+        "same-report-concurrent-one-notification-sdk",
+        "failed-attachment-retry-not-silently-lost-sdk"
+      ],
+      "classification": "Confirmaciones con Firestore SDK de los hallazgos de concurrencia y adjunto del recibo 188; evidencia adicional, no dos hallazgos independientes nuevos."
+    },
+    {
+      "file": "191-retest-rol-atencion.json",
+      "source": "56c4a425ec25dbf7da7d2f4416a841d58cd92696",
+      "counts": { "total": 3, "pass": 3, "fail": 0 },
+      "observedAccounts": [],
+      "failIds": [],
+      "scope": "Cierra el retest staff209 del rol Mozo de Atención en tres variantes. No prueba portalproveedor ni certifica todos los roles."
+    }
+  ],
+  "limits": [
+    "188 y 189 ejercitan ReactDOM real y acciones/mappers reales, con adapters controlados para dependencias indicadas en sus recibos; no equivalen a servicios productivos completos.",
+    "190 usa Firestore SDK en entorno demo/emulador. No verifica Next HTTP, producción, Storage real ni subida real al bucket.",
+    "No inferir cero errores ni cobertura de todas las áreas. Los conteos pertenecen únicamente a estos recibos y sus alcances."
+  ]
+}

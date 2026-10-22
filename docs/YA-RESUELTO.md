@@ -1,5 +1,48 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Codex186-198: portal activo probado y cierres contrastados
+
+NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS. Codex SOLO audito/pruebo;
+no arreglo app ni fusiono. Main ejecutada fa3b492b8f1d6a77433a92f4d63b665cfea3747c;
+runtime equivalente a Claude6e67caa14, Gemini512881c25 ya integrada. PR1345
+integrada; no subir a su rama cerrada. Recuento completo198-cierre-y-recuento.md.
+
+-NUEVA210, NO corregida: ocho defectos y una friccion del portal activo. Informar
+ pago no abre formulario; lector fallido dice Falta presupuesto; sesion cliente
+ invalida acceso de su token publico propio; dos avisos concurrentes del mismo
+ informe quedan duplicados; adjunto fallido devuelve exito y no se recupera;
+ DTO activo pierde album oficial; dos cancelaciones distintas anuncian devolucion10
+ con deuda200; descuento fijo anuncia pendiente170 y guarda70. Friccion separada:
+ atajo Pagos cierra su destino ya abierto. No son errores nuevos en la ruta legado86.
+-193/194/195/196/197:67criterios57PASS/10FAIL en MISMAfuente, no diez bugs.
+ DosFAIL194 son un defecto de album; dosFAIL190 SDK confirman188 sin sumarse.
+ 190FirestoreAdminSDKdemo9PASS/2FAIL fuente09ea con0docs alcerrar/cleanup200.
+ 198 compara cuatro cuerpos y cinco dependencias iguales a fa3b; no otra corridaSDK.
+-CIERRE209personal:1913PASS con syncFiestaFromBudget real y catalogo cocina antes
+ de atencion, fuente56c4a425 ya integrada. No cambia reglas/sueldos deldueno.
+-CIERRE209proveedor/208 poralcance:19613PASS DOM enfa3b: transporte caido muestra
+ error, libera espera y Reintentar recupera. No repetir183 como defecto actual.
+-CIERRE residuales180/205 vozMeta por protocolo:1978PASS enfa3b, dos modulos y
+ callback repetido ante conflicto. No SDK/CloudRun/proveedor externo/modelo vivo.
+-Cadena184 nueva retirada: lockfa3b sinmind-ar/canvas/node-pre-gyp, tarraiz7.5.21.
+ No se afirma npm-audit global limpio ni se reencarga163/208 por esa cadena.
+-FalsospositivosQA conservados:188acordeon,189selectorh3,193/194limiteVM5s,
+ 196copyliteral; JSDOMreload es limitacionQA, no appbug. costoTotalEstimado/
+ costoTotalItem son precio deventa, no costo interno por el nombre.186 ayudante
+ duplico209: borrador no aceptado ni cobertura extra. Agentes cerrados.
+-187 no inicio build porRAM<2GiB, ni existeentorno187. No falloapp. No se
+ certifica nativo/buildactual/todosroles/14areas/0errores; manualdueno fuera.
+
+```comprobar
+archivo: docs/ordenes/210-portal-cliente-pagos-entregas-cancelacion.md
+usa: submitClientPayment en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+prueba: docs/evidencias/193-portal-cliente-version-nueva.mjs
+prueba: docs/evidencias/194-portal-controles-version-nueva.mjs
+prueba: docs/evidencias/195-portal-operaciones-contrato.mjs
+prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
+prueba: docs/evidencias/197-voz-meta-correcciones.mjs
+```
+
 ## 21/10/2026 - Entrega de Gemini 1346 (órdenes 205 a 208) juntada, con un arreglo de Claude
 
 - Entra la entrega de Gemini 1346. Las fechas ya no se corren un día. El barrido de la 207 está hecho. La

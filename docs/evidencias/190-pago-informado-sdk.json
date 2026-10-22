@@ -1,0 +1,185 @@
+{
+  "source": "09ea4138f5146cd2dfa6b792eda31cc04c30843f",
+  "checkedAt": "2026-10-21T17:42:36.574Z",
+  "actualSdk": true,
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/app/actions/fiesta/fiesta.actions.ts": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/app/actions/fiesta/portal.actions.ts": "747e829d4c1409081718e179cb0c1aefb1cb62fa0f558c0cb545ad39ee2a0b6d"
+  },
+  "cases": [
+    {
+      "id": "portal-actual-signed-cookie-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "sequential-retry-one-notification-sdk",
+      "pass": true,
+      "observed": {
+        "first": {
+          "success": true,
+          "notificationId": "cpn_fece7dea-fcf7-43f8-a4d9-f270209ea8bf"
+        },
+        "retry": {
+          "success": true,
+          "notificationId": "cpn_fece7dea-fcf7-43f8-a4d9-f270209ea8bf"
+        },
+        "notifications": [
+          {
+            "id": "cpn_fece7dea-fcf7-43f8-a4d9-f270209ea8bf",
+            "monto": 500,
+            "estado": "pendiente",
+            "timestamp": "2026-10-21T17:42:35.649Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "updater-preserves-key-and-private-staff-sdk",
+      "pass": true,
+      "observed": {
+        "accessKeyPreserved": true,
+        "salary": 3000
+      }
+    },
+    {
+      "id": "same-report-concurrent-one-notification-sdk",
+      "pass": false,
+      "observed": {
+        "results": [
+          {
+            "success": true,
+            "notificationId": "cpn_8e4fceb2-a3cf-4fd1-b7b9-eae2aa771b30"
+          },
+          {
+            "success": true,
+            "notificationId": "cpn_41cb4730-bfa0-4eb2-8ad3-af9764ec60eb"
+          }
+        ],
+        "notifications": [
+          {
+            "id": "cpn_41cb4730-bfa0-4eb2-8ad3-af9764ec60eb",
+            "monto": 500,
+            "estado": "pendiente",
+            "timestamp": "2026-10-21T17:42:35.853Z"
+          },
+          {
+            "id": "cpn_8e4fceb2-a3cf-4fd1-b7b9-eae2aa771b30",
+            "monto": 500,
+            "estado": "pendiente",
+            "timestamp": "2026-10-21T17:42:35.853Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "different-reports-retain-both-sdk",
+      "pass": true,
+      "observed": {
+        "results": [
+          {
+            "success": true,
+            "notificationId": "cpn_0573ec26-667b-45a1-9ad4-e56be685efd8"
+          },
+          {
+            "success": true,
+            "notificationId": "cpn_302cc6f2-d20a-46f2-9ef7-25f33660bd60"
+          }
+        ],
+        "notifications": [
+          {
+            "id": "cpn_302cc6f2-d20a-46f2-9ef7-25f33660bd60",
+            "monto": 300,
+            "estado": "pendiente",
+            "timestamp": "2026-10-21T17:42:36.031Z"
+          },
+          {
+            "id": "cpn_0573ec26-667b-45a1-9ad4-e56be685efd8",
+            "monto": 250,
+            "estado": "pendiente",
+            "timestamp": "2026-10-21T17:42:36.031Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "failed-attachment-retry-not-silently-lost-sdk",
+      "pass": false,
+      "observed": {
+        "failedUpload": {
+          "success": true,
+          "notificationId": "cpn_f61c9f96-d119-431a-a005-143357b662b3"
+        },
+        "uploadRetry": {
+          "success": true,
+          "notificationId": "cpn_f61c9f96-d119-431a-a005-143357b662b3"
+        },
+        "notifications": [
+          {
+            "id": "cpn_f61c9f96-d119-431a-a005-143357b662b3",
+            "monto": 500,
+            "comprobanteNombre": "qa190.png",
+            "estado": "pendiente",
+            "timestamp": "2026-10-21T17:42:36.196Z"
+          }
+        ],
+        "uploadCalls": 1
+      }
+    },
+    {
+      "id": "invalid-amount-0-no-notification-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Monto inválido"
+      }
+    },
+    {
+      "id": "invalid-amount--1-no-notification-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Monto inválido"
+      }
+    },
+    {
+      "id": "invalid-amount-NaN-no-notification-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Monto inválido"
+      }
+    },
+    {
+      "id": "foreign-event-session-rejected-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Sesión no autorizada."
+      }
+    },
+    {
+      "id": "rotated-key-before-request-rejected-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Sesión no autorizada."
+      }
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "pass": 9,
+    "fail": 2
+  },
+  "remainingDocuments": 0,
+  "realServices": false,
+  "appEdited": false,
+  "scope": "Firestore Admin SDK emulator; actual notification action, portal signatures, access guard, actualizarFiesta, generic transaction and secret preservation. Read adapter applies real client redactor. Anonymous-team predicate, Storage and internal mail/notification adapters controlled. No ledger charge, actual bucket upload, HTTP/browser or all-role permission certification."
+}
