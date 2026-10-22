@@ -1,9 +1,9 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1349 (`fa3b492b8`, 21/10): la entrega de Gemini 1346 (órdenes 205 a 208) con los ajustes de Claude.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1351 (`b64ed1c27`, 22/10): la plata del portal del cliente (orden 210).
 
 ## En qué se está
-Codex 186-202 (orden 210, portal del cliente): plata arreglada por Claude el 22/10, falta publicar. Para Gemini: orden 211 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
+Codex 186-202 (orden 210): plata del portal publicada en la 1351. Para Gemini: orden 211 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
 Codex sólo audita.
 
 ## Terminado en esta tanda
