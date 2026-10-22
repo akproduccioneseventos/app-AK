@@ -1,0 +1,363 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "stats": {
+    "expected": 49,
+    "skipped": 1,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-130-compartir-presupuesto-publico.spec.ts",
+        "ak207-130-factura-sin-superposicion.spec.ts",
+        "ak207-133-invitado-con-red-local.spec.ts",
+        "ak207-133-qr-descarga-lector-local.spec.ts",
+        "ak207-143-cocina-fecha-local.spec.ts",
+        "ak207-45-recorridos-pendientes.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:20:06.390Z",
+      "report": "215-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-22T04:04:13.903Z",
+        "duration": 952386.949,
+        "expected": 29,
+        "skipped": 1,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-46-estetica-movimiento-visible.spec.ts",
+        "ak207-47-redes-confirmaciones-y-videos.spec.ts",
+        "ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+        "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+        "ak207-49-contabilidad-cobros-conciliados.spec.ts",
+        "ak207-49-contabilidad-permisos-y-errores.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-22T04:27:50.507Z",
+      "report": "215-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-22T04:20:10.932Z",
+        "duration": 459533.99600000004,
+        "expected": 20,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-50-tecnologia-app-fiesta-demo.spec.ts",
+        "ak207-50-venta-origen-y-galeria-publica.spec.ts",
+        "ak207-81-captura-reconexion-entrega.spec.ts",
+        "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+        "ak207-81-prueba-previa-no-finge-equipo.spec.ts",
+        "ak207-81-roles-y-pedidos-sin-duplicados.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:30:50.440Z",
+      "report": "215-batch-003-resultados.json"
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-89-ia-no-frena-la-fila.spec.ts",
+        "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+        "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+        "ak207-anda-en-el-celular.spec.ts",
+        "ak207-barra-72-pedido-propio-y-estado.spec.ts",
+        "ak207-barra-recupera-cancelacion.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:31.912Z",
+      "report": "215-batch-004-resultados.json"
+    },
+    {
+      "index": 5,
+      "files": [
+        "ak207-calendarios-react19.spec.ts",
+        "ak207-carga-rapido.spec.ts",
+        "ak207-catalogo-publico.spec.ts",
+        "ak207-catering-maestro-simulador-fotos.spec.ts",
+        "ak207-como-se-ven-las-estaciones.spec.ts",
+        "ak207-conexiones-redes-error-y-reintento.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:33.992Z",
+      "report": "215-batch-005-resultados.json"
+    },
+    {
+      "index": 6,
+      "files": [
+        "ak207-contrato-constancia-mantiene-papel.spec.ts",
+        "ak207-el-album-del-recuerdo.spec.ts",
+        "ak207-el-album-se-arma-solo.spec.ts",
+        "ak207-el-album-se-baja-entero.spec.ts",
+        "ak207-el-album-suena-o-no-muestra-el-boton.spec.ts",
+        "ak207-el-asistente-le-contesta-al-invitado.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:35.695Z",
+      "report": "215-batch-006-resultados.json"
+    },
+    {
+      "index": 7,
+      "files": [
+        "ak207-el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+        "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+        "ak207-el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+        "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+        "ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+        "ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:37.473Z",
+      "report": "215-batch-007-resultados.json"
+    },
+    {
+      "index": 8,
+      "files": [
+        "ak207-el-control-de-llegada-se-prende-y-queda.spec.ts",
+        "ak207-el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts",
+        "ak207-el-fondo-se-cambia-de-verdad.spec.ts",
+        "ak207-el-informe-de-la-fiesta-se-arma-solo.spec.ts",
+        "ak207-el-muro-se-configura.spec.ts",
+        "ak207-el-panel-del-cliente-enamora.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:38.498Z",
+      "report": "215-batch-008-resultados.json"
+    },
+    {
+      "index": 9,
+      "files": [
+        "ak207-el-plan-de-cuotas-no-deshace-un-cobro.spec.ts",
+        "ak207-el-secretario-escucha-y-hace.spec.ts",
+        "ak207-el-simulador-respeta-el-tipo-de-fiesta.spec.ts",
+        "ak207-el-totem-arranca-sin-internet.spec.ts",
+        "ak207-el-totem-de-bienvenida.spec.ts",
+        "ak207-el-video-resumen-dura-lo-que-promete.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:39.472Z",
+      "report": "215-batch-009-resultados.json"
+    },
+    {
+      "index": 10,
+      "files": [
+        "ak207-entertainment-stations.spec.ts",
+        "ak207-entorno-compilado-verificable.spec.ts",
+        "ak207-entretenimientos-a-fondo.spec.ts",
+        "ak207-espejo-moderacion-caida-y-reintento.spec.ts",
+        "ak207-espejo-pide-permiso.spec.ts",
+        "ak207-estaciones-sin-clave.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:40.719Z",
+      "report": "215-batch-010-resultados.json"
+    },
+    {
+      "index": 11,
+      "files": [
+        "ak207-fotocabina-de-punta-a-punta.spec.ts",
+        "ak207-fotos-de-la-app.spec.ts",
+        "ak207-galeria-hd-destino-publico.spec.ts",
+        "ak207-galeria-servicio-y-contacto-publico.spec.ts",
+        "ak207-google-workspace-estado-conexion.spec.ts",
+        "ak207-importar-invitados-de-una-planilla.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:41.926Z",
+      "report": "215-batch-011-resultados.json"
+    },
+    {
+      "index": 12,
+      "files": [
+        "ak207-impresion-a4.spec.ts",
+        "ak207-instalar-solo-la-estacion.spec.ts",
+        "ak207-internal-dynamic-route-inventory.spec.ts",
+        "ak207-internal-smoke.spec.ts",
+        "ak207-la-app-se-mueve.spec.ts",
+        "ak207-la-carga-operativa-avisa-cuando-no-alcanza.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:43.470Z",
+      "report": "215-batch-012-resultados.json"
+    },
+    {
+      "index": 13,
+      "files": [
+        "ak207-la-carga-operativa-se-sincroniza.spec.ts",
+        "ak207-la-carteleria-dice-la-verdad.spec.ts",
+        "ak207-la-decoracion-se-baja-y-se-genera.spec.ts",
+        "ak207-la-demo-de-la-barra-respeta-el-trago.spec.ts",
+        "ak207-la-fotocabina-saca-la-foto-con-imagen.spec.ts",
+        "ak207-la-fotocabina-tiene-todo.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:44.694Z",
+      "report": "215-batch-013-resultados.json"
+    },
+    {
+      "index": 14,
+      "files": [
+        "ak207-la-grilla-de-caras.spec.ts",
+        "ak207-la-hoja-de-cocina.spec.ts",
+        "ak207-la-hoja-del-dj-dice-la-verdad.spec.ts",
+        "ak207-la-lista-de-regalos-queda-como-la-dejaron.spec.ts",
+        "ak207-la-orden-de-evento-junta-todo.spec.ts",
+        "ak207-la-pantalla-gigante-anda.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:46.345Z",
+      "report": "215-batch-014-resultados.json"
+    },
+    {
+      "index": 15,
+      "files": [
+        "ak207-la-portada-aparece-al-toque.spec.ts",
+        "ak207-la-portada-espera-sin-cajas-grises.spec.ts",
+        "ak207-la-portada-no-dice-cero.spec.ts",
+        "ak207-la-portada-nueva.spec.ts",
+        "ak207-la-puerta-de-entrada-anda.spec.ts",
+        "ak207-la-red-social-de-la-fiesta.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:48.560Z",
+      "report": "215-batch-015-resultados.json"
+    },
+    {
+      "index": 16,
+      "files": [
+        "ak207-la-reunion-de-organizacion-guarda-donde-corresponde.spec.ts",
+        "ak207-la-ubicacion-del-personal-no-esta-bloqueada.spec.ts",
+        "ak207-la-vidriera-de-la-tecnologia.spec.ts",
+        "ak207-la-vista-3d-muestra-los-muebles.spec.ts",
+        "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+        "ak207-la-web-de-venta-se-mueve.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:49.807Z",
+      "report": "215-batch-016-resultados.json"
+    },
+    {
+      "index": 17,
+      "files": [
+        "ak207-la-web-publica-se-ve.spec.ts",
+        "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+        "ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+        "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+        "ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+        "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:50.999Z",
+      "report": "215-batch-017-resultados.json"
+    },
+    {
+      "index": 18,
+      "files": [
+        "ak207-las-pantallas-no-quedan-en-blanco-al-redirigir.spec.ts",
+        "ak207-las-pantallas-rotas-se-arreglaron.spec.ts",
+        "ak207-layout-baseline.spec.ts",
+        "ak207-lectura-invitados-aislada.spec.ts",
+        "ak207-limpiar-la-agenda.spec.ts",
+        "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:51.969Z",
+      "report": "215-batch-018-resultados.json"
+    },
+    {
+      "index": 19,
+      "files": [
+        "ak207-mantenimiento-sin-duplicar.spec.ts",
+        "ak207-marketing-tarjetas-llevan-a-su-pantalla.spec.ts",
+        "ak207-medicion-no-envia-llaves.spec.ts",
+        "ak207-mi-dia-muestra-el-saldo-real.spec.ts",
+        "ak207-mobile-overflow.spec.ts",
+        "ak207-mural-geometria-visible.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:52.948Z",
+      "report": "215-batch-019-resultados.json"
+    },
+    {
+      "index": 20,
+      "files": [
+        "ak207-muro-subir-foto.spec.ts",
+        "ak207-noche-de-fiesta.spec.ts",
+        "ak207-orden-86-pantallas.spec.ts",
+        "ak207-pantallas-con-iconos-react19.spec.ts",
+        "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+        "ak207-planner-missing-portals.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:53.998Z",
+      "report": "215-batch-020-resultados.json"
+    },
+    {
+      "index": 21,
+      "files": [
+        "ak207-portal-fecha-y-botones.spec.ts",
+        "ak207-presupuesto-publico-sin-sesion.spec.ts",
+        "ak207-prospecto-simulador.spec.ts",
+        "ak207-public-experience-matrix.spec.ts",
+        "ak207-public-smoke.spec.ts",
+        "ak207-qr-archivo-rotaciones.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:54.968Z",
+      "report": "215-batch-021-resultados.json"
+    },
+    {
+      "index": 22,
+      "files": [
+        "ak207-qr-descargado-lector-real.spec.ts",
+        "ak207-salon-3d-ayuda-recorrido.spec.ts",
+        "ak207-salon-3d-cliente.spec.ts",
+        "ak207-salon-3d-real.spec.ts",
+        "ak207-salon-3d-se-dibuja.spec.ts",
+        "ak207-senal-mala.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:55.924Z",
+      "report": "215-batch-022-resultados.json"
+    },
+    {
+      "index": 23,
+      "files": [
+        "ak207-simulador-contacto-oficial.spec.ts",
+        "ak207-simulator-budget-journey.spec.ts",
+        "ak207-sofia-composer.spec.ts",
+        "ak207-tarjetas-whatsapp.spec.ts",
+        "ak207-touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+        "ak207-trabajos-completos.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:56.912Z",
+      "report": "215-batch-023-resultados.json"
+    },
+    {
+      "index": 24,
+      "files": [
+        "ak207-viaje-invitado.spec.ts",
+        "ak207-video-vida-error-lectura.spec.ts",
+        "ak207-voz-en-vivo-reintento-y-cancelacion.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-22T04:33:58.077Z",
+      "report": "215-batch-024-resultados.json"
+    }
+  ]
+}

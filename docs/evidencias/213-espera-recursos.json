@@ -1,0 +1,125 @@
+{
+  "started": "2026-10-22T03:25:21.981Z",
+  "probes": [
+    {
+      "at": "2026-10-22T03:25:26.038Z",
+      "freeBytes": 201187328,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:25:57.921Z",
+      "freeBytes": 172847104,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:26:30.427Z",
+      "freeBytes": 227135488,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:27:03.690Z",
+      "freeBytes": 168771584,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:27:35.681Z",
+      "freeBytes": 164380672,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:28:09.461Z",
+      "freeBytes": 3348250624,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:28:41.140Z",
+      "freeBytes": 2306691072,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:29:13.193Z",
+      "freeBytes": 1059049472,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:29:44.449Z",
+      "freeBytes": 2457554944,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:30:15.715Z",
+      "freeBytes": 2440273920,
+      "probeExit": 0,
+      "builds": [
+        {
+          "ProcessId": 14996,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-22T03:30:47.114Z",
+      "freeBytes": 3685179392,
+      "probeExit": 0,
+      "builds": []
+    }
+  ],
+  "limitMinutes": 20,
+  "foreignProcessesStopped": false,
+  "ready": true,
+  "finished": "2026-10-22T03:30:47.115Z"
+}

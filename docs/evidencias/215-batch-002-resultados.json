@@ -1,0 +1,1179 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "208-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\215-batch-002-artifacts",
+      "ak207-46-estetica-movimiento-visible.spec.ts",
+      "ak207-47-redes-confirmaciones-y-videos.spec.ts",
+      "ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+      "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+      "ak207-49-contabilidad-cobros-conciliados.spec.ts",
+      "ak207-49-contabilidad-permisos-y-errores.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-206-7Qv1LM\\208-config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-206-7Qv1LM/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal/docs/evidencias/215-batch-002-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-206-7Qv1LM/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal/docs/evidencias/215-batch-002-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-206-7Qv1LM/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\215-batch-002-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-46-estetica-movimiento-visible.spec.ts",
+      "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 46 - Movimiento visible medido con boundingBox",
+          "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+          "line": 35,
+          "column": 6,
+          "specs": [
+            {
+              "title": "1. Portada publica: el resplandor animado cambia de tamano solo con el paso del tiempo",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12742,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:20:12.916Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0a05dfbef17fb45a24dc-dc659f5bb5291477bacb",
+              "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+              "line": 36,
+              "column": 7
+            },
+            {
+              "title": "2. Touchpix: el indicador animado con motion.div cambia de coordenadas al interactuar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 19730,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:20:26.134Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0a05dfbef17fb45a24dc-64f5fa5d7019b0771e45",
+              "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+              "line": 81,
+              "column": 7
+            },
+            {
+              "title": "3. Simulador de presupuesto: transición de pasos visible con dimensiones reales",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8478,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:20:45.914Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0a05dfbef17fb45a24dc-380bd775fe90b1b390d8",
+              "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+              "line": 142,
+              "column": 7
+            },
+            {
+              "title": "4. Movimiento reducido: la app permanece 100% visible y utilizable de inmediato",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11236,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:20:54.427Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0a05dfbef17fb45a24dc-35134245f5ae370bad4f",
+              "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+              "line": 167,
+              "column": 7
+            },
+            {
+              "title": "1. Portada publica: el resplandor animado cambia de tamano solo con el paso del tiempo",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9939,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:25:39.607Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0a05dfbef17fb45a24dc-fb65f3e1c80d773fa547",
+              "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+              "line": 36,
+              "column": 7
+            },
+            {
+              "title": "2. Touchpix: el indicador animado con motion.div cambia de coordenadas al interactuar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17097,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:25:49.864Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0a05dfbef17fb45a24dc-5c69e14ff3e6f889ac7f",
+              "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+              "line": 81,
+              "column": 7
+            },
+            {
+              "title": "3. Simulador de presupuesto: transición de pasos visible con dimensiones reales",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7847,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:26:07.042Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0a05dfbef17fb45a24dc-a0b727ce633ce83965ae",
+              "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+              "line": 142,
+              "column": 7
+            },
+            {
+              "title": "4. Movimiento reducido: la app permanece 100% visible y utilizable de inmediato",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9512,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:26:14.935Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0a05dfbef17fb45a24dc-7c044dcaa8860fce48a1",
+              "file": "ak207-46-estetica-movimiento-visible.spec.ts",
+              "line": 167,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-47-redes-confirmaciones-y-videos.spec.ts",
+      "file": "ak207-47-redes-confirmaciones-y-videos.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 47: el panel de publicidad dice la verdad",
+          "file": "ak207-47-redes-confirmaciones-y-videos.spec.ts",
+          "line": 24,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ADS-01: el tope se muestra, y si no esta verificado lo avisa",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8013,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:21:05.777Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5446862cde431847cd17-7db5df1a677dab412381",
+              "file": "ak207-47-redes-confirmaciones-y-videos.spec.ts",
+              "line": 25,
+              "column": 7
+            },
+            {
+              "title": "ADS-01: el tope se muestra, y si no esta verificado lo avisa",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7334,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:26:24.637Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5446862cde431847cd17-317a1403c6fa2ac3fd38",
+              "file": "ak207-47-redes-confirmaciones-y-videos.spec.ts",
+              "line": 25,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+      "file": "ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 48: la fotocabina levanta y deja sacar la foto",
+          "file": "ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+          "line": 26,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 72791,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:21:13.905Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b906e9444f6741c6e9ee-f95f3c05968e21d86cba",
+              "file": "ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+              "line": 27,
+              "column": 7
+            },
+            {
+              "title": "ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 18130,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:26:32.158Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b906e9444f6741c6e9ee-92537602d018b8388c19",
+              "file": "ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+              "line": 27,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+      "file": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 48: Touchpix levanta entero",
+          "file": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+          "line": 33,
+          "column": 6,
+          "specs": [
+            {
+              "title": "ENT-03: la estacion abre con sus pestanas y su camara",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 19826,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:22:28.267Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "69eee7d2aa747d14d0d7-a83fed2989d0bbf579fd",
+              "file": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+              "line": 34,
+              "column": 7
+            },
+            {
+              "title": "ENT-03: sesion segura - subida lenta de A no pisa la sesion de B al llegar tarde",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 113670,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:22:48.691Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "69eee7d2aa747d14d0d7-f16a6ffadbab7aec090f",
+              "file": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+              "line": 65,
+              "column": 7
+            },
+            {
+              "title": "ENT-03: la estacion abre con sus pestanas y su camara",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7091,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:26:51.286Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "69eee7d2aa747d14d0d7-03d62859da0bb8a52ede",
+              "file": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+              "line": 34,
+              "column": 7
+            },
+            {
+              "title": "ENT-03: sesion segura - subida lenta de A no pisa la sesion de B al llegar tarde",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 28367,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:26:58.543Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "69eee7d2aa747d14d0d7-e18dd043310770d508b2",
+              "file": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+              "line": 65,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-49-contabilidad-cobros-conciliados.spec.ts",
+      "file": "ak207-49-contabilidad-cobros-conciliados.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 49: la pantalla de cobros abre y muestra lo suyo",
+          "file": "ak207-49-contabilidad-cobros-conciliados.spec.ts",
+          "line": 24,
+          "column": 6,
+          "specs": [
+            {
+              "title": "pagos rapidos muestra su encabezado y su contenido, no una pantalla en blanco",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 19561,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:24:42.573Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "343069f56e79d5370e75-71f6a9ab558fc8d084b3",
+              "file": "ak207-49-contabilidad-cobros-conciliados.spec.ts",
+              "line": 25,
+              "column": 7
+            },
+            {
+              "title": "pagos rapidos muestra su encabezado y su contenido, no una pantalla en blanco",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6501,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:27:27.063Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "343069f56e79d5370e75-1163367afca9383e974a",
+              "file": "ak207-49-contabilidad-cobros-conciliados.spec.ts",
+              "line": 25,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-49-contabilidad-permisos-y-errores.spec.ts",
+      "file": "ak207-49-contabilidad-permisos-y-errores.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 49: el flujo de caja no miente",
+          "file": "ak207-49-contabilidad-permisos-y-errores.spec.ts",
+          "line": 23,
+          "column": 6,
+          "specs": [
+            {
+              "title": "CON-04: o muestra numeros, o avisa; nunca ceros con un error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 29224,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:25:02.371Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "76152ab02515b5676002-c03aef2f6cd6c6a186f2",
+              "file": "ak207-49-contabilidad-permisos-y-errores.spec.ts",
+              "line": 24,
+              "column": 7
+            },
+            {
+              "title": "CON-04: o muestra numeros, o avisa; nunca ceros con un error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10178,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-22T04:27:33.638Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "76152ab02515b5676002-b17a690daa3c175178be",
+              "file": "ak207-49-contabilidad-permisos-y-errores.spec.ts",
+              "line": 24,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-22T04:20:10.932Z",
+    "duration": 459533.99600000004,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

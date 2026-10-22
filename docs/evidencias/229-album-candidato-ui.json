@@ -1,0 +1,79 @@
+{
+  "source": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+  "checkedAt": "2026-10-22T05:10:59.611Z",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/session-token.ts": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/app/actions/presupuestos.ts": "320f46de3beb0a86b37fc73cf13715c02aed1f99ea3a87396ade64da050d9bf3",
+    "src/lib/client-portal/public-fiesta.ts": "d02a983f3dd6923ca52444e7878635ef8fbab93f4c569b6a6055e6ac96b7c90e",
+    "src/app/actions/fiesta/portal.actions.ts": "d3a7a7cde4c170a48ca10f735b19454f9470601fdcbe8136964d3e5a5ee52b83",
+    "src/app/portal/c/[accessKey]/page.tsx": "a3aab531e3fae1dd68492732178d322dc87a6848976765d6a0ab21973880a7b0",
+    "src/lib/social-fiesta/public-event.ts": "4c74ca26ab91927e0cc5cee24aef9973a7fbd35026d1f5afff6dab6717e68ea0",
+    "src/lib/client-portal/public-guest-stats.ts": "f6ddebf44e434c7b2718a37fc9a96a007cba2dea23640fec09d0759fe15ceda7",
+    "src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx": "85791bcaed81338bd518c5b01ff54352f046e006d8d516d70fb45ade8516c7f5",
+    "src/lib/fiesta-defaults.ts": "6384cfacc43c88be942f0e1588a3d1796d15b4d2bc8e8eef2796ce5176549f65",
+    "src/lib/public-contact.ts": "1073a6ef91bf42c6d91754b48fdca0d260a3131186b4a6a3d2d39b8f14fb31fa",
+    "src/lib/social-wall-defaults.ts": "62e3c98db62babbbf21198e13956e9b8cfa1bd529dbc6affdc6bc6e0783b9327",
+    "src/lib/zona-digital-adolescentes.ts": "75516b4c408b0a0919028a35d84441920ccf2b83a4514967c4c055477b8c9b8d",
+    "src/components/ui/accordion.tsx": "1cc98c2ab5106d8d476f1da4aa8dd535198a8113513b2c918938ea76d90bbbc9",
+    "src/lib/utils.ts": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+    "src/lib/reportes/rango-de-dias.ts": "e64cb6a73f65c7f6f4d3b848783dd42be63abe0acf6f7e525ddb20875ed3956f",
+    "src/components/ui/button.tsx": "6af925415b5056d9526d3dbcdbca140ef8f09a1afbba85576d008cf5e9000646",
+    "src/components/ui/input.tsx": "a83bd3bb38fb1eb55370d0c81557814ca41ce7d75d2786eb6f4830c40f7f4572",
+    "src/components/ui/textarea.tsx": "6d2c1753fa2c3caca5ca3f329fc5ea0c63dae85c55b79cf5f133a8a26fb8e723",
+    "src/components/ui/label.tsx": "2eac8fbb04002c42b0fbc4062d20d131e421796eaf65c37d2049e29e42ecbc5a",
+    "src/components/ui/empty-state.tsx": "db4b9ca38a8d0691ea7b29cb8e8024fdcfac20b17ca959b677b96d518c03b9bc",
+    "src/lib/client-portal/client-portal-summary.ts": "21a1045b07f0d3ed25c1c38819ac1baefb1ff63c272841f406c98de34c7143b9",
+    "src/lib/commercial/contact.ts": "2fc208917d4a633ede28e7a5b6215f23af83954d5300af5b2df8f167899aac4b",
+    "src/lib/budget/saldo-con-ajuste.ts": "e414b4998115b620b20d63a3c6876fc6a6ec8b8420f6ffcafff82ddee8fb00f7",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/lib/calculations.ts": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+    "src/lib/client-portal/access-phases.ts": "b3fda1582800a697c8f7e95885c52db2bf33a8bfbf3311b4e94e4f657dde77ea",
+    "src/lib/calendar-links.ts": "8f6bed597060d83415616cacd14b098ca6051d5cb06b04e12befaffecd6f88d4",
+    "src/lib/portal/cuenta-regresiva.ts": "4b2422aa9bdc69cceaa1b36ae2c4772d731752f8506d074ad6ab1a3cd2388265",
+    "src/lib/portal/foto-de-portada.ts": "1243f994b378a979eaff959c773a3a92c97cbef486ac2dc5d82afc6a763a2be1"
+  },
+  "cases": [
+    {
+      "id": "AK-KNOWN-210-A8-official-delivery-link-survives-DTO-and-render",
+      "pass": false,
+      "observed": {
+        "sourceValue": {
+          "notasGenerales": "Entrega ficticia229",
+          "servicios": [
+            {
+              "id": "qa229-album",
+              "nombre": "Album oficial QA229",
+              "estado": "Entregado completo",
+              "linkEntrega": "https://qa.invalid/album-oficial-229"
+            }
+          ]
+        },
+        "DTO": {
+          "notasGenerales": "Entrega ficticia229"
+        },
+        "hrefs": [
+          "https://wa.me/59899000188?text=Hola%20AK%2C%20soy%20cliente%20del%20evento%20%22Fiesta%20ficticia%20QA188%22%20y%20quiero%20hacer%20una%20consulta.",
+          "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Fiesta+ficticia+QA188&dates=20261220T230000Z%2F20261221T040000Z&details=Evento+coordinado+por+Empresa+ficticia+QA188.&location=Salon+QA188"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "pass": 0,
+    "fail": 1
+  },
+  "observedErrors": [],
+  "appEdited": false,
+  "realServices": false,
+  "limits": "Actual candidate page, mapper and ReactDOM. Read/session adapters controlled; no native browser, SDK or actual photo provider. Same A8 already assigned212, NOT a new defect/order.",
+  "generator": {
+    "baseFile": "/C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal/docs/evidencias/227-portal-candidato-version-nueva.mjs",
+    "baseSha256": "738d8c87e7cf4f8d1992a55a76c97af1620ccf22b924a4f42c7bd511ee231455",
+    "programSha256": "2dfe5822c059cc3bb7629a9fd3c6a3712df4194a27bd1ab24a80cf31223941bc",
+    "childExit": 1
+  }
+}
