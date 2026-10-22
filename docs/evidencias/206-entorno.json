@@ -1,0 +1,29 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "baseline": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-206-7Qv1LM",
+  "preparedAt": "2026-10-22T02:17:06.493Z",
+  "phase": "built",
+  "dependencySectionsEqual": true,
+  "lockEqual": false,
+  "lockDelta": [
+    "node_modules/@types/estree"
+  ],
+  "installedEstree": "1.0.8",
+  "lockedEstree": "1.0.9",
+  "dependencyLimit": "Existing dependency artifact reused; sole lock delta is dev type @types/estree1.0.8->1.0.9. NOT a clean npm-ci or validation of that type patch. Runtime application source is exact frozen SHA.",
+  "realServices": false,
+  "appEdited": false,
+  "preflight": {
+    "checkedAt": "2026-10-22T02:16:44.340Z",
+    "initialFreeBytes": 3395813376,
+    "waitedMs": 3,
+    "freeBytes": 3393507328,
+    "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c"
+  },
+  "buildPid": 21380,
+  "buildExit": 0,
+  "interrupted": false,
+  "finished": "2026-10-22T03:01:19.284Z",
+  "sourceDiff": ""
+}
