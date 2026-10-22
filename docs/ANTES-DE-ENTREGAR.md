@@ -209,3 +209,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     sólo dice `expect(true)` no prueba nada: el control `una-orden-no-se-cumple-con-un-comentario` la frena.
 58. **¿Elegís algo por su nombre con `includes`?** Primero el nombre exacto. Si hay varios parecidos,
     preguntá cuál: no te quedes con el primero. "Mozo" no es "Mozo de Cocina" y "Ana" no es "Mariana".
+59. **¿Pusiste un valor por defecto con `||` sobre un número de plata?** `Number(x) || 15` convierte un 0
+    a propósito en 15. El valor por defecto va sólo si el dato falta (`x == null ? 15 : Number(x)`).
+60. **¿Cambiaste un guardado por otro?** Hacé la lista de lo que controlaba el viejo (permiso, contrato
+    firmado, recálculo, avisos) y comprobá que el nuevo lo haga. Ganar en un lado y perder un control en
+    el otro ya pasó con las aprobaciones del portal.

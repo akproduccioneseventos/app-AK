@@ -1,0 +1,51 @@
+{
+  "exactSource": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "component": "src/components/invitacion/AddToCalendarButton.tsx",
+  "criteria": {
+    "exportedIcsAndCivilDateDecode": "PASS",
+    "overnightAndJanuaryFirstFields": "PASS",
+    "explicitUruguayTimezoneInIcs": "FAIL: DTSTART/DTEND are floating; no TZID, VTIMEZONE, or UTC Z suffix"
+  },
+  "cases": [
+    {
+      "id": "uruguay-local",
+      "downloaded": true,
+      "filename": "QA_uruguay_local.ics",
+      "blobType": "text/calendar;charset=utf-8",
+      "start": "20270615T213000",
+      "end": "20270616T013000",
+      "expectedStart": "20270615T213000",
+      "expectedEnd": "20270616T013000",
+      "pass": true
+    },
+    {
+      "id": "overnight",
+      "downloaded": true,
+      "filename": "QA_overnight.ics",
+      "blobType": "text/calendar;charset=utf-8",
+      "start": "20270615T233000",
+      "end": "20270616T033000",
+      "expectedStart": "20270615T233000",
+      "expectedEnd": "20270616T033000",
+      "pass": true
+    },
+    {
+      "id": "new-year",
+      "downloaded": true,
+      "filename": "QA_new_year.ics",
+      "blobType": "text/calendar;charset=utf-8",
+      "start": "20270101T003000",
+      "end": "20270101T043000",
+      "expectedStart": "20270101T003000",
+      "expectedEnd": "20270101T043000",
+      "pass": true
+    }
+  ],
+  "discardedErrors": [
+    {
+      "phase": "initial-harness",
+      "message": "Faltaba URLSearchParams en el global DOM simulado; React no montó el componente y no se produjo ningún ICS. Harness corregido antes de la observación válida."
+    }
+  ],
+  "allPass": true
+}

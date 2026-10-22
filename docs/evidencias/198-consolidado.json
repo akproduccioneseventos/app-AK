@@ -1,0 +1,133 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "prior": "09ea4138f5146cd2dfa6b792eda31cc04c30843f",
+  "claude": "6e67caa14e4131a14234e1dea53bff37223becd9",
+  "gemini": "512881c2534da6d633bc7cc8840bd197c46db3b9",
+  "checkedAt": "2026-10-22T01:38:56.698Z",
+  "results": [
+    {
+      "file": "193-portal-cliente-version-nueva.json",
+      "sha256": "46895010f102fb1de6712d0d3bee1773edbdd485b7b6a7623525941d3103d79b",
+      "total": 15,
+      "pass": 10,
+      "fail": 5,
+      "failedIds": [
+        "client-report-payment-button-opens-form",
+        "budget-read-failure-not-shown-as-missing",
+        "valid-public-link-with-client-app-session-keeps-own-budget",
+        "concurrent-same-payment-report-one-pending",
+        "failed-receipt-upload-retry-can-recover-or-reports-error"
+      ]
+    },
+    {
+      "file": "194-portal-controles-version-nueva.json",
+      "sha256": "439442a83d128f0d482fd7a04cc5583ee6a78f027a8973454e22603337a6e7a8",
+      "total": 16,
+      "pass": 13,
+      "fail": 3,
+      "failedIds": [
+        "official-delivery-survives-active-page-mapper",
+        "official-delivery-link-reachable-in-active-client-ui",
+        "payment-shortcut-keeps-open-section-open"
+      ]
+    },
+    {
+      "file": "195-portal-operaciones-contrato.json",
+      "sha256": "03ca23f8afb2fddab691563daca274ecb7d44c6205e06ce1c2e0a575c7ecda2d",
+      "total": 15,
+      "pass": 13,
+      "fail": 2,
+      "failedIds": [
+        "second-distinct-cancellation-return-matches-all-stored-penalties",
+        "fixed-discount-cancellation-return-matches-stored-balance"
+      ]
+    },
+    {
+      "file": "196-proveedor-corregido-dom-final.json",
+      "sha256": "7ed8d7c6b57b4d49a1ce7cf4316a9fafd84b261e5b099b1db1878d25695f953d",
+      "total": 13,
+      "pass": 13,
+      "fail": 0,
+      "failedIds": []
+    },
+    {
+      "file": "197-voz-meta-correcciones.json",
+      "sha256": "e7f73f3651313878bc078879f93a9f08876ea69f94fc6a52eb8f166c8a359c62",
+      "total": 8,
+      "pass": 8,
+      "fail": 0,
+      "failedIds": []
+    }
+  ],
+  "summary": {
+    "total": 67,
+    "pass": 57,
+    "fail": 10
+  },
+  "uniqueNewDefects": 8,
+  "separateUxFriction": 1,
+  "equivalence": [
+    {
+      "file": "src/app/actions/fiesta/portal.actions.ts",
+      "name": "submitClientPayment",
+      "currentHash": "a82cdc45b713738b4cd256ff8485f07b03c292b34899013a32d45f9edaa34058",
+      "historicalSdkBodyIdentical": true,
+      "claudeBodyIdentical": true,
+      "geminiBodyIdentical": true
+    },
+    {
+      "file": "src/app/actions/fiesta/portal.actions.ts",
+      "name": "normalizeClientPaymentAmount",
+      "currentHash": "de1deba51b326d9489c8601ff99057d8a03281b513265598ba1c71743e802a05",
+      "historicalSdkBodyIdentical": true,
+      "claudeBodyIdentical": true,
+      "geminiBodyIdentical": true
+    },
+    {
+      "file": "src/app/actions/fiesta/portal.actions.ts",
+      "name": "getFiestaByAccessKey",
+      "currentHash": "4f6c7f4403f623acfa9b2ad771d02bc5646e16493f44ce5d549c184e6165cc57",
+      "historicalSdkBodyIdentical": true,
+      "claudeBodyIdentical": true,
+      "geminiBodyIdentical": true
+    },
+    {
+      "file": "src/app/actions/presupuestos.ts",
+      "name": "getPresupuestoById",
+      "currentHash": "175a76643c740ac46851c316409c389a8b658854425793cdf0e57f543b14c41c",
+      "historicalSdkBodyIdentical": true,
+      "claudeBodyIdentical": true,
+      "geminiBodyIdentical": true
+    }
+  ],
+  "dependencyEquivalence": [
+    {
+      "file": "src/lib/security/portal-session.ts",
+      "identical": true
+    },
+    {
+      "file": "src/lib/fiesta/recortar-para-afuera.ts",
+      "identical": true
+    },
+    {
+      "file": "src/lib/fiesta/actualizar-fiesta.ts",
+      "identical": true
+    },
+    {
+      "file": "src/lib/fiesta/get-fiesta-raw.ts",
+      "identical": true
+    },
+    {
+      "file": "src/lib/generic-json-store.ts",
+      "identical": true
+    }
+  ],
+  "dependencyChainRemoved": true,
+  "rootTar": "7.5.21",
+  "claudeRuntimeDiff": "",
+  "historicalSdkScope": "190 remains executed on09ea. Selected action bodies and listed dependencies contrasted separately; never a new SDK execution for the entire current app.",
+  "manualOwnerWorkExcluded": true,
+  "appEdited": false,
+  "fullAppAccepted": false,
+  "limits": "67 focused criteria at one source, not all controls/roles. SDK190 historical corroboration not added to current count. Provider DOM and voice/Meta protocol scopes only. No current-source build/native, real integrations, model/voice, Hosting, hardware or exhaustive release certificate."
+}

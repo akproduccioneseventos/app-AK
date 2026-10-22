@@ -67,6 +67,8 @@ type PublicPortalClientExperienceProps = {
   presupuesto?: any | null;
   catalogServices?: CatalogService[];
   errorCatalogo?: boolean;
+  /** El presupuesto existe pero no se pudo leer: no es lo mismo que no tenerlo. */
+  errorPresupuesto?: boolean;
   /** Ajuste anual configurado en ajustes. Si no llega, se usa el 15% historico. */
   ajusteAnualPorcentaje?: number;
 };
@@ -305,7 +307,7 @@ function PhaseRoadmap({ access, eventColor }: { access: ReturnType<typeof resolv
   );
 }
 
-export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [], errorCatalogo = false, ajusteAnualPorcentaje = 15 }: PublicPortalClientExperienceProps) {
+export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [], errorCatalogo = false, errorPresupuesto = false, ajusteAnualPorcentaje = 15 }: PublicPortalClientExperienceProps) {
   const config = fiesta?.configuracion ?? {};
   const settings = fiesta?.clientPortalSettings ?? {};
   const access = resolveClientPortalAccess(fiesta);
@@ -561,7 +563,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   })();
 
   const currentGuestCount = Number(presupuesto?.invitadosCantidad ?? config.invitadosEstimados ?? guestStats.total ?? 1) || 1;
-  const annualAdjustmentPercent = Number(presupuesto?.ajusteAnualPorcentaje ?? fiesta?.contratoDatos?.ajusteAnualPorcentaje ?? 15) || 15;
+  // Un 0 puesto a propósito es 0: el 15 va sólo si no hay nada cargado (Codex 201, orden 210, A10).
+  const ajusteCargado = presupuesto?.ajusteAnualPorcentaje ?? fiesta?.contratoDatos?.ajusteAnualPorcentaje;
+  const annualAdjustmentPercent = ajusteCargado == null || !Number.isFinite(Number(ajusteCargado)) ? 15 : Math.max(0, Number(ajusteCargado));
   const pendingTasks = [
     ...(fiesta?.clienteDebeLlevar ?? []),
     ...(portalExperience.clienteDebeLlevar ?? []),
@@ -576,6 +580,8 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     // Aca habia otra nota interna en la pantalla del cliente: "AK debe cambiar
     // el link de prueba por uno real". Eso lo tiene que ver el equipo, no el
     // cliente, y ahora aparece en la pantalla interna del portal.
+    // Si no se pudo leer, se dice eso: no que falta (Codex 193, orden 210, A4).
+    if (!presupuesto && errorPresupuesto) return { title: 'No pudimos mostrar tu presupuesto', text: 'Hubo un problema al leerlo. Recargá la página en un momento; tus pagos y servicios siguen guardados.', action: 'contact', label: 'Consultar con AK' };
     if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver pagos, contrato y servicios.', action: 'contact', label: 'Consultar con AK' };
     if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisión', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmación de AK.`, action: 'contable', label: 'Ver pagos' };
     if (paymentSummary.balance > 0) return { title: 'Saldo pendiente', text: `Saldo actual: ${formatPortalMoney(paymentSummary.balance)}.`, action: 'payment', label: 'Hacer un pago' };

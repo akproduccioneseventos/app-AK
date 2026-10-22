@@ -156,7 +156,8 @@
         "src/app/video-vida",
         "src/app/api/video-vida-photos"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "nota": "Auditorías 186-206 (órdenes 210 y 211): la plata del portal y las aprobaciones las arregló Claude el 22/10; lo de pantalla, orden 212 (Gemini). Falta que Codex la vuelva a mirar."
     },
     {
       "id": "invitado",

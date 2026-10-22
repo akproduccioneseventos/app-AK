@@ -1134,6 +1134,18 @@ plata abierto". Lo encontré al cruzar todo lo de Codex desde el principio, porq
 **Qué se hace distinto, y ya está enganchado:** `las-ordenes-de-plata-de-claude-estan-hechas.test.ts` frena
 la publicación si una orden `-claude-` está a medias.
 
+### 44. Cambiar un guardado de plata por otro y perder un control que hacía el viejo
+
+**Pasó el 22 de octubre de 2026, y quedó publicado unas horas.** Para que aprobar un pedido del cliente
+no sumara dos veces, pasé las aprobaciones de `updatePresupuesto` a `mutarPresupuesto`. El viejo frenaba
+los contratos firmados y rehacía la cuenta; el nuevo no. Lo encontró Codex.
+
+**Qué era lo cierto:** un arreglo de concurrencia que cambia la función que guarda tiene que llevarse
+todos los controles de la vieja, no sólo el que se estaba arreglando.
+
+**Qué se hace distinto:** pregunta 89 del método y 60 de `ANTES-DE-ENTREGAR.md`. Y el control
+`sin-saber-si-el-contrato-esta-firmado-no-se-toca` más las pruebas de aprobación con contrato firmado.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1826,6 +1838,8 @@ con otra cara.
 | Un hallazgo se arreglaba sin buscarlo en el resto de la app porque su pregunta ya figuraba barrida | `hallazgos` en `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
 | El portal del proveedor perdía un toque de dos y reactivaba accesos; la secretaria borraba la cédula del personal al guardar | `src/__tests__/provider-portal-actions.test.ts` y `src/__tests__/la-secretaria-no-borra-la-cedula-del-personal.test.ts` |
 | Elegir por nombre parcial: los mozos de salón caían en la cocina, y el asistente cambiaba el precio o agendaba la cita de otro | `src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts` y `src/__tests__/el-asistente-no-confunde-contactos-parecidos.test.ts` |
+| El portal del cliente: avisos de pago dobles, comprobante perdido, cancelaciones que anunciaban otra cuenta, pedidos que se pisaban y aprobaciones que sumaban dos veces | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` |
+| Aprobar un pedido del cliente salteaba el contrato firmado, dejaba el desglose viejo y multiplicaba dos veces; un error de lectura daba el contrato por no firmado | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` y `src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts` |
 
 ### Cómo se elige el matafuego
 

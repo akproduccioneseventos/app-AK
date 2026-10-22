@@ -18,6 +18,7 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import { getAllFiestas, saveFiesta, syncFiestaFromBudget } from './fiesta/fiesta.actions';
 import { syncLaundryCosts } from './fiesta/costos.actions';
 import { recalcularCostoItem } from '@/lib/calculations';
+import { cuentaDelPresupuesto } from '@/lib/budget/recalcular-presupuesto';
 import { parseBudgetText } from '@/lib/parse-budget-text';
 import { isConfirmedClientPayment, normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -153,9 +154,11 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
   const sessionAuth = await verifySession();
 
   let soloOperativo = false;
-  if (sessionAuth.success) {
-    const nivel = nivelDePresupuestos(sessionAuth.user);
-    if (!nivel) return null;
+  // Con una sesión que no ve presupuestos (el cliente con su sesión del portal), vale igual el
+  // enlace de ESE presupuesto: antes devolvía nada y el portal decía "falta el presupuesto"
+  // (Codex 193, orden 210, A3). El enlace sólo abre su propio documento, nunca otro.
+  const nivel = sessionAuth.success ? nivelDePresupuestos(sessionAuth.user) : null;
+  if (nivel) {
     soloOperativo = nivel === 'operativo';
   } else {
     if (!token) {
@@ -443,15 +446,23 @@ export async function savePresupuesto(
   });
 }
 
-async function isBudgetContractSigned(presupuestoId: string): Promise<boolean> {
+/**
+ * Si no se pudo leer la fiesta, NO se sabe si el contrato está firmado, y eso no es lo mismo que "no
+ * firmado". Antes un error de lectura devolvía "no firmado" y dejaba cambiar un contrato firmado
+ * (Codex 204, orden 211, B5). Ahora el que llama frena con un error que dice lo que pasó.
+ */
+async function estadoDelContrato(presupuestoId: string): Promise<'firmado' | 'libre' | 'no-se-sabe'> {
   try {
     const fiestas = await getAllFiestas();
     const linked = fiestas.find(f => f.presupuestoId === presupuestoId);
-    return !!linked?.contratoFirmaInfo?.isSigned;
-  } catch {
-    return false;
+    return linked?.contratoFirmaInfo?.isSigned ? 'firmado' : 'libre';
+  } catch (error) {
+    console.warn('[presupuestos] No se pudo comprobar si el contrato está firmado:', error);
+    return 'no-se-sabe';
   }
 }
+
+const NO_SE_PUDO_COMPROBAR_EL_CONTRATO = 'No se pudo comprobar si el contrato está firmado, así que no se tocó nada. Probá de nuevo en un momento.';
 
 function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuesto): boolean {
   if (oldBudget.invitadosCantidad !== newBudget.invitadosCantidad) return true;
@@ -510,37 +521,23 @@ async function guardarPresupuestoSinTurno(
     if (index === -1) return { success: false, error: "No encontrado" };
 
     const oldBudget = presupuestos[index];
-    const isSigned = await isBudgetContractSigned(presupuestoData.id);
-    if (isSigned && hasBudgetStructureChanged(oldBudget, presupuestoData)) {
-      return { success: false, error: 'El presupuesto no se puede modificar porque tiene un contrato firmado.' };
+    if (hasBudgetStructureChanged(oldBudget, presupuestoData)) {
+      const contrato = await estadoDelContrato(presupuestoData.id);
+      if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
+      if (contrato === 'firmado') {
+        return { success: false, error: 'El presupuesto no se puede modificar porque tiene un contrato firmado.' };
+      }
     }
 
-    const adultos = presupuestoData.invitadosAdultos || 0;
-    const adolescentes = presupuestoData.invitadosAdolescentes || 0;
-    const ninos = presupuestoData.invitadosNinos || 0;
-
-    const validItems = presupuestoData.itemsPresupuestados.map(item => ({
-        ...item,
-        costoTotalItem: recalcularCostoItem(item, adultos, adolescentes, ninos),
-    }));
-
-    const subtotal = validItems.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
-
-    let totalConDescuento = subtotal;
-    if (presupuestoData.descuentoTipo && presupuestoData.descuentoValor) {
-        const desc = presupuestoData.descuentoTipo === 'porcentaje'
-            ? (subtotal * presupuestoData.descuentoValor) / 100
-            : presupuestoData.descuentoValor;
-        totalConDescuento = subtotal - desc;
-    }
-
+    // La misma cuenta que usan las aprobaciones del portal (`cuentaDelPresupuesto`).
+    const cuenta = cuentaDelPresupuesto(presupuestoData);
     const updated: Presupuesto = normalizePresupuestoFinancials({
         ...presupuestoData,
-        itemsPresupuestados: validItems,
-        costoTotalEstimado: subtotal,
+        itemsPresupuestados: cuenta.items,
+        costoTotalEstimado: cuenta.subtotal,
         totalConDescuento: options.preserveStoredTotal
           ? roundMoney(presupuestoData.totalConDescuento)
-          : Math.round(totalConDescuento)
+          : cuenta.totalConDescuento
     }, { preserveStoredTotal: options.preserveStoredTotal });
 
     let avisoCrm: string | undefined;
@@ -573,8 +570,9 @@ export async function archivePresupuesto(id: string): Promise<{ success: boolean
   // Archivar es reversible y es tarea de rutina del equipo: no se restringe a
   // admin. La proteccion real de esta accion es el contrato firmado, mas abajo.
   // El borrado definitivo (`deletePresupuesto`) si queda solo para admin.
-  const isSigned = await isBudgetContractSigned(id);
-  if (isSigned) {
+  const contrato = await estadoDelContrato(id);
+  if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
+  if (contrato === 'firmado') {
     return { success: false, error: 'No se puede archivar un presupuesto con contrato firmado.' };
   }
 
@@ -597,8 +595,9 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden eliminar presupuestos.' };
-  const isSigned = await isBudgetContractSigned(id);
-  if (isSigned) {
+  const contrato = await estadoDelContrato(id);
+  if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
+  if (contrato === 'firmado') {
     return { success: false, error: 'No se puede eliminar un presupuesto con contrato firmado.' };
   }
 

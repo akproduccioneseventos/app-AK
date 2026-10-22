@@ -1,0 +1,1223 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "checkedAt": "2026-10-22T01:32:20.831Z",
+  "hashes": {
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/app/actions/fiesta/portal.actions.ts": "d7dcefbbb0b2f0fc589c3ceb297a20bfd2707c80201d07a461f7a1e4b30dace0"
+  },
+  "cases": [
+    {
+      "id": "no-portal-session-no-mutation",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Sesión no autorizada."
+      }
+    },
+    {
+      "id": "wrong-pin-no-mutation",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Contraseña/PIN de operaciones incorrecto."
+      }
+    },
+    {
+      "id": "full-cancellation-return-matches-stored-balance",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-792Z.txt",
+          "refundAmount": 0,
+          "pendingDue": 200
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 300,
+          "totalConDescuento": 300,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "multa_cancelacion_total",
+              "nombreServicio": "Cancelación total de evento - Multa (30%)",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cancelacion-total"
+          ],
+          "saldo": 200
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-20"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cancelacion_2026-10-22T01-32-20-792Z",
+              "nombre": "Contrato de Cancelación Total (Firma Manual)",
+              "tipo": "cancelacion",
+              "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-792Z.txt",
+              "timestamp": "2026-10-22T01:32:20.824Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1
+      }
+    },
+    {
+      "id": "full-cancellation-retry-no-second-penalty",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "yaEstaba": true,
+          "refundAmount": 0,
+          "pendingDue": 0
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 300,
+          "totalConDescuento": 300,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "multa_cancelacion_total",
+              "nombreServicio": "Cancelación total de evento - Multa (30%)",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cancelacion-total"
+          ],
+          "saldo": 200
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-20"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cancelacion_2026-10-22T01-32-20-792Z",
+              "nombre": "Contrato de Cancelación Total (Firma Manual)",
+              "tipo": "cancelacion",
+              "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-792Z.txt",
+              "timestamp": "2026-10-22T01:32:20.824Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1
+      }
+    },
+    {
+      "id": "partial-cancellation-return-matches-stored-balance",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-825Z.txt",
+          "refundAmount": 0,
+          "pendingDue": 410
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 510,
+          "totalConDescuento": 510,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            },
+            {
+              "idServicioCatalogo": "multa_cancelacion_1792632740825",
+              "nombreServicio": "Penalización por Cancelación de Servicios (30%)",
+              "cantidad": 1,
+              "precioUnitario": 210,
+              "precioUnitarioPresupuesto": 210,
+              "costoTotalItem": 210,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cancelacion-parcial:qa195-a"
+          ],
+          "saldo": 410
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-20"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cancelacion_2026-10-22T01-32-20-825Z",
+              "nombre": "Contrato de Cancelación Parcial (Firma Manual)",
+              "tipo": "cancelacion",
+              "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-825Z.txt",
+              "timestamp": "2026-10-22T01:32:20.826Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1
+      }
+    },
+    {
+      "id": "second-distinct-cancellation-return-matches-all-stored-penalties",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true,
+          "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-826Z.txt",
+          "refundAmount": 10,
+          "pendingDue": 0
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 300,
+          "totalConDescuento": 300,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "multa_cancelacion_1792632740825",
+              "nombreServicio": "Penalización por Cancelación de Servicios (30%)",
+              "cantidad": 1,
+              "precioUnitario": 210,
+              "precioUnitarioPresupuesto": 210,
+              "costoTotalItem": 210,
+              "categoriaServicio": "Multas y Ajustes"
+            },
+            {
+              "idServicioCatalogo": "multa_cancelacion_1792632740826",
+              "nombreServicio": "Penalización por Cancelación de Servicios (30%)",
+              "cantidad": 1,
+              "precioUnitario": 90,
+              "precioUnitarioPresupuesto": 90,
+              "costoTotalItem": 90,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cancelacion-parcial:qa195-a",
+            "cancelacion-parcial:qa195-b"
+          ],
+          "saldo": 200
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-20"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cancelacion_2026-10-22T01-32-20-825Z",
+              "nombre": "Contrato de Cancelación Parcial (Firma Manual)",
+              "tipo": "cancelacion",
+              "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-825Z.txt",
+              "timestamp": "2026-10-22T01:32:20.826Z"
+            },
+            {
+              "id": "cancelacion_2026-10-22T01-32-20-826Z",
+              "nombre": "Contrato de Cancelación Parcial (Firma Manual)",
+              "tipo": "cancelacion",
+              "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-826Z.txt",
+              "timestamp": "2026-10-22T01:32:20.826Z"
+            }
+          ]
+        },
+        "writes": 2,
+        "files": 2,
+        "summary": {
+          "total": 300,
+          "paid": 100,
+          "pendingReview": 200,
+          "balance": 200,
+          "paidPercent": 33,
+          "isFullyPaid": false
+        }
+      }
+    },
+    {
+      "id": "fixed-discount-cancellation-return-matches-stored-balance",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true,
+          "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-827Z.txt",
+          "refundAmount": 0,
+          "pendingDue": 170
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 270,
+          "totalConDescuento": 170,
+          "descuentoTipo": "monto",
+          "descuentoValor": 100,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "multa_cancelacion_total",
+              "nombreServicio": "Cancelación total de evento - Multa (30%)",
+              "cantidad": 1,
+              "precioUnitario": 270,
+              "precioUnitarioPresupuesto": 270,
+              "costoTotalItem": 270,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cancelacion-total"
+          ],
+          "saldo": 70
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-20"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cancelacion_2026-10-22T01-32-20-827Z",
+              "nombre": "Contrato de Cancelación Total (Firma Manual)",
+              "tipo": "cancelacion",
+              "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-827Z.txt",
+              "timestamp": "2026-10-22T01:32:20.827Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1,
+        "summary": {
+          "total": 170,
+          "paid": 100,
+          "pendingReview": 200,
+          "balance": 70,
+          "paidPercent": 59,
+          "isFullyPaid": false
+        }
+      }
+    },
+    {
+      "id": "percent-discount-cancellation-return-matches-stored-balance",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-827Z.txt",
+          "refundAmount": 0,
+          "pendingDue": 170
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 270,
+          "totalConDescuento": 270,
+          "descuentoTipo": "porcentaje",
+          "descuentoValor": 10,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "multa_cancelacion_total",
+              "nombreServicio": "Cancelación total de evento - Multa (30%)",
+              "cantidad": 1,
+              "precioUnitario": 270,
+              "precioUnitarioPresupuesto": 270,
+              "costoTotalItem": 270,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cancelacion-total"
+          ],
+          "saldo": 170
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-20"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cancelacion_2026-10-22T01-32-20-827Z",
+              "nombre": "Contrato de Cancelación Total (Firma Manual)",
+              "tipo": "cancelacion",
+              "fileName": "cancelacion_qa195-party_2026-10-22T01-32-20-827Z.txt",
+              "timestamp": "2026-10-22T01:32:20.827Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1,
+        "summary": {
+          "total": 270,
+          "paid": 100,
+          "pendingReview": 200,
+          "balance": 170,
+          "paidPercent": 37,
+          "isFullyPaid": false
+        }
+      }
+    },
+    {
+      "id": "cancellation-save-failure-rolls-budget-back",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": false,
+          "error": "QA195_SAVE_FAILED"
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-a",
+              "nombreServicio": "Servicio 0",
+              "cantidad": 1,
+              "precioUnitario": 700,
+              "precioUnitarioPresupuesto": 700,
+              "costoTotalItem": 700
+            },
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": []
+        },
+        "original": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-a",
+              "nombreServicio": "Servicio 0",
+              "cantidad": 1,
+              "precioUnitario": 700,
+              "precioUnitarioPresupuesto": 700,
+              "costoTotalItem": 700
+            },
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": []
+        }
+      }
+    },
+    {
+      "id": "cancellation-document-failure-rolls-budget-back",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": false,
+          "error": "QA195_DOCUMENT_FAILED"
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-a",
+              "nombreServicio": "Servicio 0",
+              "cantidad": 1,
+              "precioUnitario": 700,
+              "precioUnitarioPresupuesto": 700,
+              "costoTotalItem": 700
+            },
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": []
+        },
+        "original": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-20",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-a",
+              "nombreServicio": "Servicio 0",
+              "cantidad": 1,
+              "precioUnitario": 700,
+              "precioUnitarioPresupuesto": 700,
+              "costoTotalItem": 700
+            },
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": []
+        }
+      }
+    },
+    {
+      "id": "unavailable-date-no-charge-or-date-change",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "La fecha seleccionada no está disponible."
+      }
+    },
+    {
+      "id": "date-change-return-budget-and-party-agree",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "fileName": "cambio_fecha_qa195-party_2026-10-22T01-32-20-830Z.txt",
+          "penaltyAmount": 100,
+          "newBalance": 1000
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-21",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 1100,
+          "totalConDescuento": 1100,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-a",
+              "nombreServicio": "Servicio 0",
+              "cantidad": 1,
+              "precioUnitario": 700,
+              "precioUnitarioPresupuesto": 700,
+              "costoTotalItem": 700
+            },
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            },
+            {
+              "idServicioCatalogo": "multa_cambio_fecha_1792632740830",
+              "nombreServicio": "Recargo por Cambio de Fecha (10%)",
+              "cantidad": 1,
+              "precioUnitario": 100,
+              "precioUnitarioPresupuesto": 100,
+              "costoTotalItem": 100,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cambio-fecha:2026-12-21"
+          ],
+          "saldo": 1000
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-21"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cambio_fecha_2026-10-22T01-32-20-830Z",
+              "nombre": "Adenda Cambio de Fecha a 20/12/2026 (Firma Manual)",
+              "tipo": "cambio_fecha",
+              "fileName": "cambio_fecha_qa195-party_2026-10-22T01-32-20-830Z.txt",
+              "timestamp": "2026-10-22T01:32:20.830Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1
+      }
+    },
+    {
+      "id": "date-change-retry-no-second-charge",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "yaEstaba": true,
+          "penaltyAmount": 0,
+          "newBalance": 1000
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-21",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 1100,
+          "totalConDescuento": 1100,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-a",
+              "nombreServicio": "Servicio 0",
+              "cantidad": 1,
+              "precioUnitario": 700,
+              "precioUnitarioPresupuesto": 700,
+              "costoTotalItem": 700
+            },
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            },
+            {
+              "idServicioCatalogo": "multa_cambio_fecha_1792632740830",
+              "nombreServicio": "Recargo por Cambio de Fecha (10%)",
+              "cantidad": 1,
+              "precioUnitario": 100,
+              "precioUnitarioPresupuesto": 100,
+              "costoTotalItem": 100,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cambio-fecha:2026-12-21"
+          ],
+          "saldo": 1000
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-21"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cambio_fecha_2026-10-22T01-32-20-830Z",
+              "nombre": "Adenda Cambio de Fecha a 20/12/2026 (Firma Manual)",
+              "tipo": "cambio_fecha",
+              "fileName": "cambio_fecha_qa195-party_2026-10-22T01-32-20-830Z.txt",
+              "timestamp": "2026-10-22T01:32:20.830Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1
+      }
+    },
+    {
+      "id": "date-change-fixed-discount-return-matches-stored",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "fileName": "cambio_fecha_qa195-party_2026-10-22T01-32-20-830Z.txt",
+          "penaltyAmount": 90,
+          "newBalance": 890
+        },
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-21",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 1090,
+          "totalConDescuento": 990,
+          "descuentoTipo": "monto",
+          "descuentoValor": 100,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-a",
+              "nombreServicio": "Servicio 0",
+              "cantidad": 1,
+              "precioUnitario": 700,
+              "precioUnitarioPresupuesto": 700,
+              "costoTotalItem": 700
+            },
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            },
+            {
+              "idServicioCatalogo": "multa_cambio_fecha_1792632740830",
+              "nombreServicio": "Recargo por Cambio de Fecha (10%)",
+              "cantidad": 1,
+              "precioUnitario": 90,
+              "precioUnitarioPresupuesto": 90,
+              "costoTotalItem": 90,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cambio-fecha:2026-12-21"
+          ],
+          "saldo": 890
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-21"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cambio_fecha_2026-10-22T01-32-20-830Z",
+              "nombre": "Adenda Cambio de Fecha a 20/12/2026 (Firma Manual)",
+              "tipo": "cambio_fecha",
+              "fileName": "cambio_fecha_qa195-party_2026-10-22T01-32-20-830Z.txt",
+              "timestamp": "2026-10-22T01:32:20.831Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1
+      }
+    },
+    {
+      "id": "simultaneous-same-date-one-penalty",
+      "pass": true,
+      "observed": {
+        "result": [
+          {
+            "success": true,
+            "fileName": "cambio_fecha_qa195-party_2026-10-22T01-32-20-831Z.txt",
+            "penaltyAmount": 100,
+            "newBalance": 1000
+          },
+          {
+            "success": true,
+            "yaEstaba": true,
+            "penaltyAmount": 0,
+            "newBalance": 1000
+          }
+        ],
+        "budget": {
+          "id": "qa195-budget",
+          "clienteNombre": "Cliente ficticio QA195",
+          "eventoFecha": "2026-12-21",
+          "estado": "Aceptado",
+          "timestamp": "2026-10-21",
+          "fechaFirmaContrato": "2026-10-21",
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "costoTotalEstimado": 1100,
+          "totalConDescuento": 1100,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa195-a",
+              "nombreServicio": "Servicio 0",
+              "cantidad": 1,
+              "precioUnitario": 700,
+              "precioUnitarioPresupuesto": 700,
+              "costoTotalItem": 700
+            },
+            {
+              "idServicioCatalogo": "qa195-b",
+              "nombreServicio": "Servicio 1",
+              "cantidad": 1,
+              "precioUnitario": 300,
+              "precioUnitarioPresupuesto": 300,
+              "costoTotalItem": 300
+            },
+            {
+              "idServicioCatalogo": "multa_cambio_fecha_1792632740831",
+              "nombreServicio": "Recargo por Cambio de Fecha (10%)",
+              "cantidad": 1,
+              "precioUnitario": 100,
+              "precioUnitarioPresupuesto": 100,
+              "costoTotalItem": 100,
+              "categoriaServicio": "Multas y Ajustes"
+            }
+          ],
+          "pagosCliente": [
+            {
+              "id": "paid",
+              "monto": 100,
+              "estadoPago": "confirmado"
+            },
+            {
+              "id": "pending",
+              "monto": 200,
+              "estadoPago": "pendiente_confirmacion"
+            },
+            {
+              "id": "rejected",
+              "monto": 50,
+              "estadoPago": "rechazado"
+            }
+          ],
+          "ajustesAplicados": [
+            "cambio-fecha:2026-12-21"
+          ],
+          "saldo": 1000
+        },
+        "party": {
+          "id": "qa195-party",
+          "presupuestoId": "qa195-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA195",
+            "fechaEvento": "2026-12-21"
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa195-key",
+            "clientPassword": "qa195-pin"
+          },
+          "contratoDatos": {
+            "fechaFirmaContrato": "2026-10-21",
+            "ajusteAnualPorcentaje": 0
+          },
+          "othersDocumentos": [
+            {
+              "id": "cambio_fecha_2026-10-22T01-32-20-831Z",
+              "nombre": "Adenda Cambio de Fecha a 20/12/2026 (Firma Manual)",
+              "tipo": "cambio_fecha",
+              "fileName": "cambio_fecha_qa195-party_2026-10-22T01-32-20-831Z.txt",
+              "timestamp": "2026-10-22T01:32:20.831Z"
+            }
+          ]
+        },
+        "writes": 1,
+        "files": 1
+      }
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "pass": 13,
+    "fail": 2
+  },
+  "appEdited": false,
+  "realServices": false,
+  "limits": "Actual cancellation/date-change action bodies, portal JWT verifier and financial summary. Linearizable budget adapter, party reads/save, availability, filesystem and notifications controlled; files only in memory. No Next HTTP, actual saveFiesta permission pipeline, Firestore, native UI, real contracts, costs or external messages. Existing 10/30 percent policy preserved, not a new proposed policy."
+}

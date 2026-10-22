@@ -1,5 +1,13 @@
 # Orden209 - Dos consumidores con resultado reproducido
 
+## Retest posterior - Codex191/196, 21/10/2026
+
+PERSONAL-ROL-ATENCION CORREGIDO:1913PASS en56c4a425, ya incorporado a main.
+PROVEEDOR-LECTURA-RECHAZADA CORREGIDO por208:19613PASS en mainfa3b492b8,
+incluido transporte rechazado, error visible/sin spinner y Reintentar recupera.
+Alcance DOM/acciones controladas, no HTTP/SDK. No reencargar estos dos casos.
+La redaccion inicial se conserva abajo como evidencia historica, no fallo actual.
+
 NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
 Claude publico16e197cc3591bf0812c1e8910c880d83f04eb94b; main9b7ee982.
 Gemini1346 d95c35ba27c6ff5a3c1a8adac28e29c3ff02ae09. Contrastar HEAD antes
