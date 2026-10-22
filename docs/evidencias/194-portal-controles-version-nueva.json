@@ -1,0 +1,235 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "checkedAt": "2026-10-22T01:31:23.410Z",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/session-token.ts": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/app/actions/presupuestos.ts": "74042b3ab13058a2afc935b3c950fea2f7046cb123a0c24e96447ed31fe30a04",
+    "src/lib/client-portal/public-fiesta.ts": "f4ba97d29f9fec0e991ac9563ac8d0c0b2131b7f4866079ad55f775ed2d4e350",
+    "src/app/actions/fiesta/portal.actions.ts": "d7dcefbbb0b2f0fc589c3ceb297a20bfd2707c80201d07a461f7a1e4b30dace0",
+    "src/app/portal/c/[accessKey]/page.tsx": "3b5f1d1138cb746a79f40c25079868792ad10967fbbdc676943f12c4015b8681",
+    "src/lib/social-fiesta/public-event.ts": "4c74ca26ab91927e0cc5cee24aef9973a7fbd35026d1f5afff6dab6717e68ea0",
+    "src/lib/client-portal/public-guest-stats.ts": "f6ddebf44e434c7b2718a37fc9a96a007cba2dea23640fec09d0759fe15ceda7",
+    "src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx": "b28172bf0c82a39b5fe33094e8ab6b19d7eb3abce0730173a1841650a57a8893",
+    "src/lib/fiesta-defaults.ts": "6384cfacc43c88be942f0e1588a3d1796d15b4d2bc8e8eef2796ce5176549f65",
+    "src/lib/public-contact.ts": "1073a6ef91bf42c6d91754b48fdca0d260a3131186b4a6a3d2d39b8f14fb31fa",
+    "src/lib/social-wall-defaults.ts": "62e3c98db62babbbf21198e13956e9b8cfa1bd529dbc6affdc6bc6e0783b9327",
+    "src/lib/zona-digital-adolescentes.ts": "75516b4c408b0a0919028a35d84441920ccf2b83a4514967c4c055477b8c9b8d",
+    "src/components/ui/accordion.tsx": "1cc98c2ab5106d8d476f1da4aa8dd535198a8113513b2c918938ea76d90bbbc9",
+    "src/lib/utils.ts": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+    "src/lib/reportes/rango-de-dias.ts": "e64cb6a73f65c7f6f4d3b848783dd42be63abe0acf6f7e525ddb20875ed3956f",
+    "src/components/ui/button.tsx": "6af925415b5056d9526d3dbcdbca140ef8f09a1afbba85576d008cf5e9000646",
+    "src/components/ui/input.tsx": "a83bd3bb38fb1eb55370d0c81557814ca41ce7d75d2786eb6f4830c40f7f4572",
+    "src/components/ui/textarea.tsx": "6d2c1753fa2c3caca5ca3f329fc5ea0c63dae85c55b79cf5f133a8a26fb8e723",
+    "src/components/ui/label.tsx": "2eac8fbb04002c42b0fbc4062d20d131e421796eaf65c37d2049e29e42ecbc5a",
+    "src/components/ui/empty-state.tsx": "db4b9ca38a8d0691ea7b29cb8e8024fdcfac20b17ca959b677b96d518c03b9bc",
+    "src/lib/client-portal/client-portal-summary.ts": "21a1045b07f0d3ed25c1c38819ac1baefb1ff63c272841f406c98de34c7143b9",
+    "src/lib/commercial/contact.ts": "2fc208917d4a633ede28e7a5b6215f23af83954d5300af5b2df8f167899aac4b",
+    "src/lib/budget/saldo-con-ajuste.ts": "e414b4998115b620b20d63a3c6876fc6a6ec8b8420f6ffcafff82ddee8fb00f7",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/lib/calculations.ts": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+    "src/lib/client-portal/access-phases.ts": "b3fda1582800a697c8f7e95885c52db2bf33a8bfbf3311b4e94e4f657dde77ea",
+    "src/lib/calendar-links.ts": "8f6bed597060d83415616cacd14b098ca6051d5cb06b04e12befaffecd6f88d4",
+    "src/lib/portal/cuenta-regresiva.ts": "4b2422aa9bdc69cceaa1b36ae2c4772d731752f8506d074ad6ab1a3cd2388265",
+    "src/lib/portal/foto-de-portada.ts": "1243f994b378a979eaff959c773a3a92c97cbef486ac2dc5d82afc6a763a2be1"
+  },
+  "cases": [
+    {
+      "id": "organization-controls-positive",
+      "pass": true,
+      "observed": {
+        "accessPhase": "organizacion"
+      }
+    },
+    {
+      "id": "official-delivery-reader-positive-control",
+      "pass": true,
+      "observed": {
+        "notasGenerales": "Entrega oficial ficticia QA189",
+        "servicios": [
+          {
+            "id": "qa189-delivery",
+            "nombre": "Album oficial QA189",
+            "estado": "Entregado completo",
+            "linkEntrega": "https://qa.invalid/album-oficial-qa189"
+          }
+        ]
+      }
+    },
+    {
+      "id": "official-delivery-survives-active-page-mapper",
+      "pass": false,
+      "observed": {
+        "notasGenerales": "Entrega oficial ficticia QA189"
+      }
+    },
+    {
+      "id": "official-delivery-link-reachable-in-active-client-ui",
+      "pass": false,
+      "observed": {
+        "links": [
+          {
+            "text": "Hablar con AK",
+            "href": "https://wa.me/59899000188?text=Hola%20AK%2C%20soy%20cliente%20del%20evento%20%22Fiesta%20ficticia%20QA188%22%20y%20quiero%20hacer%20una%20consulta."
+          },
+          {
+            "text": "Sincronizar",
+            "href": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Fiesta+ficticia+QA188&dates=20261220T230000Z%2F20261221T040000Z&details=Evento+coordinado+por+Empresa+ficticia+QA188.&location=Salon+QA188"
+          }
+        ]
+      }
+    },
+    {
+      "id": "payment-shortcut-keeps-open-section-open",
+      "pass": false,
+      "observed": {
+        "expanded": "false"
+      }
+    },
+    {
+      "id": "payment-shortcut-opens-closed-section",
+      "pass": true,
+      "observed": {
+        "expanded": "true"
+      }
+    },
+    {
+      "id": "cover-opens-real-controls",
+      "pass": true,
+      "observed": {
+        "beforeCover": 0,
+        "afterCover": 1
+      }
+    },
+    {
+      "id": "cover-saved-through-real-action",
+      "pass": true,
+      "observed": {
+        "experience": {
+          "heroImageUrl": "https://images.unsplash.com/photo-1507504038482-7621abf83863?q=80&w=1200&auto=format&fit=crop"
+        },
+        "writeCalls": 1
+      }
+    },
+    {
+      "id": "cover-closes-controls",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "cover-reread-through-page-mapper",
+      "pass": true,
+      "observed": {
+        "experience": {
+          "heroImageUrl": "https://images.unsplash.com/photo-1507504038482-7621abf83863?q=80&w=1200&auto=format&fit=crop"
+        }
+      }
+    },
+    {
+      "id": "empty-song-not-saved",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "song-saved-through-real-action-and-ui",
+      "pass": true,
+      "observed": {
+        "music": {
+          "imprescindibles": [
+            "Cancion ficticia QA189"
+          ],
+          "fechaActualizacion": "2026-10-22T01:31:19.996Z"
+        },
+        "writeCalls": 2
+      }
+    },
+    {
+      "id": "song-survives-page-reread",
+      "pass": true,
+      "observed": {
+        "music": {
+          "imprescindibles": [
+            "Cancion ficticia QA189"
+          ],
+          "fechaActualizacion": "2026-10-22T01:31:19.996Z"
+        }
+      }
+    },
+    {
+      "id": "song-save-error-keeps-text-and-no-false-addition",
+      "pass": true,
+      "observed": {
+        "input": "No guardar QA189",
+        "music": {
+          "imprescindibles": [
+            "Cancion ficticia QA189"
+          ],
+          "fechaActualizacion": "2026-10-22T01:31:19.996Z"
+        }
+      }
+    },
+    {
+      "id": "cancellation-opens-ui-without-executing-money-action",
+      "pass": true,
+      "observed": {
+        "controls": [
+          {
+            "type": "text",
+            "placeholder": "Agregar canción importante"
+          },
+          {
+            "type": "number",
+            "placeholder": ""
+          },
+          {
+            "type": "number",
+            "placeholder": ""
+          },
+          {
+            "type": "checkbox",
+            "placeholder": ""
+          }
+        ],
+        "buttons": [
+          "Personalizar portada",
+          "Ver pagos",
+          "Organización del evento",
+          "Agregar",
+          "Pagos, contrato y presupuesto",
+          "Informar pago",
+          "Cancelar servicios o fiesta",
+          "Cambiar fecha del evento",
+          "Otros servicios (1)",
+          "Enviar solicitud",
+          "Invitados",
+          "Reglas y preguntas",
+          "",
+          "Cancelar algunos servicios",
+          "Cancelar fiesta completa",
+          "Cancelar",
+          "Aceptar y Continuar"
+        ]
+      }
+    },
+    {
+      "id": "date-change-opens-ui-without-executing-money-action",
+      "pass": true,
+      "observed": {
+        "dateInputs": 1
+      }
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "pass": 13,
+    "fail": 3
+  },
+  "observedErrors": [],
+  "appEdited": false,
+  "realServices": false,
+  "limits": "Real page/client ReactDOM, mappers, token signatures, portal session and payment action; cookie/read/store/upload/notification adapters controlled. Linearizable in-memory write queue, NOT Firestore/Next HTTP/native geometry/actual upload or ledger change.",
+  "discardedCandidate": "costoTotalEstimado/costoTotalItem are selling subtotal/line total by Presupuesto types; do NOT report them as internal procurement-cost exposure.",
+  "extraLimits": "Organization phase only. No final cancellation/date-change operation, contract change, actual 3D, native geometry, external album download or real message was executed. Cover/music save/read adapters controlled; actual action, portal signature, page mapper and React handlers composed."
+}

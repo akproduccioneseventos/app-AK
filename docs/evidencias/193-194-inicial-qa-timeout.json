@@ -1,0 +1,8 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "probes": [193, 194],
+  "observed": "ERR_SCRIPT_EXECUTION_TIMEOUT: Script execution timed out after 5000ms in vm.runInNewContext during module loading, before the criteria ran.",
+  "classification": "QA_LIMIT_NOT_APP_DEFECT",
+  "change": "Only the audit VM module-loading limit changes from 5000 to 30000ms. No application source or criteria changed.",
+  "appAcceptance": false
+}

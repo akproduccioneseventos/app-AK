@@ -1,0 +1,88 @@
+{
+  "source": "56c4a425ec25dbf7da7d2f4416a841d58cd92696",
+  "checkedAt": "2026-10-21T17:47:06.024Z",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/session-token.ts": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/lib/fiesta/personal-por-invitados.ts": "ffcabf06c9252e2a1257a08acb4f87049260475ef0fa30cf7c7dbd71db91e77a",
+    "src/app/actions/fiesta/fiesta.actions.ts": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54"
+  },
+  "cases": [
+    {
+      "id": "staff-role-Mozo de Atencion",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "id": "qa191"
+        },
+        "roleName": "Mozo de Atencion",
+        "floor": 4,
+        "kitchen": 0,
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2800
+          }
+        ],
+        "chef": 1,
+        "cooks": 3
+      }
+    },
+    {
+      "id": "staff-role-Mozo de Atención",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "id": "qa191"
+        },
+        "roleName": "Mozo de Atención",
+        "floor": 4,
+        "kitchen": 0,
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2800
+          }
+        ],
+        "chef": 1,
+        "cooks": 3
+      }
+    },
+    {
+      "id": "staff-role-Mozo",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "id": "qa191"
+        },
+        "roleName": "Mozo",
+        "floor": 4,
+        "kitchen": 0,
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2800
+          }
+        ],
+        "chef": 1,
+        "cooks": 3
+      }
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "pass": 3,
+    "fail": 0
+  },
+  "order209StaffStatus": "CORRECTED_AND_TESTED_WITHIN_SCOPE",
+  "appEdited": false,
+  "realServices": false,
+  "limits": "Actual sync action, staff helper and signed-session guard; captured save and other sync dependencies controlled. No UI/Firestore/global build or all-staff acceptance."
+}
