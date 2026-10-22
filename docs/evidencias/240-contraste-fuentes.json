@@ -1,0 +1,247 @@
+{
+  "executedSource": "9d1a07f99b8d6972995ff8c2b9f1a5a1ac4a81de",
+  "checkedAt": "2026-10-22T11:10:35.515Z",
+  "entries": [
+    {
+      "file": "src/lib/auth/session-token.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+      "sha256": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+      "equal": true
+    },
+    {
+      "file": "src/lib/auth/session-token.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+      "sha256": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+      "equal": true
+    },
+    {
+      "file": "src/lib/auth/perfiles.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+      "sha256": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+      "equal": true
+    },
+    {
+      "file": "src/lib/auth/perfiles.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+      "sha256": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+      "equal": true
+    },
+    {
+      "file": "src/lib/auth/equipo-de-la-fiesta.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+      "sha256": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+      "equal": true
+    },
+    {
+      "file": "src/lib/auth/equipo-de-la-fiesta.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+      "sha256": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+      "equal": true
+    },
+    {
+      "file": "src/lib/security/portal-session.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+      "sha256": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+      "equal": true
+    },
+    {
+      "file": "src/lib/security/portal-session.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+      "sha256": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+      "equal": true
+    },
+    {
+      "file": "src/lib/fiesta/recortar-para-afuera.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+      "sha256": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+      "equal": true
+    },
+    {
+      "file": "src/lib/fiesta/recortar-para-afuera.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+      "sha256": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+      "equal": true
+    },
+    {
+      "file": "src/lib/auth/require-session.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+      "sha256": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+      "equal": true
+    },
+    {
+      "file": "src/lib/auth/require-session.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+      "sha256": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+      "equal": true
+    },
+    {
+      "file": "src/app/actions/fiesta/fiesta.actions.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+      "sha256": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+      "equal": true
+    },
+    {
+      "file": "src/app/actions/fiesta/fiesta.actions.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+      "sha256": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+      "equal": true
+    },
+    {
+      "file": "src/lib/generic-json-store.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+      "sha256": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+      "equal": true
+    },
+    {
+      "file": "src/lib/generic-json-store.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+      "sha256": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+      "equal": true
+    },
+    {
+      "file": "src/lib/fiesta/get-fiesta-raw.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+      "sha256": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+      "equal": true
+    },
+    {
+      "file": "src/lib/fiesta/get-fiesta-raw.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+      "sha256": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+      "equal": true
+    },
+    {
+      "file": "src/lib/fiesta/actualizar-fiesta.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+      "sha256": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+      "equal": true
+    },
+    {
+      "file": "src/lib/fiesta/actualizar-fiesta.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+      "sha256": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+      "equal": true
+    },
+    {
+      "file": "src/lib/fiesta/reponer-la-plata.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "97dcc858e11ee28fd1f9901fd98c3aa59a0f267267ab3b1b99bc0972afdca119",
+      "sha256": "97dcc858e11ee28fd1f9901fd98c3aa59a0f267267ab3b1b99bc0972afdca119",
+      "equal": true
+    },
+    {
+      "file": "src/lib/fiesta/reponer-la-plata.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "97dcc858e11ee28fd1f9901fd98c3aa59a0f267267ab3b1b99bc0972afdca119",
+      "sha256": "97dcc858e11ee28fd1f9901fd98c3aa59a0f267267ab3b1b99bc0972afdca119",
+      "equal": true
+    },
+    {
+      "file": "src/lib/calculations.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+      "sha256": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+      "equal": true
+    },
+    {
+      "file": "src/lib/calculations.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+      "sha256": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+      "equal": true
+    },
+    {
+      "file": "src/lib/budget/formal-budget.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+      "sha256": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+      "equal": true
+    },
+    {
+      "file": "src/lib/budget/formal-budget.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+      "sha256": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+      "equal": true
+    },
+    {
+      "file": "src/lib/budget/financial-guardrails.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+      "sha256": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+      "equal": true
+    },
+    {
+      "file": "src/lib/budget/financial-guardrails.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+      "sha256": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+      "equal": true
+    },
+    {
+      "file": "src/app/actions/presupuestos.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "320f46de3beb0a86b37fc73cf13715c02aed1f99ea3a87396ade64da050d9bf3",
+      "sha256": "320f46de3beb0a86b37fc73cf13715c02aed1f99ea3a87396ade64da050d9bf3",
+      "equal": true
+    },
+    {
+      "file": "src/app/actions/presupuestos.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "320f46de3beb0a86b37fc73cf13715c02aed1f99ea3a87396ade64da050d9bf3",
+      "sha256": "320f46de3beb0a86b37fc73cf13715c02aed1f99ea3a87396ade64da050d9bf3",
+      "equal": true
+    },
+    {
+      "file": "src/app/actions/fiesta/documentos.actions.ts",
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "executedSha256": "339b54f151c6b5406b80d493fc89fa3869494da9080a32fe59210949b876025c",
+      "sha256": "339b54f151c6b5406b80d493fc89fa3869494da9080a32fe59210949b876025c",
+      "equal": true
+    },
+    {
+      "file": "src/app/actions/fiesta/documentos.actions.ts",
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "executedSha256": "339b54f151c6b5406b80d493fc89fa3869494da9080a32fe59210949b876025c",
+      "sha256": "339b54f151c6b5406b80d493fc89fa3869494da9080a32fe59210949b876025c",
+      "equal": true
+    }
+  ],
+  "pageBlobs": [
+    {
+      "ref": "9d1a07f99b8d6972995ff8c2b9f1a5a1ac4a81de",
+      "blob": "e3ec5e76cbd0ba70c6b3e83c7a214e7a36263fee"
+    },
+    {
+      "ref": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+      "blob": "e3ec5e76cbd0ba70c6b3e83c7a214e7a36263fee"
+    },
+    {
+      "ref": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+      "blob": "e3ec5e76cbd0ba70c6b3e83c7a214e7a36263fee"
+    }
+  ],
+  "allLoadedFilesIdentical": true,
+  "pageIdentical": true,
+  "scope": "Only files actually loaded by240 and verified page consumer. Not HTTP or whole-app equivalence."
+}

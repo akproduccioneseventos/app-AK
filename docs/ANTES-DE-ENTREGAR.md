@@ -217,3 +217,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 61. **¿Deshacés algo si falla?** Deshacé sobre el dato de ahora, no sobre el que leíste al principio:
     restá lo tuyo, o volvé un valor sólo si nadie lo cambió. Y lo que decide si se escribe (firma,
     saldo, estado) miralo adentro de la transacción, no antes.
+62. **¿El cliente acepta o firma algo?** Que la pantalla mande lo que vio (la huella del texto) y que el
+    servidor lo compare al guardar. Lo aceptado lo escribe sólo su acción, nunca el guardado general.

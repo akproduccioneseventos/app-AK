@@ -1333,3 +1333,20 @@ Dos cosas se miran:
 Se buscan en `src/app/actions` y `src/lib` los `catch` y los "revertir/deshacer/rollback" que guardan
 algo leído antes (`...antes`, `status: xAntes.status`, `writeData(archivo, original...)`).
 
+### 91. Cuando el cliente acepta o firma algo, ¿queda registrado lo que VIO, y sólo por el camino de firmar?
+
+Codex 240 (orden 216-claude). La firma del portal guardaba la huella del texto de ese momento, no la del
+que el cliente tenía en pantalla. Si el equipo lo cambiaba en el medio, se le atribuía el nuevo. Además, la
+constancia se podía reescribir por el guardado general, y dos firmas a la vez se pisaban.
+
+Se miran tres cosas en cada aceptación del cliente:
+
+1. Que la pantalla mande qué versión vio (huella, versión o fecha) y que el servidor la compare adentro
+   de la escritura.
+2. Que lo que se aceptó sólo lo escriba su acción, y que el guardado general lo deje como está.
+3. Que el resumen que se le muestra antes de aceptar salga de sus datos reales. Si no se pueden leer,
+   se dice, sin importes por defecto.
+
+Se buscan en `src/app/actions` las acciones con `verifyPortalSession` que guardan una aceptación, una
+firma o una aprobación del cliente.
+

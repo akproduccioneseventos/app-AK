@@ -34,6 +34,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1356 (`3155a27ba`, auditoría 240): juntado. Las cuatro fallas de la firma del contrato en el portal las arregló Claude (orden 216-claude).
 - Codex 1354 (`8ef06a7f4`, auditorías 213-239): juntado. Las dos fallas de plata de las aprobaciones (firma que llega en el medio, deshacer que pisaba a otro) las arregló Claude (orden 213-claude); filtros → orden 214 para Gemini.
 - Gemini 1353 (`b91bdbeff`, órdenes 180 a 195): devuelta con la **orden 215** (más la 214 de Codex). No compila (1 error), 38 pruebas fallan, y la bandeja de mensajes quedaba sin permiso. Abierta, sin fusionar.
 - Codex 1345 (`89d968d6b`, auditorías 176-185): juntado. El rol de cocina y la pregunta 87 (precio y cita por nombre parcial) los arregló Claude; el resto, orden 208.

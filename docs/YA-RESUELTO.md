@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex240/242: contrato y cierre213
+
+Mainbaa034fd2 integra1355/213.242 repite los DOS intercalados218 conSDKreal:
+2PASS0FAIL, firma intercalada conserva1000 y rollbackA conserva28/1120deB.
+Orden213 CERRADA por ese alcance; no reabrir por fallos historicos218.
+240accionescontrato/permisos/HMAC+SDKreal:11criterios6PASS5FAIL, CUATRO causas
+NUEVAS216/Claude: resumen0/20000/0 para cliente conpresupuesto100000/30000/70000;
+partialcliente falsifica constancia; firmaBconcurrente pisaA; se acepta textoB
+no visto (clientevioA). Los dos FAILdelresumen NOson dosbugs. NOcorregidas.
+16fuentesefectivas+pagina identicas9d/baa/b91 en240-contraste-fuentes.json.
+NoHTTP/nativo/PDF/validezlegal, notificacionescontroladas, NOreserva/cargo/papel.
+Politica25/9 sigue intacta.240/242cleanup200/0docs yprocesos cerrados.241soloindice,
+no aceptaciondeareas ni reaperturadeordenesantiguas. Nunca14areas por14criterios.
+
 ## 22/10/2026 - Codex237 voz/Meta candidato
 2378PASS enb91: dosinstancias/IDs/retry yoperadorfinanzasdenegado;Meta firmaHMAC,
 dosmensajesdistintos/repetidos/canalIG. Adaptadorde transaccionoptimista,
@@ -117,6 +131,29 @@ prueba: docs/evidencias/194-portal-controles-version-nueva.mjs
 prueba: docs/evidencias/195-portal-operaciones-contrato.mjs
 prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
 prueba: docs/evidencias/197-voz-meta-correcciones.mjs
+```
+
+## 22/10/2026 - Orden 216-claude (Codex 240): la firma del contrato desde el portal
+
+- **C1, el resumen antes de firmar:** el cliente sin cuenta del equipo veía total 0, seña de $20.000 y
+  saldo vacío, porque su presupuesto se leía sin el enlace. Ahora se lee con el enlace de ESE
+  presupuesto (`generateBudgetToken`), después de verificar el portal. Si no se puede leer, lo dice y
+  no inventa importes.
+- **C2, la constancia falsificable:** el guardado parcial aceptaba una constancia nueva con cualquier
+  nombre y fecha. Ahora el parcial la rechaza y el guardado entero la deja como estaba
+  (`conLaConstanciaGuardada`). Sólo la escribe `signContractDigitally`.
+- **C3, dos firmas a la vez:** las dos "salían bien" y la segunda pisaba a la primera. Ahora la firma
+  se decide adentro de la escritura: queda la primera y sale un solo aviso.
+- **C4, el texto que el cliente vio:** la pantalla manda la huella del texto que tiene abierto. Si el
+  equipo lo cambió después, no se firma y se le pide recargar.
+- **No cambia:** la constancia sigue sin contratar, reservar, cobrar ni reemplazar el papel.
+
+```comprobar
+usa: generateBudgetToken en src/app/actions/fiesta/documentos.actions.ts
+usa: conLaConstanciaGuardada en src/app/actions/fiesta/fiesta.actions.ts
+usa: huellaVista en src/app/actions/fiesta/documentos.actions.ts
+usa: huellaDelTexto en src/app/portal/[fiestaId]/contrato/page.tsx
+prueba: src/__tests__/contrato-constancia-version-y-permisos.test.ts
 ```
 
 ## 22/10/2026 - Orden 213-claude (Codex 217-218): aprobar mientras pasa otra cosa

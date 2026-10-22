@@ -1841,6 +1841,7 @@ con otra cara.
 | El portal del cliente: avisos de pago dobles, comprobante perdido, cancelaciones que anunciaban otra cuenta, pedidos que se pisaban y aprobaciones que sumaban dos veces | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` |
 | Aprobar un pedido del cliente salteaba el contrato firmado, dejaba el desglose viejo y multiplicaba dos veces; un error de lectura daba el contrato por no firmado | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` y `src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts` |
 | Una firma que llegaba en el medio no frenaba la aprobación, y deshacer un pedido fallido borraba los invitados que otro aprobó | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` y `src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts` |
+| La firma del contrato en el portal: resumen en cero, constancia falsificable, dos firmas que se pisaban y un texto que el cliente no vio | `src/__tests__/contrato-constancia-version-y-permisos.test.ts` |
 
 ### Cómo se elige el matafuego
 

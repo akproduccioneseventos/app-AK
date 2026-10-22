@@ -360,6 +360,10 @@
     "90": {
       "fecha": "2026-10-22",
       "resultado": "se buscaron los catch y los 'revertir/deshacer/rollback' de src/app/actions y src/lib que guardan algo leído antes. Las aprobaciones del portal (firma mirada antes y deshacer con la foto vieja) y el estado de la factura al sacar un cobro que no llegó al presupuesto: arreglados por Claude, con prueba. Borrar una factura vuelve la lista original, pero la factura borrada no tenía cobros y la lista entera ya no pisa lo de otro (marca de lectura): no es hallazgo. Los ajustes de precio y la barra ya deshacen sobre el dato de ahora."
+    },
+    "91": {
+      "fecha": "2026-10-22",
+      "resultado": "se buscaron en src/app/actions las acciones con verifyPortalSession o enlace del presupuesto que guardan una aceptación, firma o aprobación del cliente. Sólo la firma del contrato registra una aceptación de un texto: arreglada (huella vista, adentro de la escritura, sólo por su acción). Los pedidos de cambio del cliente son pedidos, no aceptaciones, y su importe lo rehace el servidor al aprobar."
     }
   },
   "hallazgos": {
@@ -414,6 +418,10 @@
     "orden-214": {
       "fecha": "2026-10-22",
       "resultado": "los filtros que esperan caras que no llegan viven en la entrega 1353, todavía sin publicar: van en la orden 214 para Gemini, en la misma propuesta que la 215."
+    },
+    "orden-216": {
+      "fecha": "2026-10-22",
+      "resultado": "pregunta 91 nueva y barrida (ver arriba): un solo caso, el de la orden, arreglado por Claude con prueba."
     }
   }
 }
