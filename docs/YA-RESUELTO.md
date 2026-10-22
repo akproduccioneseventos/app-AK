@@ -1,5 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex203/204 y build206 cerrado, misma PR1350
+
+204final sourcefa3b:12criterios4PASS/8FAIL, CINCOcausas nuevas211/Claude,
+no ocho errores independientes ni arreglo hecho. Aprobaciones ignoran fallo de
+updatePresupuesto (firma/escritura/ausencia); +2adultos deja fiesta27 pero
+presupuesto25/1000 ytotalFinal1080; dos extras200 terminan800/total1800 envez
+400/1400; fallafiesta tras guardar presupuesto yretry duplica extra; si falla
+leer firma la guarda la trata como nofirmado y permite modificar. Motor,
+normalizador,mutex,guardia de estructura yacciones reales; persistencia/CRM/
+sesion/sync controlados, NO SDK/HTTP/realcobro. No quitar proteccion del contrato.
+203:3salidas ICS capturadas conservan fecha civil/medianoche/1enero. Observacion
+TZflotante es RIESGO/PROPUESTA, NO otro bug confirmado del importador; RFC5545
+lo permite. Ver revisionprincipal203; no reencargarporallPass/FAILcontradictorio.
+Ayudante cerrado.205preflight rechazo768MiB antes de casos/servidor, NOappbug.
+Herramienta esbuild0.28.2 SOLO.qa-tools/native205, no dependencia de produccion.
+206 compila copiaQAfa3b tras medirse3GiB ysinotraNext/Jest. No usar .nextviejo.
+Artefactodepsreutilizado:unico delta lock @types/estree1.0.8instalado/1.0.9lock,
+documentado; no npmci limpio ni validacion de eseparcheTipos.206 termino exit0,
+tipos/lint ysourceDiffvacio.209 selecciono1172casos, NO loscompleto: interrumpida
+porJSONsin altasatomicas yRAM16MiB conbuildajena. No inventarPASS/bugsdeapp.
+76JSONrestaurados, servidor/pruebaspropios cerrados.213esperarecursos paraportal.
+Codex SOLOaudita, no appedit/merge; no pararprocesos ajenos ni otra corrida pesada.
+
 ## 21/10/2026 - Extension Codex200/201 en la MISMA210/PR1350
 
 NO corregido aun en mainfa3b: A9 solicitudes de menu/servicio distintas se pisan:
