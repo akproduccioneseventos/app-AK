@@ -32,6 +32,9 @@ integrada; no subir a su rama cerrada. Recuento completo198-cierre-y-recuento.md
  duplico209: borrador no aceptado ni cobertura extra. Agentes cerrados.
 -187 no inicio build porRAM<2GiB, ni existeentorno187. No falloapp. No se
  certifica nativo/buildactual/todosroles/14areas/0errores; manualdueno fuera.
+-Entrega1350 BORRADOR:199 verifica46blobs y arbol remoto identicosd1da90d79.
+ Primer verificador uso commit donde correspondia tree.sha; incidenteQA y fuente
+ conservados, corregido sin quitar aserciones. No defectoapp ni aceptacionglobal.
 
 ```comprobar
 archivo: docs/ordenes/210-portal-cliente-pagos-entregas-cancelacion.md

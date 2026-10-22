@@ -3,7 +3,7 @@ Codex SOLO audita/prueba/documenta. Gemini programa; Claude dinero/permisos/comi
 valida/compila/fusiona. No appedit ni merge; excepcionQA ficticio autorizado.
 Manual deldueno fuera de pendientesCodex. Privados NO CONTRASTADOS.
 Repo C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal
-Rama codex/192-portal-cliente-20261021.1345YAintegrada, NO subir rama vieja.
+Rama codex/192-portal-cliente-20261021;PR1350 ABIERTA/BORRADOR;1345YAintegrada.
 Fuente mainfa3b492b8f1d6a77433a92f4d63b665cfea3747c.
 Claude6e67caa14e4131a14234e1dea53bff37223becd9 runtimeigual.
 Gemini512881c2534da6d633bc7cc8840bd197c46db3b9 YAintegrada1349.
@@ -31,6 +31,6 @@ accion/estado/rol sin aceptar421rutas14areas6401ASTcomotodosloscontroles.
 No cifra verificable de todoscontrolesfaltantes ni ceroerrores/todaappcertificada.
 QA ficticio sin.envreal/cuentas/cargos/mensajes/hardware; noajenos/forcepush.
 1900docs/cleanup200 yprocesoscerrados.193-197sinserviciospersistentespropios.
-UNApropuestaBORRADOR con evidencia y210, nofusionardocumentossolos.
+UNA1350 con evidencia y210, nofusionardocumentossolos.199 verifica arbol/blobs.
 Ver198-cierre-y-recuento.md y198-consolidado.json. Verificarremotoantesentrega.
 GitHubrojo billingNOapp; no buclecuota si solo quedanresponsables/recursos.

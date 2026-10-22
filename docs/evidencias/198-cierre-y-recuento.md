@@ -82,6 +82,9 @@ son los defectos NUEVOS comprobados en esta tanda, no un conteo universal.
   recibo inicial conservados. Criterio final mira error, fin de espera y recuperacion.
 -Candidato descartado: costoTotalEstimado y costoTotalItem son subtotal/precio de
   venta segun los tipos, NO evidencia de costo interno filtrado por sus nombres.
+-199: verificador inicial pidio el arbol por commit y comparo dos referencias
+  distintas. Se conserva incidente y fuente; version final resuelve tree.sha desde
+  el commit y verifica46blobs. No fallo de GitHub/app ni asercion eliminada.
 
 ## Continuacion tecnica y limites concretos
 
