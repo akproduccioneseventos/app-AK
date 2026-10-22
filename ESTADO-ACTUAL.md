@@ -4,6 +4,7 @@ valida yfusiona. Excepcion dueno: build/servidorQA ficticio. No appedit/mergeCod
 Manualdeldueno fuera de pendientesCodex y de pruebas atribuidas aCodex.
 Repo C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal
 Rama codex/240-contrato-y-cierre-20261022 desde mainbaa034fd25ab77b886e7096105a6114f0336bfdc.
+PR1356ABIERTA/BORRADOR91b394fa4; arbol/orden216 remotos iguales, recibo246.
 1350/1352/1354YAintegradas,1355publica arreglos213. No subir ramas cerradas.
 1353b91bdbeff7d3db7489fabdadd599776376c0577a devuelta en215 porClaude,
 NO aprobada. Cambios privados posteriores NO CONTRASTADOS.
@@ -34,5 +35,5 @@ No0errores/todaappcertificada. Registrar observado/SHA/limites y verificar remot
 Siguiente: entrega216/Claude y212/214/215/Gemini, retestSOLOdelta nuevo.
 QA aislado sinenv/cuentas/datos/cargos/mensajes reales; no procesos/archivos ajenos.
 RAMbuild>=2GiB sin solapar cargas. Agentesbaratos disjuntos; principal decisiones.
-No GHrojo de facturacion como falloapp. No repetir pruebas vigentes ni estados.
+Heartbeat actualizadoa1356; no GHrojo de facturacion como falloapp ni repetir estados.
 Lecturaeconomica: docs/codex/LEER-EVIDENCIA-SIN-DUPLICAR.md; gzip conserva bytes.
