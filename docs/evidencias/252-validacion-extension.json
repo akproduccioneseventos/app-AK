@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-22T11:33:16.382Z",
+  "source": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+  "candidate": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+  "syntax": [
+    {
+      "file": "247-publicador-auditoria.mjs",
+      "exit": 0
+    },
+    {
+      "file": "248-recordatorios-motor.mjs",
+      "exit": 0
+    },
+    {
+      "file": "249-recordatorios-motor.mjs",
+      "exit": 0
+    },
+    {
+      "file": "250-recordatorios-sdk.mjs",
+      "exit": 0
+    },
+    {
+      "file": "250-ejecutar.mjs",
+      "exit": 0
+    }
+  ],
+  "engine249": {
+    "total": 8,
+    "pass": 4,
+    "fail": 4
+  },
+  "sdk250": {
+    "total": 2,
+    "pass": 0,
+    "fail": 2
+  },
+  "cleanup": {
+    "fiestas": 0
+  },
+  "cleanupStatus": 200,
+  "stateLines": 39,
+  "appDiff": [],
+  "note": "4engine causes;2SDKfailures confirm two of same four. Deliberately failing audit assertions are not hidden. Not app-wide validation."
+}

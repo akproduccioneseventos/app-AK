@@ -1,0 +1,112 @@
+{
+  "source": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/lib/utils.ts": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+    "src/lib/invitaciones/recordatorio-no-abiertas.ts": "22b504ab8baf5fc7278473ee5419833bb6cde77ca2258ad0e1a91d9363f3eea0"
+  },
+  "cases": [
+    {
+      "id": "SDK-rescheduled-party-not-contacted-at-old-moment",
+      "pass": false,
+      "observed": {
+        "result": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 1,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 1,
+        "stored": {
+          "id": "qa250-party",
+          "invitados": [
+            {
+              "id": "qa250-guest",
+              "nombre": "Persona QA250",
+              "contacto": "persona@qa.invalid",
+              "guestAccessToken": "qa250-token",
+              "rsvp": "Pendiente",
+              "recordatoriosApertura": [
+                "2026-10-01"
+              ]
+            }
+          ],
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa250-key"
+          },
+          "configuracion": {
+            "nombreEvento": "Fiesta ficticia QA250",
+            "fechaEvento": "2026-12-01"
+          },
+          "_syncedAt": "2026-10-22T11:28:19.840Z"
+        }
+      }
+    },
+    {
+      "id": "SDK-rejected-delivery-and-failed-fallback-do-not-consume-day",
+      "pass": false,
+      "observed": {
+        "first": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 1,
+          "omitidos": 0
+        },
+        "second": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 1
+        },
+        "mails": 1,
+        "fallbackAttempts": 1,
+        "stored": {
+          "id": "qa250-party",
+          "configuracion": {
+            "nombreEvento": "Fiesta ficticia QA250",
+            "fechaEvento": "2026-10-11"
+          },
+          "invitados": [
+            {
+              "id": "qa250-guest",
+              "nombre": "Persona QA250",
+              "contacto": "persona@qa.invalid",
+              "guestAccessToken": "qa250-token",
+              "rsvp": "Pendiente",
+              "recordatoriosApertura": [
+                "2026-10-01"
+              ]
+            }
+          ],
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "qa250-key"
+          },
+          "_syncedAt": "2026-10-22T11:28:19.978Z"
+        }
+      }
+    }
+  ],
+  "cleanup": {
+    "fiestas": 0
+  },
+  "summary": {
+    "total": 2,
+    "pass": 0,
+    "fail": 2
+  },
+  "realServices": false,
+  "appEdited": false,
+  "scope": "Actual reminder engine/date helpers/secrets preservation/fiesta updater/generic Firestore transaction, real Admin SDK demo. Controlled provider rejection, fallback failure, snapshots transport and scheduling. NO HTTP, Gmail/WhatsApp/account/production messages or real provider acceptance."
+}

@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex247-250 motores automaticos
+
+Orden217 NUEVA, NOcorregida:2498criterios4PASS4FAIL son CUATRO causas del
+recordatorio noabierto, no defecto del recorte201. SinCRON_SECRET, puerta publica
+permite llegar al remitente; fecha reprogramada no se reevalua en reserva;
+rechazo403+contingenciafallida consumen dia; reservafallida se marca corridaok.
+R2/R3confirmadas250 conactualizador/transaccionSDKdemo:2FAIL/0docs/cleanup200,
+NOdosbugsmas. Fuentes249 igualesbaa/1353b91.248respuesta vacia era incierta:
+NOjustifica reenvio ciego;249/250 rechazo controlado explicito. No proveedorrreal,
+HTTPservidor ni configuracionCRONdeproduccion certificados.4controlesPASS249.
+247publicador2asercionesPASS, solo frontera15min nueva;PROCESSING control yaexistia.
+Ayudante cerrado. Error exit1por[] del harness corregido/preservadoSINrepetir ni
+reescribirrecibo; no falloapp ni exit0 original. Ver251 para limites. No11motores
+completos/14areas/0errores. No meter envio dentro del callback transaccional.
+
 ## 22/10/2026 - Codex240/242: contrato y cierre213
 
 Mainbaa034fd2 integra1355/213.242 repite los DOS intercalados218 conSDKreal:

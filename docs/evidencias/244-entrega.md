@@ -14,6 +14,17 @@ EstadoClaude recibido archivado243 para no perder decisiones al resumirEstado.
 - [x] Actualizacion de documentacion / evidencia QA
 - [ ] Correccion de errores de la aplicacion
 
+## Extension 247-250
+Publicador:2asercionesPASS, frontera de15min nueva/controlPROCESSING existente.
+Error de salida del harness preservado/corregido; no confundir con falloapp.
+249 recordatorio real+GET+puerta:8criterios4PASS4FAIL, CUATRO causas nuevas217.
+SinCRON_SECRET puede llegar al remitente; reprogramacion ignorada; rechazo conocido
+ycontingenciafallida consumen dia; reserva fallida se marca exitosa. R2/R3 tambien
+confirmadas250SDKreal2FAIL, mismascausas.248estimulo incierto preservado pero NO
+usado para ordenar reenvio ciego. Orden217 conjunta Claudeautorizacion/Geminimotor.
+Gmail/WhatsApp/almacen de contingencia controlados, sin enviosreales.0docs/cleanup200.
+NO11motores completos ni14areaslimpias; no duplicar201respuesta recortada correcta.
+
 ## Lista de Verificacion
 - [x] 240 y242 ejecutadas conFirebaseAdmin SDK/emulador demo aislado.
 - [x] 240 devuelve5criteriosfallidos esperados del informe, no se ocultan.

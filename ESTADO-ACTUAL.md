@@ -1,4 +1,4 @@
-# Estado actual - 22/10/2026, Codex240-242
+# Estado actual - 22/10/2026, Codex247-250
 Codex SOLO audita/prueba/documenta. Gemini programa; Claude dinero/permisos/comida,
 valida yfusiona. Excepcion dueno: build/servidorQA ficticio. No appedit/mergeCodex.
 Manualdeldueno fuera de pendientesCodex y de pruebas atribuidas aCodex.
@@ -19,11 +19,11 @@ constanciaNOreserva/cobra/contrata ni reemplaza papel.
 NOHTTP/navegador/PDF/validezlegal.16fuentes ypagina identicas9d/baa/b91,
 segun240-contraste-fuentes; no equivalencia completa ni privados.
 240/2420docs/cleanup200/procesos propios cerrados, ninguna cuenta/cargo real.
-241indice de limites, NO test nuevo ni pendientes inferidos de historia.
-RegistroClaude recibido archivado243-estado-claude-recibido.md; no perder sus
-decisiones189/190/191/192 ni devolucion215.181/182/195no aceptadas por este documento.
-216historica14PASScerro211poralcance, NO14areas.221SDK9PASSA9;222SDK12PASSA1/A2;
-22315PASScancelacion;224/227DOM14PASS1FAILA7;225/2288PASS;229FAILA8.
+2498criterios4PASS4FAIL=CUATROcausas217/Claude-Gemini:publicosinclavellama
+remitente,fechareprogramadaignorada,reservaconsumidatras403+respaldofallido,
+reservafallida marcaexito.250SDK2FAIL confirmaR2/R3,NOdosmas;0docs/cleanup200.
+248envioincierto NOjustificareenviar;249/250usaron403explicito. NOproveedorreal.
+247publicador2asercionesPASS/frontera15min;errorharness[]preservado/corregido.
 A7pago sinformulario yA8albumDTOsiguen212/Gemini. No reemitir.233b91 filtros
 12criterios9PASS3FAIL =TREScausas214/Gemini: caras[],reactivos,ruleta.
 2378PASSvoz/Meta dosinstancias/adaptadoroptimista; NO proveedor/modelo/audio real.
@@ -32,7 +32,7 @@ A7pago sinformulario yA8albumDTOsiguen212/Gemini. No reemitir.233b91 filtros
 No nuevo build/grafo por docs; fuente congelada+gateSHA antes de nuevosnativos.
 421rutas/14areas/7roles/6401AST esinventario, NOcadaaccion/rol/botonaceptado.
 No0errores/todaappcertificada. Registrar observado/SHA/limites y verificar remoto.
-Siguiente: entrega216/Claude y212/214/215/Gemini, retestSOLOdelta nuevo.
+Siguiente:216/217Claude y212/214/215/217Gemini, retestSOLOdelta nuevo;ver251.
 QA aislado sinenv/cuentas/datos/cargos/mensajes reales; no procesos/archivos ajenos.
 RAMbuild>=2GiB sin solapar cargas. Agentesbaratos disjuntos; principal decisiones.
 Heartbeat actualizadoa1356; no GHrojo de facturacion como falloapp ni repetir estados.
