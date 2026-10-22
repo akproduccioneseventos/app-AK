@@ -1,0 +1,86 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "candidate": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+  "hashes": {
+    "src/lib/utils.ts": {
+      "source": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+      "candidate": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+      "equal": true
+    },
+    "src/lib/invitaciones/recordatorio-no-abiertas.ts": {
+      "source": "22b504ab8baf5fc7278473ee5419833bb6cde77ca2258ad0e1a91d9363f3eea0",
+      "candidate": "22b504ab8baf5fc7278473ee5419833bb6cde77ca2258ad0e1a91d9363f3eea0",
+      "equal": true
+    },
+    "src/lib/automatico/puerta-de-las-tareas.ts": {
+      "source": "791d94eea4bd04df3f938bb087359a0bc0f3f8c24a37d5e27bf41d5d82f0dd16",
+      "candidate": "358875e9072aafb0d0b6940e499588f9bc11e236c098e39c4b6caf257602ff96",
+      "equal": false
+    },
+    "src/app/api/cron/recordar-invitacion-no-abierta/route.ts": {
+      "source": "49c513e4a5ca75255f81f6a99e7507870fae9b4cf139b073e7959b5b15f0540e",
+      "candidate": "49c513e4a5ca75255f81f6a99e7507870fae9b4cf139b073e7959b5b15f0540e",
+      "equal": true
+    }
+  },
+  "cases": [
+    {
+      "id": "configured-key-denies-anonymous",
+      "pass": true,
+      "observed": {
+        "status": 401,
+        "mails": 0,
+        "marked": []
+      }
+    },
+    {
+      "id": "authorized-key-drives-engine-on-due-day",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 1,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 1,
+        "marked": [
+          "recordar-invitacion-no-abierta"
+        ]
+      }
+    },
+    {
+      "id": "no-key-public-task-cannot-send-to-a-person",
+      "pass": true,
+      "observed": {
+        "status": 503,
+        "body": {
+          "error": "Esta tarea le escribe a un cliente: no corre hasta que se configure la clave."
+        },
+        "mails": 0,
+        "marked": [],
+        "scheduledAttempts": 0,
+        "guest": {
+          "id": "qa255-guest",
+          "nombre": "Persona QA255",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa255-guest-token",
+          "rsvp": "Pendiente"
+        }
+      }
+    }
+  ],
+  "warnings": [],
+  "summary": {
+    "total": 3,
+    "pass": 3,
+    "fail": 0
+  },
+  "appEdited": false,
+  "externalNetwork": false,
+  "scope": "Actual engine, cron GET and public gate, actual Uruguay date helpers. Controlled storage/reservation/provider/fallback/clock/rate-limit and run-marker adapters, Request/Response in-process; NO Firestore SDK, signed HTTP server, Gmail/WhatsApp/account or production execution."
+}

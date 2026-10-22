@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex254/255 CIERRA216 y217R1 por alcance
+
+Main725e62ba2 integra1357/1358.254SDKreal11PASS0FAIL cierraC1-C4contrato:
+resumencliente100000/30000/70000;partialnoaltera constancia; dosllamadas
+conservan1firma/1aviso;huellaA noacepta textoB. Controlesanterioresconservados.
+Unmodulodeactualizador/1proceso, NOdosservidores; NOHTTP/nativo/PDF/legal.
+2553PASS puerta/GET/motor reales conadaptadores:sinCRON_SECRET503,0envios,
+0marcas;claveausenteconfigurada401;clavevalidaejecuta.217R1CERRADA poralcance.
+0docs/cleanup200/procesos propios cerrados. No reabrir240/249R1 historicas.
+217R2-R4 engineidenticobaa/725,212/214/215Gemini conservan entrega. Noaceptacion
+de toda1358finanzas/CRM/costos/presupuestos ni14areas.253 actualizado,ver256.
+
 ## 22/10/2026 - Recuento unico253, no inventar nuevos pendientes
 
 253-recuento-unico-auditoria.md concilia14areas/alcances/cierres/limites de165-250.
