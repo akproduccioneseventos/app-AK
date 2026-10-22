@@ -1,6 +1,6 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1355 (`baa034fd2`, 22/10): aprobaciones del portal sin intercalados y el estado de la factura al sacar un cobro (orden 213-claude).
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1357 (`e2ecb92ae`, 22/10): firma del contrato en el portal (orden 216-claude) y el recordatorio que no se dispara sin clave (orden 217, R1).
 
 ## En qué se está
 Codex 186-206: orden 210 publicada (1351); orden 211 (aprobaciones y contrato firmado, incluye un error mío ya publicado) hecha, falta publicar. Para Gemini: orden 212 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
@@ -34,6 +34,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1356 (`5ec6bb2fa`, recuento único 253): juntado, sin hallazgos nuevos.
 - Codex 1356 (`dcfe7b458`, auditorías 240 y 249-251): juntado. Firma del contrato (216) arreglada por Claude; recordatorio: R1 por Claude, R2-R4 a Gemini (orden 215, bloque 6).
 - (antes) Codex 1356 (`3155a27ba`, auditoría 240): juntado. Las cuatro fallas de la firma del contrato en el portal las arregló Claude (orden 216-claude).
 - Codex 1354 (`8ef06a7f4`, auditorías 213-239): juntado. Las dos fallas de plata de las aprobaciones (firma que llega en el medio, deshacer que pisaba a otro) las arregló Claude (orden 213-claude); filtros → orden 214 para Gemini.
