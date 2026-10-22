@@ -765,6 +765,8 @@ async function tomarSolicitud<T extends { id: string; status: string }>(
   campo: CampoDeSolicitud,
   requestId: string,
   cambiar: (solicitud: T, fiesta: FiestaEnPlanificacion) => Partial<FiestaEnPlanificacion> & { solicitud: T },
+  /** Se mira adentro de la escritura, sobre la fiesta que se va a guardar: si devuelve un texto, no se toma. */
+  rechazarSi?: (fiesta: FiestaEnPlanificacion) => string | null,
 ): Promise<{ ok: true; solicitud: T; fiesta: FiestaEnPlanificacion } | { ok: false; error: string }> {
   let error: string | null = null;
   let tomada: T | null = null;
@@ -777,6 +779,8 @@ async function tomarSolicitud<T extends { id: string; status: string }>(
     const solicitud = lista.find((r) => r.id === requestId);
     if (!solicitud) { error = 'Solicitud no encontrada'; return actual; }
     if (solicitud.status !== 'pendiente') { error = 'La solicitud ya fue procesada.'; return actual; }
+    const motivo = rechazarSi?.(actual) ?? null;
+    if (motivo) { error = motivo; return actual; }
     tomada = solicitud;
     const { solicitud: nueva, ...resto } = cambiar(solicitud, actual);
     return { ...actual, ...resto, [campo]: lista.map((r) => (r.id === requestId ? nueva : r)) } as FiestaEnPlanificacion;
@@ -787,15 +791,40 @@ async function tomarSolicitud<T extends { id: string; status: string }>(
   return { ok: true, solicitud: tomada, fiesta };
 }
 
-/** Si el presupuesto no se pudo tocar, la solicitud vuelve a quedar pendiente: nada a medias. */
-async function devolverAPendiente(fiestaId: string, campo: CampoDeSolicitud, requestId: string, antes: Partial<FiestaEnPlanificacion> = {}) {
+/**
+ * Si el presupuesto no se pudo tocar, la solicitud vuelve a quedar pendiente: nada a medias.
+ * `deshacer` recibe la fiesta de AHORA, no la que se leyó al aprobar: entre medio otra persona pudo aprobar
+ * otro pedido, y volver a la foto vieja le borraba sus invitados (Codex 218, orden 213-claude).
+ */
+async function devolverAPendiente(
+  fiestaId: string,
+  campo: CampoDeSolicitud,
+  requestId: string,
+  deshacer: (actual: FiestaEnPlanificacion) => Partial<FiestaEnPlanificacion> = () => ({}),
+) {
   await actualizarFiesta(fiestaId, (actual) => ({
     ...actual,
-    ...antes,
+    ...deshacer(actual),
     [campo]: (((actual as any)[campo] ?? []) as Array<{ id: string; status: string }>).map((r) =>
       r.id === requestId ? { ...r, status: 'pendiente', resueltoAt: undefined, motivoRechazo: undefined } : r,
     ),
   }) as FiestaEnPlanificacion);
+}
+
+/**
+ * Deshacer por defecto: cada dato de la configuración que tocó este pedido vuelve a como estaba SÓLO si nadie
+ * lo cambió después. Si otro lo cambió, manda lo del otro.
+ */
+function deshacerSiNadieLoToco(antes: Record<string, unknown>, despues: Record<string, unknown>) {
+  return (actual: FiestaEnPlanificacion): Partial<FiestaEnPlanificacion> => {
+    const claves = Object.keys(despues);
+    if (claves.length === 0) return {};
+    const config: Record<string, unknown> = { ...(actual.configuracion as any) };
+    for (const k of claves) {
+      if (JSON.stringify(config[k]) === JSON.stringify(despues[k])) config[k] = antes[k];
+    }
+    return { configuracion: config as FiestaEnPlanificacion['configuracion'] };
+  };
 }
 
 /**
@@ -813,6 +842,8 @@ async function aprobarConPresupuesto<T extends { id: string; status: string }>(
   requestId: string,
   cambiarFiesta: (solicitud: T, fiesta: FiestaEnPlanificacion) => Partial<FiestaEnPlanificacion> & { solicitud: T },
   cambiarPresupuesto: (solicitud: T, presupuesto: Presupuesto) => Presupuesto,
+  /** Cómo se deshace lo que el pedido le hizo a la fiesta, sobre la fiesta de ahora. */
+  deshacerFiesta?: (solicitud: T, actual: FiestaEnPlanificacion) => Partial<FiestaEnPlanificacion>,
 ): Promise<{ success: boolean; error?: string }> {
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -826,15 +857,30 @@ async function aprobarConPresupuesto<T extends { id: string; status: string }>(
     };
   }
 
-  let fiestaAntes: Partial<FiestaEnPlanificacion> = {};
+  const CONTRATO_FIRMADO =
+    'El contrato ya está firmado: este cambio necesita una adenda. El pedido queda pendiente y el presupuesto no se tocó.';
+  let configAntes: Record<string, unknown> = {};
+  let configDespues: Record<string, unknown> = {};
   const tomada = await tomarSolicitud<T>(fiestaId, campo, requestId, (solicitud, actual) => {
     const cambio = cambiarFiesta(solicitud, actual);
-    fiestaAntes = Object.fromEntries(
-      Object.keys(cambio).filter((k) => k !== 'solicitud').map((k) => [k, (actual as any)[k]]),
-    ) as Partial<FiestaEnPlanificacion>;
+    configAntes = {};
+    configDespues = {};
+    const nueva = (cambio.configuracion ?? {}) as Record<string, unknown>;
+    const vieja = (actual.configuracion ?? {}) as Record<string, unknown>;
+    for (const k of Object.keys(nueva)) {
+      if (JSON.stringify(nueva[k]) !== JSON.stringify(vieja[k])) {
+        configAntes[k] = vieja[k];
+        configDespues[k] = nueva[k];
+      }
+    }
     return cambio;
-  });
+  // La firma se vuelve a mirar ADENTRO de la escritura: si se firmó entre la primera lectura y ésta, el
+  // pedido no se toma (Codex 218, orden 213-claude).
+  }, (actual) => (actual.contratoFirmaInfo?.isSigned ? CONTRATO_FIRMADO : null));
   if (!tomada.ok) return { success: false, error: tomada.error };
+  const deshacer = deshacerFiesta
+    ? (actual: FiestaEnPlanificacion) => deshacerFiesta(tomada.solicitud, actual)
+    : deshacerSiNadieLoToco(configAntes, configDespues);
 
   const marca = `solicitud:${requestId}`;
   try {
@@ -845,11 +891,11 @@ async function aprobarConPresupuesto<T extends { id: string; status: string }>(
       return presupuestoRecalculado({ ...cambiado, ajustesAplicados: [...marcas, marca] });
     });
     if (!resultado.encontrado) {
-      await devolverAPendiente(fiestaId, campo, requestId, fiestaAntes);
+      await devolverAPendiente(fiestaId, campo, requestId, deshacer);
       return { success: false, error: 'No se encontró el presupuesto: el pedido queda pendiente.' };
     }
   } catch (errorPresupuesto) {
-    await devolverAPendiente(fiestaId, campo, requestId, fiestaAntes);
+    await devolverAPendiente(fiestaId, campo, requestId, deshacer);
     throw errorPresupuesto;
   }
   return { success: true };
@@ -879,6 +925,17 @@ export async function approveClientMenuChangeRequest(fiestaId: string, requestId
         invitadosAdultos: (presupuesto.invitadosAdultos ?? 0) + request.adultosDelta,
         invitadosNinos: (presupuesto.invitadosNinos ?? 0) + request.ninosAdolescentesDelta,
         invitadosCantidad: (presupuesto.invitadosCantidad ?? 0) + request.adultosDelta + request.ninosAdolescentesDelta,
+      }),
+      // Este pedido SUMA: se deshace restando lo suyo a la fiesta de ahora, sin tocar lo que sumó otro.
+      (request, actual) => ({
+        configuracion: {
+          ...actual.configuracion,
+          invitadosEstimados: (actual.configuracion.invitadosEstimados ?? 0) - request.adultosDelta - request.ninosAdolescentesDelta,
+          ...(typeof actual.configuracion.invitadosAdultos === 'number'
+            ? { invitadosAdultos: actual.configuracion.invitadosAdultos - request.adultosDelta } : {}),
+          ...(typeof actual.configuracion.invitadosNinos === 'number'
+            ? { invitadosNinos: actual.configuracion.invitadosNinos - request.ninosAdolescentesDelta } : {}),
+        },
       }),
     );
   } catch (err: any) {
