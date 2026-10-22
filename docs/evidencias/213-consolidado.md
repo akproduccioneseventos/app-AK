@@ -13,7 +13,8 @@ una foto ni importarla desde un servicio real.
 Los cuatro FAIL reproducen DOS causas YA incluidas en210: A7, clicar Informar
 pago no abre input/formulario de comprobante; A8, enlace oficial entregado no
 aparece en el portal activo. PC y Pixel7 repiten cada causa. No nueva orden.
-Ver 213-resultados.json, capturas/trazas213-artifacts y207fuente de sondas.
+Ver 213-resultados.json.gz, capturas213-artifacts y207fuente de sondas.
+Las trazas originales se conservan localmente;231/235 registran hashes ygzip.
 
 Inspeccion visual manual: controles y cuentas legibles en captura movil;
 modal de portada PC con cierre visible. Las imagenes externas fueron bloqueadas

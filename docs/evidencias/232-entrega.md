@@ -52,3 +52,13 @@ ni datos productivos. El recorrido nativo anterior leia tambien referencias
 versionadas del repositorio: no certifica su saneado ni sus registros historicos.
 Sus logs de servidor/trazas canceladas se conservan localmente, no se suben con
 esta entrega.231 conserva hashes; se publican solo capturas213 inspeccionadas.
+
+Publicacion economica: recibos nativos voluminosos, manifiesto231 y contextos
+generados se publican .gz sin cambiar sus bytes.235 verifica descompresion y
+SHA256; originales locales conservados. No leer el diff entero para revisar
+un fallo: empezar en213/214 y220. Los contextos originales llevan espacios al
+final de lineas de codigo citadas; se preservan, no se reformatean para ocultarlo.
+Ver docs/codex/LEER-EVIDENCIA-SIN-DUPLICAR.md.
+
+237:8PASS voz/Meta enb91, dosinstancias/adaptadoroptimista eidentidades controladas;
+no modelo/audio/proveedor real. Se mantiene el limite de cobertura, no otraarea limpia.

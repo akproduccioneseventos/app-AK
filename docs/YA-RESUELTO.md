@@ -1,5 +1,11 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Codex237 voz/Meta candidato
+2378PASS enb91: dosinstancias/IDs/retry yoperadorfinanzasdenegado;Meta firmaHMAC,
+dosmensajesdistintos/repetidos/canalIG. Adaptadorde transaccionoptimista,
+identidaddeequipo/proveedorcontrolados, NOFirestore/voz/modelo/canalreal.
+No equivale a asistentesautonomos completos. Proteccionegress activa.
+
 ## 22/10/2026 - Codex233 candidato1353, entretenimiento
 Fuente b91,12criterios9PASS3FAIL; orden214/Gemini delta191. SonTRES causas:
 tresconsumidores pasan[] ydibujadornunca recibecaras; guiño/cejas flags sin

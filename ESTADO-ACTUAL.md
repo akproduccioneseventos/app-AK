@@ -1,4 +1,4 @@
-# Estado actual - 22/10/2026, Codex213-233
+# Estado actual - 22/10/2026, Codex213-239
 Codex SOLO audita/prueba/documenta; Gemini programa; Claude dinero/permisos/comida,
 valida/fusiona. Excepcion dueno: QA/build ficticio. No appedit/merge por Codex.
 Manual del dueno fuera de pendientesCodex y de pruebas atribuidas a Codex.
@@ -30,7 +30,10 @@ NOaceptacion de cada control.212-inventario no coincide con14areas oficiales.
 Nueva propuesta solo delta desde9d: fuentes/evidencias +213, no app ni merge.
 233 filtrosb91:12casos9PASS3FAIL;214/Gemini TRES causas (caras[],reactivos,ruleta).
 230rectificado: SI hay consumidores yTSdisponible; no bug por ese primer informe.
+2378PASS voz/Meta dosinstancias/adaptadoroptimista;NO modelo/audio/proveedorreal.
 PendienteCodex: retest213 SOLO con entrega nueva;212 nativo cuando se implemente.
+239mapa firmaREAL en curso;218estadofirma/223cancelaciones NO prueban su endpoint.
 Desconocidos privados posteriores: NO CONTRASTADOS. No0errores/todaapp lista.
 No repetir fuenteigual ni build/grafo por docs; no controles GHde facturacion.
 Registrar observado/SHA/limites; publicar y verificar arbol/blobs de propuesta.
+Lectura economica: docs/codex/LEER-EVIDENCIA-SIN-DUPLICAR.md;235 explica .gz.

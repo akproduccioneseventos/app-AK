@@ -15,7 +15,7 @@ const includePortal=process.env.AK_AUDIT_SKIP_PORTAL!=='true';
 const batchSize=Number(process.env.AK_AUDIT_BATCH_SIZE||0);assert.ok(Number.isInteger(batchSize)&&batchSize>=0&&batchSize<=12);
 const build=JSON.parse(fs.readFileSync(path.join(dir,'206-entorno.json'),'utf8'));
 assert.equal(build.source,source);assert.equal(build.buildExit,0,'Wait for frozen-source build');
-const target=path.join(dir,`${runId}-ejecucion.json`);assert.equal(fs.existsSync(target),false,'Preserve run');
+const target=path.join(dir,`${runId}-ejecucion.json`);assert.equal(fs.existsSync(target)||fs.existsSync(target+'.gz'),false,'Preserve run including published gzip');
 const qa=path.resolve(build.qa);assert.match(qa.replaceAll('\\','/'),/\/Temp\/ak-qa-206-[^/]+$/);
 const safe=Object.fromEntries(['PATH','TEMP','TMP','SYSTEMROOT','WINDIR','PROGRAMDATA','PROGRAMFILES','COMSPEC','PATHEXT','LOCALAPPDATA'].filter(k=>process.env[k]!==undefined).map(k=>[k,process.env[k]]));
 const git=args=>{const r=spawnSync('git',args,{cwd:qa,env:safe,encoding:'utf8',maxBuffer:4*1024**2});assert.equal(r.status,0,r.stderr);return r.stdout.trim();};

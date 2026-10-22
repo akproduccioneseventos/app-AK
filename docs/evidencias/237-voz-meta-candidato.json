@@ -1,0 +1,250 @@
+{
+  "source": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+  "checkedAt": "2026-10-22T05:44:51.704Z",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/asistente/que-puede-hacer-solo.ts": "4dcda1bc9c812a69138c8c669578d4a5bf59862e40ced8e0a2774445f4c5f328",
+    "src/app/api/asistente/voz-en-vivo/accion/route.ts": "1ccb4e916a7750c0b64b212f627eeb6b6b81024ac793b501268be2895495f475",
+    "src/app/api/meta/webhook/route.ts": "8edd9b648646a8c3a4097ec6047caf17d1f2aad218df7e3f076c65893f2f8459"
+  },
+  "cases": [
+    {
+      "id": "voice-two-modules-same-attempt-once",
+      "pass": true,
+      "observed": {
+        "sequential": [
+          {
+            "status": 200,
+            "body": {
+              "success": true,
+              "mensaje": "Tarea \"Tarea ficticia QA197\" creada con éxito.",
+              "tarea": {
+                "id": "task_1792647890771_ylev",
+                "title": "Tarea ficticia QA197",
+                "description": "Para: Equipo",
+                "status": "pending",
+                "createdAt": "2026-10-22T05:44:50.771Z",
+                "creadaPor": "owner@qa.invalid"
+              }
+            }
+          },
+          {
+            "status": 200,
+            "body": {
+              "success": true,
+              "mensaje": "Tarea \"Tarea ficticia QA197\" creada con éxito.",
+              "tarea": {
+                "id": "task_1792647890771_ylev",
+                "title": "Tarea ficticia QA197",
+                "description": "Para: Equipo",
+                "status": "pending",
+                "createdAt": "2026-10-22T05:44:50.771Z",
+                "creadaPor": "owner@qa.invalid"
+              }
+            }
+          }
+        ],
+        "tasks": [
+          {
+            "id": "task_1792647890771_ylev",
+            "title": "Tarea ficticia QA197",
+            "description": "Para: Equipo",
+            "status": "pending",
+            "createdAt": "2026-10-22T05:44:50.771Z",
+            "creadaPor": "owner@qa.invalid"
+          }
+        ]
+      }
+    },
+    {
+      "id": "voice-two-modules-callback-retry-once",
+      "pass": true,
+      "observed": {
+        "concurrent": [
+          {
+            "status": 200,
+            "body": {
+              "success": true,
+              "mensaje": "Tarea \"Tarea ficticia QA197\" creada con éxito.",
+              "tarea": {
+                "id": "task_1792647891213_dlkl",
+                "title": "Tarea ficticia QA197",
+                "description": "Para: Equipo",
+                "status": "pending",
+                "createdAt": "2026-10-22T05:44:51.213Z",
+                "creadaPor": "owner@qa.invalid"
+              }
+            }
+          },
+          {
+            "status": 200,
+            "body": {
+              "success": true,
+              "mensaje": "Tarea \"Tarea ficticia QA197\" creada con éxito.",
+              "tarea": {
+                "id": "task_1792647891213_dlkl",
+                "title": "Tarea ficticia QA197",
+                "description": "Para: Equipo",
+                "status": "pending",
+                "createdAt": "2026-10-22T05:44:51.213Z",
+                "creadaPor": "owner@qa.invalid"
+              }
+            }
+          }
+        ],
+        "tasks": [
+          {
+            "id": "task_1792647891213_dlkl",
+            "title": "Tarea ficticia QA197",
+            "description": "Para: Equipo",
+            "status": "pending",
+            "createdAt": "2026-10-22T05:44:51.213Z",
+            "creadaPor": "owner@qa.invalid"
+          }
+        ],
+        "callbackRetries": 2
+      }
+    },
+    {
+      "id": "voice-new-deliberate-attempt-allowed",
+      "pass": true,
+      "observed": {
+        "different": {
+          "status": 200,
+          "body": {
+            "success": true,
+            "mensaje": "Tarea \"Tarea ficticia QA197\" creada con éxito.",
+            "tarea": {
+              "id": "task_1792647891290_1ffh",
+              "title": "Tarea ficticia QA197",
+              "description": "Para: Equipo",
+              "status": "pending",
+              "createdAt": "2026-10-22T05:44:51.290Z",
+              "creadaPor": "owner@qa.invalid"
+            }
+          }
+        },
+        "tasks": 2
+      }
+    },
+    {
+      "id": "voice-operator-finance-denied",
+      "pass": true,
+      "observed": {
+        "status": 403,
+        "body": {
+          "success": false,
+          "error": "Tu perfil no tiene permiso de CONTABILIDAD para consultar deudas o saldos."
+        }
+      }
+    },
+    {
+      "id": "meta-two-modules-distinct-mids-preserved",
+      "pass": true,
+      "observed": {
+        "mids": [
+          {
+            "status": 200,
+            "body": {
+              "status": "EVENT_RECEIVED",
+              "guardados": 1
+            }
+          },
+          {
+            "status": 200,
+            "body": {
+              "status": "EVENT_RECEIVED",
+              "guardados": 1
+            }
+          }
+        ],
+        "stored": [
+          {
+            "mid": "qa197-a",
+            "canal": "instagram_dm",
+            "senderId": "qa197-guest",
+            "recipientId": "qa197-ak",
+            "texto": "Mensaje ficticio QA197",
+            "timestamp": "2026-10-22T05:44:51.699Z",
+            "contestado": false
+          },
+          {
+            "mid": "qa197-b",
+            "canal": "instagram_dm",
+            "senderId": "qa197-guest",
+            "recipientId": "qa197-ak",
+            "texto": "Mensaje ficticio QA197",
+            "timestamp": "2026-10-22T05:44:51.699Z",
+            "contestado": false
+          }
+        ],
+        "callbackRetries": 1
+      }
+    },
+    {
+      "id": "meta-repeated-mid-not-duplicated",
+      "pass": true,
+      "observed": {
+        "same": [
+          {
+            "status": 200,
+            "body": {
+              "status": "EVENT_RECEIVED",
+              "guardados": 0
+            }
+          },
+          {
+            "status": 200,
+            "body": {
+              "status": "EVENT_RECEIVED",
+              "guardados": 0
+            }
+          }
+        ],
+        "stored": 2
+      }
+    },
+    {
+      "id": "meta-instagram-channel-preserved",
+      "pass": true,
+      "observed": [
+        {
+          "mid": "qa197-a",
+          "canal": "instagram_dm",
+          "senderId": "qa197-guest",
+          "recipientId": "qa197-ak",
+          "texto": "Mensaje ficticio QA197",
+          "timestamp": "2026-10-22T05:44:51.699Z",
+          "contestado": false
+        },
+        {
+          "mid": "qa197-b",
+          "canal": "instagram_dm",
+          "senderId": "qa197-guest",
+          "recipientId": "qa197-ak",
+          "texto": "Mensaje ficticio QA197",
+          "timestamp": "2026-10-22T05:44:51.699Z",
+          "contestado": false
+        }
+      ]
+    },
+    {
+      "id": "meta-false-signature-no-write",
+      "pass": true,
+      "observed": {
+        "status": 403,
+        "body": {
+          "error": "Firma X-Hub-Signature-256 inválida o ausente"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "pass": 8,
+    "fail": 0
+  },
+  "appEdited": false,
+  "realServices": false,
+  "limits": "Actual POST handlers and risk/permission helpers, independent loaded module instances, HMAC signatures. Shared controlled optimistic transaction adapter explicitly repeats callbacks on conflict. No Firestore SDK/Next HTTP, live voice/model/Meta provider or deployed multi-server acceptance."
+}
