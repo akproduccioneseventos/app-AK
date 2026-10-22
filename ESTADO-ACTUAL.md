@@ -4,10 +4,10 @@ valida yfusiona. Excepcion dueno: build/servidorQA ficticio. No appedit/mergeCod
 Manualdeldueno fuera de pendientesCodex y de pruebas atribuidas aCodex.
 Repo C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal
 Rama codex/240-contrato-y-cierre-20261022 desde mainbaa034fd25ab77b886e7096105a6114f0336bfdc.
-PR1356ABIERTA/BORRADOR91b394fa4; arbol/orden216 remotos iguales, recibo246.
+PR1356ABIERTA/BORRADORdcfe7b458; arbol/orden217 remotos iguales.253recuento unico.
 1350/1352/1354YAintegradas,1355publica arreglos213. No subir ramas cerradas.
 1353b91bdbeff7d3db7489fabdadd599776376c0577a devuelta en215 porClaude,
-NO aprobada. Cambios privados posteriores NO CONTRASTADOS.
+NO aprobada.1357ABIERTA675a908a informa216+217R1 corregidas,PENDIENTEretestCodex.
 242retest213 SDKdemo REAL2PASS0FAIL: firma intercalada rechaza sin tocar1000;
 rollbackA conserva28invitados/1120deBaprobado. CERRADAS esas DOScausas, no reencargar.
 24011criterios6PASS5FAIL =CUATRO causas NUEVAS216/Claude, no cinco:

@@ -1,5 +1,14 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22/10/2026 - Recuento unico253, no inventar nuevos pendientes
+
+253-recuento-unico-auditoria.md concilia14areas/alcances/cierres/limites de165-250.
+NOauditoria nueva ni aceptaciontotal. Separa fallo yaauditado esperando arreglo,
+entrega esperando retest y evidencia nunca acreditada. Sustituye las listas
+generales contradictorias del chat.1357abierta675a908a informa216C1-C4 y217R1
+corregidas; NO comprobadas porCodex todavia ni publicadas en mainbaa observado.
+217R2-R4,212UI,214filtros,215devolucion siguen su entrega; no reencargarlas.
+
 ## 22/10/2026 - Codex247-250 motores automaticos
 
 Orden217 NUEVA, NOcorregida:2498criterios4PASS4FAIL son CUATRO causas del
