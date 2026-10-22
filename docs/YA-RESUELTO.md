@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21/10/2026 - Extension Codex200/201 en la MISMA210/PR1350
+
+NO corregido aun en mainfa3b: A9 solicitudes de menu/servicio distintas se pisan:
+dosrequestIdsuccess, solo1guardado, incluso con saveFiesta y transaccion SDKreales.
+2009casos6PASS3FAIL sonUNAcausa/tresvariantes. Secuenciales3preservadas,
+pendientes sin cobrar/modificar presupuesto, clave/sueldo conservados;0docs y
+cleanup200/JavaNodecerrados. A10:UIactiva transforma porcentaje0explicito en15,
+extra200->230 y adultos80->92;2018casos6PASS2FAIL sonUNAcausa/dosseñales.
+Con10->220PASS, falloguardar mantieneinputs yerror; no son cargosconfirmados.
+Final202:84criterios69PASS15FAIL, DIEZdefectos+UNAfriccion en210, no15bugs.
+198/199 se conservan como corte/entrega anterior, no reescribirlos para inflar
+aceptacion. No appedit ni merge. Ver202-extension-solicitudes.md ysondas200/201.
+
 ## 21/10/2026 - Codex186-198: portal activo probado y cierres contrastados
 
 NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS. Codex SOLO audito/pruebo;

@@ -9,6 +9,9 @@
 - Alcance: pagina activa, ReactDOM, acciones/lectores reales con adaptadores
   controlados; SDK190 confirma dos casos con emulador. No es aceptacion completa
   del area ni de todos sus controles/roles. No marcar `limpia`.
+- Extension200/201 del MISMOcommit:210 A9 solicitudes distintas se pisan en SDK
+  real (saveFiesta y transaccion reales); A10 el0explicito se calcula como15en UI.
+  No cargos confirmados ni nuevas reglas de negocio. Dos causas nuevas, no cinco.
 
 - Area: `contrato` · Commit: `fa3b492b8f1d6a77433a92f4d63b665cfea3747c`
 - Hallazgos: orden210 A5/A6, `cancelServicesOrParty` en

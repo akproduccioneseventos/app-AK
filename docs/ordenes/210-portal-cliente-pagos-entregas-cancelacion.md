@@ -1,4 +1,4 @@
-# Orden210 - Portal del cliente: ocho defectos reproducidos y una friccion
+# Orden210 - Portal del cliente: diez defectos reproducidos y una friccion
 
 NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
 Fuente ejecutada: main fa3b492b8f1d6a77433a92f4d63b665cfea3747c.
@@ -15,6 +15,11 @@ no diez errores independientes. 188/189 conservan el primer hallazgo en09ea;
 190 confirma dos de ellos con Firestore Admin SDK demo (11criterios9PASS/2FAIL).
 No sumar190 como dos errores nuevos. 193/194 repiten los consumidores en main
 nuevo;195 agrega operaciones del contrato. Datos, contratos y cuentas ficticios.
+
+Extension posterior200/201 sobre LA MISMAfa3b:17criterios12PASS/5FAIL,
+dos causas adicionales A9/A10. Final193-197+200/201:84criterios69PASS/15FAIL,
+DIEZ defectos y UNA friccion.198 conserva el corte anterior, no se lo reescribe.
+No iniciar otra propuesta: sumar estos dos a esta misma210 y validar el conjunto.
 
 ## Claude: saldos, acceso propio y veracidad
 
@@ -110,6 +115,44 @@ Abierto por defecto, tocar el atajo lo CIERRA. Desde cerrado SI lo abre.
 Hacer visible el destino y desplazar al mismo, no alternarlo a ciegas. No es
 otro defecto de importes ni una propuesta de redisenar toda la pagina.
 
+## Extension200/201 - Claude datos/comida/dinero, Gemini consumidor
+
+### A9 - Dos solicitudes distintas responden exito pero se pierde una, P1
+
+submitClientMenuChangeRequest y submitClientServiceAddRequest, portal.actions.ts,
+consumidas por submitGuestRequest/submitServiceRequest en la UI activa.
+200 ejecuta las acciones, saveFiesta REAL, guardia/firma real de portal,
+reponerLaPlata, actualizarFiesta y transaccion REAL Firestore Admin SDK demo.
+Dos lecturas previas se sincronizan, despues se sueltan los guardados sin mockear
+la transaccion. Dos incrementos distintos (+1/+2), dos servicios distintos y el
+caso mixto (+1/servicio) devuelven DOSrequestId exitosos; queda solo UNO.
+Las acciones construyen arrays desde el snapshot previo y saveFiesta los repone
+enteros: la transaccion conserva dinero, pero no la otra solicitud nueva.
+
+Anexar el pedido sobre las listas ACTUALES dentro de su mutacion atomica, sin
+sobrescribir otras solicitudes ni campos. No deduplicar estos dos pedidos
+legitimos ni suprimir otro tipo de solicitud; no convertirlos en cobros o cambiar
+el presupuesto sin aprobacion. No aplicar una union generica de TODOS los arrays
+de saveFiesta: cambiaria borrados intencionales en otras pantallas. Alcance
+200:9criterios6PASS/3FAIL, una causa compartida. Secuenciales conservan tres,
+quedan pendientes, presupuesto no se toca, clave/sueldo se conservan; sin sesion
+y payload vacio se rechazan.0documentos al cerrar, cleanup200, servicios cerrados.
+NO se ejecuto la UI/HTTP en200;201 agrega el consumidor compuesto por separado.
+
+### A10 - Porcentaje explicito0 se convierte en15, P2
+
+PublicPortalClientExperience calcula annualAdjustmentPercent con Number(...)||15.
+201 entra con presupuesto.ajusteAnualPorcentaje=0 y contrato tambien0.
+El extra de catalogo200 se muestra/pide por230 con ajustePorcentaje15; sumar
+dos adultos (estimacion base80 en ese fixture) genera solicitud92 en lugar80.
+Se pulsa la UI REAL y la accion REAL guarda ese payload en el almacen controlado.
+El control con porcentaje10 produce220, como corresponde al propio algoritmo.
+Respetar el0explicito;15solo cuando falte configuracion segun la regla vigente.
+No alterar politica anual global, formulas de precios por menu ni cobros.
+Son solicitudes pendientes/estimaciones, NO cargos confirmados por230.
+201:8criterios6PASS/2FAIL, una causa. Tambien pasan vacio, pendiente sin cambiar
+presupuesto y errores de guardado que conservan nota/cantidad con aviso visible.
+
 ## Aceptacion y limites
 
 Adjuntar rojo/verde por ID de criterio, SHA conjunto y consumidor real. Agregar
@@ -132,4 +175,6 @@ prueba: docs/evidencias/193-portal-cliente-version-nueva.mjs
 prueba: docs/evidencias/194-portal-controles-version-nueva.mjs
 prueba: docs/evidencias/195-portal-operaciones-contrato.mjs
 prueba: docs/evidencias/190-pago-informado-sdk.mjs
+prueba: docs/evidencias/200-solicitudes-portal-sdk.mjs
+prueba: docs/evidencias/201-solicitudes-ui.mjs
 ```

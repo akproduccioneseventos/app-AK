@@ -1,0 +1,206 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "checkedAt": "2026-10-22T01:51:47.718Z",
+  "actualSdk": true,
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/app/actions/fiesta/fiesta.actions.ts": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/lib/fiesta/reponer-la-plata.ts": "97dcc858e11ee28fd1f9901fd98c3aa59a0f267267ab3b1b99bc0972afdca119",
+    "src/app/actions/fiesta/portal.actions.ts": "d7dcefbbb0b2f0fc589c3ceb297a20bfd2707c80201d07a461f7a1e4b30dace0"
+  },
+  "cases": [
+    {
+      "id": "distinct-sequential-requests-persist-sdk",
+      "pass": true,
+      "observed": {
+        "results": [
+          {
+            "success": true,
+            "requestId": "menu_change_request_043a660e-f29b-4dc5-8087-2a3b2e7f5cc7"
+          },
+          {
+            "success": true,
+            "requestId": "menu_change_request_41875959-792d-4a34-bd67-8b2231aa9c68"
+          },
+          {
+            "success": true,
+            "requestId": "service_change_request_358dd62d-ab83-410d-92ad-110faf4033a2"
+          }
+        ],
+        "menus": [
+          {
+            "id": "menu_change_request_043a660e-f29b-4dc5-8087-2a3b2e7f5cc7",
+            "createdAt": "2026-10-22T01:51:46.409Z",
+            "status": "pendiente",
+            "adultosDelta": 1,
+            "ninosAdolescentesDelta": 0,
+            "montoAdicional": 100,
+            "nuevoTotalEstimado": 1100,
+            "notaCliente": "QA200-1"
+          },
+          {
+            "id": "menu_change_request_41875959-792d-4a34-bd67-8b2231aa9c68",
+            "createdAt": "2026-10-22T01:51:46.614Z",
+            "status": "pendiente",
+            "adultosDelta": 2,
+            "ninosAdolescentesDelta": 0,
+            "montoAdicional": 200,
+            "nuevoTotalEstimado": 1200,
+            "notaCliente": "QA200-2"
+          }
+        ],
+        "services": [
+          {
+            "id": "service_change_request_358dd62d-ab83-410d-92ad-110faf4033a2",
+            "createdAt": "2026-10-22T01:51:46.765Z",
+            "status": "pendiente",
+            "servicioId": "qa200-extra-a",
+            "nombreServicio": "qa200-extra-a",
+            "cantidad": 1,
+            "precioBase": 200,
+            "ajustePorcentaje": 0,
+            "montoAdicional": 200,
+            "nuevoTotalEstimado": 1200
+          }
+        ]
+      }
+    },
+    {
+      "id": "requests-remain-pending-not-budget-charges-sdk",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "actual-save-preserves-portal-key-and-private-salary-sdk",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "concurrent-menu-retains-two-distinct-requests-sdk",
+      "pass": false,
+      "observed": {
+        "results": [
+          {
+            "success": true,
+            "requestId": "menu_change_request_b47ba76f-9192-4022-bf4e-436c9fa87f7e"
+          },
+          {
+            "success": true,
+            "requestId": "menu_change_request_74288faa-0dc1-49b0-8051-86874a7720f6"
+          }
+        ],
+        "menus": [
+          {
+            "id": "menu_change_request_74288faa-0dc1-49b0-8051-86874a7720f6",
+            "createdAt": "2026-10-22T01:51:47.013Z",
+            "status": "pendiente",
+            "adultosDelta": 2,
+            "ninosAdolescentesDelta": 0,
+            "montoAdicional": 200,
+            "nuevoTotalEstimado": 1200,
+            "notaCliente": "QA200-2"
+          }
+        ],
+        "services": []
+      }
+    },
+    {
+      "id": "concurrent-service-retains-two-distinct-requests-sdk",
+      "pass": false,
+      "observed": {
+        "results": [
+          {
+            "success": true,
+            "requestId": "service_change_request_2bd3933d-836e-4417-b09d-23ef24d3c7a7"
+          },
+          {
+            "success": true,
+            "requestId": "service_change_request_8b784630-9cf2-4d31-8076-d9a6cb40c56e"
+          }
+        ],
+        "menus": [],
+        "services": [
+          {
+            "id": "service_change_request_8b784630-9cf2-4d31-8076-d9a6cb40c56e",
+            "createdAt": "2026-10-22T01:51:47.247Z",
+            "status": "pendiente",
+            "servicioId": "qa200-extra-b",
+            "nombreServicio": "qa200-extra-b",
+            "cantidad": 1,
+            "precioBase": 200,
+            "ajustePorcentaje": 0,
+            "montoAdicional": 200,
+            "nuevoTotalEstimado": 1200
+          }
+        ]
+      }
+    },
+    {
+      "id": "concurrent-mixed-retains-two-distinct-requests-sdk",
+      "pass": false,
+      "observed": {
+        "results": [
+          {
+            "success": true,
+            "requestId": "menu_change_request_8ca115dd-6472-4aeb-98af-ec24b8201aed"
+          },
+          {
+            "success": true,
+            "requestId": "service_change_request_aea9de05-c22a-4697-a6bc-01530f242a26"
+          }
+        ],
+        "menus": [
+          {
+            "id": "menu_change_request_8ca115dd-6472-4aeb-98af-ec24b8201aed",
+            "createdAt": "2026-10-22T01:51:47.446Z",
+            "status": "pendiente",
+            "adultosDelta": 1,
+            "ninosAdolescentesDelta": 0,
+            "montoAdicional": 100,
+            "nuevoTotalEstimado": 1100,
+            "notaCliente": "QA200-1"
+          }
+        ],
+        "services": []
+      }
+    },
+    {
+      "id": "empty-guest-increase-rejected-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "No hay cambios para solicitar."
+      }
+    },
+    {
+      "id": "empty-service-rejected-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Servicio o monto invalido."
+      }
+    },
+    {
+      "id": "missing-portal-session-no-request-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Sesión no autorizada."
+      }
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "pass": 6,
+    "fail": 3
+  },
+  "remainingDocuments": 0,
+  "realServices": false,
+  "appEdited": false,
+  "scope": "Firestore Admin SDK emulator; actual menu/service request actions, real saveFiesta (anonymous signed-portal path), money-field preservation, portal signature/access guard, actualizarFiesta, generic transaction and secret preservation. Read adapter applies real client redactor and synchronizes two pre-save reads. Team predicate false and app session absent; internal notifications controlled. No budget charge, actual provider, HTTP/browser or all-role certification."
+}
