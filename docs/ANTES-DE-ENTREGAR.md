@@ -221,3 +221,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     servidor lo compare al guardar. Lo aceptado lo escribe sólo su acción, nunca el guardado general.
 63. **¿Tu tarea programada le escribe a alguien?** Entonces no va en la lista de las que corren sin clave.
     Y si falla a mitad, no la anotes como corrida ni dejes el día consumido.
+64. **¿Deshacés porque falló?** Fijate si otro intento de lo mismo pudo terminar bien en el medio. Deshacé
+    sólo si no hay marca de "terminado", y que el que termina la deje donde vos la mirás.
+65. **¿Agregaste un control que frena una escritura?** Ponelo adentro de esa misma escritura. Si leés
+    antes y escribís después con `updateDataPartial` o `writeData`, el control no frena nada.

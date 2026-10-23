@@ -368,6 +368,14 @@
     "92": {
       "fecha": "2026-10-22",
       "resultado": "se recorrieron las 10 tareas de TAREAS_QUE_NO_HACEN_DANO buscando envíos en sus motores. Sólo recordar-invitacion-no-abierta le escribía a invitados (WhatsApp y Gmail): salió de la lista (Claude, con prueba). recordatorio-a-los-invitados y avisos-al-cliente dejan el mensaje en la bandeja con envío manual; asistente-proactivo avisa sólo al dueño. La corrida anotada con la reserva fallida (R4) y el día consumido sin envío (R3) van a Gemini en la orden 215, bloque 6."
+    },
+    "93": {
+      "fecha": "2026-10-23",
+      "resultado": "barrido con ayudante en src/app/actions y src/lib. Confirmados y arreglados por Claude: la cancelación y el cambio de fecha del portal deshacían el saldo a la foto vieja y borraban un cobro que entraba en el medio (restarLoNuestro); el cobro de factura que no llegaba al presupuesto se sacaba aunque otro intento ya lo hubiera pasado (marca pasadoAlPresupuesto, y quien lo pasa lo repone). Descartados: devolverAPendiente de los pedidos (el presupuesto no tira error después de guardar; un reintento no duplica por la marca) y el cambio de trago de la barra (no se confirmó que cancelar pueda guardar y devolver error; es stock, no cobro)."
+    },
+    "94": {
+      "fecha": "2026-10-23",
+      "resultado": "barrido con ayudante en src/app/actions. Confirmados y arreglados por Claude: el plan de pagos se podía cambiar con el contrato firmado (en papel o en el portal) y el texto con firma en papel entraba igual; ahora los dos se miran adentro de la escritura (noPisaLoFirmado). Descartados: subir el contrato en papel con la fiesta leída antes (una prueba con un cambio en el medio pasa también con el código viejo: el guardado ya repone lo de los demás) y cambiar precios después de la constancia del portal (la constancia no es el contrato: manda el papel, decisión del dueño)."
     }
   },
   "hallazgos": {
@@ -430,6 +438,14 @@
     "orden-217": {
       "fecha": "2026-10-22",
       "resultado": "pregunta 92 nueva y barrida (ver arriba). R1 arreglado por Claude; R2-R4, motor del recordatorio, en la orden 215 bloque 6 para Gemini."
+    },
+    "orden-218": {
+      "fecha": "2026-10-23",
+      "resultado": "pregunta 93 nueva y barrida (ver arriba). El aviso de pago, la cancelación, el cambio de fecha y el cobro de factura, arreglados por Claude."
+    },
+    "orden-219": {
+      "fecha": "2026-10-23",
+      "resultado": "pregunta 94 nueva y barrida (ver arriba). El texto del contrato y el plan de pagos con firma, arreglados por Claude."
     }
   }
 }

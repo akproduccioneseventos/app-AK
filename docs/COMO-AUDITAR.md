@@ -1364,3 +1364,27 @@ Se recorre `TAREAS_QUE_NO_HACEN_DANO` en `src/lib/automatico/puerta-de-las-tarea
 busca en su motor `sendMetaWhatsAppMessage`, `sendGoogleGmailMessage` o cualquier envío a una persona
 que no sea el dueño.
 
+### 93. Si deshago porque falló, ¿pudo otro intento de LA MISMA operación haberla completado en el medio?
+
+Codex 263 (orden 218). Aprobar un aviso de pago volvía a pendiente si el presupuesto no tomaba el cobro, y
+miraba que el aviso siguiera "aprobado por mí". Un reintento que acreditaba el mismo aviso no cambiaba esa
+marca, así que la respuesta tardía del primero lo deshacía con la plata adentro. La pregunta 90 miraba si
+OTRA operación había tocado el dato; no si la misma, reintentada, había terminado bien.
+
+Se mira que la vuelta atrás pregunte por una marca de que la operación TERMINÓ (cobro acreditado), no por la
+de que empezó. Y que quien termina deje esa marca en el mismo lugar que lee la vuelta atrás.
+
+Se buscan en `src/app/actions` los `if (!...success)` que vuelven algo a pendiente o deshacen, después de un
+cobro, una factura o un descuento de stock.
+
+### 94. Un control nuevo que frena una escritura, ¿está en la MISMA escritura?
+
+Codex 264 (orden 219). En la revisión contable del 22/10 agregué "con firma no se cambia el texto" en
+`updateFiestaPartial`, leyendo antes y escribiendo después con `updateDataPartial`. Una firma entre las dos
+dejaba la constancia de un texto y el contrato con otro. La pregunta 90 ya lo decía; el barrido de esa
+pregunta no miró el control que yo mismo acababa de agregar.
+
+Se mira cada `if (...) return` que frena por firma, factura, cobro o estado cerrado, y se sigue hasta la
+escritura: si es `updateDataPartial`, `writeData` o `saveFiesta`, el control tiene que repetirse adentro de
+`actualizarFiesta`, `mutateDataItem` o la transacción. Vale primero para los controles agregados en la
+misma tanda.
