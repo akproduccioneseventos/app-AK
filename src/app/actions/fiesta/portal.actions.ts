@@ -571,12 +571,14 @@ export async function approveClientPayment(
     });
     if (!paymentResult.success) {
       // El presupuesto no lo tomó (por ejemplo, supera el saldo): el aviso vuelve a pendiente para
-      // revisarlo bien. Sólo si lo aprobó ESTA llamada y sigue aprobado por ella.
+      // revisarlo bien. Sólo si lo aprobó ESTA llamada, sigue aprobado por ella y NINGÚN otro intento
+      // lo acreditó: un reintento que cobró en el medio deja la marca y esta respuesta tardía ya no
+      // lo toca (Codex 263, orden 218).
       if (esteLlamadoLoAprobo) {
         await actualizarFiesta(fiestaId, currentFiesta => ({
           ...currentFiesta,
           clientPaymentNotifications: (currentFiesta.clientPaymentNotifications ?? []).map(n =>
-            n.id === notificationId && n.estado === 'aprobado' && n.approvedAt === notif.approvedAt
+            n.id === notificationId && n.estado === 'aprobado' && n.approvedAt === notif.approvedAt && !n.cobroConfirmadoAt
               ? { ...n, estado: 'pendiente', approvedAt: undefined }
               : n),
         }));
@@ -584,7 +586,32 @@ export async function approveClientPayment(
       return { success: false, error: paymentResult.error || 'No se pudo registrar el pago en el presupuesto.' };
     }
 
-    if (esteLlamadoLoAprobo) {
+    // 3) El cobro quedó en el presupuesto: se deja la marca en el aviso, en la misma fila que leen los
+    //    demás intentos. Si una respuesta tardía ya lo había devuelto a pendiente, vuelve a aprobado,
+    //    porque la plata está acreditada. El mail sale una sola vez: lo manda quien pone la marca.
+    let estaLlamadaConfirmo = false;
+    let rechazadoEnElMedio = false;
+    const confirmado = await actualizarFiesta(fiestaId, currentFiesta => {
+      estaLlamadaConfirmo = false;
+      rechazadoEnElMedio = false;
+      return {
+        ...currentFiesta,
+        clientPaymentNotifications: (currentFiesta.clientPaymentNotifications ?? []).map(n => {
+          if (n.id !== notificationId || n.cobroConfirmadoAt) return n;
+          if (n.estado === 'rechazado') { rechazadoEnElMedio = true; return n; }
+          estaLlamadaConfirmo = true;
+          return { ...n, estado: 'aprobado', approvedAt: n.approvedAt || notif.approvedAt, cobroConfirmadoAt: new Date().toISOString() };
+        }),
+      };
+    });
+    if (!confirmado.success) {
+      return { success: false, error: 'El pago quedó acreditado en el presupuesto, pero el aviso no se pudo marcar. Volvé a aprobarlo: no se cobra dos veces.' };
+    }
+    if (rechazadoEnElMedio) {
+      return { success: false, error: 'El pago quedó acreditado en el presupuesto, pero otra persona rechazó el aviso en el medio. Revisá el cobro en el presupuesto.' };
+    }
+
+    if (estaLlamadaConfirmo) {
       notifyClientPaymentApproved(fiestaId, notif).catch((error) => {
         console.warn('[Google Workspace] No se pudo enviar mail de pago aprobado:', error);
       });

@@ -1,0 +1,133 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "hashes": {
+    "src/lib/fiesta/validar-costos.ts": "18cba204e5409cc59062438e8929e6e3ca6c6b55f59abdbf67fd83f01c1a5d88",
+    "src/lib/fiesta-sync-utils.ts": "55e6bbc418a6a1b03a39ea19e480ce22dfc63dfb211b35edb85bb0a7ed95588e",
+    "src/lib/fiesta/costos-interno.ts": "df545c5d593e416788ed1bffab783d7d05c56b121b5d694e391e8e8a0f25d3c0",
+    "src/app/actions/fiesta/costos.actions.ts": "207a5cc9ddfa1ae5da63fe3d3d685fd0c87d3dec09bddc9fe42d74cb55ce1ba5",
+    "src/lib/fiesta/sena-del-contrato.ts": "2f44c595f8d6407af670c80d6f292a36e88251e17a3b5f80550994e90bfeb08d"
+  },
+  "cases": [
+    {
+      "id": "laundry-sync-preserves-late-manual-cost-and-cents",
+      "pass": true,
+      "observed": {
+        "costs": {
+          "costosItems": [
+            {
+              "id": "qa261-flete",
+              "nombre": "Flete",
+              "category": "Otros",
+              "montoEstimado": 100.5
+            },
+            {
+              "id": "laundry_lavado_mantel_50",
+              "nombre": "Lavado Mantel ($50)",
+              "category": "Servicio Proveedor",
+              "montoEstimado": 650,
+              "notas": "Auto-generado: Lavadero del Sol"
+            },
+            {
+              "id": "laundry_lavado_cubre_18",
+              "nombre": "Lavado Cubre ($18)",
+              "category": "Servicio Proveedor",
+              "montoEstimado": 234,
+              "notas": "Auto-generado: Lavadero del Sol"
+            }
+          ],
+          "ingresosTotalesEstimados": 10000
+        }
+      }
+    },
+    {
+      "id": "repeated-cost-callback-does-not-duplicate-laundry",
+      "pass": true,
+      "observed": {
+        "costs": {
+          "costosItems": [
+            {
+              "id": "laundry_lavado_mantel_50",
+              "nombre": "Lavado Mantel ($50)",
+              "category": "Servicio Proveedor",
+              "montoEstimado": 650,
+              "notas": "Auto-generado: Lavadero del Sol"
+            },
+            {
+              "id": "laundry_lavado_cubre_18",
+              "nombre": "Lavado Cubre ($18)",
+              "category": "Servicio Proveedor",
+              "montoEstimado": 234,
+              "notas": "Auto-generado: Lavadero del Sol"
+            }
+          ],
+          "ingresosTotalesEstimados": 10000
+        }
+      }
+    },
+    {
+      "id": "invalid-generated-cost-rejected-without-overwrite",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": false,
+          "error": "El monto estimado de \"Negativo\" debe ser un número válido mayor o igual a 0."
+        },
+        "party": {
+          "id": "qa261-party",
+          "presupuestoId": "qa261-budget",
+          "configuracion": {
+            "nombreEvento": "Fixture QA261"
+          },
+          "gestionCostos": {
+            "costosItems": [
+              {
+                "id": "qa261-good",
+                "nombre": "Bueno",
+                "montoEstimado": 100.5
+              }
+            ],
+            "ingresosTotalesEstimados": 10000
+          }
+        }
+      }
+    },
+    {
+      "id": "failed-cost-write-is-not-success",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "QA261_STORAGE_FAILED"
+      }
+    },
+    {
+      "id": "unread-or-missing-linked-budget-does-not-invent-deposit",
+      "pass": true,
+      "observed": {
+        "unread": null,
+        "missing": null
+      }
+    },
+    {
+      "id": "explicit-deposit-preserved",
+      "pass": true,
+      "observed": {
+        "amount": 30000
+      }
+    },
+    {
+      "id": "no-linked-budget-keeps-approved-default-policy",
+      "pass": true,
+      "observed": {
+        "amount": 20000,
+        "readCount": 0
+      }
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "pass": 7,
+    "fail": 0
+  },
+  "appEdited": false,
+  "scope": "Actual mutarCostosInterno, cost validator, laundry generator/sync and deposit helper. Permission, transaction/storage and budget-reader adapters controlled in memory. NO SDK/HTTP/PDF/real payroll/real deposit or complete cost synchronization engine acceptance."
+}

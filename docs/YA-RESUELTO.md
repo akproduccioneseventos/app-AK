@@ -1,5 +1,49 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/10/2026 - Órdenes 218 y 219 (Codex 263-264): las dos fallas, arregladas por Claude
+
+- **218, el aviso de pago que volvía a pendiente:** un intento A fallaba en el presupuesto (supera el
+  saldo). Mientras su respuesta tardaba, B reintentaba el mismo aviso y lo acreditaba. La vuelta atrás
+  de A lo dejaba "pendiente" con la plata adentro. Ahora quien acredita deja la marca
+  `cobroConfirmadoAt` en el aviso, adentro de la escritura de la fiesta. La vuelta atrás no toca un aviso
+  marcado, y si llegó antes, la marca lo vuelve a aprobado. El mail al cliente lo manda una sola vez
+  quien pone la marca. Si alguien lo rechazó en el medio, se avisa en pantalla que el cobro quedó en el
+  presupuesto.
+- **219, el texto del contrato cambiado después de firmar:** el guardado del equipo miraba la firma,
+  después el cliente firmaba y recién ahí se escribía el texto nuevo. Ahora el texto del contrato se
+  escribe adentro de la escritura de la fiesta (`noPisaLoFirmado`, en `updateFiestaPartial`), donde se
+  ve la firma. Con firma, se rechaza y se pide una adenda.
+- **No cambia:** cobrar sigue después de tomar el aviso; la constancia sigue sin reemplazar el papel.
+
+```comprobar
+usa: cobroConfirmadoAt en src/app/actions/fiesta/portal.actions.ts
+usa: noPisaLoFirmado en src/app/actions/fiesta/fiesta.actions.ts
+prueba: src/__tests__/pago-aprobado-no-vuelve-pendiente-por-reintento.test.ts
+prueba: src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts
+```
+
+## 23/10/2026 - Codex260-264: contraste focal1358, DOS causas nuevas sin corregir
+
+Fuente725e62ba2, no cambia appCodex.260/261/263/264:14criterios11PASS3FAIL,
+DOS causas porque260/263 repiten el mismo intercalado por metodos distintos.
+218/Claude AK-CODEX-263-PAGO-REINTENTO-REVIERTE-APROBADO: A obtiene rechazo real
+por saldo500; B reintenta el mismo aviso y acredita1000; A tardio vuelve el aviso
+a pendiente.260adaptadores3criterios2PASS1FAIL y263AdminSDKreal2criterios1PASS1FAIL.
+No doble cobro. ReintentoB real, presupuesto/actualizador/transaccion reales,
+actor/acceso/sync/avisos controlados. Remover otro pago del fixture fue porSDK,
+no pantalla de borrar.0fiestas/0presupuestos/cleanup200. NOcorregido.
+219/Claude AK-CODEX-264-CONTRATO-GUARDADO-DESPUES-DE-FIRMA: guardarB pasa guardas,
+cliente firmaA, set merge real escribeB despues y deja constanciaA.264AdminSDK
+2criterios1PASS1FAIL; control firmadoantes rechaza. No reabre216C4: ese escenario
+firma DESPUES de texto cambiado y254 sigue vigente.0fiestas/cleanup200.
+2617PASS costos/seña reales con adaptadores: conserva100.50manual con lavanderia,
+callback repetido no duplica; negativo/guardado fallido no pisan/dicen success;
+lectura vinculada ausente/fallida devuelve null; respeta30000explicitos/default20000.
+NoSDK/UI para261. No toda1358finanzas/contrato ni cada consumidor aceptados.
+262 falloQA de import antes de casos, preservado con logs;263 cargo helper real.
+264 no errorQA. Procesos propios cerrados, sin servicios/cuentas/cargos reales.
+Ver265, ordenes218/219; privados posteriores NO CONTRASTADOS.253 es recuentounico.
+
 ## 22/10/2026 - Codex254/255 CIERRA216 y217R1 por alcance
 
 Main725e62ba2 integra1357/1358.254SDKreal11PASS0FAIL cierraC1-C4contrato:

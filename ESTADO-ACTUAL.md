@@ -34,6 +34,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1359 (`914d78307`, auditorías 260-264): juntado. Dos fallas nuevas de plata y contrato (órdenes 218 y 219), arregladas por Claude el 23/10; preguntas 93 y 94.
 - Codex 1359 (`e9477ba8e`, auditorías 254-255): juntado. Confirma arreglados la firma del contrato (216, C1-C4) y el recordatorio R1 (217); sin hallazgos nuevos. R2-R4 siguen con Gemini.
 - Codex 1356 (`5ec6bb2fa`, recuento único 253): juntado, sin hallazgos nuevos.
 - Codex 1356 (`dcfe7b458`, auditorías 240 y 249-251): juntado. Firma del contrato (216) arreglada por Claude; recordatorio: R1 por Claude, R2-R4 a Gemini (orden 215, bloque 6).
