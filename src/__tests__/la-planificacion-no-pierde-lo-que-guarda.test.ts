@@ -49,6 +49,13 @@ jest.mock('@/lib/auth/equipo-de-la-fiesta', () => ({
 }));
 // La decoración guarda sus gastos por costos-interno (orden 183): se anotan igual que antes.
 jest.mock('@/lib/fiesta/costos-interno', () => ({
+  // Desde la revisión contable del 22/10 las cuentas automáticas calculan sobre los costos de ESE
+  // momento: se leen de la fiesta de mentira y se guardan por el mismo camino de la prueba.
+  mutarCostosInterno: async (id: string, cambiar: (c: any) => any) => {
+    const f = await require('@/app/actions/fiesta/fiesta.actions').getFiestaById(id);
+    const costos = cambiar((f && f.gestionCostos) || { costosItems: [], ingresosTotalesEstimados: 0 });
+    return require('@/lib/fiesta/costos-interno').guardarCostosInterno(id, costos);
+  },
   guardarCostosInterno: jest.fn(async (_id: string, costos: any) => {
     sincronizaciones.push(JSON.parse(JSON.stringify(costos)));
     return { success: true, updatedData: costos };

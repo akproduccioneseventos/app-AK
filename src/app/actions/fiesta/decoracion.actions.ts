@@ -3,10 +3,7 @@
 import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, CostoItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
-import { guardarCostosInterno } from '@/lib/fiesta/costos-interno';
-const updateGestionCostosInterno = guardarCostosInterno;
-void updateGestionCostosInterno;
-import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
+import { mutarCostosInterno } from '@/lib/fiesta/costos-interno';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -167,12 +164,6 @@ async function sincronizarGastosDeco(
   itemsDecoracion: DecoItem[]
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) throw new Error("Fiesta no encontrada");
-
-    const costos = fiesta.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 };
-    const otherItems = (costos.costosItems || []).filter(c => !c.id.startsWith('deco_'));
-
     const decoItems: CostoItem[] = itemsDecoracion
       .filter(item => {
         const costo = item.costoUnitario ?? item.precioUnitario ?? 0;
@@ -189,12 +180,12 @@ async function sincronizarGastosDeco(
         };
       });
 
-    const updatedCostos = {
+    // Sobre los costos de ESE momento, adentro de la escritura: antes se armaba con una lectura de
+    // antes y un costo cargado a mano en el medio se perdía (auditoría contable 22/10).
+    const guardado = await mutarCostosInterno(fiestaId, (costos) => ({
       ...costos,
-      costosItems: [...otherItems, ...decoItems],
-    };
-
-    const guardado = await guardarCostosInterno(fiestaId, updatedCostos);
+      costosItems: [...(costos.costosItems || []).filter(c => !c.id.startsWith('deco_')), ...decoItems],
+    }));
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudieron sincronizar los costos de decoración.' };
     }
