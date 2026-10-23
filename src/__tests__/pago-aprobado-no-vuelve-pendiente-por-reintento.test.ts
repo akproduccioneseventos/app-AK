@@ -139,3 +139,30 @@ describe('un fallo tardío no devuelve a pendiente un aviso que otro intento ya 
     expect(mail()).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('barrido de la pregunta 93: deshacer una cancelación no borra un cobro que entró en el medio', () => {
+  it('si la fiesta no se guarda, la multa se saca pero el saldo conserva el cobro de otro', async () => {
+    const { cancelServicesOrParty } = await import('@/app/actions/fiesta/portal.actions');
+    const item = (id: string, costo: number) => ({
+      idServicioCatalogo: id, nombreServicio: id, cantidad: 1, precioUnitario: costo, precioUnitarioPresupuesto: costo, costoTotalItem: costo, categoriaServicio: 'X',
+    });
+    fiesta = { ...fiesta, configuracion: { nombreEvento: 'Quince de Ana', fechaEvento: '2026-12-10' }, clientPortalSettings: { clientPassword: '1234' } };
+    presupuestos = [{
+      id: 'p1', estado: 'Aceptado', clienteNombre: 'Ana', eventoFecha: '2026-12-10',
+      itemsPresupuestados: [item('dj', 700), item('foto', 300)],
+      costoTotalEstimado: 1000, totalConDescuento: 1000, saldo: 900, ajusteAnualPorcentaje: 0,
+      pagosCliente: [{ id: 'pg1', monto: 100, estadoPago: 'confirmado', fecha: '2026-10-01' }],
+    }];
+    const guardar = jest.requireMock('@/app/actions/fiesta/fiesta.actions').saveFiesta as jest.Mock;
+    guardar.mockImplementationOnce(async () => {
+      // Entra un cobro de 200 mientras se guarda la fiesta.
+      presupuestos = presupuestos.map((p) => ({ ...p, saldo: p.saldo - 200, pagosCliente: [...p.pagosCliente, { id: 'pg2', monto: 200, estadoPago: 'confirmado', fecha: '2026-10-23' }] }));
+      return { success: false, error: 'La base no contesta' };
+    });
+    const r = await cancelServicesOrParty('f1', { servicesToCancel: ['dj'], cancelAll: false, passwordInput: '1234' });
+    expect(r.success).toBe(false);
+    expect(presupuestos[0].saldo).toBe(700);
+    expect(presupuestos[0].totalConDescuento).toBe(1000);
+    expect(presupuestos[0].pagosCliente).toHaveLength(2);
+  });
+});

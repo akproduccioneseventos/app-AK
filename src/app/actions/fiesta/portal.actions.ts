@@ -845,6 +845,16 @@ async function devolverAPendiente(
 }
 
 /**
+ * Deshace un importe restando lo que puso ESTA operación sobre el valor de ahora, no volviendo al
+ * leído al principio: un cobro anotado en el medio bajó el saldo y la foto vieja lo borraba (barrido
+ * de la pregunta 93, 23/10).
+ */
+function restarLoNuestro(actual: number | undefined, antes: number | undefined, despues: number | undefined): number | undefined {
+  if (typeof actual !== 'number' || typeof antes !== 'number' || typeof despues !== 'number') return antes;
+  return actual - (despues - antes);
+}
+
+/**
  * Deshacer por defecto: cada dato de la configuración que tocó este pedido vuelve a como estaba SÓLO si nadie
  * lo cambió después. Si otro lo cambió, manda lo del otro.
  */
@@ -1491,9 +1501,9 @@ Firma AK Producciones: _________________   Fecha: __/__/____
         return {
           ...actual,
           itemsPresupuestados: antes.itemsPresupuestados,
-          costoTotalEstimado: antes.costoTotalEstimado,
-          totalConDescuento: antes.totalConDescuento,
-          saldo: antes.saldo,
+          costoTotalEstimado: restarLoNuestro(actual.costoTotalEstimado, antes.costoTotalEstimado, (armado as any).presupuesto.costoTotalEstimado),
+          totalConDescuento: restarLoNuestro(actual.totalConDescuento, antes.totalConDescuento, (armado as any).presupuesto.totalConDescuento),
+          saldo: restarLoNuestro(actual.saldo, antes.saldo, (armado as any).presupuesto.saldo),
           ajustesAplicados: marcas.filter((m) => m !== marca),
         } as typeof actual;
       });
@@ -1708,9 +1718,9 @@ Firma AK Producciones: _________________   Fecha: __/__/____
           ...actual,
           eventoFecha: antes.eventoFecha,
           itemsPresupuestados: antes.itemsPresupuestados,
-          costoTotalEstimado: antes.costoTotalEstimado,
-          totalConDescuento: antes.totalConDescuento,
-          saldo: antes.saldo,
+          costoTotalEstimado: restarLoNuestro(actual.costoTotalEstimado, antes.costoTotalEstimado, presupuesto.costoTotalEstimado),
+          totalConDescuento: restarLoNuestro(actual.totalConDescuento, antes.totalConDescuento, presupuesto.totalConDescuento),
+          saldo: restarLoNuestro(actual.saldo, antes.saldo, presupuesto.saldo),
           ajustesAplicados: marcas.filter((m) => m !== marca),
         } as typeof actual;
       });

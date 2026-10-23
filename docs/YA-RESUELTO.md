@@ -13,9 +13,21 @@
   después el cliente firmaba y recién ahí se escribía el texto nuevo. Ahora el texto del contrato se
   escribe adentro de la escritura de la fiesta (`noPisaLoFirmado`, en `updateFiestaPartial`), donde se
   ve la firma. Con firma, se rechaza y se pide una adenda.
+- **Barrido de las preguntas 93 y 94:**
+  - Cancelar servicios o cambiar la fecha desde el portal, si la fiesta no se guardaba, devolvía el
+    saldo al de antes y borraba un cobro que entró en el medio. Ahora resta sólo lo suyo
+    (`restarLoNuestro`).
+  - El cobro de factura que no llegaba al presupuesto se sacaba aunque otro intento ya lo hubiera
+    pasado. Ahora no se saca si está marcado, y quien lo pasa lo vuelve a poner si faltaba.
+  - El plan de pagos se podía cambiar con el contrato firmado, y el texto con firma en papel entraba
+    si la firma llegaba en el medio. Ahora se mira adentro de la escritura.
+  - Falso positivo verificado: subir el contrato en papel no pisa lo que otro cambió mientras subía.
 - **No cambia:** cobrar sigue después de tomar el aviso; la constancia sigue sin reemplazar el papel.
 
 ```comprobar
+usa: restarLoNuestro en src/app/actions/fiesta/portal.actions.ts
+usa: pasadoAlPresupuesto en src/app/actions/invoices.ts
+prueba: src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts
 usa: cobroConfirmadoAt en src/app/actions/fiesta/portal.actions.ts
 usa: noPisaLoFirmado en src/app/actions/fiesta/fiesta.actions.ts
 prueba: src/__tests__/pago-aprobado-no-vuelve-pendiente-por-reintento.test.ts

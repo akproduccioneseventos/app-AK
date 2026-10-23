@@ -131,3 +131,26 @@ describe('un guardado que empezó antes de la firma no cambia el texto firmado (
     expect(fiesta().firmaDigitalConstancia?.textoHuella).toBe(huella(TEXTO_A));
   });
 });
+
+describe('barrido de la pregunta 94: el plan de pagos y el contrato en papel', () => {
+  it('con la firma del portal, el plan de pagos no se cambia (ni si la firma llega en el medio)', async () => {
+    entreLecturaYGuardado = firmaElCliente;
+    const r = await updateFiestaPartial('f1', { contratoDatos: { planPagos: { cuotas: 12 } } } as any);
+    expect(r.success).toBe(false);
+    expect(r.error).toMatch(/plan de pagos/);
+    expect(fiesta().contratoDatos?.planPagos).toBeUndefined();
+  });
+
+  it('firmado en papel en el medio, el texto tampoco se cambia', async () => {
+    entreLecturaYGuardado = async () => { almacen['fiestas/f1.json'].contratoFirmaInfo = { isSigned: true, method: 'physical' }; };
+    const r = await updateFiestaPartial('f1', { contratoServicioTexto: TEXTO_B } as any);
+    expect(r.success).toBe(false);
+    expect(fiesta().contratoServicioTexto).toBe(TEXTO_A);
+  });
+
+  it('sin firma, el plan de pagos se guarda como siempre', async () => {
+    const r = await updateFiestaPartial('f1', { contratoDatos: { planPagos: { cuotas: 6 } } } as any);
+    expect(r.success).toBe(true);
+    expect(fiesta().contratoDatos.planPagos.cuotas).toBe(6);
+  });
+});

@@ -363,17 +363,29 @@ export async function updateFiestaPartial(
   // Con la constancia puesta, el texto que firmó el cliente no se cambia por el guardado parcial.
   // Se mira antes (para no hacer trabajo de más) Y adentro de la escritura: una firma que llega
   // entre la lectura y el guardado dejaba la constancia de A junto al texto B (Codex 264, orden 219).
-  const cambiaElTexto = 'contratoServicioTexto' in (partialData as Record<string, unknown>);
+  // Lo mismo con el contrato en papel y con el plan de pagos (barrido de la pregunta 94).
+  const tocaElContrato = 'contratoServicioTexto' in (partialData as Record<string, unknown>)
+    || Boolean(partialData.contratoDatos && 'planPagos' in (partialData.contratoDatos as Record<string, unknown>));
   const noPisaLoFirmado = (actual: FiestaEnPlanificacion) => {
-    if (cambiaElTexto && actual.firmaDigitalConstancia && actual.contratoServicioTexto !== partialData.contratoServicioTexto) {
-      throw new Error('El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda.');
+    const firmado = Boolean(actual.firmaDigitalConstancia || actual.contratoFirmaInfo?.isSigned);
+    if (!firmado) return;
+    if ('contratoServicioTexto' in (partialData as Record<string, unknown>) && actual.contratoServicioTexto !== partialData.contratoServicioTexto) {
+      throw new Error(actual.contratoFirmaInfo?.isSigned
+        ? 'No se puede modificar el contrato una vez firmado.'
+        : 'El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda.');
+    }
+    const planNuevo = (partialData.contratoDatos as any)?.planPagos;
+    if (planNuevo !== undefined && JSON.stringify(planNuevo) !== JSON.stringify((actual.contratoDatos as any)?.planPagos)) {
+      throw new Error('El contrato ya está firmado: el plan de pagos no se cambia sin una adenda.');
     }
   };
-  if (cambiaElTexto) {
+  if (tocaElContrato) {
     const { getFiestaByIdRaw: leerGuardada } = await import('@/lib/fiesta/get-fiesta-raw');
     const guardada = await leerGuardada(fiestaId);
-    if (guardada?.firmaDigitalConstancia && guardada.contratoServicioTexto !== partialData.contratoServicioTexto) {
-      return { success: false, error: 'El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda.' };
+    try {
+      if (guardada) noPisaLoFirmado(guardada);
+    } catch (e: any) {
+      return { success: false, error: e.message };
     }
   }
   if (options?.allowPortal) {
@@ -429,7 +441,7 @@ export async function updateFiestaPartial(
     });
     return r.success ? { success: true } : { success: false, error: r.error || 'No se pudo actualizar parcialmente el evento.' };
   }
-  if (cambiaElTexto) {
+  if (tocaElContrato) {
     // El texto del contrato se escribe adentro de la escritura de la fiesta, donde se ve la firma.
     const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
     const r = await actualizarFiesta(fiestaId, (actual) => {
