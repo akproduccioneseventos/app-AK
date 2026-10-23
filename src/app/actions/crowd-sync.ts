@@ -26,7 +26,7 @@ export async function getCrowdSyncStateAction(fiestaId: string): Promise<{
   state?: CrowdSyncState;
 }> {
   try {
-    const list = await readData<Record<string, CrowdSyncState>>(CROWD_SYNC_FILE, {});
+    const list = await readData<Record<string, CrowdSyncState>>(CROWD_SYNC_FILE, {}).catch(() => ({}));
     const state = list[fiestaId] || {
       fiestaId,
       active: false,

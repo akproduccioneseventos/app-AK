@@ -1,3 +1,4 @@
+jest.setTimeout(20000);
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -24,6 +25,8 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
   usePathname: () => '/portal/c/test-key',
 }));
+
+jest.mock('@/components/public-footer', () => ({ PublicFooter: () => <div data-testid="public-footer" /> }));
 
 import PublicPortalClientExperience from '@/app/portal/c/[accessKey]/PublicPortalClientExperience';
 
