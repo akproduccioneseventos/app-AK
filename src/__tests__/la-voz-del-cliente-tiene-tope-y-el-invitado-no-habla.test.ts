@@ -42,10 +42,25 @@ jest.mock('@/lib/ai/consumo-servidor', () => ({
   registrarConsumoIA: jest.fn(async () => {}),
 }));
 
-jest.mock('@/lib/data-service', () => ({
-  readData: jest.fn(async (_file: string, fallback: any) => mockUsoStore || fallback),
-  writeData: jest.fn(async (_file: string, data: any) => {
-    mockUsoStore = data;
+const copiaStore = <T>(x: T): T => JSON.parse(JSON.stringify(x));
+let txQueue = Promise.resolve();
+
+jest.mock('@/lib/generic-json-store', () => ({
+  mutarDocumentoConTransaccion: jest.fn(async (_path: string, _vacio: any, cambiar: (actual: any) => any) => {
+    const prev = txQueue;
+    let release: () => void = () => {};
+    txQueue = new Promise((resolve) => { release = resolve; });
+    await prev;
+    try {
+      const actual = copiaStore(mockUsoStore);
+      const nuevo = await cambiar(actual);
+      if (nuevo !== null && nuevo !== undefined) {
+        mockUsoStore = copiaStore(nuevo);
+      }
+      return nuevo;
+    } finally {
+      release();
+    }
   }),
 }));
 
@@ -84,6 +99,7 @@ describe('La voz del cliente tiene tope y el invitado no habla', () => {
     };
     mockUsoStore = {};
     capturedInstrucciones = '';
+    txQueue = Promise.resolve();
   });
 
   it('con la sesión del portal de la fiesta A no se abre la voz de la fiesta B', async () => {
@@ -151,5 +167,28 @@ describe('La voz del cliente tiene tope y el invitado no habla', () => {
     const filePath = path.resolve(process.cwd(), 'src/components/invitacion/AsistenteDelInvitado.tsx');
     const content = fs.readFileSync(filePath, 'utf-8');
     expect(content).not.toContain('voz-en-vivo');
+  });
+
+  it('dos llamadas a la vez suman los dos minutos sin perderse', async () => {
+    mockUsoStore = {
+      'fiesta-a': { fecha: hoyStr, minutos: 0 },
+    };
+
+    const req1 = new Request('http://localhost/api/asistente/voz-en-vivo/cliente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fiestaId: 'fiesta-a' }),
+    });
+
+    const req2 = new Request('http://localhost/api/asistente/voz-en-vivo/cliente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fiestaId: 'fiesta-a' }),
+    });
+
+    const [res1, res2] = await Promise.all([POST(req1), POST(req2)]);
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    expect(mockUsoStore['fiesta-a'].minutos).toBe(2);
   });
 });

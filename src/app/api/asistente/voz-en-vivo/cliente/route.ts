@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
-import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { hoyEnUruguay } from '@/lib/utils';
 import {
   armarCuerpoFicha,
@@ -49,13 +49,30 @@ export async function POST(request: Request) {
 
   const tope = Math.max(1, Number((ajustes as any).vozEnVivoClienteMinutosPorDia) || TOPE_MINUTOS_CLIENTE_POR_DEFECTO);
 
-  // 3. Verificación de uso del día (5 min/día por fiesta)
+  // 3. Verificación y reserva atómica de minutos del día (5 min/día por fiesta)
   const hoyStr = hoyEnUruguay();
-  const registroUso = await readData<Record<string, { fecha: string; minutos: number }>>(USO_CLIENTE_FILE, {});
-  const usoActual = registroUso[fiestaId] || { fecha: hoyStr, minutos: 0 };
-  const minutosUsados = usoActual.fecha === hoyStr ? usoActual.minutos : 0;
+  let alcanzadoTope = false;
 
-  if (minutosUsados >= tope) {
+  await mutarDocumentoConTransaccion<Record<string, { fecha: string; minutos: number }>>(
+    USO_CLIENTE_FILE,
+    {},
+    (registro) => {
+      const actual = registro || {};
+      const usoActual = actual[fiestaId] || { fecha: hoyStr, minutos: 0 };
+      const minutos = usoActual.fecha === hoyStr ? usoActual.minutos : 0;
+      if (minutos >= tope) {
+        alcanzadoTope = true;
+        return null;
+      }
+      alcanzadoTope = false;
+      return {
+        ...actual,
+        [fiestaId]: { fecha: hoyStr, minutos: minutos + 1 },
+      };
+    }
+  );
+
+  if (alcanzadoTope) {
     return NextResponse.json(
       { error: `Alcanzaste el tope de ${tope} minutos de voz de hoy para tu fiesta. Podés seguir conversando por el chat escrito.` },
       { status: 429 }
@@ -87,10 +104,8 @@ export async function POST(request: Request) {
     'Regla de Oro: Solo respondé sobre los preparativos de SU fiesta. No ejecutes acciones directas; si pide cambios o consultas especiales, decile que el equipo lo coordinará con él.',
   ].join('\n');
 
-  // Registrar consumo y minutos
+  // Registrar consumo de IA
   await registrarConsumoIA('voz-cliente').catch(() => {});
-  registroUso[fiestaId] = { fecha: hoyStr, minutos: minutosUsados + 1 };
-  await writeData(USO_CLIENTE_FILE, registroUso).catch(() => {});
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
   const version = versionApiEnVivo();
@@ -113,18 +128,18 @@ export async function POST(request: Request) {
           model: modelo,
           voz,
           segundosMaximos: 60,
-          fiestaId,
         });
       }
     } catch {
-      // Fallback
+      // Si falla la generación de la ficha en Gemini, devuelve fallback simulado
     }
   }
 
   return NextResponse.json({
-    ok: true,
-    mensaje: 'Sesión de voz habilitada para el cliente.',
-    fiestaId,
+    token: `token_cliente_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    model: modelosEnVivo()[0],
+    voz,
     segundosMaximos: 60,
+    modoSimulado: true,
   });
 }

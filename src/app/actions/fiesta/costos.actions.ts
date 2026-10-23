@@ -206,7 +206,3 @@ export async function syncLaundryCosts(fiestaId: string, guests: number, budgetI
         console.error('No se pudieron guardar los costos de ropa blanca:', guardado?.error);
     }
 }
-
-export async function updateGestionCostosInterno(fiestaId: string, costos: any) {
-    return guardarCostosInterno(fiestaId, costos);
-}

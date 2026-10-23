@@ -1,6 +1,7 @@
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';

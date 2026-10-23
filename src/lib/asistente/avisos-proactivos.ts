@@ -1,6 +1,6 @@
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { getAsistenteSettings, getHoraUruguay } from '@/lib/asistente/avisar-al-duenio';
-import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 
 export interface OpcionesAvisoProactivo {
   destinatario: { id?: string; role?: string; permissions?: string[] };
@@ -40,11 +40,28 @@ export async function enviarAvisoProactivoSegunPerfil(opciones: OpcionesAvisoPro
 
   const hoyStr = fecha.toISOString().split('T')[0];
   const userId = opciones.destinatario.id || 'general';
-  const store = await readData<Record<string, { fecha: string; count: number }>>('asistente/avisos-diarios.json', {});
-  const registro = store[userId] || { fecha: hoyStr, count: 0 };
-  const countHoy = registro.fecha === hoyStr ? registro.count : 0;
 
-  if (countHoy >= 3) {
+  let topeAlcanzado = false;
+  await mutarDocumentoConTransaccion<Record<string, { fecha: string; count: number }>>(
+    'asistente/avisos-diarios.json',
+    {},
+    (store) => {
+      const actual = store || {};
+      const registro = actual[userId] || { fecha: hoyStr, count: 0 };
+      const countHoy = registro.fecha === hoyStr ? registro.count : 0;
+      if (countHoy >= 3) {
+        topeAlcanzado = true;
+        return null;
+      }
+      topeAlcanzado = false;
+      return {
+        ...actual,
+        [userId]: { fecha: hoyStr, count: countHoy + 1 },
+      };
+    }
+  );
+
+  if (topeAlcanzado) {
     return { enviado: false, motivo: 'tope_diario_alcanzado' };
   }
 
@@ -53,9 +70,6 @@ export async function enviarAvisoProactivoSegunPerfil(opciones: OpcionesAvisoPro
     body: opciones.cuerpo,
     url: '/mi-dia?hablar=1',
   });
-
-  store[userId] = { fecha: hoyStr, count: countHoy + 1 };
-  await writeData('asistente/avisos-diarios.json', store);
 
   return { enviado: true };
 }

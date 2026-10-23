@@ -7,6 +7,7 @@ import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
 import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
 import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
 /**

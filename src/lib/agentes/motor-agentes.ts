@@ -4,6 +4,7 @@ import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';

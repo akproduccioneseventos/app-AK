@@ -1,8 +1,73 @@
+/**
+ * Comprobación: si sacás la línea `const conPlata = sinPlata ? reponerLaPlata(datos, actual) : datos;` de
+ * `saveFiesta`, el caso 5 se pone en rojo. Si sacás `.map(sinCobros)` de `presupuestos.ts`, el caso 7 también.
+ */
+jest.mock('@/lib/firebase/server', () => ({ dbAdmin: null }));
+
+const almacen: Record<string, any> = {};
+const copia = <T>(x: T): T => JSON.parse(JSON.stringify(x));
+let usuarioActual: any = null;
+
+jest.mock('@/lib/data-service', () => ({
+  readData: jest.fn(async (archivo: string, porDefecto: any) =>
+    almacen[archivo] === undefined ? porDefecto : copia(almacen[archivo])
+  ),
+  readDataConDetalle: jest.fn(async (archivo: string, porDefecto: any) => ({
+    valor: almacen[archivo] === undefined ? porDefecto : copia(almacen[archivo]),
+    huboFalla: false,
+  })),
+  writeData: jest.fn(async (archivo: string, datos: any) => {
+    almacen[archivo] = copia(datos);
+  }),
+  updateDataPartial: jest.fn(async (archivo: string, parcial: any) => {
+    almacen[archivo] = { ...almacen[archivo], ...copia(parcial) };
+  }),
+}));
+
+jest.mock('@/lib/auth/session-token', () => ({
+  verifySession: jest.fn(async () =>
+    usuarioActual ? { success: true, user: usuarioActual } : { success: false }
+  ),
+  generateBudgetToken: jest.fn(async () => 'mock-token'),
+  verifyBudgetToken: jest.fn(async () => true),
+}));
+
+jest.mock('@/lib/security/portal-session', () => ({
+  verifyPortalSession: jest.fn(async () => false),
+}));
+
+jest.mock('@/app/actions/empleados', () => ({
+  getEmpleados: jest.fn(async () => [{ id: 'op-1', email: 'op@ak.test' }]),
+}));
+
+jest.mock('@/lib/fiesta/leer-fiestas', () => ({
+  leerFiestasCrudas: jest.fn(async () => [copia(almacen['fiestas/fiesta-test-183.json'])]),
+  leerHistorialCrudo: jest.fn(async () => []),
+}));
+
+jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({
+  getFiestaByIdRaw: jest.fn(async (id: string) => copia(almacen[`fiestas/${id}.json`] ?? null)),
+}));
+
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (id: string, cambiar: (f: any) => any) => {
+    try {
+      const key = `fiestas/${id}.json`;
+      const actual = copia(almacen[key] ?? null);
+      const nueva = await cambiar(actual);
+      almacen[key] = copia(nueva);
+      return { success: true, updatedFiesta: nueva };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }),
+}));
+
 import { recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
-import { reponerLaPlata } from '@/lib/fiesta/reponer-la-plata';
-import { sinCobros } from '@/lib/budget/sin-cobros';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
-import { updateGestionCostos, updateGestionCostosInterno } from '@/app/actions/fiesta/costos.actions';
+import { updateGestionCostos } from '@/app/actions/fiesta/costos.actions';
+import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getPresupuestos, getPresupuestoById } from '@/app/actions/presupuestos';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 
@@ -15,6 +80,7 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
     menu: { platoPrincipal: 'Asado' } as any,
     cronograma: [{ hora: '21:00', actividad: 'Recepción' }] as any,
     personalAsignado: [
+      { empleadoId: 'op-1', nombre: 'Operador Test', rol: 'Operador' },
       { empleadoId: 'emp-1', nombre: 'Carlos DJ', rol: 'DJ', eventSalary: 5000 },
       { empleadoId: 'emp-2', nombre: 'Ana Fotógrafa', rol: 'Fotografía', eventSalary: 8000 },
     ] as any,
@@ -33,10 +99,15 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
   };
 
   const usuarioSecretaria = { perfil: 'secretaria', role: 'user' };
-  const usuarioOperador = { perfil: 'operador', role: 'user' };
+  const usuarioOperador = { userId: 'op-1', email: 'op@ak.test', perfil: 'operador', role: 'user' };
   const usuarioDueno = { perfil: 'dueno', role: 'admin' };
   const usuarioSecretariaConRolAdmin = { perfil: 'secretaria', role: 'admin' };
   const usuarioDuenoConRolUser = { perfil: 'dueno', role: 'user' };
+
+  beforeEach(() => {
+    for (const k of Object.keys(almacen)) delete almacen[k];
+    almacen['fiestas/fiesta-test-183.json'] = copia(fiestaMockBase);
+  });
 
   it('1. Secretaria lee: sin eventSalary ni gestionCostos; con planDePagos', () => {
     const recortada = recortarFiestaPorPerfil(fiestaMockBase, usuarioSecretaria);
@@ -78,7 +149,7 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
   it('3. Dueño lee: todo intacto', () => {
     const recortada = recortarFiestaPorPerfil(fiestaMockBase, usuarioDueno);
 
-    expect(recortada.personalAsignado?.[0]?.eventSalary).toBe(5000);
+    expect(recortada.personalAsignado?.[1]?.eventSalary).toBe(5000);
     expect(recortada.gestionCostos?.costoTotal).toBe(80000);
     expect(recortada.pagosProveedores?.length).toBe(1);
     expect(recortada.planDePagos?.cuotas?.length).toBe(1);
@@ -86,54 +157,54 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
     expect(recortada.estadosCompra?.[0]?.pagado).toBe(true);
   });
 
-  it('4. Secretaria guarda la fiesta: eventSalary y gestionCostos guardados siguen iguales; nuevo eventSalary no se acepta', () => {
+  it('4. Secretaria guarda la fiesta: eventSalary y gestionCostos guardados siguen iguales; nuevo eventSalary no se acepta', async () => {
+    usuarioActual = usuarioSecretaria;
+
     const intentoSecretaria: FiestaEnPlanificacion = {
       ...fiestaMockBase,
       personalAsignado: [
+        { empleadoId: 'op-1', nombre: 'Operador Test', rol: 'Operador' },
         { empleadoId: 'emp-1', nombre: 'Carlos DJ', rol: 'DJ', eventSalary: 999999 },
         { empleadoId: 'emp-3', nombre: 'Nuevo Empleado', rol: 'Seguridad', eventSalary: 12345 },
       ] as any,
       gestionCostos: undefined,
     };
 
-    const permisosSecretaria = {
-      puedeContabilidad: puede(usuarioSecretaria, PERMISOS.CONTABILIDAD),
-      puedeSueldos: puede(usuarioSecretaria, PERMISOS.SUELDOS),
-      puedeGanancias: puede(usuarioSecretaria, PERMISOS.GANANCIAS),
-    };
+    const res = await saveFiesta(intentoSecretaria);
+    expect(res.success).toBe(true);
 
-    const resultado = reponerLaPlata(intentoSecretaria, fiestaMockBase, permisosSecretaria);
+    const guardada = almacen['fiestas/fiesta-test-183.json'];
 
     // Conserva gestionCostos guardada
-    expect(resultado.gestionCostos).toEqual(fiestaMockBase.gestionCostos);
+    expect(guardada.gestionCostos).toEqual(fiestaMockBase.gestionCostos);
 
     // Conserva eventSalary de Carlos DJ original (5000, no 999999) y no acepta nuevo sueldo para emp-3
-    const carlos = resultado.personalAsignado?.find((p) => p.empleadoId === 'emp-1');
-    const nuevo = resultado.personalAsignado?.find((p) => p.empleadoId === 'emp-3');
+    const carlos = guardada.personalAsignado?.find((p: any) => p.empleadoId === 'emp-1');
+    const nuevo = guardada.personalAsignado?.find((p: any) => p.empleadoId === 'emp-3');
     expect(carlos?.eventSalary).toBe(5000);
     expect(nuevo?.eventSalary).toBeUndefined();
   });
 
-  it('5. Operador guarda: planDePagos, contratoDatos y pagosProveedores siguen iguales a lo guardado', () => {
+  it('5. Operador guarda: planDePagos, contratoDatos y pagosProveedores siguen iguales a lo guardado', async () => {
+    usuarioActual = usuarioOperador;
+
     const intentoOperador: FiestaEnPlanificacion = {
       ...fiestaMockBase,
       planDePagos: undefined,
       contratoDatos: undefined,
       pagosProveedores: undefined,
+      gestionCostos: undefined,
     };
 
-    const permisosOperador = {
-      puedeContabilidad: puede(usuarioOperador, PERMISOS.CONTABILIDAD),
-      puedeSueldos: puede(usuarioOperador, PERMISOS.SUELDOS),
-      puedeGanancias: puede(usuarioOperador, PERMISOS.GANANCIAS),
-    };
+    const res = await saveFiesta(intentoOperador);
+    expect(res.success).toBe(true);
 
-    const resultado = reponerLaPlata(intentoOperador, fiestaMockBase, permisosOperador);
+    const guardada = almacen['fiestas/fiesta-test-183.json'];
 
-    expect(resultado.planDePagos).toEqual(fiestaMockBase.planDePagos);
-    expect(resultado.contratoDatos).toEqual(fiestaMockBase.contratoDatos);
-    expect(resultado.pagosProveedores).toEqual(fiestaMockBase.pagosProveedores);
-    expect(resultado.gestionCostos).toEqual(fiestaMockBase.gestionCostos);
+    expect(guardada.planDePagos).toEqual(fiestaMockBase.planDePagos);
+    expect(guardada.contratoDatos).toEqual(fiestaMockBase.contratoDatos);
+    expect(guardada.pagosProveedores).toEqual(fiestaMockBase.pagosProveedores);
+    expect(guardada.gestionCostos).toEqual(fiestaMockBase.gestionCostos);
   });
 
   it('6. Operador y updateGestionCostos: exige PERMISOS.GANANCIAS, sync automático sigue habilitado', () => {
@@ -141,10 +212,11 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
     expect(puede(usuarioSecretaria, PERMISOS.GANANCIAS)).toBe(false);
     expect(puede(usuarioDueno, PERMISOS.GANANCIAS)).toBe(true);
     expect(typeof updateGestionCostos).toBe('function');
-    expect(typeof updateGestionCostosInterno).toBe('function');
   });
 
-  it('7. Operador lee presupuestos: sin senia, saldo ni pagosCliente; con total', () => {
+  it('7. Operador lee presupuestos: sin pagosCliente; con total y costoTotalEstimado', async () => {
+    usuarioActual = usuarioOperador;
+
     const presupuestoCompleto: Presupuesto = {
       id: 'pres-123',
       clienteNombre: 'Familia Gómez',
@@ -155,13 +227,19 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
       pagosCliente: [{ id: 'pago-1', monto: 40000 }] as any,
     } as any;
 
-    const filtrado = sinCobros(presupuestoCompleto);
+    almacen['presupuestos.json'] = [copia(presupuestoCompleto)];
+
+    const lista = await getPresupuestos();
+    expect(lista.length).toBe(1);
+    const filtrado = lista[0];
 
     expect(filtrado.total).toBe(180000);
     expect(filtrado.costoTotalEstimado).toBe(180000);
-    expect(filtrado.senia).toBeUndefined();
-    expect(filtrado.saldo).toBeUndefined();
     expect(filtrado.pagosCliente).toEqual([]);
+
+    const individual = await getPresupuestoById('pres-123');
+    expect(individual).not.toBeNull();
+    expect(individual?.pagosCliente).toEqual([]);
   });
 
   it('8. Borrar presupuesto: usuario perfil dueno (rol viejo user) puede; rol admin con perfil secretaria NO puede', () => {

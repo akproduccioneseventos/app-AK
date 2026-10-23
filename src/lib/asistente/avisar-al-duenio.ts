@@ -7,6 +7,7 @@ import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 
 export interface AsistenteSettings {
   avisoCelularHabilitado: boolean; // Por defecto true
