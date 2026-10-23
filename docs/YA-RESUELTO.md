@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/10/2026 - El candado de la plata ve los ayudantes que guardan plata (pregunta 95)
+
+- La entrega 1353 de Gemini volvió a exportar `updateGestionCostosInterno`: una acción pública que reescribe
+  los costos de una fiesta sin permiso. El candado no la vio porque sólo miraba nombres de archivos y campos.
+  Ahora también cuenta las llamadas a los ayudantes que guardan plata. La entrega se devolvió con la orden 220.
+
+```comprobar
+usa: mutarCostosInterno en src/__tests__/el-candado-de-la-plata.test.ts
+prueba: src/__tests__/el-candado-de-la-plata.test.ts
+```
+
 ## 23/10/2026 - Órdenes 218 y 219 (Codex 263-264): las dos fallas, arregladas por Claude
 
 - **218, el aviso de pago que volvía a pendiente:** un intento A fallaba en el presupuesto (supera el

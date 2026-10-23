@@ -225,3 +225,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     sólo si no hay marca de "terminado", y que el que termina la deje donde vos la mirás.
 65. **¿Agregaste un control que frena una escritura?** Ponelo adentro de esa misma escritura. Si leés
     antes y escribís después con `updateDataPartial` o `writeData`, el control no frena nada.
+66. **¿Tu acción del servidor llama a un ayudante que guarda plata?** Entonces pide el permiso ella. Un
+    ayudante "interno" no se exporta desde un archivo con `'use server'`.

@@ -19,7 +19,7 @@ import path from 'path';
 const RAIZ = path.join(process.cwd(), 'src/app/actions');
 
 /** Qué cuenta como "toca plata": los archivos y los campos donde vive la plata. */
-const TOCA_PLATA = /['"`](presupuestos\.json|invoices\.json|facturas|gastos-generales\.json|gastos_generales|servicios-empresa\.json|salones\.json|cupones\.json|recibos[\w-]*\.json|price-adjustments[\w-]*\.json)['"`]|\b(pagosCliente|planDePagos|pagosProveedores|gestionCostos|clientPaymentNotifications|precioVenta|precioPorPersona|montoPagado|eventSalary|leerFacturasSinGuardia|contratoDatos|planPagos)\b|\.pagos\b|\bpagos\s*:\s*\[/;
+const TOCA_PLATA = /['"`](presupuestos\.json|invoices\.json|facturas|gastos-generales\.json|gastos_generales|servicios-empresa\.json|salones\.json|cupones\.json|recibos[\w-]*\.json|price-adjustments[\w-]*\.json)['"`]|\b(pagosCliente|planDePagos|pagosProveedores|gestionCostos|clientPaymentNotifications|precioVenta|precioPorPersona|montoPagado|eventSalary|leerFacturasSinGuardia|contratoDatos|planPagos)\b|\.pagos\b|\bpagos\s*:\s*\[|\b(guardarCostosInterno|mutarCostosInterno|mutarPresupuesto|addPagoToPresupuesto|registerBookingDeposit|saveInvoice)\(/;
 
 /**
  * Claves y tokens de conexiones (WhatsApp, redes, Google): una acción que los devuelve con sólo

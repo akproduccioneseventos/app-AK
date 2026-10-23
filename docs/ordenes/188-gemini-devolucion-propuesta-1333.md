@@ -78,7 +78,7 @@ Todo `npx jest` en verde, más la 182 en `npm run "ordenes?"` como HECHA.
 
 ```comprobar
 archivo: src/lib/fiesta/costos-interno.ts
-usa: updateGestionCostosInterno en src/app/actions/fiesta/decoracion.actions.ts
+usa: mutarCostosInterno en src/app/actions/fiesta/decoracion.actions.ts
 no-usa: export async function updateGestionCostosInterno en src/app/actions/fiesta/costos.actions.ts
 prueba: src/__tests__/el-candado-de-la-plata.test.ts
 prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts

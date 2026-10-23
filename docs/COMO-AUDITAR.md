@@ -1388,3 +1388,13 @@ Se mira cada `if (...) return` que frena por firma, factura, cobro o estado cerr
 escritura: si es `updateDataPartial`, `writeData` o `saveFiesta`, el control tiene que repetirse adentro de
 `actualizarFiesta`, `mutateDataItem` o la transacción. Vale primero para los controles agregados en la
 misma tanda.
+
+### 95. Una acción del servidor que llama a un ayudante que guarda plata, ¿pide permiso ella?
+
+Revisión de la entrega 1353 de Gemini (23/10). `updateGestionCostosInterno` era una acción pública que sólo
+llamaba a `guardarCostosInterno`, importado de otro archivo. El candado de la plata miraba los nombres de los
+archivos y campos de plata adentro de la acción, no las llamadas a los ayudantes que los escriben, y no la vio.
+
+Ahora el candado también cuenta como plata llamar a `guardarCostosInterno`, `mutarCostosInterno`,
+`mutarPresupuesto`, `addPagoToPresupuesto`, `registerBookingDeposit` o `saveInvoice`. Cuando aparece un
+ayudante nuevo que guarda plata, se suma a esa lista en `src/__tests__/el-candado-de-la-plata.test.ts`.

@@ -376,6 +376,10 @@
     "94": {
       "fecha": "2026-10-23",
       "resultado": "barrido con ayudante en src/app/actions. Confirmados y arreglados por Claude: el plan de pagos se podía cambiar con el contrato firmado (en papel o en el portal) y el texto con firma en papel entraba igual; ahora los dos se miran adentro de la escritura (noPisaLoFirmado). Descartados: subir el contrato en papel con la fiesta leída antes (una prueba con un cambio en el medio pasa también con el código viejo: el guardado ya repone lo de los demás) y cambiar precios después de la constancia del portal (la constancia no es el contrato: manda el papel, decisión del dueño)."
+    },
+    "95": {
+      "fecha": "2026-10-23",
+      "resultado": "barrida por el candado de la plata en todas las acciones del servidor: en la rama de Claude, ninguna acción llama a un ayudante de plata sin pedir permiso; en la entrega 1353 de Gemini frena updateGestionCostosInterno (devuelta en la orden 220)."
     }
   },
   "hallazgos": {
@@ -446,6 +450,10 @@
     "orden-219": {
       "fecha": "2026-10-23",
       "resultado": "pregunta 94 nueva y barrida (ver arriba). El texto del contrato y el plan de pagos con firma, arreglados por Claude."
+    },
+    "orden-220": {
+      "fecha": "2026-10-23",
+      "resultado": "pregunta 95 nueva y barrida con el candado reforzado; la acción pública de costos y los guardados de lista entera de lo nuevo van a Gemini en la orden 220."
     }
   }
 }
