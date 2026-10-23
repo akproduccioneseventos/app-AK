@@ -1,0 +1,101 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "at": "2026-10-23T18:01:17.418Z",
+  "hashes": {
+    "src/lib/client-portal/payment-notifications.ts": "9e65a0adfa3b6e3bb6d2dffbc7dcdd29d88078b3fe8825450e28ea05452d595b",
+    "src/app/actions/fiesta/portal.actions.ts": "b4058fc01c85ab4fab3feca09adac962b2657fca339d188dcc6c03542f25c0ff"
+  },
+  "cases": [
+    {
+      "id": "reject-first-does-not-credit",
+      "pass": true,
+      "observed": {
+        "rejected": {
+          "success": true
+        },
+        "attempt": {
+          "success": false,
+          "error": "La notificacion ya fue procesada."
+        },
+        "budgetCalls": 0,
+        "party": {
+          "id": "qa260-party",
+          "presupuestoId": "qa260-budget",
+          "clientPaymentNotifications": [
+            {
+              "id": "qa260-notification",
+              "monto": 1000,
+              "estado": "rechazado",
+              "fecha": "2026-10-23"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "failed-owner-call-does-not-undo-successful-retry",
+      "pass": false,
+      "observed": {
+        "first": {
+          "success": false,
+          "error": "QA260_FIRST_CALL_REJECTED_BEFORE_COMMIT"
+        },
+        "retry": {
+          "success": true,
+          "approvedAt": "2026-10-23T18:01:17.418Z"
+        },
+        "paid": [
+          {
+            "fecha": "2026-10-23T18:01:17.418Z",
+            "monto": 1000,
+            "metodoPago": "Transferencia Bancaria",
+            "referencia": "Pago verificado desde Portal VIP (qa260-notification)"
+          }
+        ],
+        "party": {
+          "id": "qa260-party",
+          "presupuestoId": "qa260-budget",
+          "clientPaymentNotifications": [
+            {
+              "id": "qa260-notification",
+              "monto": 1000,
+              "estado": "pendiente",
+              "fecha": "2026-10-23"
+            }
+          ]
+        },
+        "notify": []
+      }
+    },
+    {
+      "id": "single-known-rejection-restores-pending",
+      "pass": true,
+      "observed": {
+        "failure": {
+          "success": false,
+          "error": "QA260_KNOWN_REJECTION"
+        },
+        "party": {
+          "id": "qa260-party",
+          "presupuestoId": "qa260-budget",
+          "clientPaymentNotifications": [
+            {
+              "id": "qa260-notification",
+              "monto": 1000,
+              "estado": "pendiente",
+              "fecha": "2026-10-23"
+            }
+          ]
+        },
+        "paid": []
+      }
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "pass": 2,
+    "fail": 1
+  },
+  "appEdited": false,
+  "scope": "Actual approve/reject actions and transition function. Owner permission, fiesta transaction, budget-accept/reject and notification adapters controlled in memory. NO FirebaseSDK, HTTP, real ledger/payment/account/provider or production mutation."
+}

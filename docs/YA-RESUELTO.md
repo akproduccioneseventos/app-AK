@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/10/2026 - Codex260-264: contraste focal1358, DOS causas nuevas sin corregir
+
+Fuente725e62ba2, no cambia appCodex.260/261/263/264:14criterios11PASS3FAIL,
+DOS causas porque260/263 repiten el mismo intercalado por metodos distintos.
+218/Claude AK-CODEX-263-PAGO-REINTENTO-REVIERTE-APROBADO: A obtiene rechazo real
+por saldo500; B reintenta el mismo aviso y acredita1000; A tardio vuelve el aviso
+a pendiente.260adaptadores3criterios2PASS1FAIL y263AdminSDKreal2criterios1PASS1FAIL.
+No doble cobro. ReintentoB real, presupuesto/actualizador/transaccion reales,
+actor/acceso/sync/avisos controlados. Remover otro pago del fixture fue porSDK,
+no pantalla de borrar.0fiestas/0presupuestos/cleanup200. NOcorregido.
+219/Claude AK-CODEX-264-CONTRATO-GUARDADO-DESPUES-DE-FIRMA: guardarB pasa guardas,
+cliente firmaA, set merge real escribeB despues y deja constanciaA.264AdminSDK
+2criterios1PASS1FAIL; control firmadoantes rechaza. No reabre216C4: ese escenario
+firma DESPUES de texto cambiado y254 sigue vigente.0fiestas/cleanup200.
+2617PASS costos/seña reales con adaptadores: conserva100.50manual con lavanderia,
+callback repetido no duplica; negativo/guardado fallido no pisan/dicen success;
+lectura vinculada ausente/fallida devuelve null; respeta30000explicitos/default20000.
+NoSDK/UI para261. No toda1358finanzas/contrato ni cada consumidor aceptados.
+262 falloQA de import antes de casos, preservado con logs;263 cargo helper real.
+264 no errorQA. Procesos propios cerrados, sin servicios/cuentas/cargos reales.
+Ver265, ordenes218/219; privados posteriores NO CONTRASTADOS.253 es recuentounico.
+
 ## 22/10/2026 - Codex254/255 CIERRA216 y217R1 por alcance
 
 Main725e62ba2 integra1357/1358.254SDKreal11PASS0FAIL cierraC1-C4contrato:

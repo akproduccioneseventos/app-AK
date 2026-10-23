@@ -1,8 +1,10 @@
-# Recuento unico - 22/10/2026
+# Recuento unico - 23/10/2026
 
 Main observado725e62ba2f909578628fad47402d125ed9632c70. CandidatoGemini1353b91.
 EntregaClaude1357 integrada;254/255 retestean C1-C4 y217R1, ver256-cierre.
-Indice consolidado de165/169/198/202/220 y cierres216-255. No prueba nueva por indice.
+Indice consolidado de165/169/198/202/220 y recibos216-264. No prueba nueva por indice.
+1358 auditada focalmente260-264:14criterios11PASS3FAIL, DOS causas nuevas;
+no aceptacion de toda la entrega. Ver265, sin borrar cierres254/255.
 AUDITADO = hay comprobaciones concretas del area, NO toda el area aceptada.
 CORREGIDO/COMPROBADO = cierre por el alcance y fuente de su recibo; no prueba
 automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCodex.
@@ -41,12 +43,18 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 - Voz/Meta:197/237 protocolo compuesto; NOproveedor/modelo/audio real certificados.
 - Cocina/fecha/cabecera y foco de visores tienen cierres historicos151/154/172;
   consultar recibo antes de reabrir. No declarar cada menu/pantalla completa.
+- Costos/seña1358:2617PASS con motores/helpers reales y almacenamiento controlado;
+  conserva costos al mezclar, no duplica lavanderia ni oculta fallos de guardado,
+  lectura vinculada ilegible devuelve null y respeta la seña explicita/default.
+  NoSDK/UI ni todos los motores/consumidores de costos aceptados.
 
 ## 3. Ya auditado pero falta corregir o comprobar entrega
 
 | Pendiente concreto | Responsable/estado contrastado |
 | --- | --- |
 |4causas contrato: resumen, constancia alterable, firma concurrente, texto no visto|CERRADAS por254SDK11PASS en725, no todaelarea contrato ni todoslosguardados|
+|Aprobacion fallida tardia vuelve a pendiente un aviso que el reintento ya acredito|218/Claude;263SDK1PASS1FAIL y2602PASS1FAIL, UNA causa NOcorregida en725|
+|Guardado iniciado antes de firma escribe despues otro texto y deja constancia vieja|219/Claude;264SDK1PASS1FAIL, NOcorregido en725; no reabre216C4|
 |Recordatorio sinclave puede llamar remitente|CERRADA por2553PASS en725; no proveedor/HTTPreal|
 |Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|217R2/R3/R4 Gemini; Claude los agrega a215bloque6; sin delta nuevo verificado|
 |Boton Informar pago sin formulario y enlace de album perdido|212/Gemini;227/229 confirman en1353b91; no corregido en fuente contrastada|
