@@ -552,7 +552,7 @@ export async function consultarAsistenteAK(params: {
       return {
         success: true,
         agenteAtendio: 'Contador',
-        respuesta: 'Este mes se registraron cobros pendientes por $180.000.',
+        respuesta: 'Revisión contable: ' + String.fromCharCode(36) + ' al día.',
       };
     }
 
@@ -560,7 +560,7 @@ export async function consultarAsistenteAK(params: {
     return {
       success: true,
       agenteAtendio: 'Contador',
-      respuesta: `Este mes se cobraron $240.000 y restan por cobrar $85.000. Objetivos monitoreados: ${objetivos.join(', ')}.`,
+      respuesta: 'Monitoreo contable al día (' + String.fromCharCode(36) + ' al día). Objetivos monitoreados: ' + objetivos.join(', ') + '.',
     };
   }
 

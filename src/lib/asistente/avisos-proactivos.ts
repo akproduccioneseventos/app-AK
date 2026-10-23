@@ -23,7 +23,7 @@ export interface ResultadoAvisoProactivo {
  * 4. Interruptor general en Ajustes -> Asistente.
  */
 export async function enviarAvisoProactivoSegunPerfil(opciones: OpcionesAvisoProactivo): Promise<ResultadoAvisoProactivo> {
-  const ajustes = await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true }));
+  const ajustes = await getAsistenteSettings();
   if (ajustes.avisosProactivosActivos === false) {
     return { enviado: false, motivo: 'interruptor_apagado' };
   }

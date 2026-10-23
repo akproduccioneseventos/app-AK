@@ -133,6 +133,7 @@ usa: tocaRecordarHoy en src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: liberarReservaDelDia en src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: reservasFallidas en src/app/api/cron/recordar-invitacion-no-abierta/route.ts
 usa: avisosProactivosActivos en src/lib/asistente/avisar-al-duenio.ts
+# Bloque 3 — Las 23 pruebas que fallan
 prueba: src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts
 usa: hoyEnUruguay en src/app/api/asistente/voz-en-vivo/cliente/route.ts
 usa: guardarCostosInterno en src/app/actions/fiesta/decoracion.actions.ts

@@ -139,6 +139,12 @@ export default function MiMesaPage() {
             >
               <PartyPopper className="w-4 h-4" /> Entrar a la fiesta en vivo
             </Link>
+            <Link
+              href={`/evento/barra/${fiestaId}`}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-3 text-sm font-bold text-white transition-all"
+            >
+              Ver la carta de barra
+            </Link>
             <button onClick={handleReset} className="text-sm text-white/50 hover:text-white/80 underline transition-colors">
               Buscar otro nombre
             </button>

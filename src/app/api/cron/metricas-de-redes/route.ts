@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
 import { syncMetaPublicHistory, DEFAULT_EARLIEST_DATE } from '@/lib/social-media/meta-history-backfill';
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
@@ -96,7 +96,7 @@ async function correrTarea(request: Request) {
     // una tarea automatica esta funcionando o solo esta escrita.
     await marcarCorrida('metricas-de-redes');
 
-    return NextResponse.json({
+    return NextResponse.json(respuestaDeLaTarea(puerta, {
       ok: true,
       guardado: resultado.guardado,
       fecha: resultado.fecha,
@@ -106,7 +106,7 @@ async function correrTarea(request: Request) {
         otrasRedes: historialOtrasRedes,
       },
       comentarios: comentariosSincronizados,
-    });
+    }));
   } catch (error: any) {
     console.error('[cron-metricas-redes] No se pudieron guardar los numeros del dia:', error);
     return NextResponse.json(

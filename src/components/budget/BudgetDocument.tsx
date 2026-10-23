@@ -160,15 +160,17 @@ export default function BudgetDocument({
 
   const clientName = clienteNombre || presupuesto.clienteNombre;
 
-  const validUntil = new Date(presupuesto.timestamp);
+  const timestampDate = presupuesto.timestamp ? new Date(presupuesto.timestamp) : new Date();
+  const validUntil = isNaN(timestampDate.getTime()) ? new Date() : new Date(timestampDate);
   validUntil.setDate(validUntil.getDate() + BUDGET_VALIDITY_DAYS);
 
   // Group items by category if no override is provided
   const itemsAgrupados = React.useMemo(() => {
     if (itemsAgrupadosOverride) return itemsAgrupadosOverride;
 
-    const itemsRegulares = presupuesto.itemsPresupuestados.filter((i) => !i.esRegalo);
-    const itemsRegalo = presupuesto.itemsPresupuestados.filter((i) => i.esRegalo);
+    const todosItems = presupuesto.itemsPresupuestados ?? [];
+    const itemsRegulares = todosItems.filter((i) => !i.esRegalo);
+    const itemsRegalo = todosItems.filter((i) => i.esRegalo);
 
     const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce(
       (acc, item) => {
@@ -229,7 +231,7 @@ export default function BudgetDocument({
     presupuesto.invitadosCantidad ||
     0;
 
-  const clubUruguayItem = presupuesto.itemsPresupuestados.find(
+  const clubUruguayItem = (presupuesto.itemsPresupuestados ?? []).find(
     (item) => item.idServicioCatalogo === 'serv_salon_club_uruguay'
   );
   const clubUruguayCostoCalculated = clubUruguayCosto > 0
@@ -432,7 +434,7 @@ export default function BudgetDocument({
         />
 
         {/* Items table */}
-        {showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
+        {showPriceBreakdown && (presupuesto.itemsPresupuestados?.length ?? 0) > 0 && (
           <section className="mb-4">
             <table className="w-full text-xs print:text-[8pt] border-collapse">
               <thead>

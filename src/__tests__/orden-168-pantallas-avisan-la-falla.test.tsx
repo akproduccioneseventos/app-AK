@@ -57,6 +57,14 @@ jest.mock('@/lib/auth/perfiles', () => ({
   puede: jest.fn().mockReturnValue(true),
   PERMISOS: { CONTABILIDAD: 'contabilidad' },
 }));
+jest.mock('@/app/actions/crm', () => ({
+  getCrmLeadsForDashboard: jest.fn().mockResolvedValue([]),
+}));
+
+jest.mock('@/app/actions/agentes-autonomos', () => ({
+  getHistorialAgentes: jest.fn().mockResolvedValue([]),
+}));
+
 jest.mock('@/lib/automatico/parte-manana', () => ({
   getParteDeLaManana: jest.fn().mockResolvedValue(null),
   parteParaQuienMira: jest.fn().mockReturnValue({

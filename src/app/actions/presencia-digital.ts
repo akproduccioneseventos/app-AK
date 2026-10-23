@@ -430,16 +430,22 @@ export async function getNetworkAttributionReport(
 
 
 export async function leerBandejaUnicaAction(): Promise<import('@/lib/mensajes/bandeja-unica').MensajeBandeja[]> {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return [];
   const { leerBandejaUnica } = await import('@/lib/mensajes/bandeja-unica');
   return await leerBandejaUnica();
 }
 
 export async function getAjustesRespuestasAction() {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const { getAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
   return await getAjustesRespuestasComentarios();
 }
 
 export async function setAjustesRespuestasAction(ajustes: { comentarios?: boolean; mensajesDirectos?: boolean }) {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const { setAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
   return await setAjustesRespuestasComentarios(ajustes);
 }

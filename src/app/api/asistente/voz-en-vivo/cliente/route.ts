@@ -3,6 +3,7 @@ import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { readData, writeData } from '@/lib/data-service';
+import { hoyEnUruguay } from '@/lib/utils';
 import {
   armarCuerpoFicha,
   armarInstruccionesDeVoz,
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
   const tope = Math.max(1, Number((ajustes as any).vozEnVivoClienteMinutosPorDia) || TOPE_MINUTOS_CLIENTE_POR_DEFECTO);
 
   // 3. Verificación de uso del día (5 min/día por fiesta)
-  const hoyStr = new Date().toISOString().split('T')[0];
+  const hoyStr = hoyEnUruguay();
   const registroUso = await readData<Record<string, { fecha: string; minutos: number }>>(USO_CLIENTE_FILE, {});
   const usoActual = registroUso[fiestaId] || { fecha: hoyStr, minutos: 0 };
   const minutosUsados = usoActual.fecha === hoyStr ? usoActual.minutos : 0;

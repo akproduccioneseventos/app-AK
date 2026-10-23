@@ -25,6 +25,15 @@ let almacen: Record<string, any> = {};
 let cola: Promise<any> = Promise.resolve();
 
 let perfil = 'dueno';
+jest.mock('@/lib/auth/session-token', () => ({
+  verifySession: jest.fn(async () => {
+    if (!sesion || perfil === 'personal' || perfil === 'operador') {
+      return { success: false, error: 'Sesión no autorizada.' };
+    }
+    return { success: true, user: { perfil, id: 'test-user', email: 'test@akproducciones.uy' } };
+  }),
+}));
+
 jest.mock('@/lib/auth/require-session', () => ({
   requirePermiso: jest.fn(async (p: string) => {
     if (!sesion) return { ok: false, error: 'Sesión no autorizada.' };
@@ -32,6 +41,8 @@ jest.mock('@/lib/auth/require-session', () => ({
     return puede({ perfil }, p) ? { ok: true, user: { perfil } } : { ok: false, error: 'Tu perfil no tiene acceso a esta parte.' };
   }),
 }));
+jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getFiestas: jest.fn(async () => []) }));
+jest.mock('@/app/actions/crm', () => ({ getCrmLeadsForDashboard: jest.fn(async () => []) }));
 jest.mock('@/lib/asistente/avisar-al-duenio', () => ({ getAsistenteSettings: jest.fn(async () => ajustes) }));
 jest.mock('@/lib/multiagent/diagnostics', () => ({
   buildMultiAgentTeamBriefing: jest.fn(async () => ({

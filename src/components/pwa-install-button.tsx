@@ -99,7 +99,7 @@ export function PwaInstallButton() {
     return (
       <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
-        <span>AK Producciones ya está instalada en este dispositivo.</span>
+        <span>AK Producciones ya esta instalada en este dispositivo.</span>
       </div>
     );
   }

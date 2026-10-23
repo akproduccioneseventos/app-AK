@@ -78,7 +78,7 @@ import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
-const PORTAL_EXTRA_DEFINITIONS = [
+export const PORTAL_EXTRA_DEFINITIONS = [
   {
     id: 'hora_extra_dj',
     titulo: 'Hora adicional de fiesta y DJ',

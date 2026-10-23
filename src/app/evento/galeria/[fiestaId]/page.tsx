@@ -400,7 +400,7 @@ export default function GaleriaPage() {
               { id: 'fotocabina', label: '📸 Fotocabina' },
               { id: '360', label: '🌐 360°' },
               { id: 'espejo', label: '✨ Espejo' },
-              ...(posts.some(p => p.sourceModule === 'bogue' || p.sourceModule === 'vogue' || p.sourceModule === 'cabinaVogue' || p.sourceModule === 'boomerang') ? [{ id: 'bogue', label: '💎 Vogue' }] : []),
+              ...(posts.some(p => p.sourceModule === 'bogue' || p.sourceModule === 'vogue' || p.sourceModule === 'cabinaVogue' || p.sourceModule === 'boomerang') ? [{ id: 'bogue', label: 'Cabina Vogue' }] : []),
               ...(posts.some(p => p.sourceModule === 'touchpix' || p.sourceModule === 'espejoMagicoIA' || p.sourceModule === 'totem' || p.sourceModule === 'totemIA' || p.sourceModule === 'pantallasTotem') ? [{ id: 'touchpix', label: '🤖 Tótem IA' }] : []),
               { id: 'invitados', label: '📱 Invitados' },
             ].map((tab) => (

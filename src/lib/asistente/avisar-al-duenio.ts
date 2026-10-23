@@ -32,6 +32,8 @@ export interface AsistenteSettings {
   vozEnVivoMinutosPorDia?: number;
   numerosEquipo?: Array<{ telefono: string; nombre: string; rol: string }>;
   atenderLlamadasIaHabilitado?: boolean;
+  avisosProactivosActivos?: boolean;
+  vozEnVivoClienteActiva?: boolean;
 }
 
 export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {
@@ -56,6 +58,7 @@ export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {
     { telefono: AK_WHATSAPP_NUMBER, nombre: 'Alexander Knuth', rol: 'Dueño' },
   ],
   atenderLlamadasIaHabilitado: false,
+  avisosProactivosActivos: true,
 };
 
 const SETTINGS_FILE = 'asistente-settings.json';

@@ -23,4 +23,3 @@ export async function guardarCostosInterno(
   return r.success ? { success: true, updatedData: costos } : { success: false, error: r.error || 'No se pudieron guardar los costos.' };
 }
 
-export const updateGestionCostosInterno = guardarCostosInterno;

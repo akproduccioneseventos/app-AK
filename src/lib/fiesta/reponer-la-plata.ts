@@ -20,3 +20,62 @@ export function compraGuardadaDeCadaUna<T extends Record<string, unknown>>(antes
     return antes[i];
   });
 }
+
+
+export function reponerLaPlata(
+  intento: any,
+  guardada: any,
+  permisos: { puedeContabilidad?: boolean; puedeSueldos?: boolean; puedeGanancias?: boolean }
+): any {
+  const resultado = { ...intento };
+
+  // 1. Ganancias
+  if (!permisos.puedeGanancias) {
+    resultado.gestionCostos = guardada?.gestionCostos;
+  }
+
+  // 2. Sueldos
+  if (!permisos.puedeSueldos) {
+    if (intento?.personalAsignado && guardada?.personalAsignado) {
+      resultado.personalAsignado = intento.personalAsignado.map((p: any) => {
+        const previo = guardada.personalAsignado.find((orig: any) => orig.empleadoId === p.empleadoId);
+        const copiaP = { ...p };
+        if (previo && previo.eventSalary !== undefined) {
+          copiaP.eventSalary = previo.eventSalary;
+        } else {
+          delete copiaP.eventSalary;
+        }
+        return copiaP;
+      });
+    } else {
+      resultado.personalAsignado = guardada?.personalAsignado;
+    }
+  }
+
+  // 3. Contabilidad
+  if (!permisos.puedeContabilidad) {
+    resultado.planDePagos = guardada?.planDePagos;
+    resultado.contratoDatos = guardada?.contratoDatos;
+    resultado.pagosProveedores = guardada?.pagosProveedores;
+    resultado.clientPaymentNotifications = guardada?.clientPaymentNotifications;
+    if (intento?.estadosCompra && guardada?.estadosCompra) {
+      resultado.estadosCompra = intento.estadosCompra.map((ec: any) => {
+        const previo = guardada.estadosCompra.find((orig: any) => orig.id === ec.id || orig.proveedorId === ec.proveedorId);
+        const copiaEc = { ...ec };
+        if (previo && previo.pagado !== undefined) {
+          copiaEc.pagado = previo.pagado;
+        } else {
+          delete copiaEc.pagado;
+        }
+        if (previo && previo.montoPagado !== undefined) {
+          copiaEc.montoPagado = previo.montoPagado;
+        } else {
+          delete copiaEc.montoPagado;
+        }
+        return copiaEc;
+      });
+    }
+  }
+
+  return resultado;
+}

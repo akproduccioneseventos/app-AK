@@ -1,3 +1,4 @@
+import { verifySession } from '@/lib/auth/session-token';
 import { NextResponse } from 'next/server';
 import { usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
@@ -18,6 +19,10 @@ export async function POST(request: Request) {
   // 1. Pide sesión de un usuario del equipo con permisos reales (no perfil personal sin permisos)
   const usuario = await usuarioDelEquipo();
   if (!usuario) {
+    const sesion = await verifySession().catch(() => ({ success: false, user: null }));
+    if (sesion.success && sesion.user) {
+      return NextResponse.json({ error: 'Solo miembros del equipo con permisos pueden ejecutar acciones de voz' }, { status: 403 });
+    }
     return NextResponse.json({ error: 'Solo miembros del equipo con permisos pueden ejecutar acciones de voz' }, { status: 401 });
   }
 
