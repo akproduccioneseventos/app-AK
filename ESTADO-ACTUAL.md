@@ -1,6 +1,6 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1358 (`725e62ba2`, 22/10): revisión contable y de contratos (avisos de pago a la vez, costos automáticos, factura, seña, texto firmado).
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1360 (`3e45a4ac6`, 23/10): órdenes 218 y 219 (aviso de pago reintentado, texto y plan de pagos con firma) y el barrido de las preguntas 93 y 94 (cancelación, cambio de fecha, cobro de factura).
 
 ## En qué se está
 Codex 186-206: orden 210 publicada (1351); orden 211 (aprobaciones y contrato firmado, incluye un error mío ya publicado) hecha, falta publicar. Para Gemini: orden 212 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
@@ -34,6 +34,8 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Gemini 1353 (`7f2b251e9`, órdenes 180-195, 212, 214, 215, 217): devuelta otra vez con la orden 220 (costos públicos sin permiso, prueba de la 183 sobre copias, un error de tipos, 6 guardados de lista entera, frase de la 190).
+- Codex 1359 (`914d78307`, auditorías 260-264): juntado. Dos fallas nuevas de plata y contrato (órdenes 218 y 219), arregladas por Claude el 23/10; preguntas 93 y 94.
 - Codex 1359 (`e9477ba8e`, auditorías 254-255): juntado. Confirma arreglados la firma del contrato (216, C1-C4) y el recordatorio R1 (217); sin hallazgos nuevos. R2-R4 siguen con Gemini.
 - Codex 1356 (`5ec6bb2fa`, recuento único 253): juntado, sin hallazgos nuevos.
 - Codex 1356 (`dcfe7b458`, auditorías 240 y 249-251): juntado. Firma del contrato (216) arreglada por Claude; recordatorio: R1 por Claude, R2-R4 a Gemini (orden 215, bloque 6).

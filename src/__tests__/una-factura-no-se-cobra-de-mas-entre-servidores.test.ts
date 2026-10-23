@@ -152,4 +152,19 @@ describe('Una factura no se cobra de mas entre servidores', () => {
     // Antes volvía a 'Draft' (la foto de cuando entró A) con el cobro de B adentro.
     expect(factura.status).toBe('Sent');
   });
+
+  it('si otro intento ya pasó el cobro al presupuesto, la vuelta atrás tardía no lo saca de la factura (pregunta 93)', async () => {
+    almacen['invoices.json'] = [{ ...copia(FACTURA), sourcePresupuestoId: 'p1' }];
+    const { addPagoToPresupuesto } = jest.requireMock('@/app/actions/presupuestos');
+    (addPagoToPresupuesto as jest.Mock).mockImplementationOnce(async () => {
+      // Mientras A espera, «Pasar ahora» lo pasa al presupuesto y lo marca.
+      const f = almacen['invoices.json'][0];
+      f.payments = f.payments.map((p: any) => ({ ...p, pasadoAlPresupuesto: true }));
+      return { success: false, error: 'el presupuesto no contesta' };
+    });
+    const servidorA = cargarServidor();
+    await servidorA.addPaymentToInvoice('fac-1', cobro(400));
+    const factura = almacen['invoices.json'][0];
+    expect(factura.payments.map((p: any) => p.amount)).toEqual([400]);
+  });
 });

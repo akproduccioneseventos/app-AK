@@ -1871,6 +1871,8 @@ export interface ClientPaymentNotification {
   estado: 'pendiente' | 'aprobado' | 'rechazado';
   timestamp: string;
   approvedAt?: string;
+  /** Cuándo quedó acreditado en el presupuesto. Con esto puesto, ningún intento fallido lo vuelve a pendiente. */
+  cobroConfirmadoAt?: string;
   notas?: string;
 }
 

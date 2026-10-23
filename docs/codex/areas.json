@@ -157,7 +157,7 @@
         "src/app/api/video-vida-photos"
       ],
       "estado": "con-hallazgos",
-      "nota": "Auditorías 186-240 (órdenes 210, 211, 213-claude y 216-claude): la plata del portal, las aprobaciones, los dos intercalados y la firma del contrato (resumen, constancia, firmas a la vez, texto visto) los arregló Claude el 22/10; Codex 254 volvió a mirar la firma del contrato (C1-C4): 11 de 11 bien. Lo de pantalla, orden 212 (Gemini). Falta que Codex mire el resto del área."
+      "nota": "Auditorías 186-240 (órdenes 210, 211, 213-claude y 216-claude): la plata del portal, las aprobaciones, los dos intercalados y la firma del contrato (resumen, constancia, firmas a la vez, texto visto) los arregló Claude el 22/10; Codex 254 volvió a mirar la firma del contrato (C1-C4): 11 de 11 bien. Codex 263-264: el aviso de pago reintentado y el texto guardado mientras se firma, arreglados por Claude el 23/10 (órdenes 218 y 219). Lo de pantalla, orden 212 (Gemini). Falta que Codex mire el resto del área."
     },
     {
       "id": "invitado",
