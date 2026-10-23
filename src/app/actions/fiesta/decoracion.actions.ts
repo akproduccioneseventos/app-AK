@@ -3,7 +3,8 @@
 import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, CostoItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
-import { mutarCostosInterno } from '@/lib/fiesta/costos-interno';
+import { mutarCostosInterno, guardarCostosInterno } from '@/lib/fiesta/costos-interno';
+void guardarCostosInterno;
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
 import { requireAppSession } from '@/lib/auth/require-session';
