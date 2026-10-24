@@ -1,0 +1,48 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "stats": {
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-379-mini-quiosco-cancel.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T16:37:31.173Z",
+      "report": "381-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T16:35:31.247Z",
+        "duration": 119878.986,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-380-cocina-adjunto-opcional.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T16:37:49.112Z",
+      "report": "381-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T16:37:33.540Z",
+        "duration": 15502.352000000003,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

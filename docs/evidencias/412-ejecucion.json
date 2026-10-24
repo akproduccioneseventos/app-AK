@@ -1,0 +1,336 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke",
+  "started": "2026-10-24T19:15:31.013Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-24T19:10:06.378Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "carga-rapido.spec.ts",
+    "entertainment-stations.spec.ts",
+    "internal-dynamic-route-inventory.spec.ts",
+    "la-hoja-de-cocina.spec.ts",
+    "la-web-de-venta-no-se-rompe.spec.ts",
+    "las-estaciones-respetan-los-ajustes.spec.ts",
+    "limpiar-la-agenda.spec.ts",
+    "los-enlaces-llegan-a-donde-dicen.spec.ts",
+    "pantallas-con-iconos-react19.spec.ts",
+    "pantallas-tocadas-tanda-12-10.spec.ts",
+    "espejo-moderacion-caida-y-reintento.spec.ts"
+  ],
+  "batchSize": 1,
+  "copiedTests": 11,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/carga-rapido.spec.ts",
+      "copy": "tests/e2e/ak207-carga-rapido.spec.ts",
+      "originalSha256": "6676dd0e51ddd973cf1254c3a69822de1bc5b7eb8234f934ba26eff3aa44e725",
+      "preparedSha256": "a34947f0ce4f60dc412dedbca82f73de3021a29aef783dafbc70be739ded4cc5",
+      "instrumentedSha256": "21c88d0e32066a0b04764191e3130c782770139445ef6445b342595e4ed80b97"
+    },
+    {
+      "original": "tests/e2e/entertainment-stations.spec.ts",
+      "copy": "tests/e2e/ak207-entertainment-stations.spec.ts",
+      "originalSha256": "3b53c31acae97b827d5e6cbefbb4afe5ea3e6bc0393753f15aa26e14b1adc0f9",
+      "preparedSha256": "5c9158d342a916cceef748387bad5569d54c3f26c729ab3329367d5cc357156a",
+      "instrumentedSha256": "9186dd7ac1f28591eb9b5e36f04eda89ef4d5adee5d7a400f748f860746b5959"
+    },
+    {
+      "original": "tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts",
+      "copy": "tests/e2e/ak207-espejo-moderacion-caida-y-reintento.spec.ts",
+      "originalSha256": "fbaf3ecaad5934c196c45765eb1459cc4db20b56604df1b8553166d1ae37a5b9",
+      "preparedSha256": "9e66d767f824e6ff04adbc4ebbde8e3f6d4d3badddecb942de9af282a2058af7",
+      "instrumentedSha256": "72aa41032b13aa77fbefa5bb4fbcf86e1ead37730dce315138adfa4e7e833ac8"
+    },
+    {
+      "original": "tests/e2e/internal-dynamic-route-inventory.spec.ts",
+      "copy": "tests/e2e/ak207-internal-dynamic-route-inventory.spec.ts",
+      "originalSha256": "86f708625899eaa7514f0779e068a96587c0a05009edd67e5913309f85a0eab8",
+      "preparedSha256": "1a5b3045b59d3ede5d4e7e2cd5623bca3493e1a667a7cacd754ca9cb5ad0b56c",
+      "instrumentedSha256": "28db80771ec47c33243346c858ca6823fd5865df11210010878c74e8c4a0f387"
+    },
+    {
+      "original": "tests/e2e/la-hoja-de-cocina.spec.ts",
+      "copy": "tests/e2e/ak207-la-hoja-de-cocina.spec.ts",
+      "originalSha256": "16039ab03021e1a4fd7d243ac90a5eb8d71d5868a13b0617e007f4371b2795b9",
+      "preparedSha256": "58d079235367beee6c3108f3e062a02fc3dee518686e1ac704400757fdd91155",
+      "instrumentedSha256": "af903bb72a21edeaa3030c95fbd7e3fcbddcd07e9947bfbf22fab592a4d64dec"
+    },
+    {
+      "original": "tests/e2e/la-web-de-venta-no-se-rompe.spec.ts",
+      "copy": "tests/e2e/ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "originalSha256": "fe9438812f7f9bc112b966bd091f10ae813c49e1a4b612a3a536699b2ca25785",
+      "preparedSha256": "baed4888ce864870790bbb2074b2feaca9027c491c47dea90f1357ab1e8852c2",
+      "instrumentedSha256": "f4926f8d993be72af464e0c33456442728d20e34698770024cd67ce8e9616a8c"
+    },
+    {
+      "original": "tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts",
+      "copy": "tests/e2e/ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "originalSha256": "8d70a4065cade9e5548054e7f2796dfddbeeb80b838e46e7555c7f07a86a7e39",
+      "preparedSha256": "5aca058d2c0ad15567b87228338a23611ae5e185eff7a4b6c8c3a055949a4982",
+      "instrumentedSha256": "6c7ce33a75fa803817a75f9cd46630fd632bc1911975cacb9f45cb5d2fdfc366"
+    },
+    {
+      "original": "tests/e2e/limpiar-la-agenda.spec.ts",
+      "copy": "tests/e2e/ak207-limpiar-la-agenda.spec.ts",
+      "originalSha256": "8b5d4b0ef05c5cd0fd0c873f629812f551590099974240ba6c386a9b01ce762c",
+      "preparedSha256": "03a9f65c90b503d49c29d65c685e666d81cba8a41b77ae1c0ccbfb8ee1e8bd08",
+      "instrumentedSha256": "ad49fee238385dcc5319a8283a3e3d748d148b018ea44f6bf8eb3d2e5181dabb"
+    },
+    {
+      "original": "tests/e2e/los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "copy": "tests/e2e/ak207-los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "originalSha256": "eb4124b5d2f1eb62aa7abd0371ce8d698f75766d569273a1e68d813e3195703d",
+      "preparedSha256": "d42428fff29a6d4e35ad92c733fb33747287d6e8edc2011652c2b5daa22f6c32",
+      "instrumentedSha256": "25b0ba4bde32e706be49a6b575004d9a72b804c68f7f39639a8d89c6376847c6"
+    },
+    {
+      "original": "tests/e2e/pantallas-con-iconos-react19.spec.ts",
+      "copy": "tests/e2e/ak207-pantallas-con-iconos-react19.spec.ts",
+      "originalSha256": "08d1940cc98dbce2d1ff3da23eac0adc63be3dd38104df6514814c8b17bc752a",
+      "preparedSha256": "ee28ecde5c35cf3f23bc029e4355712a1a4c1d30a3eb2a92c88ed1c6669efc5d",
+      "instrumentedSha256": "030cdb16cb796b6ccd64738004f12685222fdfe59c4fccc508ed9975998d9c61"
+    },
+    {
+      "original": "tests/e2e/pantallas-tocadas-tanda-12-10.spec.ts",
+      "copy": "tests/e2e/ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "originalSha256": "70ca64b246912daf64964ebd73716d7bcfbf865a817610adb1b31d10160d43e1",
+      "preparedSha256": "6be1867a57bb89238d4804851c43a795092ca0b60329c42d7069af3aec8d17c4",
+      "instrumentedSha256": "31d763f88b0643758e180593318b90140c93f4e96a305c2158feee6d78e25756"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 8240,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-24T19:15:34.953Z",
+    "version": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c · compilada 2026-10-24T18:57:23.732Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-carga-rapido.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:16:57.434Z",
+      "report": "412-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:15:36.130Z",
+        "duration": 81265.853,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-entertainment-stations.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:20:01.753Z",
+      "report": "412-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:16:58.434Z",
+        "duration": 183295.70299999998,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-espejo-moderacion-caida-y-reintento.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:20:06.829Z",
+      "report": "412-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:20:02.887Z",
+        "duration": 3065.613,
+        "expected": 0,
+        "skipped": 1,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-internal-dynamic-route-inventory.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:20:56.177Z",
+      "report": "412-batch-004-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:20:10.066Z",
+        "duration": 46093.626,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 5,
+      "files": [
+        "ak207-la-hoja-de-cocina.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:21:24.522Z",
+      "report": "412-batch-005-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:20:57.132Z",
+        "duration": 27357.88,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 6,
+      "files": [
+        "ak207-la-web-de-venta-no-se-rompe.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:25:48.628Z",
+      "report": "412-batch-006-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:21:25.509Z",
+        "duration": 263074.194,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 7,
+      "files": [
+        "ak207-las-estaciones-respetan-los-ajustes.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:31:03.414Z",
+      "report": "412-batch-007-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:25:49.752Z",
+        "duration": 313631.721,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 8,
+      "files": [
+        "ak207-limpiar-la-agenda.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:31:23.032Z",
+      "report": "412-batch-008-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:31:04.501Z",
+        "duration": 18494.515,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 9,
+      "files": [
+        "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:32:04.252Z",
+      "report": "412-batch-009-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:31:24.040Z",
+        "duration": 40175.397,
+        "expected": 5,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 10,
+      "files": [
+        "ak207-pantallas-con-iconos-react19.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:32:44.116Z",
+      "report": "412-batch-010-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:32:05.352Z",
+        "duration": 38691.124,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 11,
+      "files": [
+        "ak207-pantallas-tocadas-tanda-12-10.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:34:58.817Z",
+      "report": "412-batch-011-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:32:45.573Z",
+        "duration": 133209.783,
+        "expected": 9,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 1,
+  "currentBatch": 11,
+  "totalBatches": 11,
+  "testPid": 9080,
+  "stats": {
+    "expected": 27,
+    "skipped": 1,
+    "unexpected": 6,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 74,
+  "sourceDiff": "",
+  "finished": "2026-10-24T19:34:59.788Z"
+}

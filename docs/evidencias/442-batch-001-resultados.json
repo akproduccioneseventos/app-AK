@@ -1,0 +1,514 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "442-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\442-batch-001-artifacts",
+      "ak207-438-fotocabina-sdk.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\442-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/442-batch-001-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/442-batch-001-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\442-batch-001-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-438-fotocabina-sdk.spec.ts",
+      "file": "ak207-438-fotocabina-sdk.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "438 neutral fotos1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 24331,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:9448) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    },
+                    {
+                      "text": "(node:9448) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:10:52.474Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa438-neutro-y-frontera",
+                      "contentType": "application/json",
+                      "body": "eyJtb2RlIjoibmV1dHJhbCIsImNvdW50IjoxLCJ1cGxvYWRzSW50ZXJjZXB0ZWQiOjAsInJlc3BvbnNlcyI6W3sic3VjY2VzcyI6dHJ1ZSwic3RhdGlvbiI6eyJmb3RvcyI6MSwiY291bnRkb3duIjoyfX1dLCJzdGF0ZXMiOlt7ImxhYmVsIjoiYW50ZXMiLCJ0ZXh0IjoiRk9UT0NBQklOQSBBS1xuXG5GaWVzdGEgZGUgZXN0YSBub2NoZVxuXG5GaWVzdGEgZGUgZXN0YSBub2NoZVxuXG5QcmVwYXJhIHR1IHBvc2UuIExhIGZvdG8gc2UgY2FwdHVyYSBjb24gbGEgY2FtYXJhIHdlYiBkZSBlc3RhIHBhbnRhbGxhLlxuXG5QUkVQQVJBUiBGT1RPXG5QZXJzb25hbGl6YXIgbWkgZm90byAoZm9uZG8sIG1hcmNvIHkgc3RpY2tlcnMpXG5WZXIgZ2FsZXLDrWEgZGUgbGEgbm9jaGUiLCJzYXZlZENvbmZpZyI6eyJlbmFibGVkIjp0cnVlLCJmb3Rvc1BvclRhbmRhIjoxLCJjb3VudGRvd25TZWNvbmRzIjoyLCJzZWd1bmRvc0N1ZW50YVJlZ3Jlc2l2YSI6MiwiYXV0b1B1Ymxpc2giOmZhbHNlfX0seyJsYWJlbCI6InByZXZpZXctZXN0YWJsZSIsInRleHQiOiJGT1RPQ0FCSU5BIEFLXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cbkFTSSBTRSBJTVBSSU1FXG5UdXMgdHJlcyBmb3Rvc1xuXG5JbXByaW1pbGEgcGFyYSBsbGV2YXJ0ZWxhLCBvIHJlcGV0w60gbGEgdGFuZGEgc2kgYWxndW5hIG5vIHRlIGd1c3TDsy5cblxuRmlybWFyIG8gZGlidWphciBzb2JyZSBsYSBmb3RvXG5JTVBSSU1JUiBNSSBSRUNVRVJET1xuUHVibGljYXIgZW4gZWwgbXVyb1xuUmVwZXRpciBmb3RvXG7Cv0NVw4FORE8gQ1VNUEzDjVMgVFVTIFFVSU5DRT9cbllhIGxvcyBmZXN0ZWrDqVxuRXN0ZSBhw7FvXG5FbCBhw7FvIHF1ZSB2aWVuZVxuTm8gZXMgbG8gbcOtb1xuRXN0byBsbyBoaXpvIEFLIFByb2R1Y2Npb25lc1xuRXNjcmliaW5vcyBwb3IgV2hhdHNBcHBcbsK/VGUgdG9jYSBmZXN0ZWphciBlbCBhw7FvIHF1ZSB2aWVuZT8gTWlyw6EgY3XDoW50byBzYWxlIHR1IGZpZXN0YVxu4oaSIiwic2F2ZWRDb25maWciOnsiZW5hYmxlZCI6dHJ1ZSwiZm90b3NQb3JUYW5kYSI6MSwiY291bnRkb3duU2Vjb25kcyI6Miwic2VndW5kb3NDdWVudGFSZWdyZXNpdmEiOjIsImF1dG9QdWJsaXNoIjpmYWxzZX19LHsibGFiZWwiOiJmaW5hbCIsInRleHQiOiJGT1RPQ0FCSU5BIEFLXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cbkFTSSBTRSBJTVBSSU1FXG5UdXMgdHJlcyBmb3Rvc1xuXG5JbXByaW1pbGEgcGFyYSBsbGV2YXJ0ZWxhLCBvIHJlcGV0w60gbGEgdGFuZGEgc2kgYWxndW5hIG5vIHRlIGd1c3TDsy5cblxuRmlybWFyIG8gZGlidWphciBzb2JyZSBsYSBmb3RvXG5JTVBSSU1JUiBNSSBSRUNVRVJET1xuUHVibGljYXIgZW4gZWwgbXVyb1xuUmVwZXRpciBmb3RvXG7Cv0NVw4FORE8gQ1VNUEzDjVMgVFVTIFFVSU5DRT9cbllhIGxvcyBmZXN0ZWrDqVxuRXN0ZSBhw7FvXG5FbCBhw7FvIHF1ZSB2aWVuZVxuTm8gZXMgbG8gbcOtb1xuRXN0byBsbyBoaXpvIEFLIFByb2R1Y2Npb25lc1xuRXNjcmliaW5vcyBwb3IgV2hhdHNBcHBcbsK/VGUgdG9jYSBmZXN0ZWphciBlbCBhw7FvIHF1ZSB2aWVuZT8gTWlyw6EgY3XDoW50byBzYWxlIHR1IGZpZXN0YVxu4oaSIiwic2F2ZWRDb25maWciOnsiZW5hYmxlZCI6dHJ1ZSwiZm90b3NQb3JUYW5kYSI6MSwiY291bnRkb3duU2Vjb25kcyI6Miwic2VndW5kb3NDdWVudGFSZWdyZXNpdmEiOjIsImF1dG9QdWJsaXNoIjpmYWxzZX19XSwic2NvcGUiOiJSZWFsIGxvY2FsU0RLIGNvbmZpZ3VyYXRpb24gYW5kIGNhbWVyYSBwaXBlbGluZTsgZmFpbHVyZSBpbmplY3Rpb24gaW5zdGFsbGVkIE9OTFkgYWZ0ZXIgcHJldmlldyBhbmQgT05MWSBmaWxlIHVwbG9hZC4gUmVqZWN0aW9uIGlzIGEgY29udHJvbGxlZCBjbGllbnQgcmVzcG9uc2UsIG5vdCBhIHJlYWwgcHJvdmlkZXIvYmFja2VuZCByZWplY3Rpb24gY2VydGlmaWNhdGlvbi4ifQ=="
+                    },
+                    {
+                      "name": "qa439-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86bfdf6624df73e68fe4-56ffd1b7087a5f400508",
+          "file": "ak207-438-fotocabina-sdk.spec.ts",
+          "line": 33,
+          "column": 91
+        },
+        {
+          "title": "438 neutral fotos3",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 39448,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:11:17.637Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa438-neutro-y-frontera",
+                      "contentType": "application/json",
+                      "body": "eyJtb2RlIjoibmV1dHJhbCIsImNvdW50IjozLCJ1cGxvYWRzSW50ZXJjZXB0ZWQiOjAsInJlc3BvbnNlcyI6W3sic3VjY2VzcyI6ZmFsc2UsImVycm9yIjoiTGEgdHJhbnNpY2lvbiBzb2xpY2l0YWRhIG5vIGVzIHZhbGlkYSBwYXJhIGVsIGVzdGFkbyBhY3R1YWwuIn0seyJzdWNjZXNzIjpmYWxzZSwiZXJyb3IiOiJMYSB0cmFuc2ljaW9uIHNvbGljaXRhZGEgbm8gZXMgdmFsaWRhIHBhcmEgZWwgZXN0YWRvIGFjdHVhbC4ifV0sInN0YXRlcyI6W3sibGFiZWwiOiJhbnRlcyIsInRleHQiOiJGT1RPQ0FCSU5BIEFLXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cblByZXBhcmEgdHUgcG9zZS4gTGEgZm90byBzZSBjYXB0dXJhIGNvbiBsYSBjYW1hcmEgd2ViIGRlIGVzdGEgcGFudGFsbGEuXG5cblBSRVBBUkFSIEZPVE9cblBlcnNvbmFsaXphciBtaSBmb3RvIChmb25kbywgbWFyY28geSBzdGlja2VycylcblZlciBnYWxlcsOtYSBkZSBsYSBub2NoZSIsInNhdmVkQ29uZmlnIjp7ImVuYWJsZWQiOnRydWUsImZvdG9zUG9yVGFuZGEiOjMsImNvdW50ZG93blNlY29uZHMiOjIsInNlZ3VuZG9zQ3VlbnRhUmVncmVzaXZhIjoyLCJhdXRvUHVibGlzaCI6ZmFsc2V9fSx7ImxhYmVsIjoicHJldmlldy1lc3RhYmxlIiwidGV4dCI6IkZPVE9DQUJJTkEgQUtcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuQVNJIFNFIElNUFJJTUVcbjFcbjJcbjNcblR1cyB0cmVzIGZvdG9zXG5cbkltcHJpbWlsYSBwYXJhIGxsZXZhcnRlbGEsIG8gcmVwZXTDrSBsYSB0YW5kYSBzaSBhbGd1bmEgbm8gdGUgZ3VzdMOzLlxuXG5GaXJtYXIgbyBkaWJ1amFyIHNvYnJlIGxhIGZvdG9cblFVSUVSTyBPVFJBIENPUElBXG5QdWJsaWNhciBlbiBlbCBtdXJvXG5SZXBldGlyIGZvdG9cbsK/Q1XDgU5ETyBDVU1QTMONUyBUVVMgUVVJTkNFP1xuWWEgbG9zIGZlc3RlasOpXG5Fc3RlIGHDsW9cbkVsIGHDsW8gcXVlIHZpZW5lXG5ObyBlcyBsbyBtw61vXG5Fc3RvIGxvIGhpem8gQUsgUHJvZHVjY2lvbmVzXG5Fc2NyaWJpbm9zIHBvciBXaGF0c0FwcFxuwr9UZSB0b2NhIGZlc3RlamFyIGVsIGHDsW8gcXVlIHZpZW5lPyBNaXLDoSBjdcOhbnRvIHNhbGUgdHUgZmllc3RhXG7ihpIiLCJzYXZlZENvbmZpZyI6eyJlbmFibGVkIjp0cnVlLCJmb3Rvc1BvclRhbmRhIjozLCJjb3VudGRvd25TZWNvbmRzIjoyLCJzZWd1bmRvc0N1ZW50YVJlZ3Jlc2l2YSI6MiwiYXV0b1B1Ymxpc2giOmZhbHNlfX0seyJsYWJlbCI6ImZpbmFsIiwidGV4dCI6IkZPVE9DQUJJTkEgQUtcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuQVNJIFNFIElNUFJJTUVcbjFcbjJcbjNcblR1cyB0cmVzIGZvdG9zXG5cbkltcHJpbWlsYSBwYXJhIGxsZXZhcnRlbGEsIG8gcmVwZXTDrSBsYSB0YW5kYSBzaSBhbGd1bmEgbm8gdGUgZ3VzdMOzLlxuXG5GaXJtYXIgbyBkaWJ1amFyIHNvYnJlIGxhIGZvdG9cblFVSUVSTyBPVFJBIENPUElBXG5QdWJsaWNhciBlbiBlbCBtdXJvXG5SZXBldGlyIGZvdG9cbsK/Q1XDgU5ETyBDVU1QTMONUyBUVVMgUVVJTkNFP1xuWWEgbG9zIGZlc3RlasOpXG5Fc3RlIGHDsW9cbkVsIGHDsW8gcXVlIHZpZW5lXG5ObyBlcyBsbyBtw61vXG5Fc3RvIGxvIGhpem8gQUsgUHJvZHVjY2lvbmVzXG5Fc2NyaWJpbm9zIHBvciBXaGF0c0FwcFxuwr9UZSB0b2NhIGZlc3RlamFyIGVsIGHDsW8gcXVlIHZpZW5lPyBNaXLDoSBjdcOhbnRvIHNhbGUgdHUgZmllc3RhXG7ihpIiLCJzYXZlZENvbmZpZyI6eyJlbmFibGVkIjp0cnVlLCJmb3Rvc1BvclRhbmRhIjozLCJjb3VudGRvd25TZWNvbmRzIjoyLCJzZWd1bmRvc0N1ZW50YVJlZ3Jlc2l2YSI6MiwiYXV0b1B1Ymxpc2giOmZhbHNlfX1dLCJzY29wZSI6IlJlYWwgbG9jYWxTREsgY29uZmlndXJhdGlvbiBhbmQgY2FtZXJhIHBpcGVsaW5lOyBmYWlsdXJlIGluamVjdGlvbiBpbnN0YWxsZWQgT05MWSBhZnRlciBwcmV2aWV3IGFuZCBPTkxZIGZpbGUgdXBsb2FkLiBSZWplY3Rpb24gaXMgYSBjb250cm9sbGVkIGNsaWVudCByZXNwb25zZSwgbm90IGEgcmVhbCBwcm92aWRlci9iYWNrZW5kIHJlamVjdGlvbiBjZXJ0aWZpY2F0aW9uLiJ9"
+                    },
+                    {
+                      "name": "qa439-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86bfdf6624df73e68fe4-04c964c9c53137448042",
+          "file": "ak207-438-fotocabina-sdk.spec.ts",
+          "line": 33,
+          "column": 91
+        },
+        {
+          "title": "438 red fotos1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 20167,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:11:57.128Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa438-neutro-y-frontera",
+                      "contentType": "application/json",
+                      "body": "eyJtb2RlIjoicmVkIiwiY291bnQiOjEsInVwbG9hZHNJbnRlcmNlcHRlZCI6MSwicmVzcG9uc2VzIjpbeyJzdWNjZXNzIjp0cnVlLCJzdGF0aW9uIjp7ImZvdG9zIjoxLCJjb3VudGRvd24iOjJ9fV0sInN0YXRlcyI6W3sibGFiZWwiOiJhbnRlcyIsInRleHQiOiJGT1RPQ0FCSU5BIEFLXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cblByZXBhcmEgdHUgcG9zZS4gTGEgZm90byBzZSBjYXB0dXJhIGNvbiBsYSBjYW1hcmEgd2ViIGRlIGVzdGEgcGFudGFsbGEuXG5cblBSRVBBUkFSIEZPVE9cblBlcnNvbmFsaXphciBtaSBmb3RvIChmb25kbywgbWFyY28geSBzdGlja2VycylcblZlciBnYWxlcsOtYSBkZSBsYSBub2NoZSIsInNhdmVkQ29uZmlnIjp7ImVuYWJsZWQiOnRydWUsImZvdG9zUG9yVGFuZGEiOjEsImNvdW50ZG93blNlY29uZHMiOjIsInNlZ3VuZG9zQ3VlbnRhUmVncmVzaXZhIjoyLCJhdXRvUHVibGlzaCI6ZmFsc2V9fSx7ImxhYmVsIjoicHJldmlldy1lc3RhYmxlIiwidGV4dCI6IkZPVE9DQUJJTkEgQUtcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuQVNJIFNFIElNUFJJTUVcblR1cyB0cmVzIGZvdG9zXG5cbkltcHJpbWlsYSBwYXJhIGxsZXZhcnRlbGEsIG8gcmVwZXTDrSBsYSB0YW5kYSBzaSBhbGd1bmEgbm8gdGUgZ3VzdMOzLlxuXG5GaXJtYXIgbyBkaWJ1amFyIHNvYnJlIGxhIGZvdG9cbklNUFJJTUlSIE1JIFJFQ1VFUkRPXG5QdWJsaWNhciBlbiBlbCBtdXJvXG5SZXBldGlyIGZvdG9cbsK/Q1XDgU5ETyBDVU1QTMONUyBUVVMgUVVJTkNFP1xuWWEgbG9zIGZlc3RlasOpXG5Fc3RlIGHDsW9cbkVsIGHDsW8gcXVlIHZpZW5lXG5ObyBlcyBsbyBtw61vXG5Fc3RvIGxvIGhpem8gQUsgUHJvZHVjY2lvbmVzXG5Fc2NyaWJpbm9zIHBvciBXaGF0c0FwcFxuwr9UZSB0b2NhIGZlc3RlamFyIGVsIGHDsW8gcXVlIHZpZW5lPyBNaXLDoSBjdcOhbnRvIHNhbGUgdHUgZmllc3RhXG7ihpIiLCJzYXZlZENvbmZpZyI6eyJlbmFibGVkIjp0cnVlLCJmb3Rvc1BvclRhbmRhIjoxLCJjb3VudGRvd25TZWNvbmRzIjoyLCJzZWd1bmRvc0N1ZW50YVJlZ3Jlc2l2YSI6MiwiYXV0b1B1Ymxpc2giOmZhbHNlfX0seyJsYWJlbCI6ImZpbmFsIiwidGV4dCI6IkZPVE9DQUJJTkEgQUtcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuQVNJIFNFIElNUFJJTUVcbkZvdG8gZ3VhcmRhZGEgZW4gZXN0ZSBlcXVpcG9cblxuVHUgZm90byBxdWVkw7MgZ3VhcmRhZGEgZW4gZXN0ZSBlcXVpcG8geSBzZSBzdWJpcsOhIGF1dG9tw6F0aWNhbWVudGUgYXBlbmFzIHZ1ZWx2YSBpbnRlcm5ldC5cblxuR1VBUkRBREEgRU4gRVNURSBFUVVJUE8sIFNFIFNVQkUgQ1VBTkRPIFZVRUxWQSBMQSBTRcORQUxcbkZpcm1hciBvIGRpYnVqYXIgc29icmUgbGEgZm90b1xuSU1QUklNSVIgTUkgUkVDVUVSRE9cblB1YmxpY2FyIGVuIGVsIG11cm9cblJlcGV0aXIgZm90b1xuwr9DVcOBTkRPIENVTVBMw41TIFRVUyBRVUlOQ0U/XG5ZYSBsb3MgZmVzdGVqw6lcbkVzdGUgYcOxb1xuRWwgYcOxbyBxdWUgdmllbmVcbk5vIGVzIGxvIG3DrW9cbkVzdG8gbG8gaGl6byBBSyBQcm9kdWNjaW9uZXNcbkVzY3JpYmlub3MgcG9yIFdoYXRzQXBwXG7Cv1RlIHRvY2EgZmVzdGVqYXIgZWwgYcOxbyBxdWUgdmllbmU/IE1pcsOhIGN1w6FudG8gc2FsZSB0dSBmaWVzdGFcbuKGklxuMSBlc3BlcmFuZG8gc3ViaWRhIiwic2F2ZWRDb25maWciOnsiZW5hYmxlZCI6dHJ1ZSwiZm90b3NQb3JUYW5kYSI6MSwiY291bnRkb3duU2Vjb25kcyI6Miwic2VndW5kb3NDdWVudGFSZWdyZXNpdmEiOjIsImF1dG9QdWJsaXNoIjpmYWxzZX19XSwic2NvcGUiOiJSZWFsIGxvY2FsU0RLIGNvbmZpZ3VyYXRpb24gYW5kIGNhbWVyYSBwaXBlbGluZTsgZmFpbHVyZSBpbmplY3Rpb24gaW5zdGFsbGVkIE9OTFkgYWZ0ZXIgcHJldmlldyBhbmQgT05MWSBmaWxlIHVwbG9hZC4gUmVqZWN0aW9uIGlzIGEgY29udHJvbGxlZCBjbGllbnQgcmVzcG9uc2UsIG5vdCBhIHJlYWwgcHJvdmlkZXIvYmFja2VuZCByZWplY3Rpb24gY2VydGlmaWNhdGlvbi4ifQ=="
+                    },
+                    {
+                      "name": "qa439-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86bfdf6624df73e68fe4-3bebe04e551d8623d0c9",
+          "file": "ak207-438-fotocabina-sdk.spec.ts",
+          "line": 33,
+          "column": 91
+        },
+        {
+          "title": "438 rechazo fotos1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21585,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:12:17.341Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa438-neutro-y-frontera",
+                      "contentType": "application/json",
+                      "body": "eyJtb2RlIjoicmVjaGF6byIsImNvdW50IjoxLCJ1cGxvYWRzSW50ZXJjZXB0ZWQiOjEsInJlc3BvbnNlcyI6W3sic3VjY2VzcyI6ZmFsc2UsImVycm9yIjoiQ29udGVuaWRvIGluYXByb3BpYWRvIn1dLCJzdGF0ZXMiOlt7ImxhYmVsIjoiYW50ZXMiLCJ0ZXh0IjoiRk9UT0NBQklOQSBBS1xuXG5GaWVzdGEgZGUgZXN0YSBub2NoZVxuXG5GaWVzdGEgZGUgZXN0YSBub2NoZVxuXG5QcmVwYXJhIHR1IHBvc2UuIExhIGZvdG8gc2UgY2FwdHVyYSBjb24gbGEgY2FtYXJhIHdlYiBkZSBlc3RhIHBhbnRhbGxhLlxuXG5QUkVQQVJBUiBGT1RPXG5QZXJzb25hbGl6YXIgbWkgZm90byAoZm9uZG8sIG1hcmNvIHkgc3RpY2tlcnMpXG5WZXIgZ2FsZXLDrWEgZGUgbGEgbm9jaGUiLCJzYXZlZENvbmZpZyI6eyJlbmFibGVkIjp0cnVlLCJmb3Rvc1BvclRhbmRhIjoxLCJjb3VudGRvd25TZWNvbmRzIjoyLCJzZWd1bmRvc0N1ZW50YVJlZ3Jlc2l2YSI6MiwiYXV0b1B1Ymxpc2giOmZhbHNlfX0seyJsYWJlbCI6InByZXZpZXctZXN0YWJsZSIsInRleHQiOiJGT1RPQ0FCSU5BIEFLXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cbkFTSSBTRSBJTVBSSU1FXG5UdXMgdHJlcyBmb3Rvc1xuXG5JbXByaW1pbGEgcGFyYSBsbGV2YXJ0ZWxhLCBvIHJlcGV0w60gbGEgdGFuZGEgc2kgYWxndW5hIG5vIHRlIGd1c3TDsy5cblxuRmlybWFyIG8gZGlidWphciBzb2JyZSBsYSBmb3RvXG5JTVBSSU1JUiBNSSBSRUNVRVJET1xuUHVibGljYXIgZW4gZWwgbXVyb1xuUmVwZXRpciBmb3RvXG7Cv0NVw4FORE8gQ1VNUEzDjVMgVFVTIFFVSU5DRT9cbllhIGxvcyBmZXN0ZWrDqVxuRXN0ZSBhw7FvXG5FbCBhw7FvIHF1ZSB2aWVuZVxuTm8gZXMgbG8gbcOtb1xuRXN0byBsbyBoaXpvIEFLIFByb2R1Y2Npb25lc1xuRXNjcmliaW5vcyBwb3IgV2hhdHNBcHBcbsK/VGUgdG9jYSBmZXN0ZWphciBlbCBhw7FvIHF1ZSB2aWVuZT8gTWlyw6EgY3XDoW50byBzYWxlIHR1IGZpZXN0YVxu4oaSIiwic2F2ZWRDb25maWciOnsiZW5hYmxlZCI6dHJ1ZSwiZm90b3NQb3JUYW5kYSI6MSwiY291bnRkb3duU2Vjb25kcyI6Miwic2VndW5kb3NDdWVudGFSZWdyZXNpdmEiOjIsImF1dG9QdWJsaXNoIjpmYWxzZX19LHsibGFiZWwiOiJmaW5hbCIsInRleHQiOiJGT1RPQ0FCSU5BIEFLXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cbvCfk7fwn5qrXG5cbkNvbnRlbmlkbyBpbmFwcm9waWFkb1xuUkVJTlRFTlRBUiBDQU1BUkFcbkFTSSBTRSBJTVBSSU1FXG5ObyBzZSBwdWRvIHB1YmxpY2FyXG5cblR1IGZvdG8gbm8gbGxlZ8OzIGFsIG11cm8uIFBvZMOpcyBpbXByaW1pcmxhIG8gdm9sdmVyIGEgaW50ZW50YXIuXG5cbkNvbnRlbmlkbyBpbmFwcm9waWFkb1xuXG5GaXJtYXIgbyBkaWJ1amFyIHNvYnJlIGxhIGZvdG9cbklNUFJJTUlSIE1JIFJFQ1VFUkRPXG5QdWJsaWNhciBlbiBlbCBtdXJvXG5SZXBldGlyIGZvdG9cbsK/Q1XDgU5ETyBDVU1QTMONUyBUVVMgUVVJTkNFP1xuWWEgbG9zIGZlc3RlasOpXG5Fc3RlIGHDsW9cbkVsIGHDsW8gcXVlIHZpZW5lXG5ObyBlcyBsbyBtw61vXG5Fc3RvIGxvIGhpem8gQUsgUHJvZHVjY2lvbmVzXG5Fc2NyaWJpbm9zIHBvciBXaGF0c0FwcFxuwr9UZSB0b2NhIGZlc3RlamFyIGVsIGHDsW8gcXVlIHZpZW5lPyBNaXLDoSBjdcOhbnRvIHNhbGUgdHUgZmllc3RhXG7ihpIiLCJzYXZlZENvbmZpZyI6eyJlbmFibGVkIjp0cnVlLCJmb3Rvc1BvclRhbmRhIjoxLCJjb3VudGRvd25TZWNvbmRzIjoyLCJzZWd1bmRvc0N1ZW50YVJlZ3Jlc2l2YSI6MiwiYXV0b1B1Ymxpc2giOmZhbHNlLCJtZWRpYSI6W3siaWQiOiJlbnRfb2ZmbGluZV8xNzkyODcyNzUxMjQ0X3lqZDN1ejUiLCJtb2R1bGVJZCI6ImZvdG9jYWJpbmEiLCJmaWxlTmFtZSI6ImZvdG9jYWJpbmEtMTc5Mjg3Mjc1MTI2MC5qcGciLCJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjkxOTUvdjAvYi9kZW1vLWFrLXByb2R1Y2Npb25lcy5hcHBzcG90LmNvbS9vL2VudGVydGFpbm1lbnQlMkZlMmVfNDM4X3JlY2hhem9fMV8xNzkyODcyNzM4MDc4JTJGZm90b2NhYmluYSUyRmVudF9vZmZsaW5lXzE3OTI4NzI3NTEyNDRfeWpkM3V6NS5qcGc/YWx0PW1lZGlhIiwidHlwZSI6ImltYWdlIiwiY2FwdGlvbiI6IiIsImF1dGhvck5hbWUiOiJGb3RvY2FiaW5hIEFLIiwidXBsb2FkZWRBdCI6IjIwMjYtMTAtMjRUMjA6MTI6MzUuMzc0WiIsInB1Ymxpc2hUYXJnZXQiOiJtdXJvLXNvY2lhbCIsInNvY2lhbFBvc3RJZCI6InBvc3RfZW50X29mZmxpbmVfMTc5Mjg3Mjc1MTI0NF95amQzdXo1Iiwic3luY1N0YXR1cyI6InBlbmRpZW50ZV9hcHJvYmFjaW9uIiwicmV2aXNpb25JbWFnZW4iOiJzaW5fcmV2aXNhciJ9XX19XSwic2NvcGUiOiJSZWFsIGxvY2FsU0RLIGNvbmZpZ3VyYXRpb24gYW5kIGNhbWVyYSBwaXBlbGluZTsgZmFpbHVyZSBpbmplY3Rpb24gaW5zdGFsbGVkIE9OTFkgYWZ0ZXIgcHJldmlldyBhbmQgT05MWSBmaWxlIHVwbG9hZC4gUmVqZWN0aW9uIGlzIGEgY29udHJvbGxlZCBjbGllbnQgcmVzcG9uc2UsIG5vdCBhIHJlYWwgcHJvdmlkZXIvYmFja2VuZCByZWplY3Rpb24gY2VydGlmaWNhdGlvbi4ifQ=="
+                    },
+                    {
+                      "name": "qa439-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86bfdf6624df73e68fe4-a2dfbccb23e47ea316dc",
+          "file": "ak207-438-fotocabina-sdk.spec.ts",
+          "line": 33,
+          "column": 91
+        },
+        {
+          "title": "438 red fotos1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 17501,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:13076) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    },
+                    {
+                      "text": "(node:13076) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:12:40.635Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa438-neutro-y-frontera",
+                      "contentType": "application/json",
+                      "body": "eyJtb2RlIjoicmVkIiwiY291bnQiOjEsInVwbG9hZHNJbnRlcmNlcHRlZCI6MSwicmVzcG9uc2VzIjpbXSwic3RhdGVzIjpbeyJsYWJlbCI6ImFudGVzIiwidGV4dCI6IkZPVE9DQUJJTkEgQUtcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuUHJlcGFyYSB0dSBwb3NlLiBMYSBmb3RvIHNlIGNhcHR1cmEgY29uIGxhIGNhbWFyYSB3ZWIgZGUgZXN0YSBwYW50YWxsYS5cblxuUFJFUEFSQVIgRk9UT1xuUGVyc29uYWxpemFyIG1pIGZvdG8gKGZvbmRvLCBtYXJjbyB5IHN0aWNrZXJzKVxuVmVyIGdhbGVyw61hIGRlIGxhIG5vY2hlIiwic2F2ZWRDb25maWciOnsiZW5hYmxlZCI6dHJ1ZSwiZm90b3NQb3JUYW5kYSI6MSwiY291bnRkb3duU2Vjb25kcyI6Miwic2VndW5kb3NDdWVudGFSZWdyZXNpdmEiOjIsImF1dG9QdWJsaXNoIjpmYWxzZX19LHsibGFiZWwiOiJwcmV2aWV3LWVzdGFibGUiLCJ0ZXh0IjoiRk9UT0NBQklOQSBBS1xuXG5GaWVzdGEgZGUgZXN0YSBub2NoZVxuXG5BU0kgU0UgSU1QUklNRVxuVHVzIHRyZXMgZm90b3NcblxuSW1wcmltaWxhIHBhcmEgbGxldmFydGVsYSwgbyByZXBldMOtIGxhIHRhbmRhIHNpIGFsZ3VuYSBubyB0ZSBndXN0w7MuXG5cbkZpcm1hciBvIGRpYnVqYXIgc29icmUgbGEgZm90b1xuSU1QUklNSVIgTUkgUkVDVUVSRE9cblB1YmxpY2FyIGVuIGVsIG11cm9cblJlcGV0aXIgZm90b1xuwr9DVcOBTkRPIENVTVBMw41TIFRVUyBRVUlOQ0U/XG5ZYSBsb3MgZmVzdGVqw6lcbkVzdGUgYcOxb1xuRWwgYcOxbyBxdWUgdmllbmVcbk5vIGVzIGxvIG3DrW9cbkVzdG8gbG8gaGl6byBBSyBQcm9kdWNjaW9uZXNcbkVzY3JpYmlub3MgcG9yIFdoYXRzQXBwXG7Cv1RlIHRvY2EgZmVzdGVqYXIgZWwgYcOxbyBxdWUgdmllbmU/IE1pcsOhIGN1w6FudG8gc2FsZSB0dSBmaWVzdGFcbuKGkiIsInNhdmVkQ29uZmlnIjp7ImVuYWJsZWQiOnRydWUsImZvdG9zUG9yVGFuZGEiOjEsImNvdW50ZG93blNlY29uZHMiOjIsInNlZ3VuZG9zQ3VlbnRhUmVncmVzaXZhIjoyLCJhdXRvUHVibGlzaCI6ZmFsc2V9fSx7ImxhYmVsIjoiZmluYWwiLCJ0ZXh0IjoiRk9UT0NBQklOQSBBS1xuXG5GaWVzdGEgZGUgZXN0YSBub2NoZVxuXG5BU0kgU0UgSU1QUklNRVxuRm90byBndWFyZGFkYSBlbiBlc3RlIGVxdWlwb1xuXG5UdSBmb3RvIHF1ZWTDsyBndWFyZGFkYSBlbiBlc3RlIGVxdWlwbyB5IHNlIHN1Ymlyw6EgYXV0b23DoXRpY2FtZW50ZSBhcGVuYXMgdnVlbHZhIGludGVybmV0LlxuXG5HVUFSREFEQSBFTiBFU1RFIEVRVUlQTywgU0UgU1VCRSBDVUFORE8gVlVFTFZBIExBIFNFw5FBTFxuRmlybWFyIG8gZGlidWphciBzb2JyZSBsYSBmb3RvXG5JTVBSSU1JUiBNSSBSRUNVRVJET1xuUHVibGljYXIgZW4gZWwgbXVyb1xuUmVwZXRpciBmb3RvXG7Cv0NVw4FORE8gQ1VNUEzDjVMgVFVTIFFVSU5DRT9cbllhIGxvcyBmZXN0ZWrDqVxuRXN0ZSBhw7FvXG5FbCBhw7FvIHF1ZSB2aWVuZVxuTm8gZXMgbG8gbcOtb1xuRXN0byBsbyBoaXpvIEFLIFByb2R1Y2Npb25lc1xuRXNjcmliaW5vcyBwb3IgV2hhdHNBcHBcbsK/VGUgdG9jYSBmZXN0ZWphciBlbCBhw7FvIHF1ZSB2aWVuZT8gTWlyw6EgY3XDoW50byBzYWxlIHR1IGZpZXN0YVxu4oaSXG4xIGVzcGVyYW5kbyBzdWJpZGEiLCJzYXZlZENvbmZpZyI6eyJlbmFibGVkIjp0cnVlLCJmb3Rvc1BvclRhbmRhIjoxLCJjb3VudGRvd25TZWNvbmRzIjoyLCJzZWd1bmRvc0N1ZW50YVJlZ3Jlc2l2YSI6MiwiYXV0b1B1Ymxpc2giOmZhbHNlfX1dLCJzY29wZSI6IlJlYWwgbG9jYWxTREsgY29uZmlndXJhdGlvbiBhbmQgY2FtZXJhIHBpcGVsaW5lOyBmYWlsdXJlIGluamVjdGlvbiBpbnN0YWxsZWQgT05MWSBhZnRlciBwcmV2aWV3IGFuZCBPTkxZIGZpbGUgdXBsb2FkLiBSZWplY3Rpb24gaXMgYSBjb250cm9sbGVkIGNsaWVudCByZXNwb25zZSwgbm90IGEgcmVhbCBwcm92aWRlci9iYWNrZW5kIHJlamVjdGlvbiBjZXJ0aWZpY2F0aW9uLiJ9"
+                    },
+                    {
+                      "name": "qa439-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86bfdf6624df73e68fe4-9622c1ce975969bac43d",
+          "file": "ak207-438-fotocabina-sdk.spec.ts",
+          "line": 33,
+          "column": 91
+        },
+        {
+          "title": "438 rechazo fotos1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11641,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:12:58.369Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa438-neutro-y-frontera",
+                      "contentType": "application/json",
+                      "body": "eyJtb2RlIjoicmVjaGF6byIsImNvdW50IjoxLCJ1cGxvYWRzSW50ZXJjZXB0ZWQiOjEsInJlc3BvbnNlcyI6W10sInN0YXRlcyI6W3sibGFiZWwiOiJhbnRlcyIsInRleHQiOiJGT1RPQ0FCSU5BIEFLXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cblByZXBhcmEgdHUgcG9zZS4gTGEgZm90byBzZSBjYXB0dXJhIGNvbiBsYSBjYW1hcmEgd2ViIGRlIGVzdGEgcGFudGFsbGEuXG5cblBSRVBBUkFSIEZPVE9cblBlcnNvbmFsaXphciBtaSBmb3RvIChmb25kbywgbWFyY28geSBzdGlja2VycylcblZlciBnYWxlcsOtYSBkZSBsYSBub2NoZSIsInNhdmVkQ29uZmlnIjp7ImVuYWJsZWQiOnRydWUsImZvdG9zUG9yVGFuZGEiOjEsImNvdW50ZG93blNlY29uZHMiOjIsInNlZ3VuZG9zQ3VlbnRhUmVncmVzaXZhIjoyLCJhdXRvUHVibGlzaCI6ZmFsc2V9fSx7ImxhYmVsIjoicHJldmlldy1lc3RhYmxlIiwidGV4dCI6IkZPVE9DQUJJTkEgQUtcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuQVNJIFNFIElNUFJJTUVcblR1cyB0cmVzIGZvdG9zXG5cbkltcHJpbWlsYSBwYXJhIGxsZXZhcnRlbGEsIG8gcmVwZXTDrSBsYSB0YW5kYSBzaSBhbGd1bmEgbm8gdGUgZ3VzdMOzLlxuXG5GaXJtYXIgbyBkaWJ1amFyIHNvYnJlIGxhIGZvdG9cbklNUFJJTUlSIE1JIFJFQ1VFUkRPXG5QdWJsaWNhciBlbiBlbCBtdXJvXG5SZXBldGlyIGZvdG9cbsK/Q1XDgU5ETyBDVU1QTMONUyBUVVMgUVVJTkNFP1xuWWEgbG9zIGZlc3RlasOpXG5Fc3RlIGHDsW9cbkVsIGHDsW8gcXVlIHZpZW5lXG5ObyBlcyBsbyBtw61vXG5Fc3RvIGxvIGhpem8gQUsgUHJvZHVjY2lvbmVzXG5Fc2NyaWJpbm9zIHBvciBXaGF0c0FwcFxuwr9UZSB0b2NhIGZlc3RlamFyIGVsIGHDsW8gcXVlIHZpZW5lPyBNaXLDoSBjdcOhbnRvIHNhbGUgdHUgZmllc3RhXG7ihpIiLCJzYXZlZENvbmZpZyI6eyJlbmFibGVkIjp0cnVlLCJmb3Rvc1BvclRhbmRhIjoxLCJjb3VudGRvd25TZWNvbmRzIjoyLCJzZWd1bmRvc0N1ZW50YVJlZ3Jlc2l2YSI6MiwiYXV0b1B1Ymxpc2giOmZhbHNlfX0seyJsYWJlbCI6ImZpbmFsIiwidGV4dCI6IkZPVE9DQUJJTkEgQUtcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxu8J+Tt/CfmqtcblxuQ29udGVuaWRvIGluYXByb3BpYWRvXG5SRUlOVEVOVEFSIENBTUFSQVxuQVNJIFNFIElNUFJJTUVcbk5vIHNlIHB1ZG8gcHVibGljYXJcblxuVHUgZm90byBubyBsbGVnw7MgYWwgbXVyby4gUG9kw6lzIGltcHJpbWlybGEgbyB2b2x2ZXIgYSBpbnRlbnRhci5cblxuQ29udGVuaWRvIGluYXByb3BpYWRvXG5cbkZpcm1hciBvIGRpYnVqYXIgc29icmUgbGEgZm90b1xuSU1QUklNSVIgTUkgUkVDVUVSRE9cblB1YmxpY2FyIGVuIGVsIG11cm9cblJlcGV0aXIgZm90b1xuwr9DVcOBTkRPIENVTVBMw41TIFRVUyBRVUlOQ0U/XG5ZYSBsb3MgZmVzdGVqw6lcbkVzdGUgYcOxb1xuRWwgYcOxbyBxdWUgdmllbmVcbk5vIGVzIGxvIG3DrW9cbkVzdG8gbG8gaGl6byBBSyBQcm9kdWNjaW9uZXNcbkVzY3JpYmlub3MgcG9yIFdoYXRzQXBwXG7Cv1RlIHRvY2EgZmVzdGVqYXIgZWwgYcOxbyBxdWUgdmllbmU/IE1pcsOhIGN1w6FudG8gc2FsZSB0dSBmaWVzdGFcbuKGkiIsInNhdmVkQ29uZmlnIjp7ImVuYWJsZWQiOnRydWUsImZvdG9zUG9yVGFuZGEiOjEsImNvdW50ZG93blNlY29uZHMiOjIsInNlZ3VuZG9zQ3VlbnRhUmVncmVzaXZhIjoyLCJhdXRvUHVibGlzaCI6ZmFsc2UsIm1lZGlhIjpbeyJpZCI6ImVudF9vZmZsaW5lXzE3OTI4NzI3ODgxODBfOWlkZmM1ciIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsImZpbGVOYW1lIjoiZm90b2NhYmluYS0xNzkyODcyNzg4MTk4LmpwZyIsInVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6OTE5NS92MC9iL2RlbW8tYWstcHJvZHVjY2lvbmVzLmFwcHNwb3QuY29tL28vZW50ZXJ0YWlubWVudCUyRmUyZV80MzhfcmVjaGF6b18xXzE3OTI4NzI3Nzg5MTAlMkZmb3RvY2FiaW5hJTJGZW50X29mZmxpbmVfMTc5Mjg3Mjc4ODE4MF85aWRmYzVyLmpwZz9hbHQ9bWVkaWEiLCJ0eXBlIjoiaW1hZ2UiLCJjYXB0aW9uIjoiIiwiYXV0aG9yTmFtZSI6IkZvdG9jYWJpbmEgQUsiLCJ1cGxvYWRlZEF0IjoiMjAyNi0xMC0yNFQyMDoxMzowOC42NThaIiwicHVibGlzaFRhcmdldCI6Im11cm8tc29jaWFsIiwic29jaWFsUG9zdElkIjoicG9zdF9lbnRfb2ZmbGluZV8xNzkyODcyNzg4MTgwXzlpZGZjNXIiLCJzeW5jU3RhdHVzIjoicGVuZGllbnRlX2Fwcm9iYWNpb24iLCJyZXZpc2lvbkltYWdlbiI6InNpbl9yZXZpc2FyIn1dfX1dLCJzY29wZSI6IlJlYWwgbG9jYWxTREsgY29uZmlndXJhdGlvbiBhbmQgY2FtZXJhIHBpcGVsaW5lOyBmYWlsdXJlIGluamVjdGlvbiBpbnN0YWxsZWQgT05MWSBhZnRlciBwcmV2aWV3IGFuZCBPTkxZIGZpbGUgdXBsb2FkLiBSZWplY3Rpb24gaXMgYSBjb250cm9sbGVkIGNsaWVudCByZXNwb25zZSwgbm90IGEgcmVhbCBwcm92aWRlci9iYWNrZW5kIHJlamVjdGlvbiBjZXJ0aWZpY2F0aW9uLiJ9"
+                    },
+                    {
+                      "name": "qa439-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "86bfdf6624df73e68fe4-f47d0be56e475b0ae351",
+          "file": "ak207-438-fotocabina-sdk.spec.ts",
+          "line": 33,
+          "column": 91
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T20:10:50.796Z",
+    "duration": 140892.812,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

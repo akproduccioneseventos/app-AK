@@ -1411,6 +1411,12 @@ Por cada regla de alcance general (`main`, `body`, `> *`, clases de marca) que p
 buscan las pantallas que la reciben y escriben texto claro (`text-white`, `text-slate-100`…). La prueba mide
 el color calculado del fondo (`getComputedStyle`), no la clase escrita.
 
+**Ampliada el 24/10 (Codex 423, orden 227):** el barrido miró un solo archivo de estilos y la prueba miró
+`background-color`. Quedaba `main.flex-1 > div:first-child` en `ak-internal-experience-polish.css` con un
+degradado (`background-image`) casi blanco, y la prueba dio verde con el texto ilegible. Se buscan **todos**
+los `.css` que importa `src/app/layout.tsx`, también los selectores de hijo (`main.flex-1 > ...`), y cada
+`<main ... flex-1>` fuera del panel. La prueba compara píxeles de una captura, no estilos calculados.
+
 ### 97. Si hay un código de estado numérico, ¿se decide por el número o por el texto del error?
 
 Codex 350 (orden 225). `esRechazoConocido` del recordatorio a invitados miraba el número y, si no era 4xx,

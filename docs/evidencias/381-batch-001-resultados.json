@@ -1,0 +1,187 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "381-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\381-batch-001-artifacts",
+      "ak207-379-mini-quiosco-cancel.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\381-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/381-batch-001-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\381-batch-001-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-379-mini-quiosco-cancel.spec.ts",
+      "file": "ak207-379-mini-quiosco-cancel.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "379 aisla sugerir y cancelar con estilos reales, sin crear pedidos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 92661,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T16:35:32.404Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1NDYxNzE3NTMtOTdkNzY3NmU0NjAy"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1NTY2NzkzNDMtYzczMDZjMTk3NmJj"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1NTEwMjQ3MDktOGYyM2JlZmM2Zjg3"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE2MjAwODQzNjAzNDEtMzhmMTJhMmRmN2Yy"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1ODcyMjM5NjI5MzAtY2I3ZjMxMzg0YzE5"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTM1NTgxNjEyOTMtY2RhZjc2NWVkMmZk"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE2MTU4ODcwMjM1MTYtOWJmYTBkZDk4YWU3"
+                    },
+                    {
+                      "name": "qa379-dialog-styles",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJhdHRlbXB0IjowLCJwYXVzZSI6MCwiYm9keVBvaW50ZXIiOiJhdXRvIiwiZGlhbG9ncyI6W119LHsiYXR0ZW1wdCI6MCwicGF1c2UiOjI1MCwiYm9keVBvaW50ZXIiOiJhdXRvIiwiZGlhbG9ncyI6W119LHsiYXR0ZW1wdCI6MCwicGF1c2UiOjEwMDAsImJvZHlQb2ludGVyIjoiYXV0byIsImRpYWxvZ3MiOltdfSx7ImF0dGVtcHQiOjEsInBhdXNlIjowLCJib2R5UG9pbnRlciI6Im5vbmUiLCJkaWFsb2dzIjpbeyJzdGF0ZSI6ImNsb3NlZCIsInRleHQiOiJDb25maXJtYXIgcGVkaWRvRWxlZ8OtIGVsIG51ZXZvIHRyYWdvIGRlIGxhIGNhcnRhIHBhcmEgY2FtYmlhciB0dSBwZWRpZG8gYWN0dWFsLkNhbmNlbGFyQ29uZmlybWFyQ2xvc2UiLCJhbmltYXRpb24iOiJleGl0IiwiZHVyYXRpb24iOiIwLjE1cyIsIml0ZXJhdGlvbnMiOiIxIiwib3BhY2l0eSI6IjEiLCJwb2ludGVyIjoiYXV0byIsImRpc3BsYXkiOiJncmlkIiwidmlzaWJpbGl0eSI6InZpc2libGUiLCJib3giOnsieCI6NDE2LCJ5IjoyNDguMjUsIndpZHRoIjo0NDgsImhlaWdodCI6MjIzLjV9fV19LHsiYXR0ZW1wdCI6MSwicGF1c2UiOjI1MCwiYm9keVBvaW50ZXIiOiJhdXRvIiwiZGlhbG9ncyI6W119LHsiYXR0ZW1wdCI6MSwicGF1c2UiOjEwMDAsImJvZHlQb2ludGVyIjoiYXV0byIsImRpYWxvZ3MiOltdfSx7ImF0dGVtcHQiOjIsInBhdXNlIjowLCJib2R5UG9pbnRlciI6ImF1dG8iLCJkaWFsb2dzIjpbXX0seyJhdHRlbXB0IjoyLCJwYXVzZSI6MjUwLCJib2R5UG9pbnRlciI6ImF1dG8iLCJkaWFsb2dzIjpbXX0seyJhdHRlbXB0IjoyLCJwYXVzZSI6MTAwMCwiYm9keVBvaW50ZXIiOiJhdXRvIiwiZGlhbG9ncyI6W119LHsiYXR0ZW1wdCI6MywicGF1c2UiOjAsImJvZHlQb2ludGVyIjoibm9uZSIsImRpYWxvZ3MiOlt7InN0YXRlIjoiY2xvc2VkIiwidGV4dCI6IkNvbmZpcm1hciBwZWRpZG9FbGVnw60gZWwgbnVldm8gdHJhZ28gZGUgbGEgY2FydGEgcGFyYSBjYW1iaWFyIHR1IHBlZGlkbyBhY3R1YWwuQ2FuY2VsYXJDb25maXJtYXJDbG9zZSIsImFuaW1hdGlvbiI6ImV4aXQiLCJkdXJhdGlvbiI6IjAuMTVzIiwiaXRlcmF0aW9ucyI6IjEiLCJvcGFjaXR5IjoiMSIsInBvaW50ZXIiOiJhdXRvIiwiZGlzcGxheSI6ImdyaWQiLCJ2aXNpYmlsaXR5IjoidmlzaWJsZSIsImJveCI6eyJ4Ijo0MTYsInkiOjI0OC4yNSwid2lkdGgiOjQ0OCwiaGVpZ2h0IjoyMjMuNX19XX0seyJhdHRlbXB0IjozLCJwYXVzZSI6MjUwLCJib2R5UG9pbnRlciI6Im5vbmUiLCJkaWFsb2dzIjpbXX0seyJhdHRlbXB0IjozLCJwYXVzZSI6MTAwMCwiYm9keVBvaW50ZXIiOiJhdXRvIiwiZGlhbG9ncyI6W119LHsiYXR0ZW1wdCI6NCwicGF1c2UiOjAsImJvZHlQb2ludGVyIjoibm9uZSIsImRpYWxvZ3MiOlt7InN0YXRlIjoiY2xvc2VkIiwidGV4dCI6IkNvbmZpcm1hciBwZWRpZG9FbGVnw60gZWwgbnVldm8gdHJhZ28gZGUgbGEgY2FydGEgcGFyYSBjYW1iaWFyIHR1IHBlZGlkbyBhY3R1YWwuQ2FuY2VsYXJDb25maXJtYXJDbG9zZSIsImFuaW1hdGlvbiI6ImV4aXQiLCJkdXJhdGlvbiI6IjAuMTVzIiwiaXRlcmF0aW9ucyI6IjEiLCJvcGFjaXR5IjoiMSIsInBvaW50ZXIiOiJhdXRvIiwiZGlzcGxheSI6ImdyaWQiLCJ2aXNpYmlsaXR5IjoidmlzaWJsZSIsImJveCI6eyJ4Ijo0MTYsInkiOjI0OC4yNSwid2lkdGgiOjQ0OCwiaGVpZ2h0IjoyMjMuNX19XX0seyJhdHRlbXB0Ijo0LCJwYXVzZSI6MjUwLCJib2R5UG9pbnRlciI6Im5vbmUiLCJkaWFsb2dzIjpbeyJzdGF0ZSI6ImNsb3NlZCIsInRleHQiOiJDb25maXJtYXIgcGVkaWRvRWxlZ8OtIGVsIG51ZXZvIHRyYWdvIGRlIGxhIGNhcnRhIHBhcmEgY2FtYmlhciB0dSBwZWRpZG8gYWN0dWFsLkNhbmNlbGFyQ29uZmlybWFyQ2xvc2UiLCJhbmltYXRpb24iOiJleGl0IiwiZHVyYXRpb24iOiIwLjE1cyIsIml0ZXJhdGlvbnMiOiIxIiwib3BhY2l0eSI6IjEiLCJwb2ludGVyIjoiYXV0byIsImRpc3BsYXkiOiJncmlkIiwidmlzaWJpbGl0eSI6InZpc2libGUiLCJib3giOnsieCI6NDE2LCJ5IjoyNDguMjUsIndpZHRoIjo0NDgsImhlaWdodCI6MjIzLjV9fV19LHsiYXR0ZW1wdCI6NCwicGF1c2UiOjEwMDAsImJvZHlQb2ludGVyIjoiYXV0byIsImRpYWxvZ3MiOltdfV0sInJlYWxPcmRlcnNTZW50IjpmYWxzZSwic2NvcGUiOiJET00vc3R5bGVzIGFuZCBhY3R1YWwgc2VsZWN0L2NhbmNlbCBvbmx5OyBsb2NhbCBGSVMgZG91YmxlLCBmaWN0aXRpb3VzIGd1ZXN0In0="
+                    },
+                    {
+                      "name": "qa379-capture-unavailable",
+                      "contentType": "text/plain",
+                      "body": "VGltZW91dEVycm9yOiBwYWdlLnNjcmVlbnNob3Q6IFRpbWVvdXQgMjAwMG1zIGV4Y2VlZGVkLgpDYWxsIGxvZzoKG1sybSAgLSB0YWtpbmcgcGFnZSBzY3JlZW5zaG90G1syMm0KG1sybSAgLSB3YWl0aW5nIGZvciBmb250cyB0byBsb2FkLi4uG1syMm0KG1sybSAgLSBmb250cyBsb2FkZWQbWzIybQo="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "01ef25659ad6e9d55e40-c07c842a74350baba2b7",
+          "file": "ak207-379-mini-quiosco-cancel.spec.ts",
+          "line": 18,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T16:35:31.247Z",
+    "duration": 119878.986,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

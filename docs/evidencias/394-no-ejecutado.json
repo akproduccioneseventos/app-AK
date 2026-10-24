@@ -1,0 +1,11 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "state": "NOT_EXECUTED_NO_CURRENT_BUILD",
+  "gate": "392-entorno.json",
+  "observed": "After bounded resource wait, preflight reached2GiB and prepared its own frozen QA worktree. Free memory fell below2GiB again before spawning build-next-with-memory. Assertion stopped it: no buildPid, buildExit or compiled artifact exists for917 in392.",
+  "preparedOnly": ["393-barra-contraste.spec.ts", "394-validar-consumidores-finales.mjs"],
+  "notAcceptance": "These prepared tests did NOT execute. They do not close native contrast or simulator closing on917. No new app defect follows from the resource guard.",
+  "noRestartLoop": true,
+  "appEdited": false,
+  "foreignProcessesStopped": false
+}

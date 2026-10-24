@@ -11,6 +11,69 @@ usa: mutarCostosInterno en src/__tests__/el-candado-de-la-plata.test.ts
 prueba: src/__tests__/el-candado-de-la-plata.test.ts
 ```
 
+## 24/10/2026 - Cierre406-443: build y controlesSDK, tres ordenes aun abiertas
+
+- Fuente917:406buildPASS exit0 con tipos/lint.392 fue un preflight anterior
+  sinbuild; no seguir diciendo que917 no compilo.386 sigue5243PASS oficial.
+- 442SDKdemo8PASS:preview foto1/3, red/rechazoPC/movil, Visioncaida ysimulador.
+ 443 verifica presupuesto1/prospecto1 guardados,sourceDiff0,cleanup200/PID0.
+ No camara/impresora/modelo/proveedor real, rechazo simulado del lado cliente.
+ En3fotos hay respuestas de transicion invalida:preview no certifica estado.
+- 425TouchpixA/B tardioPASS conSDK; mantener ese cierre acotado.407camara
+ estatica como causa NOdemostrada:408preview pasa estatica yanimada.
+- 437 test simulador no clicaba resumen:439 espera boton y442SI persiste.
+ No reencargar CTA/generacion por ese falso diagnostico. Fotocabina438 instala
+ fallo SOLO en subida, DESPUES depreview; originales fallidos se conservan.
+- IMPORTANTE220/Claude223 SIGUEPARCIAL:se quito main.flex-1 pero otroselector
+ ak-internal-experience-polish.css pinta gradiente blanco en hijo.423/425
+ PC/movil1.390/1.376:1FAIL ycaptura416.393/410falsePASS ignoraba gradientes.
+ Orden220 ampliada, NOreencargar selector ya corregido ni borrar el falsoPASS.
+- 415 muestra refFotocabina inicializada[] y nunca alimentada. Extension de
+ MISMA causa214carasvacias, no cuarta causa. Con reactivos/ruleta sonTRES.
+ Factura387 sigueUNA causa221 pendiente; totalCINCOcausas/TRESordenes, no17.
+- 405 clasifica34SKIP desktop-only;412 ensaya34variantesmoviles27PASS6FAIL1SKIP.
+ No son34funciones ausentes ni aceptacion retroactiva.400 detalla limites.
+- 421 guardia preflight no restaurodatos deSUQA392:quarantena. No afirmar
+ restauracion exacta.427fuenteGitnueva+copia3897runtimeSHA256;443restaurada.
+ 426carrera antes delrecibo427 y433argumentosPS fueronQA, ningunbugapp.
+ No appedit/merge. Informe400/recuento253/manifiesto399 actualizados juntos.
+
+## 24/10/2026 - Cierre consolidado:5243 canonicasPASS, sin certificado total
+
+- Fuente917a98e32c63fe2f832f5cdc16db87f4fc722b6c:386 bateria oficial
+  862suites5243PASS0FAIL0pending SIN adaptador370. No usar los13fallos
+  historicos349 como resultado actual; conservarlos y su diagnostico.
+- 388 CIERRA217 completa por alcance,10criteriosPASS, incluido503 con
+  trace incidental403. No repetir orden217 ni extension350/Claude225.
+- 387 CIERRA221null (ya no spinner) y prueba pendientePASS. Queda UNA
+  variante de la MISMA221/Claude224:lectura de plantilla rechazada termina
+  diciendo factura no encontrada/no existe/eliminada.2PASS1FAIL realReactDOM;
+  no desaparicion real de factura ni error de importes. Orden221 actualizada.
+- 220/Claude223 quita selector globalmain.flex-1. Correccion PARCIAL:
+  ampliacion423 de arriba demuestra otro selector hijo todavia aplicado.
+- 356 sigue vigente en seis blobs pertinentes3f/917 identicos,390 los compara:
+  TRES causas214, no nuevas ordenes. No hardware/modelo certificado.
+- 374 SOLO27nativos antes no aprobados:10PASS17FAIL/timeout.390 concilia
+  210unicos159PASS17FAIL34SKIP, no17bugs ni210flujosaceptados.381 confirma
+  cinco ciclos sugerir/cancelar;382 confirma fechaDOM8/8/2027 pantalla/print,
+  sin transformar el error de captura/variableQA de381 enPASS nativo entero.
+- 366 reconstruyo buildmain3e ausente,exit0tipos/lint/sourceDiff0; no reusar
+  como compilacion917.392 es el intento/resultado NUEVO para esa entrega.
+- 363/364 causa blog demostrada:sparse checkout omitia archivotrackedS;
+  materializar SOLO su blobGit hace pasar ese caso.364 conserva12fallos.
+  376 diagnostico26PASS con adaptadorIOmock, NO era canonico niSDKreal.
+  386 SI es oficial sinadaptador, diferencia fundamental, no permisos quitados.
+- ErroresQA conservados:367 variableqa antes de iniciar;371 adapterv1
+  rechaza callback anidado y guard mezcla slash;375 limpia sin repetir casos;
+  381testInfo en captura;388wrapper quoting. Ninguno nuevo bugapp.
+- 383/384 corregidos por principal:Publicar en el muro no es selector
+  obsoleto demostrado;gtag/Unsplash no prueban modelo bloqueado;3eSIexiste;
+  no falloBogue/CDP confirmado. No publicar esas hipotesis como defectos.
+- 391 restaura notifications escrito por tests en copiaQA/sourceDiff0.
+  390 observa privadoHEAD917/trackedlimpio a17:21UTC; posteriores privados
+  NO CONTRASTADOS.400 es informe final;253 sigue siendo unico recuento.
+  Aperturas/inventario no certifican cada boton/rol ni0errores.
+
 ## 24/10/2026 - Codex347-359 candidata1353 contrastada, no aprobada globalmente
 
 - Fuente3f9460185143ef034dcd713e975d2a0af5e20f1a:347buildPASS con tipos/lint;

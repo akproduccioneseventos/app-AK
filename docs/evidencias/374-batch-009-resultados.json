@@ -1,0 +1,238 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "374-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts",
+      "ak207-la-grilla-de-caras.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\374-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/374-batch-009-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/374-batch-009-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-la-grilla-de-caras.spec.ts",
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 36: La grilla de caras",
+          "file": "ak207-la-grilla-de-caras.spec.ts",
+          "line": 164,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la selfie no sale del teléfono ni se manda a la red",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 22390,
+                      "error": {
+                        "message": "Error: muestra la pantalla de resultados, armada en el propio teléfono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m",
+                        "stack": "Error: muestra la pantalla de resultados, armada en el propio teléfono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:289:89",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts",
+                          "column": 89,
+                          "line": 289
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 287 |\u001b[39m       \u001b[36mif\u001b[39m (\u001b[36mawait\u001b[39m titulos\u001b[33m.\u001b[39mnth(i)\u001b[33m.\u001b[39misVisible()) visibles \u001b[33m+=\u001b[39m \u001b[35m1\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 288 |\u001b[39m     }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 289 |\u001b[39m     expect(visibles\u001b[33m,\u001b[39m \u001b[32m'muestra la pantalla de resultados, armada en el propio teléfono'\u001b[39m)\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 290 |\u001b[39m   })\u001b[33m;\u001b[39m\n \u001b[90m 291 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 292 |\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts",
+                            "column": 89,
+                            "line": 289
+                          },
+                          "message": "Error: muestra la pantalla de resultados, armada en el propio teléfono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  287 |       if (await titulos.nth(i).isVisible()) visibles += 1;\n  288 |     }\n> 289 |     expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);\n      |                                                                                         ^\n  290 |   });\n  291 | });\n  292 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:289:89"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-24T15:57:24.411Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts",
+                        "column": 89,
+                        "line": 289
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "89c9dd5371bf82206c92-08f97129257737687328",
+              "file": "ak207-la-grilla-de-caras.spec.ts",
+              "line": 244,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T15:57:23.222Z",
+    "duration": 25100.378,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

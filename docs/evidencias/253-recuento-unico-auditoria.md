@@ -2,10 +2,14 @@
 
 Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
 Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.
-CandidatoGemini1353 ahora3f9460185143ef034dcd713e975d2a0af5e20f1a;
-342 contrasta delta;347-359 prueban esa candidata por alcance, no la aceptan
-globalmente. b91 es historico;359 contiene cierre y resultados finales.
-Privados posteriores NO CONTRASTADOS.
+CandidatoGemini1353 congelado917a98e32c63fe2f832f5cdc16db87f4fc722b6c.
+386 ejecuta bateria canonica:862suites5243PASS0FAIL0pending, sin adaptador370.
+406 build917PASS tipos/lint;442 termina8nativosSDKPASS,443 verifica limpieza.
+Cinco causas vigentes en TRESordenes214/220/221; no todas las areas aceptadas.
+400-informe-final.md es el dictamen final consolidado, NO aprobacion global.
+3f/349/359 son historicos preservados;364/376/386 resuelven su diagnostico.
+390 comprobo HEAD privado igual917/tracked limpio a17:21UTC24/10;
+cambios privados posteriores no publicados NO CONTRASTADOS.
 EntregaClaude1357 integrada;254/255 retestean C1-C4 y217R1, ver256-cierre.
 Indice consolidado de165/169/198/202/220 y recibos216-264. No prueba nueva por indice.
 1358 auditada focalmente260-264:14criterios11PASS3FAIL, DOS causas nuevas;
@@ -61,12 +65,12 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 |Aprobacion fallida tardia vuelve a pendiente un aviso que el reintento ya acredito|218 CERRADA por285:2PASS AdminSDKdemo en3e; intercalado y control positivo, no toda contabilidad|
 |Guardado iniciado antes de firma escribe despues otro texto y deja constancia vieja|219 CERRADA por286:2PASS AdminSDKdemo en3e; gancho adaptado a actualizarFiesta; no reabre216C4|
 |Recordatorio sinclave puede llamar remitente|CERRADA por2553PASS en725; no proveedor/HTTPreal|
-|Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|350 cierra ocho criterios originales217 en3f;9PASS/1FAIL total con variante503/trace incidental403 que sigue abierta en MISMA217|
+|Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|CERRADAS por388 en917:10PASS, incluidos los ocho criterios originales y DOSvariantes503; trace incidental403 ya no genera reintento ciego|
 |Boton Informar pago sin formulario y enlace de album perdido|357 cierra212A7/A8 en3f:4PASS pagina/DTO/ReactDOM/modal/album/borrador/cierre sin enviar; no toda212, no pagos reales|
-|Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|356 retestea3f:12criterios9PASS3FAIL y AST de consumidores; persisten mismas TRES causas214, no nueva orden|
-|Devolucion general1353: compilacion, pruebas y controles enumerados porClaude|347 buildPASS en3f;349861suites5237tests5224PASS13FAIL0pending;354 retest focal no ejecutado por recursos/artefacto ausente. No aprobar215 ni convertir13FAIL en13bugs|
-|Pantalla de tragos listos: titulo claro sobre main casi blanco|220/Gemini,341 captura revisada; CSS/layout/pagina identicos3e/3f. Correccion no presente en esos tres blobs; privados NO CONTRASTADOS|
-|Factura ausente sigue cargando tras terminar las lecturas|221/Claude,345 ReactDOM1PASScontrol/1FAILnull; pagina/invoices/settings identicos3e/3f. No equivale a factura real perdida ni error de importes|
+|Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|356 retestea3f:12criterios9PASS3FAIL.415 extiende MISMA causa carasvacias: refFotocabina no alimentada. TRES causas214 en917, no cuarta ni otra orden|
+|Devolucion general1353: compilacion, pruebas y controles enumerados porClaude|386 en917:862suites5243PASS oficial;406buildPASS tipos/lint. No acepta filtros, factura387 ni contraste423.392 fue preflight anterior sin iniciarbuild|
+|Pantalla de tragos listos: titulo claro sobre main casi blanco|220/Gemini o223Claude PARCIAL:quita main.flex-1 pero ak-internal-experience-polish.css conserva fondo hijo.423/425 PC/movilFAIL1.390/1.376:1.393falsePASS ignoraba gradiente; misma orden, no repetir selector corregido|
+|Factura ausente sigue cargando tras terminar las lecturas|221/Claude224:NULL CERRADO por387PASS en917; pendientePASS. MISMA orden conserva UNA varianteFAIL: lectura de plantilla rechazada termina afirmando factura inexistente. No error de importes demostrado|
 
 ## 4. Cierre ejecutado y limites de aceptacion
 
@@ -74,9 +78,11 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
   REAL de Playwright:1144casos unicos,542ejecutados,496PASS/46FAIL o timeout,
   600SKIP declarados (516capturas optativas) y2FIXME. No1144PASS ni46bugs.
   El contador273 preliminar era incorrecto;277 lo sustituye conservando originales.
-  Reensayo cerrado318 sobre3e:210casos reportados,176ejecutados,
-  149PASS/27FAIL o timeout/34SKIP. No27bugs, no sumar al baseline725 para
-  inflar funciones.317/319 clasifican errores de SDK y de initScript propios;
+  Reensayo318 sobre3e tenia149PASS/27FAIL o timeout/34SKIP.374 reejecuta
+  SOLO esos27:10PASS/17FAIL.390 concilia210unicos/176ejecutados,
+  159PASS/17FAIL o timeout/34SKIP. No17bugs ni suma de intentos como funciones.
+  381 prueba5ciclos sugerir/cancelar;382 fecha realDOM pantalla/print2PASS,
+  sin promover tests fallidos aPASS.317/319 clasifican errores de SDK/initScript;
   todos los fallos iniciales, cancelaciones y descartes quedan conservados.
 - 321 completo la bateria existente:834suites/5136PASS/0FAIL/0pending,
   configuracion oficial Jest y red externa bloqueada.314 no era canonica:
@@ -108,6 +114,35 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
   352/355 album en fase financiera eran erroresQA,357faseorganizacion4PASS.
   358 preserva bloqueo de repeticion de siete suites:RAM<2GiB yTemp347ausente.
   359 cierra las EJECUCIONES de la tanda, no acepta toda1353/14areas/cadaaccion.
+- 363/364 DEMUESTRAN sparse checkout omitia blogJSON original; al materializar
+  su blobGit pasa el test.364 siete suites33casos21PASS12FAIL; no ocultarlos.
+  376 diagnostico focal de cinco suites+controles:26PASS, adaptador deIOmock
+  NO canonico.917 corrige contrato/mock y386 bateria oficial5243PASS sin370.
+  385 registro cambioQA notifications,391 acredita restauracion exacta/sourceDiff0.
+- 400 contiene dictamen final y clasificacion de17no aprobados, no17encargos.
+  383/384 rectificados:selector Publicar vigente, SHA3e existe, ni modelo ni
+  Bogue/CDP tienen causa demostrada por esos adjuntos. No falsos positivos.
+
+- 405 clasifica34SKIP originales:todos guardias desktop-only, no34funciones
+  ausentes.412 variantes moviles adicionales27PASS6FAIL1SKIP, sin retirar
+  aserciones. No transformar losSKIP de3e ni sumar variantes como funciones.
+- 406 compilo917 (exit0,tipos/lint) sin editar fuente;427 copia runtime3897
+  archivos conSHA256 a fuenteGit fresca917. No nueva compilacion ni SHAmixta.
+- 425SDKdemo:1PASS7FAIL1SKIP. Touchpix respuesta tardiaA/B SI pasa; los dos
+  fallos423 son MISMA220. Fotocabina ysimulador se aislan con controles442.
+- 442SDKdemo actual:8PASS0FAIL0SKIP. Preview1/3fotos, respaldo local/error
+  rechazado enPC/movil, Visioncaida sin duplicados y simulador con presupuesto1
+  yprospecto1 persistentes.443 verifica data restaurada/sourceDiff0/cleanup200
+  y todos susPIDcerrados. No modelo/proveedor/hardware ni autoentrega futura.
+  Tresfotos conserva respuestas de transicion invalida:previewPASS no acepta
+  sincronizacion. Rechazo es respuesta cliente controlada tras subida local.
+- 437 DESCARTA CTA/guardado roto inferido del test de simulador: nunca clico
+  VerResumen.439 espera visibilidad antes declick; mismas asercionesPASS442.
+- 393/410contrastePASS INVALIDADO por423:ignoraba background-image. Captura416
+  y raster423 detectan el selector hijo. No confundir lecturaCSS con apariencia.
+- 421 preflight9vs8 abandono antes de restaurar SUcopiaQA392:CUARENTENA, no
+  restauracion exacta.426 carrera de copia,433argsPowerShell:erroresQA, noapp.
+  427 fuente nueva limpia protege snapshots y443 acredita restauracion actual.
 
 No hay base para decir "solo faltan Xbotones" ni "audite toda la app".
 Los renglones de3 son trabajo conocido de correccion/retest, NO partes sin auditar.
