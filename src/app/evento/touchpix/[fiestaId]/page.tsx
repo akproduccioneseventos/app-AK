@@ -525,7 +525,7 @@ export default function TouchpixPage() {
       onComplete(offscreen.toDataURL('image/jpeg', 0.92));
     };
     img.src = sourceDataUrl;
-  }, [drawWatermark, selectedTheme, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey]);
+  }, [drawWatermark, selectedTheme, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey, fiesta?.nombreAgasajado, fiesta?.primaryColor, fiesta?.station?.filtrosActivos, fiesta?.tipoCelebracion]);
 
   /* ── Capture ── */
   const captureRawPhoto = useCallback(async (): Promise<string | null> => {

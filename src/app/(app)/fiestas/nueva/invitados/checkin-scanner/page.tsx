@@ -196,7 +196,7 @@ function CheckinScannerContent() {
     } finally {
       setIsProcessingCheckin(null);
     }
-  }, [isProcessingCheckin, allGuests, toast, fiestaId]);
+  }, [isProcessingCheckin, allGuests, toast, fiestaId, getColaPendientes, guardarColaPendientes]);
 
   const onScanSuccess: QrcodeSuccessCallback = useCallback((decodedText, decodedResult) => {
     if (scannerRef.current?.getState() === 2) { // 2 is SCANNING state
