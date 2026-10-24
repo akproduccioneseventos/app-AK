@@ -2,7 +2,7 @@
 import { compraGuardadaDeCadaUna } from '@/lib/fiesta/reponer-la-plata';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
-import { PERMISOS, puede } from '@/lib/auth/perfiles';
+import { PERMISOS, puede, perfilDe } from '@/lib/auth/perfiles';
 
 import type {
     FiestaEnPlanificacion,
@@ -459,13 +459,19 @@ export async function updateFiestaPartial(
   }
 }
 
-export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise<FiestaEnPlanificacion | null> {
+async function leerFiestaConEstado(
+    fiestaId: string,
+    lectura?: symbol
+): Promise<{ fiesta: FiestaEnPlanificacion | null; fallo: boolean }> {
     const activePath = `${FIESTAS_DIR}/${fiestaId}.json`;
     let fiesta: FiestaEnPlanificacion | null = null;
+    let readFailed = false;
     try {
         const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
         if (active && active.id === fiestaId) fiesta = active;
-    } catch (e) {}
+    } catch (e) {
+        readFailed = true;
+    }
     if (!fiesta) {
         try {
             const localCandidates = [
@@ -485,9 +491,13 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
         } catch {}
     }
     if (!fiesta) {
-        const archivadas = await getHistorialFiestas();
-        fiesta = archivadas.find(f => f.id === fiestaId) || null;
+        try {
+            const archivadas = await getHistorialFiestas();
+            fiesta = archivadas.find(f => f.id === fiestaId) || null;
+        } catch {}
     }
+
+    const fallo = !fiesta && readFailed;
 
     if (fiesta) {
         if (fiesta.modulosContratados) {
@@ -497,12 +507,7 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
             };
         }
         if (lectura !== LECTURA_COMPLETA && !(await quienEsElEquipo())(fiesta)) {
-            if (fiesta.clientPortalSettings) {
-                fiesta.clientPortalSettings = {
-                    ...fiesta.clientPortalSettings,
-                    accessKey: undefined as any,
-                };
-            }
+            delete (fiesta as any).clientPortalSettings;
             // Quien no es del equipo no se lleva la fiesta entera (ver recortar-para-afuera).
             const { verifyPortalSession } = await import('@/lib/security/portal-session');
             const esCliente = await verifyPortalSession(fiestaId).catch(() => false);
@@ -513,9 +518,20 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
             const { verifySession } = await import('@/lib/auth/session-token');
             const sesion = await verifySession();
             fiesta = recortarFiestaPorPerfil(fiesta, sesion.success ? sesion.user : null);
+            if (sesion.success && perfilDe(sesion.user) === 'personal') {
+                delete (fiesta as any).clientPortalSettings;
+            }
         }
     }
-    return fiesta;
+    return { fiesta, fallo };
+}
+
+export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise<FiestaEnPlanificacion | null> {
+    return (await leerFiestaConEstado(fiestaId, lectura)).fiesta;
+}
+
+export async function getFiestaParaPantalla(fiestaId: string): Promise<{ fiesta: FiestaEnPlanificacion | null; fallo: boolean }> {
+    return await leerFiestaConEstado(fiestaId);
 }
 
 export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {

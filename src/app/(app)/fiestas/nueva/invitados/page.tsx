@@ -10,10 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Edit3, Save, Loader2, QrCode, Printer, Download, Crown, Users, User, Accessibility, Upload, FileSpreadsheet, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit3, Save, Loader2, RefreshCw, QrCode, Printer, Download, Crown, Users, User, Accessibility, Upload, FileSpreadsheet, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, CategoriaInvitado, PerfilInvitado, DietaryRestriction } from '@/types/invitado';
 import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import { addInvitado } from '@/app/actions/fiesta/invitados.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
@@ -74,6 +75,7 @@ function InvitadosEventoContent() {
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // New guest form state
@@ -249,9 +251,17 @@ function InvitadosEventoContent() {
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
+    setError(null);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
-      if (!fiestaData) throw new Error("Fiesta no encontrada");
+      const { fiesta: fiestaData, fallo } = await getFiestaParaPantalla(fiestaId);
+      if (fallo) {
+        setError("No se pudo cargar la fiesta");
+        return;
+      }
+      if (!fiestaData) {
+        setFiesta(null);
+        return;
+      }
 
       setFiesta(fiestaData);
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
@@ -260,7 +270,8 @@ function InvitadosEventoContent() {
         .map(el => el.name);
       setTableNames(tables);
     } catch {
-      toast({ title: "Error al cargar", variant: "destructive"});
+      setError("No se pudo cargar la fiesta");
+      toast({ title: "Error al cargar", description: "No se pudo cargar la fiesta", variant: "destructive"});
     } finally {
       setIsLoading(false);
     }
@@ -349,6 +360,15 @@ function InvitadosEventoContent() {
 
   if (!fiestaId) return <EventSelectionRequired moduleName="la gestión de invitados" />;
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
+  if (error) return (
+    <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center">
+      <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+      <p className="text-muted-foreground">{error}</p>
+      <Button onClick={() => fetchInvitados()} variant="outline">
+        <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+      </Button>
+    </div>
+  );
   if (!fiesta) return <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center"><h2 className="text-xl font-bold">Fiesta no encontrada</h2><Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button></div>;
 
   return (

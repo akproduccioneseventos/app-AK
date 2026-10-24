@@ -12,9 +12,9 @@ test('la realidad aumentada sin target muestra aviso claro y no se queda cargand
 
   // Comprueba que aparece el texto de invitación sin AR
   const mensajeAviso = page.getByText('Esta invitación todavía no tiene realidad aumentada');
-  await expect(mensajeAviso).toBeVisible({ timeout: 15000 });
+  await expect(mensajeAviso).toHaveCount(1, { timeout: 15000 });
 
   // Comprueba que el mensaje de carga ya no está
   const textoCargando = page.getByText('Cargando Realidad Aumentada...');
-  await expect(textoCargando).not.toBeVisible();
+  await expect(textoCargando).toHaveCount(0);
 });

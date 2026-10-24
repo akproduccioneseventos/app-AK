@@ -12,13 +12,13 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import {
+import { RefreshCw,
   ArrowLeft, Printer as PrinterIcon, Loader2, Upload,
   GlassWater, Utensils, Hash, Info,
-} from 'lucide-react';
+ } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, MenuMesaData, NumerosMesaData, LayoutElement } from '@/types/fiesta';
-import { getFiestaById, updateCartaTragos, updateMenuMesa, updateNumerosMesa } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, getFiestaParaPantalla, updateCartaTragos, updateMenuMesa, updateNumerosMesa } from '@/app/actions/fiesta/fiesta.actions';
 import { updateConfiguracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { defaultCartaTragosData, defaultMenuMesaData, defaultNumerosMesaData } from '@/lib/fiesta-defaults';
@@ -313,12 +313,20 @@ function CarteleriaContent() {
       return;
     }
     setIsLoading(true);
+    setError(null);
     try {
-      const [fiestaData, settings] = await Promise.all([
-        getFiestaById(fiestaId),
+      const [{ fiesta: fiestaData, fallo }, settings] = await Promise.all([
+        getFiestaParaPantalla(fiestaId),
         getInvoiceTemplateSettings(),
       ]);
-      if (!fiestaData) throw new Error('Fiesta no encontrada');
+      if (fallo) {
+        setError('No se pudo cargar la fiesta');
+        return;
+      }
+      if (!fiestaData) {
+        setFiesta(null);
+        return;
+      }
       setFiesta(fiestaData);
       setLogoUrl(settings.logoUrl || null);
 
@@ -476,6 +484,17 @@ function CarteleriaContent() {
       </div>
     );
   }
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center h-64 space-y-4 text-center">
+        <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => loadData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
+  }
   if (!fiesta) {
     return (
       <div className="flex flex-col justify-center items-center h-64 space-y-4 text-center">
@@ -484,9 +503,6 @@ function CarteleriaContent() {
         <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
       </div>
     );
-  }
-  if (error) {
-    return <div className="p-8 text-center text-destructive">{error}</div>;
   }
 
   const nombreEvento = nombreEventoOverride || fiesta.configuracion.nombreEvento || 'Evento';

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit, Loader2, Banknote, Printer, Share2, CheckCircle2, History, FileText } from 'lucide-react';
+import { ArrowLeft, Edit, Loader2, Banknote, Printer, Share2, CheckCircle2, History, FileText, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { StatusBadge } from '@/components/status-badge';
@@ -41,6 +41,7 @@ export default function ViewInvoicePage() {
 
   const [invoice, setInvoice] = useState<InvoiceType | null>(null);
   const [isLoadingInvoice, setIsLoadingInvoice] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [ajusteText, setAjusteText] = useState<string | null>(null);
   const [templateSettings, setTemplateSettings] = useState<InvoiceTemplateSettings | null>(null);
@@ -56,29 +57,34 @@ export default function ViewInvoicePage() {
   const fetchData = useCallback(async () => {
     if (!invoiceId) return;
     setIsLoadingInvoice(true);
+    setError(null);
     try {
       const [fetchedInvoice, tmplSettings, allBudgets] = await Promise.all([
         getInvoiceById(invoiceId),
         getInvoiceTemplateSettings(),
         getPresupuestos()
       ]);
-      
-      if (fetchedInvoice) {
-        setInvoice(fetchedInvoice);
-        const linkedBudget = allBudgets.find(b =>
-          b.invoiceId === fetchedInvoice.id || b.id === fetchedInvoice.sourcePresupuestoId
-        );
-        if (linkedBudget?.eventoFecha) {
-            const yearCreated = new Date(linkedBudget.timestamp).getFullYear();
-            const yearEvent = anioDeLaFechaDelEvento(linkedBudget.eventoFecha) ?? new Date(linkedBudget.eventoFecha).getFullYear();
-            if (yearEvent > yearCreated) {
-                setAjusteText(`INCLUYE AJUSTE ${linkedBudget.ajusteAnualPorcentaje ?? 15}% ANUAL (${yearCreated} A ${yearEvent})`);
-            }
-        }
+
+      if (!fetchedInvoice) {
+        setInvoice(null);
+        return;
+      }
+
+      setInvoice(fetchedInvoice);
+      const linkedBudget = allBudgets.find(b =>
+        b.invoiceId === fetchedInvoice.id || b.id === fetchedInvoice.sourcePresupuestoId
+      );
+      if (linkedBudget?.eventoFecha) {
+          const yearCreated = new Date(linkedBudget.timestamp).getFullYear();
+          const yearEvent = anioDeLaFechaDelEvento(linkedBudget.eventoFecha) ?? new Date(linkedBudget.eventoFecha).getFullYear();
+          if (yearEvent > yearCreated) {
+              setAjusteText(`INCLUYE AJUSTE ${linkedBudget.ajusteAnualPorcentaje ?? 15}% ANUAL (${yearCreated} A ${yearEvent})`);
+          }
       }
       setTemplateSettings(tmplSettings);
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } catch (err: any) {
+      setError("No se pudo cargar la factura");
+      toast({ title: "Error", description: err.message || "No se pudo cargar la factura", variant: "destructive" });
     } finally {
       setIsLoadingInvoice(false);
     }
@@ -95,7 +101,7 @@ export default function ViewInvoicePage() {
   const handleAddPaymentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!invoice || !newPayment.amount || newPayment.amount <= 0) return;
-    
+
     setIsAddingPayment(true);
     const formData = new FormData();
     formData.append('paymentDate', newPayment.paymentDate);
@@ -129,7 +135,7 @@ export default function ViewInvoicePage() {
       setIsAddingPayment(false);
     }
   };
-  
+
   const totalPaid = useMemo(() => invoice?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0, [invoice]);
   const amountDue = invoice ? invoice.totalAmount - totalPaid : 0;
   const lastPayment = useMemo(() => invoice?.payments && invoice.payments.length > 0 ? invoice.payments[invoice.payments.length - 1] : null, [invoice]);
@@ -137,6 +143,18 @@ export default function ViewInvoicePage() {
   if (isLoadingInvoice) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 space-y-4 text-center">
+        <h2 className="text-xl font-bold">No se pudo cargar la factura</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => fetchData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
+  }
+
   if (!invoice || !templateSettings) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 space-y-4 text-center">

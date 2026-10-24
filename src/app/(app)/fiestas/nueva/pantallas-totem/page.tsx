@@ -4,7 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
-import { ArrowLeft, ExternalLink, Loader2, MonitorPlay, Plus, Printer, QrCode, Save, Sparkles, Trash2, Tv } from 'lucide-react';
+import { RefreshCw,  ArrowLeft, ExternalLink, Loader2, MonitorPlay, Plus, Printer, QrCode, Save, Sparkles, Trash2, Tv  } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import type { FiestaEnPlanificacion, SocialGallerySettings, TotemScreenSettings } from '@/types/fiesta';
 
@@ -91,6 +92,7 @@ function PantallasTotemContent() {
   const [totems, setTotems] = useState<TotemScreenSettings[]>([]);
   const [origin, setOrigin] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingTotemId, setUploadingTotemId] = useState<string | null>(null);
 
@@ -151,17 +153,29 @@ function PantallasTotemContent() {
       return;
     }
     setIsLoading(true);
-    const data = await getFiestaById(fiestaId);
-    if (!data) {
-      toast({ title: 'Fiesta no encontrada', variant: 'destructive' });
+    setError(null);
+    try {
+      const { fiesta: data, fallo } = await getFiestaParaPantalla(fiestaId);
+      if (fallo) {
+        setError('No se pudo cargar la fiesta');
+        toast({ title: 'No se pudo cargar la fiesta', variant: 'destructive' });
+        return;
+      }
+      if (!data) {
+        setFiesta(null);
+        toast({ title: 'Fiesta no encontrada', variant: 'destructive' });
+        return;
+      }
+      const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+      setOrigin(currentOrigin);
+      setFiesta(data);
+      setTotems(normalizeTotems(data, currentOrigin));
+    } catch (e: any) {
+      setError('No se pudo cargar la fiesta');
+      toast({ title: 'No se pudo cargar la fiesta', description: e.message, variant: 'destructive' });
+    } finally {
       setIsLoading(false);
-      return;
     }
-    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
-    setOrigin(currentOrigin);
-    setFiesta(data);
-    setTotems(normalizeTotems(data, currentOrigin));
-    setIsLoading(false);
   }, [fiestaId, router, toast]);
 
   useEffect(() => {
@@ -231,6 +245,17 @@ function PantallasTotemContent() {
 
   if (isLoading) {
     return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  }
+  if (error) {
+    return (
+      <div className="flex flex-col min-h-[60vh] items-center justify-center space-y-4 text-center">
+        <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => loadData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
   }
   if (!fiesta) {
     return (
