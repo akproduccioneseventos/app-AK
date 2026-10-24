@@ -1146,6 +1146,17 @@ todos los controles de la vieja, no sólo el que se estaba arreglando.
 **Qué se hace distinto:** pregunta 89 del método y 60 de `ANTES-DE-ENTREGAR.md`. Y el control
 `sin-saber-si-el-contrato-esta-firmado-no-se-toca` más las pruebas de aprobación con contrato firmado.
 
+### 45. Escribir la comprobación de un bloque mirando un archivo de seis
+
+**Pasó el 23 de octubre de 2026, en la orden 220.** El bloque 5 pedía pasar a transacción seis guardados y
+el bloque `comprobar` miraba uno solo. La entrega arregló ese y en los otros cuatro agregó un `import` sin
+usarlo. `ordenes?` dio la orden por hecha.
+
+**Qué era lo cierto:** `ordenes?` mira lo que dice `comprobar`, no lo que dice el texto del bloque.
+
+**Qué se hace distinto:** cuando un bloque nombra varios archivos, va una línea de `comprobar` por cada
+uno (así quedó la orden 221).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
