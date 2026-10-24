@@ -41,6 +41,9 @@ jest.mock('@/app/actions/presencia-digital', () => ({
   createPostFromDailySuggestion: jest.fn(),
   getNetworkAttributionReport: jest.fn(),
   getWebsiteAnalyticsData: jest.fn(),
+  getAjustesRespuestasAction: jest.fn(async () => ({ comentarios: true, mensajesDirectos: true })),
+  setAjustesRespuestasAction: jest.fn(async () => ({ success: true })),
+  leerBandejaUnicaAction: jest.fn(async () => []),
 }));
 
 jest.mock('@/app/actions/comentarios-redes', () => ({

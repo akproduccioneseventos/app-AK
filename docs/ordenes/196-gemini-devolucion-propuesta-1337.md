@@ -131,11 +131,12 @@ no-usa: internalSync en src/app/actions/fiesta/fiesta.actions.ts
 no-usa: $240.000 en src/lib/agentes/motor-agentes.ts
 no-usa: meta_ak_secret en src/app/api/meta/webhook/route.ts
 usa: /api/meta/webhook en src/lib/auth/public-paths.ts
-usa: mind-ar en package.json
+archivo: src/lib/vendor/mind-ar/mindar-image-three.prod.js
 usa: .mind en src/app/evento/ar/[fiestaId]/page.tsx
 usa: actualizarFiesta en src/lib/fiesta/costos-interno.ts
 no-usa: updateGestionCostos(fiestaId, updatedCostos).catch en src/app/actions/fiesta/decoracion.actions.ts
 usa: usuarioDelEquipo en src/app/api/asistente/voz-en-vivo/accion/route.ts
+# Bloque 6
 prueba: src/__tests__/devolucion-1337-permisos.test.ts
 prueba: src/__tests__/el-asistente-no-inventa-plata.test.ts
 prueba: tests/e2e/la-realidad-aumentada-carga-mindar.spec.ts

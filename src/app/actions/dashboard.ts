@@ -139,15 +139,25 @@ export async function getDashboardKpiData() {
     const totalPendiente = ledger.saldoPendiente;
     const prospectosActivos = leadsData.filter((lead) => lead.currentStageId !== 's4' && lead.currentStageId !== 's5').length;
 
-    const activeFiestas = fiestasData.filter(f => f.estado !== 'Archivado' && f.estado !== 'Demo AK' && !f.id.startsWith('demo_'));
+    const activeFiestas = fiestasData.filter(f => f && f.estado !== 'Archivado' && f.estado !== 'Demo AK' && !f.id?.startsWith('demo_'));
     const activeCustomerIds = new Set(
       activeFiestas
-        .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
-        .map(f => f.configuracion.clienteId)
+        .filter(f => {
+          const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
+          return fecha && new Date(fecha) >= now;
+        })
+        .map(f => f.configuracion?.clienteId || (f as any).clienteId)
+        .filter(Boolean)
     );
     const clientesActivos = activeCustomerIds.size;
-    const fiestasPasadas = activeFiestas.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < now).length;
-    const fiestasFuturas = activeFiestas.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today).length;
+    const fiestasPasadas = activeFiestas.filter(f => {
+      const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
+      return fecha && new Date(fecha) < now;
+    }).length;
+    const fiestasFuturas = activeFiestas.filter(f => {
+      const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
+      return fecha && new Date(fecha) >= today;
+    }).length;
 
     const alerts: GlobalAlert[] = [];
 
@@ -182,20 +192,22 @@ export async function getDashboardKpiData() {
       }
     });
 
-    presupuestosData.forEach(pres => {
-      if (!isFirmBudgetStatus(pres.estado)) return;
-      const summary = getBudgetPaymentSummary(pres, { includeAnnualAdjustment: true });
-      if (summary.balance > 0 && pres.eventoFecha && new Date(pres.eventoFecha) <= addDays(today, 7)) {
-        alerts.push({
-          id: `budget_balance_${pres.id}`,
-          type: 'payment',
-          title: `Saldo pendiente: ${pres.clienteNombre}`,
-          description: `Faltan ${summary.balance.toLocaleString('es-UY')} UYU para completar el presupuesto.`,
-          severity: 'high',
-          href: `/presupuestos/${pres.id}/ver`,
-        });
-      }
-    });
+    if (veLaPlata) {
+      presupuestosData.forEach(pres => {
+        if (!isFirmBudgetStatus(pres.estado)) return;
+        const summary = getBudgetPaymentSummary(pres, { includeAnnualAdjustment: true });
+        if (summary.balance > 0 && pres.eventoFecha && new Date(pres.eventoFecha) <= addDays(today, 7)) {
+          alerts.push({
+            id: `budget_balance_${pres.id}`,
+            type: 'payment',
+            title: `Saldo pendiente: ${pres.clienteNombre}`,
+            description: `Faltan ${summary.balance.toLocaleString('es-UY')} UYU para completar el presupuesto.`,
+            severity: 'high',
+            href: `/presupuestos/${pres.id}/ver`,
+          });
+        }
+      });
+    }
 
     leadsData.forEach(lead => {
       if (!lead.followUpDate) return;

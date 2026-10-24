@@ -1,3 +1,6 @@
+import { getCrmLeadsForDashboard } from '@/app/actions/crm';
+import { getHistorialAgentes } from '@/app/actions/agentes-autonomos';
+import { buildWhatsAppLink } from '@/lib/commercial/contact';
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { verifySession } from '@/lib/auth/session-token';
@@ -5,6 +8,7 @@ import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import Link from 'next/link';
 import {
+  Bot,
   CheckCircle2,
   Calendar,
   ArrowRight,
@@ -146,16 +150,14 @@ export default async function MiDiaPage() {
     if (telefonoCliente && fiesta.configuracion?.fechaEvento) {
       const diasRestantes = Math.ceil((new Date(fiesta.configuracion.fechaEvento).getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
       if (diasRestantes >= 0 && diasRestantes <= 14) {
-        const telLimpio = telefonoCliente.replace(/\D/g, '');
-        const telCompleto = telLimpio.startsWith('598') ? telLimpio : `598${telLimpio.replace(/^0/, '')}`;
-        const textoWA = encodeURIComponent(`¡Hola ${nombreCliente}! Te escribo desde AK Producciones para coordinar los últimos detalles de ${nombreFiesta}. ¿Cómo vienen con los preparativos?`);
+        const textoWA = `¡Hola ${nombreCliente}! Te escribo desde AK Producciones para coordinar los últimos detalles de ${nombreFiesta}. ¿Cómo vienen con los preparativos?`;
         accionesHoy.push({
           id: `wa_${fiesta.id}`,
           tipo: 'whatsapp',
           titulo: `Escribirle a ${nombreCliente} para coordinar detalles`,
           detalle: `Faltan ${diasRestantes} días para ${nombreFiesta}`,
           categoria: 'hoy',
-          whatsappUrl: `https://wa.me/${telCompleto}?text=${textoWA}`,
+          whatsappUrl: buildWhatsAppLink(telefonoCliente, textoWA),
           eventoNombre: nombreFiesta,
           nombreCliente,
         });
@@ -163,8 +165,39 @@ export default async function MiDiaPage() {
     }
   }
 
+  // Seguimiento proactivo de prospectos y presupuestos (Agente Comercial)
+  if (puede(session.user, PERMISOS.CRM)) {
+    try {
+      const leads = await getCrmLeadsForDashboard();
+      for (const lead of leads) {
+        if (!lead.phone) continue;
+        const fechaSeguimiento = lead.followUpDate ? lead.followUpDate.split('T')[0] : undefined;
+        const necesitaSeguimiento = Boolean(fechaSeguimiento && fechaSeguimiento <= hoyStr);
+
+        if (necesitaSeguimiento) {
+          const textoWA = `¡Hola ${lead.name}! Te escribo de AK Producciones para ver cómo venís con la planificación de tu evento. ¿Pudiste ver la propuesta o te quedó alguna duda?`;
+          accionesHoy.push({
+            id: `lead_${lead.id}`,
+            tipo: 'whatsapp',
+            titulo: `Seguimiento de presupuesto: ${lead.name}`,
+            detalle: `Agendado para hoy · ${lead.partyType || 'Evento'}`,
+            categoria: 'hoy',
+            whatsappUrl: buildWhatsAppLink(lead.phone, textoWA),
+            nombreCliente: lead.name,
+          });
+        }
+      }
+    } catch {
+      // Si falla la lectura de CRM no rompe la pantalla del día
+    }
+  }
+
   // Los saldos y la conciliación son plata: sólo los ve quien tiene contabilidad.
   const parte = parteParaQuienMira(await getParteDeLaManana(), verContabilidad);
+  const historialAgentes = puede(session.user, PERMISOS.ADMINISTRACION)
+    ? await getHistorialAgentes().catch(() => [])
+    : [];
+
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-20">
@@ -187,6 +220,32 @@ export default async function MiDiaPage() {
 
       {/* El Parte de la Mañana por el Encargado */}
       <ParteDeLaMananaPlayer parte={parte} />
+
+            {/* Qué hicieron los asistentes hoy (Dots de AK) */}
+      {historialAgentes.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
+            <Bot className="w-5 h-5 text-indigo-600" />
+            Qué hicieron los asistentes hoy
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {historialAgentes.slice(0, 6).map((reg) => (
+              <div key={reg.id} className="p-4 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-xs uppercase tracking-wider text-slate-900">{reg.agenteId.replace('_', ' ')}</span>
+                  <Badge variant={reg.estado === 'exito' ? 'outline' : 'secondary'} className="text-[10px]">
+                    {reg.estado === 'exito' ? 'Activo' : 'Aviso'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">{reg.hallazgos.join('. ') || 'Sin novedades'}</p>
+                <div className="text-[10px] text-slate-400">
+                  {new Date(reg.ejecutadoEn).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Acciones para hoy */}
       <section className="space-y-4">

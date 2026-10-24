@@ -86,4 +86,6 @@ no-usa: No ejecuto acciones por voz en src/__tests__/la-voz-en-vivo-lib.test.ts
 usa: budget_balance_ en src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts
 prueba: src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts
 prueba: src/__tests__/la-voz-en-vivo-lib.test.ts
+# Bloque 5
+usa: generateBudgetAndLeadFromSimulator( en src/lib/asistente/por-whatsapp.ts
 ```

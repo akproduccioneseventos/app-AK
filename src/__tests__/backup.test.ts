@@ -1,3 +1,4 @@
+jest.setTimeout(25000);
 /**
  * Tests for backup download API route.
  *

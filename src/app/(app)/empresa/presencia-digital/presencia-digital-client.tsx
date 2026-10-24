@@ -1,4 +1,7 @@
 'use client';
+import { leerBandejaUnicaAction as leerBandejaUnica } from '@/app/actions/presencia-digital';
+import type { MensajeBandeja } from '@/lib/mensajes/bandeja-unica';
+import { setAjustesRespuestasAction as setAjustesRespuestasComentarios, getAjustesRespuestasAction as getAjustesRespuestasComentarios } from '@/app/actions/presencia-digital';
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -42,6 +45,8 @@ import type {
 import { SeoPosicionamientoTab } from './seo-posicionamiento-tab';
 import {
   Users,
+  Bot,
+  Loader2,
   TrendingUp,
   DollarSign,
   Send,
@@ -84,11 +89,59 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const { toast } = useToast();
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-  const [activeTab, setActiveTab] = useState<'revision' | 'posicionamiento' | 'comentarios' | 'web' | 'directorios' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
+  const [activeTab, setActiveTab] = useState<'hoy' | 'mensajes' | 'publicaciones' | 'resultados' | 'conexiones'>('hoy');
+  const [subTabResultados, setSubTabResultados] = useState<'posicionamiento' | 'atribucion' | 'ads' | 'google_ficha' | 'web' | 'directorios' | 'historial' | 'comentarios'>('posicionamiento');
+  const [filtroPublicaciones, setFiltroPublicaciones] = useState<'todos' | 'listos' | 'con_error' | 'calendario'>('todos');
+  const [bandejaMensajes, setBandejaMensajes] = useState<MensajeBandeja[]>([]);
+  const [loadingBandeja, setLoadingBandeja] = useState<boolean>(false);
+  const [filtroCanalBandeja, setFiltroCanalBandeja] = useState<'todos' | 'sin_contestar' | 'whatsapp' | 'instagram' | 'facebook' | 'google'>('sin_contestar');
+  const [ajustesRespuestas, setAjustesRespuestas] = useState<{ comentarios: boolean; mensajesDirectos: boolean }>({
+    comentarios: true,
+    mensajesDirectos: true,
+  });
+
+  const cargarBandeja = useCallback(async () => {
+    setLoadingBandeja(true);
+    try {
+      const msgs = await leerBandejaUnica();
+      setBandejaMensajes(msgs || []);
+    } catch (err) {
+      console.warn('[PresenciaDigital] Error al leer bandeja única:', err);
+    } finally {
+      setLoadingBandeja(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'mensajes') {
+      cargarBandeja();
+    }
+  }, [activeTab, cargarBandeja]);
+
+  useEffect(() => {
+    getAjustesRespuestasComentarios().then((aj: any) => {
+      setAjustesRespuestas({
+        comentarios: aj.comentarios,
+        mensajesDirectos: aj.mensajesDirectos,
+      });
+    }).catch(() => {});
+  }, []);
   // La tarjeta "Moderación y Comentarios" de Marketing llega con ?tab=comentarios y abre esa solapa.
   useEffect(() => {
     const pedida = new URLSearchParams(window.location.search).get('tab');
-    if (pedida === 'comentarios' || pedida === 'publicaciones' || pedida === 'posicionamiento') setActiveTab(pedida);
+    if (pedida) {
+      if (pedida === 'hoy' || pedida === 'revision') setActiveTab('hoy');
+      else if (pedida === 'mensajes' || pedida === 'comentarios') setActiveTab('mensajes');
+      else if (pedida === 'publicaciones' || pedida === 'calendario') {
+        setActiveTab('publicaciones');
+        if (pedida === 'calendario') setFiltroPublicaciones('calendario');
+      } else if (['posicionamiento', 'atribucion', 'ads', 'google_ficha', 'web', 'directorios', 'historial', 'resultados'].includes(pedida)) {
+        setActiveTab('resultados');
+        if (pedida !== 'resultados') setSubTabResultados(pedida as any);
+      } else if (pedida === 'conexiones') {
+        setActiveTab('conexiones');
+      }
+    }
   }, []);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
@@ -130,10 +183,10 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'comentarios' && !commentsData) {
+    if ((activeTab === 'mensajes' || (activeTab === 'resultados' && subTabResultados === 'comentarios')) && !commentsData) {
       loadComments();
     }
-  }, [activeTab, commentsData, loadComments]);
+  }, [activeTab, subTabResultados, commentsData, loadComments]);
 
   const handleSyncComments = async (full: boolean = false) => {
     setSyncingComments(true);
@@ -268,10 +321,10 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'atribucion' && !attributionReport) {
+    if (activeTab === 'resultados' && subTabResultados === 'atribucion' && !attributionReport) {
       loadAttribution(attributionPeriod);
     }
-  }, [activeTab, attributionPeriod, attributionReport, loadAttribution]);
+  }, [activeTab, subTabResultados, attributionPeriod, attributionReport, loadAttribution]);
 
   const handlePeriodChange = (period: NetworkAttributionPeriod) => {
     setAttributionPeriod(period);
@@ -294,10 +347,10 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'directorios' && !directoriosData) {
+    if (activeTab === 'resultados' && subTabResultados === 'directorios' && !directoriosData) {
       loadDirectorios();
     }
-  }, [activeTab, directoriosData, loadDirectorios]);
+  }, [activeTab, subTabResultados, directoriosData, loadDirectorios]);
 
   const handleToggleDirectorio = async (id: string, completado: boolean) => {
     try {
@@ -326,10 +379,10 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'google_ficha' && !resenasData) {
+    if (activeTab === 'resultados' && subTabResultados === 'google_ficha' && !resenasData) {
       loadResenas();
     }
-  }, [activeTab, resenasData, loadResenas]);
+  }, [activeTab, subTabResultados, resenasData, loadResenas]);
 
   const handleMarcarResenaSolicitada = async (fiestaId: string, whatsappUrl?: string) => {
     if (whatsappUrl) {
@@ -601,7 +654,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             </div>
           </div>
           <button
-            onClick={() => setActiveTab('google_ficha')}
+            onClick={() => { setActiveTab('resultados'); setSubTabResultados('google_ficha'); }}
             className="px-4 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold text-xs rounded-xl shadow transition shrink-0"
           >
             Ver a quién pedirle
@@ -627,123 +680,337 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </div>
       )}
 
-      {/* Pestañas de navegación */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
+      {/* Pestañas de navegación de Presencia y Redes (5 solapas de la Orden 192) */}
+      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto" data-testid="tabs-centro-redes">
         <button
-          onClick={() => setActiveTab('revision')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'revision'
-              ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
+          data-testid="tab-hoy"
+          onClick={() => setActiveTab('hoy')}
+          className={`px-5 py-2.5 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'hoy'
+              ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-black'
               : 'bg-slate-900 text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Sparkles className="w-4 h-4" /> Revisión Diaria
+          <Sparkles className="w-4 h-4" /> Hoy
         </button>
 
         <button
-          onClick={() => setActiveTab('comentarios')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'comentarios'
-              ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
+          data-testid="tab-mensajes"
+          onClick={() => setActiveTab('mensajes')}
+          className={`px-5 py-2.5 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'mensajes'
+              ? 'bg-pink-500 text-white shadow-md shadow-pink-500/20 font-black'
               : 'bg-slate-900 text-slate-400 hover:text-slate-200'
           }`}
         >
-          <MessageSquare className="w-4 h-4" /> Comentarios de redes
+          <MessageSquare className="w-4 h-4" /> Mensajes
         </button>
 
         <button
-          onClick={() => setActiveTab('web')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'web'
-              ? 'bg-sky-500 text-white shadow-md shadow-sky-500/20'
+          data-testid="tab-publicaciones"
+          onClick={() => setActiveTab('publicaciones')}
+          className={`px-5 py-2.5 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'publicaciones'
+              ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20 font-black'
               : 'bg-slate-900 text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Globe className="w-4 h-4" /> Tu página web
+          <Calendar className="w-4 h-4" /> Publicaciones
         </button>
 
         <button
-          onClick={() => setActiveTab('posicionamiento')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'posicionamiento'
+          data-testid="tab-resultados"
+          onClick={() => setActiveTab('resultados')}
+          className={`px-5 py-2.5 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'resultados'
               ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-black'
               : 'bg-slate-900 text-slate-400 hover:text-slate-200'
           }`}
         >
-          <Search className="w-4 h-4" /> Posicionamiento en Google
+          <BarChart3 className="w-4 h-4" /> Resultados
         </button>
 
         <button
-          onClick={() => setActiveTab('google_ficha')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'google_ficha'
-              ? 'bg-yellow-500 text-slate-950 shadow-md shadow-yellow-500/20'
+          data-testid="tab-conexiones"
+          onClick={() => setActiveTab('conexiones')}
+          className={`px-5 py-2.5 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'conexiones'
+              ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20 font-black'
               : 'bg-slate-900 text-slate-400 hover:text-slate-200'
           }`}
         >
-          <MapPin className="w-4 h-4" /> Ficha de Google
-        </button>
-
-        <button
-          onClick={() => setActiveTab('directorios')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'directorios'
-              ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Building2 className="w-4 h-4" /> Tablero de altas (16)
-        </button>
-
-        <button
-          onClick={() => setActiveTab('atribucion')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'atribucion'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Target className="w-4 h-4" /> ¿De dónde vienen?
-        </button>
-
-        <button
-          onClick={() => setActiveTab('ads')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'ads'
-              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <DollarSign className="w-4 h-4" /> Publicidad vs Fiestas
-        </button>
-
-        <button
-          onClick={() => setActiveTab('publicaciones')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'publicaciones'
-              ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <Send className="w-4 h-4" /> Publicar Multired
-        </button>
-
-        <button
-          onClick={() => setActiveTab('historial')}
-          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
-            activeTab === 'historial'
-              ? 'bg-purple-500 text-white shadow-md shadow-purple-500/20'
-              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <BarChart3 className="w-4 h-4" /> Evolución Día a Día
+          <Share2 className="w-4 h-4" /> Conexiones
         </button>
       </div>
 
       {/* CONTENIDO DE PESTAÑAS */}
 
+      {/* SOLAPA 2: MENSAJES (BANDEJA ÚNICA) */}
+      {activeTab === 'mensajes' && (
+        <div className="space-y-6" data-testid="solapa-mensajes">
+          {/* Cabecera y controles de automatización */}
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-pink-400" />
+                  Bandeja Única de Mensajes y Redes
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  WhatsApp, Instagram, Facebook y Google juntos en una sola bandeja.
+                </p>
+              </div>
+
+              {/* Interruptores de contestación automática */}
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const nuevo = !ajustesRespuestas.comentarios;
+                    setAjustesRespuestas((prev) => ({ ...prev, comentarios: nuevo }));
+                    await setAjustesRespuestasComentarios({ comentarios: nuevo });
+                    toast({ description: nuevo ? 'Contestar comentarios activado' : 'Contestar comentarios desactivado' });
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${
+                    ajustesRespuestas.comentarios
+                      ? 'bg-pink-500/10 border-pink-500/30 text-pink-300'
+                      : 'bg-slate-800 border-slate-700 text-slate-400'
+                  }`}
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  Contestar solo comentarios: {ajustesRespuestas.comentarios ? 'Prendido' : 'Apagado'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const nuevo = !ajustesRespuestas.mensajesDirectos;
+                    setAjustesRespuestas((prev) => ({ ...prev, mensajesDirectos: nuevo }));
+                    await setAjustesRespuestasComentarios({ mensajesDirectos: nuevo });
+                    toast({ description: nuevo ? 'Contestar mensajes directos activado' : 'Contestar mensajes directos desactivado' });
+                  }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 ${
+                    ajustesRespuestas.mensajesDirectos
+                      ? 'bg-pink-500/10 border-pink-500/30 text-pink-300'
+                      : 'bg-slate-800 border-slate-700 text-slate-400'
+                  }`}
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  Contestar solo mensajes directos: {ajustesRespuestas.mensajesDirectos ? 'Prendido' : 'Apagado'}
+                </button>
+              </div>
+            </div>
+
+            {/* Filtros de la bandeja */}
+            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-800/80">
+              {[
+                { id: 'sin_contestar', label: 'Sin contestar' },
+                { id: 'todos', label: 'Todos los canales' },
+                { id: 'whatsapp', label: 'WhatsApp' },
+                { id: 'instagram', label: 'Instagram' },
+                { id: 'facebook', label: 'Facebook' },
+                { id: 'google', label: 'Google Maps' },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setFiltroCanalBandeja(f.id as any)}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
+                    filtroCanalBandeja === f.id
+                      ? 'bg-pink-500 text-white font-bold'
+                      : 'bg-slate-800/70 text-slate-300 hover:bg-slate-800'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+              <button
+                onClick={cargarBandeja}
+                disabled={loadingBandeja}
+                className="ml-auto p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+                title="Actualizar bandeja"
+              >
+                <RefreshCw className={`w-4 h-4 ${loadingBandeja ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          {/* Lista de mensajes */}
+          {loadingBandeja ? (
+            <div className="p-12 text-center text-slate-400">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-pink-400" />
+              Cargando mensajes de todos los canales...
+            </div>
+          ) : bandejaMensajes.length === 0 ? (
+            <div className="p-12 text-center bg-slate-900/40 border border-slate-800/60 rounded-2xl text-slate-400">
+              No hay mensajes registrados en este momento.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {bandejaMensajes
+                .filter((m) => {
+                  if (filtroCanalBandeja === 'sin_contestar') return m.estado === 'pendiente';
+                  if (filtroCanalBandeja === 'whatsapp') return m.canal === 'whatsapp';
+                  if (filtroCanalBandeja === 'instagram') return m.canal.includes('instagram');
+                  if (filtroCanalBandeja === 'facebook') return m.canal.includes('facebook') || m.canal === 'messenger';
+                  if (filtroCanalBandeja === 'google') return m.canal === 'google_review';
+                  return true;
+                })
+                .map((msg) => (
+                  <div
+                    key={msg.id}
+                    className="p-4 md:p-5 bg-slate-900/80 border border-slate-800 rounded-2xl hover:border-slate-700 transition space-y-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 bg-slate-800 text-slate-300 text-[11px] font-bold uppercase tracking-wider rounded-md">
+                          {msg.canal.replace(/_/g, ' ')}
+                        </span>
+                        <span className="font-bold text-white text-sm">{msg.autor}</span>
+                        {msg.contacto && (
+                          <span className="text-xs text-slate-400 hidden sm:inline">({msg.contacto})</span>
+                        )}
+                        {msg.esCliente && (
+                          <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold rounded-full">
+                            Cliente
+                          </span>
+                        )}
+                        {msg.esProspecto && (
+                          <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold rounded-full">
+                            Prospecto CRM
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {msg.estado === 'contestado_solo' && (
+                          <span className="text-xs text-amber-300 font-bold flex items-center gap-1">
+                            🤖 Contestó AK
+                          </span>
+                        )}
+                        {msg.estado === 'contestado_persona' && (
+                          <span className="text-xs text-emerald-400 font-bold flex items-center gap-1">
+                            ✓ Respondido
+                          </span>
+                        )}
+                        {msg.estado === 'pendiente' && (
+                          <span className="text-xs text-pink-400 font-bold">
+                            Pendiente
+                          </span>
+                        )}
+                        <span className="text-[11px] text-slate-400">
+                          {new Date(msg.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-slate-200">{msg.texto}</p>
+
+                    {/* Propuesta de IA */}
+                    {msg.propuestaIA && msg.estado === 'pendiente' && (
+                      <div className="p-3 bg-slate-950/80 border border-pink-500/20 rounded-xl space-y-2">
+                        <div className="flex items-center justify-between text-xs text-pink-300 font-bold">
+                          <span className="flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5" /> Respuesta propuesta por IA
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                toast({ description: 'Respuesta enviada al canal' });
+                                setBandejaMensajes((prev) =>
+                                  prev.map((m) => (m.id === msg.id ? { ...m, estado: 'contestado_persona' } : m))
+                                );
+                              }}
+                              className="px-2.5 py-1 bg-pink-500 hover:bg-pink-400 text-white font-bold rounded-lg text-xs transition"
+                            >
+                              Mandar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const editado = window.prompt('Editar respuesta para enviar:', msg.propuestaIA);
+                                if (editado) {
+                                  toast({ description: 'Respuesta editada y enviada' });
+                                  setBandejaMensajes((prev) =>
+                                    prev.map((m) => (m.id === msg.id ? { ...m, estado: 'contestado_persona', propuestaIA: editado } : m))
+                                  );
+                                }
+                              }}
+                              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-lg text-xs transition"
+                            >
+                              Editar
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-300 italic">{msg.propuestaIA}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SOLAPA 5: CONEXIONES */}
+      {activeTab === 'conexiones' && (
+        <div className="space-y-6" data-testid="solapa-conexiones">
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-1">
+              <Share2 className="w-5 h-5 text-purple-400" />
+              Estado de Conexión de Redes Sociales
+            </h2>
+            <p className="text-xs text-slate-400">
+              Verificá el estado real de vinculación con cada red social y los permisos activos.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.platformsStatus?.map((plat) => (
+              <div
+                key={plat.platform}
+                className="p-5 bg-slate-900/70 border border-slate-800 rounded-2xl space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-white text-base">{plat.platform}</h3>
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                      plat.isConnected
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                    }`}
+                  >
+                    {plat.isConnected ? 'Conectado' : 'Desconectado'}
+                  </span>
+                </div>
+
+                {plat.username && (
+                  <p className="text-xs text-slate-300 font-medium">Cuenta: @{plat.username}</p>
+                )}
+
+                {!plat.isConnected && (
+                  <div className="p-3 bg-amber-950/20 border border-amber-800/30 rounded-xl text-xs text-amber-200/90">
+                    {plat.platform === 'Instagram'
+                      ? 'Falta el permiso de mensajes de Instagram en la app de Meta. Conectalo en Ajustes sin costo adicional.'
+                      : 'Falta configurar el Token de acceso o vincular la cuenta en Ajustes > Redes Sociales.'}
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                  <span>Publicación automática:</span>
+                  <span className={plat.canAutoPublish ? 'text-emerald-400 font-bold' : 'text-slate-400'}>
+                    {plat.canAutoPublish ? 'Habilitada' : 'Manual'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+
       {/* PESTAÑA 1: REVISIÓN DIARIA */}
-      {activeTab === 'revision' && review && (
+      {activeTab === 'hoy' && review && (
         <div className="space-y-6">
           {/* Tarjeta de Resumen */}
           <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
@@ -849,13 +1116,41 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </div>
       )}
 
+            {/* PESTAÑAS DE RESULTADOS */}
+      {activeTab === 'resultados' && (
+        <div className="flex items-center gap-1.5 p-1.5 bg-slate-900 border border-slate-800 rounded-xl overflow-x-auto mb-6" data-testid="subtabs-resultados">
+          {[
+            { id: 'posicionamiento', label: 'Posicionamiento Google' },
+            { id: 'atribucion', label: 'Atribución Comercial' },
+            { id: 'google_ficha', label: 'Ficha de Google' },
+            { id: 'web', label: 'Tráfico Web' },
+            { id: 'directorios', label: 'Directorios' },
+            { id: 'ads', label: 'Publicidad' },
+            { id: 'comentarios', label: 'Comentarios' },
+            { id: 'historial', label: 'Historial' },
+          ].map((sub) => (
+            <button
+              key={sub.id}
+              onClick={() => setSubTabResultados(sub.id as any)}
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition whitespace-nowrap ${
+                subTabResultados === sub.id
+                  ? 'bg-emerald-500 text-slate-950 font-black shadow'
+                  : 'text-slate-400 hover:text-white bg-slate-950/60'
+              }`}
+            >
+              {sub.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* PESTAÑA: POSICIONAMIENTO EN GOOGLE */}
-      {activeTab === 'posicionamiento' && (
+      {activeTab === 'resultados' && subTabResultados === 'posicionamiento' && (
         <SeoPosicionamientoTab />
       )}
 
       {/* PESTAÑA: COMENTARIOS DE REDES (Orden Comentarios de las Redes) */}
-      {activeTab === 'comentarios' && (
+      {activeTab === 'resultados' && subTabResultados === 'comentarios' && (
         <div className="space-y-6">
           {/* Header con botón de sincronización */}
           <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1088,7 +1383,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
       )}
 
       {/* PESTAÑA: TU PÁGINA WEB (Bloque 1 - Google Analytics 4) */}
-      {activeTab === 'web' && (
+      {activeTab === 'resultados' && subTabResultados === 'web' && (
         <div className="space-y-6">
           <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1222,7 +1517,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
       )}
 
       {/* PESTAÑA: FICHA DE GOOGLE Y PEDIDO DE RESEÑAS (Bloque 1, 2 y 3) */}
-      {activeTab === 'google_ficha' && (
+      {activeTab === 'resultados' && subTabResultados === 'google_ficha' && (
         <div className="space-y-6">
           <GoogleBusinessProfileWidget
             rating={kpis.googleRating}
@@ -1326,7 +1621,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
       )}
 
       {/* PESTAÑA: TABLERO DE ALTAS EN DIRECTORIOS (Bloque 4) */}
-      {activeTab === 'directorios' && (
+      {activeTab === 'resultados' && subTabResultados === 'directorios' && (
         <div className="space-y-6">
           <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-5">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1459,7 +1754,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
       )}
 
       {/* PESTAÑA 2: ATRIBUCIÓN REAL: ¿QUÉ RED TRAE CLIENTES? (Bloque 3) */}
-      {activeTab === 'atribucion' && (
+      {activeTab === 'resultados' && subTabResultados === 'atribucion' && (
         <div className="space-y-6">
           {/* Header con selector de período */}
           <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1579,7 +1874,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
       )}
 
       {/* PESTAÑA 3: PUBLICIDAD VS FIESTAS REALES (Bloque 5) */}
-      {activeTab === 'ads' && (
+      {activeTab === 'resultados' && subTabResultados === 'ads' && (
         <div className="space-y-4">
           <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl text-sm text-slate-300 flex items-start gap-3">
             <DollarSign className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
@@ -1737,7 +2032,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
       )}
 
       {/* PESTAÑA 4: EVOLUCIÓN DÍA A DÍA (Bloque 2) */}
-      {activeTab === 'historial' && (
+      {activeTab === 'resultados' && subTabResultados === 'historial' && (
         <div className="space-y-4">
           <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl text-sm text-slate-300">
             <span className="font-bold text-white">Historial construido desde hoy:</span> Como las

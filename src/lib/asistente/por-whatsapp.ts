@@ -134,7 +134,33 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
     };
   }
 
-  // Tenemos los 3 datos: armamos el enlace al simulador pre-cargado con fecha, invitados y salón
+  // Tenemos los 3 datos: generamos el presupuesto y prospecto desde el simulador
+  try {
+    await generateBudgetAndLeadFromSimulator(
+      {
+        clienteNombre: params.name || 'Prospecto WhatsApp',
+        clienteContacto: params.phone,
+        eventoFecha: datos.fecha,
+        adultos: datos.invitados || 0,
+        ninos: 0,
+        subtotal: 0,
+        costoEstimado: 0,
+        serviciosIncluidos: [],
+      },
+      {
+        source: 'simulator',
+        salonFiestas: datos.salon,
+        acquisition: {
+          source: 'whatsapp',
+          campaign: 'anuncio_whatsapp',
+        },
+      }
+    );
+  } catch (err) {
+    console.warn('[WhatsApp] Error al ejecutar generateBudgetAndLeadFromSimulator:', err);
+  }
+
+  // Armamos el enlace al simulador pre-cargado con fecha, invitados y salón
   const queryParams = new URLSearchParams();
   queryParams.set('fecha', datos.fecha || '');
   queryParams.set('guests', String(datos.invitados || 0));

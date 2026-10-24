@@ -1,16 +1,50 @@
 {
-  "name": "AK Planner Enterprise",
-  "short_name": "AK Planner",
-  "description": "Sistema avanzado de gestión de eventos y fiestas.",
-  "start_url": "/",
+  "name": "AK Producciones - Fiestas & Eventos",
+  "short_name": "AK Eventos",
+  "description": "Tu fiesta en vivo: portal del cliente, fotos, música, tragos y recuerdos interactivos.",
+  "start_url": "/portal",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "background_color": "#09090b",
+  "theme_color": "#e11d48",
+  "categories": ["events", "lifestyle", "entertainment"],
   "icons": [
     {
       "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/ak-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hablar con AK",
+      "short_name": "Hablar",
+      "description": "Asistente por voz para tu día",
+      "url": "/mi-dia?hablar=1",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

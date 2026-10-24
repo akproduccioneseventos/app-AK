@@ -47,7 +47,7 @@ import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModa
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
 
 type ViewMode = 'libro' | 'cuadricula';
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'touchpix' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
 
 function isVideo(url: string = ''): boolean {
   return url.endsWith('.mp4') || url.endsWith('.webm') || url.includes('video');
@@ -604,6 +604,7 @@ export default function PublicAlbumPage() {
                 { id: 'todas', label: `Todas (${posts.length})` },
                 { id: 'fotocabina', label: '📸 Fotocabina' },
                 { id: '360', label: '🌐 360°' },
+                { id: 'touchpix', label: '🎬 Touchpix AI' },
                 { id: 'espejo', label: '✨ Espejo' },
                 { id: 'bogue', label: '⚡ Boomerang' },
                 { id: 'buzon', label: '🎙️ Buzón' },

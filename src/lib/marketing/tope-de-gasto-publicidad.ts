@@ -53,7 +53,7 @@ export interface EstadoDelTope {
 export interface CampanaConPresupuesto {
   nombre: string;
   /** Presupuesto diario en pesos uruguayos. */
-  presupuestoDiarioUYU: number;
+  presupuestoDiarioUYU: number | null;
   activa: boolean;
   /** Si el presupuesto diario y estado fueron verificados con la API real de Meta o provienen de configuración confirmada. */
   verificado?: boolean;
@@ -154,7 +154,7 @@ export function calcularComprometido(
   const dias = diasQueQuedanDelMes(ahora);
   return campanas
     .filter((c) => c.activa)
-    .reduce((total, c) => total + Math.max(0, c.presupuestoDiarioUYU) * dias, 0);
+    .reduce((total, c) => total + Math.max(0, c.presupuestoDiarioUYU ?? 0) * dias, 0);
 }
 
 export async function getEstadoDelTope(

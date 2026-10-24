@@ -1,4 +1,5 @@
 'use client';
+import { armarMesasInteligente, type ResultadoAsignacionMesas } from '@/lib/fiesta/armador-mesas-inteligente';
 
 import React, { useState, type FormEvent, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -89,6 +90,45 @@ function InvitadosEventoContent() {
 
   // QR modal state
   const [isMesaQrOpen, setIsMesaQrOpen] = useState(false);
+  const [propuestaMesas, setPropuestaMesas] = useState<ResultadoAsignacionMesas | null>(null);
+  const [isConfirmingMesas, setIsConfirmingMesas] = useState(false);
+
+  const handleArmarMesasSolo = () => {
+    const lista = invitados.map((inv) => ({
+      id: inv.id,
+      nombre: inv.nombre,
+      grupoAfinidad: inv.categoria || inv.perfil || 'General',
+      cantidadAcompaniantes: (inv.partySize || 1) - 1,
+      tableNumber: inv.tableNumber,
+    }));
+    const res = armarMesasInteligente(lista, { capacidadPorMesa: 10 });
+    setPropuestaMesas(res);
+  };
+
+  const handleConfirmarMesas = async () => {
+    if (!propuestaMesas || !fiestaId) return;
+    setIsConfirmingMesas(true);
+    try {
+      for (const mesa of propuestaMesas.mesas) {
+        for (const invAsignado of mesa.invitados) {
+          const invOriginal = invitados.find((i) => i.id === invAsignado.id);
+          if (invOriginal) {
+            await updateInvitadoFiestaActual(fiestaId, {
+              ...invOriginal,
+              tableNumber: `Mesa ${mesa.numero}`,
+            });
+          }
+        }
+      }
+      await fetchInvitados();
+      toast({ title: '¡Mesas asignadas y guardadas con éxito!' });
+      setPropuestaMesas(null);
+    } catch {
+      toast({ title: 'Error al guardar asignación de mesas', variant: 'destructive' });
+    } finally {
+      setIsConfirmingMesas(false);
+    }
+  };
   const [guestQrModal, setGuestQrModal] = useState<Invitado | null>(null);
 
   // Import spreadsheet modal state
@@ -353,6 +393,73 @@ function InvitadosEventoContent() {
               <CardContent className="p-4 pt-0"><span className="text-2xl font-black text-yellow-600">{stats.vips}</span></CardContent>
           </Card>
       </div>
+
+      {/* Armador Inteligente de Mesas */}
+      <Card className="border-indigo-200 bg-indigo-50/50 print:hidden mb-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-black flex items-center gap-2">
+            <Users className="w-4 h-4 text-indigo-600" /> Armador Inteligente de Mesas
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Agrupa invitados por afinidad automáticamente y respeta la capacidad de cada mesa.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            size="sm"
+            onClick={handleArmarMesasSolo}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+          >
+            Armar mesas solo
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Modal de Propuesta de Mesas Inteligente */}
+      {propuestaMesas && (
+        <Dialog open={true} onOpenChange={(open) => !open && setPropuestaMesas(null)}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black">Propuesta de Distribución de Mesas</DialogTitle>
+              <DialogDescription>
+                Se armaron {propuestaMesas.totalMesasUsadas} mesas con {propuestaMesas.totalAsignados} invitados.
+                Revisá la propuesta. Nada se guarda hasta que confirmes.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 my-2">
+              {propuestaMesas.mesas.map((m) => (
+                <div key={m.numero} className="p-3 bg-slate-50 border rounded-xl text-xs space-y-1">
+                  <div className="flex justify-between items-center font-bold text-slate-800">
+                    <span>{m.etiqueta}</span>
+                    <span className="text-slate-500">{m.totalPersonas} / {m.capacidadMaxima} personas</span>
+                  </div>
+                  <p className="text-slate-600">
+                    {m.invitados.map((i) => i.nombre).join(', ')}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                onClick={() => setPropuestaMesas(null)}
+                disabled={isConfirmingMesas}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleConfirmarMesas}
+                disabled={isConfirmingMesas}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+              >
+                {isConfirmingMesas ? 'Guardando en la fiesta...' : 'Confirmar y Guardar Mesas'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* QR Buscador de Mesas */}
       <Card className="border-purple-200 bg-purple-50/50 print:hidden">
