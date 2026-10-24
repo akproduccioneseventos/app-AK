@@ -1,0 +1,25 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "pid": 14052,
+  "started": "2026-10-24T04:08:44.071Z",
+  "phase": "finished",
+  "appEdited": false,
+  "reason": "Initial301 generator SyntaxError before any route case; preserved source/log, fixed QA generator only. Broad Jest remains valid on same frozen app.",
+  "freeBytesBefore": 3429150720,
+  "routeStarted": "2026-10-24T04:12:29.216Z",
+  "childPid": 8700,
+  "exitCode": 1,
+  "routeOutputs": [
+    {
+      "name": "resultados.json",
+      "fresh": true,
+      "modified": "2026-10-24T04:59:17.369Z"
+    },
+    {
+      "name": "informe.md",
+      "fresh": true,
+      "modified": "2026-10-24T04:59:17.372Z"
+    }
+  ],
+  "finished": "2026-10-24T05:01:20.869Z"
+}

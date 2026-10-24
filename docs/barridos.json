@@ -380,6 +380,14 @@
     "95": {
       "fecha": "2026-10-23",
       "resultado": "barrida por el candado de la plata en todas las acciones del servidor: en la rama de Claude, ninguna acción llama a un ayudante de plata sin pedir permiso; en la entrega 1353 de Gemini frena updateGestionCostosInterno (devuelta en la orden 220)."
+    },
+    "97": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src (sin pruebas) en la rama de Claude y en la entrega 1353: la única función que clasifica un error leyendo números de estado en el texto es esRechazoConocido del recordatorio a invitados. Orden 225 para Gemini. Las demás expresiones sobre mensajes son de intención del asistente, no de errores."
+    },
+    "96": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src/app y los .css globales: la única regla general que pinta fondo es main.flex-1 en ak-global-premium.css; tiñe cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz en la orden 223 para Gemini."
     }
   },
   "hallazgos": {
@@ -458,6 +466,22 @@
     "orden-221": {
       "fecha": "2026-10-23",
       "resultado": "devolución de la entrega 1353 (tercera vuelta): guardados que quedaron con un import sin usar, voz del cliente con token inventado, y seña y saldo visibles al personal. No es una forma nueva: son la pregunta 3 (simula datos) y la 95/183 sin terminar."
+    },
+    "orden-222": {
+      "fecha": "2026-10-24",
+      "resultado": "devolución de la 1353 (cuarta vuelta): no compilaba, el bot de WhatsApp armaba presupuestos sin precios, cinco formas que mienten y una prueba que miraba cualquier div. No es forma nueva: pregunta 3 (inventa importes) y las de la puerta."
+    },
+    "orden-223": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 341 (barra lista). Barrido de la pregunta 52 en toda src/app: la regla main.flex-1 pinta de claro cinco pantallas oscuras fuera del panel (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz y prueba en la orden 223 para Gemini."
+    },
+    "orden-225": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 350 (503 tomado por rechazo) y 353 (prueba del asistente sin mutarDocumento). Barrido de la pregunta 97: un solo caso, esRechazoConocido. Orden 225 para Gemini, con los once vencimientos de tiempo de Codex 349."
+    },
+    "orden-224": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 345 (factura ausente). Barrido de la pregunta 19 en src/app: 14 pantallas con 'cargando o no hay dato' que giran para siempre si la lectura no trae nada o falla. Todas en la orden 224 para Gemini. Descartadas las estaciones, que ya muestran 'Experiencia no disponible'."
     }
   }
 }

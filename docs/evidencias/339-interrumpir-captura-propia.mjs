@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias'),target=path.join(dir,'339-interrupcion-captura.json');assert(!fs.existsSync(target));
+const state=JSON.parse(fs.readFileSync(path.join(dir,'337-excepciones-continuidad.json'),'utf8'));assert.equal(state.childPid,13116);assert.equal(state.phase,'forensics-only');
+const command='Get-CimInstance Win32_Process -Filter "ProcessId=2988" | Select-Object ProcessId,ParentProcessId,CommandLine | ConvertTo-Json -Compress';
+const processInfo=JSON.parse(execFileSync('powershell.exe',['-NoProfile','-Command',command],{encoding:'utf8'}));
+assert.equal(processInfo.ParentProcessId,13116);assert(processInfo.CommandLine.includes('@playwright/test/cli.js'));assert(processInfo.CommandLine.includes('33801-artifacts'));
+const qa=JSON.parse(fs.readFileSync(path.join(dir,'291-entorno.json'),'utf8')).qa,file=path.join(qa,'test-results/recorrido/partial-33801.json'),bytes=fs.readFileSync(file),rows=JSON.parse(bytes);assert.equal(rows.length,4);
+fs.writeFileSync(path.join(dir,'339-parcial-antes-interrumpir.json'),bytes,{flag:'wx'});
+const result=spawnSync('taskkill.exe',['/PID','2988','/T','/F'],{encoding:'utf8'});
+const record={source:state.source,at:new Date().toISOString(),appEdited:false,reason:'Own unbounded CDP diagnostic capture stalled after4rows; preserve original, stop ONLY verified own Playwright tree. Parent/server left for original finally cleanup.',processInfo,rows:rows.length,exitCode:result.status,stdout:result.stdout,stderr:result.stderr};
+fs.writeFileSync(target,JSON.stringify(record,null,2)+'\n');console.log(JSON.stringify(record));

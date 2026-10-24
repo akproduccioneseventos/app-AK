@@ -1,0 +1,105 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/app/actions/fiesta/fiesta.actions.ts": "6c4200227197f807d4a99094578ac0ac4cd7ec276873a6a6a09847190ab754f7",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/lib/marca-de-lectura.ts": "b54bd629d3c209029e5eeff4dd29888a02b190b1f14a51ce86b6a00950929eda",
+    "src/lib/firebase-sync.ts": "0de43d1073f2ad60847c6bd8cead7a6fa96775c297e079cbb18d9d8ee38c9700",
+    "src/lib/backup/backup-registry.ts": "e00017955c7cfcc199812600c1731bfab83713d4891ae849a3dcc5d9d6fe1983",
+    "src/lib/data-service.ts": "89e1ab7ca0a6efee931bce2a4c26ef83c429c364fcffe7b74bebeee86f8c781a",
+    "src/lib/fiesta/reponer-la-plata.ts": "97dcc858e11ee28fd1f9901fd98c3aa59a0f267267ab3b1b99bc0972afdca119",
+    "src/app/actions/fiesta-actual.ts": "a555cc62f47121205a401e7d788f78736eec37909f6ff5738d9a4866473048be",
+    "src/app/actions/fiesta/documentos.actions.ts": "896e59c837bd6b039d37324e09275edb1b85c6d0f37f77b74fd7571766f21765"
+  },
+  "cases": [
+    {
+      "id": "already-signed-contract-cannot-change-sequentially",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": false,
+          "error": "El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda."
+        },
+        "party": {
+          "id": "qa286-party",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA286"
+          },
+          "estado": "Planificando",
+          "contratoServicioTexto": "Contrato ficticio QA286 version A.",
+          "contratoFirmaInfo": {
+            "isSigned": false
+          },
+          "contratoDatos": {
+            "planPagos": {
+              "activo": false
+            }
+          },
+          "firmaDigitalConstancia": {
+            "signedAt": "2026-10-24T01:00:14.886Z",
+            "signedBy": "Firmante ficticio QA286",
+            "ip": "192.0.2.26",
+            "textoHuella": "26042c081340dc0895c0589100060e42dccd18e4059c34c49dfa163145a95556",
+            "planPagosAceptado": false
+          },
+          "_syncedAt": "2026-10-24T01:00:14.912Z"
+        },
+        "writeCount": 0
+      }
+    },
+    {
+      "id": "contract-save-cannot-change-text-after-concurrent-signature",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": false,
+          "error": "El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda."
+        },
+        "signedDuringWrite": {
+          "success": true
+        },
+        "party": {
+          "id": "qa286-party",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA286"
+          },
+          "estado": "Planificando",
+          "contratoServicioTexto": "Contrato ficticio QA286 version A.",
+          "contratoFirmaInfo": {
+            "isSigned": false
+          },
+          "contratoDatos": {
+            "planPagos": {
+              "activo": false
+            }
+          },
+          "firmaDigitalConstancia": {
+            "signedAt": "2026-10-24T01:00:15.067Z",
+            "signedBy": "Firmante ficticio QA286",
+            "ip": "192.0.2.26",
+            "textoHuella": "26042c081340dc0895c0589100060e42dccd18e4059c34c49dfa163145a95556",
+            "planPagosAceptado": false
+          },
+          "_syncedAt": "2026-10-24T01:00:15.082Z"
+        },
+        "expectedHashForStoredText": "26042c081340dc0895c0589100060e42dccd18e4059c34c49dfa163145a95556",
+        "writeCount": 0,
+        "notifications": 1
+      }
+    }
+  ],
+  "cleanup": {
+    "fiestas": 0
+  },
+  "summary": {
+    "total": 2,
+    "pass": 2,
+    "fail": 0
+  },
+  "scope": "Actual updateContratoFiestaActual -> updateFiestaPartial -> updateDataPartial -> syncToFirestore document merge, actual signContractDigitally -> actualizarFiesta and Firestore AdminSDK demo. Identity/portal predicate/event access, local fallback/backup and notifications controlled; no HTTP/native/PDF/legal validity or provider. Signing injected immediately before actual sync write, after guards. No app edits."
+}

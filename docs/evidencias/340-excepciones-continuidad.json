@@ -1,0 +1,26 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "pid": 2012,
+  "phase": "finished",
+  "started": "2026-10-24T07:47:47.139Z",
+  "appEdited": false,
+  "selected": [
+    "/evento/bogue/[fiestaId]",
+    "/evento/en-vivo/[fiestaId]/pantalla",
+    "/evento/espejo-magico/[fiestaId]",
+    "/evento/fotocabina/[fiestaId]",
+    "/evento/impresion/[fiestaId]",
+    "/evento/moderacion/[fiestaId]",
+    "/evento/muro-en-vivo/[fiestaId]",
+    "/evento/plataforma-360/[fiestaId]",
+    "/evento/touchpix/[fiestaId]",
+    "/evento/video-vida/[fiestaId]",
+    "/video-vida/[fiestaId]"
+  ],
+  "priorRows": 4,
+  "reason": "Own339 interruption preserved first4. Standard Playwright screenshot timeout2000 instead of unbounded CDP. No app/assertion changes.",
+  "childPid": 10232,
+  "exitCode": 1,
+  "error": "AssertionError [ERR_ASSERTION]: All remaining exception rows required\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/340-completar-excepciones.mjs:19:2\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "finished": "2026-10-24T07:56:54.693Z"
+}

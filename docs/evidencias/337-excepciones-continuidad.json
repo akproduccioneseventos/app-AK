@@ -1,0 +1,35 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "pid": 892,
+  "phase": "finished",
+  "started": "2026-10-24T07:20:58.869Z",
+  "appEdited": false,
+  "scope": "Only unresolved opening exceptions, preserve NO_PROBADA; collect body/screenshot, NOT every-action acceptance.",
+  "selected": [
+    "/fiestas/nueva/playlist-pantalla",
+    "/fiestas/nueva/video-vida",
+    "/invoices/[id]",
+    "/evento/barra/[fiestaId]/listo",
+    "/evento/bogue/[fiestaId]",
+    "/evento/en-vivo/[fiestaId]/pantalla",
+    "/evento/espejo-magico/[fiestaId]",
+    "/evento/fotocabina/[fiestaId]",
+    "/evento/impresion/[fiestaId]",
+    "/evento/moderacion/[fiestaId]",
+    "/evento/muro-en-vivo/[fiestaId]",
+    "/evento/plataforma-360/[fiestaId]",
+    "/evento/touchpix/[fiestaId]",
+    "/evento/video-vida/[fiestaId]",
+    "/video-vida/[fiestaId]"
+  ],
+  "startedProbe": "2026-10-24T07:40:36.245Z",
+  "childPid": 13116,
+  "exitCode": 1,
+  "originalReport": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\test-results\\recorrido\\partial-33801.json",
+  "reviewed": 4,
+  "states": {
+    "FALLO": 1,
+    "NO_PROBADA": 3
+  },
+  "finished": "2026-10-24T07:47:02.370Z"
+}

@@ -1,0 +1,39 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "original": "docs/evidencias/209-ejecutar-bateria.mjs",
+  "originalSha256": "d4e63c1ba732eb08c1fc2f0d2c9b9ef41650dc000b67d1581e4978af29050733",
+  "adaptedSha256": "a761c60f6b557196bab56de94e90681c603afef2c170a151ff4f4e79d93cda40",
+  "changes": [
+    {
+      "from": "const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');",
+      "to": "const root=\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-auditoria192-portal\\\\\",dir=path.join(root,'docs/evidencias');"
+    },
+    {
+      "from": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+      "to": "725e62ba2f909578628fad47402d125ed9632c70"
+    },
+    {
+      "from": "206-entorno.json",
+      "to": "267-entorno.json"
+    },
+    {
+      "from": "ak-qa-206-",
+      "to": "ak-qa-267-"
+    },
+    {
+      "from": "if(includePortal){const newTest=",
+      "to": "assert.equal(manifest.length,142,'Every selected spec must exist in frozen source');\nif(includePortal){const newTest="
+    },
+    {
+      "from": "for(let index=0;index<groups.length;index++){",
+      "to": "const overallDeadline=Date.now()+4*60*60*1000;\n  for(let index=0;index<groups.length;index++){\n    assert.ok(Date.now()<overallDeadline,'Native audit exceeded4hours: remaining cases NOT accepted');\n    assert.ok(fs.existsSync(path.join(qa,'208-config.ts')),'QA config lost: stop rather than falsely count batches');"
+    },
+    {
+      "from": "'test','--config','208-config.ts','--output'",
+      "to": "'test','--config','208-config.ts','--global-timeout',String(Math.max(60000,Math.min(45*60*1000,overallDeadline-Date.now()))),'--output'"
+    }
+  ],
+  "assertionsChanged": false,
+  "appEdited": false,
+  "limits": "Only QA source/build gate, run path, existence guards and bounded runtime change. Existing test assertions untouched. Native result may fail/skip; never converted to acceptance."
+}

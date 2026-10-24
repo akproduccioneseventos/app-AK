@@ -62,6 +62,8 @@ Vogue en galería y álbum, `getMisPermisos` en el menú, la firma del webhook d
 sus niveles de riesgo.
 
 ```comprobar
+no-usa: status: 'draft' en src/lib/asistente/por-whatsapp.ts
+archivo: src/lib/mensajes/bandeja-unica.ts
 usa: atenderProspectoAnuncioWhatsApp( en src/app/api/whatsapp/webhook/route.ts
 no-usa: // ak_checkin_pendientes_ en src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx
 no-usa: // FranjaTranquilidad en src/components/budget/BudgetDocument.tsx

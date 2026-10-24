@@ -11,6 +11,86 @@ usa: mutarCostosInterno en src/__tests__/el-candado-de-la-plata.test.ts
 prueba: src/__tests__/el-candado-de-la-plata.test.ts
 ```
 
+## 24/10/2026 - Codex347-359 candidata1353 contrastada, no aprobada globalmente
+
+- Fuente3f9460185143ef034dcd713e975d2a0af5e20f1a:347buildPASS con tipos/lint;
+ 349861suites5237tests5224PASS13FAIL0pending, sin sourceDiff. Una corrida,
+ no aprobar por existencia del codigo ni repetir una amplia por documentos.
+- 357 CIERRA212A7/A8:4PASS pagina/DTO/ReactDOM/Radix. Album entregado visible,
+ borrador sinenlace, Informar pago abre y cerrar no guarda/sube. No toda212.
+ 352/355 con fasefinanciera eran errores de fixtureQA, no defectos del portal.
+- 350 CIERRA ocho criterios originales217R1-R4 en3f por alcance;9PASS/1FAIL
+ incluyendo dos variantes. NUEVO caso de la MISMA217R3 NO RESUELTO:status503
+ con trace incidental403 provoca2intentos;control503neutral1yrevision.
+ Proveedores/reserva controlados, no duplicacion real de mensajes demostrada.
+- 356 conserva MISMAS tres causas214:caras[] enTouchpix/Bogue/Espejo,
+ guino/cejas sin efecto activo y ruleta inestable.12criterios9PASS3FAIL,
+ ASTreal de consumidores. FotocabinaSI pasa ref; no modelo/camara certificado.
+- 349trecefallos son11timeouts,1asercion ajustes y1fixture ausente; NO13bugs.
+ 353 ayudante no determina causa final; accion/test iguales, dependencia ahora
+ usa mutarDocumento ausente del mock. No bajar permisos. BlogJSONexisteGit;
+ no se demostro por que falto enQA.354 intento focal NO ejecuto, RAM<2GiB,
+ yTemp347ausente en reanudacion358; no esconder13 ni afirmar retestverde.
+- Build antiguo y .nextausente no sirven para aceptar nativos nuevos.359
+ cierra EJECUCIONES y limites de esta tanda;253 conserva recuento unico.
+ 220/221 siguen entregadas, no programadas porCodex. Privados NO CONTRASTADOS.
+
+## 24/10/2026 - Validacion canonica y cierres nativos sobre3e45a4ac
+
+- Cierre318:210casos nativos/176ejecutados,149PASS/27FAIL o timeout/34SKIP;
+  no27bugs.374/374paginas visitadas,359PASO/1FALLO/14NO_PROBADA,0sin visitar.
+  334 corrige67entradasQA sinfiestaId;344 recoge15diagnosticos sin cambiar
+  sus etiquetas ni dar por comprobados todos los controles o perfiles.
+- DOS observaciones nuevas NO RESUELTAS:220/Gemini contraste de pantalla
+  tragos listos (341 captura/paleta1.42:1);221/Claude factura null que sigue
+  cargando (345 ReactDOM1PASScontrol/1FAILnull). No ignorarlas por estar en
+  este registro ni afirmar queCodex las programo. Sus consumidores contrastados
+  son identicos3e/3f; privados NO CONTRASTADOS.
+- 342 observaPR1353 nueva3f9460185143ef034dcd713e975d2a0af5e20f1a,
+  131entradas src/tests distintas. b91 historica;217 motor tiene propuesta nueva,
+  212/214/215 consumidores cambiados. No reemitir sin contraste ni aceptar
+  candidata3f por pruebas de3e. La tanda se cierra por fuente, no por promesa0errores.
+- 339/340 fueron diagnosticosQA interrumpidos;343 localiza espera sin timeout
+  de unmain ausente en estaciones basadas endiv.344 termino con lectura
+  acotada,15/15diagnosticos ysourceDiff0; no un fallo probado deBogue/CDP.
+- 321:834suites/5136tests PASS,0FAIL/0pending,exit0/sourceDiff0. Configuracion
+  oficial de Jest, sin forzadas globales de navegador/demo ni claves heredadas;
+  transporte externo bloqueado323.324:7controles del arnes, no7funciones app.
+- 314 NO es una regresion de72funciones: el propio arnes habia forzado variables
+  que cambian permisos/escrituras/modelos. Se preservan resultado y diagnostico;
+  321 no cambia app, aserciones ni mocks para pasar. No reencargar esos72fallos.
+- 307:2PASS escritorio/celular, clic confiable cambia seleccion y enlace360.
+  Los intentos previos con coordenadas inestables quedan como erroresQA.
+- 304:5PASS1SKIP, lectoresVideoVida ante error/reintento y espejo moderado
+  con AdminSDK/Storage demo.0documentos/cleanup200, camara/modelo controlados;
+  no aceptar proveedor/hardware reales. SKIPmovil del espejo es deliberado.
+- 327:2PASS con sesion completa y DOBLE LOCAL FIS invocado, portada/panel/fiesta
+  ficticia visibles. No acredita OAuth ni un proveedorFirebase real.
+- 319:9casos FailedToFetch del reensayo nativo:6FirebaseInstallations,
+  3Firebase mas initScript de almacenamientoQA. No nueve modulos rotos.
+- Inventario actual3e:374paginas y50handlers,424entradas.421era inventario
+  historico, no421pantallas aprobadas.334 corrige entradasQA sinfiestaId;
+  mantiene originales y no convierte ruta abierta en cada accion/rol aceptado.
+
+## 23/10/2026 - Reensayo independiente Codex de218/219 en3e45a4ac
+
+- **218 comprobada por285:** AdminSDK real al emulador demo,2criterios PASS:
+  el reintento acredita1000 y la respuesta tardia del intento fallido no vuelve
+  el aviso a pendiente; control positivo acredita una vez. Datos ficticios,
+  identidad/notificaciones y respaldos controlados; no proveedor ni cobro real.
+- **219 comprobada por286:** AdminSDK real al emulador demo,2criterios PASS:
+  firmaA en el borde real de actualizarFiesta impide guardar textoB y conserva
+  texto/huellaA; control de firma previa tambien rechaza.284 explica la
+  adaptacion del gancho al nuevo consumidor, no se aflojaron las aserciones.
+- Ambas limpiezas dejaron0documentos y devolvieron200; procesos propios cerrados.
+ 287 ejecuto3suites/16tests del autor PASS; no equivale a toda la app ni a dos
+ servidores reales.291 compilo fuente3e sin cambios de app por Codex.
+- **Contador QA, no app:**276/277 corrigen el parser del reporte Playwright:
+ proyecto vive en cada test, status expected/unexpected no es passed/failed,
+ identidad necesita spec.id y proyecto.8pruebas del parser PASS. Los542casos
+ ejecutados del baseline no son1144aprobados;273 preliminar queda archivado.
+
+
 ## 23/10/2026 - Órdenes 218 y 219 (Codex 263-264): las dos fallas, arregladas por Claude
 
 - **218, el aviso de pago que volvía a pendiente:** un intento A fallaba en el presupuesto (supera el

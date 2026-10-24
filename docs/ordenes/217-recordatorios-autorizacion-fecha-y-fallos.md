@@ -1,5 +1,23 @@
 # AK-CODEX-249/250 - Recordatorios que realmente se ejecutan
 
+## Retest Codex350 - 24/10, candidata1353 SHA3f946018
+
+Los OCHO criterios originales pasan en3f9460185143ef034dcd713e975d2a0af5e20f1a:
+R1-R4 CORREGIDOS por ese alcance de motor/GET/adaptadores; no reencargarlos
+desde el relato historico de abajo.9PASS/1FAIL contando dos variantes nuevas.
+Sin mensaje/proveedor/cuenta real; no validacion HTTP nativa ni SDK nueva.
+
+Queda UNA variante del criterio R3: esRechazoConocido en el motor acepta
+regex403 dentro del texto aunque error.status sea503 (resultado incierto).
+Caso controlado:503+trace neutral conserva reserva/revisarEnvio y solo1intento;
+503+trace qa403 libera reserva, llama2veces al remitente en2corridas y no deja
+revision, con respaldo fallido en ambos casos. Ver350-recordatorios-motor.json.
+Un estado estructurado503 no debe reinterpretarse como rechazo403 por texto
+incidental. Preservar rechazo403conocido recuperable y no reenviar resultado
+incierto a ciegas. No afirmar duplicacion real de mensajes ni cambiar politicas.
+Actualizar la misma entrega217; no crear una PR/orden por esta variante.
+Privados posteriores NO CONTRASTADOS. Ver359-cierre-candidata-1353.
+
 Responsables: Claude controla autorizacion/puerta; Gemini motor del recordatorio.
 Codex solo audita/prueba/documenta. Una entrega conjunta, no una PR por causa.
 Fuente mainbaa034fd25ab77b886e7096105a6114f0336bfdc; los cuatro archivos efectivos

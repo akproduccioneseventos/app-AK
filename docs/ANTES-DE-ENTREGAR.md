@@ -227,3 +227,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     antes y escribís después con `updateDataPartial` o `writeData`, el control no frena nada.
 66. **¿Tu acción del servidor llama a un ayudante que guarda plata?** Entonces pide el permiso ella. Un
     ayudante "interno" no se exporta desde un archivo con `'use server'`.
+67. **¿Tocaste una regla de estilo general o pusiste texto claro?** Mirá el fondo que queda de verdad en
+    cada pantalla que la recibe. Y si la pantalla espera un dato, que diga "no encontrado" cuando no llega:
+    `cargando || !dato` gira para siempre.
+68. **¿Clasificás un error por su código?** Si trae `status`, decidí por el número. Un 503 con "403" en
+    el texto no es un rechazo: no se sabe si salió, y liberarlo manda el mensaje dos veces.
