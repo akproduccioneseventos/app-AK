@@ -89,7 +89,7 @@ export async function saveAsistenteSettings(settings: Partial<AsistenteSettings>
       ...settings,
     })
   );
-  return guardado;
+  return guardado || { ...ASISTENTE_SETTINGS_DEFAULT, ...settings };
 }
 
 /**

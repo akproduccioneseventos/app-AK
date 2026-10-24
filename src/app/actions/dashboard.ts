@@ -143,7 +143,7 @@ export async function getDashboardKpiData() {
     const activeCustomerIds = new Set(
       activeFiestas
         .filter(f => {
-          const fecha = f.configuracion?.fechaEvento || f.fecha;
+          const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
           return fecha && new Date(fecha) >= now;
         })
         .map(f => f.configuracion?.clienteId || (f as any).clienteId)
@@ -151,11 +151,11 @@ export async function getDashboardKpiData() {
     );
     const clientesActivos = activeCustomerIds.size;
     const fiestasPasadas = activeFiestas.filter(f => {
-      const fecha = f.configuracion?.fechaEvento || f.fecha;
+      const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
       return fecha && new Date(fecha) < now;
     }).length;
     const fiestasFuturas = activeFiestas.filter(f => {
-      const fecha = f.configuracion?.fechaEvento || f.fecha;
+      const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
       return fecha && new Date(fecha) >= today;
     }).length;
 

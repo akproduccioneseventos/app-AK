@@ -141,15 +141,18 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
         clienteNombre: params.name || 'Prospecto WhatsApp',
         clienteContacto: params.phone,
         eventoFecha: datos.fecha,
-        invitados: datos.invitados,
+        adultos: datos.invitados || 0,
+        ninos: 0,
+        subtotal: 0,
+        costoEstimado: 0,
+        serviciosIncluidos: [],
       },
       {
-        source: 'simulador_publico',
+        source: 'simulator',
         salonFiestas: datos.salon,
         acquisition: {
-          channel: 'paid_social',
+          source: 'whatsapp',
           campaign: 'anuncio_whatsapp',
-          source: 'whatsapp_ad',
         },
       }
     );
