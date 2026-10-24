@@ -49,6 +49,16 @@ jest.mock('@/lib/google-workspace', () => ({
       err.status = 403;
       throw err;
     }
+    if (rejectMailMode === '503-qa403') {
+      const err: any = new Error('HTTP 503 upstream unavailable; trace qa403');
+      err.status = 503;
+      throw err;
+    }
+    if (rejectMailMode === '403-forbidden') {
+      const err: any = new Error('forbidden');
+      err.status = 403;
+      throw err;
+    }
     if (rejectMailMode === 'no-response') {
       throw new Error('ETIMEDOUT: connection timed out without response');
     }
@@ -206,5 +216,29 @@ describe('R2, R3, R4: motor y ruta con reprogramación, fallos y reserva', () =>
     const res = await GET(pedido('secreto') as any);
     expect(res.status).toBe(200);
     expect(marcarCorridaMock).not.toHaveBeenCalled();
+  });
+
+  it('Orden 225: 503 con "trace qa403" en mensaje no es tomado como rechazo -> 1 solo intento y revisarEnvio: true', async () => {
+    rejectMailMode = '503-qa403';
+    fallbackFails = true;
+
+    const res1 = await actualMotor.correrTareaRecordarInvitacionNoAbierta(now);
+    expect(res1.fallados).toBe(1);
+    expect(mockMails.length).toBe(1);
+    expect(mockParty.invitados[0].revisarEnvio).toBe(true);
+
+    // En la 2da corrida seguida, el remitente se llama una sola vez
+    const res2 = await actualMotor.correrTareaRecordarInvitacionNoAbierta(now);
+    expect(mockMails.length).toBe(1);
+  });
+
+  it('Orden 225: 403 con mensaje "forbidden" es rechazo -> la reserva se libera sin revisarEnvio', async () => {
+    rejectMailMode = '403-forbidden';
+    fallbackFails = true;
+
+    const res1 = await actualMotor.correrTareaRecordarInvitacionNoAbierta(now);
+    expect(res1.fallados).toBe(1);
+    expect(mockMails.length).toBe(1);
+    expect(mockParty.invitados[0].revisarEnvio).toBeFalsy();
   });
 });

@@ -12,7 +12,6 @@ import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { readData, writeData } from '@/lib/data-service';
-import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 
 export interface AtenderEquipoParams {
   from: string;
@@ -105,7 +104,7 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
 /**
  * Atiende a un prospecto que llega desde un anuncio de WhatsApp.
  * Si faltan fecha, invitados o salón, le pregunta lo que falta sin llamar al simulador.
- * Con los tres datos, llama a generateBudgetAndLeadFromSimulator y prepara el borrador
+ * Con los tres datos, prepara el enlace al simulador
  * sin dar nada por cerrado ni prometer precios ni plazos.
  */
 export async function atenderProspectoAnuncioWhatsApp(params: {
@@ -132,32 +131,6 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
       faltantes,
       respuestaTexto: '¡Hola! Para prepararte una propuesta a medida necesitamos saber: ' + listaFaltantes + '. ¿Nos podrías confirmar esos detalles? 😊',
     };
-  }
-
-  // Tenemos los 3 datos: generamos el presupuesto y prospecto desde el simulador
-  try {
-    await generateBudgetAndLeadFromSimulator(
-      {
-        clienteNombre: params.name || 'Prospecto WhatsApp',
-        clienteContacto: params.phone,
-        eventoFecha: datos.fecha,
-        adultos: datos.invitados || 0,
-        ninos: 0,
-        subtotal: 0,
-        costoEstimado: 0,
-        serviciosIncluidos: [],
-      },
-      {
-        source: 'simulator',
-        salonFiestas: datos.salon,
-        acquisition: {
-          source: 'whatsapp',
-          campaign: 'anuncio_whatsapp',
-        },
-      }
-    );
-  } catch (err) {
-    console.warn('[WhatsApp] Error al ejecutar generateBudgetAndLeadFromSimulator:', err);
   }
 
   // Armamos el enlace al simulador pre-cargado con fecha, invitados y salón

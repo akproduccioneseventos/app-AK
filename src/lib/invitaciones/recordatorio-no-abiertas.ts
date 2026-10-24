@@ -88,12 +88,13 @@ export async function liberarReservaDelDia(
 
 function esRechazoConocido(error: any): boolean {
   if (!error) return false;
-  const status = error.status || error.statusCode || error.response?.status;
-  if (typeof status === 'number' && status >= 400 && status < 500) {
-    return true;
+  const rawStatus = error.status ?? error.statusCode ?? error.response?.status;
+  const status = typeof rawStatus === 'number' ? rawStatus : Number(rawStatus);
+  if (!Number.isNaN(status) && status > 0) {
+    return status >= 400 && status < 500;
   }
   const msg = String(error.message || error);
-  if (/HTTP\s*4\d\d|403|400|401|404|422|REJECTED|rejected/i.test(msg)) {
+  if (/\b(400|401|403|404|422)\b/i.test(msg) || /HTTP\s*4\d\d/i.test(msg) || /REJECTED/i.test(msg)) {
     return true;
   }
   return false;

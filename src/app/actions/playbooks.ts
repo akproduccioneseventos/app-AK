@@ -126,7 +126,7 @@ export async function applyPlaybookToFiesta(
   if (operacionId) {
     try {
       const previas = await getPlaybookAplicaciones();
-      const yaAplicada = previas.find(a => (a as any).operacionId === operacionId && a.fiestaId === fiestaId);
+      const yaAplicada = previas.find(a => a.operacionId === operacionId && a.fiestaId === fiestaId);
       if (yaAplicada) {
         return {
           success: true,
@@ -218,6 +218,7 @@ export async function applyPlaybookToFiesta(
         aplicadoPor: usuarioReal,
         tareasGeneradas: nuevasTareas.length,
         documentosGenerados: nuevosDocumentos.length,
+        ...(operacionId ? { operacionId } : {}),
       };
       aplicaciones.push(aplicacion);
       await writeData(APLICACIONES_FILE, aplicaciones);
