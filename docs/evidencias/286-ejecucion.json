@@ -1,0 +1,14 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-286-wK05Qj",
+  "started": "2026-10-24T01:00:06.247Z",
+  "actualSdk": true,
+  "realServices": false,
+  "appEdited": false,
+  "freeBytesAtStart": 2490560512,
+  "emulatorPid": 12776,
+  "probePid": 13300,
+  "exitCode": 0,
+  "cleanupStatus": 200,
+  "finished": "2026-10-24T01:00:17.217Z"
+}

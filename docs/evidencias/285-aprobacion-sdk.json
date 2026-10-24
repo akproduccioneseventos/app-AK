@@ -1,0 +1,186 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/lib/calculations.ts": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/lib/budget/pago-duplicado.ts": "9f02ee3ea135c129d37eacf9f375f820b6e467441518c42cdc904036fe72b980",
+    "src/lib/mutex.ts": "610f35d8d92ff55948b2ecba4dfa5c985dca047a5f4c93ca6132930183fc7c1e",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/app/actions/fiesta/fiesta.actions.ts": "6c4200227197f807d4a99094578ac0ac4cd7ec276873a6a6a09847190ab754f7",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/lib/data-service.ts": "89e1ab7ca0a6efee931bce2a4c26ef83c429c364fcffe7b74bebeee86f8c781a",
+    "src/app/actions/presupuestos.ts": "f82c797e4f1716ad314831be5307b485ccd9f47a2aab826700266b84407b7e6c",
+    "src/lib/client-portal/payment-notifications.ts": "9e65a0adfa3b6e3bb6d2dffbc7dcdd29d88078b3fe8825450e28ea05452d595b",
+    "src/app/actions/fiesta/portal.actions.ts": "b966c6eaa27c74bced0792e5930f55c53c9573a33e071812a1c1438f4b0236eb"
+  },
+  "cases": [
+    {
+      "id": "SDK-positive-approval-confirms-once",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "approvedAt": "2026-10-24T00:59:25.027Z"
+        },
+        "party": {
+          "id": "qa285-party",
+          "presupuestoId": "qa285-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA285"
+          },
+          "clientPaymentNotifications": [
+            {
+              "id": "qa285-notification",
+              "monto": 1000,
+              "estado": "aprobado",
+              "fecha": "2026-10-23",
+              "approvedAt": "2026-10-24T00:59:25.027Z",
+              "cobroConfirmadoAt": "2026-10-24T00:59:25.554Z"
+            }
+          ],
+          "_syncedAt": "2026-10-24T00:59:25.567Z"
+        },
+        "budget": {
+          "id": "qa285-budget",
+          "clienteNombre": "Persona ficticia QA285",
+          "estado": "Aceptado",
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosNinos": 0,
+          "invitadosAdolescentes": 0,
+          "costoTotalEstimado": 10000,
+          "totalConDescuento": 10000,
+          "totalFinal": 10000,
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "pagosCliente": [
+            {
+              "fecha": "2026-10-24T00:59:25.383Z",
+              "monto": 1000,
+              "metodoPago": "Transferencia Bancaria",
+              "referencia": "Pago verificado desde Portal VIP (qa285-notification)",
+              "id": "pago_qa285-budget_1792803565430_4zgil",
+              "estadoPago": "confirmado"
+            }
+          ],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa285-service",
+              "nombreServicio": "Servicio QA285",
+              "cantidad": 1,
+              "precioUnitario": 10000,
+              "precioUnitarioPresupuesto": 10000,
+              "costoTotalItem": 10000
+            }
+          ],
+          "saldo": 9000,
+          "_syncedAt": "2026-10-24T00:59:25.432Z"
+        }
+      }
+    },
+    {
+      "id": "SDK-failed-approval-does-not-undo-successful-same-reference-retry",
+      "pass": true,
+      "observed": {
+        "firstBudgetResult": {
+          "success": false,
+          "error": "El pago supera el saldo pendiente. Saldo: $500."
+        },
+        "first": {
+          "success": false,
+          "error": "El pago supera el saldo pendiente. Saldo: $500."
+        },
+        "retry": {
+          "success": true,
+          "approvedAt": "2026-10-24T00:59:25.694Z"
+        },
+        "party": {
+          "id": "qa285-party",
+          "presupuestoId": "qa285-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA285"
+          },
+          "clientPaymentNotifications": [
+            {
+              "id": "qa285-notification",
+              "monto": 1000,
+              "estado": "aprobado",
+              "fecha": "2026-10-23",
+              "approvedAt": "2026-10-24T00:59:25.694Z",
+              "cobroConfirmadoAt": "2026-10-24T00:59:25.929Z"
+            }
+          ],
+          "_syncedAt": "2026-10-24T00:59:25.994Z"
+        },
+        "budget": {
+          "id": "qa285-budget",
+          "clienteNombre": "Persona ficticia QA285",
+          "estado": "Aceptado",
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosNinos": 0,
+          "invitadosAdolescentes": 0,
+          "costoTotalEstimado": 10000,
+          "totalConDescuento": 10000,
+          "totalFinal": 10000,
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa285-service",
+              "nombreServicio": "Servicio QA285",
+              "cantidad": 1,
+              "precioUnitario": 10000,
+              "precioUnitarioPresupuesto": 10000,
+              "costoTotalItem": 10000
+            }
+          ],
+          "pagosCliente": [
+            {
+              "fecha": "2026-10-24T00:59:25.845Z",
+              "monto": 1000,
+              "metodoPago": "Transferencia Bancaria",
+              "referencia": "Pago verificado desde Portal VIP (qa285-notification)",
+              "id": "pago_qa285-budget_1792803565885_94xci",
+              "estadoPago": "confirmado"
+            }
+          ],
+          "saldo": 9000,
+          "_syncedAt": "2026-10-24T00:59:25.885Z"
+        },
+        "notifications": [
+          {
+            "kind": "budget",
+            "titulo": "Pago Registrado",
+            "mensaje": "Pago de $ 1.000 registrado para Persona ficticia QA285 (Transferencia Bancaria).",
+            "href": "/presupuestos/qa285-budget/ver",
+            "icono": "ListChecks",
+            "tipo": "exito",
+            "entidadRelacionadaId": "qa285-budget",
+            "rolDestino": "admin"
+          },
+          {
+            "kind": "approved",
+            "id": "qa285-notification"
+          }
+        ]
+      }
+    }
+  ],
+  "cleanup": {
+    "fiestas": 0,
+    "presupuestos": 0
+  },
+  "summary": {
+    "total": 2,
+    "pass": 2,
+    "fail": 0
+  },
+  "appEdited": false,
+  "scope": "Actual approve/reject, actual budget payment action/validation/normalizer/dedup, actual fiesta updater and data-service/generic Firestore transactions with real AdminSDK demo. Actor identity/event-access predicate, notification/sync sinks and delayed reply controlled. Interim removal of other fixture payment by SDK is scheduling input, NOT tested delete-payment UI. NO HTTP, real accounts/messages/charges or production."
+}
