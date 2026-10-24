@@ -1,6 +1,8 @@
 # Recuento unico - 23/10/2026
 
-Main observado725e62ba2f909578628fad47402d125ed9632c70. CandidatoGemini1353b91.
+Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
+Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.
+CandidatoGemini1353b91; privados posteriores NO CONTRASTADOS.
 EntregaClaude1357 integrada;254/255 retestean C1-C4 y217R1, ver256-cierre.
 Indice consolidado de165/169/198/202/220 y recibos216-264. No prueba nueva por indice.
 1358 auditada focalmente260-264:14criterios11PASS3FAIL, DOS causas nuevas;
@@ -53,8 +55,8 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 | Pendiente concreto | Responsable/estado contrastado |
 | --- | --- |
 |4causas contrato: resumen, constancia alterable, firma concurrente, texto no visto|CERRADAS por254SDK11PASS en725, no todaelarea contrato ni todoslosguardados|
-|Aprobacion fallida tardia vuelve a pendiente un aviso que el reintento ya acredito|218/Claude;263SDK1PASS1FAIL y2602PASS1FAIL, UNA causa NOcorregida en725|
-|Guardado iniciado antes de firma escribe despues otro texto y deja constancia vieja|219/Claude;264SDK1PASS1FAIL, NOcorregido en725; no reabre216C4|
+|Aprobacion fallida tardia vuelve a pendiente un aviso que el reintento ya acredito|218 CERRADA por285:2PASS AdminSDKdemo en3e; intercalado y control positivo, no toda contabilidad|
+|Guardado iniciado antes de firma escribe despues otro texto y deja constancia vieja|219 CERRADA por286:2PASS AdminSDKdemo en3e; gancho adaptado a actualizarFiesta; no reabre216C4|
 |Recordatorio sinclave puede llamar remitente|CERRADA por2553PASS en725; no proveedor/HTTPreal|
 |Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|217R2/R3/R4 Gemini; Claude los agrega a215bloque6; sin delta nuevo verificado|
 |Boton Informar pago sin formulario y enlace de album perdido|212/Gemini;227/229 confirman en1353b91; no corregido en fuente contrastada|
@@ -63,8 +65,14 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 
 ## 4. Cobertura pendiente de demostrar (NO lista de nuevos defectos)
 
-- Completar los recorridos en navegador que quedaron cancelados/no ejecutados,
-  sobre una fuente actual congelada.215solo52casos:49PASS/1SKIP/2inconclusos.
+- La bateria269 y su continuacion274 terminaron. Conciliacion277 con el formato
+  REAL de Playwright:1144casos unicos,542ejecutados,496PASS/46FAIL o timeout,
+  600SKIP declarados (516capturas optativas) y2FIXME. No1144PASS ni46bugs.
+  El contador273 preliminar era incorrecto;277 lo sustituye conservando originales.
+  Reensayo296 sobre3e:primer lote27PASS3FAIL; segundo interrumpido por RAM.
+ 312 restauro la copiaQA desdeGit sin cambios de fuente.311 continua con
+ 310 (UNarchivo/lote),297,304 y307, no todos aprobados por adelantado.
+  No mezclar aprobaciones de725 y3e ni convertir cancelaciones en aprobaciones.
 - Completar la matriz accion/estado/rol:421rutas/7roles/6401AST inventarian,
   pero no prueban que cada control de las14areas se haya ejecutado.
 - Cubrir estados UI/offline/transiciones no acreditados de invitado y estaciones;

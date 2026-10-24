@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/10/2026 - Reensayo independiente Codex de218/219 en3e45a4ac
+
+- **218 comprobada por285:** AdminSDK real al emulador demo,2criterios PASS:
+  el reintento acredita1000 y la respuesta tardia del intento fallido no vuelve
+  el aviso a pendiente; control positivo acredita una vez. Datos ficticios,
+  identidad/notificaciones y respaldos controlados; no proveedor ni cobro real.
+- **219 comprobada por286:** AdminSDK real al emulador demo,2criterios PASS:
+  firmaA en el borde real de actualizarFiesta impide guardar textoB y conserva
+  texto/huellaA; control de firma previa tambien rechaza.284 explica la
+  adaptacion del gancho al nuevo consumidor, no se aflojaron las aserciones.
+- Ambas limpiezas dejaron0documentos y devolvieron200; procesos propios cerrados.
+ 287 ejecuto3suites/16tests del autor PASS; no equivale a toda la app ni a dos
+ servidores reales.291 compilo fuente3e sin cambios de app por Codex.
+- **Contador QA, no app:**276/277 corrigen el parser del reporte Playwright:
+ proyecto vive en cada test, status expected/unexpected no es passed/failed,
+ identidad necesita spec.id y proyecto.8pruebas del parser PASS. Los542casos
+ ejecutados del baseline no son1144aprobados;273 preliminar queda archivado.
+
+
 ## 23/10/2026 - Órdenes 218 y 219 (Codex 263-264): las dos fallas, arregladas por Claude
 
 - **218, el aviso de pago que volvía a pendiente:** un intento A fallaba en el presupuesto (supera el

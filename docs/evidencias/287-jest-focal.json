@@ -1,0 +1,20 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "started": "2026-10-24T01:03:41.490Z",
+  "finished": "2026-10-24T01:04:00.165Z",
+  "exitCode": 0,
+  "tests": [
+    "src/__tests__/pago-aprobado-no-vuelve-pendiente-por-reintento.test.ts",
+    "src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts",
+    "src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts"
+  ],
+  "summary": {
+    "suites": 3,
+    "total": 16,
+    "passed": 16,
+    "failed": 0,
+    "pending": 0
+  },
+  "scope": "Existing author focal regressions only, their mocks retained. NOT full Jest, build, real multi-server/provider or native UI acceptance.",
+  "appEdited": false
+}
