@@ -34,6 +34,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Gemini 1353 (`ff4750107`): trae la orden 214 y las formas que mienten, pero no trajo la rama de Claude ni hizo la orden 228 (el PIN del cliente sigue vacío). Sigue devuelta.
 - Gemini 1353 (`d2f49f09f`, órdenes 226-227): devuelta con la orden 228 — sacaba `clientPortalSettings` al cliente (PIN vacío cancelaba la fiesta), acción nueva sin sesión, prueba vieja de la 224 y tres de navegador en rojo.
 - Codex 1361 (`fcad4e36e`, 362-443): juntado. Sobre la 917: 225 y 217 cerradas; siguen el fondo claro (otra regla) y la factura que dice "no existe" si falla la lectura → orden 227 (barrido: 10 pantallas). 214 sin cambios.
 - Gemini 1353 (`917a98e32`, órdenes 222-225): compila, 862 suites en verde, órdenes 220-225 HECHA. Frena en "lo que se dijo": cinco pantallas tocadas sin prueba y la de realidad aumentada con `toBeVisible` → orden 226 (sólo pruebas).
