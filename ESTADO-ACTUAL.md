@@ -34,6 +34,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Gemini 1353 (`3f9460185`): compila, pero no trajo la rama de Claude ni hizo los bloques 2 a 4 de la orden 222. Sigue devuelta.
 - Gemini 1353 (`b02fad0a3`, orden 221): devuelta por cuarta vez con la orden 222 (no compila, presupuesto de WhatsApp sin precios, formas que mienten, prueba de realidad aumentada vacía).
 - Gemini 1353 (`045123535`, orden 220): devuelta por tercera vez con la orden 221 (4 guardados con import sin usar, voz del cliente con token inventado, seña y saldo al personal, prueba de voz en rojo, pendientes de 196 y 202).
 - (antes) Gemini 1353 (`7f2b251e9`, órdenes 180-195, 212, 214, 215, 217): devuelta otra vez con la orden 220 (costos públicos sin permiso, prueba de la 183 sobre copias, un error de tipos, 6 guardados de lista entera, frase de la 190).
