@@ -34,6 +34,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Gemini 1353 (`917a98e32`, órdenes 222-225): compila, 862 suites en verde, órdenes 220-225 HECHA. Frena en "lo que se dijo": cinco pantallas tocadas sin prueba y la de realidad aumentada con `toBeVisible` → orden 226 (sólo pruebas).
 - Codex 1361 (`98f54f952`, 347-361): juntado. Volvió a probar la entrega 1353 (`3f9460185`): 212 A7/A8 y 217 R1-R4 pasan; 214 sigue igual. Nuevo: un 503 tomado por rechazo manda el recordatorio dos veces, y una prueba del asistente sin `mutarDocumento` → orden 225 para Gemini, pregunta 97.
 - Codex 1361 (`b8b839876`, 267-345): juntado. Dos hallazgos de pantalla: órdenes 223 (contraste, ampliada a 5 pantallas) y 224 (cargando infinito, ampliada a 14), las dos para Gemini.
 - Codex 1361 (`47d24689a`, 285-308): juntado. Confirma cerradas las órdenes 218 y 219; sin hallazgos nuevos. Su revisión de navegador sigue activa en esa misma rama.

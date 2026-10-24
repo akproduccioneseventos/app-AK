@@ -1169,6 +1169,16 @@ errores.
 **Qué se hace distinto:** antes de juntar una entrega, `npx tsc --noEmit` y `npm run "publicar?:rapido"`
 sobre una copia aparte. Sólo si dan verde, se junta y se corre la puerta completa.
 
+### 47. Pedir que se toque una pantalla sin pedir su prueba de navegador
+
+**Pasó el 24 de octubre de 2026, en la orden 224.** Pedí arreglar el "cargando para siempre" en 14 pantallas
+y la comprobación pedía una sola prueba. Cinco de esas pantallas no tenían ninguna, y la puerta frena toda
+pantalla tocada sin prueba: la entrega volvió por un descuido de la orden.
+
+**Qué se hace distinto:** antes de mandar a tocar pantallas, correr `node scripts/lo-que-se-dijo-es-lo-que-es.mjs`
+mentalmente: por cada pantalla de la lista, buscar si ya tiene prueba (`grep -rl "<ruta>" tests/e2e`). Las que
+no tienen, la orden pide la prueba con el texto del resultado (orden 226).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
