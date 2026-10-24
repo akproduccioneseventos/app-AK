@@ -563,6 +563,8 @@ fiesta.** Si falta una, el total miente y nadie lo ve, porque el número se mues
 
 ### 19. Si la pantalla se abre con datos en la dirección, ¿sobreviven a un rebote por el ingreso? Y si falta el dato, ¿lo dice o se queda cargando?
 
+**Ampliada el 24/10 (Codex 345, orden 224):** el barrido viejo miró el rebote y no la condición del cargando. Se busca `isLoading || !` (y `loading || !`) antes del `return` de la ruedita en `src/app`: si la lectura terminó sin dato, esa condición gira para siempre. La rama "no encontrado" va antes que la ruedita.
+
 Son dos mitades del mismo agujero, y las dos pasaron el mismo día:
 
 - El portero mandaba al ingreso guardando sólo la ruta y tiraba el `?fiestaId=...`. Al volver,
@@ -1398,3 +1400,13 @@ archivos y campos de plata adentro de la acción, no las llamadas a los ayudante
 Ahora el candado también cuenta como plata llamar a `guardarCostosInterno`, `mutarCostosInterno`,
 `mutarPresupuesto`, `addPagoToPresupuesto`, `registerBookingDeposit` o `saveInvoice`. Cuando aparece un
 ayudante nuevo que guarda plata, se suma a esa lista en `src/__tests__/el-candado-de-la-plata.test.ts`.
+
+### 96. Una regla de estilo general, ¿le cambia el COLOR DE FONDO a una pantalla que se pensó oscura?
+
+Codex 341 (orden 223). La regla `main.flex-1 { background:#f8fafc }` de `ak-global-premium.css` pintaba casi
+blanco el fondo de cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología), y su texto
+claro quedaba ilegible. La pregunta 52 miraba lugar y tamaño, no color.
+
+Por cada regla de alcance general (`main`, `body`, `> *`, clases de marca) que pone `background` o `color`, se
+buscan las pantallas que la reciben y escriben texto claro (`text-white`, `text-slate-100`…). La prueba mide
+el color calculado del fondo (`getComputedStyle`), no la clase escrita.

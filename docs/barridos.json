@@ -380,6 +380,10 @@
     "95": {
       "fecha": "2026-10-23",
       "resultado": "barrida por el candado de la plata en todas las acciones del servidor: en la rama de Claude, ninguna acción llama a un ayudante de plata sin pedir permiso; en la entrega 1353 de Gemini frena updateGestionCostosInterno (devuelta en la orden 220)."
+    },
+    "96": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src/app y los .css globales: la única regla general que pinta fondo es main.flex-1 en ak-global-premium.css; tiñe cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz en la orden 223 para Gemini."
     }
   },
   "hallazgos": {
