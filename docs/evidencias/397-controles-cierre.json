@@ -1,0 +1,100 @@
+{
+  "at": "2026-10-24T17:51:12.281Z",
+  "kind": "DOCUMENTATION_AND_RECEIPT_CONSISTENCY_NOT_ANOTHER_APP_TEST",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "canonical": {
+    "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+    "exit": 0,
+    "suites": 862,
+    "total": 5243,
+    "pass": 5243,
+    "fail": 0,
+    "pending": 0,
+    "scope": "Canonical existing full suite on NEW frozen917 source, original configuration/assertions, no custom370 adapter"
+  },
+  "additionalInvoice": {
+    "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+    "exit": 1,
+    "suites": 1,
+    "total": 3,
+    "pass": 2,
+    "fail": 1,
+    "pending": 0,
+    "scope": "Additional focused QA, not canonical suite or global acceptance"
+  },
+  "reminders": {
+    "total": 10,
+    "pass": 10,
+    "fail": 0
+  },
+  "nativeCounts": {
+    "total": 210,
+    "passed": 159,
+    "failedOrTimedOut": 17,
+    "skipped": 34,
+    "other": 0
+  },
+  "buildNotStarted": true,
+  "native393394NotExecuted": true,
+  "qa": [
+    {
+      "receipt": "364-retest-siete-suites.json",
+      "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-363-3f-ccnKr1",
+      "head": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+      "sourceDiff": ""
+    },
+    {
+      "receipt": "366-entorno.json",
+      "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01",
+      "head": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+      "sourceDiff": ""
+    },
+    {
+      "receipt": "385-delta-publico.json",
+      "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-385-917-tEHgNw",
+      "head": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+      "sourceDiff": ""
+    },
+    {
+      "receipt": "392-entorno.json",
+      "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-392-candidate-02Lhke",
+      "head": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+      "sourceDiff": ""
+    }
+  ],
+  "stateLines": 40,
+  "allowedTrackedChanges": [
+    "ESTADO-ACTUAL.md",
+    "docs/YA-RESUELTO.md",
+    "docs/evidencias/253-recuento-unico-auditoria.md",
+    "docs/ordenes/217-recordatorios-autorizacion-fecha-y-fallos.md",
+    "docs/ordenes/220-gemini-barra-contraste-pantalla-listo.md",
+    "docs/ordenes/221-claude-factura-ausente-no-carga-infinita.md"
+  ],
+  "qaScriptsSyntaxChecked": [
+    "363-primer-intento.mjs",
+    "363-retest-siete-suites.mjs",
+    "366-entorno-actual.mjs",
+    "366-preparar-qa-nativos.mjs",
+    "367-reensayar-nativos-pendientes.mjs",
+    "370-atomic-fixture.cjs",
+    "370-v1-sin-contrato-anidado.cjs",
+    "371-diagnostico-contrato-atomico.mjs",
+    "373-reensayo-nativo-corregido.mjs",
+    "375-recuperar-limpieza-diagnostico.mjs",
+    "376-diagnostico-atomico-completo.mjs",
+    "377-aislar-barra-y-fecha.mjs",
+    "382-verificar-fecha-observada.mjs",
+    "385-validar-delta-publico.mjs",
+    "388-primer-control-qa.mjs",
+    "388-retest-recordatorio-entrega.mjs",
+    "390-conciliar-resultados.mjs",
+    "392-compilar-entrega-final.mjs",
+    "392-entorno-actual.mjs",
+    "394-validar-consumidores-finales.mjs",
+    "397-verificar-cierre.mjs",
+    "399-empaquetar-cierre.mjs"
+  ],
+  "bookkeepingAdjustment": "First check rejected41-line ESTADO; one blank line removed to comply40. No app tests were rerun or changed.",
+  "appEdited": false
+}

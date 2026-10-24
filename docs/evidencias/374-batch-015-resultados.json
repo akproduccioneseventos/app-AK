@@ -1,0 +1,605 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "374-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-015-artifacts",
+      "ak207-mobile-overflow.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\374-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/374-batch-015-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/374-batch-015-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-015-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-mobile-overflow.spec.ts",
+      "file": "ak207-mobile-overflow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "sin desborde horizontal en celular",
+          "file": "ak207-mobile-overflow.spec.ts",
+          "line": 54,
+          "column": 6,
+          "specs": [
+            {
+              "title": "rutas internas del staff",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 320695,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-mobile-overflow.spec.ts",
+                            "column": 35,
+                            "line": 66
+                          },
+                          "message": "Error: page.goto: Test timeout of 300000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/fiestas/nueva/gestion-costos-rentabilidad\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  64 |\n  65 |     for (const ruta of RUTAS_INTERNAS) {\n> 66 |       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });\n     |                                   ^\n  67 |       expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);\n  68 |       expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);\n  69 |       // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-mobile-overflow.spec.ts:66:35"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-24T16:15:16.930Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-015-artifacts\\ak207-mobile-overflow-sin--1d2ef-ar-rutas-internas-del-staff-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-015-artifacts\\ak207-mobile-overflow-sin--1d2ef-ar-rutas-internas-del-staff-chromium-desktop\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8f99893a4cb0377c6e65-b3fbadd8b2a811d41d5a",
+              "file": "ak207-mobile-overflow.spec.ts",
+              "line": 55,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T16:15:15.632Z",
+    "duration": 326236.511,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

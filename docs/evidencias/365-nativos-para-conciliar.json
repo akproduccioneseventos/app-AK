@@ -1,0 +1,223 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "derivedFrom": "318-conciliacion-cierre.json",
+  "notNewExecution": true,
+  "cases": [
+    {
+      "file": "143-cocina-fecha-local.spec.ts",
+      "title": "ak207-143-cocina-fecha-local.spec.ts › fecha civil del evento se conserva en hoja de cocina y modo impresion",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "296-batch-001-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-143-cocina-fecha-local.spec.ts\",\"column\":86,\"line\":38},\"message\":\"TimeoutError: locator.screenshot: Timeout 4904.5869999999995ms exceeded.\\nCall log:\\n  - taking element screenshot\\n  - waiting for fonts to load...\\n  - fonts loaded\\n  - attempting scroll into view action\\n    - waiting for element to be stable\\n\\n\\n  36 |     fixtureDate: fiesta.configuracion.fechaEvento, expectedCivilDate: [8, 8, 2027], screen, printed, timezone,\\n  37 |   })) });\\n> 38 |   await info.attach('cabecera.jpeg', { contentType: 'image/jpeg', body: await header.screenshot({ type: 'jpeg', quality: 65, timeout: 5000 }) });\\n     |                                                                                      ^\\n  39 |   const civilParts = (text: string) => text.match(/(\\\\d{1,2})\\\\/(\\\\d{1,2})\\\\/(\\\\d{4})/)?.slice(1).map(Number);\\n  40 |   expect(civilParts(screen)).toEqual([8, 8, 2027]);\\n  41 |   expect(civilParts(printed)).toEqual([8, 8, 2027]);\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-143-cocina-fecha-local.spec.ts:38:86\"}]"
+    },
+    {
+      "file": "48-fotocabina-recuerdo-seguro.spec.ts",
+      "title": "ak207-48-fotocabina-recuerdo-seguro.spec.ts › Orden 48: la fotocabina levanta y deja sacar la foto › ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "report": "296-batch-001-resultados.json",
+      "error": "[{\"message\":\"Tearing down \\\"context\\\" exceeded the test timeout of 90000ms.\"},{\"message\":\"Fixture \\\"trace recording\\\" timeout of 90000ms exceeded during teardown.\"},{\"message\":\"Error: browserContext.close: Test ended.\\nBrowser logs:\\n\\n<launching> C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\ms-playwright\\\\chromium_headless_shell-1228\\\\chrome-headless-shell-win64\\\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1 --use-angle=swiftshader --enable-unsafe-swiftshader --user-data-dir=C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp"
+    },
+    {
+      "file": "48-touchpix-entrega-sin-reinicio.spec.ts",
+      "title": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts › Orden 48: Touchpix levanta entero › ENT-03: sesion segura - subida lenta de A no pisa la sesion de B al llegar tarde",
+      "project": "chromium-mobile",
+      "status": "timedOut",
+      "report": "296-batch-001-resultados.json",
+      "error": "[{\"message\":\"Test timeout of 90000ms exceeded.\"},{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-48-touchpix-entrega-sin-reinicio.spec.ts\",\"column\":26,\"line\":117},\"message\":\"Error: locator.click: Test timeout of 90000ms exceeded.\\nCall log:\\n  - waiting for locator('button:has-text(\\\"Repetir\\\"), button:has-text(\\\"← Repetir\\\")').first()\\n    - locator resolved to <button class=\\\"flex flex-col items-center gap-1.5 text-zinc-400 hover:text-white transition\\\">…</button>\\n  - attempting click action\\n    - waiting for element to be visible, enabled and stable\\n    - element is visible, enabled and stable\\n    - scrolling into view if needed\\n  - element was detached from the DOM, retrying\\n\\n\\n  115 |     const botonRepetir = page.locator('button:has-text(\\\"Repetir\\\"), button:has-text(\\\"← Repetir\\\")').first();\\n  116 |     if (await botonRepetir.isVisible()) {\\n> 117 |       await botonRepetir.click();\\n      |                          ^\\n  118 |     } else {\\n  119 |       await page.locator('[data-testid=\\\"touchpix-tab-foto\\\"]').click();\\n  120 |     }\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-48-touchpix-entrega-sin-reinicio.spec.ts:117:26\"}]"
+    },
+    {
+      "file": "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts › Orden 89 — Bloque 2: La barra no ofrece lo agotado › trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "report": "310-batch-001-resultados.json",
+      "error": "[{\"message\":\"Test timeout of 90000ms exceeded.\"}]"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-002-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts\",\"column\":31,\"line\":99},\"message\":\"Error: expect(locator).toBeVisible() failed\\n\\nLocator: getByRole('button', { name: /publicar en el muro/i })\\nExpected: visible\\nTimeout: 25000ms\\nError: element(s) not found\\n\\nCall log:\\n  - Expect \\\"toBeVisible\\\" with timeout 25000ms\\n  - waiting for getByRole('button', { name: /publicar en el muro/i })\\n\\n\\n   97 |     // Esperar a que pase la captura y aparezca la vista previa con el botón para publicar\\n   98 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\\n>  99 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\\n      |                               ^\\n  100 |     await btnPublicar.click();\\n  101 |\\n  102 |     // Debe mostrar que quedó guardada en el equipo\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:99:31\"}]"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-002-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts\",\"column\":31,\"line\":139},\"message\":\"Error: expect(locator).toBeVisible() failed\\n\\nLocator: getByRole('button', { name: /publicar en el muro/i })\\nExpected: visible\\nTimeout: 25000ms\\nError: element(s) not found\\n\\nCall log:\\n  - Expect \\\"toBeVisible\\\" with timeout 25000ms\\n  - waiting for getByRole('button', { name: /publicar en el muro/i })\\n\\n\\n  137 |\\n  138 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\\n> 139 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\\n      |                               ^\\n  140 |     await btnPublicar.click();\\n  141 |\\n  142 |     // Debe informar el error de rechazo\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:139:31\"}]"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "report": "310-batch-002-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts\",\"column\":31,\"line\":99},\"message\":\"Error: expect(locator).toBeVisible() failed\\n\\nLocator: getByRole('button', { name: /publicar en el muro/i })\\nExpected: visible\\nTimeout: 25000ms\\nError: element(s) not found\\n\\nCall log:\\n  - Expect \\\"toBeVisible\\\" with timeout 25000ms\\n  - waiting for getByRole('button', { name: /publicar en el muro/i })\\n\\n\\n   97 |     // Esperar a que pase la captura y aparezca la vista previa con el botón para publicar\\n   98 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\\n>  99 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\\n      |                               ^\\n  100 |     await btnPublicar.click();\\n  101 |\\n  102 |     // Debe mostrar que quedó guardada en el equipo\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:99:31\"}]"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "report": "310-batch-002-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts\",\"column\":31,\"line\":139},\"message\":\"Error: expect(locator).toBeVisible() failed\\n\\nLocator: getByRole('button', { name: /publicar en el muro/i })\\nExpected: visible\\nTimeout: 25000ms\\nError: element(s) not found\\n\\nCall log:\\n  - Expect \\\"toBeVisible\\\" with timeout 25000ms\\n  - waiting for getByRole('button', { name: /publicar en el muro/i })\\n\\n\\n  137 |\\n  138 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\\n> 139 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\\n      |                               ^\\n  140 |     await btnPublicar.click();\\n  141 |\\n  142 |     // Debe informar el error de rechazo\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:139:31\"}]"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › /quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-004-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-carga-rapido.spec.ts\",\"column\":73,\"line\":46},\"message\":\"Error: /quinceaneras debe cargar dentro de 2500 ms\\n\\nexpect(received).toBeLessThanOrEqual(expected)\\n\\nExpected: <= 2500\\nReceived:    2908\\n\\n  44 |       // En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\\n  45 |       const limite = process.env.NODE_ENV === 'production' ? LIMITE_CARGA_MS : 10_000;\\n> 46 |       expect(tiempoCarga, `${ruta} debe cargar dentro de ${limite} ms`).toBeLessThanOrEqual(limite);\\n     |                                                                         ^\\n  47 |     });\\n  48 |   }\\n  49 | });\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-carga-rapido.spec.ts:46:73\"}]"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts › time capsule exposes every media mode and records the configured frame",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "report": "310-batch-006-resultados.json",
+      "error": "[{\"message\":\"Test timeout of 90000ms exceeded.\"},{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-entertainment-stations.spec.ts\",\"column\":20,\"line\":172},\"message\":\"Error: locator.click: Test timeout of 90000ms exceeded.\\nCall log:\\n  - waiting for getByRole('button', { name: /Detener Grabación/i })\\n    - locator resolved to <button class=\\\"w-full py-3.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-transform active:scale-95\\\">…</button>\\n  - attempting click action\\n    - waiting for element to be visible, enabled and stable\\n  - element was detached from the DOM, retrying\\n\\n\\n  170 |   await expect(stopButton).toBeVisible();\\n  171 |   await page.waitForTimeout(1_000);\\n> 172 |   await stopButton.click();\\n      |                    ^\\n  173 |   // La etiqueta se llama \\\"Video Grabado\\\", no \\\"Video Analogico\\\". Se verifico en\\n  174 |   // `src/app/evento/buzon/[fiestaId]/page.tsx`: el paso de revision existe y\\n  175 |   // funciona, solo cambio el texto. La prueba habia quedado con el nombre viejo.\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-entertainment-stations.spec.ts:172:20\"}]"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts › time capsule bakes the configured frame into an uploaded gallery video",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-006-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-entertainment-stations.spec.ts\",\"column\":49,\"line\":249},\"message\":\"Error: expect(locator).toBeVisible() failed\\n\\nLocator: getByText('Video Cargado')\\nExpected: visible\\nTimeout: 45000ms\\nError: element(s) not found\\n\\nCall log:\\n  - Expect \\\"toBeVisible\\\" with timeout 45000ms\\n  - waiting for getByText('Video Cargado')\\n\\n\\n  247 |   });\\n  248 |\\n> 249 |   await expect(page.getByText('Video Cargado')).toBeVisible();\\n      |                                                 ^\\n  250 |   const reviewVideo = page.locator('video[src^=\\\"blob:\\\"]').first();\\n  251 |   await expect(reviewVideo).toBeVisible();\\n  252 |   await expect.poll(async () => reviewVideo.evaluate(async (element) => {\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-entertainment-stations.spec.ts:249:49\"}]"
+    },
+    {
+      "file": "internal-dynamic-route-inventory.spec.ts",
+      "title": "ak207-internal-dynamic-route-inventory.spec.ts › representative dynamic screens hydrate without browser errors",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-007-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-internal-dynamic-route-inventory.spec.ts\",\"column\":41,\"line\":292},\"message\":\"Error: /empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\\n/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\\n/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\\n/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\\n\\nexpect(received).toEqual(expected) // deep equality\\n\\n- Expected  - 1\\n+ Received  + 6\\n\\n- Array []\\n+ Array [\\n+   \\\"/empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\\\",\\n+   \\\"/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\\\",\\n+   \\\"/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\\\",\\n+   \\\"/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\\\",\\n+ ]\\n\\n  290 |   }\\n  291 |\\n> 292 |   expect(failures, failures.join('\\\\n')).toEqual([]);\\n      |                                         ^\\n  293 | });\\n  294 |\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-internal-dynamic-route-inventory.spec.ts:292:41\"}]"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-008-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-la-grilla-de-caras.spec.ts\",\"column\":89,\"line\":288},\"message\":\"Error: muestra la pantalla de resultados, armada en el propio teléfono\\n\\nexpect(received).toBeGreaterThan(expected)\\n\\nExpected: > 0\\nReceived:   0\\n\\n  286 |       if (await titulos.nth(i).isVisible()) visibles += 1;\\n  287 |     }\\n> 288 |     expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);\\n      |                                                                                         ^\\n  289 |   });\\n  290 | });\\n  291 |\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-la-grilla-de-caras.spec.ts:288:89\"}]"
+    },
+    {
+      "file": "la-hoja-de-cocina.spec.ts",
+      "title": "ak207-la-hoja-de-cocina.spec.ts › la hoja de cocina se abre, se puede imprimir y avisa si falta cargar algo",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-009-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-la-hoja-de-cocina.spec.ts\",\"column\":66,\"line\":75},\"message\":\"Error: la hoja no se rompe por dentro\\n\\nexpect(received).toBe(expected) // Object.is equality\\n\\nExpected: \\\"\\\"\\nReceived: \\\"Failed to fetch\\\"\\n\\n  73 |   // 4. Nada de basura tecnica delante de quien la usa.\\n  74 |   expect(texto, 'no muestra texto tecnico').not.toMatch(/undefined|\\\\[object Object\\\\]|NaN|is not a valid/i);\\n> 75 |   expect(erroresJs.join('\\\\n'), 'la hoja no se rompe por dentro').toBe('');\\n     |                                                                  ^\\n  76 | });\\n  77 |\\n  78 | test('desde la comida se llega a la hoja de cocina en un toque', async ({ context, page }, testInfo) => {\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-la-hoja-de-cocina.spec.ts:75:66\"}]"
+    },
+    {
+      "file": "la-web-de-venta-no-se-rompe.spec.ts",
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts › las pantallas de venta se abren solas sin romperse por dentro",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "report": "310-batch-010-resultados.json",
+      "error": "[{\"message\":\"Test timeout of 240000ms exceeded.\"},{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-la-web-de-venta-no-se-rompe.spec.ts\",\"column\":5,\"line\":72},\"message\":\"Error: browserContext.close: Test ended.\\nBrowser logs:\\n\\n<launching> C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\ms-playwright\\\\chromium_headless_shell-1228\\\\chrome-headless-shell-win64\\\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1 --use-angle=swiftshader --enable-unsafe-swiftshader --user-data-di"
+    },
+    {
+      "file": "las-estaciones-respetan-los-ajustes.spec.ts",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts › cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-012-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-las-estaciones-respetan-los-ajustes.spec.ts\",\"column\":60,\"line\":167},\"message\":\"Error: Bogue: no llego a la pantalla de compartir en 90 segundos\\n\\nexpect(received).toBe(expected) // Object.is equality\\n\\nExpected: \\\"\\\"\\nReceived: \\\"Bogue: no llego a la pantalla de compartir en 90 segundos\\\"\\n\\n  165 |   }\\n  166 |\\n> 167 |   expect(noLoRespetan.join('\\\\n'), noLoRespetan.join('\\\\n')).toBe('');\\n      |                                                            ^\\n  168 | });\\n  169 |\\n  170 | test('el buzón respeta la cuenta regresiva que puso el equipo', async ({ page }, testInfo) => {\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-las-estaciones-respetan-los-ajustes.spec.ts:167:60\"}]"
+    },
+    {
+      "file": "layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts › huella de maquetación › las pantallas de referencia mantienen su geometría",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-014-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-layout-baseline.spec.ts\",\"column\":74,\"line\":229},\"message\":\"Error: La maquetación cambió:\\n  /presupuestos/nuevo · h1W: era 212, ahora 216\\n\\nexpect(received).toEqual(expected) // deep equality\\n\\n- Expected  - 1\\n+ Received  + 3\\n\\n- Array []\\n+ Array [\\n+   \\\"/presupuestos/nuevo · h1W: era 212, ahora 216\\\",\\n+ ]\\n\\n  227 |\\n  228 |     expect(absolutos, `Pantallas con defectos propios:\\\\n  ${absolutos.join('\\\\n  ')}`).toEqual([]);\\n> 229 |     expect(desvios, `La maquetación cambió:\\\\n  ${desvios.join('\\\\n  ')}`).toEqual([]);\\n      |                                                                          ^\\n  230 |   });\\n  231 | });\\n  232 |\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-layout-baseline.spec.ts:229:74\"}]"
+    },
+    {
+      "file": "layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts › huella de maquetación › las pantallas de referencia mantienen su geometría",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "report": "310-batch-014-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-layout-baseline.spec.ts\",\"column\":74,\"line\":229},\"message\":\"Error: La maquetación cambió:\\n  /admin · h1W: era 101, ahora 98\\n\\nexpect(received).toEqual(expected) // deep equality\\n\\n- Expected  - 1\\n+ Received  + 3\\n\\n- Array []\\n+ Array [\\n+   \\\"/admin · h1W: era 101, ahora 98\\\",\\n+ ]\\n\\n  227 |\\n  228 |     expect(absolutos, `Pantallas con defectos propios:\\\\n  ${absolutos.join('\\\\n  ')}`).toEqual([]);\\n> 229 |     expect(desvios, `La maquetación cambió:\\\\n  ${desvios.join('\\\\n  ')}`).toEqual([]);\\n      |                                                                          ^\\n  230 |   });\\n  231 | });\\n  232 |\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-layout-baseline.spec.ts:229:74\"}]"
+    },
+    {
+      "file": "limpiar-la-agenda.spec.ts",
+      "title": "ak207-limpiar-la-agenda.spec.ts › la pantalla de sincronizaciones ofrece limpiar la agenda y contesta al tocarla",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-016-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-limpiar-la-agenda.spec.ts\",\"column\":70,\"line\":60},\"message\":\"Error: la pantalla no se rompe por dentro\\n\\nexpect(received).toBe(expected) // Object.is equality\\n\\nExpected: \\\"\\\"\\nReceived: \\\"Failed to fetch\\\"\\n\\n  58 |   const texto = ((await page.locator('body').innerText().catch(() => '')) || '').replace(/\\\\s+/g, ' ');\\n  59 |   expect(texto, 'no muestra texto tecnico').not.toMatch(/undefined|\\\\[object Object\\\\]|is not a valid/i);\\n> 60 |   expect(erroresJs.join('\\\\n'), 'la pantalla no se rompe por dentro').toBe('');\\n     |                                                                      ^\\n  61 | });\\n  62 |\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-limpiar-la-agenda.spec.ts:60:70\"}]"
+    },
+    {
+      "file": "mobile-overflow.spec.ts",
+      "title": "ak207-mobile-overflow.spec.ts › sin desborde horizontal en celular › rutas internas del staff",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "report": "310-batch-018-resultados.json",
+      "error": "[{\"message\":\"Test timeout of 300000ms exceeded.\"}]"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › las pantallas del equipo funcionan con una fiesta real",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-020-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-noche-de-fiesta.spec.ts\",\"column\":7,\"line\":220},\"message\":\"Error: Pantallas del equipo con problemas:\\n  /fiestas/e2e_noche_1792812933166/centro → falla de JavaScript: Failed to fetch\\n\\nexpect(received).toEqual(expected) // deep equality\\n\\n- Expected  - 1\\n+ Received  + 6\\n\\n- Array []\\n+ Array [\\n+   Object {\\n+     \\\"problema\\\": \\\"falla de JavaScript: Failed to fetch\\\",\\n+     \\\"ruta\\\": \\\"/fiestas/e2e_noche_1792812933166/centro\\\",\\n+   },\\n+ ]\\n\\n  218 |       problemas,\\n  219 |       `Pantallas del equipo con problemas:\\\\n  ${problemas.map((p) => `${p.ruta} → ${p.problema}`).join('\\\\n  ')}`,\\n> 220 |     ).toEqual([]);\\n      |       ^\\n  221 |   });\\n  222 |\\n  223 |   test('el control de entrada marca el ingreso de un invitado', async ({ page, context, baseURL }) => {\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-noche-de-fiesta.spec.ts:220:7\"}]"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › las pantallas del equipo funcionan con una fiesta real",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "report": "310-batch-020-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-noche-de-fiesta.spec.ts\",\"column\":7,\"line\":220},\"message\":\"Error: Pantallas del equipo con problemas:\\n  /fiestas/e2e_noche_1792813290242/centro → falla de JavaScript: Failed to fetch\\n\\nexpect(received).toEqual(expected) // deep equality\\n\\n- Expected  - 1\\n+ Received  + 6\\n\\n- Array []\\n+ Array [\\n+   Object {\\n+     \\\"problema\\\": \\\"falla de JavaScript: Failed to fetch\\\",\\n+     \\\"ruta\\\": \\\"/fiestas/e2e_noche_1792813290242/centro\\\",\\n+   },\\n+ ]\\n\\n  218 |       problemas,\\n  219 |       `Pantallas del equipo con problemas:\\\\n  ${problemas.map((p) => `${p.ruta} → ${p.problema}`).join('\\\\n  ')}`,\\n> 220 |     ).toEqual([]);\\n      |       ^\\n  221 |   });\\n  222 |\\n  223 |   test('el control de entrada marca el ingreso de un invitado', async ({ page, context, baseURL }) => {\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-noche-de-fiesta.spec.ts:220:7\"}]"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › decoracion/pdf: cada zona contratada muestra su icono y su nombre",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-022-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-pantallas-con-iconos-react19.spec.ts\",\"column\":70,\"line\":93},\"message\":\"Error: la pantalla no se rompe por dentro\\n\\nexpect(received).toBe(expected) // Object.is equality\\n\\nExpected: \\\"\\\"\\nReceived: \\\"Failed to fetch\\\"\\n\\n  91 |   const texto = ((await page.locator('body').innerText()) || '').replace(/\\\\s+/g, ' ');\\n  92 |   expect(texto).not.toMatch(/undefined|\\\\[object Object\\\\]|NaN/);\\n> 93 |   expect(erroresJs.join('\\\\n'), 'la pantalla no se rompe por dentro').toBe('');\\n     |                                                                      ^\\n  94 | });\\n  95 |\\n  96 | test('experiencia-mundial: los seis bloques del recorrido muestran icono, titulo y estado', async ({ context, page }, testInfo) => {\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-pantallas-con-iconos-react19.spec.ts:93:70\"}]"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › experiencia-mundial: los seis bloques del recorrido muestran icono, titulo y estado",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-022-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-pantallas-con-iconos-react19.spec.ts\",\"column\":70,\"line\":129},\"message\":\"Error: la pantalla no se rompe por dentro\\n\\nexpect(received).toBe(expected) // Object.is equality\\n\\nExpected: \\\"\\\"\\nReceived: \\\"Failed to fetch\\\"\\n\\n  127 |\\n  128 |   expect(cuerpo).not.toMatch(/undefined|\\\\[object Object\\\\]|NaN/);\\n> 129 |   expect(erroresJs.join('\\\\n'), 'la pantalla no se rompe por dentro').toBe('');\\n      |                                                                      ^\\n  130 | });\\n  131 |\\n  132 | test('zona-digital: las doce funciones muestran su icono, su nombre y su interruptor', async ({ context, page }, testInfo) => {\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-pantallas-con-iconos-react19.spec.ts:129:70\"}]"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › zona-digital: las doce funciones muestran su icono, su nombre y su interruptor",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-022-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-pantallas-con-iconos-react19.spec.ts\",\"column\":70,\"line\":170},\"message\":\"Error: la pantalla no se rompe por dentro\\n\\nexpect(received).toBe(expected) // Object.is equality\\n\\nExpected: \\\"\\\"\\nReceived: \\\"Failed to fetch\\\"\\n\\n  168 |   expect(texto).toContain('requiere equipo');\\n  169 |   expect(texto).not.toMatch(/undefined|\\\\[object Object\\\\]|NaN/);\\n> 170 |   expect(erroresJs.join('\\\\n'), 'la pantalla no se rompe por dentro').toBe('');\\n      |                                                                      ^\\n  171 | });\\n  172 |\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-pantallas-con-iconos-react19.spec.ts:170:70\"}]"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-023-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-pantallas-tocadas-tanda-12-10.spec.ts\",\"column\":21,\"line\":91},\"message\":\"Error: expect(received).toEqual(expected) // deep equality\\n\\n- Expected  - 1\\n+ Received  + 3\\n\\n- Array []\\n+ Array [\\n+   \\\"Failed to fetch\\\",\\n+ ]\\n\\n  89 |   await expect(page.getByText(NOMBRE_B).first()).toBeVisible({ timeout: 30_000 });\\n  90 |   await expect(page.getByText(NOMBRE_A)).toHaveCount(0);\\n> 91 |   expect(erroresJs).toEqual([]);\\n     |                     ^\\n  92 | });\\n  93 |\\n  94 | test('/incidentes: después de guardar una incidencia, \\\"Nueva incidencia\\\" abre con el título vacío', async ({ page }) => {\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:91:21\"}]"
+    },
+    {
+      "file": "prospecto-simulador.spec.ts",
+      "title": "ak207-prospecto-simulador.spec.ts › recorrido del prospecto › llega desde el simulador hasta ver un precio",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "report": "310-batch-024-resultados.json",
+      "error": "[{\"location\":{\"file\":\"C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-prospecto-simulador.spec.ts\",\"column\":83,\"line\":115},\"message\":\"Error: El prospecto llegó al final pero no tiene cómo cerrar\\n\\nexpect(locator).toBeVisible() failed\\n\\nLocator: getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first()\\nExpected: visible\\nTimeout: 20000ms\\nError: element(s) not found\\n\\nCall log:\\n  - El prospecto llegó al final pero no tiene cómo cerrar with timeout 20000ms\\n  - waiting for getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first()\\n\\n\\n  113 |     // Y tiene que poder cerrar: o generar el presupuesto o escribirle a AK.\\n  114 |     const cierre = page.getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first();\\n> 115 |     await expect(cierre, 'El prospecto llegó al final pero no tiene cómo cerrar').toBeVisible({ timeout: 20_000 });\\n      |                                                                                   ^\\n  116 |\\n  117 |     expect(erroresJs, `El simulador tuvo fallas de JavaScript:\\\\n${erroresJs.join('\\\\n')}`).toEqual([]);\\n  118 |   });\\n    at C:\\\\Users\\\\Usuario\\\\AppData\\\\Local\\\\Temp\\\\ak-qa-280-gzMK2z\\\\tests\\\\e2e\\\\ak207-prospecto-simulador.spec.ts:115:83\"}]"
+    }
+  ]
+}

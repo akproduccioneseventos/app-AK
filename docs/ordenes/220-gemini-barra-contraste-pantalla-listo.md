@@ -42,8 +42,41 @@ Prueba nueva propuestaPENDIENTE de crear y ejecutar porGemini/Claude.
 La presencia de este documento o del archivo de prueba NO significa correccion.
 Codex solo audito y documento; no modifico la app.
 
+## Contraste de entrega final
+
+917a98e32c63fe2f832f5cdc16db87f4fc722b6c QUITA el selector main.flex-1 de
+ak-global-premium.css y conserva la clase explicita ak-global-main-surface.
+Esa correccion ESTA PRESENTE; no reprogramar el selector antiguo3e/3f.
+Claude la referencia como su orden223 ampliada, no confundir numeraciones.
+Este contraste no es una captura ni medicion computada de la entrega917.
+La evidencia nativa posterior, si se completa, se identifica en400-informe-final.md.
+
+## Verificacion nativa423: correccion INCOMPLETA, misma causa visual
+
+Fuente compilada917/build406, FirestoreSDKdemo real y datos ficticios.
+425 ejecuta423 en PC y Pixel7: DOS criteriosFAIL del MISMO defecto220.
+Titulo claro sobre gradiente casi blanco, contraste raster real1.390:1 PC y
+1.376:1 movil.416-barra-desktop.png tambien fue revisada visualmente.
+
+La otra regla SIGUE aplicandose: src/app/ak-internal-experience-polish.css:1-7,
+main.flex-1 > div:first-child. Su background-image acaba en linear-gradient
+blanco/#f8fafc. RootLayout lo importa en src/app/layout.tsx:8. La pagina
+PantallaTragoListoPage conserva ese hijo directo con titulo text-slate-300.
+No es el selector main.flex-1 ya quitado de ak-global-premium.css.
+Acotar ESTE selector interno sin recolorear todas las pantallas ni alterar
+pedidos/permisos. Mantener controles de pagina interna y pedidos listos.
+
+393/410 habia dadoPASS porque su calculo ignoraba background-image; ese
+positivo es INVALIDO para contraste, no una aprobacion de la correccion.
+423 usa captura raster, muestras de fondo y foreground computado; conserva
+ambos resultados y el ancestroCSS, sin ocultar el error de nuestra sonda.
+Proponer/comprobar la regresion en la pantalla, no solo borrar texto deCSS.
+No nueva orden223/220 duplicada: completar esta misma entrega.
+
 ```comprobar
 archivo: src/app/ak-global-premium.css
+archivo: src/app/ak-internal-experience-polish.css
 usa: PantallaTragoListoPage en src/app/evento/barra/[fiestaId]/listo/page.tsx
 prueba: tests/e2e/barra-listo-contraste.spec.ts
+prueba: docs/evidencias/423-barra-pixeles.spec.ts
 ```

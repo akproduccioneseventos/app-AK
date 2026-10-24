@@ -40,6 +40,30 @@ La apertura generica previa sin cuerpo, por si sola, no daba esa prueba causal.
 La bateria existente321 sigue siendo834suites/5136PASS en3e.345 es una sonda
 nueva y focal, no un cambio del resultado historico ni una aceptacion de3f.
 
+## Retest final387 - misma orden, no un nuevo encargo
+
+Fuente publica1353:917a98e32c63fe2f832f5cdc16db87f4fc722b6c.
+En390 tambien se observo HEAD privado igual917, sin cambios tracked, a las
+17:21UTC del24/10. Cambios privados posteriores no publicados NO CONTRASTADOS.
+Claude la referencia como su orden224: NO confundir con la otra221 deGemini.
+
+El caso original null YA ESTA CORREGIDO:387 controlPASS, sin spinner y con
+estado de ausencia. La lectura pendiente tambienPASS, mantiene carga.
+Permanece UNA variante del estado de error: getInvoiceById resuelve una
+factura ficticia valida de1000, pero getInvoiceTemplateSettings rechaza con
+QA387_TEMPORARY_READ_FAILURE. El componente avisa por toast y despues deja
+en el cuerpo: Factura no encontrada / no existe o fue eliminada.
+Resultado observado387:2PASS/1FAIL, asercion de texto; no timeout del equipo.
+No se demostro desaparicion de factura ni error contable.
+
+Completar la separacion YA pedida entre error y ausencia: si falla una lectura,
+mostrar estado persistente No se pudo cargar y reintento/volver, conservando
+permisos. No declarar inexistencia ni eliminacion a partir de un rechazo.
+No cambiar importes ni cobros. Usar387-factura-error-no-es-ausencia.test.tsx
+como reproduccion adicional y conservar los controles de null y pendiente.
+La bateria canonica386 pasa862suites/5243tests en917; esta sonda adicional
+demuestra un hueco no cubierto por ella, no contradice su resultado verde.
+
 ```comprobar
 archivo: src/app/(app)/invoices/[id]/page.tsx
 usa: ViewInvoicePage en src/app/(app)/invoices/[id]/page.tsx

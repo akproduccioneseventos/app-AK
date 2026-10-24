@@ -87,6 +87,20 @@ Prueba de regresion propuesta PENDIENTE abajo; no existe/ejecuto porCodex.
 
 <!-- Claude, 22/10: R1 hecho por Claude. R2-R4 los programa Gemini (orden 215, bloque 6); estas
      líneas dejan la orden a medias hasta que lleguen. -->
+## Retest final388 - cerrada por este alcance
+
+Fuente publica1353:917a98e32c63fe2f832f5cdc16db87f4fc722b6c.
+388 ejecuta los diez criterios:10PASS/0FAIL. Los ocho originales y las DOS
+variantes503 pasan. Un trace incidental qa403 ya no invalida status503:
+conserva revisarEnvio y una sola llamada ante dos corridas, como controlneutral.
+Se conserva el rechazo conocido403 recuperable y la puerta sin clave503.
+Codigo de motor, ruta y fechas reales; remitente/almacen/reserva controlados.
+No acredita proveedor real ni configuracionCRON de produccion. No reemitir217
+ni la extension de350 como fallo actual con esos mismos blobs.
+La otra orden225 deClaude/Gemini incluye esta correccion; no duplicarla.
+El primer wrapper388 fallo por sintaxis ANTES de ejecutar el motor; queda
+archivado como errorQA, separado del recibo388-recordatorios-motor.json.
+
 ```comprobar
 usa: tocaRecordarHoy en src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: liberarReservaDelDia en src/lib/invitaciones/recordatorio-no-abiertas.ts

@@ -1,0 +1,9 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-385-917-tEHgNw",
+  "sourceDiff": "",
+  "at": "2026-10-24T17:21:01.367Z",
+  "previousDirtyReceipt": "385-delta-publico.json",
+  "ownedChange": "Canonical tests changed tracked data/notifications.json after sparse checkout; that original public Git blob was restored explicitly AFTER all tests finished. No app file or external data changed.",
+  "originalBlob": "9da0ddbc760dc79b09c8297bba5eaddc79591b16"
+}

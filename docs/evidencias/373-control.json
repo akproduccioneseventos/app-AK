@@ -1,0 +1,9 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "phase": "finished",
+  "started": "2026-10-24T15:34:19.425Z",
+  "appEdited": false,
+  "scope": "ONLY the27 failed/timedout native criteria from318. Project-specific grep, original assertions/timeouts, local FIS double; no replay of149PASS or374routes.",
+  "execution": "finished",
+  "finished": "2026-10-24T16:27:35.870Z"
+}

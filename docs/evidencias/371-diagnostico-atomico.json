@@ -1,0 +1,38 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "phase": "finished",
+  "started": "2026-10-24T15:21:45.459Z",
+  "diagnosticOnly": true,
+  "appEdited": false,
+  "scope": "Five ORIGINAL timeout suites with a documented atomic-memory adapter plus3 explicit action controls372. Not canonical349/364 green, no real SDK/storage/provider, no weakened original assertions/timeouts.",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-363-3f-ccnKr1",
+  "originalTestHashes": {
+    "concurrencia-tareas-automaticas.test.ts": "ebd94807e9542c5511a8ff2e81b49aa9749bf3be8405a6d40ce62306be869ff8",
+    "agentes-autonomos.test.ts": "924c3b0a43083ed9415f751cb7c5996eb8e4b5b2890e0f25a93ab2c0a4d40331",
+    "cerebro-publicidad-meta.test.ts": "32a0b8b9fd90c44d5f2539e2e966c22905a0a523d2cca9fc2fcba584fb710920",
+    "orden-199-el-foco-vuelve-y-la-fecha-del-seguimiento.test.tsx": "5c2a905d0b3d97a39756236e3ad8f1d777a7c9a4966b4bdd524899beba322b7d",
+    "ia-86-agentes-publicidad-e-intervalo.test.ts": "0e4cb06f2c1c0ff63886495db66a031a6a9d25e9d07d6286b77ef16963c3383b"
+  },
+  "pid": 12716,
+  "summary": {
+    "suites": 6,
+    "total": 26,
+    "pass": 22,
+    "fail": 4,
+    "pending": 0
+  },
+  "cleanupRecovery": {
+    "reason": "Original cleanup compared mixed C:/ and C:\\ path strings and asserted AFTER completed Jest. Resolve both before comparing. No rerun, test assertions unchanged.",
+    "cleaned": [
+      ".qa370-atomic-fixture.cjs",
+      ".qa371-config.cjs",
+      "src/__tests__/qa372-ajustes-mock-atomico.test.ts"
+    ],
+    "reportComplete": true,
+    "notAppFailure": true,
+    "controllerExitBeforeRecovery": 1
+  },
+  "sourceDiff": "",
+  "finished": "2026-10-24T15:35:25.077Z",
+  "exitCode": 1
+}

@@ -1,39 +1,39 @@
-# Estado actual - Codex24/10/2026 Uruguay
-
+# Estado actual - cierre24/10/2026 Uruguay
 Repo ak-auditoria267-cierre; rama codex/267-cierre-nativo-20261023.
-PR1361 ABIERTA/BORRADOR; continuidad347-359, verificar HEAD remoto antes de subir.
-Codex SOLO audita/prueba/documenta; Gemini programa; Claude valida/fusiona.
-Excepcion QA ficticio; no appedit/merge/datos reales. Manualdueno no pendienteCodex.
-UNICO recuento253; cierre main308/318; cierre candidata359; paquetes316/360.
+PR1361 ABIERTA/BORRADOR: verificarHEAD antes de subir; no fusionar docs solos.
+Codex SOLO audita/prueba/documenta; Gemini programa,Claude valida/fusiona.
+ExcepcionQA ficticio; no appedit/merge/datos reales. Manualdueno no deudaCodex.
+UNICO recuento253; informe FINAL400; manifiesto399 suplemento362-445.
+NOaprobacion global,14areas/cadaboton/0errores no acreditados.
 
-Main3e45a4ac6b479f89605163168e31b37dc84f2d0f/1360:
-285/286 CIERRAN218/219, SDK2PASS cada una; no todaslasareas.
-291buildPASS;321Jest834suites5136PASS0FAIL0pending, sourceDiff0.
-318nativos210reportados176ejecutados149PASS27FAIL/timeout34SKIP; no27bugs.
-374/374paginas visitadas,359PASO1FALLO14NO_PROBADA;0sinvisitar, no cadaboton/rol.
-334corrige67entradasQA sinfiestaId;424inventario=374paginas+50handlers.
-34415diagnosticos;343rectifica esperaQA sinmain/sintimeout, no falloBogue/CDP.
-220Gemini contraste pantalla tragoslistos341;221Claude factura null345.
-Sus consumidores3e/3f identicos; no arreglo de app porCodex.
+Main3e45a4ac6b479f89605163168e31b37dc84f2d0f observado sin cambio:
+285/286SDK cierran218/219;321oficial834suites5136PASS;366buildPASS.
+390 concilia210nativos159PASS17FAIL34SKIP; no17bugs ni suma de intentos.
+374paginas visitadas359PASO1FALLO14NO_PROBADA; no cadaaccion/rol.
+381cinco sugerir/cancelarPASS;382fechaDOM8/8/2027 pantalla/print2PASS.
 
-Candidata1353:3f9460185143ef034dcd713e975d2a0af5e20f1a,131deltas src/tests:
-347buildPASStipos/lint/sourceDiff0, no build291 usado para3f.
-349Jest861suites5237tests:5224PASS13FAIL0pending; NO aprobacion215.
-13FAIL=11timeouts5s,1asercion ajustes,1blogJSONausente; no13bugs probados.
-353inferencia permisos NOconfirmada; dependencia cambia a mutarDocumento
-ausente del mock; no quitar permisos. BlogJSON existeGit, causa ausenciaQA desconocida.
-354retest siete suites NOejecutado:RAM<2GiB;358Temp347yaausente al reanudar.
-No reconstruir en bucle ni usar otroSHA; no afirmar esos13verdes.
-350:10criterios9PASS1FAIL; ochooriginales217R1-R4 CERRADOS poralcance.
-Variante503+traceqa403 reintenta2frente controlneutral1/revision:217R3actualizada.
-357:4PASS CIERRA212A7/A8 pagina/DTO/ReactDOM/Radix, no pago/HTTP/SDK.
-352/355eran fixturefasefinanciera, no falloapp; recibos preservados.
-356:12criterios9PASS3FAIL, persisten TRES causas214; no nuevorden.
-Fotocabina pasa carasref; otras tres[]; guino/cejas sin efecto, ruleta inestable.
-
-Ejecuciones de tanda FINALIZADAS; servicios/agentes propios cerrados.
-QA sin.envreal/servicios reales; depsreusadas estree1.0.8vs1.0.9lock, no npmci limpio.
-Proximo SOLO deltas corregidos214/217/220/221 y retests concretos215conQA/recursos.
-Privados posteriores NO CONTRASTADOS. No repetir374paginas/build/grafo por docs.
-No certificar14areas/cadaaccion/todosroles/modelo/voz/Hosting/0errores.
-Publicar MISMA PR1361, verificar arbol/blobs; no fusionar documentacion sola.
+Candidata1353/917a98e32c63fe2f832f5cdc16db87f4fc722b6c sin cambio:
+386OFICIAL862suites5243PASS0FAIL0pending;406buildPASS tipos/lint/sourceDiff0.
+427copia3897runtime SHA256 desde406 a fuenteGitfresca917, no otrobuild.
+Dependencias reusadas estree1.0.8vslock1.0.9; no npmci limpio.
+388CIERRA217 con10PASS;387null/pendientePASS pero plantilla fallidaFAIL221.
+356/415MISMA214 TRES causas:carasvacias incluye refFotocabina no alimentada,
+reactivos yruleta. No nueva cuarta causa ni modelo real certificado.
+220/223PARCIAL:quita main.flex-1 pero selector hijo ak-internal-experience-polish
+queda.423/425FAIL PC1.390:1/movil1.376:1.393PASSignoraba gradiente:INVALIDO.
+TOTAL CINCO causas/TRESordenes214/220/221; no reencargar otra numeracion.
+357cierra212A7/A8poralcance4PASS; no todo portal/pago real.
+40534SKIP eran desktop-only;41234variantesmoviles27PASS6FAIL1SKIP.
+425SDK9casos1PASS7FAIL1SKIP; TouchpixA/BtardioPASS, no realhardware.
+442SDK8PASS0FAIL0SKIP:foto6/Espejo1/simulador1, presupuesto1/prospecto1.
+443confirmaSDKcleanup200/fuente427restaurada0diff/PIDpropios0.
+Preview3fotos conserva respuestas transicioninvalida: no estado aceptado.
+Foto rechazo es respuesta controlada cliente; red prueba respaldo no autoentrega.
+437testsimulador NOclicaba resumen;439espera boton,442SIpersiste. No bugCTA.
+421preflight abandono snapshots deSUQA392:CUARENTENA,no restauracion exacta.
+426carrera antes decopia427,433argsPS:erroresQA,noapp. Originales preservados.
+PrivadoHEAD917 observado17:21UTC; cambios privados posteriores NO CONTRASTADOS.
+400 enumera objetivos nativos sin aceptacion, no nuevas listasgenericas.
+Siguiente SOLOdelta entregado214/220/221; no repetir amplias/build/grafo sin cambio.
+No certificar proveedor/modelo/voz/Hosting/hardware. GHrojo facturacion no app.
+Subir mismaPRabierta/verificararbolblobs; respetar archivos/procesos ajenos.
