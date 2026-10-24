@@ -139,5 +139,5 @@ usa: usuarioDelEquipo en src/app/api/asistente/voz-en-vivo/accion/route.ts
 # Bloque 6
 prueba: src/__tests__/devolucion-1337-permisos.test.ts
 prueba: src/__tests__/el-asistente-no-inventa-plata.test.ts
-prueba: tests/e2e/la-realidad-aumentada-carga-mindar.spec.ts
+prueba: src/__tests__/la-realidad-aumentada-muestra-el-video.test.tsx
 ```

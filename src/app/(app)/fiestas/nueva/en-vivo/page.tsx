@@ -163,7 +163,8 @@ function LiveEventDashboardContent() {
         window.open(`https://wa.me/?text=${encodeURIComponent('Hola, aquí tienes el enlace para el control de retorno al camión: ' + url)}`, '_blank');
     };
 
-    if (isLoading || !fiesta) return <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="font-black uppercase tracking-widest text-slate-500">Iniciando Centro de Mando...</p></div>;
+    if (isLoading) return <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="font-black uppercase tracking-widest text-slate-500">Iniciando Centro de Mando...</p></div>;
+    if (!fiesta) return <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white p-8 space-y-4 text-center"><h2 className="text-xl font-bold">Fiesta no encontrada</h2><p className="text-slate-400">La fiesta solicitada no existe o fue eliminada.</p><Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button></div>;
 
     const radar = fiesta.liveState?.llegadaProtagonistas;
 

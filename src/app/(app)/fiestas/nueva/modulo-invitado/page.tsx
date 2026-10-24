@@ -174,10 +174,19 @@ function GuestModuleContent() {
 
   const enabledCount = FEATURE_CONFIG.filter(f => settings[f.key]).length;
 
-  if (isLoading || !fiesta) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+  if (!fiesta) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen space-y-4 text-center">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
       </div>
     );
   }

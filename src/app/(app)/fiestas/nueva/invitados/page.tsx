@@ -348,7 +348,8 @@ function InvitadosEventoContent() {
   };
 
   if (!fiestaId) return <EventSelectionRequired moduleName="la gestión de invitados" />;
-  if (isLoading || !fiesta) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
+  if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
+  if (!fiesta) return <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center"><h2 className="text-xl font-bold">Fiesta no encontrada</h2><Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button></div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

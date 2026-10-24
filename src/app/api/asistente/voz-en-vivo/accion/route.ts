@@ -40,6 +40,7 @@ export async function POST(request: Request) {
 
   const riesgo = nivelDeRiesgo(accion);
   if ((riesgo as string) === 'nunca') {
+    // no pasa nada si falla: la auditoría no debe bloquear el rechazo de la acción no permitida
     await registrarAccionAsistente({
       pedido: accion,
       accion,
@@ -47,7 +48,9 @@ export async function POST(request: Request) {
       nivel: 'nunca',
       resultado: 'rechazado_por_regla_del_dueno',
       usuarioIdentificado: usuario.email,
-    }).catch(() => {});
+    }).catch((err) => {
+      console.warn('[VozAccion] Error registrando auditoría:', err);
+    });
     return NextResponse.json({
       success: false,
       error: 'Eso lo tenés que hacer vos desde su pantalla',

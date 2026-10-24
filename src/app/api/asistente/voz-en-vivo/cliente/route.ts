@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
-import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
+import { getAsistenteSettings, type AsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -64,15 +64,15 @@ export async function POST(request: Request) {
   }
 
   // 2. Interruptor y tope en Ajustes
-  const ajustes = await getAsistenteSettings().catch(() => ({}));
-  if ((ajustes as any).vozEnVivoClienteActiva === false) {
+  const ajustes: Partial<AsistenteSettings> = await getAsistenteSettings().catch(() => ({}));
+  if (ajustes.vozEnVivoClienteActiva === false) {
     return NextResponse.json(
       { error: 'La asistencia por voz para clientes está temporalmente desactivada.' },
       { status: 403 }
     );
   }
 
-  const tope = Math.max(1, Number((ajustes as any).vozEnVivoClienteMinutosPorDia) || TOPE_MINUTOS_CLIENTE_POR_DEFECTO);
+  const tope = Math.max(1, Number(ajustes.vozEnVivoClienteMinutosPorDia) || TOPE_MINUTOS_CLIENTE_POR_DEFECTO);
 
   // 3. Verificación y reserva atómica de minutos del día (5 min/día por fiesta)
   const hoyStr = hoyEnUruguay();
@@ -132,7 +132,7 @@ export async function POST(request: Request) {
 
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
   const version = versionApiEnVivo();
-  const voz = vozValida((ajustes as any).vozSeleccionada);
+  const voz = vozValida(ajustes.vozSeleccionada);
   const instrucciones = armarInstruccionesDeVoz(contextoLimpio);
 
   // Si hay API key real, pide la ficha temporal de Gemini
@@ -147,7 +147,10 @@ export async function POST(request: Request) {
       const data: any = await res.json().catch(() => ({}));
       if (res.ok && data?.name) {
         // Registrar consumo de IA SOLO si Gemini entregó la ficha de verdad
-        await registrarConsumoIA('voz-cliente').catch(() => {});
+        // no pasa nada si falla: la llamada ya tiene ficha válida y no se debe cortar por la métrica
+        await registrarConsumoIA('voz-cliente').catch((err) => {
+          console.warn('[VozCliente] Error registrando consumo IA:', err);
+        });
         return NextResponse.json({
           token: data.name,
           model: modelo,

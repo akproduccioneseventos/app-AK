@@ -119,13 +119,21 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   }, [activeTab, cargarBandeja]);
 
   useEffect(() => {
+    // no pasa nada si falla: se mantienen los ajustes por defecto y se notifica en pantalla
     getAjustesRespuestasComentarios().then((aj: any) => {
       setAjustesRespuestas({
         comentarios: aj.comentarios,
         mensajesDirectos: aj.mensajesDirectos,
       });
-    }).catch(() => {});
-  }, []);
+    }).catch((err) => {
+      console.warn('[PresenciaDigital] Error al cargar ajustes:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Ajustes de respuestas',
+        description: 'No se pudieron cargar los ajustes de respuestas automáticas.',
+      });
+    });
+  }, [toast]);
   // La tarjeta "Moderación y Comentarios" de Marketing llega con ?tab=comentarios y abre esa solapa.
   useEffect(() => {
     const pedida = new URLSearchParams(window.location.search).get('tab');

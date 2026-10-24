@@ -134,8 +134,19 @@ export default function ViewInvoicePage() {
   const amountDue = invoice ? invoice.totalAmount - totalPaid : 0;
   const lastPayment = useMemo(() => invoice?.payments && invoice.payments.length > 0 ? invoice.payments[invoice.payments.length - 1] : null, [invoice]);
 
-  if (isLoadingInvoice || !invoice || !templateSettings) {
+  if (isLoadingInvoice) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+  }
+  if (!invoice || !templateSettings) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 space-y-4 text-center">
+        <h2 className="text-xl font-bold">Factura no encontrada</h2>
+        <p className="text-muted-foreground">La factura solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline">
+          <Link href="/invoices">Volver a Facturas</Link>
+        </Button>
+      </div>
+    );
   }
 
   return (

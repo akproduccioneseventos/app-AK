@@ -229,8 +229,17 @@ function PantallasTotemContent() {
     }
   };
 
-  if (isLoading || !fiesta) {
+  if (isLoading) {
     return <div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  }
+  if (!fiesta) {
+    return (
+      <div className="flex flex-col min-h-[60vh] items-center justify-center space-y-4 text-center">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
+      </div>
+    );
   }
 
   return (

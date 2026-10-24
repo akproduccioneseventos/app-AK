@@ -3,7 +3,7 @@ import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
-import { readData } from '@/lib/data-service';
+import { readData, writeData } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -41,14 +41,14 @@ export async function getConfiguracionAgentes(): Promise<ConfiguracionAgente[]> 
 }
 
 export async function guardarConfiguracionAgentes(config: ConfiguracionAgente[]): Promise<void> {
-  await mutateGenericJsonArray(CONFIG_FILE, () => config);
+  await writeData(CONFIG_FILE, config);
 }
 
 export async function registrarEjecucionAgente(registro: RegistroEjecucionAgente): Promise<void> {
   try {
-    await mutateGenericJsonArray<RegistroEjecucionAgente>(HISTORIAL_FILE, (historial) =>
-      [registro, ...(historial || [])].slice(0, MAX_HISTORIAL)
-    );
+    const historial = await readData<RegistroEjecucionAgente[]>(HISTORIAL_FILE, []);
+    const updated = [registro, ...historial].slice(0, MAX_HISTORIAL);
+    await writeData(HISTORIAL_FILE, updated, undefined, { skipAutoBackup: true });
 
     // Actualizar última ejecución en la configuración
     const config = await getConfiguracionAgentes();

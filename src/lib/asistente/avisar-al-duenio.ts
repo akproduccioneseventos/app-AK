@@ -35,6 +35,7 @@ export interface AsistenteSettings {
   atenderLlamadasIaHabilitado?: boolean;
   avisosProactivosActivos?: boolean;
   vozEnVivoClienteActiva?: boolean;
+  vozEnVivoClienteMinutosPorDia?: number;
 }
 
 export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {

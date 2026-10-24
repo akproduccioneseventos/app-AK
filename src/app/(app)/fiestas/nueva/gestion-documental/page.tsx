@@ -149,8 +149,17 @@ function GestionDocumentalContent() {
   };
 
   if (!fiestaId) return <EventSelectionRequired moduleName="la gestión documental" />;
-  if (isLoading || !fiesta) {
+  if (isLoading) {
     return <div className="p-8 max-w-3xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+  }
+  if (!fiesta) {
+    return (
+      <div className="p-8 max-w-3xl mx-auto flex flex-col items-center justify-center text-center space-y-4">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
+      </div>
+    );
   }
 
   return (
