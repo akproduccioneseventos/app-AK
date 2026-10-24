@@ -14,7 +14,7 @@ if(process.argv.includes('--restore')){
 }else{
  assert(!fs.existsSync(manifestFile),'Preserve previous manifest');
  for(const file of['311-continuidad.json','315-continuidad-final.json','320-continuidad-recorrido.json','322-continuidad-canonica.json','328-continuidad-control.json','330-continuidad-normal.json','332-continuidad-restantes.json','334-contexto-continuidad.json','337-excepciones-continuidad.json','340-excepciones-continuidad.json','344-excepciones-continuidad.json','345-jest-final.json'])assert.equal(JSON.parse(fs.readFileSync(path.join(dir,file),'utf8')).phase,'finished','Do not package live reports');
- const names=fs.readdirSync(dir,{withFileTypes:true}).filter(e=>e.isFile()).map(e=>e.name).filter(n=>{const id=Number(n.match(/^(\d+)-/)?.[1]);return(id>=267&&id<=345||/^(332|336|338)\d{2}-/.test(n))&&/\.(mjs|cjs|ts|md|ps1|json|gz|log|png)$/.test(n);});
+ const names=fs.readdirSync(dir,{withFileTypes:true}).filter(e=>e.isFile()).map(e=>e.name).filter(n=>{const id=Number(n.match(/^(\d+)-/)?.[1]);return(id>=267&&id<=345||/^(332|336|338)\d{2}-/.test(n))&&/\.(mjs|cjs|ts|tsx|md|ps1|json|gz|log|png)$/.test(n);});
  const files=[],selected=new Set();
  for(const name of names){
   const file=inside(path.join(dir,name)),bytes=fs.readFileSync(file);let transport=name,encoding='raw';

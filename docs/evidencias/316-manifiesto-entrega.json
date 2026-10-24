@@ -1951,10 +1951,10 @@
       "path": "docs/evidencias/316-preparar-entrega.mjs",
       "transport": "docs/evidencias/316-preparar-entrega.mjs",
       "encoding": "raw",
-      "localRawBytes": 4028,
-      "localRawSha256": "6a0fa4ea973e2e05ffaf413c191b64cd4fac50a9b50f626aa6bf5029b3d48826",
-      "transportBytes": 4028,
-      "transportSha256": "6a0fa4ea973e2e05ffaf413c191b64cd4fac50a9b50f626aa6bf5029b3d48826"
+      "localRawBytes": 4032,
+      "localRawSha256": "e2d81dead3f9dfbd0be664035f5940300178411d6ceafa7435ef6e26e41994ef",
+      "transportBytes": 4032,
+      "transportSha256": "e2d81dead3f9dfbd0be664035f5940300178411d6ceafa7435ef6e26e41994ef"
     },
     {
       "path": "docs/evidencias/317-origen-errores-consola.json",
@@ -3602,6 +3602,24 @@
       "localRawSha256": "f7dc23c582caddba8a991d4559141dd24c7108b6141df898c273516ba88520b2",
       "transportBytes": 1974,
       "transportSha256": "f7dc23c582caddba8a991d4559141dd24c7108b6141df898c273516ba88520b2"
+    },
+    {
+      "path": "docs/evidencias/345-factura-ausente.test.tsx",
+      "transport": "docs/evidencias/345-factura-ausente.test.tsx",
+      "encoding": "raw",
+      "localRawBytes": 2222,
+      "localRawSha256": "d98f085d1f7ed031f22cbb8042eeac69fc0edd92eec7273af9d30004ac4e2be2",
+      "transportBytes": 2222,
+      "transportSha256": "d98f085d1f7ed031f22cbb8042eeac69fc0edd92eec7273af9d30004ac4e2be2"
+    },
+    {
+      "path": "docs/evidencias/316-manifiesto-antes-incluir-tsx.json",
+      "transport": "docs/evidencias/316-manifiesto-antes-incluir-tsx.json",
+      "encoding": "raw",
+      "localRawBytes": 179950,
+      "localRawSha256": "84ebc1d32ff16115640d9c1b841bcfcc112a4ab8349d5b212b627aa039d10cfb",
+      "transportBytes": 179950,
+      "transportSha256": "84ebc1d32ff16115640d9c1b841bcfcc112a4ab8349d5b212b627aa039d10cfb"
     }
   ],
   "gitPaths": [
@@ -3961,7 +3979,15 @@
     "docs/YA-RESUELTO.md",
     "docs/evidencias/253-recuento-unico-auditoria.md",
     "docs/ordenes/220-gemini-barra-contraste-pantalla-listo.md",
-    "docs/ordenes/221-claude-factura-ausente-no-carga-infinita.md"
+    "docs/ordenes/221-claude-factura-ausente-no-carga-infinita.md",
+    "docs/evidencias/345-factura-ausente.test.tsx",
+    "docs/evidencias/316-manifiesto-antes-incluir-tsx.json"
   ],
-  "limits": "Closed reports only. Big rawJSON/logs transported losslessly with gzip; --restore reconstructs missing raw files. Text localRawSha256 is before Git newline normalization; remote Git tree/blob IDs are verified separately. Large browser trace/screenshot directories stay local; selected critical341PNG transported explicitly. No acceptance inferred from file presence."
+  "limits": "Closed reports only. Big rawJSON/logs transported losslessly with gzip; --restore reconstructs missing raw files. Text localRawSha256 is before Git newline normalization; remote Git tree/blob IDs are verified separately. Large browser trace/screenshot directories stay local; selected critical341PNG transported explicitly. No acceptance inferred from file presence.",
+  "supplement": {
+    "at": "2026-10-24T08:15:51.780Z",
+    "reason": "Packaging extension filter omitted TSX focal source; include actual345test and preserve original manifest. NO app/test assertion change.",
+    "previousManifest": "316-manifiesto-antes-incluir-tsx.json",
+    "previousSha256": "84ebc1d32ff16115640d9c1b841bcfcc112a4ab8349d5b212b627aa039d10cfb"
+  }
 }
