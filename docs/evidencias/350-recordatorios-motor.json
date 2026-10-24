@@ -1,0 +1,276 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "candidate": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "hashes": {
+    "src/lib/reportes/rango-de-dias.ts": {
+      "source": "e64cb6a73f65c7f6f4d3b848783dd42be63abe0acf6f7e525ddb20875ed3956f",
+      "candidate": "e64cb6a73f65c7f6f4d3b848783dd42be63abe0acf6f7e525ddb20875ed3956f",
+      "equal": true
+    },
+    "src/lib/utils.ts": {
+      "source": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+      "candidate": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+      "equal": true
+    },
+    "src/lib/invitaciones/recordatorio-no-abiertas.ts": {
+      "source": "77d6a7d2c255aa062e24fac5ca55ff302a507d7f63f301967c353c64da5f2ff3",
+      "candidate": "77d6a7d2c255aa062e24fac5ca55ff302a507d7f63f301967c353c64da5f2ff3",
+      "equal": true
+    },
+    "src/lib/automatico/puerta-de-las-tareas.ts": {
+      "source": "791d94eea4bd04df3f938bb087359a0bc0f3f8c24a37d5e27bf41d5d82f0dd16",
+      "candidate": "791d94eea4bd04df3f938bb087359a0bc0f3f8c24a37d5e27bf41d5d82f0dd16",
+      "equal": true
+    },
+    "src/app/api/cron/recordar-invitacion-no-abierta/route.ts": {
+      "source": "b1a12581381de33891034174b279eaa040358182b091eeca53fc1576479588a9",
+      "candidate": "b1a12581381de33891034174b279eaa040358182b091eeca53fc1576479588a9",
+      "equal": true
+    }
+  },
+  "cases": [
+    {
+      "id": "configured-key-denies-anonymous",
+      "pass": true,
+      "observed": {
+        "status": 401,
+        "mails": 0,
+        "marked": []
+      }
+    },
+    {
+      "id": "authorized-key-drives-engine-on-due-day",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 1,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 1,
+        "marked": [
+          "recordar-invitacion-no-abierta"
+        ]
+      }
+    },
+    {
+      "id": "no-key-public-task-cannot-send-to-a-person",
+      "pass": true,
+      "observed": {
+        "status": 503,
+        "body": {
+          "error": "Esta tarea le escribe a un cliente: no corre hasta que se configure la clave."
+        },
+        "mails": 0,
+        "marked": [],
+        "guest": {
+          "id": "qa350-guest",
+          "nombre": "Persona QA350",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa350-guest-token",
+          "rsvp": "Pendiente"
+        }
+      }
+    },
+    {
+      "id": "rescheduled-event-is-rechecked-in-reservation",
+      "pass": true,
+      "observed": {
+        "result": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "newDate": "2026-12-01",
+        "mails": 0,
+        "guest": {
+          "id": "qa350-guest",
+          "nombre": "Persona QA350",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa350-guest-token",
+          "rsvp": "Pendiente"
+        }
+      }
+    },
+    {
+      "id": "definite-delivery-and-fallback-failure-remains-retryable",
+      "pass": true,
+      "observed": {
+        "first": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 1,
+          "omitidos": 0
+        },
+        "second": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 1,
+          "omitidos": 0
+        },
+        "mails": 2,
+        "scheduledAttempts": 2,
+        "guest": {
+          "id": "qa350-guest",
+          "nombre": "Persona QA350",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa350-guest-token",
+          "rsvp": "Pendiente",
+          "recordatoriosApertura": []
+        }
+      }
+    },
+    {
+      "id": "reservation-write-failure-does-not-mark-task-successful",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": {
+          "ok": false,
+          "corrio": false,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 0,
+          "reservasFallidas": 1,
+          "motivo": "fallaron reservas"
+        },
+        "mails": 0,
+        "marked": []
+      }
+    },
+    {
+      "id": "opened-between-list-and-reservation-is-not-contacted",
+      "pass": true,
+      "observed": {
+        "result": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 0
+      }
+    },
+    {
+      "id": "outside-21-and-10-day-window-does-not-send",
+      "pass": true,
+      "observed": {
+        "result": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 0,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 0
+      }
+    },
+    {
+      "id": "uncertain-503-not-retried-from-trace-neutral",
+      "pass": true,
+      "observed": {
+        "first": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 1,
+          "omitidos": 0
+        },
+        "second": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 1
+        },
+        "mails": 1,
+        "scheduledAttempts": 1,
+        "guest": {
+          "id": "qa350-guest",
+          "nombre": "Persona QA350",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa350-guest-token",
+          "rsvp": "Pendiente",
+          "recordatoriosApertura": [
+            "2026-10-01"
+          ],
+          "revisarEnvio": true
+        },
+        "providerFailure": {
+          "message": "HTTP 503 upstream unavailable; trace neutral",
+          "status": 503
+        }
+      }
+    },
+    {
+      "id": "uncertain-503-not-retried-from-trace-qa403",
+      "pass": false,
+      "observed": {
+        "first": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 1,
+          "omitidos": 0
+        },
+        "second": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 1,
+          "omitidos": 0
+        },
+        "mails": 2,
+        "scheduledAttempts": 2,
+        "guest": {
+          "id": "qa350-guest",
+          "nombre": "Persona QA350",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa350-guest-token",
+          "rsvp": "Pendiente",
+          "recordatoriosApertura": []
+        },
+        "providerFailure": {
+          "message": "HTTP 503 upstream unavailable; trace qa403",
+          "status": 503
+        }
+      }
+    }
+  ],
+  "warnings": [
+    "[recordatorio] No se pudo agendar contingencia: QA350_FALLBACK_FAILED",
+    "[recordatorio] No se pudo agendar contingencia: QA350_FALLBACK_FAILED",
+    "[recordatorio] No se pudo agendar contingencia: QA350_FALLBACK_FAILED",
+    "[recordatorio] No se pudo agendar contingencia: QA350_FALLBACK_FAILED",
+    "[recordatorio] No se pudo agendar contingencia: QA350_FALLBACK_FAILED"
+  ],
+  "summary": {
+    "total": 10,
+    "pass": 9,
+    "fail": 1
+  },
+  "appEdited": false,
+  "externalNetwork": false,
+  "scope": "Actual engine, cron GET and public gate, actual Uruguay date helpers. Controlled storage/reservation/provider/fallback/clock/rate-limit and run-marker adapters, Request/Response in-process; NO Firestore SDK, signed HTTP server, Gmail/WhatsApp/account or production execution."
+}

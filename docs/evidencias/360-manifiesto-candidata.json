@@ -1,0 +1,303 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "baseline": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "purpose": "Supplement347-359, not rewrite package316 or acceptance of candidate/all app. Raw logs preserved locally; gzip transport lossless. workingCopy hashes are local bytes; expectedGitBlob accounts for Git text filters.",
+  "entries": [
+    {
+      "original": "docs/evidencias/347-adaptacion.json",
+      "published": "docs/evidencias/347-adaptacion.json",
+      "rawBytes": 316,
+      "rawSha256": "fdcb9d4f8e9dafe421c9d917d723406217430122e91395f811a7d5e064bf646d",
+      "workingCopySha256": "fdcb9d4f8e9dafe421c9d917d723406217430122e91395f811a7d5e064bf646d",
+      "expectedGitBlob": "a98c57af8d0e03f0e493768b59babecaa81157f4"
+    },
+    {
+      "original": "docs/evidencias/347-build.log",
+      "published": "docs/evidencias/347-build.log.gz",
+      "rawBytes": 58999,
+      "rawSha256": "65603ea52fe0bcc5096e048617c7a0ce65139ebe228587a63cded0b9a1fa44e2",
+      "workingCopySha256": "5f927ebbe5cd9fe08934ac7b877b1be98577ffc8d82c48a291df8b25eb177f8a",
+      "expectedGitBlob": "1c0f39dfa3fa642a80dd88566db43bc0c850430c"
+    },
+    {
+      "original": "docs/evidencias/347-entorno-actual.mjs",
+      "published": "docs/evidencias/347-entorno-actual.mjs",
+      "rawBytes": 5216,
+      "rawSha256": "6253307b32177f0cec0a6a5e42e6d62aee5c77f4b1984c3c20db082788c6f130",
+      "workingCopySha256": "6253307b32177f0cec0a6a5e42e6d62aee5c77f4b1984c3c20db082788c6f130",
+      "expectedGitBlob": "8ab5fde05f0962da2e5ad12ff269d764bf5f22ee"
+    },
+    {
+      "original": "docs/evidencias/347-entorno.json",
+      "published": "docs/evidencias/347-entorno.json",
+      "rawBytes": 829,
+      "rawSha256": "a7b5ecbb32842eecd2abe135bcbf0c0e08bbb6a5293f4689d11408c9e721b580",
+      "workingCopySha256": "a7b5ecbb32842eecd2abe135bcbf0c0e08bbb6a5293f4689d11408c9e721b580",
+      "expectedGitBlob": "89891553deaf2c92b3cc1d93cd503be12ec28840"
+    },
+    {
+      "original": "docs/evidencias/347-preparar-candidata.mjs",
+      "published": "docs/evidencias/347-preparar-candidata.mjs",
+      "rawBytes": 1449,
+      "rawSha256": "1830a6f3d1a4a7364fddd9be48cf0bf692dcbd68eb06c46cf646bfbf0db892fa",
+      "workingCopySha256": "1830a6f3d1a4a7364fddd9be48cf0bf692dcbd68eb06c46cf646bfbf0db892fa",
+      "expectedGitBlob": "a16e71dc2ee5318914f405bce98e35d1b9c2a410"
+    },
+    {
+      "original": "docs/evidencias/348-filtros-candidata.md",
+      "published": "docs/evidencias/348-filtros-candidata.md",
+      "rawBytes": 4812,
+      "rawSha256": "0350344db6addb96a7524f4f0f8eb0920f5b4bf5a086788f4b69a07994f65829",
+      "workingCopySha256": "0350344db6addb96a7524f4f0f8eb0920f5b4bf5a086788f4b69a07994f65829",
+      "expectedGitBlob": "3a395cdc55d592c24e853130299fc2d7d9483244"
+    },
+    {
+      "original": "docs/evidencias/349-jest-candidata.mjs",
+      "published": "docs/evidencias/349-jest-candidata.mjs",
+      "rawBytes": 1549,
+      "rawSha256": "1058d881d79f708af493e05b77402ebb01b5c95e8f83ae72600fca8f9d5b9a0f",
+      "workingCopySha256": "1058d881d79f708af493e05b77402ebb01b5c95e8f83ae72600fca8f9d5b9a0f",
+      "expectedGitBlob": "402e695384ce5d93261f25cef5c59c54fb7fda6b"
+    },
+    {
+      "original": "docs/evidencias/349-jest-final.json",
+      "published": "docs/evidencias/349-jest-final.json",
+      "rawBytes": 1029,
+      "rawSha256": "4fb5a773886ffa493b48e5fc0dd0d9117955c16ac03ad07126874e4b60994920",
+      "workingCopySha256": "4fb5a773886ffa493b48e5fc0dd0d9117955c16ac03ad07126874e4b60994920",
+      "expectedGitBlob": "107f5f6d6417eb8093146c3aa7156e2a4b775452"
+    },
+    {
+      "original": "docs/evidencias/349-jest-resultados.json",
+      "published": "docs/evidencias/349-jest-resultados.json.gz",
+      "rawBytes": 2568065,
+      "rawSha256": "3f99aa17bdb3b505914af948f84197810f076277c84255ac084e649cb91723be",
+      "workingCopySha256": "a74664c92507c29cc5498e2c13f0dc61620f8d3d6d539c1c05d97887be18efd2",
+      "expectedGitBlob": "0de914a172b74477b2f8511eecda00f74adf6322"
+    },
+    {
+      "original": "docs/evidencias/349-jest.log",
+      "published": "docs/evidencias/349-jest.log.gz",
+      "rawBytes": 7664138,
+      "rawSha256": "abc49301fd0d44d449097f8f584d505eaab77f6b350aa849ef6936adadc9cfea",
+      "workingCopySha256": "aae7a3cbe7cc4c5b4eb01d919bfe21bc3310ba59fde0de3fc48b5da6a47acf1c",
+      "expectedGitBlob": "ff1ecec4326fdd8d032e0bfeb5bd32a968297f2d"
+    },
+    {
+      "original": "docs/evidencias/350-recordatorios-ejecucion.log",
+      "published": "docs/evidencias/350-recordatorios-ejecucion.log.gz",
+      "rawBytes": 3597,
+      "rawSha256": "86f7bf6006e9746bda056a616c71fa0e5c0acec4db1da2fb133085744e5ade90",
+      "workingCopySha256": "60a62a955b827ada1f7c13a471931b04acde074cc2eaab7da6bfd5d7ff41f5ae",
+      "expectedGitBlob": "eb89aee62718a7d21ab53a3252d1439fba580149"
+    },
+    {
+      "original": "docs/evidencias/350-recordatorios-motor.json",
+      "published": "docs/evidencias/350-recordatorios-motor.json",
+      "rawBytes": 7974,
+      "rawSha256": "15345f51b3b04573c85c5e69aedcdbb4e441779ffb52c67c16e46369eebd5df7",
+      "workingCopySha256": "15345f51b3b04573c85c5e69aedcdbb4e441779ffb52c67c16e46369eebd5df7",
+      "expectedGitBlob": "40e2561f11a1e061bfcb015b663d2aa711b97e56"
+    },
+    {
+      "original": "docs/evidencias/350-retest-recordatorios-candidata.mjs",
+      "published": "docs/evidencias/350-retest-recordatorios-candidata.mjs",
+      "rawBytes": 2861,
+      "rawSha256": "40d5ed35c814fc9909aafea9b07b0d66dc0288d3b03ca8ce6c3f9a49ee1178f6",
+      "workingCopySha256": "40d5ed35c814fc9909aafea9b07b0d66dc0288d3b03ca8ce6c3f9a49ee1178f6",
+      "expectedGitBlob": "fc96252a907ba17c6f5db18d69b9fa3fe6c86e38"
+    },
+    {
+      "original": "docs/evidencias/351-continuidad-candidata.json",
+      "published": "docs/evidencias/351-continuidad-candidata.json",
+      "rawBytes": 273,
+      "rawSha256": "12c0cf57edbf6cc17e27ed393c157bc1ee9e8532bda9a56d33e2f3b9f692f2fb",
+      "workingCopySha256": "12c0cf57edbf6cc17e27ed393c157bc1ee9e8532bda9a56d33e2f3b9f692f2fb",
+      "expectedGitBlob": "dab40cffb7aa2ee9417edcf45631eb27fbb5390a"
+    },
+    {
+      "original": "docs/evidencias/351-esperar-candidata.mjs",
+      "published": "docs/evidencias/351-esperar-candidata.mjs",
+      "rawBytes": 1850,
+      "rawSha256": "246e0d457f332c120203ee1e576e7b0d67793b5cd12b50e941c34ccb04e14711",
+      "workingCopySha256": "246e0d457f332c120203ee1e576e7b0d67793b5cd12b50e941c34ccb04e14711",
+      "expectedGitBlob": "138b832339f927134c11c2013861d53451bfd4d3"
+    },
+    {
+      "original": "docs/evidencias/352-portal-candidata.json",
+      "published": "docs/evidencias/352-portal-candidata.json",
+      "rawBytes": 6428,
+      "rawSha256": "b24657e92ddef0ca82810aa9f57c1fab08807478f3a4877697ffcc0f3b5d8274",
+      "workingCopySha256": "b24657e92ddef0ca82810aa9f57c1fab08807478f3a4877697ffcc0f3b5d8274",
+      "expectedGitBlob": "41d7255719a9e421549233bdeb5f3e68beedfe5d"
+    },
+    {
+      "original": "docs/evidencias/352-portal-candidata.mjs",
+      "published": "docs/evidencias/352-portal-candidata.mjs",
+      "rawBytes": 5170,
+      "rawSha256": "c18531518e03a4f7cf84a458e7be905cbde3b0b188f414e0235ab2f7746c55e7",
+      "workingCopySha256": "c18531518e03a4f7cf84a458e7be905cbde3b0b188f414e0235ab2f7746c55e7",
+      "expectedGitBlob": "22173b16094de4c750be3b3f1e49daa814a0355e"
+    },
+    {
+      "original": "docs/evidencias/352-portal-ejecucion.log",
+      "published": "docs/evidencias/352-portal-ejecucion.log.gz",
+      "rawBytes": 1446,
+      "rawSha256": "2a62205a42ea4204275467c932d43ad3d6d3c714786c3267769372c338b86135",
+      "workingCopySha256": "679d1cdf142491bf69b8d863be7c4eec5af937f93f4550504afc001c48fef7c1",
+      "expectedGitBlob": "580592154eeef566b9cfd5ca95dd7e212420826f"
+    },
+    {
+      "original": "docs/evidencias/353-jest-dos-aserciones.md",
+      "published": "docs/evidencias/353-jest-dos-aserciones.md",
+      "rawBytes": 4738,
+      "rawSha256": "56e2d8e4b707d5417250fbf7f3e4b7026ffc3b85559c31654cd7109c2e6b878d",
+      "workingCopySha256": "56e2d8e4b707d5417250fbf7f3e4b7026ffc3b85559c31654cd7109c2e6b878d",
+      "expectedGitBlob": "40563bc238c429ef63e304de54fd076413053377"
+    },
+    {
+      "original": "docs/evidencias/354-jest-focal-candidata.mjs",
+      "published": "docs/evidencias/354-jest-focal-candidata.mjs",
+      "rawBytes": 4557,
+      "rawSha256": "db89e4f52f91e8de7df1efc345f2566ceba088aa8e69bea9eab12a9b71d4eb7f",
+      "workingCopySha256": "db89e4f52f91e8de7df1efc345f2566ceba088aa8e69bea9eab12a9b71d4eb7f",
+      "expectedGitBlob": "4fb27b71d35da69ccb63dedd0654a3785ba21490"
+    },
+    {
+      "original": "docs/evidencias/355-portal-candidata.json",
+      "published": "docs/evidencias/355-portal-candidata.json",
+      "rawBytes": 4558,
+      "rawSha256": "50244acb735cbb90dd233e14ea0e332edc420765ccaf642cf91cae374967633a",
+      "workingCopySha256": "50244acb735cbb90dd233e14ea0e332edc420765ccaf642cf91cae374967633a",
+      "expectedGitBlob": "87121f72950f7e8d53f8cdad78e953136fb3d5c7"
+    },
+    {
+      "original": "docs/evidencias/355-portal-ejecucion.log",
+      "published": "docs/evidencias/355-portal-ejecucion.log.gz",
+      "rawBytes": 303,
+      "rawSha256": "40eb44648783e13475b1b2f591745a12f6f7565c5083d470e918a52439edfcf4",
+      "workingCopySha256": "39c63a3a78834d8c322e8c3b38a3a43086ee9d655b850486f79f28f7f30c9ef5",
+      "expectedGitBlob": "c4e46c5f10261be97d32a8b6ceb5c5164fd3c825"
+    },
+    {
+      "original": "docs/evidencias/355-portal-seccion-abierta.mjs",
+      "published": "docs/evidencias/355-portal-seccion-abierta.mjs",
+      "rawBytes": 5374,
+      "rawSha256": "84b0e38378d1e34ff9ccd82fd69f150804d8cae1d7d750bcda58661cd38fff4e",
+      "workingCopySha256": "84b0e38378d1e34ff9ccd82fd69f150804d8cae1d7d750bcda58661cd38fff4e",
+      "expectedGitBlob": "9df0b9cf80c655417edffc5b78b8ab1637485a7f"
+    },
+    {
+      "original": "docs/evidencias/356-filtros-candidata.mjs",
+      "published": "docs/evidencias/356-filtros-candidata.mjs",
+      "rawBytes": 779,
+      "rawSha256": "7ed07fc9fa25b2aa9d3ce8c140baba9565a87b85a71a5a9c6e10b0835dbf91c4",
+      "workingCopySha256": "7ed07fc9fa25b2aa9d3ce8c140baba9565a87b85a71a5a9c6e10b0835dbf91c4",
+      "expectedGitBlob": "df2b6f2545ce6fb367a84b7b05d5989c351e5e34"
+    },
+    {
+      "original": "docs/evidencias/356-filtros-ejecucion.log",
+      "published": "docs/evidencias/356-filtros-ejecucion.log.gz",
+      "rawBytes": 1205,
+      "rawSha256": "f8ba139da59f905b7de179d8b7c2d9494cd87eb58373eea6b9560d51d79f6793",
+      "workingCopySha256": "d37e29e02d72757b5dfc7c9abbf9a7d4df4882063e1830838bb4c786869c2540",
+      "expectedGitBlob": "56daf4053c1a2814092d44c57f30d61ba6de14e2"
+    },
+    {
+      "original": "docs/evidencias/356-filtros-funciones.json",
+      "published": "docs/evidencias/356-filtros-funciones.json",
+      "rawBytes": 4528,
+      "rawSha256": "c82517e3c73c79324d259af1c1eeb518ea88c8115f432de03aa8a517cb64388e",
+      "workingCopySha256": "c82517e3c73c79324d259af1c1eeb518ea88c8115f432de03aa8a517cb64388e",
+      "expectedGitBlob": "a509ac6b8139366788953ec0da83c0a8a50f2320"
+    },
+    {
+      "original": "docs/evidencias/357-portal-candidata.json",
+      "published": "docs/evidencias/357-portal-candidata.json",
+      "rawBytes": 6542,
+      "rawSha256": "15278a3aba54807bea0c021c3802f4506bc0dac87a36ae51745b6c4a5d2bd660",
+      "workingCopySha256": "15278a3aba54807bea0c021c3802f4506bc0dac87a36ae51745b6c4a5d2bd660",
+      "expectedGitBlob": "b067365216da4ccd2fc87d817f3d502e268fda61"
+    },
+    {
+      "original": "docs/evidencias/357-portal-ejecucion.log",
+      "published": "docs/evidencias/357-portal-ejecucion.log.gz",
+      "rawBytes": 1499,
+      "rawSha256": "ef1a2a1086fa842c99a42a1c0542dd4c57340d90efcf421e547660dba851a232",
+      "workingCopySha256": "e1fe8409e2f3e718c9768a3310f8ca13c6624d5f66be052544f8df8efc3bdd47",
+      "expectedGitBlob": "442153e60d8a4e6b541270d5a741f024227cc0e5"
+    },
+    {
+      "original": "docs/evidencias/357-portal-fase-organizacion.mjs",
+      "published": "docs/evidencias/357-portal-fase-organizacion.mjs",
+      "rawBytes": 5430,
+      "rawSha256": "9c2889dc1abed8621a5c7a83e058ed286a64512508064abe29d92097dc287f6a",
+      "workingCopySha256": "9c2889dc1abed8621a5c7a83e058ed286a64512508064abe29d92097dc287f6a",
+      "expectedGitBlob": "df4467f25d6eea9a32e5c07ceb0dd84e2fba2961"
+    },
+    {
+      "original": "docs/evidencias/358-retests-limites-entorno.json",
+      "published": "docs/evidencias/358-retests-limites-entorno.json",
+      "rawBytes": 665,
+      "rawSha256": "b003bd3a75cd935e75a37d951a066b553460722f24c8608cec7757e9ecfb9b36",
+      "workingCopySha256": "b003bd3a75cd935e75a37d951a066b553460722f24c8608cec7757e9ecfb9b36",
+      "expectedGitBlob": "278f4113069d65ffdafa6e3aa7d1b5d8f8c51010"
+    },
+    {
+      "original": "docs/evidencias/359-cierre-candidata-1353.md",
+      "published": "docs/evidencias/359-cierre-candidata-1353.md",
+      "rawBytes": 5571,
+      "rawSha256": "d29aa2a6389f84012440054055fcf9317311d8e42afbf989efaddbfa6d9319b7",
+      "workingCopySha256": "d29aa2a6389f84012440054055fcf9317311d8e42afbf989efaddbfa6d9319b7",
+      "expectedGitBlob": "4161fb1ad48c756894bc5d22927391bfce57f055"
+    },
+    {
+      "published": "ESTADO-ACTUAL.md",
+      "rawBytes": 2552,
+      "workingCopySha256": "67b03132422bbbd6b52efcc5ec11c8e2c791a3d6460c7046e270ea19df9985af",
+      "expectedGitBlob": "4a62749343f95d4fc3ece728554407c95e8dbb1b"
+    },
+    {
+      "published": "docs/YA-RESUELTO.md",
+      "rawBytes": 1094099,
+      "workingCopySha256": "39c6dea3c55b08f721fd75877617c5f683d04a76240d68484ccb895c962c3c1a",
+      "expectedGitBlob": "6be0588a71161310451936cf1e2d729b6a1e4df4"
+    },
+    {
+      "published": "docs/evidencias/253-recuento-unico-auditoria.md",
+      "rawBytes": 9297,
+      "workingCopySha256": "23a5d2917d18aae83d6032b2c106ebb37643ef3536b10a650c9d3201bddbdb9a",
+      "expectedGitBlob": "ce725e900c163bf3faa69de26e82cefe6dda1755"
+    },
+    {
+      "published": "docs/evidencias/361-entrega-candidata.md",
+      "rawBytes": 2285,
+      "workingCopySha256": "de2772f24f292ef1fdc6b556def403c6aa54e5cc4f0a370bd17f84a054c73dd6",
+      "expectedGitBlob": "3487f872b7732901805c104e56cad1e7ccebb06f"
+    },
+    {
+      "published": "docs/ordenes/212-gemini-portal-del-cliente-lo-que-se-ve.md",
+      "rawBytes": 5469,
+      "workingCopySha256": "c64f48fea2d9a53c634caab3386ae8795d87612eb143189b6c62c11d145f5ecc",
+      "expectedGitBlob": "3f6fad12483fe603e577ff2e1ff4d62e1dc8b053"
+    },
+    {
+      "published": "docs/ordenes/214-gemini-filtros-datos-reactivos-y-ruleta.md",
+      "rawBytes": 4615,
+      "workingCopySha256": "57047f88faea6c9571fa22510dba868a436e3a447d55da7a7d452f6fafda9637",
+      "expectedGitBlob": "671c0c5eb8cc43962596ec83328a864dbdc66323"
+    },
+    {
+      "published": "docs/ordenes/215-gemini-devolucion-1353.md",
+      "rawBytes": 10805,
+      "workingCopySha256": "106fe4eb5ee098fb1915edbd80958bae3d8eba7fc78bfb9020af2692f29f5088",
+      "expectedGitBlob": "ccea120ffd52e745c704cda3a62252f0f29dd1cd"
+    },
+    {
+      "published": "docs/ordenes/217-recordatorios-autorizacion-fecha-y-fallos.md",
+      "rawBytes": 6281,
+      "workingCopySha256": "64d161f515750340ce485e01c9a5da0013cc5cde1b8bb3da788c3ac2f978ac11",
+      "expectedGitBlob": "0ae4e27c348ef6a674556ab5645d8b5b1389650b"
+    }
+  ]
+}

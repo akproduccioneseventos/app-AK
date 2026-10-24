@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 24/10/2026 - Codex347-359 candidata1353 contrastada, no aprobada globalmente
+
+- Fuente3f9460185143ef034dcd713e975d2a0af5e20f1a:347buildPASS con tipos/lint;
+ 349861suites5237tests5224PASS13FAIL0pending, sin sourceDiff. Una corrida,
+ no aprobar por existencia del codigo ni repetir una amplia por documentos.
+- 357 CIERRA212A7/A8:4PASS pagina/DTO/ReactDOM/Radix. Album entregado visible,
+ borrador sinenlace, Informar pago abre y cerrar no guarda/sube. No toda212.
+ 352/355 con fasefinanciera eran errores de fixtureQA, no defectos del portal.
+- 350 CIERRA ocho criterios originales217R1-R4 en3f por alcance;9PASS/1FAIL
+ incluyendo dos variantes. NUEVO caso de la MISMA217R3 NO RESUELTO:status503
+ con trace incidental403 provoca2intentos;control503neutral1yrevision.
+ Proveedores/reserva controlados, no duplicacion real de mensajes demostrada.
+- 356 conserva MISMAS tres causas214:caras[] enTouchpix/Bogue/Espejo,
+ guino/cejas sin efecto activo y ruleta inestable.12criterios9PASS3FAIL,
+ ASTreal de consumidores. FotocabinaSI pasa ref; no modelo/camara certificado.
+- 349trecefallos son11timeouts,1asercion ajustes y1fixture ausente; NO13bugs.
+ 353 ayudante no determina causa final; accion/test iguales, dependencia ahora
+ usa mutarDocumento ausente del mock. No bajar permisos. BlogJSONexisteGit;
+ no se demostro por que falto enQA.354 intento focal NO ejecuto, RAM<2GiB,
+ yTemp347ausente en reanudacion358; no esconder13 ni afirmar retestverde.
+- Build antiguo y .nextausente no sirven para aceptar nativos nuevos.359
+ cierra EJECUCIONES y limites de esta tanda;253 conserva recuento unico.
+ 220/221 siguen entregadas, no programadas porCodex. Privados NO CONTRASTADOS.
+
 ## 24/10/2026 - Validacion canonica y cierres nativos sobre3e45a4ac
 
 - Cierre318:210casos nativos/176ejecutados,149PASS/27FAIL o timeout/34SKIP;

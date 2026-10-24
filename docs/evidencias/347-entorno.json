@@ -1,0 +1,23 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "baseline": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "started": "2026-10-24T08:23:46.528Z",
+  "phase": "built",
+  "probes": [
+    {
+      "at": "2026-10-24T08:23:47.449Z",
+      "freeBytes": 3495337984,
+      "probeExit": 0,
+      "foreignHeavy": []
+    }
+  ],
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-347-ZUMKZ8",
+  "buildPid": 15088,
+  "buildExit": 0,
+  "sourceDiff": "",
+  "finished": "2026-10-24T08:35:15.754Z"
+}
