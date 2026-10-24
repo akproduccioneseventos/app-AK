@@ -1157,6 +1157,18 @@ usarlo. `ordenes?` dio la orden por hecha.
 **Qué se hace distinto:** cuando un bloque nombra varios archivos, va una línea de `comprobar` por cada
 uno (así quedó la orden 221).
 
+### 46. Juntar una entrega en mi rama antes de saber si compila
+
+**Pasó el 24 de octubre de 2026.** La entrega 1353 se veía bien leyendo el cambio. La junté en mi rama y
+lancé la puerta, que frenó en el segundo paso. Recién ahí vi que no compilaba. Tuve que deshacer la
+unión de las dos ramas.
+
+**Qué era lo cierto:** leer el cambio no dice si compila. La entrega decía "tipos en cero" y tenía cinco
+errores.
+
+**Qué se hace distinto:** antes de juntar una entrega, `npx tsc --noEmit` y `npm run "publicar?:rapido"`
+sobre una copia aparte. Sólo si dan verde, se junta y se corre la puerta completa.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
