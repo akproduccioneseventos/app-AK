@@ -1,0 +1,592 @@
+{
+  "observed": "2026-10-24T07:58:27.769Z",
+  "runtimeSource": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "publicCandidate": {
+    "pr": 1353,
+    "branch": "gemini/ordenes-180-195",
+    "sha": "3f9460185143ef034dcd713e975d2a0af5e20f1a"
+  },
+  "appEdited": false,
+  "kind": "Static exact-blob/delta contrast, NOT runtime acceptance of candidate.",
+  "barContrastSame": [
+    {
+      "file": "src/app/ak-global-premium.css",
+      "mainBlob": "47895a83c0d31cf32458116c10766a7fd74954d4",
+      "candidateBlob": "47895a83c0d31cf32458116c10766a7fd74954d4"
+    },
+    {
+      "file": "src/app/layout.tsx",
+      "mainBlob": "63d3220c446198489634cd706ce383e46b3cd92d",
+      "candidateBlob": "63d3220c446198489634cd706ce383e46b3cd92d"
+    },
+    {
+      "file": "src/app/evento/barra/[fiestaId]/listo/page.tsx",
+      "mainBlob": "848a81fad877ffa0b03b0600b490901860b1822e",
+      "candidateBlob": "848a81fad877ffa0b03b0600b490901860b1822e"
+    }
+  ],
+  "changedConsumers": [
+    {
+      "file": "src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx",
+      "mainBlob": "a83cd18e91e9e0934fe196065ae7c2ed3f33c7c3",
+      "candidateBlob": "cb65675058953776d3d066dc880f86fd66ea9250"
+    },
+    {
+      "file": "src/lib/invitaciones/recordatorio-no-abiertas.ts",
+      "mainBlob": "a091f489a2417d37de64e39eb32065718d49b7c2",
+      "candidateBlob": "a50856f187599d4ab7d0518c21ef69871d0f621d"
+    },
+    {
+      "file": "src/app/evento/bogue/[fiestaId]/page.tsx",
+      "mainBlob": "efae492b300653c10be326eb72b073872a7d3247",
+      "candidateBlob": "684e79a5f974b25b3d77137a3e0b09f8f55efddc"
+    },
+    {
+      "file": "src/app/evento/espejo-magico/[fiestaId]/page.tsx",
+      "mainBlob": "0c8ef0239b7b9a3a45fa1a3b80ecee9f823bef6c",
+      "candidateBlob": "5b0c273c4d85d921af1f55144338b6811af14819"
+    },
+    {
+      "file": "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+      "mainBlob": "292ed20fb4325759af5cd0bba68bb12b23b68672",
+      "candidateBlob": "1d6b145f606e7c7b7035502b49b23909f2226dce"
+    },
+    {
+      "file": "src/app/evento/touchpix/[fiestaId]/page.tsx",
+      "mainBlob": "53652e8f1cbdb95da3fd2f4dc2881b7f49c2ade0",
+      "candidateBlob": "7897aa05842f62b38f1fbde096149476b3182807"
+    }
+  ],
+  "delta": [
+    {
+      "status": "M",
+      "file": "src/__tests__/api-route-boundary.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/aprobar-en-un-toque-no-manda-solo.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/auditoria-gemini-20-10-no-miente.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/auditoria-puertas-abiertas.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/backup.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/crowd-sync-quien-la-cambia.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/el-armador-de-mesas-no-guarda-sin-confirmar.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/el-asistente-avisa-a-cada-uno-lo-suyo.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/el-candado-de-la-plata.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/el-filtro-de-15-lleva-el-nombre.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/el-menu-muestra-solo-lo-que-se-puede-usar.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/el-muro-pinta-fotos-si-chat-se-cuelga.test.tsx"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/el-portal-en-cinco-pasos.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/el-portal-ofrece-las-estaciones.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/el-portal-ve-lo-que-muestra.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/el-reel-no-dice-publicado-si-fallo.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/el-totem-apaga-el-microfono.test.tsx"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-bandeja-junta-todos-los-mensajes.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-bandeja-pide-permiso.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-cola-de-la-puerta-no-borra-escaneos-nuevos.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-fiesta-en-cinco-pestanas.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-franja-del-presupuesto-no-cambia-numeros.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/la-galeria-filtra-vogue.test.tsx"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-llamada-cuenta-a-cada-uno-lo-suyo.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-llamada-hace-lo-que-puede-y-pregunta-lo-demas.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-puerta-anda-sin-senal.test.tsx"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-trivia-usa-ia-y-no-inventa.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/la-voz-del-cliente-tiene-tope-y-el-invitado-no-habla.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/la-voz-en-vivo-lib.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/la-voz-en-vivo-ruta.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/lo-que-se-contesta-solo-respeta-las-reglas.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/logo-original-pdf.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/los-dots-de-ak-respetan-las-cuatro-reglas.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/los-efectos-reaccionan-a-la-cara.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/los-filtros-siguen-la-cara.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/mi-mesa-lleva-a-la-app.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/orden-168-pantallas-avisan-la-falla.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/orden-169-pantallas-que-dicen-listo.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/pantallas-documentales-y-ajustes.test.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/__tests__/portal-cliente-lo-que-se-ve.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/portal-y-encargado-sin-fugas-ni-desvios.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/preguntas-59-y-60-aprobaciones-y-nombres-largos.test.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/__tests__/tareas-no-corren-con-la-base-caida.test.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/admin/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/empresa/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/fiestas/nueva/invitados/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/fiestas/nueva/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/fiestas/nueva/personal/recibos/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/fiestas/nueva/plan-pagos/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/mi-dia/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/pagos-rapidos/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/settings/agentes-autonomos/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/(app)/settings/feedback/page.tsx"
+    },
+    {
+      "status": "A",
+      "file": "src/app/actions/crowd-sync.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/dashboard.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/fiesta-actual.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/fiesta/costos.actions.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/fiesta/invitados.actions.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/fiesta/screen-mode.actions.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/games.actions.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/playbooks.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/presencia-digital.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/actions/presupuestos.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/api/asistente/voz-en-vivo/accion/route.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/app/api/asistente/voz-en-vivo/cliente/route.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/api/asistente/voz-en-vivo/route.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/api/cron/asistente-proactivo/route.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/api/cron/metricas-de-redes/route.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/api/cron/recordar-invitacion-no-abierta/route.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/app/evento/album/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/evento/bogue/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/evento/espejo-magico/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/evento/fotocabina/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/evento/galeria/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/evento/mi-mesa/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/evento/muro-en-vivo/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/evento/touchpix/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/landing/[slug]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/marketing/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/portal/c/[accessKey]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/portal/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/app/post-fiesta/[fiestaId]/page.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/components/budget/BudgetDocument.tsx"
+    },
+    {
+      "status": "A",
+      "file": "src/components/evento/CrowdSyncShow.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/components/main-nav.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/components/multiagent/multiagent-widget.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/components/portal/AsistenteDelCliente.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/components/pwa-install-button.tsx"
+    },
+    {
+      "status": "M",
+      "file": "src/data/event-catalogs/index.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/agentes/motor-agentes.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/agentes/tipos.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/ai/consumo.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/alertas/errores-humanos.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/asistente/avisar-al-duenio.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/lib/asistente/avisos-proactivos.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/asistente/por-whatsapp.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/asistente/sesion-voz-en-vivo.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/asistente/voz-en-vivo.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/backup/backup-registry.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/lib/caras/extractor-facial.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/client-portal/public-fiesta.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/entertainment/station-config.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/lib/entretenimiento/filtros-cara.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/entretenimiento/marcos-dinamicos.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/lib/fiesta/armador-mesas-inteligente.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/lib/fiesta/fiesta-modules.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/games/game-engine.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/invitaciones/recordatorio-no-abiertas.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/lib/marketing/marketing-hub.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/marketing/tope-de-gasto-publicidad.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/multiagent/mapa-app.generado.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/lib/portal/portal-modules.ts"
+    },
+    {
+      "status": "A",
+      "file": "src/lib/portal/portal-redirects.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/presencia-digital/metricas-historicas.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/presencia-digital/publicador.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/presencia-digital/revision-diaria.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/lib/social-media/meta-publisher.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/types/playbook.ts"
+    },
+    {
+      "status": "M",
+      "file": "src/types/social-media.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/e2e/el-centro-de-redes-tiene-cinco-solapas.spec.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/e2e/iphone-ve-como-instalar.spec.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/e2e/la-app-ordenada.spec.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/e2e/la-fotocabina-ofrece-filtros.spec.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/e2e/la-pantalla-gigante-llena-la-pantalla.spec.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/e2e/la-realidad-aumentada-carga-mindar.spec.ts"
+    },
+    {
+      "status": "A",
+      "file": "tests/e2e/los-enlaces-del-invitado-llevan-quien-es.spec.ts"
+    }
+  ],
+  "classification": {
+    "order220": "Reproduced on main; same3consumer blobs on candidate. Private later changes NOT CONTRASTED.",
+    "order217": "Candidate contains changed engine/rejection/reprogramming/reservation code. Correction proposal present; no independent candidate execution in this receipt.",
+    "orders212214215": "New public delivery; consumers changed. Prior b91 failures MUST NOT be silently promoted to current3f failures or current3e acceptance to3f acceptance."
+  },
+  "limits": "Frozen291/321/318 prove their main3e scopes only. Candidate3f has additional app/test changes and is not approved by these results. No app build/source changed during active QA."
+}

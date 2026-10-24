@@ -1,5 +1,42 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 24/10/2026 - Validacion canonica y cierres nativos sobre3e45a4ac
+
+- Cierre318:210casos nativos/176ejecutados,149PASS/27FAIL o timeout/34SKIP;
+  no27bugs.374/374paginas visitadas,359PASO/1FALLO/14NO_PROBADA,0sin visitar.
+  334 corrige67entradasQA sinfiestaId;344 recoge15diagnosticos sin cambiar
+  sus etiquetas ni dar por comprobados todos los controles o perfiles.
+- DOS observaciones nuevas NO RESUELTAS:220/Gemini contraste de pantalla
+  tragos listos (341 captura/paleta1.42:1);221/Claude factura null que sigue
+  cargando (345 ReactDOM1PASScontrol/1FAILnull). No ignorarlas por estar en
+  este registro ni afirmar queCodex las programo. Sus consumidores contrastados
+  son identicos3e/3f; privados NO CONTRASTADOS.
+- 342 observaPR1353 nueva3f9460185143ef034dcd713e975d2a0af5e20f1a,
+  131entradas src/tests distintas. b91 historica;217 motor tiene propuesta nueva,
+  212/214/215 consumidores cambiados. No reemitir sin contraste ni aceptar
+  candidata3f por pruebas de3e. La tanda se cierra por fuente, no por promesa0errores.
+- 339/340 fueron diagnosticosQA interrumpidos;343 localiza espera sin timeout
+  de unmain ausente en estaciones basadas endiv.344 termino con lectura
+  acotada,15/15diagnosticos ysourceDiff0; no un fallo probado deBogue/CDP.
+- 321:834suites/5136tests PASS,0FAIL/0pending,exit0/sourceDiff0. Configuracion
+  oficial de Jest, sin forzadas globales de navegador/demo ni claves heredadas;
+  transporte externo bloqueado323.324:7controles del arnes, no7funciones app.
+- 314 NO es una regresion de72funciones: el propio arnes habia forzado variables
+  que cambian permisos/escrituras/modelos. Se preservan resultado y diagnostico;
+  321 no cambia app, aserciones ni mocks para pasar. No reencargar esos72fallos.
+- 307:2PASS escritorio/celular, clic confiable cambia seleccion y enlace360.
+  Los intentos previos con coordenadas inestables quedan como erroresQA.
+- 304:5PASS1SKIP, lectoresVideoVida ante error/reintento y espejo moderado
+  con AdminSDK/Storage demo.0documentos/cleanup200, camara/modelo controlados;
+  no aceptar proveedor/hardware reales. SKIPmovil del espejo es deliberado.
+- 327:2PASS con sesion completa y DOBLE LOCAL FIS invocado, portada/panel/fiesta
+  ficticia visibles. No acredita OAuth ni un proveedorFirebase real.
+- 319:9casos FailedToFetch del reensayo nativo:6FirebaseInstallations,
+  3Firebase mas initScript de almacenamientoQA. No nueve modulos rotos.
+- Inventario actual3e:374paginas y50handlers,424entradas.421era inventario
+  historico, no421pantallas aprobadas.334 corrige entradasQA sinfiestaId;
+  mantiene originales y no convierte ruta abierta en cada accion/rol aceptado.
+
 ## 23/10/2026 - Reensayo independiente Codex de218/219 en3e45a4ac
 
 - **218 comprobada por285:** AdminSDK real al emulador demo,2criterios PASS:

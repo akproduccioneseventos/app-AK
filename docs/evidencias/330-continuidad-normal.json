@@ -1,0 +1,24 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "pid": 14912,
+  "started": "2026-10-24T05:04:13.583Z",
+  "phase": "finished",
+  "appEdited": false,
+  "freeBytesBefore": 3662778368,
+  "routeStarted": "2026-10-24T05:09:44.462Z",
+  "childPid": 14564,
+  "exitCode": 1,
+  "routeOutputs": [
+    {
+      "name": "resultados.json",
+      "fresh": true,
+      "modified": "2026-10-24T05:54:56.677Z"
+    },
+    {
+      "name": "informe.md",
+      "fresh": true,
+      "modified": "2026-10-24T05:54:56.686Z"
+    }
+  ],
+  "finished": "2026-10-24T05:55:27.749Z"
+}

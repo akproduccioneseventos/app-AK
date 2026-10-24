@@ -1,8 +1,10 @@
-# Recuento unico - 23/10/2026
+# Recuento unico - 24/10/2026
 
 Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
 Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.
-CandidatoGemini1353b91; privados posteriores NO CONTRASTADOS.
+CandidatoGemini1353 ahora3f9460185143ef034dcd713e975d2a0af5e20f1a;
+342 contrasta delta y blobs, NO acepta su funcionamiento. b91 es historico.
+Privados posteriores NO CONTRASTADOS.
 EntregaClaude1357 integrada;254/255 retestean C1-C4 y217R1, ver256-cierre.
 Indice consolidado de165/169/198/202/220 y recibos216-264. No prueba nueva por indice.
 1358 auditada focalmente260-264:14criterios11PASS3FAIL, DOS causas nuevas;
@@ -58,32 +60,53 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 |Aprobacion fallida tardia vuelve a pendiente un aviso que el reintento ya acredito|218 CERRADA por285:2PASS AdminSDKdemo en3e; intercalado y control positivo, no toda contabilidad|
 |Guardado iniciado antes de firma escribe despues otro texto y deja constancia vieja|219 CERRADA por286:2PASS AdminSDKdemo en3e; gancho adaptado a actualizarFiesta; no reabre216C4|
 |Recordatorio sinclave puede llamar remitente|CERRADA por2553PASS en725; no proveedor/HTTPreal|
-|Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|217R2/R3/R4 Gemini; Claude los agrega a215bloque6; sin delta nuevo verificado|
-|Boton Informar pago sin formulario y enlace de album perdido|212/Gemini;227/229 confirman en1353b91; no corregido en fuente contrastada|
-|Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|214/Gemini;233 confirma en1353b91; no corregido en fuente contrastada|
-|Devolucion general1353: compilacion, pruebas y controles enumerados porClaude|215/Gemini; no aprobada. No contar38pruebas fallidas como38bugs|
+|Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|217R2/R3/R4: propuesta de correccion presente en motor3f, pendiente retest independiente de esa fuente; no seguir llamando b91 actual|
+|Boton Informar pago sin formulario y enlace de album perdido|212/Gemini;227/229 prueban b91. Consumidor modificado en3f, NO contrastado funcionalmente; no afirmar que sigue fallando ni cerrar por presencia de codigo|
+|Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|214/Gemini;233 prueba b91. Consumidores modificados en3f, pendientes de validar por delta; no reemitir orden anterior|
+|Devolucion general1353: compilacion, pruebas y controles enumerados porClaude|215/Gemini; nueva entrega3f NO aprobada por pruebas de3e. No contar38pruebas fallidas como38bugs|
+|Pantalla de tragos listos: titulo claro sobre main casi blanco|220/Gemini,341 captura revisada; CSS/layout/pagina identicos3e/3f. Correccion no presente en esos tres blobs; privados NO CONTRASTADOS|
+|Factura ausente sigue cargando tras terminar las lecturas|221/Claude,345 ReactDOM1PASScontrol/1FAILnull; pagina/invoices/settings identicos3e/3f. No equivale a factura real perdida ni error de importes|
 
-## 4. Cobertura pendiente de demostrar (NO lista de nuevos defectos)
+## 4. Cierre ejecutado y limites de aceptacion
 
 - La bateria269 y su continuacion274 terminaron. Conciliacion277 con el formato
   REAL de Playwright:1144casos unicos,542ejecutados,496PASS/46FAIL o timeout,
   600SKIP declarados (516capturas optativas) y2FIXME. No1144PASS ni46bugs.
   El contador273 preliminar era incorrecto;277 lo sustituye conservando originales.
-  Reensayo296 sobre3e:primer lote27PASS3FAIL; segundo interrumpido por RAM.
- 312 restauro la copiaQA desdeGit sin cambios de fuente.311 continua con
- 310 (UNarchivo/lote),297,304 y307, no todos aprobados por adelantado.
-  No mezclar aprobaciones de725 y3e ni convertir cancelaciones en aprobaciones.
-- Completar la matriz accion/estado/rol:421rutas/7roles/6401AST inventarian,
-  pero no prueban que cada control de las14areas se haya ejecutado.
-- Cubrir estados UI/offline/transiciones no acreditados de invitado y estaciones;
-  no convertir las areas enteras en "nunca auditadas" ni atribuirles fallos sin prueba.
+  Reensayo cerrado318 sobre3e:210casos reportados,176ejecutados,
+  149PASS/27FAIL o timeout/34SKIP. No27bugs, no sumar al baseline725 para
+  inflar funciones.317/319 clasifican errores de SDK y de initScript propios;
+  todos los fallos iniciales, cancelaciones y descartes quedan conservados.
+- 321 completo la bateria existente:834suites/5136PASS/0FAIL/0pending,
+  configuracion oficial Jest y red externa bloqueada.314 no era canonica:
+  72fallos por forzadas globales de navegador, no72regresiones de app.
+- 332/334 completaron374/374paginas en3e,0sin visitar:359PASO,
+  1FALLO de aperturaPlaylist y14NO_PROBADA.67entradas internas se corrigieron
+  porque el propio inventario omitiafiestaId.50handlers adicionales hacen
+  424entradas actuales;421era inventario historico, no421paginas aprobadas.
+- 344 completo15diagnosticos de excepciones sin alterar sus etiquetas:
+  diez estaciones SI muestran estado/cola/denegacion de camara, dos lectores
+  VideoVida muestran error y reintento.304 cubre lectores conSDKdemo.
+  Factura y VideoVidaadministrativo no acreditaron cuerpo util en ese recorrido;
+  345 aisla causalmente el caso de factura null, que ahora es la orden221.
+  Playlist mostroAlgo salio mal en QA con red negada; logsEGRESS_BLOCKED no
+  bastan para afirmar causa unica ni defecto publicado dePlaylist.
+- 343 corrige la atribucion inicial de339: el diagnostico esperaba unmain
+  inexistente sin timeout. No fue prueba de queBogue niCDP congelaran la app.
+  344 comprueba presencia y acota lecturas; originales preservados/sourceDiff0.
+- Apertura por un actor de equipo no completa accion/estado/rol de las14areas.
+  Los controles especificos conservan sus recibos y fuentes; unNO_PROBADA,
+  unSKIP o un error del arnes nunca se convierte en funcion aprobada.
 - Motores automaticos restantes: respuestas de11rutas NOprueban ejecucion completa
   de11motores;247/249/250 agregan escenarios, no cierran todo el conjunto.
 - Verificar resultados de conexiones externas con evidencia del proveedor;
   dobles locales NOcertifican sincronizacion/modelo/voz/entrega de mensajes reales.
+- 342 detecta nuevaPR1353SHA3f,131entradas src/tests distintas frente a3e.
+  Correcciones propuestas requieren validacion de SU fuente. No repetir como
+  actuales los fallos de b91 ni aprobar3f con la bateria/navegador compilados3e.
 
 No hay base para decir "solo faltan Xbotones" ni "audite toda la app".
 Los renglones de3 son trabajo conocido de correccion/retest, NO partes sin auditar.
-Los de4 son limites concretos de evidencia, no cuatro areas nuevas descubiertas.
+Los de4 son limites concretos de evidencia, no nuevas areas descubiertas.
 Este indice sustituye listas generales contradictorias; actualizar solo con
 nuevo recibo/fuente, sin sumar otra vez las reejecuciones ni borrar cierres validos.

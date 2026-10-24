@@ -1,0 +1,444 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "pid": 12644,
+  "phase": "finished",
+  "started": "2026-10-24T06:05:25.075Z",
+  "appEdited": false,
+  "batches": [
+    {
+      "id": "33601",
+      "selected": [
+        "/fiestas/nueva/accesos-personal",
+        "/fiestas/nueva/alergias",
+        "/fiestas/nueva/asistente",
+        "/fiestas/nueva/barra-tecnologica",
+        "/fiestas/nueva/buzon",
+        "/fiestas/nueva/carga-operativa",
+        "/fiestas/nueva/carga-operativa/pdf",
+        "/fiestas/nueva/carta-tragos",
+        "/fiestas/nueva/carteleria",
+        "/fiestas/nueva/catering/hoja-de-cocina",
+        "/fiestas/nueva/catering/lista-compras",
+        "/fiestas/nueva/catering",
+        "/fiestas/nueva/centro",
+        "/fiestas/nueva/centro-total",
+        "/fiestas/nueva/configuracion",
+        "/fiestas/nueva/decoracion",
+        "/fiestas/nueva/decoracion/pdf",
+        "/fiestas/nueva/en-vivo",
+        "/fiestas/nueva/entretenimiento",
+        "/fiestas/nueva/fiesta-lista",
+        "/fiestas/nueva/fotografia",
+        "/fiestas/nueva/gestion-costos-rentabilidad",
+        "/fiestas/nueva/gestion-costos-rentabilidad/reporte",
+        "/fiestas/nueva/gestion-documental/cambio-fecha",
+        "/fiestas/nueva/gestion-documental/cancelacion-contrato",
+        "/fiestas/nueva/gestion-documental/cancelacion-parcial",
+        "/fiestas/nueva/gestion-documental/contrato-salon",
+        "/fiestas/nueva/gestion-documental/contrato-servicio",
+        "/fiestas/nueva/gestion-documental",
+        "/fiestas/nueva/gestion-documental/recibo-pago",
+        "/fiestas/nueva/invitados/checkin-scanner",
+        "/fiestas/nueva/invitados/layout",
+        "/fiestas/nueva/invitados/numeros-mesa",
+        "/fiestas/nueva/invitados",
+        "/fiestas/nueva/itinerario",
+        "/fiestas/nueva/itinerario/pdf",
+        "/fiestas/nueva/logistica",
+        "/fiestas/nueva/menu-mesa",
+        "/fiestas/nueva/mission-control",
+        "/fiestas/nueva/modulo-invitado",
+        "/fiestas/nueva/muro-social",
+        "/fiestas/nueva/musica",
+        "/fiestas/nueva/musica/pdf",
+        "/fiestas/nueva/numeros-mesa",
+        "/fiestas/nueva/orden-de-evento",
+        "/fiestas/nueva",
+        "/fiestas/nueva/pagina-web",
+        "/fiestas/nueva/pantallas-totem",
+        "/fiestas/nueva/personal",
+        "/fiestas/nueva/personal/recibos",
+        "/fiestas/nueva/plan-pagos",
+        "/fiestas/nueva/planner-costo-fiesta",
+        "/fiestas/nueva/playlist-pantalla",
+        "/fiestas/nueva/portal-cliente/cierre-final",
+        "/fiestas/nueva/portal-cliente/experiencia-mundial",
+        "/fiestas/nueva/portal-cliente",
+        "/fiestas/nueva/post-evento",
+        "/fiestas/nueva/proveedores-portal",
+        "/fiestas/nueva/readiness",
+        "/fiestas/nueva/regalos"
+      ],
+      "started": "2026-10-24T07:16:46.900Z",
+      "pid": 13480,
+      "exitCode": 1,
+      "finished": "2026-10-24T07:37:45.627Z",
+      "originalReport": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\test-results\\recorrido\\resultados.json",
+      "report": "33601-recorrido-resultados.json",
+      "reviewed": 60
+    },
+    {
+      "id": "33602",
+      "selected": [
+        "/fiestas/nueva/resumen-imprimible",
+        "/fiestas/nueva/resumen-planificacion",
+        "/fiestas/nueva/reunion-organizacion",
+        "/fiestas/nueva/reuniones/imprimir",
+        "/fiestas/nueva/reuniones",
+        "/fiestas/nueva/servicios-contratados",
+        "/fiestas/nueva/social-fiesta-pro/cierre-final"
+      ],
+      "started": "2026-10-24T07:37:45.637Z",
+      "pid": 9080,
+      "exitCode": 0,
+      "finished": "2026-10-24T07:40:21.311Z",
+      "originalReport": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\test-results\\recorrido\\resultados.json",
+      "report": "33602-recorrido-resultados.json",
+      "reviewed": 7
+    }
+  ],
+  "originalInvalidInputs": [
+    {
+      "routeTemplate": "/fiestas/nueva/accesos-personal",
+      "testUrl": "/fiestas/nueva/accesos-personal",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/alergias",
+      "testUrl": "/fiestas/nueva/alergias",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/asistente",
+      "testUrl": "/fiestas/nueva/asistente",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/barra-tecnologica",
+      "testUrl": "/fiestas/nueva/barra-tecnologica",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/buzon",
+      "testUrl": "/fiestas/nueva/buzon",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/carga-operativa",
+      "testUrl": "/fiestas/nueva/carga-operativa",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/carga-operativa/pdf",
+      "testUrl": "/fiestas/nueva/carga-operativa/pdf",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/carta-tragos",
+      "testUrl": "/fiestas/nueva/carta-tragos",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/carteleria",
+      "testUrl": "/fiestas/nueva/carteleria",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/catering/hoja-de-cocina",
+      "testUrl": "/fiestas/nueva/catering/hoja-de-cocina",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/catering/lista-compras",
+      "testUrl": "/fiestas/nueva/catering/lista-compras",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/catering",
+      "testUrl": "/fiestas/nueva/catering",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/centro",
+      "testUrl": "/fiestas/nueva/centro",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/centro-total",
+      "testUrl": "/fiestas/nueva/centro-total",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/configuracion",
+      "testUrl": "/fiestas/nueva/configuracion",
+      "estado": "NO_PROBADA"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/decoracion",
+      "testUrl": "/fiestas/nueva/decoracion",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/decoracion/pdf",
+      "testUrl": "/fiestas/nueva/decoracion/pdf",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/en-vivo",
+      "testUrl": "/fiestas/nueva/en-vivo",
+      "estado": "NO_PROBADA"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/entretenimiento",
+      "testUrl": "/fiestas/nueva/entretenimiento",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/fiesta-lista",
+      "testUrl": "/fiestas/nueva/fiesta-lista",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/fotografia",
+      "testUrl": "/fiestas/nueva/fotografia",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-costos-rentabilidad",
+      "testUrl": "/fiestas/nueva/gestion-costos-rentabilidad",
+      "estado": "NO_PROBADA"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-costos-rentabilidad/reporte",
+      "testUrl": "/fiestas/nueva/gestion-costos-rentabilidad/reporte",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-documental/cambio-fecha",
+      "testUrl": "/fiestas/nueva/gestion-documental/cambio-fecha",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-documental/cancelacion-contrato",
+      "testUrl": "/fiestas/nueva/gestion-documental/cancelacion-contrato",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-documental/cancelacion-parcial",
+      "testUrl": "/fiestas/nueva/gestion-documental/cancelacion-parcial",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-documental/contrato-salon",
+      "testUrl": "/fiestas/nueva/gestion-documental/contrato-salon",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-documental/contrato-servicio",
+      "testUrl": "/fiestas/nueva/gestion-documental/contrato-servicio",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-documental",
+      "testUrl": "/fiestas/nueva/gestion-documental",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/gestion-documental/recibo-pago",
+      "testUrl": "/fiestas/nueva/gestion-documental/recibo-pago",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/invitados/checkin-scanner",
+      "testUrl": "/fiestas/nueva/invitados/checkin-scanner",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/invitados/layout",
+      "testUrl": "/fiestas/nueva/invitados/layout",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/invitados/numeros-mesa",
+      "testUrl": "/fiestas/nueva/invitados/numeros-mesa",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/invitados",
+      "testUrl": "/fiestas/nueva/invitados",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/itinerario",
+      "testUrl": "/fiestas/nueva/itinerario",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/itinerario/pdf",
+      "testUrl": "/fiestas/nueva/itinerario/pdf",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/logistica",
+      "testUrl": "/fiestas/nueva/logistica",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/menu-mesa",
+      "testUrl": "/fiestas/nueva/menu-mesa",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/mission-control",
+      "testUrl": "/fiestas/nueva/mission-control",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/modulo-invitado",
+      "testUrl": "/fiestas/nueva/modulo-invitado",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/muro-social",
+      "testUrl": "/fiestas/nueva/muro-social",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/musica",
+      "testUrl": "/fiestas/nueva/musica",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/musica/pdf",
+      "testUrl": "/fiestas/nueva/musica/pdf",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/numeros-mesa",
+      "testUrl": "/fiestas/nueva/numeros-mesa",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/orden-de-evento",
+      "testUrl": "/fiestas/nueva/orden-de-evento",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva",
+      "testUrl": "/fiestas/nueva",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/pagina-web",
+      "testUrl": "/fiestas/nueva/pagina-web",
+      "estado": "NO_PROBADA"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/pantallas-totem",
+      "testUrl": "/fiestas/nueva/pantallas-totem",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/personal",
+      "testUrl": "/fiestas/nueva/personal",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/personal/recibos",
+      "testUrl": "/fiestas/nueva/personal/recibos",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/plan-pagos",
+      "testUrl": "/fiestas/nueva/plan-pagos",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/planner-costo-fiesta",
+      "testUrl": "/fiestas/nueva/planner-costo-fiesta",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/playlist-pantalla",
+      "testUrl": "/fiestas/nueva/playlist-pantalla",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/portal-cliente/cierre-final",
+      "testUrl": "/fiestas/nueva/portal-cliente/cierre-final",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/portal-cliente/experiencia-mundial",
+      "testUrl": "/fiestas/nueva/portal-cliente/experiencia-mundial",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/portal-cliente",
+      "testUrl": "/fiestas/nueva/portal-cliente",
+      "estado": "NO_PROBADA"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/post-evento",
+      "testUrl": "/fiestas/nueva/post-evento",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/proveedores-portal",
+      "testUrl": "/fiestas/nueva/proveedores-portal",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/readiness",
+      "testUrl": "/fiestas/nueva/readiness",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/regalos",
+      "testUrl": "/fiestas/nueva/regalos",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/resumen-imprimible",
+      "testUrl": "/fiestas/nueva/resumen-imprimible",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/resumen-planificacion",
+      "testUrl": "/fiestas/nueva/resumen-planificacion",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/reunion-organizacion",
+      "testUrl": "/fiestas/nueva/reunion-organizacion",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/reuniones/imprimir",
+      "testUrl": "/fiestas/nueva/reuniones/imprimir",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/reuniones",
+      "testUrl": "/fiestas/nueva/reuniones",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/servicios-contratados",
+      "testUrl": "/fiestas/nueva/servicios-contratados",
+      "estado": "PASO"
+    },
+    {
+      "routeTemplate": "/fiestas/nueva/social-fiesta-pro/cierre-final",
+      "testUrl": "/fiestas/nueva/social-fiesta-pro/cierre-final",
+      "estado": "PASO"
+    }
+  ],
+  "corrected": 67,
+  "states": {
+    "PASO": 359,
+    "FALLO": 1,
+    "NO_PROBADA": 14
+  },
+  "finished": "2026-10-24T07:40:21.320Z"
+}
