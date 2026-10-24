@@ -1,0 +1,29 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "started": "2026-10-23T23:12:07.478Z",
+  "runs": [
+    "269",
+    "274"
+  ],
+  "phase": "blocked-unexecuted-cases-after-two-attempts",
+  "events": [
+    {
+      "run": "274",
+      "exit": 1,
+      "finished": "2026-10-24T00:50:07.505Z"
+    }
+  ],
+  "appEdited": false,
+  "acceptance": false,
+  "pending": [
+    "la-vidriera-de-la-tecnologia.spec.ts",
+    "recorrido-de-pantallas.spec.ts"
+  ],
+  "uniqueCases": 592,
+  "executed": 512,
+  "declaredSkipped": 78,
+  "blockedBySetup": [
+    "la-vidriera-de-la-tecnologia.spec.ts"
+  ],
+  "finished": "2026-10-24T00:50:07.702Z"
+}

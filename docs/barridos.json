@@ -462,6 +462,14 @@
     "orden-222": {
       "fecha": "2026-10-24",
       "resultado": "devolución de la 1353 (cuarta vuelta): no compilaba, el bot de WhatsApp armaba presupuestos sin precios, cinco formas que mienten y una prueba que miraba cualquier div. No es forma nueva: pregunta 3 (inventa importes) y las de la puerta."
+    },
+    "orden-223": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 341 (barra lista). Barrido de la pregunta 52 en toda src/app: la regla main.flex-1 pinta de claro cinco pantallas oscuras fuera del panel (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz y prueba en la orden 223 para Gemini."
+    },
+    "orden-224": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 345 (factura ausente). Barrido de la pregunta 19 en src/app: 14 pantallas con 'cargando o no hay dato' que giran para siempre si la lectura no trae nada o falla. Todas en la orden 224 para Gemini. Descartadas las estaciones, que ya muestran 'Experiencia no disponible'."
     }
   }
 }

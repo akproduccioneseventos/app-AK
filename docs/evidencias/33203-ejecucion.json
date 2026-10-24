@@ -1,0 +1,75 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z",
+  "started": "2026-10-24T06:40:20.312Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-24T01:33:47.333Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "recorrido-de-pantallas.spec.ts"
+  ],
+  "batchSize": 0,
+  "copiedTests": 1,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/recorrido-de-pantallas.spec.ts",
+      "copy": "tests/e2e/ak207-recorrido-de-pantallas.spec.ts",
+      "originalSha256": "59c109a6ce97a5629f0712c7c6f940b361465815c7fafe702d03a897647de18f",
+      "instrumentedSha256": "9bfb0a9292ef6d8356a43c278075030c9a8455ce3aa760671000025578f5ce86"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 4952,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-24T06:40:23.050Z",
+    "version": "3e45a4ac6b479f89605163168e31b37dc84f2d0f · compilada 2026-10-24T01:20:45.087Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [],
+      "exitCode": 0,
+      "finished": "2026-10-24T06:58:30.857Z",
+      "report": "33203-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T06:40:24.257Z",
+        "duration": 1086573.771,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 0,
+  "currentBatch": 1,
+  "totalBatches": 1,
+  "testPid": 7628,
+  "stats": {
+    "startTime": "2026-10-24T06:40:24.257Z",
+    "duration": 1086573.771,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 71,
+  "sourceDiff": "",
+  "finished": "2026-10-24T06:58:31.459Z"
+}

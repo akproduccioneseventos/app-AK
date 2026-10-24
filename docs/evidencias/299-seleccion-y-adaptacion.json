@@ -1,0 +1,37 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "mode": "home",
+  "selected": [
+    "298-home-esperar-desplazamiento.spec.ts"
+  ],
+  "changes": [
+    {
+      "from": "const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');",
+      "to": "const root=\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-auditoria267-cierre\\\\\",dir=path.join(root,'docs/evidencias');"
+    },
+    {
+      "from": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+      "to": "3e45a4ac6b479f89605163168e31b37dc84f2d0f"
+    },
+    {
+      "from": "206-entorno.json",
+      "to": "291-entorno.json"
+    },
+    {
+      "from": "ak-qa-206-",
+      "to": "ak-qa-280-"
+    },
+    {
+      "from": "const runId=process.env.AK_AUDIT_RUN_ID||'209';",
+      "to": "const runId='299';"
+    },
+    {
+      "from": "if(includePortal){const newTest=",
+      "to": "assert.equal(manifest.length,1,'All selected focal files must exist');\nif(includePortal){const newTest="
+    }
+  ],
+  "originalSha256": "f2a7d9db60d4f50c92e714d857746911b986f4e14465d10abf6f6187c2db9dce",
+  "driverSha256": "d7d5c330033d18abc7937a9a375e1258e47aa3aceb5144fe08fca1a521307aee",
+  "assertionsChanged": false,
+  "scope": "New stronger home criterion: no fixme, no force-click, no optional360 action. Screenshots freeze motion only after interaction."
+}

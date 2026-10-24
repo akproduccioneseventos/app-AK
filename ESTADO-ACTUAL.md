@@ -34,6 +34,7 @@ Codex sólo audita.
 - Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1361 (`b8b839876`, 267-345): juntado. Dos hallazgos de pantalla: órdenes 223 (contraste, ampliada a 5 pantallas) y 224 (cargando infinito, ampliada a 14), las dos para Gemini.
 - Codex 1361 (`47d24689a`, 285-308): juntado. Confirma cerradas las órdenes 218 y 219; sin hallazgos nuevos. Su revisión de navegador sigue activa en esa misma rama.
 - Gemini 1353 (`3f9460185`): compila, pero no trajo la rama de Claude ni hizo los bloques 2 a 4 de la orden 222. Sigue devuelta.
 - Gemini 1353 (`b02fad0a3`, orden 221): devuelta por cuarta vez con la orden 222 (no compila, presupuesto de WhatsApp sin precios, formas que mienten, prueba de realidad aumentada vacía).

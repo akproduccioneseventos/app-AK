@@ -1,0 +1,71 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "changes": [
+    [
+      "const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');",
+      "const root=\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-auditoria267-cierre\\\\\",dir=path.join(root,'docs/evidencias');"
+    ],
+    [
+      "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+      "3e45a4ac6b479f89605163168e31b37dc84f2d0f"
+    ],
+    [
+      "206-entorno.json",
+      "291-entorno.json"
+    ],
+    [
+      "ak-qa-206-",
+      "ak-qa-280-"
+    ],
+    [
+      "const runId=process.env.AK_AUDIT_RUN_ID||'209';",
+      "const runId='33203';"
+    ],
+    [
+      ".filter(file=>!file.includes('recorrido-de-pantallas'))",
+      ""
+    ],
+    [
+      "const runEnv={...env,AK_QA_RESULTS:",
+      "const runEnv={...env,AK_RECORRIDO_CARRILES:'1',AK_QA_RESULTS:"
+    ],
+    [
+      "copy(path.join(dir,'208-config.ts'),path.join(qa,'208-config.ts'));",
+      "const configDest=inside(path.join(qa,'208-config.ts'));assert(!fs.existsSync(configDest));\nconst configSource=fs.readFileSync(path.join(dir,'208-config.ts'),'utf8');\nassert(configSource.includes(\"testIgnore:['**/ak207-recorrido-de-pantallas.spec.ts']\"));assert(configSource.includes(\"trace:'retain-on-failure'\"));\nfs.writeFileSync(configDest,configSource.replace(\"testIgnore:['**/ak207-recorrido-de-pantallas.spec.ts']\",'testIgnore:[]').replace(\"trace:'retain-on-failure'\",\"trace:'off'\"));copied.push(configDest);"
+    ],
+    [
+      "fs.writeFileSync(dest,hook+raw);copied.push(dest);",
+      "let content=hook+raw;if(entry.name==='recorrido-de-pantallas.spec.ts'){assert(content.includes(\"await context.addCookies([\"));assert(content.includes(\"const html = await page.content();\"));content=content.replace(\"await context.addCookies([\",\"await context.route('**/*',async route=>{const u=new URL(route.request().url());if(/^https?:$/.test(u.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(u.hostname))await route.abort('blockedbyclient');else await route.continue();});\\nawait context.addInitScript(()=>{if(!['http:','https:'].includes(location.protocol))return;window.localStorage.setItem('ak_session','true');window.sessionStorage.setItem('ak_session','true');});\\nawait context.route('https://firebaseinstallations.googleapis.com/**',async route=>{const u=new URL(route.request().url());const body=u.pathname.endsWith('authTokens:generate')?{token:'qa-fis-only',expiresIn:'604800s'}:{fid:'c'+'a'.repeat(21),refreshToken:'qa-fis-refresh-only',authToken:{token:'qa-fis-only',expiresIn:'604800s'}};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});});\\nawait context.addCookies([\").replace(\"const html = await page.content();\",\"r.qaFinalPath=new URL(page.url()).pathname;if(r.qaFinalPath==='/login'&&new URL(r.testUrl,baseURL).pathname!=='/login'){results.push({...r,estado:'NO_PROBADA',motivo:'Fixture no autorizo la ruta: ingreso no cuenta como pantalla esperada',duracionMs});page.off('pageerror',errorListener);return;}\\nconst html = await page.content();\");}fs.writeFileSync(dest,content);copied.push(dest);"
+    ],
+    [
+      "instrumentedSha256:hash(hook+raw)",
+      "instrumentedSha256:hash(fs.readFileSync(dest))"
+    ],
+    [
+      "'test','--config','208-config.ts'",
+      "'test','--project','chromium-desktop','--config','208-config.ts'"
+    ],
+    [
+      "walkTests(path.join(qa,'tests/e2e'));",
+      "walkTests(path.join(qa,'tests/e2e'));assert.equal(manifest.length,1);"
+    ],
+    [
+      "let content=hook+raw;if(entry.name==='recorrido-de-pantallas.spec.ts')",
+      "let content=hook+raw;if(entry.name==='recorrido-de-pantallas.spec.ts'){for(const[from,to]of [[\"await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});\",\"r.qaReadyBody=await page.waitForFunction(passive=>{const area=document.querySelector('main')||document.body;const rect=area.getBoundingClientRect(),style=getComputedStyle(area);const busy=!passive&&Array.from(area.querySelectorAll('[aria-busy=\\\"true\\\"],svg.animate-spin')).some(el=>el.getClientRects().length>0&&getComputedStyle(el).visibility!=='hidden');return rect.width>0&&rect.height>0&&style.visibility!=='hidden'&&Number(style.opacity)>0.1&&(area.innerText||'').trim().length>=40&&!busy;},Boolean(r.passive),{timeout:10000}).then(()=>true,()=>false);await page.waitForTimeout(500);\"],[\"const results: any[] = [];\",\"const results: any[] = [];const qaPartial=path.join(process.cwd(),'test-results','recorrido','partial-33203.json');fs.mkdirSync(path.dirname(qaPartial),{recursive:true});const qaPush=results.push.bind(results);results.push=(...rows:any[])=>{const count=qaPush(...rows);fs.writeFileSync(qaPartial,JSON.stringify(results,null,2));return count;};\"],[\"// Capture screenshot\",\"if(r.qaReadyBody===false){results.push({...r,estado:'NO_PROBADA',motivo:'No confirmo cuerpo visible/listo dentro de10s; no se aprueba por header solo',duracionMs});return;}\\n        // Capture screenshot\"],[\"const response = await page.goto(r.testUrl, {\",\"if(r.pathname==='/fiestas/nueva'||r.pathname.startsWith('/fiestas/nueva/')){const qaUrl=new URL(r.testUrl,'http://127.0.0.1');if(!qaUrl.searchParams.has('fiestaId'))qaUrl.searchParams.set('fiestaId','fiesta_esta_noche');r.qaInputContext='Explicit existing fictitious fiestaId, not app edit';r.testUrl=qaUrl.pathname+qaUrl.search;}\\n        const response = await page.goto(r.testUrl, {\"],[\"await page.screenshot({ path: shotPath, fullPage: false });\",\"await page.screenshot({path:shotPath,fullPage:false,animations:'disabled',timeout:5000}).then(()=>{r.qaScreenshot='captured';},error=>{r.qaScreenshot='unavailable';r.qaScreenshotError=String(error.message||error);});\"]]){assert(content.includes(from),from);content=content.replaceAll(from,to);}}if(entry.name==='recorrido-de-pantallas.spec.ts')"
+    ],
+    [
+      "const runEnv={...env,AK_RECORRIDO_CARRILES:'1',AK_QA_RESULTS:",
+      "const runEnv={...env,AK_RECORRIDO_CARRILES:'1',AK_RECORRIDO_SOLO:\"/settings/company,/settings/contenido-publico,/settings/contratos/clausulas,/settings/contratos,/settings/cupones,/settings/datos,/settings/feature-flags,/settings/feedback,/settings/google-workspace,/settings/instalar-app,/settings/lanzamiento-cto,/settings/mapa-tecnologico-ak,/settings/notifications,/settings,/settings/promos,/settings/sincronizaciones,/settings/social-connections,/settings/tareas-automaticas,/settings/task-templates,/settings/templates/carga-operativa,/settings/templates/contrato,/settings/templates/invitaciones,/settings/templates/layouts,/settings/templates,/settings/templates/reuniones,/settings/videos-de-ayuda,/settings/whatsapp,/settings/whatsapp-business/conversations,/settings/whatsapp-business,/settings/whatsapp-templates,/acceso-personal/[tokenId],/admin/asistente-ak,/admin/carga-historicos,/admin/finanzas,/admin/ventas,/album/[fiestaId],/analytics,/blog,/blog/[slug],/bodas,/buscar,/catalogo,/catalogo/[tipo],/club-uruguay,/compras,/configuracion/backup-final,/control-tower/automatizaciones,/control-tower/comercial,/control-tower,/control-tower/post-fiesta,/control-tower/preparacion,/cumpleanos,/evento/accesos/[fiestaId],/evento/actual/checkin,/evento/actual/mesa,/evento/actual,/evento/album/[fiestaId],/evento/ar/[fiestaId],/evento/barra,/evento/barra/[fiestaId]/barman\",AK_QA_RESULTS:"
+    ]
+  ],
+  "driverSha256": "5efb0aae4c7d48d15188164426eb5f31f37b48a045c7c83996c7c4bdddcd28b4",
+  "originalSha256": "f2a7d9db60d4f50c92e714d857746911b986f4e14465d10abf6f6187c2db9dce",
+  "assertionsChanged": false,
+  "stricterChecks": [
+    "Redirect to login never counts as authorized page"
+  ],
+  "localProviderDouble": "FirebaseInstallations registration only, NO realFirebase/auth/business access granted",
+  "fixture": "Signed team cookie plus official browser markers; skip opaque documents in initScript",
+  "trace": "OFF only for bulk walk to avoid HAR memory; original per-route screenshots/assertions/timeouts retained.297 preserves denied-network case; focal traces retained elsewhere.",
+  "scope": "Normal fixture navigation inventory for one desktop actor, not every business action/role."
+}
