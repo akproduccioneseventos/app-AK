@@ -1410,3 +1410,14 @@ claro quedaba ilegible. La pregunta 52 miraba lugar y tamaño, no color.
 Por cada regla de alcance general (`main`, `body`, `> *`, clases de marca) que pone `background` o `color`, se
 buscan las pantallas que la reciben y escriben texto claro (`text-white`, `text-slate-100`…). La prueba mide
 el color calculado del fondo (`getComputedStyle`), no la clase escrita.
+
+### 97. Si hay un código de estado numérico, ¿se decide por el número o por el texto del error?
+
+Codex 350 (orden 225). `esRechazoConocido` del recordatorio a invitados miraba el número y, si no era 4xx,
+buscaba "403" en el texto. Un 503 con un rastreo que decía `qa403` se tomaba como rechazo: se liberaba la
+reserva y el invitado recibía el recordatorio dos veces. La pregunta 93 miraba la marca de terminado, no cómo
+se clasifica la falla.
+
+Se buscan en `src` las expresiones que leen números de estado en el texto de un error
+(`.test(msg)`, `.includes('403')`…). Si el error trae `status`, manda el número; el texto sólo cuenta cuando no
+hay número, y con números enteros (`\b403\b`).

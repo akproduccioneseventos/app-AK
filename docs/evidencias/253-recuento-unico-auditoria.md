@@ -3,7 +3,8 @@
 Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
 Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.
 CandidatoGemini1353 ahora3f9460185143ef034dcd713e975d2a0af5e20f1a;
-342 contrasta delta y blobs, NO acepta su funcionamiento. b91 es historico.
+342 contrasta delta;347-359 prueban esa candidata por alcance, no la aceptan
+globalmente. b91 es historico;359 contiene cierre y resultados finales.
 Privados posteriores NO CONTRASTADOS.
 EntregaClaude1357 integrada;254/255 retestean C1-C4 y217R1, ver256-cierre.
 Indice consolidado de165/169/198/202/220 y recibos216-264. No prueba nueva por indice.
@@ -60,10 +61,10 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 |Aprobacion fallida tardia vuelve a pendiente un aviso que el reintento ya acredito|218 CERRADA por285:2PASS AdminSDKdemo en3e; intercalado y control positivo, no toda contabilidad|
 |Guardado iniciado antes de firma escribe despues otro texto y deja constancia vieja|219 CERRADA por286:2PASS AdminSDKdemo en3e; gancho adaptado a actualizarFiesta; no reabre216C4|
 |Recordatorio sinclave puede llamar remitente|CERRADA por2553PASS en725; no proveedor/HTTPreal|
-|Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|217R2/R3/R4: propuesta de correccion presente en motor3f, pendiente retest independiente de esa fuente; no seguir llamando b91 actual|
-|Boton Informar pago sin formulario y enlace de album perdido|212/Gemini;227/229 prueban b91. Consumidor modificado en3f, NO contrastado funcionalmente; no afirmar que sigue fallando ni cerrar por presencia de codigo|
-|Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|214/Gemini;233 prueba b91. Consumidores modificados en3f, pendientes de validar por delta; no reemitir orden anterior|
-|Devolucion general1353: compilacion, pruebas y controles enumerados porClaude|215/Gemini; nueva entrega3f NO aprobada por pruebas de3e. No contar38pruebas fallidas como38bugs|
+|Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|350 cierra ocho criterios originales217 en3f;9PASS/1FAIL total con variante503/trace incidental403 que sigue abierta en MISMA217|
+|Boton Informar pago sin formulario y enlace de album perdido|357 cierra212A7/A8 en3f:4PASS pagina/DTO/ReactDOM/modal/album/borrador/cierre sin enviar; no toda212, no pagos reales|
+|Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|356 retestea3f:12criterios9PASS3FAIL y AST de consumidores; persisten mismas TRES causas214, no nueva orden|
+|Devolucion general1353: compilacion, pruebas y controles enumerados porClaude|347 buildPASS en3f;349861suites5237tests5224PASS13FAIL0pending;354 retest focal no ejecutado por recursos/artefacto ausente. No aprobar215 ni convertir13FAIL en13bugs|
 |Pantalla de tragos listos: titulo claro sobre main casi blanco|220/Gemini,341 captura revisada; CSS/layout/pagina identicos3e/3f. Correccion no presente en esos tres blobs; privados NO CONTRASTADOS|
 |Factura ausente sigue cargando tras terminar las lecturas|221/Claude,345 ReactDOM1PASScontrol/1FAILnull; pagina/invoices/settings identicos3e/3f. No equivale a factura real perdida ni error de importes|
 
@@ -102,8 +103,11 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 - Verificar resultados de conexiones externas con evidencia del proveedor;
   dobles locales NOcertifican sincronizacion/modelo/voz/entrega de mensajes reales.
 - 342 detecta nuevaPR1353SHA3f,131entradas src/tests distintas frente a3e.
-  Correcciones propuestas requieren validacion de SU fuente. No repetir como
-  actuales los fallos de b91 ni aprobar3f con la bateria/navegador compilados3e.
+  347 compila SU fuente;349 ejecuta su bateria completa,13FAIL no borrados.
+  350/356/357 cierran o mantienen los criterios concretos indicados arriba.
+  352/355 album en fase financiera eran erroresQA,357faseorganizacion4PASS.
+  358 preserva bloqueo de repeticion de siete suites:RAM<2GiB yTemp347ausente.
+  359 cierra las EJECUCIONES de la tanda, no acepta toda1353/14areas/cadaaccion.
 
 No hay base para decir "solo faltan Xbotones" ni "audite toda la app".
 Los renglones de3 son trabajo conocido de correccion/retest, NO partes sin auditar.

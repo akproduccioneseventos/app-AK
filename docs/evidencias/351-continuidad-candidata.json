@@ -1,0 +1,11 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "pid": 11052,
+  "phase": "finished",
+  "started": "2026-10-24T08:29:49.523Z",
+  "appEdited": false,
+  "freeBytesBefore": 4747337728,
+  "childPid": 6516,
+  "exitCode": 1,
+  "finished": "2026-10-24T08:46:01.442Z"
+}
