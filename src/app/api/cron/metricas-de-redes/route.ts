@@ -6,7 +6,7 @@ import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-bac
 import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
 import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
 import { mutarDocumento } from '@/lib/generic-json-store';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
@@ -87,7 +87,7 @@ async function correrTarea(request: Request) {
       ]);
       const revision = await buildDigitalPresenceDailyReview({ posts, connections });
       if (revision) {
-        await writeData('presencia-digital-revision.json', revision);
+        await mutarDocumento('presencia-digital-revision.json', revision, () => revision);
       }
     } catch (err) {
       console.warn('[cron-metricas-redes] Error generando revisión diaria:', err);

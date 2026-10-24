@@ -3,7 +3,7 @@ import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -17,7 +17,6 @@ import { pausarCampana, ajustarPresupuestoCampana } from '@/lib/marketing/meta-a
 import type { CampanaConPresupuesto } from '@/lib/marketing/tope-de-gasto-publicidad';
 import {
   AGENTES_DEFAULT_CONFIG,
-  type AgenteId,
   type ConfiguracionAgente,
   type RegistroEjecucionAgente,
 } from './tipos';
@@ -42,14 +41,14 @@ export async function getConfiguracionAgentes(): Promise<ConfiguracionAgente[]> 
 }
 
 export async function guardarConfiguracionAgentes(config: ConfiguracionAgente[]): Promise<void> {
-  await writeData(CONFIG_FILE, config);
+  await mutateGenericJsonArray(CONFIG_FILE, () => config);
 }
 
 export async function registrarEjecucionAgente(registro: RegistroEjecucionAgente): Promise<void> {
   try {
-    const historial = await readData<RegistroEjecucionAgente[]>(HISTORIAL_FILE, []);
-    const updated = [registro, ...historial].slice(0, MAX_HISTORIAL);
-    await writeData(HISTORIAL_FILE, updated, undefined, { skipAutoBackup: true });
+    await mutateGenericJsonArray<RegistroEjecucionAgente>(HISTORIAL_FILE, (historial) =>
+      [registro, ...(historial || [])].slice(0, MAX_HISTORIAL)
+    );
 
     // Actualizar última ejecución en la configuración
     const config = await getConfiguracionAgentes();
@@ -184,7 +183,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
   }
 
   if (nuevosMensajes.length > 0) {
-    await writeData('scheduled-messages.json', [...pendientes, ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -253,7 +252,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
   }
 
   if (nuevosMensajes.length > 0) {
-    await writeData('scheduled-messages.json', [...pendientes, ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -321,7 +320,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
   // Los borradores se guardan de verdad. Si no se escriben, no aparecen en Redes
   // Sociales y el mismo aviso vuelve a salir cada 15 minutos para siempre.
   if (nuevosPosts.length > 0) {
-    await writeData('social-posts.json', [...(posts || []), ...nuevosPosts]);
+    await mutateGenericJsonArray<any>('social-posts.json', (posts) => [...(posts || []), ...nuevosPosts]);
   }
 
   const registro: RegistroEjecucionAgente = {

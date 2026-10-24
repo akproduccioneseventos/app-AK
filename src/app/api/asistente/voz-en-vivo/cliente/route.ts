@@ -16,6 +16,31 @@ import {
 const USO_CLIENTE_FILE = 'asistente/voz-cliente-uso.json';
 const TOPE_MINUTOS_CLIENTE_POR_DEFECTO = 5;
 
+async function devolverMinutoCliente(fiestaId: string, hoyStr: string): Promise<void> {
+  try {
+    await mutarDocumentoConTransaccion<Record<string, { fecha: string; minutos: number }>>(
+      USO_CLIENTE_FILE,
+      {},
+      (registro) => {
+        const actual = registro || {};
+        const usoActual = actual[fiestaId];
+        if (!usoActual || usoActual.fecha !== hoyStr) {
+          return actual;
+        }
+        return {
+          ...actual,
+          [fiestaId]: {
+            fecha: hoyStr,
+            minutos: Math.max(0, (usoActual.minutos || 0) - 1),
+          },
+        };
+      }
+    );
+  } catch (err) {
+    console.warn('[VozCliente] Error al devolver minuto:', err);
+  }
+}
+
 export async function POST(request: Request) {
   let body: any = {};
   try {
@@ -81,6 +106,7 @@ export async function POST(request: Request) {
 
   // 4. Presupuesto global de IA
   if (!(await hayPresupuestoParaIA().catch(() => false))) {
+    await devolverMinutoCliente(fiestaId, hoyStr);
     return NextResponse.json(
       { error: 'El asistente por voz está momentáneamente ocupado. Podés escribirnos en el chat.' },
       { status: 503 }
@@ -104,9 +130,6 @@ export async function POST(request: Request) {
     'Regla de Oro: Solo respondé sobre los preparativos de SU fiesta. No ejecutes acciones directas; si pide cambios o consultas especiales, decile que el equipo lo coordinará con él.',
   ].join('\n');
 
-  // Registrar consumo de IA
-  await registrarConsumoIA('voz-cliente').catch(() => {});
-
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
   const version = versionApiEnVivo();
   const voz = vozValida((ajustes as any).vozSeleccionada);
@@ -123,6 +146,8 @@ export async function POST(request: Request) {
       });
       const data: any = await res.json().catch(() => ({}));
       if (res.ok && data?.name) {
+        // Registrar consumo de IA SOLO si Gemini entregó la ficha de verdad
+        await registrarConsumoIA('voz-cliente').catch(() => {});
         return NextResponse.json({
           token: data.name,
           model: modelo,
@@ -131,15 +156,14 @@ export async function POST(request: Request) {
         });
       }
     } catch {
-      // Si falla la generación de la ficha en Gemini, devuelve fallback simulado
+      // Si falla la generación de la ficha en Gemini, salta a la devolución
     }
   }
 
-  return NextResponse.json({
-    token: `token_cliente_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    model: modelosEnVivo()[0],
-    voz,
-    segundosMaximos: 60,
-    modoSimulado: true,
-  });
+  // Si no hay ficha, devolvemos el minuto reservado y retornamos 503 sin token
+  await devolverMinutoCliente(fiestaId, hoyStr);
+  return NextResponse.json(
+    { error: 'La llamada no está disponible ahora. Podés escribirnos en el chat.' },
+    { status: 503 }
+  );
 }

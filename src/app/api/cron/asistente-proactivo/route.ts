@@ -1,6 +1,5 @@
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
-import { readData, writeData } from '@/lib/data-service';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
@@ -214,28 +213,44 @@ export async function GET(request: Request) {
   if (avisosPrendidos && !esHorarioDescanso && resultadoPersistencia.agregadas.length > 0) {
     try {
       const hoyKey = ahora.toISOString().split('T')[0];
-      const trackingAvisos = await readData<Record<string, { fecha: string; count: number }>>('asistente/avisos-diarios.json', {});
-      const userTracking = trackingAvisos['general'] || { fecha: hoyKey, count: 0 };
-      const countHoy = userTracking.fecha === hoyKey ? userTracking.count : 0;
+      const importantes = resultadoPersistencia.agregadas.filter(p => p.esImportante);
 
-      // Máximo 3 avisos por día
-      if (countHoy < 3) {
-        const importantes = resultadoPersistencia.agregadas.filter(p => p.esImportante);
-        if (importantes.length > 0) {
+      if (importantes.length > 0) {
+        let reservado = false;
+        await mutarDocumentoConTransaccion<Record<string, { fecha: string; count: number }>>(
+          'asistente/avisos-diarios.json',
+          {},
+          (store) => {
+            const actual = store || {};
+            const userTracking = actual['general'] || { fecha: hoyKey, count: 0 };
+            const countHoy = userTracking.fecha === hoyKey ? userTracking.count : 0;
+            if (countHoy >= 3) {
+              reservado = false;
+              return null;
+            }
+            reservado = true;
+            return {
+              ...actual,
+              general: { fecha: hoyKey, count: countHoy + 1 },
+            };
+          }
+        );
+
+        if (reservado) {
           const primerAviso = importantes[0];
           await sendPushNotificationToAll({
             title: `Asistente AK: ${primerAviso.titulo}`,
             body: primerAviso.quePasa || primerAviso.quePropone,
             url: '/mi-dia?hablar=1',
           });
-
-          trackingAvisos['general'] = { fecha: hoyKey, count: countHoy + 1 };
-          await writeData('asistente/avisos-diarios.json', trackingAvisos);
         }
       }
 
       avisoDuenioRes = await avisarAlDuenio(resultadoPersistencia.agregadas, ahora);
     } catch (err: any) {
+      console.warn('[AsistenteProactivo] Error enviando avisos proactivos:', err);
+    }
+  } catch (err: any) {
       console.warn('[AsistenteProactivo] Error enviando avisos proactivos:', err);
     }
   }

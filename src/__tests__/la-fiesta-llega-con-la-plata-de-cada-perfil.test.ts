@@ -68,6 +68,7 @@ import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { updateGestionCostos } from '@/app/actions/fiesta/costos.actions';
 import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos, getPresupuestoById } from '@/app/actions/presupuestos';
+import { getDashboardKpiData } from '@/app/actions/dashboard';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 
@@ -76,6 +77,7 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
     id: 'fiesta-test-183',
     nombre: 'XV de Valentina',
     fecha: '2026-11-20',
+    configuracion: { fechaEvento: '2026-11-20' } as any,
     invitados: [{ id: 'inv-1', nombre: 'Juan Pérez', rsvp: 'Confirmado' }] as any,
     menu: { platoPrincipal: 'Asado' } as any,
     cronograma: [{ hora: '21:00', actividad: 'Recepción' }] as any,
@@ -214,7 +216,7 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
     expect(typeof updateGestionCostos).toBe('function');
   });
 
-  it('7. Operador lee presupuestos: sin pagosCliente; con total y costoTotalEstimado', async () => {
+  it('7. Operador lee presupuestos: sin pagosCliente ni senia ni saldo; con total y costoTotalEstimado', async () => {
     usuarioActual = usuarioOperador;
 
     const presupuestoCompleto: Presupuesto = {
@@ -236,14 +238,43 @@ describe('La fiesta le llega a cada perfil sólo con la plata que puede ver (Ord
     expect(filtrado.total).toBe(180000);
     expect(filtrado.costoTotalEstimado).toBe(180000);
     expect(filtrado.pagosCliente).toEqual([]);
+    expect((filtrado as any).senia).toBeUndefined();
+    expect((filtrado as any).saldo).toBeUndefined();
 
     const individual = await getPresupuestoById('pres-123');
     expect(individual).not.toBeNull();
     expect(individual?.pagosCliente).toEqual([]);
+    expect((individual as any)?.senia).toBeUndefined();
+    expect((individual as any)?.saldo).toBeUndefined();
   });
 
   it('8. Borrar presupuesto: usuario perfil dueno (rol viejo user) puede; rol admin con perfil secretaria NO puede', () => {
     expect(puede(usuarioDuenoConRolUser, PERMISOS.ADMINISTRACION)).toBe(true);
     expect(puede(usuarioSecretariaConRolAdmin, PERMISOS.ADMINISTRACION)).toBe(false);
+  });
+
+  it('9. El panel del operador no incluye avisos budget_balance_', async () => {
+    usuarioActual = usuarioOperador;
+    almacen['presupuestos.json'] = [
+      {
+        id: 'pres-123',
+        clienteNombre: 'Familia Gómez',
+        estado: 'Aceptado',
+        total: 180000,
+        senia: 40000,
+        saldo: 140000,
+        eventoFecha: new Date().toISOString(),
+        pagosCliente: [],
+      },
+    ];
+    almacen['invoices.json'] = [];
+    almacen['leads.json'] = [];
+    almacen['notificaciones.json'] = [];
+
+    const kpi = await getDashboardKpiData();
+    expect(kpi.success).not.toBe(false);
+    const alerts = (kpi as any).alerts || [];
+    const avisosBalance = alerts.filter((a: any) => a.id?.startsWith('budget_balance_'));
+    expect(avisosBalance.length).toBe(0);
   });
 });

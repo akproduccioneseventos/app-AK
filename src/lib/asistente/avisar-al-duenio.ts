@@ -6,7 +6,7 @@ import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
 import { mutarDocumento } from '@/lib/generic-json-store';
 
 export interface AsistenteSettings {
@@ -80,10 +80,16 @@ export async function getAsistenteSettings(): Promise<AsistenteSettings> {
 }
 
 export async function saveAsistenteSettings(settings: Partial<AsistenteSettings>): Promise<AsistenteSettings> {
-  const current = await getAsistenteSettings();
-  const updated: AsistenteSettings = { ...current, ...settings };
-  await writeData(SETTINGS_FILE, updated);
-  return updated;
+  const guardado = await mutarDocumento<AsistenteSettings>(
+    SETTINGS_FILE,
+    ASISTENTE_SETTINGS_DEFAULT,
+    (curr) => ({
+      ...ASISTENTE_SETTINGS_DEFAULT,
+      ...(curr || {}),
+      ...settings,
+    })
+  );
+  return guardado;
 }
 
 /**
@@ -142,9 +148,17 @@ async function getEnviosWhatsAppHoy(): Promise<number> {
 async function registrarEnvioWhatsAppHoy(): Promise<void> {
   try {
     const hoyStr = getFechaIsoUruguay();
-    const envios = await readData<RegistroEnviosDia>(ENVIOS_DIARIOS_FILE, { fecha: hoyStr, cantidad: 0 });
-    const cantidad = envios.fecha === hoyStr ? (envios.cantidad || 0) + 1 : 1;
-    await writeData(ENVIOS_DIARIOS_FILE, { fecha: hoyStr, cantidad }, undefined, { skipAutoBackup: true });
+    await mutarDocumento<RegistroEnviosDia>(
+      ENVIOS_DIARIOS_FILE,
+      { fecha: hoyStr, cantidad: 0 },
+      (envios) => {
+        const actual = envios || { fecha: hoyStr, cantidad: 0 };
+        return {
+          fecha: hoyStr,
+          cantidad: actual.fecha === hoyStr ? (actual.cantidad || 0) + 1 : 1,
+        };
+      }
+    );
   } catch (err) {
     console.warn('[AvisarAlDuenio] Error guardando envíos de WhatsApp:', err);
   }
