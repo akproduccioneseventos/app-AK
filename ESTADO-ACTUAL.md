@@ -1,70 +1,36 @@
-# Estado actual — 20 de octubre de 2026
+# Estado actual - Codex 24/10/2026 Uruguay
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1358 (`725e62ba2`, 22/10): revisión contable y de contratos (avisos de pago a la vez, costos automáticos, factura, seña, texto firmado).
+Repo ak-auditoria267-cierre; rama codex/267-cierre-nativo-20261023.
+Fuente runtime: 3e45a4ac6b479f89605163168e31b37dc84f2d0f, main/1360.
+PR1361 ABIERTA/BORRADOR, primera entrega47d24689a; continuacion267-345.
+Codex SOLO audita/prueba/documenta. Gemini programa; Claude valida/fusiona.
+Excepcion QA ficticio; no appedit/merge/datos reales. Manualdueno no pendienteCodex.
+UNICO recuento253; informe308; consolidacion318; transporte316 con SHA256.
 
-## En qué se está
-Codex 186-206: orden 210 publicada (1351); orden 211 (aprobaciones y contrato firmado, incluye un error mío ya publicado) hecha, falta publicar. Para Gemini: orden 212 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
-Codex sólo audita.
+218 CERRADA285 SDK2PASS y219 CERRADA286 SDK2PASS; no toda contabilidad/contratos.
+287:3suites16PASS.291 build3e PASS tipos/lint/sourceDiff0; no recompilar por docs.
+Dependencias reutilizadas: estree1.0.8 vs1.0.9lock, no npm-ci limpio.
+321 Jest canonico:834suites5136PASS0FAIL0pending, red bloqueada323/324.
+314:72fallos por entornoQAincorrecto, preservados; no72regresiones.
+318 nativos3e:210reportados176ejecutados,149PASS27FAIL/timeout34SKIP; no27bugs.
+Baseline725/277:1144unicos542ejecutados496PASS46FAIL600SKIP2FIXME; no mezclar.
+304 lectoresVideoVida/espejoSDK5PASS1SKIP;307 clic360 PC/movil2PASS.
+327 fixture normal PC/movil2PASS, localFISdoble; no OAuth/servicios reales.
+319 FailedFetch:6FIS,3FIS+initScriptstorageQA; no9modulosrotos.
 
-## Terminado en esta tanda
-- Junté en la rama los arreglos de Codex 136/138 (1328) y la evidencia de Codex 134 (1324).
-- Devolví la entrega de Gemini 1333 (órdenes 180 a 183 y 185): sola rompía 7 pruebas, junto con
-  la rama 12, y dejaba pública una función de costos sin permiso → **orden 188**.
-- Cerré sin fusionar 1330, 1331, 1332, 1334, 1335 y 1333. Lo que servía pasó a las órdenes.
-- **Orden 189:** las novedades que eligió el dueño, con realidad aumentada de verdad (apuntar a la
-  invitación impresa), Play Store, iPhone desde la web, selfie, cámara descartable, trivia con IA
-  real, efecto Coldplay y armador de mesas.
-- **Orden 190:** hablarle a la app como en una llamada, que haga tareas con confirmación, avisos al
-  teléfono según el perfil, ícono "Hablar con AK" y "los dots de AK" (asistentes con nombre, objetivo
-  y qué hacen solos). Se habla siempre a "Asistente AK", que deriva solo; el dueño llega a todo.
-- Método: preguntas 69 a 73 (COMO-AUDITAR) y 54 (ANTES-DE-ENTREGAR). El control de acentos ya lee
-  nombres de archivo con tilde.
-- Decisiones nuevas anotadas en CLAUDE.md (19/10): realidad aumentada SÍ; Play Store sí; Apple no.
+332/334:374de374paginas visitadas,359PASO1FALLO14NO_PROBADA,0sinvisitar.
+67entradasQA corregidas fiestaId;50handlers=>424inventario, no aceptacion por rol.
+344:15diagnosticos completados;10estaciones muestran contenido,
+2lectores error/reintento; factura/VideoVidaadmin sin cuerpo util en ese recorrido.
+Playlist mensajeerror en QArednegada, inconcluso; no defecto publicado confirmado.
+343 corrige atribucion339: lectorQA esperaba main ausente sin timeout, no Bogue/CDP.
+DOS NUEVOS:220Gemini contraste tragoslistos341;221Claude factura null345.
+345:1PASScontrol1FAILnull; no importes/cobros reales ni programacion de app porCodex.
 
-- **Orden 191:** filtros que siguen la cara, "Mis 15", estilo Canva y efectos de Instagram/TikTok.
-- **Orden 192:** un solo centro de presencia y redes, bandeja única de mensajes, respuestas solas con reglas.
-- **Barrido de las 73 preguntas** (20/10): registro `docs/barridos.json` + control que lo exige.
-  Lo confirmado (plata incluida) va en la **orden 193**; ~25 preguntas quedaron "parcial".
-- **Orden 194:** 36 de 45 hallazgos de la auditoría de Gemini (20/10) eran ciertos. Lo urgente: el despertador
-  no llega a la app. Preguntas 74–81 y `npm run formas-ya-arregladas` (lo arreglado en un archivo, buscado en todo).
-- **Despertador de Claude cada hora:** revisa solo lo que entreguen Gemini y Codex (decisión del dueño 20/10).
-- Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
-
-## Errores de plata y permisos abiertos en la app publicada
-- Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
-
-## Revisado hasta (lo usa el despertador de cada hora)
-- Codex 1359 (`914d78307`, auditorías 260-264): juntado. Dos fallas nuevas de plata y contrato (órdenes 218 y 219), arregladas por Claude el 23/10; preguntas 93 y 94.
-- Codex 1359 (`e9477ba8e`, auditorías 254-255): juntado. Confirma arreglados la firma del contrato (216, C1-C4) y el recordatorio R1 (217); sin hallazgos nuevos. R2-R4 siguen con Gemini.
-- Codex 1356 (`5ec6bb2fa`, recuento único 253): juntado, sin hallazgos nuevos.
-- Codex 1356 (`dcfe7b458`, auditorías 240 y 249-251): juntado. Firma del contrato (216) arreglada por Claude; recordatorio: R1 por Claude, R2-R4 a Gemini (orden 215, bloque 6).
-- (antes) Codex 1356 (`3155a27ba`, auditoría 240): juntado. Las cuatro fallas de la firma del contrato en el portal las arregló Claude (orden 216-claude).
-- Codex 1354 (`8ef06a7f4`, auditorías 213-239): juntado. Las dos fallas de plata de las aprobaciones (firma que llega en el medio, deshacer que pisaba a otro) las arregló Claude (orden 213-claude); filtros → orden 214 para Gemini.
-- Gemini 1353 (`b91bdbeff`, órdenes 180 a 195): devuelta con la **orden 215** (más la 214 de Codex). No compila (1 error), 38 pruebas fallan, y la bandeja de mensajes quedaba sin permiso. Abierta, sin fusionar.
-- Codex 1345 (`89d968d6b`, auditorías 176-185): juntado. El rol de cocina y la pregunta 87 (precio y cita por nombre parcial) los arregló Claude; el resto, orden 208.
-- Codex 192 (`f80113d35`, auditorías 186-202): juntado. Orden 210: plata del portal hecha por Claude; orden 212 para Gemini.
-- Gemini 1346 (`512881c25`, órdenes 205 a 208): revisada y juntada; compila, 5.075 pruebas en verde. Claude arregló la voz con la base que repite el guardado.
-- Gemini 1344 (`bfde3916a`): devuelta con la **orden 205** (Codex) y la **206** (fechas). Abierta, sin fusionar.
-- Codex 1345: `1cb47af06` (antes `f776ae29e`) (auditorías 160-169 juntadas): orden 204 del proveedor y el Tab de la 199 arreglados por Claude.
-- Codex 1340: `588fd64d7` (auditorías 156-159 juntadas: órdenes 200 y 201 de permisos arregladas por Claude; la fecha del seguimiento quedó en la 193 para Gemini). Antes `fdc24539a` (auditoría 155 juntada: foco de la galería pública → orden 199, con el video de ayuda sumado por el barrido de la pregunta 83). Antes `9301e146c` (auditorías 151-154 sobre la publicada 894d0160): sin hallazgos nuevos; confirma cerradas 171, 184 y 186; sigue abierta la 172 (dock en celular), ya pedida a Gemini. La 1324 quedó cerrada al entrar en la 1339.
-- Codex 1324: `2852f0881` (auditoría 150 juntada; su 196 pasó a ser la **198**). Antes `2ccdb3858` (auditoría 149, juntada; su orden 186 pasó a ser la **195**).
-- Claude hizo lo chico (20/10): orden 199 (foco de los visores), fecha del seguimiento (Codex 159) y las mesas de la 202 (falso positivo). A Gemini le quedan la 196 y la 202 (bloques 1 y 3).
-- Gemini 1343 (`f10414c06`, órdenes 196 y 202): **cerrada sin fusionar**; no compilaba (5 errores), 7 pruebas en rojo, el presupuesto por WhatsApp no lo llamaba nadie y salía en $0 → **orden 203**.
-- Gemini 1341 (`7dd30ef2c`, órdenes 180-183): **cerrada sin fusionar**; comentarios y pruebas vacías en vez de código → **orden 202**.
-- Gemini 1338 (orden 197): `2e5363f25`, juntada, terminada por Claude y publicada en la 1339.
-- Gemini 1337: `45a0b1d47` (órdenes 188 a 192) → **devuelta con la orden 196**; faltan 193 a 195.
-- 1325 a 1329: viejas, superadas por las órdenes 188 a 194; no se revisan de nuevo.
-
-## A medias / trabado
-- Órdenes 180–183 y 185 siguen sin entrar: van dentro de la devolución 188.
-- Orden 182 (5 pestañas, portal en 5 pasos, Marketing): lo armado no se ve en las pantallas.
-- Hay que medir cuántos minutos de voz en vivo gratis da Gemini por día antes de subir el tope de
-  10 minutos.
-- Respaldo local de la integración rota: rama local `respaldo-integracion-f9878` (no subida, se
-  puede tirar).
-
-## Lo próximo
-1. Cuando Gemini entregue 188: revisar plata y permisos línea por línea (candado de la plata,
-   `recortarFiestaPorPerfil`, guardado que no borra), puerta, fusionar con `expectedHeadSha`.
-2. Después 189 y 190, en el mismo orden. 190 toca permisos: con lupa.
-3. Pendiente del dueño, sin apuro: si quiere sumar "Mi día" como puerta de entrada al reordenar.
+342:PR1353 actual3f9460185143ef034dcd713e975d2a0af5e20f1a,131deltas src/tests.
+212/214/215 entrega nueva;217motor propuesta presente: PENDIENTE validacion3f.
+220y221 consumidores relevantes identicos3e/3f. Privados NO CONTRASTADOS.
+No aceptar3f con build291/pruebas3e; no reemitir fallos b91 como si fueran actuales.
+Ejecuciones de esta tanda FINALIZADAS, fuente congelada, servicios propios cerrados.
+Publicar continuidad en MISMA PR1361 y verificar arbol/blobs; no fusion docs solos.
+No certificar cada accion/rol/modelo/voz/servicios reales ni0errores/todaappaprobada.

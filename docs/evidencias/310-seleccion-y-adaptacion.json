@@ -1,0 +1,62 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "mode": "failed-files",
+  "selected": [
+    "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+    "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+    "calendarios-react19.spec.ts",
+    "carga-rapido.spec.ts",
+    "el-totem-de-bienvenida.spec.ts",
+    "entertainment-stations.spec.ts",
+    "internal-dynamic-route-inventory.spec.ts",
+    "la-grilla-de-caras.spec.ts",
+    "la-hoja-de-cocina.spec.ts",
+    "la-web-de-venta-no-se-rompe.spec.ts",
+    "la-web-publica-se-ve.spec.ts",
+    "las-estaciones-respetan-los-ajustes.spec.ts",
+    "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+    "layout-baseline.spec.ts",
+    "lectura-invitados-aislada.spec.ts",
+    "limpiar-la-agenda.spec.ts",
+    "los-enlaces-llegan-a-donde-dicen.spec.ts",
+    "mobile-overflow.spec.ts",
+    "muro-subir-foto.spec.ts",
+    "noche-de-fiesta.spec.ts",
+    "orden-86-pantallas.spec.ts",
+    "pantallas-con-iconos-react19.spec.ts",
+    "pantallas-tocadas-tanda-12-10.spec.ts",
+    "prospecto-simulador.spec.ts",
+    "public-smoke.spec.ts",
+    "simulator-budget-journey.spec.ts"
+  ],
+  "changes": [
+    {
+      "from": "const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');",
+      "to": "const root=\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-auditoria267-cierre\\\\\",dir=path.join(root,'docs/evidencias');"
+    },
+    {
+      "from": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+      "to": "3e45a4ac6b479f89605163168e31b37dc84f2d0f"
+    },
+    {
+      "from": "206-entorno.json",
+      "to": "291-entorno.json"
+    },
+    {
+      "from": "ak-qa-206-",
+      "to": "ak-qa-280-"
+    },
+    {
+      "from": "const runId=process.env.AK_AUDIT_RUN_ID||'209';",
+      "to": "const runId='310';"
+    },
+    {
+      "from": "if(includePortal){const newTest=",
+      "to": "assert.equal(manifest.length,26,'All selected focal files must exist');\nif(includePortal){const newTest="
+    }
+  ],
+  "originalSha256": "f2a7d9db60d4f50c92e714d857746911b986f4e14465d10abf6f6187c2db9dce",
+  "driverSha256": "64367836574e33fcd47c621dedc6d93006b889b43206693b5fb4d41b88b17f90",
+  "assertionsChanged": false,
+  "scope": "Existing failed-file contexts rerun on new exact app source. Original assertions/timeouts untouched; previous failures retained, source and memory conditions differ."
+}

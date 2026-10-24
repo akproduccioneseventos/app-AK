@@ -1,0 +1,130 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z",
+  "preparedReceipt": "280-entorno.json",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "started": "2026-10-24T01:11:22.854Z",
+  "phase": "built",
+  "probes": [
+    {
+      "at": "2026-10-24T01:11:24.057Z",
+      "freeBytes": 1916882944,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:11:55.439Z",
+      "freeBytes": 1968345088,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:12:26.599Z",
+      "freeBytes": 1991778304,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:12:58.474Z",
+      "freeBytes": 1516498944,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:13:29.557Z",
+      "freeBytes": 1659707392,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:14:00.372Z",
+      "freeBytes": 1706901504,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:14:31.753Z",
+      "freeBytes": 1722359808,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:15:03.329Z",
+      "freeBytes": 1697611776,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:15:35.060Z",
+      "freeBytes": 1723371520,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:16:06.031Z",
+      "freeBytes": 1723383808,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:16:37.069Z",
+      "freeBytes": 1454198784,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:17:08.208Z",
+      "freeBytes": 1427718144,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:17:39.276Z",
+      "freeBytes": 1458159616,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:18:10.018Z",
+      "freeBytes": 1553293312,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:18:40.695Z",
+      "freeBytes": 1535664128,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:19:11.349Z",
+      "freeBytes": 1554882560,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:19:43.211Z",
+      "freeBytes": 1855385600,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:20:13.872Z",
+      "freeBytes": 1841713152,
+      "foreignHeavy": [],
+      "probeExit": 0
+    },
+    {
+      "at": "2026-10-24T01:20:44.488Z",
+      "freeBytes": 2591305728,
+      "foreignHeavy": [],
+      "probeExit": 0
+    }
+  ],
+  "appEdited": false,
+  "realServices": false,
+  "buildPid": 2308,
+  "buildExit": 0,
+  "sourceDiff": "",
+  "finished": "2026-10-24T01:33:47.333Z"
+}

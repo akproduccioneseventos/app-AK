@@ -1,0 +1,127 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "stats": {
+    "expected": 139,
+    "skipped": 26,
+    "unexpected": 13,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-la-vidriera-de-la-tecnologia.spec.ts",
+        "ak207-mobile-overflow.spec.ts",
+        "ak207-mural-geometria-visible.spec.ts",
+        "ak207-muro-subir-foto.spec.ts",
+        "ak207-noche-de-fiesta.spec.ts",
+        "ak207-orden-86-pantallas.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T23:51:35.082Z",
+      "report": "274-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T23:12:19.945Z",
+        "duration": 2355139.719,
+        "expected": 24,
+        "skipped": 2,
+        "unexpected": 6,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-pantallas-con-iconos-react19.spec.ts",
+        "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+        "ak207-planner-missing-portals.spec.ts",
+        "ak207-portal-fecha-y-botones.spec.ts",
+        "ak207-presupuesto-publico-sin-sesion.spec.ts",
+        "ak207-prospecto-simulador.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T23:59:36.794Z",
+      "report": "274-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T23:51:37.709Z",
+        "duration": 479074.19,
+        "expected": 28,
+        "skipped": 15,
+        "unexpected": 5,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-public-experience-matrix.spec.ts",
+        "ak207-public-smoke.spec.ts",
+        "ak207-qr-archivo-rotaciones.spec.ts",
+        "ak207-qr-descargado-lector-real.spec.ts",
+        "ak207-salon-3d-ayuda-recorrido.spec.ts",
+        "ak207-salon-3d-cliente.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T00:22:50.264Z",
+      "report": "274-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T23:59:37.810Z",
+        "duration": 1392461.2019999998,
+        "expected": 37,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-salon-3d-real.spec.ts",
+        "ak207-salon-3d-se-dibuja.spec.ts",
+        "ak207-senal-mala.spec.ts",
+        "ak207-simulador-contacto-oficial.spec.ts",
+        "ak207-simulator-budget-journey.spec.ts",
+        "ak207-sofia-composer.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T00:41:14.077Z",
+      "report": "274-batch-004-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T00:22:51.293Z",
+        "duration": 1102777.7740000002,
+        "expected": 13,
+        "skipped": 2,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 5,
+      "files": [
+        "ak207-tarjetas-whatsapp.spec.ts",
+        "ak207-touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+        "ak207-trabajos-completos.spec.ts",
+        "ak207-viaje-invitado.spec.ts",
+        "ak207-video-vida-error-lectura.spec.ts",
+        "ak207-voz-en-vivo-reintento-y-cancelacion.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T00:50:02.004Z",
+      "report": "274-batch-005-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T00:41:15.503Z",
+        "duration": 526478.667,
+        "expected": 37,
+        "skipped": 7,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}
