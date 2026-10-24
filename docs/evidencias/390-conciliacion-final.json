@@ -1,0 +1,1550 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "candidate": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "observedAt": "2026-10-24T17:21:01.129Z",
+  "notNewExecution": true,
+  "counts": {
+    "total": 210,
+    "passed": 159,
+    "failedOrTimedOut": 17,
+    "skipped": 34,
+    "other": 0
+  },
+  "cases": [
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › confirma, recibe su QR y la confirmacion llega al evento",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el que no puede ir ve el boton correcto",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el equipo ve la confirmacion en el centro de fiesta",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el invitado que se arrepiente no queda contado dos veces",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el cliente entra a su portal con su clave y ve a su invitado",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › confirma, recibe su QR y la confirmacion llega al evento",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el que no puede ir ve el boton correcto",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el equipo ve la confirmacion en el centro de fiesta",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el invitado que se arrepiente no queda contado dos veces",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "133-invitado-con-red-local.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el cliente entra a su portal con su clave y ve a su invitado",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "143-cocina-fecha-local.spec.ts",
+      "title": "ak207-143-cocina-fecha-local.spec.ts > fecha civil del evento se conserva en hoja de cocina y modo impresion",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 75872,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "143-cocina-fecha-local.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-143-cocina-fecha-local.spec.ts › fecha civil del evento se conserva en hoja de cocina y modo impresion",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 1. Recorrido Prospecto: landing y simulador de presupuesto responden inmediatamente",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 2. Recorrido Cliente: acceso a su portal con aislamiento y sin controles de administración",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 3. Recorrido Invitado: confirmación RSVP clara y accesible",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 4. Recorrido Operador: estación Touchpix lista para trabajar con token de evento",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 5. Recorrido Marketing y Redes: panel de redes sociales operativo con getSocialPosts",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 1. Recorrido Prospecto: landing y simulador de presupuesto responden inmediatamente",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 2. Recorrido Cliente: acceso a su portal con aislamiento y sin controles de administración",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 3. Recorrido Invitado: confirmación RSVP clara y accesible",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 4. Recorrido Operador: estación Touchpix lista para trabajar con token de evento",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "45-recorridos-pendientes.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 5. Recorrido Marketing y Redes: panel de redes sociales operativo con getSocialPosts",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "48-fotocabina-recuerdo-seguro.spec.ts",
+      "title": "ak207-48-fotocabina-recuerdo-seguro.spec.ts > Orden 48: la fotocabina levanta y deja sacar la foto > ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 9480,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "48-fotocabina-recuerdo-seguro.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-48-fotocabina-recuerdo-seguro.spec.ts › Orden 48: la fotocabina levanta y deja sacar la foto › ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "48-touchpix-entrega-sin-reinicio.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts › Orden 48: Touchpix levanta entero › ENT-03: la estacion abre con sus pestanas y su camara",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "48-touchpix-entrega-sin-reinicio.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts › Orden 48: Touchpix levanta entero › ENT-03: sesion segura - subida lenta de A no pisa la sesion de B al llegar tarde",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "48-touchpix-entrega-sin-reinicio.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts › Orden 48: Touchpix levanta entero › ENT-03: la estacion abre con sus pestanas y su camara",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "48-touchpix-entrega-sin-reinicio.spec.ts",
+      "title": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts > Orden 48: Touchpix levanta entero > ENT-03: sesion segura - subida lenta de A no pisa la sesion de B al llegar tarde",
+      "project": "chromium-mobile",
+      "status": "timedOut",
+      "duration": 104709,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "81-cola-aislamiento-y-reintento.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-81-cola-aislamiento-y-reintento.spec.ts › Orden 81 — Cola de subida, aislamiento y reintentos › las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "81-cola-aislamiento-y-reintento.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-81-cola-aislamiento-y-reintento.spec.ts › Orden 81 — Cola de subida, aislamiento y reintentos › las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse",
+      "status": "passed",
+      "report": "296-batch-001-resultados.json"
+    },
+    {
+      "file": "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts > Orden 89 — Bloque 2: La barra no ofrece lo agotado > trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "duration": 180291,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts › Orden 89 — Bloque 2: La barra no ofrece lo agotado › en la pantalla táctil de barra el trago agotado también se ve inactivo y no se sugiere al azar",
+      "status": "passed",
+      "report": "310-batch-001-resultados.json"
+    },
+    {
+      "file": "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts › Orden 89 — Bloque 2: La barra no ofrece lo agotado › trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "status": "passed",
+      "report": "310-batch-001-resultados.json"
+    },
+    {
+      "file": "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts › Orden 89 — Bloque 2: La barra no ofrece lo agotado › en la pantalla táctil de barra el trago agotado también se ve inactivo y no se sugiere al azar",
+      "status": "passed",
+      "report": "310-batch-001-resultados.json"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 55713,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 73040,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Plataforma 360 con corte de red: dice guardado en el equipo y NUNCA subido ni galería",
+      "status": "passed",
+      "report": "310-batch-002-resultados.json"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Plataforma 360 con subida rechazada: muestra el error y NO dice que se sube sola",
+      "status": "passed",
+      "report": "310-batch-002-resultados.json"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 66501,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 41310,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Plataforma 360 con corte de red: dice guardado en el equipo y NUNCA subido ni galería",
+      "status": "passed",
+      "report": "310-batch-002-resultados.json"
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Plataforma 360 con subida rechazada: muestra el error y NO dice que se sube sola",
+      "status": "passed",
+      "report": "310-batch-002-resultados.json"
+    },
+    {
+      "file": "calendarios-react19.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-calendarios-react19.spec.ts › agenda: elegir dia y navegar meses sin tapar los controles",
+      "status": "passed",
+      "report": "310-batch-003-resultados.json"
+    },
+    {
+      "file": "calendarios-react19.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-calendarios-react19.spec.ts › redes: calendario visible y navegacion mensual",
+      "status": "passed",
+      "report": "310-batch-003-resultados.json"
+    },
+    {
+      "file": "calendarios-react19.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-calendarios-react19.spec.ts › agenda: elegir dia y navegar meses sin tapar los controles",
+      "status": "passed",
+      "report": "310-batch-003-resultados.json"
+    },
+    {
+      "file": "calendarios-react19.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-calendarios-react19.spec.ts › redes: calendario visible y navegacion mensual",
+      "status": "passed",
+      "report": "310-batch-003-resultados.json"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › / responde y completa carga inicial dentro del límite de 2500 ms",
+      "status": "passed",
+      "report": "310-batch-004-resultados.json"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › /bodas responde y completa carga inicial dentro del límite de 2500 ms",
+      "status": "passed",
+      "report": "310-batch-004-resultados.json"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts > Orden 37 — Que cargue rápido (límite 2500 ms) > /quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 96970,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › /cumpleanos responde y completa carga inicial dentro del límite de 2500 ms",
+      "status": "passed",
+      "report": "310-batch-004-resultados.json"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › / responde y completa carga inicial dentro del límite de 2500 ms",
+      "status": "skipped",
+      "report": "310-batch-004-resultados.json"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › /bodas responde y completa carga inicial dentro del límite de 2500 ms",
+      "status": "skipped",
+      "report": "310-batch-004-resultados.json"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › /quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+      "status": "skipped",
+      "report": "310-batch-004-resultados.json"
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › /cumpleanos responde y completa carga inicial dentro del límite de 2500 ms",
+      "status": "skipped",
+      "report": "310-batch-004-resultados.json"
+    },
+    {
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Sin QR muestra la pantalla de espera con Acercá el QR",
+      "status": "passed",
+      "report": "310-batch-005-resultados.json"
+    },
+    {
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+      "status": "passed",
+      "report": "310-batch-005-resultados.json"
+    },
+    {
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Con un QR de otra fiesta o token malo muestra cartel de error y no saluda",
+      "status": "passed",
+      "report": "310-batch-005-resultados.json"
+    },
+    {
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Vuelve sola a la pantalla de espera",
+      "status": "passed",
+      "report": "310-batch-005-resultados.json"
+    },
+    {
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Sin QR muestra la pantalla de espera con Acercá el QR",
+      "status": "passed",
+      "report": "310-batch-005-resultados.json"
+    },
+    {
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+      "status": "passed",
+      "report": "310-batch-005-resultados.json"
+    },
+    {
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Con un QR de otra fiesta o token malo muestra cartel de error y no saluda",
+      "status": "passed",
+      "report": "310-batch-005-resultados.json"
+    },
+    {
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Vuelve sola a la pantalla de espera",
+      "status": "passed",
+      "report": "310-batch-005-resultados.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-entertainment-stations.spec.ts › operator screens load for every camera station",
+      "status": "passed",
+      "report": "310-batch-006-resultados.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-entertainment-stations.spec.ts › photobooth display receives a browser camera stream",
+      "status": "passed",
+      "report": "310-batch-006-resultados.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts > time capsule exposes every media mode and records the configured frame",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "duration": 92281,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts > time capsule bakes the configured frame into an uploaded gallery video",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 55558,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-entertainment-stations.spec.ts › AI mirror keeps one coherent touch selector on desktop and mobile",
+      "status": "passed",
+      "report": "310-batch-006-resultados.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-entertainment-stations.spec.ts › operator screens load for every camera station",
+      "status": "skipped",
+      "report": "310-batch-006-resultados.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-entertainment-stations.spec.ts › photobooth display receives a browser camera stream",
+      "status": "passed",
+      "report": "310-batch-006-resultados.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-entertainment-stations.spec.ts › time capsule exposes every media mode and records the configured frame",
+      "status": "skipped",
+      "report": "310-batch-006-resultados.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-entertainment-stations.spec.ts › time capsule bakes the configured frame into an uploaded gallery video",
+      "status": "skipped",
+      "report": "310-batch-006-resultados.json"
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-entertainment-stations.spec.ts › AI mirror keeps one coherent touch selector on desktop and mobile",
+      "status": "passed",
+      "report": "310-batch-006-resultados.json"
+    },
+    {
+      "file": "internal-dynamic-route-inventory.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-internal-dynamic-route-inventory.spec.ts › every dynamic internal route responds with representative local data",
+      "status": "passed",
+      "report": "310-batch-007-resultados.json"
+    },
+    {
+      "file": "internal-dynamic-route-inventory.spec.ts",
+      "title": "ak207-internal-dynamic-route-inventory.spec.ts > representative dynamic screens hydrate without browser errors",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 195627,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "internal-dynamic-route-inventory.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-internal-dynamic-route-inventory.spec.ts › every dynamic internal route responds with representative local data",
+      "status": "skipped",
+      "report": "310-batch-007-resultados.json"
+    },
+    {
+      "file": "internal-dynamic-route-inventory.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-internal-dynamic-route-inventory.spec.ts › representative dynamic screens hydrate without browser errors",
+      "status": "skipped",
+      "report": "310-batch-007-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › con la fiesta sin preparar, el botón no aparece",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › la grilla muestra caritas sin nombres y permite descargar las fotos de una persona",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › con el interruptor apagado no se ve ni la grilla ni el botón",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › sin aceptar el permiso, la cámara no se prende y la galería sigue igual",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 22390,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › con la fiesta sin preparar, el botón no aparece",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › la grilla muestra caritas sin nombres y permite descargar las fotos de una persona",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › con el interruptor apagado no se ve ni la grilla ni el botón",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › sin aceptar el permiso, la cámara no se prende y la galería sigue igual",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › la selfie no sale del teléfono ni se manda a la red",
+      "status": "passed",
+      "report": "310-batch-008-resultados.json"
+    },
+    {
+      "file": "la-hoja-de-cocina.spec.ts",
+      "title": "ak207-la-hoja-de-cocina.spec.ts > la hoja de cocina se abre, se puede imprimir y avisa si falta cargar algo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 12257,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "la-hoja-de-cocina.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-la-hoja-de-cocina.spec.ts › desde la comida se llega a la hoja de cocina en un toque",
+      "status": "passed",
+      "report": "310-batch-009-resultados.json"
+    },
+    {
+      "file": "la-hoja-de-cocina.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-hoja-de-cocina.spec.ts › la hoja de cocina se abre, se puede imprimir y avisa si falta cargar algo",
+      "status": "skipped",
+      "report": "310-batch-009-resultados.json"
+    },
+    {
+      "file": "la-hoja-de-cocina.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-hoja-de-cocina.spec.ts › desde la comida se llega a la hoja de cocina en un toque",
+      "status": "skipped",
+      "report": "310-batch-009-resultados.json"
+    },
+    {
+      "file": "la-web-de-venta-no-se-rompe.spec.ts",
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts > las pantallas de venta se abren solas sin romperse por dentro",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "duration": 249218,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "la-web-de-venta-no-se-rompe.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts › las pantallas de venta se abren solas sin romperse por dentro",
+      "status": "skipped",
+      "report": "310-batch-010-resultados.json"
+    },
+    {
+      "file": "la-web-publica-se-ve.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-la-web-publica-se-ve.spec.ts › La web pública se ve — Prueba de visibilidad real y SEO › La portada muestra todas las secciones hasta el pie de página y el botón de contacto es visible",
+      "status": "passed",
+      "report": "310-batch-011-resultados.json"
+    },
+    {
+      "file": "la-web-publica-se-ve.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-la-web-publica-se-ve.spec.ts › La web pública se ve — Prueba de visibilidad real y SEO › Las páginas públicas tienen título y descripción válidos, y no redirigen a login",
+      "status": "passed",
+      "report": "310-batch-011-resultados.json"
+    },
+    {
+      "file": "la-web-publica-se-ve.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-la-web-publica-se-ve.spec.ts › La web pública se ve — Prueba de visibilidad real y SEO › La dirección canónica apunta a la página misma",
+      "status": "passed",
+      "report": "310-batch-011-resultados.json"
+    },
+    {
+      "file": "la-web-publica-se-ve.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-web-publica-se-ve.spec.ts › La web pública se ve — Prueba de visibilidad real y SEO › La portada muestra todas las secciones hasta el pie de página y el botón de contacto es visible",
+      "status": "passed",
+      "report": "310-batch-011-resultados.json"
+    },
+    {
+      "file": "la-web-publica-se-ve.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-web-publica-se-ve.spec.ts › La web pública se ve — Prueba de visibilidad real y SEO › Las páginas públicas tienen título y descripción válidos, y no redirigen a login",
+      "status": "passed",
+      "report": "310-batch-011-resultados.json"
+    },
+    {
+      "file": "la-web-publica-se-ve.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-la-web-publica-se-ve.spec.ts › La web pública se ve — Prueba de visibilidad real y SEO › La dirección canónica apunta a la página misma",
+      "status": "passed",
+      "report": "310-batch-011-resultados.json"
+    },
+    {
+      "file": "las-estaciones-respetan-los-ajustes.spec.ts",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts > cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 469343,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "las-estaciones-respetan-los-ajustes.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts › el buzón respeta la cuenta regresiva que puso el equipo",
+      "status": "passed",
+      "report": "310-batch-012-resultados.json"
+    },
+    {
+      "file": "las-estaciones-respetan-los-ajustes.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts › cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "status": "skipped",
+      "report": "310-batch-012-resultados.json"
+    },
+    {
+      "file": "las-estaciones-respetan-los-ajustes.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts › el buzón respeta la cuenta regresiva que puso el equipo",
+      "status": "skipped",
+      "report": "310-batch-012-resultados.json"
+    },
+    {
+      "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts › Las pantallas del invitado no quedan colgadas › /feedback/<id> no queda colgada si la respuesta del servidor se corta",
+      "status": "passed",
+      "report": "310-batch-013-resultados.json"
+    },
+    {
+      "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts › Las pantallas del invitado no quedan colgadas › /invitacion/<id>/rsvp no queda colgada si la respuesta del servidor se corta",
+      "status": "passed",
+      "report": "310-batch-013-resultados.json"
+    },
+    {
+      "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts › Las pantallas del invitado no quedan colgadas › /feedback/<id> no queda colgada si la respuesta del servidor se corta",
+      "status": "passed",
+      "report": "310-batch-013-resultados.json"
+    },
+    {
+      "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts › Las pantallas del invitado no quedan colgadas › /invitacion/<id>/rsvp no queda colgada si la respuesta del servidor se corta",
+      "status": "passed",
+      "report": "310-batch-013-resultados.json"
+    },
+    {
+      "file": "layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts > huella de maquetación > las pantallas de referencia mantienen su geometría",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 135668,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts > huella de maquetación > las pantallas de referencia mantienen su geometría",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "duration": 82666,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "lectura-invitados-aislada.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › anonimo: la recepcion lo manda al ingreso y no le llega la lista",
+      "status": "passed",
+      "report": "310-batch-015-resultados.json"
+    },
+    {
+      "file": "lectura-invitados-aislada.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › cliente del portal de OTRA fiesta: no recibe la lista",
+      "status": "passed",
+      "report": "310-batch-015-resultados.json"
+    },
+    {
+      "file": "lectura-invitados-aislada.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › cookie de sesion con firma falsa: pasa el portero pero el servidor no entrega la lista",
+      "status": "passed",
+      "report": "310-batch-015-resultados.json"
+    },
+    {
+      "file": "lectura-invitados-aislada.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › equipo con sesion: la recepcion muestra al invitado sintetico",
+      "status": "passed",
+      "report": "310-batch-015-resultados.json"
+    },
+    {
+      "file": "lectura-invitados-aislada.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › anonimo: la recepcion lo manda al ingreso y no le llega la lista",
+      "status": "passed",
+      "report": "310-batch-015-resultados.json"
+    },
+    {
+      "file": "lectura-invitados-aislada.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › cliente del portal de OTRA fiesta: no recibe la lista",
+      "status": "passed",
+      "report": "310-batch-015-resultados.json"
+    },
+    {
+      "file": "lectura-invitados-aislada.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › cookie de sesion con firma falsa: pasa el portero pero el servidor no entrega la lista",
+      "status": "passed",
+      "report": "310-batch-015-resultados.json"
+    },
+    {
+      "file": "lectura-invitados-aislada.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › equipo con sesion: la recepcion muestra al invitado sintetico",
+      "status": "passed",
+      "report": "310-batch-015-resultados.json"
+    },
+    {
+      "file": "limpiar-la-agenda.spec.ts",
+      "title": "ak207-limpiar-la-agenda.spec.ts > la pantalla de sincronizaciones ofrece limpiar la agenda y contesta al tocarla",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 12733,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "limpiar-la-agenda.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-limpiar-la-agenda.spec.ts › la pantalla de sincronizaciones ofrece limpiar la agenda y contesta al tocarla",
+      "status": "skipped",
+      "report": "310-batch-016-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.a: En el portal, \"Cotizar mi fiesta\" lleva al simulador de presupuesto",
+      "status": "passed",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.b: En Presencia Digital, \"Conexiones\" apunta a /settings/social-connections",
+      "status": "passed",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.c: En atraccion-fiestas, \"Ver Fiestas Activas\" apunta a /eventos",
+      "status": "passed",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.c: Los 5 reportes e impresos vuelven a la fiesta cuando tienen fiestaId y no a un listado muerto",
+      "status": "passed",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.c: Los reportes sin fiestaId dirigen a /eventos en vez de /fiestas",
+      "status": "passed",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.a: En el portal, \"Cotizar mi fiesta\" lleva al simulador de presupuesto",
+      "status": "skipped",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.b: En Presencia Digital, \"Conexiones\" apunta a /settings/social-connections",
+      "status": "skipped",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.c: En atraccion-fiestas, \"Ver Fiestas Activas\" apunta a /eventos",
+      "status": "skipped",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.c: Los 5 reportes e impresos vuelven a la fiesta cuando tienen fiestaId y no a un listado muerto",
+      "status": "skipped",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.c: Los reportes sin fiestaId dirigen a /eventos en vez de /fiestas",
+      "status": "skipped",
+      "report": "310-batch-017-resultados.json"
+    },
+    {
+      "file": "mobile-overflow.spec.ts",
+      "title": "ak207-mobile-overflow.spec.ts > sin desborde horizontal en celular > rutas internas del staff",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "duration": 320695,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "mobile-overflow.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-mobile-overflow.spec.ts › sin desborde horizontal en celular › rutas publicas",
+      "status": "passed",
+      "report": "310-batch-018-resultados.json"
+    },
+    {
+      "file": "mobile-overflow.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-mobile-overflow.spec.ts › sin desborde horizontal en celular › rutas internas del staff",
+      "status": "passed",
+      "report": "310-batch-018-resultados.json"
+    },
+    {
+      "file": "mobile-overflow.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-mobile-overflow.spec.ts › sin desborde horizontal en celular › rutas publicas",
+      "status": "passed",
+      "report": "310-batch-018-resultados.json"
+    },
+    {
+      "file": "muro-subir-foto.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-muro-subir-foto.spec.ts › el invitado sube una foto al muro › encuentra cómo compartir y, si falla, se entera",
+      "status": "passed",
+      "report": "310-batch-019-resultados.json"
+    },
+    {
+      "file": "muro-subir-foto.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-muro-subir-foto.spec.ts › el invitado sube una foto al muro › el muro no se cuelga después de un intento fallido",
+      "status": "passed",
+      "report": "310-batch-019-resultados.json"
+    },
+    {
+      "file": "muro-subir-foto.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-muro-subir-foto.spec.ts › el invitado sube una foto al muro › encuentra cómo compartir y, si falla, se entera",
+      "status": "passed",
+      "report": "310-batch-019-resultados.json"
+    },
+    {
+      "file": "muro-subir-foto.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-muro-subir-foto.spec.ts › el invitado sube una foto al muro › el muro no se cuelga después de un intento fallido",
+      "status": "passed",
+      "report": "310-batch-019-resultados.json"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › las pantallas del invitado funcionan con una fiesta real",
+      "status": "passed",
+      "report": "310-batch-020-resultados.json"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts > noche de fiesta > las pantallas del equipo funcionan con una fiesta real",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 92067,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › el control de entrada marca el ingreso de un invitado",
+      "status": "passed",
+      "report": "310-batch-020-resultados.json"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › el invitado deja su opinión y queda registrada",
+      "status": "passed",
+      "report": "310-batch-020-resultados.json"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › las pantallas del invitado funcionan con una fiesta real",
+      "status": "passed",
+      "report": "310-batch-020-resultados.json"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts > noche de fiesta > las pantallas del equipo funcionan con una fiesta real",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 73620,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › el control de entrada marca el ingreso de un invitado",
+      "status": "passed",
+      "report": "310-batch-020-resultados.json"
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › el invitado deja su opinión y queda registrada",
+      "status": "passed",
+      "report": "310-batch-020-resultados.json"
+    },
+    {
+      "file": "orden-86-pantallas.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › bandeja de salida: un mensaje con mail ofrece el mail, y sin Google lleva a conectarlo",
+      "status": "passed",
+      "report": "310-batch-021-resultados.json"
+    },
+    {
+      "file": "orden-86-pantallas.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › reseñas de Google: sin acceso lo dice en criollo y no deja publicar",
+      "status": "passed",
+      "report": "310-batch-021-resultados.json"
+    },
+    {
+      "file": "orden-86-pantallas.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › el mail del contador se guarda y sigue ahí al recargar",
+      "status": "passed",
+      "report": "310-batch-021-resultados.json"
+    },
+    {
+      "file": "orden-86-pantallas.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › firma del portal: el equipo ve que falta el papel y no hay atajo para confirmar la reserva",
+      "status": "passed",
+      "report": "310-batch-021-resultados.json"
+    },
+    {
+      "file": "orden-86-pantallas.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › bandeja de salida: un mensaje con mail ofrece el mail, y sin Google lleva a conectarlo",
+      "status": "passed",
+      "report": "310-batch-021-resultados.json"
+    },
+    {
+      "file": "orden-86-pantallas.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › reseñas de Google: sin acceso lo dice en criollo y no deja publicar",
+      "status": "passed",
+      "report": "310-batch-021-resultados.json"
+    },
+    {
+      "file": "orden-86-pantallas.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › el mail del contador se guarda y sigue ahí al recargar",
+      "status": "passed",
+      "report": "310-batch-021-resultados.json"
+    },
+    {
+      "file": "orden-86-pantallas.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › firma del portal: el equipo ve que falta el papel y no hay atajo para confirmar la reserva",
+      "status": "passed",
+      "report": "310-batch-021-resultados.json"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts > decoracion/pdf: cada zona contratada muestra su icono y su nombre",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 3728,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts > experiencia-mundial: los seis bloques del recorrido muestran icono, titulo y estado",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 12185,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts > zona-digital: las doce funciones muestran su icono, su nombre y su interruptor",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 22931,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › decoracion/pdf: cada zona contratada muestra su icono y su nombre",
+      "status": "skipped",
+      "report": "310-batch-022-resultados.json"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › experiencia-mundial: los seis bloques del recorrido muestran icono, titulo y estado",
+      "status": "skipped",
+      "report": "310-batch-022-resultados.json"
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › zona-digital: las doce funciones muestran su icono, su nombre y su interruptor",
+      "status": "skipped",
+      "report": "310-batch-022-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/centro-total?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/centro?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/mission-control?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts > /fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 8924,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /incidentes: después de guardar una incidencia, \"Nueva incidencia\" abre con el título vacío",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/automatizaciones muestra su contenido real y sin errores de página",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/comercial muestra su contenido real y sin errores de página",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/post-fiesta muestra su contenido real y sin errores de página",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/preparacion muestra su contenido real y sin errores de página",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/comercial con la lectura caída avisa y NO dice \"Todo tranquilo\"",
+      "status": "passed",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/centro-total?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/centro?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/mission-control?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /incidentes: después de guardar una incidencia, \"Nueva incidencia\" abre con el título vacío",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/automatizaciones muestra su contenido real y sin errores de página",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/comercial muestra su contenido real y sin errores de página",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/post-fiesta muestra su contenido real y sin errores de página",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/preparacion muestra su contenido real y sin errores de página",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /control-tower/comercial con la lectura caída avisa y NO dice \"Todo tranquilo\"",
+      "status": "skipped",
+      "report": "310-batch-023-resultados.json"
+    },
+    {
+      "file": "prospecto-simulador.spec.ts",
+      "title": "ak207-prospecto-simulador.spec.ts > recorrido del prospecto > llega desde el simulador hasta ver un precio",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 133563,
+      "report": "378-resultado-nativo-final.json"
+    },
+    {
+      "file": "prospecto-simulador.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-prospecto-simulador.spec.ts › recorrido del prospecto › el catálogo lleva al simulador con el tipo de fiesta elegido",
+      "status": "passed",
+      "report": "310-batch-024-resultados.json"
+    },
+    {
+      "file": "prospecto-simulador.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-prospecto-simulador.spec.ts › recorrido del prospecto › llega desde el simulador hasta ver un precio",
+      "status": "passed",
+      "report": "310-batch-024-resultados.json"
+    },
+    {
+      "file": "prospecto-simulador.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-prospecto-simulador.spec.ts › recorrido del prospecto › el catálogo lleva al simulador con el tipo de fiesta elegido",
+      "status": "passed",
+      "report": "310-batch-024-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-public-smoke.spec.ts › health endpoint responds without exposing internal failures",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-public-smoke.spec.ts › protected access screen remains usable",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-public-smoke.spec.ts › password recovery keeps the configured AK email visible when status verification is slow",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-public-smoke.spec.ts › manual budget simulator remains publicly reachable",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-public-smoke.spec.ts › simulator hub connects both options with the visual first step",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-public-smoke.spec.ts › public homepage fits the viewport without horizontal overflow",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-public-smoke.spec.ts › secondary public navigation returns to the matching homepage section",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-public-smoke.spec.ts › simulator input keeps typed text visible and the flow fits the viewport",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-public-smoke.spec.ts › health endpoint responds without exposing internal failures",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-public-smoke.spec.ts › protected access screen remains usable",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-public-smoke.spec.ts › password recovery keeps the configured AK email visible when status verification is slow",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-public-smoke.spec.ts › manual budget simulator remains publicly reachable",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-public-smoke.spec.ts › simulator hub connects both options with the visual first step",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-public-smoke.spec.ts › public homepage fits the viewport without horizontal overflow",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-public-smoke.spec.ts › secondary public navigation returns to the matching homepage section",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "public-smoke.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-public-smoke.spec.ts › simulator input keeps typed text visible and the flow fits the viewport",
+      "status": "passed",
+      "report": "310-batch-025-resultados.json"
+    },
+    {
+      "file": "simulator-budget-journey.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-simulator-budget-journey.spec.ts › prospect completes the simulator and downloads a formal future-year PDF",
+      "status": "passed",
+      "report": "310-batch-026-resultados.json"
+    },
+    {
+      "file": "simulator-budget-journey.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-simulator-budget-journey.spec.ts › prospect completes the simulator and downloads a formal future-year PDF",
+      "status": "passed",
+      "report": "310-batch-026-resultados.json"
+    },
+    {
+      "file": "espejo-moderacion-caida-y-reintento.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-espejo-moderacion-caida-y-reintento.spec.ts › Espejo: lo que se anuncia es lo que quedo en el muro › con el analisis de imagen caido: la foto queda pendiente, la pantalla lo dice, y reintentar no duplica",
+      "status": "passed",
+      "report": "304-resultados.json"
+    },
+    {
+      "file": "espejo-moderacion-caida-y-reintento.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-espejo-moderacion-caida-y-reintento.spec.ts › Espejo: lo que se anuncia es lo que quedo en el muro › con el analisis de imagen caido: la foto queda pendiente, la pantalla lo dice, y reintentar no duplica",
+      "status": "skipped",
+      "report": "304-resultados.json"
+    },
+    {
+      "file": "video-vida-error-lectura.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-video-vida-error-lectura.spec.ts › video de vida: foto guardada que no se puede leer avisa y deja reintentar",
+      "status": "passed",
+      "report": "304-resultados.json"
+    },
+    {
+      "file": "video-vida-error-lectura.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-video-vida-error-lectura.spec.ts › video de vida: galería vacía de verdad sigue diciendo 0 y deja subir",
+      "status": "passed",
+      "report": "304-resultados.json"
+    },
+    {
+      "file": "video-vida-error-lectura.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-video-vida-error-lectura.spec.ts › video de vida: foto guardada que no se puede leer avisa y deja reintentar",
+      "status": "passed",
+      "report": "304-resultados.json"
+    },
+    {
+      "file": "video-vida-error-lectura.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-video-vida-error-lectura.spec.ts › video de vida: galería vacía de verdad sigue diciendo 0 y deja subir",
+      "status": "passed",
+      "report": "304-resultados.json"
+    },
+    {
+      "file": "306-home-clic-y-estado.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-306-home-clic-y-estado.spec.ts › portada: un clic real selecciona360 y cambia el contacto comercial",
+      "status": "passed",
+      "report": "307-resultados.json"
+    },
+    {
+      "file": "306-home-clic-y-estado.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-306-home-clic-y-estado.spec.ts › portada: un clic real selecciona360 y cambia el contacto comercial",
+      "status": "passed",
+      "report": "307-resultados.json"
+    },
+    {
+      "file": "326-control-fixture-navegacion-qa.spec.ts",
+      "project": "chromium-desktop",
+      "title": "ak207-326-control-fixture-navegacion-qa.spec.ts › fixture normal: portada, panel y fiesta real con sesion completa y registroFIS local",
+      "status": "passed",
+      "report": "327-resultados.json"
+    },
+    {
+      "file": "326-control-fixture-navegacion-qa.spec.ts",
+      "project": "chromium-mobile",
+      "title": "ak207-326-control-fixture-navegacion-qa.spec.ts › fixture normal: portada, panel y fiesta real con sesion completa y registroFIS local",
+      "status": "passed",
+      "report": "327-resultados.json"
+    }
+  ],
+  "filterBlobs": [
+    {
+      "file": "src/lib/entretenimiento/filtros-cara.ts",
+      "previous": "c0052390f47537af2b7452189f9ccd3f03a0b41e",
+      "candidate": "c0052390f47537af2b7452189f9ccd3f03a0b41e"
+    },
+    {
+      "file": "src/lib/entretenimiento/marcos-dinamicos.ts",
+      "previous": "2bdc8cd80374291ec17a85673a346aa61cd23695",
+      "candidate": "2bdc8cd80374291ec17a85673a346aa61cd23695"
+    },
+    {
+      "file": "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+      "previous": "1d6b145f606e7c7b7035502b49b23909f2226dce",
+      "candidate": "1d6b145f606e7c7b7035502b49b23909f2226dce"
+    },
+    {
+      "file": "src/app/evento/touchpix/[fiestaId]/page.tsx",
+      "previous": "7897aa05842f62b38f1fbde096149476b3182807",
+      "candidate": "7897aa05842f62b38f1fbde096149476b3182807"
+    },
+    {
+      "file": "src/app/evento/bogue/[fiestaId]/page.tsx",
+      "previous": "684e79a5f974b25b3d77137a3e0b09f8f55efddc",
+      "candidate": "684e79a5f974b25b3d77137a3e0b09f8f55efddc"
+    },
+    {
+      "file": "src/app/evento/espejo-magico/[fiestaId]/page.tsx",
+      "previous": "5b0c273c4d85d921af1f55144338b6811af14819",
+      "candidate": "5b0c273c4d85d921af1f55144338b6811af14819"
+    }
+  ],
+  "privateObserved": {
+    "head": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+    "trackedStatus": "",
+    "at": "2026-10-24T17:21:01.127Z"
+  },
+  "scope": "Latest recorded result per SAME main native case; no adding old and new attempts, no transforming diagnosis or attachments into passed E2E tests. Filters reuse only SAME six Git blobs. Private status is a point-in-time committed-source check, not access to future edits."
+}

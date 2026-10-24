@@ -1,0 +1,159 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "runId": "364",
+  "scope": "Exactly seven failing349 suites on SAME-SHA isolated worktree, NO build. Original assertions/mocks/timeouts, official Jest env; public Git fixture materialized despite inherited sparse checkout. No real services; no altered assertions.",
+  "started": "2026-10-24T14:53:00.333Z",
+  "phase": "finished",
+  "appEdited": false,
+  "foreignProcessesStopped": false,
+  "probes": [
+    {
+      "at": "2026-10-24T14:53:39.317Z",
+      "freeBytes": 111489024,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 6604,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 12664,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\bin\\next build"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-24T14:54:59.628Z",
+      "freeBytes": 427622400,
+      "probeExit": null,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T14:56:07.496Z",
+      "freeBytes": 168845312,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 6604,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 12664,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\bin\\next build"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-24T14:57:14.626Z",
+      "freeBytes": 150085632,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 6604,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 12664,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\bin\\next build"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-24T14:58:16.971Z",
+      "freeBytes": 337620992,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 6604,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 12664,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\bin\\next build"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-24T14:59:18.228Z",
+      "freeBytes": 3513196544,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 6604,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 12664,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\bin\\next build"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-24T15:00:19.636Z",
+      "freeBytes": 1841246208,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 6604,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 12664,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\bin\\next build"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-24T15:01:20.827Z",
+      "freeBytes": 2090041344,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 6604,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 12664,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\bin\\next build"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-24T15:02:22.045Z",
+      "freeBytes": 3464257536,
+      "probeExit": 0,
+      "foreignHeavy": []
+    }
+  ],
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-363-3f-ccnKr1",
+  "sparseFixture": {
+    "beforePresent": false,
+    "indexFlag": "S data/blog-posts.json",
+    "sparseCheckout": "true"
+  },
+  "blogFixture": {
+    "present": true,
+    "gitBlob": "9a2ac6b8cedaef2b903937b9e2ec16fb43a8d653",
+    "sha256": "e8f661055f5317c466f5724380e1df59391ecac9b66088ecdbe53191d6ed1665"
+  },
+  "relativeFiles": [
+    "src/__tests__/el-asistente-se-anticipa.test.ts",
+    "src/__tests__/concurrencia-tareas-automaticas.test.ts",
+    "src/__tests__/agentes-autonomos.test.ts",
+    "src/__tests__/cerebro-publicidad-meta.test.ts",
+    "src/__tests__/orden-199-el-foco-vuelve-y-la-fecha-del-seguimiento.test.tsx",
+    "src/__tests__/ia-86-agentes-publicidad-e-intervalo.test.ts",
+    "src/__tests__/el-blog-de-bebidas-no-promete.test.ts"
+  ],
+  "pid": 9380,
+  "exitCode": 1,
+  "summary": {
+    "suites": 7,
+    "total": 33,
+    "passed": 21,
+    "failed": 12,
+    "pending": 0
+  },
+  "sourceDiff": "",
+  "finished": "2026-10-24T15:03:46.749Z"
+}

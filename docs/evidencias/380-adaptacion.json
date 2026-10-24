@@ -1,0 +1,17 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "originalSha256": "9a84359d38fe54d71d87ccca3f49a793f3b574db3d12846831e29f38cc7918f7",
+  "preparedSha256": "3f41ad8560a0b7babbd3f33a069c2f14ef11a5a1b148cb69556c499d62d9638f",
+  "assertionsUnchanged": [
+    "await expect(header.getByRole('heading', { name: 'Fecha cocina QA143', exact: true })).toBeVisible();",
+    "expect(civilParts(screen)).toEqual([8, 8, 2027]);",
+    "expect(civilParts(printed)).toEqual([8, 8, 2027]);"
+  ],
+  "captureOnlyEdits": [
+    {
+      "start": 2213,
+      "end": 2356
+    }
+  ],
+  "visualAcceptance": false
+}

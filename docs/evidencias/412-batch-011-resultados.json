@@ -1,0 +1,656 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "412-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\412-batch-011-artifacts",
+      "ak207-pantallas-tocadas-tanda-12-10.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\412-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-392-candidate-02Lhke/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/412-batch-011-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-392-candidate-02Lhke/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\412-batch-011-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "/fiestas/nueva/centro-total?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7876,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:32:46.545Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-62636fe2e95b70742d4b",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 75,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/centro?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 67137,
+                  "error": {
+                    "message": "TimeoutError: page.waitForURL: Timeout 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n  navigated to \"http://127.0.0.1:3300/fiestas/nueva/centro?fiestaId=e2e_tanda_b_1792870366514\"\n============================================================",
+                    "stack": "TimeoutError: page.waitForURL: Timeout 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n  navigated to \"http://127.0.0.1:3300/fiestas/nueva/centro?fiestaId=e2e_tanda_b_1792870366514\"\n============================================================\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:78:16",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                      "column": 16,
+                      "line": 78
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 76 |\u001b[39m     test\u001b[33m.\u001b[39msetTimeout(\u001b[35m120\u001b[39m_000)\u001b[33m;\u001b[39m\n \u001b[90m 77 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/fiestas/nueva/${ruta}?fiestaId=${ID_B}`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 78 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForURL(\u001b[36mnew\u001b[39m \u001b[33mRegExp\u001b[39m(\u001b[32m`/fiestas/${ID_B}/centro`\u001b[39m)\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m60\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 79 |\u001b[39m     expect(page\u001b[33m.\u001b[39murl())\u001b[33m.\u001b[39mtoContain(\u001b[32m`/fiestas/${ID_B}/centro`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 80 |\u001b[39m     expect(page\u001b[33m.\u001b[39murl())\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoContain(\u001b[33mID_A\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 81 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "column": 16,
+                        "line": 78
+                      },
+                      "message": "TimeoutError: page.waitForURL: Timeout 60000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n  navigated to \"http://127.0.0.1:3300/fiestas/nueva/centro?fiestaId=e2e_tanda_b_1792870366514\"\n============================================================\n\n  76 |     test.setTimeout(120_000);\n  77 |     await page.goto(`/fiestas/nueva/${ruta}?fiestaId=${ID_B}`, { waitUntil: 'domcontentloaded' });\n> 78 |     await page.waitForURL(new RegExp(`/fiestas/${ID_B}/centro`), { timeout: 60_000 });\n     |                ^\n  79 |     expect(page.url()).toContain(`/fiestas/${ID_B}/centro`);\n  80 |     expect(page.url()).not.toContain(ID_A);\n  81 |   });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:78:16"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:32:54.790Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\412-batch-011-artifacts\\ak207-pantallas-tocadas-ta-dbc82-ro-de-la-fiesta-B-no-a-la-A-chromium-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\412-batch-011-artifacts\\ak207-pantallas-tocadas-ta-dbc82-ro-de-la-fiesta-B-no-a-la-A-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\412-batch-011-artifacts\\ak207-pantallas-tocadas-ta-dbc82-ro-de-la-fiesta-B-no-a-la-A-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\412-batch-011-artifacts\\ak207-pantallas-tocadas-ta-dbc82-ro-de-la-fiesta-B-no-a-la-A-chromium-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "column": 16,
+                    "line": 78
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-5f124cbc096f031935c9",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 75,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/mission-control?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7578,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:34:09.644Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-6ad8d64f5848e1e5a443",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 75,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9288,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:34:17.700Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-450835f195771cdfae5d",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 84,
+          "column": 5
+        },
+        {
+          "title": "/incidentes: después de guardar una incidencia, \"Nueva incidencia\" abre con el título vacío",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11801,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:34:27.060Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-b09c42d05777440017d8",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 95,
+          "column": 5
+        },
+        {
+          "title": "/control-tower/automatizaciones muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3516,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:34:38.933Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-f495c7a9bc165735250c",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 125,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2698,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:34:42.478Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-3d6b9b1f50306a68ed51",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 125,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/post-fiesta muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2964,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:34:45.219Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-d116c480e090486f5572",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 125,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/preparacion muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3497,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:34:48.303Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-c6a4bd125a468d2ea457",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 125,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial con la lectura caída avisa y NO dice \"Todo tranquilo\"",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5251,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T19:34:51.908Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-f24e5a58d59a9116127e",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 154,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T19:32:45.573Z",
+    "duration": 133209.783,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

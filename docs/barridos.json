@@ -475,6 +475,14 @@
       "fecha": "2026-10-24",
       "resultado": "Codex 341 (barra lista). Barrido de la pregunta 52 en toda src/app: la regla main.flex-1 pinta de claro cinco pantallas oscuras fuera del panel (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz y prueba en la orden 223 para Gemini."
     },
+    "orden-227": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 387 (factura con lectura fallida dice 'no existe') y 423 (segunda regla de fondo claro). Barrido de la pregunta 50 en las 14 pantallas de la orden 224: 10 dicen 'no encontrada' o giran si falla la lectura; la causa compartida es getFiestaById, que traga el error. Barrido de la 96 ampliada: ak-internal-experience-polish.css tiñe seis pantallas con main propio y puede tapar cinco del panel. Todo en la orden 227."
+    },
+    "orden-226": {
+      "fecha": "2026-10-24",
+      "resultado": "Devolución de la 1353: cinco pantallas tocadas sin prueba. Barrido: las 14 pantallas de la orden 224 buscadas en tests/e2e; las cinco sin prueba van en la orden 226."
+    },
     "orden-225": {
       "fecha": "2026-10-24",
       "resultado": "Codex 350 (503 tomado por rechazo) y 353 (prueba del asistente sin mutarDocumento). Barrido de la pregunta 97: un solo caso, esRechazoConocido. Orden 225 para Gemini, con los once vencimientos de tiempo de Codex 349."
