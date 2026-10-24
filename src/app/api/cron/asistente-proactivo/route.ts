@@ -250,9 +250,6 @@ export async function GET(request: Request) {
     } catch (err: any) {
       console.warn('[AsistenteProactivo] Error enviando avisos proactivos:', err);
     }
-  } catch (err: any) {
-      console.warn('[AsistenteProactivo] Error enviando avisos proactivos:', err);
-    }
   }
 
   // 9. MARCAR CORRIDA
