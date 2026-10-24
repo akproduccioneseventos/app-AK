@@ -47,7 +47,7 @@ import { parseEventDate } from '@/lib/public-experience/event-date';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
-import { dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
+import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -630,11 +630,13 @@ export default function VoguePage() {
         ctx.drawImage(loop[frameIndex], 0, 0);
 
         // Draw Premium Frame overlay
-        dibujarFiltroDeCara(ctx, drawCanvas, fiesta?.station?.filtrosActivos?.[0] || 'mis15', [], {
-      nombreAgasajado: fiesta?.nombreAgasajado,
-      tipoCelebracion: fiesta?.tipoCelebracion,
-      primaryColor: fiesta?.primaryColor,
-    });
+        void cargarDetectorDeCaras();
+        const carasDetectadas = detectarCarasEnFuente(loop[frameIndex], Date.now());
+        dibujarFiltroDeCara(ctx, drawCanvas, fiesta?.station?.filtrosActivos?.[0] || 'mis15', carasDetectadas, {
+          nombreAgasajado: fiesta?.nombreAgasajado,
+          tipoCelebracion: fiesta?.tipoCelebracion,
+          primaryColor: fiesta?.primaryColor,
+        });
     drawFrameOverlay(ctx, drawCanvas.width, drawCanvas.height);
 
         // Draw Watermark
