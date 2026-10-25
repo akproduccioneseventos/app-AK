@@ -111,6 +111,15 @@ export default function GuestBuzonPage() {
       vhsRecorderRef.current = null;
     }
 
+    const fallbackRecorder = fallbackRecorderRef.current;
+    if (fallbackRecorder) {
+      fallbackRecorder.ondataavailable = null;
+      fallbackRecorder.onstop = null;
+      if (fallbackRecorder.state !== 'inactive') fallbackRecorder.stop();
+      fallbackRecorder.stream.getTracks().forEach((track) => track.stop());
+      fallbackRecorderRef.current = null;
+    }
+
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
   };
@@ -153,6 +162,7 @@ export default function GuestBuzonPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const vhsCanvasRef = useRef<HTMLCanvasElement>(null);
   const vhsRecorderRef = useRef<MediaRecorder | null>(null);
+  const fallbackRecorderRef = useRef<MediaRecorder | null>(null);
   const videoRenderFrameRef = useRef<number | null>(null);
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -641,8 +651,6 @@ export default function GuestBuzonPage() {
       if (video.ended || activeStream.getVideoTracks()[0]?.readyState === 'ended') return;
       if (video.paused) {
         void video.play().catch(() => undefined);
-        videoRenderFrameRef.current = requestAnimationFrame(render);
-        return;
       }
       if (timestamp - lastFrameAt < frameInterval) {
         videoRenderFrameRef.current = requestAnimationFrame(render);
@@ -775,15 +783,17 @@ export default function GuestBuzonPage() {
   };
 
   const handleStartVideoWithCountdown = () => {
-    setCountdown(3);
+    let remaining = 3;
+    setCountdown(remaining);
     const countInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev && prev > 1) return prev - 1;
+      if (remaining <= 1) {
         clearInterval(countInterval);
         setCountdown(null);
-        startLiveVideoRecording();
-        return null;
-      });
+        void startLiveVideoRecording();
+        return;
+      }
+      remaining -= 1;
+      setCountdown(remaining);
     }, 1000);
   };
 
@@ -791,15 +801,54 @@ export default function GuestBuzonPage() {
     const canvas = vhsCanvasRef.current;
     if (!canvas || !stream) return;
 
+    if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+      void audioCtxRef.current.resume().catch(() => undefined);
+    }
+    if (videoRef.current) {
+      void videoRef.current.play().catch(() => undefined);
+    }
+
     setVideoState('recording');
     setVideoDuration(0);
 
     const canvasStream = canvas.captureStream(20); // 20 FPS
 
+    let fallbackStream: MediaStream | null = null;
+    let fallbackRecorder: MediaRecorder | null = null;
+    const fallbackChunks: Blob[] = [];
+    let fallbackStoppedPromise: Promise<Blob> | null = null;
+
     // Add audio track to canvas stream
     const audioTrack = stream.getAudioTracks()[0];
     if (audioTrack) {
+      fallbackStream = new MediaStream(canvasStream.getVideoTracks().map((t) => t.clone()));
       canvasStream.addTrack(audioTrack);
+
+      const fallbackMime = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+        'video/mp4',
+      ].find((candidate) => MediaRecorder.isTypeSupported(candidate)) || '';
+
+      fallbackRecorder = fallbackMime
+        ? new MediaRecorder(fallbackStream, { mimeType: fallbackMime })
+        : new MediaRecorder(fallbackStream);
+      fallbackRecorderRef.current = fallbackRecorder;
+
+      fallbackRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) fallbackChunks.push(e.data);
+      };
+
+      fallbackStoppedPromise = new Promise<Blob>((resolve) => {
+        fallbackRecorder!.onstop = () => {
+          const type = fallbackRecorder?.mimeType || fallbackMime || 'video/webm';
+          resolve(new Blob(fallbackChunks, { type }));
+        };
+        fallbackRecorder!.onerror = () => {
+          resolve(new Blob([], { type: 'video/webm' }));
+        };
+      });
     }
 
     const mimeType = [
@@ -819,14 +868,39 @@ export default function GuestBuzonPage() {
       if (e.data && e.data.size > 0) chunks.push(e.data);
     };
 
-    recorder.onstop = () => {
+    recorder.onstop = async () => {
+      let fallbackBlob: Blob | null = null;
+      if (fallbackRecorder && fallbackRecorder.state !== 'inactive') {
+        try {
+          fallbackRecorder.requestData();
+        } catch {}
+        fallbackRecorder.stop();
+      }
+      if (fallbackStoppedPromise) {
+        fallbackBlob = await Promise.race([
+          fallbackStoppedPromise,
+          new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob([], { type: 'video/webm' })), 1000)),
+        ]);
+      }
+      if (fallbackStream) {
+        fallbackStream.getTracks().forEach((track) => track.stop());
+      }
+      fallbackRecorderRef.current = null;
+
       const outputType = recorder.mimeType || mimeType || 'video/webm';
-      const extension = outputType.includes('mp4') ? 'mp4' : 'webm';
-      const blob = new Blob(chunks, { type: outputType });
+      const primaryBlob = new Blob(chunks, { type: outputType });
+      const blob = (primaryBlob.size > 0)
+        ? primaryBlob
+        : (fallbackBlob && fallbackBlob.size > 0)
+          ? fallbackBlob
+          : primaryBlob;
+
+      const finalType = blob.type || outputType;
+      const extension = finalType.includes('mp4') ? 'mp4' : 'webm';
       const file = new File(
         [blob],
         `capsulavideo-${Date.now()}.${extension}`,
-        { type: outputType },
+        { type: finalType },
       );
       setVideoFile(file);
       setVideoUrl(URL.createObjectURL(blob));
@@ -834,7 +908,10 @@ export default function GuestBuzonPage() {
       stopCamera();
     };
 
-    recorder.start(1_000);
+    recorder.start(200);
+    if (fallbackRecorder) {
+      fallbackRecorder.start(200);
+    }
 
     // Timer limit 15s
     let elapsed = 0;
@@ -851,6 +928,16 @@ export default function GuestBuzonPage() {
     if (recordingIntervalRef.current) {
       clearInterval(recordingIntervalRef.current);
       recordingIntervalRef.current = null;
+    }
+    if (vhsRecorderRef.current && vhsRecorderRef.current.state === 'recording') {
+      try {
+        vhsRecorderRef.current.requestData();
+      } catch {}
+    }
+    if (fallbackRecorderRef.current && fallbackRecorderRef.current.state === 'recording') {
+      try {
+        fallbackRecorderRef.current.requestData();
+      } catch {}
     }
     if (vhsRecorderRef.current && vhsRecorderRef.current.state !== 'inactive') {
       vhsRecorderRef.current.stop();

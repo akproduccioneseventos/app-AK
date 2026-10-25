@@ -314,7 +314,7 @@ export default function GaleriaPage() {
           videoRef.current.srcObject = stream;
         }
         // no pasa nada si falla: el navegador ya reproduce el video solo al recibir la cámara.
-        await videoRef.current.play().catch(() => {});
+        void videoRef.current.play().catch(() => {});
       }
 
       // Esperar brevemente a que el video tenga fotogramas listos (máximo 400ms)
@@ -332,9 +332,9 @@ export default function GaleriaPage() {
         await new Promise((r) => setTimeout(r, 50));
       }
 
-      // Tomar cuadros automáticamente (Bloque 3) con límite de tiempo total de 6s
+      // Tomar cuadros automáticamente (Bloque 3) con límite de tiempo total de 2.2s
       const vectoresExtraidos: VectorDeCara[] = [];
-      const limiteTiempoTotal = Date.now() + 6000;
+      const limiteTiempoTotal = Date.now() + 2200;
 
       for (let i = 0; i < 3; i++) {
         if (selfieCanceladaRef.current) {
@@ -343,7 +343,7 @@ export default function GaleriaPage() {
         }
         if (Date.now() > limiteTiempoTotal) break;
 
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 100));
         if (selfieCanceladaRef.current) {
           detenerCamara();
           return;

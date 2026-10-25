@@ -4,13 +4,21 @@ const OUTPUT_WIDTH = 640;
 const OUTPUT_HEIGHT = 480;
 const OUTPUT_FPS = 20;
 
-function selectRecorderMimeType(): string {
-  const candidates = [
-    'video/webm;codecs=vp9',
-    'video/webm;codecs=vp8',
-    'video/webm',
-    'video/mp4',
-  ];
+function selectRecorderMimeType(hasAudioTrack = true): string {
+  const candidates = hasAudioTrack
+    ? [
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/mp4;codecs=vp9,opus',
+        'video/webm',
+        'video/mp4',
+      ]
+    : [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+        'video/mp4',
+      ];
   return candidates.find((candidate) => MediaRecorder.isTypeSupported(candidate)) || '';
 }
 
@@ -103,6 +111,7 @@ export async function renderUploadedVideoWithFrame(input: {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   let renderInterval: ReturnType<typeof setInterval> | undefined;
   let outputStream: MediaStream | null = null;
+  let audioContext: AudioContext | null = null;
 
   try {
     await loadVideoMetadata(video, sourceUrl);
@@ -140,7 +149,35 @@ export async function renderUploadedVideoWithFrame(input: {
 
     outputStream = canvas.captureStream(OUTPUT_FPS);
 
-    const mimeType = selectRecorderMimeType();
+    let hasAudioTrack = false;
+    const AudioContextCtor =
+      window.AudioContext ||
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (AudioContextCtor) {
+      try {
+        audioContext = new AudioContextCtor();
+        await Promise.race([
+          audioContext.resume().catch(() => undefined),
+          new Promise((resolve) => setTimeout(resolve, 300)),
+        ]);
+        if (audioContext.state === 'running') {
+          video.muted = false;
+          video.volume = 1;
+          const source = audioContext.createMediaElementSource(video);
+          const destination = audioContext.createMediaStreamDestination();
+          source.connect(destination);
+          const audioTracks = destination.stream.getAudioTracks();
+          if (audioTracks.length > 0) {
+            audioTracks.forEach((track) => outputStream?.addTrack(track));
+            hasAudioTrack = true;
+          }
+        }
+      } catch {
+        video.muted = true;
+      }
+    }
+
+    const mimeType = selectRecorderMimeType(hasAudioTrack);
     const recorder = mimeType
       ? new MediaRecorder(outputStream, { mimeType })
       : new MediaRecorder(outputStream);
@@ -217,7 +254,12 @@ export async function renderUploadedVideoWithFrame(input: {
     };
 
     renderInterval = setInterval(() => renderFrame(performance.now()), frameInterval);
-    await video.play();
+    try {
+      await video.play();
+    } catch {
+      video.muted = true;
+      await video.play();
+    }
     animationFrame = requestAnimationFrame(renderFrame);
     timeoutId = setTimeout(() => {
       finishRecording();
@@ -248,6 +290,9 @@ export async function renderUploadedVideoWithFrame(input: {
     if (timeoutId) clearTimeout(timeoutId);
     video.pause();
     outputStream?.getTracks().forEach((track) => track.stop());
+    if (audioContext && audioContext.state !== 'closed') {
+      void audioContext.close().catch(() => undefined);
+    }
     URL.revokeObjectURL(sourceUrl);
   }
 }

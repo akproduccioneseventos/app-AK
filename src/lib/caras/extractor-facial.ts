@@ -27,7 +27,7 @@ export async function asegurarModelosFaciales(): Promise<boolean> {
           faceapi.nets.faceRecognitionNet.loadFromUri(ruta),
         ]);
         const timeoutPromesa = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Tiempo de espera agotado al cargar modelos')), 6000)
+          setTimeout(() => reject(new Error('Tiempo de espera agotado al cargar modelos')), 1500)
         );
         await Promise.race([cargaPromesa, timeoutPromesa]);
         return true;
@@ -49,7 +49,6 @@ export async function extraerDescriptorFacial(
 ): Promise<VectorDeCara | null> {
   try {
     if (!elemento) return null;
-    let entrada: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement = elemento;
     if (typeof HTMLVideoElement !== 'undefined' && elemento instanceof HTMLVideoElement) {
       if (
         (elemento.readyState < 2 && elemento.videoWidth === 0) ||
@@ -58,18 +57,28 @@ export async function extraerDescriptorFacial(
       ) {
         return null;
       }
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = elemento.videoWidth;
-        canvas.height = elemento.videoHeight;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return null;
-        ctx.drawImage(elemento, 0, 0);
-        entrada = canvas;
-      } catch {
-        return null;
-      }
     }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 160;
+    canvas.height = 160;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(elemento, 0, 0, 160, 160);
+
+    const data = ctx.getImageData(0, 0, 160, 160).data;
+    let minLuma = 255;
+    let maxLuma = 0;
+    for (let i = 0; i < data.length; i += 256) {
+      const luma = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+      if (luma < minLuma) minLuma = luma;
+      if (luma > maxLuma) maxLuma = luma;
+    }
+
+    if (maxLuma - minLuma < 8) {
+      return null;
+    }
+
     const ok = await asegurarModelosFaciales();
     if (!ok) return null;
 
@@ -77,7 +86,7 @@ export async function extraerDescriptorFacial(
 
     const inferencia = (async () => {
       const deteccion = await faceapi
-        .detectSingleFace(entrada, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+        .detectSingleFace(canvas, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
         .withFaceLandmarks(true)
         .withFaceDescriptor();
 
@@ -86,7 +95,7 @@ export async function extraerDescriptorFacial(
     })();
 
     const timeoutInferencia = new Promise<null>((resolve) =>
-      setTimeout(() => resolve(null), 2500)
+      setTimeout(() => resolve(null), 1000)
     );
 
     return await Promise.race([inferencia, timeoutInferencia]);
