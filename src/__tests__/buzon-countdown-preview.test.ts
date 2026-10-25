@@ -45,3 +45,19 @@ test('un grabador activo no inicia otra cuenta ni otra grabacion', () => {
   expect(qa.interval).not.toHaveBeenCalled();
   expect(qa.start).not.toHaveBeenCalled();
 });
+
+test('el aviso recuperable esta conectado a la vista de video y no a la de fotos', () => {
+  const branches = new Map<string, string>();
+  const collect = (node: ts.Node) => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken) {
+      const left = node.left.getText(source);
+      if (left === "selectedMode === 'vhs_record'" || left === "selectedMode === 'photo_record'") {
+        branches.set(left, node.right.getText(source));
+      }
+    }
+    ts.forEachChild(node, collect);
+  };
+  collect(source);
+  expect(branches.get("selectedMode === 'vhs_record'")).toContain('videoRecordingError');
+  expect(branches.get("selectedMode === 'photo_record'")).not.toContain('videoRecordingError');
+});

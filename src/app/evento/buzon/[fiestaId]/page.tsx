@@ -1508,14 +1508,6 @@ export default function GuestBuzonPage() {
                             </motion.span>
                           </div>
                         )}
-                        {videoRecordingError && (
-                          <div role="alert" className="w-full rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                            <p>{videoRecordingError}</p>
-                            <button type="button" onClick={handleReRecordVideo} className="mt-2 inline-flex items-center gap-2 font-bold underline">
-                              <RefreshCw className="h-4 w-4" /> Reintentar
-                            </button>
-                          </div>
-                        )}
                       </div>
 
                       <button
@@ -1586,6 +1578,14 @@ export default function GuestBuzonPage() {
               {/* 🔴 MODE: VHS RECORD 🔴 */}
               {selectedMode === 'vhs_record' && (
                 <div className="w-full">
+                  {videoRecordingError && (
+                    <div role="alert" className="mb-4 w-full rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                      <p>{videoRecordingError}</p>
+                      <button type="button" onClick={handleReRecordVideo} className="mt-2 inline-flex items-center gap-2 font-bold underline">
+                        <RefreshCw className="h-4 w-4" /> Reintentar
+                      </button>
+                    </div>
+                  )}
                   {videoState === 'idle' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center space-y-6 w-full">
                       <div className="relative w-40 h-40 flex items-center justify-center">
