@@ -96,6 +96,7 @@ export default function GaleriaPage() {
   const [camaraError, setCamaraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const selfieCanceladaRef = useRef<boolean>(false);
 
   // El filtro puede venir en la direccion: el portal del cliente enlaza aca ya
   // apuntando a una estacion (`?estacion=fotocabina`). **Se valida contra la
@@ -277,6 +278,7 @@ export default function GaleriaPage() {
   }, []);
 
   const iniciarCamara = useCallback(async () => {
+    selfieCanceladaRef.current = false;
     setCamaraError(null);
     setSelfiePermisoAceptado(true);
     setCapturandoSelfie(true);
@@ -289,21 +291,76 @@ export default function GaleriaPage() {
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
         audio: false,
       });
+
+      if (selfieCanceladaRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
       streamRef.current = stream;
+
+      // Esperar a que React monte <video> en el DOM (hasta 1000ms de a 25ms)
+      const inicioMontaje = Date.now();
+      while (!videoRef.current && Date.now() - inicioMontaje < 1000) {
+        if (selfieCanceladaRef.current) {
+          detenerCamara();
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 25));
+      }
+
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        if (videoRef.current.srcObject !== stream) {
+          videoRef.current.srcObject = stream;
+        }
         // no pasa nada si falla: el navegador ya reproduce el video solo al recibir la cámara.
         await videoRef.current.play().catch(() => {});
       }
 
-      // Tomar 3 cuadros seguidos automáticamente (Bloque 3)
+      // Esperar brevemente a que el video tenga fotogramas listos (máximo 400ms)
+      const inicioEspera = Date.now();
+      while (
+        videoRef.current &&
+        videoRef.current.videoWidth === 0 &&
+        videoRef.current.readyState < 2 &&
+        Date.now() - inicioEspera < 400
+      ) {
+        if (selfieCanceladaRef.current) {
+          detenerCamara();
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 50));
+      }
+
+      // Tomar cuadros automáticamente (Bloque 3) con límite de tiempo total de 6s
       const vectoresExtraidos: VectorDeCara[] = [];
+      const limiteTiempoTotal = Date.now() + 6000;
+
       for (let i = 0; i < 3; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        if (selfieCanceladaRef.current) {
+          detenerCamara();
+          return;
+        }
+        if (Date.now() > limiteTiempoTotal) break;
+
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        if (selfieCanceladaRef.current) {
+          detenerCamara();
+          return;
+        }
+
         if (videoRef.current) {
           const v = await extraerVectorLocal(videoRef.current);
-          if (v) vectoresExtraidos.push(v);
+          if (v) {
+            vectoresExtraidos.push(v);
+            if (vectoresExtraidos.length >= 2) break;
+          }
         }
+      }
+
+      if (selfieCanceladaRef.current) {
+        detenerCamara();
+        return;
       }
 
       // La selfie NUNCA sale del teléfono ni se sube. Se detiene la cámara de inmediato.
@@ -322,11 +379,14 @@ export default function GaleriaPage() {
     } catch (err: any) {
       detenerCamara();
       setCapturandoSelfie(false);
-      setCamaraError(err?.message || 'No pudimos acceder a la cámara local.');
+      if (!selfieCanceladaRef.current) {
+        setCamaraError(err?.message || 'No pudimos acceder a la cámara local.');
+      }
     }
   }, [caras, detenerCamara]);
 
   const cerrarModalSelfie = useCallback(() => {
+    selfieCanceladaRef.current = true;
     detenerCamara();
     setShowSelfieModal(false);
     setSelfiePermisoAceptado(false);
@@ -896,7 +956,13 @@ export default function GaleriaPage() {
                 <div>
                   <div className="relative w-56 h-56 mx-auto rounded-full overflow-hidden border-4 border-rose-500 shadow-xl mb-4 bg-black">
                     <video
-                      ref={videoRef}
+                      ref={(el) => {
+                        videoRef.current = el;
+                        if (el && streamRef.current && el.srcObject !== streamRef.current) {
+                          el.srcObject = streamRef.current;
+                          el.play().catch(() => {});
+                        }
+                      }}
                       autoPlay
                       playsInline
                       muted

@@ -5,19 +5,37 @@
 
 import type { VectorDeCara } from '@/lib/caras/agrupar-caras';
 
-let modelosCargados: Promise<void> | null = null;
+let modelosCargados: Promise<boolean> | null = null;
 
-export async function asegurarModelosFaciales(): Promise<void> {
-  if (typeof window === 'undefined') return;
+export async function asegurarModelosFaciales(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
   if (!modelosCargados) {
     modelosCargados = (async () => {
-      const faceapi = await import('@vladmandic/face-api');
-      const ruta = '/models/caras';
-      await Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri(ruta),
-        faceapi.nets.faceLandmark68TinyNet.loadFromUri(ruta),
-        faceapi.nets.faceRecognitionNet.loadFromUri(ruta),
-      ]);
+      try {
+        const faceapi = await import(/* webpackMode: "eager" */ '@vladmandic/face-api');
+        const tf = faceapi.tf as any;
+        if (typeof tf?.ready === 'function') {
+          await Promise.race([
+            tf.ready(),
+            new Promise<void>((_, reject) => setTimeout(() => reject(new Error('tf.ready timeout')), 2500)),
+          ]).catch(() => {});
+        }
+        const ruta = '/models/caras';
+        const cargaPromesa = Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(ruta),
+          faceapi.nets.faceLandmark68TinyNet.loadFromUri(ruta),
+          faceapi.nets.faceRecognitionNet.loadFromUri(ruta),
+        ]);
+        const timeoutPromesa = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Tiempo de espera agotado al cargar modelos')), 6000)
+        );
+        await Promise.race([cargaPromesa, timeoutPromesa]);
+        return true;
+      } catch (err) {
+        console.warn('[ExtractorFacial] No se pudieron cargar modelos de face-api:', err);
+        modelosCargados = null;
+        return false;
+      }
     })();
   }
   return modelosCargados;
@@ -30,16 +48,48 @@ export async function extraerDescriptorFacial(
   elemento: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement
 ): Promise<VectorDeCara | null> {
   try {
-    const faceapi = await import('@vladmandic/face-api');
-    await asegurarModelosFaciales();
+    if (!elemento) return null;
+    let entrada: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement = elemento;
+    if (typeof HTMLVideoElement !== 'undefined' && elemento instanceof HTMLVideoElement) {
+      if (
+        (elemento.readyState < 2 && elemento.videoWidth === 0) ||
+        elemento.videoWidth === 0 ||
+        elemento.videoHeight === 0
+      ) {
+        return null;
+      }
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = elemento.videoWidth;
+        canvas.height = elemento.videoHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
+        ctx.drawImage(elemento, 0, 0);
+        entrada = canvas;
+      } catch {
+        return null;
+      }
+    }
+    const ok = await asegurarModelosFaciales();
+    if (!ok) return null;
 
-    const deteccion = await faceapi
-      .detectSingleFace(elemento, new faceapi.TinyFaceDetectorOptions({ inputSize: 416 }))
-      .withFaceLandmarks(true)
-      .withFaceDescriptor();
+    const faceapi = await import(/* webpackMode: "eager" */ '@vladmandic/face-api');
 
-    if (!deteccion?.descriptor) return null;
-    return Array.from(deteccion.descriptor);
+    const inferencia = (async () => {
+      const deteccion = await faceapi
+        .detectSingleFace(entrada, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
+        .withFaceLandmarks(true)
+        .withFaceDescriptor();
+
+      if (!deteccion?.descriptor) return null;
+      return Array.from(deteccion.descriptor);
+    })();
+
+    const timeoutInferencia = new Promise<null>((resolve) =>
+      setTimeout(() => resolve(null), 2500)
+    );
+
+    return await Promise.race([inferencia, timeoutInferencia]);
   } catch (err) {
     console.warn('[ExtractorFacial] No se pudo extraer descriptor con face-api:', err);
     return null;
