@@ -2,10 +2,13 @@
 
 Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
 Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.
-CandidatoGemini1353 congelado917a98e32c63fe2f832f5cdc16db87f4fc722b6c.
+Candidato1353 nuevo978af7d65a60bd287f3ee3cc05037a29566074f4; native/build917historicos.
 386 ejecuta bateria canonica:862suites5243PASS0FAIL0pending, sin adaptador370.
 406 build917PASS tipos/lint;442 termina8nativosSDKPASS,443 verifica limpieza.
-Cinco causas vigentes en TRESordenes214/220/221; no todas las areas aceptadas.
+Cinco causas en917 tenian TRESordenes214/220/221.978 trae correcciones:
+480efectos/PIN8PASS,482ReactDOM11PASS (480Reactprod fue errorQA).
+Factura221 cerrada por ese alcance; CSS/detector presentes sin nativo978.
+483CIERRA ejecuciones pendientes, no acepta susFAIL;229 doscriterios medios.
 400-informe-final.md es el dictamen final consolidado, NO aprobacion global.
 3f/349/359 son historicos preservados;364/376/386 resuelven su diagnostico.
 390 comprobo HEAD privado igual917/tracked limpio a17:21UTC24/10;
@@ -74,6 +77,20 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 
 ## 4. Cierre ejecutado y limites de aceptacion
 
+- Actualizacion483 sobre917:455barra20PASS/overflow390PASS/huellas2FAIL;
+  457nueve rutasPASS/BoguePASS, otras variantes fallidas conservadas.
+  472grabacion completaPASS; importacion finita llega a revision pero marco0
+  pixelesFAIL; selfie sigueAnalizando60sFAIL.477HTTP200/titulos y tiempos
+  10519/612/3599ms, falla umbral local. No produccion ni nuevos bugs por conteo.
+  22ejecuciones contando variantes:13PASS8FAIL1timeout, no22funciones.
+  465/468 diez controles de codecs no vacios, sin hardware real.469video
+  sintetico1.5s herramientaFFmpeg SOLO fuera de dependencias de app.
+- NuevoHEAD978 contrastado por480:cinco suites, ocho efectos/PINPASS; once
+  ReactFAIL porNUESTRO NODE_ENVproduction.482 repite SOLOtres suites en modo
+  test:11PASS. No oncebugs, no build/nativos978, no5243PASS nuevos de978.
+  Hay correcciones de214/220/221 presentes; no reencargarlas desde917.
+  Directos de buzon/galeria/caras iguales, lector/permisos transitive cambia:
+  229 pide contraste de los dos criterios negativos antes de programar.
 - La bateria269 y su continuacion274 terminaron. Conciliacion277 con el formato
   REAL de Playwright:1144casos unicos,542ejecutados,496PASS/46FAIL o timeout,
   600SKIP declarados (516capturas optativas) y2FIXME. No1144PASS ni46bugs.

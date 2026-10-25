@@ -1,0 +1,219 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "477-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\477-batch-001-artifacts",
+      "ak207-474-carga-contexto-controlado.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\477-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/477-batch-001-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/477-batch-001-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\477-batch-001-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-474-carga-contexto-controlado.spec.ts",
+      "file": "ak207-474-carga-contexto-controlado.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "474 tres cargas con contexto protegido y cache desactivada",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 33080,
+                  "error": {
+                    "message": "Error: umbral local2500ms, carga0\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m10519\u001b[39m",
+                    "stack": "Error: umbral local2500ms, carga0\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m10519\u001b[39m\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-474-carga-contexto-controlado.spec.ts:19:201",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-474-carga-contexto-controlado.spec.ts",
+                      "column": 201,
+                      "line": 19
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 17 |\u001b[39m    }\u001b[36mcatch\u001b[39m(error){samples\u001b[33m.\u001b[39mpush({attempt\u001b[33m,\u001b[39mstatus\u001b[33m,\u001b[39mduration\u001b[33m:\u001b[39m\u001b[33mDate\u001b[39m\u001b[33m.\u001b[39mnow()\u001b[33m-\u001b[39mstart\u001b[33m,\u001b[39merror\u001b[33m:\u001b[39m\u001b[33mString\u001b[39m(error)})\u001b[33m;\u001b[39m}\n \u001b[90m 18 |\u001b[39m   }\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 19 |\u001b[39m   expect(samples)\u001b[33m.\u001b[39mtoHaveLength(\u001b[35m3\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mfor\u001b[39m(\u001b[36mconst\u001b[39m s \u001b[36mof\u001b[39m samples){expect(s\u001b[33m.\u001b[39merror\u001b[33m,\u001b[39m\u001b[32m'carga'\u001b[39m\u001b[33m+\u001b[39ms\u001b[33m.\u001b[39mattempt)\u001b[33m.\u001b[39mtoBeUndefined()\u001b[33m;\u001b[39mexpect(s\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBeLessThan(\u001b[35m400\u001b[39m)\u001b[33m;\u001b[39mexpect(s\u001b[33m.\u001b[39mduration\u001b[33m,\u001b[39m\u001b[32m'umbral local2500ms, carga'\u001b[39m\u001b[33m+\u001b[39ms\u001b[33m.\u001b[39mattempt)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(\u001b[35m2500\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m    |\u001b[39m                                                                                                                                                                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 20 |\u001b[39m  }\u001b[36mfinally\u001b[39m{\u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'qa474-muestras'\u001b[39m\u001b[33m,\u001b[39m{contentType\u001b[33m:\u001b[39m\u001b[32m'application/json'\u001b[39m\u001b[33m,\u001b[39mbody\u001b[33m:\u001b[39m\u001b[33mBuffer\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({samples\u001b[33m,\u001b[39mscope\u001b[33m:\u001b[39m\u001b[32m'Same2500ms DOMContentLoaded criterion; fixture context keeps local-only FIS guard. HTTP cache disabled, no SDK emulator overhead, no separate context.close loop. This local QA is not production Core Web Vitals.'\u001b[39m}))})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m cdp\u001b[33m.\u001b[39mdetach()\u001b[33m;\u001b[39m}\n \u001b[90m 21 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 22 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-474-carga-contexto-controlado.spec.ts",
+                        "column": 201,
+                        "line": 19
+                      },
+                      "message": "Error: umbral local2500ms, carga0\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m10519\u001b[39m\n\n  17 |    }catch(error){samples.push({attempt,status,duration:Date.now()-start,error:String(error)});}\n  18 |   }\n> 19 |   expect(samples).toHaveLength(3);for(const s of samples){expect(s.error,'carga'+s.attempt).toBeUndefined();expect(s.status).toBeLessThan(400);expect(s.duration,'umbral local2500ms, carga'+s.attempt).toBeLessThanOrEqual(2500);}\n     |                                                                                                                                                                                                         ^\n  20 |  }finally{await info.attach('qa474-muestras',{contentType:'application/json',body:Buffer.from(JSON.stringify({samples,scope:'Same2500ms DOMContentLoaded criterion; fixture context keeps local-only FIS guard. HTTP cache disabled, no SDK emulator overhead, no separate context.close loop. This local QA is not production Core Web Vitals.'}))});await cdp.detach();}\n  21 | });\n  22 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-474-carga-contexto-controlado.spec.ts:19:201"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T21:07:25.683Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa474-muestras",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJhdHRlbXB0IjowLCJzdGF0dXMiOjIwMCwiZHVyYXRpb24iOjEwNTE5LCJ0aW1pbmciOlt7InJlcXVlc3RTdGFydCI6NDAuODk5OTk5OTkxMDU5MywicmVzcG9uc2VTdGFydCI6OTYxOC43OTk5OTk5OTcwMiwicmVzcG9uc2VFbmQiOjk2MzYsImRvbUNvbnRlbnRMb2FkZWQiOjEwNDc0LjV9XX0seyJhdHRlbXB0IjoxLCJzdGF0dXMiOjIwMCwiZHVyYXRpb24iOjYxMiwidGltaW5nIjpbeyJyZXF1ZXN0U3RhcnQiOjkuNDAwMDAwMDA1OTYwNDY0LCJyZXNwb25zZVN0YXJ0IjoyOCwicmVzcG9uc2VFbmQiOjQzLjcwMDAwMDAwMjk4MDIzLCJkb21Db250ZW50TG9hZGVkIjoxNjIuNX1dfSx7ImF0dGVtcHQiOjIsInN0YXR1cyI6MjAwLCJkdXJhdGlvbiI6MzU5OSwidGltaW5nIjpbeyJyZXF1ZXN0U3RhcnQiOjEzLjA5OTk5OTk5NDAzOTUzNiwicmVzcG9uc2VTdGFydCI6NDAsInJlc3BvbnNlRW5kIjo2Ni4yOTk5OTk5OTcwMTk3NywiZG9tQ29udGVudExvYWRlZCI6MzMwMi43MDAwMDAwMDI5ODAyfV19XSwic2NvcGUiOiJTYW1lMjUwMG1zIERPTUNvbnRlbnRMb2FkZWQgY3JpdGVyaW9uOyBmaXh0dXJlIGNvbnRleHQga2VlcHMgbG9jYWwtb25seSBGSVMgZ3VhcmQuIEhUVFAgY2FjaGUgZGlzYWJsZWQsIG5vIFNESyBlbXVsYXRvciBvdmVyaGVhZCwgbm8gc2VwYXJhdGUgY29udGV4dC5jbG9zZSBsb29wLiBUaGlzIGxvY2FsIFFBIGlzIG5vdCBwcm9kdWN0aW9uIENvcmUgV2ViIFZpdGFscy4ifQ=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\477-batch-001-artifacts\\ak207-474-carga-contexto-c-48758-otegido-y-cache-desactivada-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\477-batch-001-artifacts\\ak207-474-carga-contexto-c-48758-otegido-y-cache-desactivada-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-474-carga-contexto-controlado.spec.ts",
+                    "column": 201,
+                    "line": 19
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dd3e755f22030ea29a34-a3831334fd0c025d0b61",
+          "file": "ak207-474-carga-contexto-controlado.spec.ts",
+          "line": 8,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T21:07:24.495Z",
+    "duration": 42444.329000000005,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

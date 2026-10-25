@@ -1,6 +1,11 @@
 ## Descripcion del Cambio
 
 Cierre consolidado de auditoria, NO correcciones de app ni fusion.
+Actualizacion483:terminadas455/457/472/477,22ejecuciones con variantes,
+13PASS8FAIL1timeout. Grabacion,bar20,overflow,Bogue y9rutasPASS. Doscriterios
+medios negativos229 requieren contraste978 antes de programar. Velocidad
+local10519/612/3599ms, no produccion.480/482 agrega ocho efectos/PIN y once
+ReactDOM positivos en978; Reactprod inicial falloQA conservado.
 Informe final: docs/evidencias/400-informe-final.md. Recuento unico253;
 evidencias anteriores316/360 y suplemento399. Se conservan fallos iniciales
 del arnes y de versiones anteriores; no se sustituyen por verdes retroactivos.
@@ -53,8 +58,8 @@ se presentan como errores de la app.
 ## Decision
 
 NO aprobar una declaracion de0errores ni toda1353 por el verde unitario.
-CINCO causas concretas en TRESordenes de candidata917: tres214, una221/Claude224
-y MISMA220/Claude223 PARCIAL por otroselector hijo. No son17bugs.400 detalla
+CINCO causas de917 YA tienen correcciones presentes en entrega978:ver480/482
+para cierres focales y limites, no reencargarlas. No build ni native978.400 detalla
 objetivos no aceptados; ocho controles442PASS no certifican toda app/proveedor.
 Claude/Gemini reciben la evidencia en esta propuesta; no se asegura que la
 hayan leido ni ejecutado. No fusionar documentacion sola.

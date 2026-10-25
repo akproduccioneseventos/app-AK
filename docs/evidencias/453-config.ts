@@ -1,0 +1,1 @@
+import {defineConfig} from '@playwright/test';import base from './208-config';export default defineConfig({...base,projects:base.projects?.map(p=>({...p,grep:p.name==='chromium-desktop'?/ak207-layout-baseline|ak207-mobile-overflow.*rutas internas del staff|ak207-89.*trago con stock 0/:/ak207-layout-baseline/}))});

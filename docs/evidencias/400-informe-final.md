@@ -9,6 +9,21 @@ resume y resuelve las contradicciones de los recuentos anteriores.
 
 **NO APROBADA una declaracion de que toda la app funciona sin errores.**
 
+ACTUALIZACION483:se terminaron las ejecuciones pendientes455/457/472/477.
+El cuadro de483 conserva resultados por objetivo, sin renovar el inventario:
+barra20ciclos,overflow390,Bogue,grabacion completa y nueve rutasPASS;
+importacion/marco yselfie/resultadosFAIL, velocidad local10519/612/3599ms.
+Dos baselines siguenFAIL por referencias, no defectos visuales demostrados.
+No quedan servicios propios corriendo. No confundir concluir una ejecucion
+con aceptar una funcion ni afirmar cada boton/rol de toda la app probado.
+
+Llego nueva entrega978af7d65a60bd287f3ee3cc05037a29566074f4. Las cinco
+causas que mas abajo se describen son de917:en978 hay correcciones presentes,
+no reencargarlas.480/482 agrega19criterios focales positivos por alcance,
+NO build/nativos nuevos ni bateria completa978. La variante de factura221
+queda cerrada porReactDOM482.229 entrega SOLO dos criterios de medios
+no aceptados para contraste con esa tanda, sin asumir causa ni programar.
+
 Hay correcciones comprobadas, una bateria unitaria completa verde y cobertura
 real de navegador. Tambien quedan defectos reproducidos y pruebas nativas
 que no demostraron su objetivo. No se convierten en aprobadas por cansancio,
@@ -127,9 +142,10 @@ causalidad demostrada del modelo ni un falloBogue/CDP confirmado.
 No se cambia retrospectivamente el resultado de3e; los cierres adicionales
 quedan ligados a917/425/442. No son17correcciones inventadas.
 
-## Que queda sin aceptacion nativa, sin inventar errores
+## Estado previo de aceptacion nativa, actualizado por483
 
-De los objetivos principales, siguen sin demostracion suficiente: capsula
+Este parrafo conserva el estado ANTERIOR a455-477;483 lo sustituye por
+objetivo y fuente, sin borrar recibos. Antes seguian sin demostracion: capsula
 (2variantes), recorrido largo comercial, marcaBogue, grilla facial,20ciclos
 de sugerencias, overflow tras navegar a costos y dos baselines geometricos.
 La carga fria excedio2500ms en esta maquina; no se aislo costo del entorno.
@@ -191,5 +207,6 @@ Informe, fuentes de las sondas, recibos y manifiesto se entregan juntos en
 PR1361, sin cambios de app ni fusion.399 describe exactamente lo publicado y
 lo que queda solo como artefacto local; el recibo de entrega verifica Git.
 Hay un dictamen final negativo y trazable, NO un certificado ficticio.
-El siguiente trabajo de programacion utiliza las mismas ordenes214,220/223 y221/224;
+Las ordenes214,220/223 y221/224 YA tienen cambios en978:ver483/480/482,
+no reencargarlas desde917.229 contiene los dos criterios de medios para contraste;
 una entrega nueva se contrasta por delta, sin repetir esta auditoria completa.

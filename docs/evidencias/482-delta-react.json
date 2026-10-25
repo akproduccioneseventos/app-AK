@@ -1,0 +1,17 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "started": "2026-10-25T00:28:27.773Z",
+  "previousMode": "production",
+  "mode": "test",
+  "scope": "Reexecute ONLY three ReactDOM suites blocked by our production-mode React.act; official Jest test mode, same assertions/source. Keep480 failures, not11 app defects.",
+  "exitCode": 0,
+  "stats": {
+    "suites": 3,
+    "total": 11,
+    "pass": 11,
+    "fail": 0,
+    "pending": 0
+  },
+  "sourceDiff": "",
+  "finished": "2026-10-25T00:28:39.509Z"
+}

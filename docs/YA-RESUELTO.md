@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 24/10/2026 - Cierre483 de pendientes y entrega nueva978
+
+- 455 SOLOpendientes917:barra20sugerencias/cancelacionesPASS,overflow390PASS.
+  HuellasPC/movilFAIL por referencia+4/-3px yhashcolor, absolutos pasan;
+  no resetear baseline a ciegas ni afirmar superposicion por ese resultado.
+- 457 CIERRA nueve rutas de venta por HTTP/cuerpo/erroresReact, no botones;
+  Bogue comparte marcaPASS.472 CIERRA grabacion/video/marco/pistas con camara
+  yaudio sinteticos.457blob0 anterior se conserva, no causa de hardware probada.
+- Importado469finito1.5s H264/AAC4112bytes llega aVideoCargado en472 pero
+  marco0pixelesFAIL/capturanegra. Selfie esperaCORRECTA60s quedaAnalizando;
+  478captura lo muestra.229 pide diagnosticar con978 antes de arreglar, no
+  afirmar filtracion ni codec culpable. 451cambio otro4000ms fue errorQA,
+  rectificado470 sin borrar fallo.465/468 diez codecsdanbytes>0.
+- 477 velocidad:3HTTP200/titulos,10519/612/3599ms; umbral localFAIL, no
+  produccion.480/482CIERRE y483 tabla unica sustituyen pendientes genericos.
+- PR1353 avanzo978af7d65a60bd287f3ee3cc05037a29566074f4. Tiene arreglos
+  de214/220/221: NOreencargar cinco causas de917 como actuales.480 ocho
+  efectos/PINPASS. OnceReactFAIL fueron NODE_ENVproduction impuesto porQA;
+  482modooficialtest repite SOLOtres suites11PASS. No oncebugs ni canonica
+  completa978. Cierra variante221 porReactDOM; detector/CSSsin native978.
+- Todos los jobs de esta tanda terminados,cleanup200/diffQA0, herramientas
+  imageio-ffmpeg fuera de dependencias de app; sin appedit/merge. Informe400,
+  recuento253 y483 conservan limites, no cadaaccion/rol ni0errores.
+
 ## 24/10/2026 - Cierre406-443: build y controlesSDK, tres ordenes aun abiertas
 
 - Fuente917:406buildPASS exit0 con tipos/lint.392 fue un preflight anterior
