@@ -1,6 +1,20 @@
 # Recuento unico - cierre25/10/2026
 
-## Corte vigente - sustituye conclusiones de versiones anteriores
+## Corte650 vigente - recorridos enumerados ejecutados
+
+640 actualiza258claves porultimo recibo:211PASS11FAIL36SKIP y2MuronuevosPASS.
+609:foto4,totem1,grilla2,selfiemovil1,ventas1,Bogue1PASS;620stock20PASS;
+614espejoJSON1PASS;647muro2PASS conIDunico/recarga/pendingoculto aanonimo.
+600 clasifica37omisiones; unicoPCJSON cerrado614,36mobileguardasnoejecutadas.
+No volver a listar estos recorridos como nunca probados. Rawfallos conservados.
+229 se amplia con620:grabacion video+audio real sinteticos produce0bytes y
+se anunciaVideoGrabado. SelfiePC609 no alcanza asercion75s aunqueadjunto
+finalcontieneresultados; no filtracion/causa inventadas. Home10064ms LOCAL.
+Muroviejo1px/regex nocubriaMomentoenviado: no bugStorage probado;622REST403
+no era lecturaAdmin.647 SIusaAdminSDKdemo yprueba posteo.650 concluye.
+No appedit/merge, no0errores/todosroles/cadaboton.652higiene/cleanup/diff0.
+
+## Corte597 anterior - conservar cierres y alcances
 
 Informe final597 y400; libro596 contiene258claves caso/proyecto, intentos
 originales y reemplazos SIN sumar diferentes ejecuciones como funciones.
