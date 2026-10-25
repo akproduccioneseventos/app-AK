@@ -23,20 +23,22 @@ function calcularRatioContraste(rgb1: number[], rgb2: number[]): number {
   return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
 
-const PANTALLAS_AUTONOMAS = [
-  '/evento/barra/fiesta-demo/listo',
-  '/evento/buzon/fiesta-demo',
-  '/evento/en-vivo/fiesta-demo',
-  '/experiencia',
-  '/tecnologia',
-  '/catalogo/bodas',
+const PANTALLAS_AUTONOMAS: Array<{ ruta: string; titulo?: RegExp }> = [
+  { ruta: '/evento/barra/fiesta-demo/listo' },
+  { ruta: '/evento/buzon/fiesta-demo' },
+  { ruta: '/evento/en-vivo/fiesta-demo' },
+  { ruta: '/experiencia', titulo: /Viví la experiencia/i },
+  { ruta: '/tecnologia', titulo: /tecnologías en tu fiesta/i },
+  { ruta: '/catalogo/bodas' },
 ];
 
 test.describe('Contraste por píxeles rasterizados (Orden 227)', () => {
-  for (const ruta of PANTALLAS_AUTONOMAS) {
+  for (const { ruta, titulo } of PANTALLAS_AUTONOMAS) {
     test(`pantalla ${ruta} mantiene contraste legible mayor a 4.5:1`, async ({ page }) => {
       await page.goto(ruta, { waitUntil: 'domcontentloaded' });
-      const heading = page.locator('h1, h2').first();
+      const heading = titulo
+        ? page.getByRole('heading', { name: titulo }).first()
+        : page.locator('h1, h2').first();
       await expect(heading).toBeVisible({ timeout: 20000 });
 
       const foregroundRgb = await heading.evaluate(el => {

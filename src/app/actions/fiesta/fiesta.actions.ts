@@ -459,6 +459,10 @@ export async function updateFiestaPartial(
   }
 }
 
+export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise<FiestaEnPlanificacion | null> {
+    return (await leerFiestaConEstado(fiestaId, lectura)).fiesta;
+}
+
 async function leerFiestaConEstado(
     fiestaId: string,
     lectura?: symbol
@@ -507,7 +511,9 @@ async function leerFiestaConEstado(
             };
         }
         if (lectura !== LECTURA_COMPLETA && !(await quienEsElEquipo())(fiesta)) {
-            delete (fiesta as any).clientPortalSettings;
+            if (fiesta.clientPortalSettings) {
+                fiesta.clientPortalSettings = { ...fiesta.clientPortalSettings, accessKey: undefined as any };
+            }
             // Quien no es del equipo no se lleva la fiesta entera (ver recortar-para-afuera).
             const { verifyPortalSession } = await import('@/lib/security/portal-session');
             const esCliente = await verifyPortalSession(fiestaId).catch(() => false);
@@ -526,11 +532,8 @@ async function leerFiestaConEstado(
     return { fiesta, fallo };
 }
 
-export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise<FiestaEnPlanificacion | null> {
-    return (await leerFiestaConEstado(fiestaId, lectura)).fiesta;
-}
-
 export async function getFiestaParaPantalla(fiestaId: string): Promise<{ fiesta: FiestaEnPlanificacion | null; fallo: boolean }> {
+    await requireAppSession();
     return await leerFiestaConEstado(fiestaId);
 }
 

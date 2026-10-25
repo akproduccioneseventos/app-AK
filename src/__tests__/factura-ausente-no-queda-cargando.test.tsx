@@ -11,6 +11,7 @@ const mockSettings = jest.fn();
 const mockBudgets = jest.fn();
 const mockToast = jest.fn();
 const mockGetFiestaById = jest.fn();
+const mockGetFiestaParaPantalla = jest.fn();
 const mockGetCartaTragosMaster = jest.fn();
 
 const stableRouter = { push: jest.fn(), replace: jest.fn(), back: jest.fn() };
@@ -42,6 +43,7 @@ jest.mock('@/app/actions/presupuestos', () => ({
 
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: (...args: unknown[]) => mockGetFiestaById(...args),
+  getFiestaParaPantalla: (...args: unknown[]) => mockGetFiestaParaPantalla(...args),
   getFiestas: jest.fn(async () => []),
   updateFiestaPartial: jest.fn(async () => ({ success: true })),
   updateCartaTragos: jest.fn(async () => ({ success: true })),
@@ -49,6 +51,7 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
 
 jest.mock('@/app/actions/fiesta-actual', () => ({
   getFiestaById: (...args: unknown[]) => mockGetFiestaById(...args),
+  getFiestaParaPantalla: (...args: unknown[]) => mockGetFiestaParaPantalla(...args),
   addInvitadoFiestaActual: jest.fn(async () => ({ success: true })),
   updateInvitadoFiestaActual: jest.fn(async () => ({ success: true })),
   deleteInvitadoFiestaActual: jest.fn(async () => ({ success: true })),
@@ -71,6 +74,7 @@ beforeEach(() => {
   mockBudgets.mockReset();
   mockToast.mockReset();
   mockGetFiestaById.mockReset();
+  mockGetFiestaParaPantalla.mockReset();
   mockGetCartaTragosMaster.mockReset();
 
   mockSettings.mockResolvedValue({ companyName: 'AK Producciones' });
@@ -89,7 +93,7 @@ afterEach(async () => {
   container.remove();
 });
 
-describe('Pantallas no quedan cargando para siempre ante dato ausente (Orden 224)', () => {
+describe('Pantallas no quedan cargando para siempre ante dato ausente o falla (Orden 224 y 228)', () => {
   test('factura ausente: al terminar la lectura sin factura deja de girar y muestra cartel', async () => {
     mockInvoice.mockResolvedValue(null);
     await act(async () => {
@@ -102,9 +106,20 @@ describe('Pantallas no quedan cargando para siempre ante dato ausente (Orden 224
     expect(container.textContent).toContain('Factura no encontrada');
   });
 
-  test('fiesta ausente en carta de tragos: deja de girar y muestra cartel', async () => {
-    mockGetFiestaById.mockResolvedValue(null);
+  test('carta de tragos: con carga rechazada muestra No se pudo cargar, y con fiesta ausente muestra Fiesta no encontrada', async () => {
+    mockGetFiestaParaPantalla.mockRejectedValueOnce(new Error('FALLO_RED'));
     await act(async () => {
+      root.render(<CartaTragosPage />);
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector('.animate-spin')).toBeNull();
+    expect(container.textContent).toContain('No se pudo cargar');
+
+    mockGetFiestaParaPantalla.mockResolvedValueOnce({ fiesta: null, fallo: false });
+    await act(async () => {
+      root.unmount();
+      root = createRoot(container);
       root.render(<CartaTragosPage />);
       await Promise.resolve();
     });
@@ -113,9 +128,20 @@ describe('Pantallas no quedan cargando para siempre ante dato ausente (Orden 224
     expect(container.textContent).toContain('Fiesta no encontrada');
   });
 
-  test('fiesta ausente en gestión de invitados: deja de girar y muestra cartel', async () => {
-    mockGetFiestaById.mockResolvedValue(null);
+  test('gestión de invitados: con carga rechazada muestra No se pudo cargar, y con fiesta ausente muestra Fiesta no encontrada', async () => {
+    mockGetFiestaParaPantalla.mockRejectedValueOnce(new Error('FALLO_RED'));
     await act(async () => {
+      root.render(<InvitadosPage />);
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector('.animate-spin')).toBeNull();
+    expect(container.textContent).toContain('No se pudo cargar');
+
+    mockGetFiestaParaPantalla.mockResolvedValueOnce({ fiesta: null, fallo: false });
+    await act(async () => {
+      root.unmount();
+      root = createRoot(container);
       root.render(<InvitadosPage />);
       await Promise.resolve();
     });
@@ -124,9 +150,20 @@ describe('Pantallas no quedan cargando para siempre ante dato ausente (Orden 224
     expect(container.textContent).toContain('Fiesta no encontrada');
   });
 
-  test('fiesta ausente en pantallas tótem: deja de girar y muestra cartel', async () => {
-    mockGetFiestaById.mockResolvedValue(null);
+  test('pantallas tótem: con carga rechazada muestra No se pudo cargar, y con fiesta ausente muestra Fiesta no encontrada', async () => {
+    mockGetFiestaParaPantalla.mockRejectedValueOnce(new Error('FALLO_RED'));
     await act(async () => {
+      root.render(<PantallasTotemPage />);
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector('.animate-spin')).toBeNull();
+    expect(container.textContent).toContain('No se pudo cargar');
+
+    mockGetFiestaParaPantalla.mockResolvedValueOnce({ fiesta: null, fallo: false });
+    await act(async () => {
+      root.unmount();
+      root = createRoot(container);
       root.render(<PantallasTotemPage />);
       await Promise.resolve();
     });

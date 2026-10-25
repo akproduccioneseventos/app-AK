@@ -15,6 +15,10 @@ jest.mock('@/lib/data-service', () => ({
   updateDataPartial: jest.fn(async () => {}),
 }));
 
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn(async () => ({ user: mockSessionUser || { perfil: 'duenio', email: 'duenio@ak.test' } })),
+}));
+
 jest.mock('@/lib/auth/session-token', () => ({
   verifySession: jest.fn(async () =>
     mockSessionUser ? { success: true, user: mockSessionUser } : { success: false }
