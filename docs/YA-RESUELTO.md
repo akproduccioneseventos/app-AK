@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 25/10/2026 -653 correccion directa autorizada, entrega2b17bebf contrastada
+
+- Pedido actual del dueño autoriza reparar con agentes economicos; excepcion
+  puntual anotada enAGENTS. No merge ni datos reales. Rama propia desde2b17bebf,
+  sin tocar la rama activaGemini. Privados NO CONTRASTADOS.
+- La entregaGemini ya corrige230 requireAdminSession y231contraste ytrae
+  cambios229: NO reimplementar esos arreglos. Sus nueve tests de permisosPASS.
+- Nuevo caso reproducido:perfil explicito invalido conroleadmin era denegado
+  porrequireAdminSession, pero requirePermiso heredaba los permisos viejos.
+  TRESregresiones firmadas reales fallaron; se rechaza perfil invalido tambien
+  enrequirePermiso. No cambiarperfilDe/permisos comerciales ni cuentas antiguas
+  sinperfil. Dinero/cuentas/Firestore reales no se tocaron.
+- Audio importado:siresume falla/contextosuspendido/sinpistas,2b resolvia video
+  mudo. Trespruebas de comportamientoRED reales del helper(canal multimedia
+  doblado),luegoPASS:ahora error recuperable, no exito silencioso. Se conserva
+  rutaMediaElementSource->destino->grabador;sinmutear al fallarplay. Metadatos
+  acotados8s;contexto/pistas/URL liberados. No certificacion dehardware.
+- Captura:se elimina respaldo soloVIDEO que podia sustituir voz por silencio;
+  no anunciar blobs0 oindecodificables comoVideoGrabado. Reutiliza validador
+  real deURLcon dimensiones, estadoerror/reintento reabre camara. Cancelar
+  limpia countdown yresultado tardio no pisa otra captura. No nuevasfeatures.
+- AgentesParfit/Rawls acotados terminaron yse cerraron. Director corrigio
+  arnesaudio del primerborrador(faketimers colgaban ymetadata0 redefinia una
+  propiedad fija); fallosQA conservados, no bugsapp. Focales35PASS trasarreglo.
+  Source/build/nativos actuales quedan pendientes hasta recibos nuevos; no
+  reutilizar build574 ni593 para dar estos cambios por aceptados.
+
 ## 23/10/2026 - El candado de la plata ve los ayudantes que guardan plata (pregunta 95)
 
 - La entrega 1353 de Gemini volvió a exportar `updateGestionCostosInterno`: una acción pública que reescribe

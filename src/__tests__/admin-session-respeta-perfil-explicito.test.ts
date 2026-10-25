@@ -45,6 +45,20 @@ describe('Orden 230: requireAdminSession respeta perfil explícito', () => {
     currentCookieValue = undefined;
   });
 
+  it.each(['perfil-inexistente', 'constructor', ''])('rechaza el perfil explicito invalido %j tambien en las guardias por permiso', async (perfil) => {
+    currentCookieValue = await createSignedSessionToken({
+      userId: 'qa653-invalido',
+      email: 'qa653@example.invalid',
+      role: 'admin',
+      perfil,
+    });
+    expect((await requireAdminSession()).ok).toBe(false);
+    for (const permiso of Object.values(PERMISOS)) {
+      expect((await requirePermiso(permiso)).ok).toBe(false);
+    }
+    expect(mockCollection).not.toHaveBeenCalled();
+  });
+
   describe('Los 7 perfiles explícitos con role: admin', () => {
     it('solo el perfil dueno devuelve ok: true tanto en requireAdminSession como en requirePermiso(ADMINISTRACION)', async () => {
       const tokenDueno = await createSignedSessionToken({
