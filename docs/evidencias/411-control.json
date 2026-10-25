@@ -1,0 +1,8 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "started": "2026-10-24T19:15:28.015Z",
+  "phase": "finished",
+  "appEdited": false,
+  "scope": "Additional mobile variants of EXACT34 original desktop-only cases. Only the test project guards are removed from instrumented copies using AST. Original assertions, source files and other skips remain intact. Not a retrospective PASS for original34 skips.",
+  "finished": "2026-10-24T19:34:59.794Z"
+}

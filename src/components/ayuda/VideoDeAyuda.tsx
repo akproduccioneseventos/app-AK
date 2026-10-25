@@ -5,6 +5,25 @@ import { X } from 'lucide-react';
 import { getVideosDeAyuda } from '@/app/actions/videos-de-ayuda';
 import type { VideoAyudaInfo } from '@/lib/videos-de-ayuda';
 
+/** Tab y Shift+Tab dan la vuelta adentro del visor abierto, como en el de videos (orden 199). */
+function mantenerElFocoAdentro(e: KeyboardEvent, dentroDe: HTMLElement | null | undefined) {
+  if (e.key !== 'Tab' || !(dentroDe instanceof HTMLElement)) return;
+  const enfocables = Array.from(
+    dentroDe.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], iframe, video[controls], [tabindex]:not([tabindex="-1"])'),
+  );
+  if (enfocables.length === 0) return;
+  const primero = enfocables[0];
+  const ultimo = enfocables[enfocables.length - 1];
+  const actual = document.activeElement;
+  if (e.shiftKey && (actual === primero || !dentroDe.contains(actual))) {
+    e.preventDefault();
+    ultimo.focus();
+  } else if (!e.shiftKey && (actual === ultimo || !dentroDe.contains(actual))) {
+    e.preventDefault();
+    primero.focus();
+  }
+}
+
 export interface VideoDeAyudaProps {
   lugar: string;
   className?: string;
@@ -22,7 +41,11 @@ export function VideoDeAyuda({ lugar, className = '', initialVideo }: VideoDeAyu
     if (!abierto) return;
     const cuadro = requestAnimationFrame(() => botonCerrarRef.current?.focus());
     const alApretar = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setAbierto(false);
+      if (e.key === 'Escape') {
+        setAbierto(false);
+        return;
+      }
+      mantenerElFocoAdentro(e, botonCerrarRef.current?.closest('[role="dialog"]') as HTMLElement | null);
     };
     window.addEventListener('keydown', alApretar);
     return () => {

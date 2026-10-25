@@ -13,6 +13,14 @@ import { execFileSync } from 'node:child_process';
 import { unlinkSync, existsSync } from 'node:fs';
 
 const ESCRITOS_POR_LA_CORRIDA = [
+  // Los escribe la app al entrar (recordatorio a los invitados y ajustes) durante las pruebas de
+  // navegador. Aparecieron sin estar en la lista el 21 de octubre de 2026, y la copia de `data/` tapaba
+  // la que siembran las pruebas en `src/data/`.
+  'data/scheduled-messages.json',
+  'data/company-info.json',
+  'data/empleados.json',
+  'data/invoice-template-settings.json',
+  'data/ajustes-llegada.json',
   'data/notifications.json',
   'src/data/notifications.json',
   // Lo escribe la prueba de las guias de armado al aplicar una a la fiesta de prueba.

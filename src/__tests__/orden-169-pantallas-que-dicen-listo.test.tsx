@@ -41,6 +41,9 @@ jest.mock('@/app/actions/presencia-digital', () => ({
   createPostFromDailySuggestion: jest.fn(),
   getNetworkAttributionReport: jest.fn(),
   getWebsiteAnalyticsData: jest.fn(),
+  getAjustesRespuestasAction: jest.fn(async () => ({ comentarios: true, mensajesDirectos: true })),
+  setAjustesRespuestasAction: jest.fn(async () => ({ success: true })),
+  leerBandejaUnicaAction: jest.fn(async () => []),
 }));
 
 jest.mock('@/app/actions/comentarios-redes', () => ({
@@ -104,6 +107,8 @@ jest.mock('@/lib/auth/require-session', () => ({
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn().mockResolvedValue([]),
   writeData: jest.fn().mockResolvedValue(true),
+  createDataItem: jest.fn().mockResolvedValue(true),
+  mutateDataItem: jest.fn().mockResolvedValue(true),
 }));
 
 // Imports de componentes y acciones

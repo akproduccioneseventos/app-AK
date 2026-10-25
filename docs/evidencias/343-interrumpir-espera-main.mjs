@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {execFileSync,spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias'),target=path.join(dir,'343-interrupcion-locator.json');assert(!fs.existsSync(target));
+const state=JSON.parse(fs.readFileSync(path.join(dir,'340-excepciones-continuidad.json'),'utf8'));assert.equal(state.childPid,10232);assert.equal(state.phase,'forensics-remaining-only');
+const command='Get-CimInstance Win32_Process -Filter "ProcessId=6696" | Select-Object ProcessId,ParentProcessId,CommandLine | ConvertTo-Json -Compress';
+const processInfo=JSON.parse(execFileSync('powershell.exe',['-NoProfile','-Command',command],{encoding:'utf8'}));
+assert.equal(processInfo.ParentProcessId,10232);assert(processInfo.CommandLine.includes('@playwright/test/cli.js'));assert(processInfo.CommandLine.includes('33802-artifacts'));
+const result=spawnSync('taskkill.exe',['/PID','6696','/T','/F'],{encoding:'utf8'});
+const record={source:state.source,at:new Date().toISOString(),appEdited:false,reason:'Corrected prior attribution: forensic locator(main).innerText() had no timeout and awaited absent main on div-based Bogue.33802 stalls before screenshot too. Not proof of CDP/app freeze.333 now checks element count and bounds text reads1500ms. Stop ONLY verified own Playwright; parent finally restores data/server.',processInfo,exitCode:result.status,stdout:result.stdout,stderr:result.stderr};
+fs.writeFileSync(target,JSON.stringify(record,null,2)+'\n');console.log(JSON.stringify(record));

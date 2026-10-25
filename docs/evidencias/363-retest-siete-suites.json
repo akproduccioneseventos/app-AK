@@ -1,0 +1,13 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "scope": "Exactly seven failing349 suites on fresh SAME-SHA worktree, NO build. Original assertions/mocks/timeouts, official Jest env; no real services. Never alter tests to obtain green.",
+  "started": "2026-10-24T14:45:23.281Z",
+  "phase": "qa-setup-or-run-error",
+  "appEdited": false,
+  "foreignProcessesStopped": false,
+  "probes": [],
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-363-3f-ccnKr1",
+  "error": "AssertionError [ERR_ASSERTION]: Original public blog fixture must exist\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/363-retest-siete-suites.mjs:27:50\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)",
+  "sourceDiff": "",
+  "finished": "2026-10-24T14:47:03.801Z"
+}

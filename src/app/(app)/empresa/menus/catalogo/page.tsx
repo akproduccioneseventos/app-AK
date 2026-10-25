@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -69,7 +68,7 @@ export default function CatalogoPlatosPage() {
   const { toast } = useToast();
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [editingDish, setEditingDish] = useState<PlatoConMenu | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -91,7 +90,7 @@ export default function CatalogoPlatosPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const todosLosPlatos: PlatoConMenu[] = useMemo(() => {
     return allMenus.flatMap(menu =>
       menu.items.map(item => ({
@@ -116,7 +115,7 @@ export default function CatalogoPlatosPage() {
       return acc;
     }, {} as Record<string, PlatoConMenu[]>);
   }, [todosLosPlatos]);
-  
+
   const handleEditClick = (plato: PlatoConMenu) => {
     setEditingDish(plato);
     setIsEditModalOpen(true);
@@ -140,7 +139,7 @@ export default function CatalogoPlatosPage() {
     if (isNaN(numValue)) {
         return;
     };
-    
+
     let updatedDish = { ...editingDish };
     if (field === 'suggestedSellingPrice') {
         updatedDish.suggestedSellingPrice = Math.round(numValue);
@@ -322,7 +321,7 @@ export default function CatalogoPlatosPage() {
             Volver a Menús
           </Link></Button>
       </div>
-      
+
       <Card>
         <CardHeader>
             <CardTitle>Todos los Platos Disponibles</CardTitle>

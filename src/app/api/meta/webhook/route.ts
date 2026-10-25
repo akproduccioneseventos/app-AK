@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { MetaMensajeDirecto } from '@/lib/mensajes/bandeja-unica';
 
 export const runtime = 'nodejs';
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/meta/webhook
  * Recepción de mensajes directos de Instagram y Messenger.
- * Comprueba X-Hub-Signature-256 y deduplica por mid.
+ * Comprueba X-Hub-Signature-256, determina canal por payload.object y muta transaccionalmente con mutateGenericJsonArray.
  */
 export async function POST(request: NextRequest) {
   // 1. Obtener cuerpo crudo para validar la firma HMAC-SHA256
@@ -83,6 +83,10 @@ export async function POST(request: NextRequest) {
   const entries = payload.entry || [];
   const incomingMessages: MetaMensajeDirecto[] = [];
 
+  // Determinación de canal según el objeto principal de Meta (Codex 171/205)
+  // payload.object === 'instagram' -> instagram_dm; caso contrario (ej: 'page') -> messenger.
+  const canal: 'instagram_dm' | 'messenger' = payload.object === 'instagram' ? 'instagram_dm' : 'messenger';
+
   for (const entry of entries) {
     const messaging = entry.messaging || [];
     for (const msg of messaging) {
@@ -95,7 +99,7 @@ export async function POST(request: NextRequest) {
 
       incomingMessages.push({
         mid,
-        canal: entry.id?.startsWith('ig_') || msg.recipient?.id?.length > 15 ? 'instagram_dm' : 'messenger',
+        canal,
         senderId: senderId || 'anonimo',
         recipientId: recipientId || 'ak_page',
         texto: texto || '',
@@ -107,19 +111,13 @@ export async function POST(request: NextRequest) {
 
   let agregadosCount = 0;
   if (incomingMessages.length > 0) {
-    const guardados = await readData<MetaMensajeDirecto[]>(ARCHIVO_MENSAJES, []);
-    const midsExistentes = new Set(guardados.map((m) => m.mid));
-    const paraAgregar: MetaMensajeDirecto[] = [];
-    for (const m of incomingMessages) {
-      if (!midsExistentes.has(m.mid)) {
-        midsExistentes.add(m.mid);
-        paraAgregar.push(m);
-      }
-    }
-    agregadosCount = paraAgregar.length;
-    if (agregadosCount > 0) {
-      await writeData(ARCHIVO_MENSAJES, [...guardados, ...paraAgregar]);
-    }
+    await mutateGenericJsonArray<MetaMensajeDirecto>(ARCHIVO_MENSAJES, (guardados) => {
+      const midsExistentes = new Set(guardados.map((m) => m.mid));
+      const paraAgregar = incomingMessages.filter((m) => !midsExistentes.has(m.mid));
+      agregadosCount = paraAgregar.length;
+      if (agregadosCount === 0) return null;
+      return [...guardados, ...paraAgregar];
+    });
   }
 
   return NextResponse.json({ status: 'EVENT_RECEIVED', guardados: agregadosCount }, { status: 200 });

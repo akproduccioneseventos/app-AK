@@ -1,0 +1,41 @@
+{
+  "kind": "traceability-sidecar-not-acceptance",
+  "targetSha": "09ea4138f5146cd2dfa6b792eda31cc04c30843f",
+  "workingBranch": "codex/160-contraste-correcciones-20261021",
+  "workingHead": "89d968d6b2d7ad30063896a5b186514f080e1ecb",
+  "graphify": "Scoped query attempted; graphify-out/graph.json absent.",
+  "basis": {
+    "134": "docs/evidencias/134-conciliacion.json: structural/historical inventory, explicitly not control acceptance.",
+    "165": "docs/evidencias/165-recuento-areas.json: historical inventory plus focal receipts, not role/control/state acceptance.",
+    "169": "docs/evidencias/169-native-observed.json: native gallery keyboard observations; not an open target-SHA delta for this sidecar.",
+    "recent": "docs/evidencias/183-proveedor-consumidor-dom.json: 11/12 pass; transport-read-failure-leaves-loading failed in JSDOM. Scope excludes native browser/HTTP/provider/SDK."
+  },
+  "scenarios": [
+    {
+      "id": "provider-token-read-transport-rejection",
+      "status": "pending-native-retest; observed failure is not a bug verdict",
+      "path": "src/app/proveedor/acceso/[token]/page.tsx",
+      "role": "proveedor con enlace ficticio válido",
+      "control": "Acceso de proveedor; loading state (sin control interactivo mientras carga)",
+      "trigger": "La lectura inicial getProveedorByToken(token) rechaza por fallo de transporte, distinto de una respuesta estructurada success=false.",
+      "existingEvidence": "docs/evidencias/183-proveedor-consumidor-dom.json case transport-read-failure-leaves-loading: body vacío, spinner=true, rechazo no manejado. Es JSDOM controlado, no navegador nativo; structured-read-failure-visible pasa.",
+      "targetBlob": {
+        "sha": "09ea4138f5146cd2dfa6b792eda31cc04c30843f",
+        "path": "src/app/proveedor/acceso/[token]/page.tsx",
+        "symbol": "loadAccess",
+        "consumer": "ProviderAccessPage useEffect -> loadAccess -> getProveedorByToken(token)",
+        "observedTargetCode": "await getProveedorByToken(token) is not enclosed by a local try/catch; structured unsuccessful result sets error; loading is cleared only after awaited result."
+      },
+      "expectedObservable": "La promesa rechazada no deja spinner indefinidamente ni rechazo sin manejar; se muestra estado visible de acceso no disponible/error. No afirmar persistencia o fallo del backend.",
+      "reusableFixture": "docs/evidencias/183-proveedor-consumidor-dom.json fixture/call pattern: fictitious token qa183 and getProveedorByToken mock rejecting Error('QA183: respuesta de transporte rechazada'); no real account or provider.",
+      "nativeTestStatus": "not evidenced",
+      "acceptance": false
+    }
+  ],
+  "exclusions": [
+    "No row inferred from 6401 AST locations, route counts, absent receipts, or historical references.",
+    "Provider task/note/state DOM and Firestore emulator cases have explicit passing scope and are not repeated here.",
+    "Native gallery keyboard cases are excluded as old same-scope cases; no new open scenario inferred from historical artifact indexing.",
+    "Owner manual, external accounts, real integrations/hardware, and orders 205/209/163/208 excluded."
+  ]
+}

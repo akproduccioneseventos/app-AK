@@ -1,5 +1,7 @@
 'use client';
 
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -101,7 +103,8 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
       if (result.success && result.fiestaId) {
         toast({
           title: "¡Contratación Exitosa!",
-          description: "Se ha creado el cliente y activado el evento automáticamente.",
+          description: result.aviso || "Se ha creado el cliente y activado el evento automáticamente.",
+          ...(result.aviso ? { variant: "destructive" as const } : {}),
         });
         onConfirmed(result.fiestaId);
       } else {
@@ -136,8 +139,7 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
 
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  const formatDate = (date: string) => formatearFechaEvento(date);
 
   const stepLabels = ['Verificar Datos', 'Imprimir Documentos', 'Confirmar Conversión'];
 

@@ -6,12 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, UploadCloud, FileText, Loader2, Archive, FileSignature, FileArchive, FileX, Download, ListChecks, Receipt, Building2, Printer, CheckCircle2, CreditCard, UtensilsCrossed, FileCheck2, CalendarClock } from 'lucide-react';
+import { ArrowLeft, UploadCloud, FileText, Loader2, RefreshCw, Archive, FileSignature, FileArchive, FileX, Download, ListChecks, Receipt, Building2, Printer, CheckCircle2, CreditCard, UtensilsCrossed, FileCheck2, CalendarClock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion, DocumentoTipo } from '@/types/fiesta';
 import { getFiestaById, uploadDocumentoFiesta, deleteDocumentoFiesta } from '@/app/actions/fiesta-actual';
+import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import { useSearchParams } from 'next/navigation';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 import { Suspense } from 'react';
 
 const ALL_DOC_TYPES: { value: DocumentoTipo; label: string }[] = [
@@ -37,6 +39,7 @@ function GestionDocumentalContent() {
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
@@ -46,11 +49,18 @@ function GestionDocumentalContent() {
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
+    setError(null);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
+      const { fiesta: fiestaData, fallo } = await getFiestaParaPantalla(fiestaId);
+      if (fallo) {
+        setError('No se pudo cargar la fiesta');
+        toast({ title: "Error", description: "No se pudo cargar la fiesta", variant: "destructive" });
+        return;
+      }
       setFiesta(fiestaData);
     } catch (e) {
-      toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
+      setError('No se pudo cargar la fiesta');
+      toast({ title: "Error", description: "No se pudo cargar la fiesta", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +79,7 @@ function GestionDocumentalContent() {
       }
     }
   };
-  
+
   const handleUpload = async () => {
     if (!fileToUpload || !fiestaId) {
       toast({ title: "No hay archivo", description: "Selecciona un archivo para subir.", variant: "destructive" });
@@ -86,7 +96,7 @@ function GestionDocumentalContent() {
     formData.append('docType', docType);
     formData.append('customName', customName);
     formData.append('fiestaId', fiestaId);
-    
+
     try {
       const result = await uploadDocumentoFiesta(formData);
       if (result.success) {
@@ -119,7 +129,7 @@ function GestionDocumentalContent() {
       toast({ title: "Error al Eliminar", description: err.message, variant: "destructive" });
     }
   };
-  
+
   const handleDownloadAll = async () => {
     if (!fiesta) return;
     setIsDownloading(true);
@@ -147,8 +157,29 @@ function GestionDocumentalContent() {
     }
   };
 
-  if (isLoading || !fiesta) {
+  if (!fiestaId) return <EventSelectionRequired moduleName="la gestión documental" />;
+  if (isLoading) {
     return <div className="p-8 max-w-3xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+  }
+  if (error) {
+    return (
+      <div className="p-8 max-w-3xl mx-auto flex flex-col items-center justify-center text-center space-y-4">
+        <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => loadData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
+  }
+  if (!fiesta) {
+    return (
+      <div className="p-8 max-w-3xl mx-auto flex flex-col items-center justify-center text-center space-y-4">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
+      </div>
+    );
   }
 
   return (
@@ -160,7 +191,7 @@ function GestionDocumentalContent() {
         </div>
         <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link></Button>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Subir Nuevo Documento</CardTitle>
@@ -196,7 +227,7 @@ function GestionDocumentalContent() {
           </Button>
         </CardFooter>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Documentos de la Fiesta</CardTitle>

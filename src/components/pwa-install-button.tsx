@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, Download, MonitorSmartphone } from 'lucide-react';
+import { CheckCircle2, Download, MonitorSmartphone, Share2, PlusSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type BeforeInstallPromptEvent = Event & {
@@ -12,6 +12,7 @@ type BeforeInstallPromptEvent = Event & {
 export function PwaInstallButton() {
   const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isIos, setIsIos] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [installError, setInstallError] = useState<string | null>(null);
   const promptEventRef = useRef<BeforeInstallPromptEvent | null>(null);
@@ -32,6 +33,13 @@ export function PwaInstallButton() {
     };
 
     updateInstalled();
+
+    if (typeof window !== 'undefined') {
+      const ua = window.navigator.userAgent.toLowerCase();
+      const isAppleMobile = /iphone|ipad|ipod/.test(ua) ||
+        (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
+      setIsIos(isAppleMobile);
+    }
 
     const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
@@ -96,6 +104,33 @@ export function PwaInstallButton() {
     );
   }
 
+  // Guía para iPhone / iPad en Safari (sin beforeinstallprompt)
+  if (isIos) {
+    return (
+      <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 text-sm text-amber-950">
+        <p className="font-bold text-amber-900 mb-2">Instalá la app en tu iPhone en 2 pasos:</p>
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-200 text-xs font-black text-amber-900">1</span>
+            <div className="flex items-center gap-1.5 font-medium">
+              <span>Tocá Compartir</span>
+              <Share2 className="h-4 w-4 text-amber-700" />
+              <span className="text-xs text-amber-800">(en la barra inferior de Safari)</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-200 text-xs font-black text-amber-900">2</span>
+            <div className="flex items-center gap-1.5 font-medium">
+              <span>Elegí</span>
+              <strong className="text-amber-950">Agregar a inicio</strong>
+              <PlusSquare className="h-4 w-4 text-amber-700" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!promptEvent) {
     return (
       <div>
@@ -105,7 +140,7 @@ export function PwaInstallButton() {
           <div className="flex items-start gap-3">
             <MonitorSmartphone className="mt-1 h-5 w-5 shrink-0 text-red-600" />
             <p>
-              Si el boton automatico no aparece, abri el menu de Chrome o Edge y elegi <strong>Instalar app</strong> o <strong>Agregar a pantalla principal</strong>.
+              Si el botón automático no aparece, abrí el menú de Chrome o Edge y elegí <strong>Instalar app</strong> o <strong>Agregar a pantalla principal</strong>.
             </p>
           </div>
         </div>

@@ -1,0 +1,10 @@
+{
+  "phase": "finished",
+  "started": "2026-10-24T15:03:19.232Z",
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "reason": "Prior frozen main QA artifact missing; reconstruct ONLY to conclude the27 recorded native criteria, no repeated full Jest/374 routes.",
+  "appEdited": false,
+  "jest364Phase": "finished",
+  "build": "built",
+  "finished": "2026-10-24T15:30:49.894Z"
+}

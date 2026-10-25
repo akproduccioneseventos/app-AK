@@ -1,0 +1,44 @@
+﻿{
+    "checkedAt":  "2026-10-24T01:20:32.8537357Z",
+    "closed":  [
+                   {
+                       "id":  9752,
+                       "created":  "\/Date(1792803315662)\/",
+                       "workingSet":  111669248
+                   },
+                   {
+                       "id":  1372,
+                       "created":  "\/Date(1792803470992)\/",
+                       "workingSet":  111902720
+                   },
+                   {
+                       "id":  8300,
+                       "created":  "\/Date(1792803624568)\/",
+                       "workingSet":  111677440
+                   },
+                   {
+                       "id":  12128,
+                       "created":  "\/Date(1792803043217)\/",
+                       "workingSet":  111722496
+                   },
+                   {
+                       "id":  14040,
+                       "created":  "\/Date(1792803938251)\/",
+                       "workingSet":  111177728
+                   },
+                   {
+                       "id":  10336,
+                       "created":  "\/Date(1792803874535)\/",
+                       "workingSet":  111271936
+                   },
+                   {
+                       "id":  11948,
+                       "created":  "\/Date(1792802033100)\/",
+                       "workingSet":  111550464
+                   }
+               ],
+    "count":  7,
+    "freeKiBBefore":  1673076,
+    "freeKiBAfter":  2358996,
+    "scope":  "Only verified inactive Codex auxiliary navigators from closed subtasks; only this Codex chat active in the thread snapshot. Original/main navigator and Antigravity retained. No app/data/foreign work changed."
+}

@@ -1,0 +1,21 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "baseline": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "started": "2026-10-24T01:07:48.366Z",
+  "phase": "qa-setup-or-build-error",
+  "probes": [
+    {
+      "at": "2026-10-24T01:07:50.069Z",
+      "freeBytes": 2165297152,
+      "probeExit": 0,
+      "foreignHeavy": []
+    }
+  ],
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z",
+  "error": "AssertionError [ERR_ASSERTION]: No heavy build under2GiB after preparation\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/280-entorno-actual.mjs:38:3\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/280-preparar-build-actual.mjs:8:1",
+  "finished": "2026-10-24T01:08:07.628Z"
+}

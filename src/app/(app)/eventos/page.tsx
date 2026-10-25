@@ -1,5 +1,8 @@
 'use client';
 
+import { parseEventDate } from '@/lib/public-experience/event-date';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
@@ -35,13 +38,7 @@ import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents } from '@
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-UY', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
-  } catch (e) {
-    return "Fecha inválida";
-  }
+  return formatearFechaEvento(dateString);
 };
 
 export default function GestorFiestasPage() {
@@ -50,7 +47,7 @@ export default function GestorFiestasPage() {
 
   const [fiestasActivas, setFiestasActivas] = useState<FiestaEnPlanificacion[]>([]);
   const [fiestasArchivadas, setFiestasArchivadas] = useState<FiestaEnPlanificacion[]>([]);
-  
+
   const [kpiData, setKpiData] = useState({
     fiestasPasadas: 0,
     fiestasFuturas: 0,
@@ -89,7 +86,7 @@ export default function GestorFiestasPage() {
         setKpiData(kpiResult.data);
       }
       // KPI failure doesn't block fiesta loading
-      
+
       setFiestasActivas(Array.isArray(activas) ? activas : []);
       setFiestasArchivadas(Array.isArray(archivadas) ? archivadas : []);
 
@@ -132,7 +129,7 @@ export default function GestorFiestasPage() {
       return matchesSearch && (isFutureOrNoDate || isContracted);
     }));
   }, [dedupedFiestasActivas, searchTerm]);
-  
+
   const pastActiveEvents = React.useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -192,7 +189,7 @@ export default function GestorFiestasPage() {
       const result = await archiveFiesta(fiestaId);
       if (result.success) {
         toast({ title: "¡Evento Archivado!" });
-        await loadData(); 
+        await loadData();
       } else {
         throw new Error(result.error || "No se pudo archivar la fiesta.");
       }
@@ -202,7 +199,7 @@ export default function GestorFiestasPage() {
       setIsProcessing(null);
     }
   };
-  
+
   const loadCustomers = useCallback(async () => {
     setIsLoadingCustomers(true);
     try {
@@ -517,7 +514,7 @@ export default function GestorFiestasPage() {
             </Link></Button>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
         <Card className="shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -587,7 +584,7 @@ export default function GestorFiestasPage() {
           </CardContent>
         </Card>
       )}
-       
+
       <Separator className="my-6 print:my-3" />
 
       {pastActiveEvents.length > 0 && !isLoading && (
@@ -779,7 +776,7 @@ export default function GestorFiestasPage() {
           </div>
         )}
       </div>
-        
+
       <Separator className="my-8 print:my-4" />
 
       <div className="print:break-before-page">

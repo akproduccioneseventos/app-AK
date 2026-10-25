@@ -1,5 +1,6 @@
 'use client';
 
+import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -131,7 +132,7 @@ function AsignarPersonalEventoContent() {
         const totalGuests = (presupuestoData.invitadosAdultos || 0) + (presupuestoData.invitadosNinos || 0) + (presupuestoData.invitadosAdolescentes || 0);
 
         const findAndAdd = (search: string, qty: number, source: string, salary?: number) => {
-            const rol = rolesData.find(r => r.nombre.toLowerCase().includes(search.toLowerCase()));
+            const rol = buscarRol(rolesData, search);
             if (rol) {
                 requirements.push({
                     roleId: rol.id,
@@ -143,9 +144,8 @@ function AsignarPersonalEventoContent() {
             }
         };
 
-        // 1. Regla Utileros: 1 cada 25 invitados
-        const numUtileros = Math.ceil(totalGuests / 25);
-        findAndAdd('Utilero', numUtileros, 'Regla automática (1 cada 25 invitados)');
+        // 1. Regla Utileros: 1 cada 30 invitados (dueño, 21/10/2026)
+        findAndAdd('Utilero', utilerosPorInvitados(totalGuests), 'Regla automática (1 cada 30 invitados)');
 
         // 2. Regla Barman (Solo si hay barra/tragos)
         const hasBarra = presupuestoData.itemsPresupuestados.some(item =>
@@ -154,10 +154,8 @@ function AsignarPersonalEventoContent() {
             item.nombreServicio.toLowerCase().includes('licuado')
         );
         if (hasBarra) {
-            let numBarmen = 1;
-            if (totalGuests > 150) numBarmen = 3;
-            else if (totalGuests > 60) numBarmen = 2;
-            findAndAdd('Barman', numBarmen, 'Servicio de Barra contratado');
+            const barra = barmanPorInvitados(totalGuests);
+            findAndAdd('Barman', barra.cantidad, 'Servicio de Barra contratado', barra.sueldo);
         }
 
         // 3. Procesar items del presupuesto
@@ -172,7 +170,7 @@ function AsignarPersonalEventoContent() {
             findAndAdd('Decoradora', 1, item.nombreServicio);
             findAndAdd('Ayudante de Decoración', 1, item.nombreServicio);
           }
-          if (name.includes('mozo')) {
+          if (name.includes('mozo') && !name.includes('cocina')) {
             findAndAdd('Mozo', item.cantidad, item.nombreServicio);
           }
           if (name.includes('asado') || name.includes('asador')) {
@@ -193,7 +191,10 @@ function AsignarPersonalEventoContent() {
           }
 
           if (name.includes('cocina') || name.includes('chef')) {
-            findAndAdd('Cocinero/Chef', item.cantidad || 1, item.nombreServicio);
+            // La primera persona de la cocina es el chef; el resto, ayudantes (regla del dueño, 21/10/2026).
+            const cocina = personalDeCocina((item.cantidad || 1) * 25);
+            findAndAdd(rolesData.some(r => r.nombre.toLowerCase().includes('chef')) ? 'Chef' : 'Cocinero', cocina.chef, item.nombreServicio);
+            if (cocina.ayudantes > 0) findAndAdd('Ayudante de Cocina', cocina.ayudantes, item.nombreServicio);
           }
           if (name.includes('portero') || name.includes('seguridad')) {
             findAndAdd('Personal de Seguridad / Portero', item.cantidad || 1, item.nombreServicio);

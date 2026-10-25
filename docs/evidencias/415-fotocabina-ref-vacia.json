@@ -1,0 +1,41 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "at": "2026-10-24T19:10:28.084Z",
+  "file": "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+  "helperFile": "src/lib/entretenimiento/filtros-cara.ts",
+  "occurrences": [
+    {
+      "text": "carasDetectadasRef = useRef<any[]>([])",
+      "line": 117
+    },
+    {
+      "text": "carasDetectadasRef.current",
+      "line": 455
+    }
+  ],
+  "writes": [],
+  "cases": [
+    {
+      "id": "real-consumer-passes-ref-current-initialized-empty",
+      "pass": true
+    },
+    {
+      "id": "real-helper-correctly-preserves-canvas-on-empty-faces",
+      "pass": true,
+      "returned": false,
+      "drawCalls": 0
+    },
+    {
+      "id": "consumer-populates-face-reference-before-drawing",
+      "pass": false,
+      "observedWrites": 0
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "pass": 2,
+    "fail": 1
+  },
+  "classification": "SAME_ORDER214_EMPTY_FACE_INPUT_CAUSE_EXPANDED_TO_FOTOCABINA_NOT_NEW_FOURTH_FILTER_CAUSE",
+  "scope": "Actual TypeScript dataflow plus executed REAL drawing function empty-face guard. No native model/camera/face quality or real person tested. The helper should not draw without faces; the consumer must populate its ref. No app edit."
+}

@@ -1,0 +1,227 @@
+{
+  "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+  "inventorySource": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "priorInventoryCounts": {
+    "areas": 14,
+    "routes": 421,
+    "unmappedRoutes": 0,
+    "staleMappedRoutes": 0,
+    "uniqueStructuralFiles": 1412,
+    "uniqueAstInteractiveLocations": 6401,
+    "prior131AstLocations": 4633,
+    "nativeRunsIndexed": 29,
+    "nativeCaseExecutions": 216,
+    "distinctNamedNativeCases": 168,
+    "routesWithLinkedPassingPartialScenarios": 0,
+    "routesWithoutLinkedPassingPartialScenarios": 421,
+    "routesWithHistoricalNativeScenarioLinks": 68,
+    "individuallyAcceptedControls": 0,
+    "fullRoutesAccepted": 0,
+    "fullAreasAccepted": 0,
+    "profiles": 7,
+    "historicalArtifactsIndexed": 2026,
+    "historicalArtifactsNotExpanded": 0,
+    "historicalRouteReferenceLinks": 10815,
+    "multiplyDeclaredRoutes": 8
+  },
+  "currentRouteCount": 421,
+  "meaning": "Historical inventory plus focal receipts, NOT a complete acceptance matrix per role/control/state",
+  "areas": [
+    {
+      "id": "plata",
+      "name": "Cobros, cuotas, facturas y recibos",
+      "historicalOwnedRoutes": 56,
+      "historicalScopes": [
+        "129-compras",
+        "130-costos-y-finanzas",
+        "130-reportes-y-variantes",
+        "133-operacion-cocina-cobros",
+        "133-simulador-whatsapp"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "contrato",
+      "name": "Contrato, seña y firma",
+      "historicalOwnedRoutes": 13,
+      "historicalScopes": [
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "comida",
+      "name": "Menús, compras e insumos",
+      "historicalOwnedRoutes": 12,
+      "historicalScopes": [
+        "129-compras",
+        "131-retest166",
+        "133-operacion-cocina-cobros",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "permisos",
+      "name": "Ingreso, sesiones y quién ve qué",
+      "historicalOwnedRoutes": 15,
+      "historicalScopes": [
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "fiesta",
+      "name": "Fiesta, invitados y confirmaciones",
+      "historicalOwnedRoutes": 104,
+      "historicalScopes": [
+        "126-dos-defectos-historicos",
+        "131-dj-y-registro",
+        "132-portal-musica-menu",
+        "133-rsvp-portal-invitado",
+        "133-red-social-invitado",
+        "133-salon-3d"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "portal",
+      "name": "Portal del cliente",
+      "historicalOwnedRoutes": 23,
+      "historicalScopes": [
+        "126-dos-defectos-historicos",
+        "130-reportes-y-variantes",
+        "132-portal-musica-menu",
+        "133-rsvp-portal-invitado",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "invitado",
+      "name": "Invitación y pantallas del invitado",
+      "historicalOwnedRoutes": 7,
+      "historicalScopes": [
+        "126-dos-defectos-historicos",
+        "133-rsvp-portal-invitado",
+        "133-qr-descarga-lector",
+        "133-red-social-invitado",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "web",
+      "name": "Web pública, blog y simulador",
+      "historicalOwnedRoutes": 49,
+      "historicalScopes": [
+        "133-simulador-whatsapp",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "redes",
+      "name": "Instagram, YouTube y galería",
+      "historicalOwnedRoutes": 10,
+      "historicalScopes": [],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "estaciones",
+      "name": "Entretenimiento: fotocabina, 360, espejo, muro, tótem",
+      "historicalOwnedRoutes": 51,
+      "historicalScopes": [
+        "125-aceptacion-historica",
+        "133-qr-descarga-lector",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "barra",
+      "name": "Barra de tragos",
+      "historicalOwnedRoutes": 0,
+      "historicalScopes": [
+        "132-barra-pedidos-listos"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "asistente",
+      "name": "Asistente AK y WhatsApp",
+      "historicalOwnedRoutes": 30,
+      "historicalScopes": [],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "personal",
+      "name": "Personal, llegada y recibos de sueldo",
+      "historicalOwnedRoutes": 9,
+      "historicalScopes": [
+        "129-personal-llegada",
+        "131-retest166",
+        "133-responsive-publico-y-operacion"
+      ],
+      "fullAreaAccepted": false
+    },
+    {
+      "id": "automaticos",
+      "name": "Tareas automáticas y avisos",
+      "historicalOwnedRoutes": 42,
+      "historicalScopes": [
+        "129-automatizaciones",
+        "131-retest166"
+      ],
+      "fullAreaAccepted": false
+    }
+  ],
+  "newReceipts": [
+    {
+      "name": "160-retest-portales-tareas",
+      "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+      "summary": {
+        "total": 34,
+        "pass": 34,
+        "fail": 0
+      }
+    },
+    {
+      "name": "161-galeria-video-retest",
+      "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+      "summary": {
+        "total": 16,
+        "pass": 14,
+        "fail": 2
+      }
+    },
+    {
+      "name": "162-seguimiento-fecha-retest",
+      "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+      "summary": {
+        "total": 8,
+        "pass": 8,
+        "fail": 0
+      }
+    },
+    {
+      "name": "163-proveedor-concurrencia",
+      "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+      "summary": {
+        "total": 10,
+        "pass": 4,
+        "fail": 6
+      }
+    },
+    {
+      "name": "164-once-tareas-respuestas",
+      "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+      "summary": {
+        "total": 84,
+        "pass": 84,
+        "fail": 0
+      }
+    }
+  ],
+  "allAppCertified": false
+}

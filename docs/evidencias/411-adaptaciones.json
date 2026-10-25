@@ -1,0 +1,193 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "changes": [
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\carga-rapido.spec.ts",
+      "originalSha256": "6676dd0e51ddd973cf1254c3a69822de1bc5b7eb8234f934ba26eff3aa44e725",
+      "preparedSha256": "a34947f0ce4f60dc412dedbca82f73de3021a29aef783dafbc70be739ded4cc5",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 687,
+          "end": 772,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\entertainment-stations.spec.ts",
+      "originalSha256": "3b53c31acae97b827d5e6cbefbb4afe5ea3e6bc0393753f15aa26e14b1adc0f9",
+      "preparedSha256": "5c9158d342a916cceef748387bad5569d54c3f26c729ab3329367d5cc357156a",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 8536,
+          "end": 8649,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Browser video processing only needs Chromium desktop.');"
+        },
+        {
+          "start": 4566,
+          "end": 4677,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'MediaRecorder coverage only needs Chromium desktop.');"
+        },
+        {
+          "start": 2055,
+          "end": 2166,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'The operator matrix only needs one browser project.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\espejo-moderacion-caida-y-reintento.spec.ts",
+      "originalSha256": "fbaf3ecaad5934c196c45765eb1459cc4db20b56604df1b8553166d1ae37a5b9",
+      "preparedSha256": "9e66d767f824e6ff04adbc4ebbde8e3f6d4d3badddecb942de9af282a2058af7",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 4520,
+          "end": 4605,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\internal-dynamic-route-inventory.spec.ts",
+      "originalSha256": "86f708625899eaa7514f0779e068a96587c0a05009edd67e5913309f85a0eab8",
+      "preparedSha256": "1a5b3045b59d3ede5d4e7e2cd5623bca3493e1a667a7cacd754ca9cb5ad0b56c",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 8117,
+          "end": 8227,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'The hydration pass only needs one browser project.');"
+        },
+        {
+          "start": 6587,
+          "end": 6700,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'The dynamic inventory only needs one browser project.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\la-hoja-de-cocina.spec.ts",
+      "originalSha256": "16039ab03021e1a4fd7d243ac90a5eb8d71d5868a13b0617e007f4371b2795b9",
+      "preparedSha256": "58d079235367beee6c3108f3e062a02fc3dee518686e1ac704400757fdd91155",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 3499,
+          "end": 3584,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        },
+        {
+          "start": 1259,
+          "end": 1351,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Se imprime desde la computadora.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\la-web-de-venta-no-se-rompe.spec.ts",
+      "originalSha256": "fe9438812f7f9bc112b966bd091f10ae813c49e1a4b612a3a536699b2ca25785",
+      "preparedSha256": "baed4888ce864870790bbb2074b2feaca9027c491c47dea90f1357ab1e8852c2",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 1155,
+          "end": 1240,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\las-estaciones-respetan-los-ajustes.spec.ts",
+      "originalSha256": "8d70a4065cade9e5548054e7f2796dfddbeeb80b838e46e7555c7f07a86a7e39",
+      "preparedSha256": "5aca058d2c0ad15567b87228338a23611ae5e185eff7a4b6c8c3a055949a4982",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 6507,
+          "end": 6592,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        },
+        {
+          "start": 4756,
+          "end": 4841,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\limpiar-la-agenda.spec.ts",
+      "originalSha256": "8b5d4b0ef05c5cd0fd0c873f629812f551590099974240ba6c386a9b01ce762c",
+      "preparedSha256": "03a9f65c90b503d49c29d65c685e666d81cba8a41b77ae1c0ccbfb8ee1e8bd08",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 967,
+          "end": 1052,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "originalSha256": "eb4124b5d2f1eb62aa7abd0371ce8d698f75766d569273a1e68d813e3195703d",
+      "preparedSha256": "d42428fff29a6d4e35ad92c733fb33747287d6e8edc2011652c2b5daa22f6c32",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 4116,
+          "end": 4201,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        },
+        {
+          "start": 2894,
+          "end": 2979,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        },
+        {
+          "start": 2142,
+          "end": 2227,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        },
+        {
+          "start": 1593,
+          "end": 1678,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        },
+        {
+          "start": 1105,
+          "end": 1190,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\pantallas-con-iconos-react19.spec.ts",
+      "originalSha256": "08d1940cc98dbce2d1ff3da23eac0adc63be3dd38104df6514814c8b17bc752a",
+      "preparedSha256": "ee28ecde5c35cf3f23bc029e4355712a1a4c1d30a3eb2a92c88ed1c6669efc5d",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 6457,
+          "end": 6542,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        },
+        {
+          "start": 4664,
+          "end": 4749,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');"
+        },
+        {
+          "start": 2777,
+          "end": 2869,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Se imprime desde la computadora.');"
+        }
+      ]
+    },
+    {
+      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke\\tests\\e2e\\pantallas-tocadas-tanda-12-10.spec.ts",
+      "originalSha256": "70ca64b246912daf64964ebd73716d7bcfbf865a817610adb1b31d10160d43e1",
+      "preparedSha256": "6be1867a57bb89238d4804851c43a795092ca0b60329c42d7069af3aec8d17c4",
+      "removedOnlyProjectGuards": [
+        {
+          "start": 2138,
+          "end": 2229,
+          "text": "test.skip(testInfo.project.name !== 'chromium-desktop', 'Se prueba desde la computadora.');"
+        }
+      ]
+    }
+  ],
+  "assertionsEdited": false
+}

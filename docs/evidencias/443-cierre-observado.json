@@ -1,0 +1,497 @@
+{
+  "created": "2026-10-24T20:18:51.837Z",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "build": "406",
+  "runtimeCopy": "427",
+  "result": "PASS_EIGHT_SCOPED_CONTROLS_NOT_GLOBAL_ACCEPTANCE",
+  "tests": [
+    {
+      "report": "442-batch-001-resultados.json",
+      "file": "ak207-438-fotocabina-sdk.spec.ts",
+      "title": "438 neutral fotos1",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "qa438-neutro-y-frontera",
+          "data": {
+            "mode": "neutral",
+            "count": 1,
+            "uploadsIntercepted": 0,
+            "responses": [
+              {
+                "success": true,
+                "station": {
+                  "fotos": 1,
+                  "countdown": 2
+                }
+              }
+            ],
+            "states": [
+              {
+                "label": "antes",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nFiesta de esta noche\n\nPrepara tu pose. La foto se captura con la camara web de esta pantalla.\n\nPREPARAR FOTO\nPersonalizar mi foto (fondo, marco y stickers)\nVer galería de la noche",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "preview-estable",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\nTus tres fotos\n\nImprimila para llevartela, o repetí la tanda si alguna no te gustó.\n\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "final",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\nTus tres fotos\n\nImprimila para llevartela, o repetí la tanda si alguna no te gustó.\n\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              }
+            ],
+            "scope": "Real localSDK configuration and camera pipeline; failure injection installed ONLY after preview and ONLY file upload. Rejection is a controlled client response, not a real provider/backend rejection certification."
+          }
+        },
+        {
+          "name": "qa439-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "report": "442-batch-001-resultados.json",
+      "file": "ak207-438-fotocabina-sdk.spec.ts",
+      "title": "438 neutral fotos3",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "qa438-neutro-y-frontera",
+          "data": {
+            "mode": "neutral",
+            "count": 3,
+            "uploadsIntercepted": 0,
+            "responses": [
+              {
+                "success": false,
+                "error": "La transicion solicitada no es valida para el estado actual."
+              },
+              {
+                "success": false,
+                "error": "La transicion solicitada no es valida para el estado actual."
+              }
+            ],
+            "states": [
+              {
+                "label": "antes",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nFiesta de esta noche\n\nPrepara tu pose. La foto se captura con la camara web de esta pantalla.\n\nPREPARAR FOTO\nPersonalizar mi foto (fondo, marco y stickers)\nVer galería de la noche",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 3,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "preview-estable",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\n1\n2\n3\nTus tres fotos\n\nImprimila para llevartela, o repetí la tanda si alguna no te gustó.\n\nFirmar o dibujar sobre la foto\nQUIERO OTRA COPIA\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 3,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "final",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\n1\n2\n3\nTus tres fotos\n\nImprimila para llevartela, o repetí la tanda si alguna no te gustó.\n\nFirmar o dibujar sobre la foto\nQUIERO OTRA COPIA\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 3,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              }
+            ],
+            "scope": "Real localSDK configuration and camera pipeline; failure injection installed ONLY after preview and ONLY file upload. Rejection is a controlled client response, not a real provider/backend rejection certification."
+          }
+        },
+        {
+          "name": "qa439-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "report": "442-batch-001-resultados.json",
+      "file": "ak207-438-fotocabina-sdk.spec.ts",
+      "title": "438 red fotos1",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "qa438-neutro-y-frontera",
+          "data": {
+            "mode": "red",
+            "count": 1,
+            "uploadsIntercepted": 1,
+            "responses": [
+              {
+                "success": true,
+                "station": {
+                  "fotos": 1,
+                  "countdown": 2
+                }
+              }
+            ],
+            "states": [
+              {
+                "label": "antes",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nFiesta de esta noche\n\nPrepara tu pose. La foto se captura con la camara web de esta pantalla.\n\nPREPARAR FOTO\nPersonalizar mi foto (fondo, marco y stickers)\nVer galería de la noche",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "preview-estable",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\nTus tres fotos\n\nImprimila para llevartela, o repetí la tanda si alguna no te gustó.\n\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "final",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\nFoto guardada en este equipo\n\nTu foto quedó guardada en este equipo y se subirá automáticamente apenas vuelva internet.\n\nGUARDADA EN ESTE EQUIPO, SE SUBE CUANDO VUELVA LA SEÑAL\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→\n1 esperando subida",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              }
+            ],
+            "scope": "Real localSDK configuration and camera pipeline; failure injection installed ONLY after preview and ONLY file upload. Rejection is a controlled client response, not a real provider/backend rejection certification."
+          }
+        },
+        {
+          "name": "qa439-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "report": "442-batch-001-resultados.json",
+      "file": "ak207-438-fotocabina-sdk.spec.ts",
+      "title": "438 rechazo fotos1",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "qa438-neutro-y-frontera",
+          "data": {
+            "mode": "rechazo",
+            "count": 1,
+            "uploadsIntercepted": 1,
+            "responses": [
+              {
+                "success": false,
+                "error": "Contenido inapropiado"
+              }
+            ],
+            "states": [
+              {
+                "label": "antes",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nFiesta de esta noche\n\nPrepara tu pose. La foto se captura con la camara web de esta pantalla.\n\nPREPARAR FOTO\nPersonalizar mi foto (fondo, marco y stickers)\nVer galería de la noche",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "preview-estable",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\nTus tres fotos\n\nImprimila para llevartela, o repetí la tanda si alguna no te gustó.\n\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "final",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\n📷🚫\n\nContenido inapropiado\nREINTENTAR CAMARA\nASI SE IMPRIME\nNo se pudo publicar\n\nTu foto no llegó al muro. Podés imprimirla o volver a intentar.\n\nContenido inapropiado\n\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false,
+                  "media": [
+                    {
+                      "id": "ent_offline_1792872751244_yjd3uz5",
+                      "moduleId": "fotocabina",
+                      "fileName": "fotocabina-1792872751260.jpg",
+                      "url": "http://127.0.0.1:9195/v0/b/demo-ak-producciones.appspot.com/o/entertainment%2Fe2e_438_rechazo_1_1792872738078%2Ffotocabina%2Fent_offline_1792872751244_yjd3uz5.jpg?alt=media",
+                      "type": "image",
+                      "caption": "",
+                      "authorName": "Fotocabina AK",
+                      "uploadedAt": "2026-10-24T20:12:35.374Z",
+                      "publishTarget": "muro-social",
+                      "socialPostId": "post_ent_offline_1792872751244_yjd3uz5",
+                      "syncStatus": "pendiente_aprobacion",
+                      "revisionImagen": "sin_revisar"
+                    }
+                  ]
+                }
+              }
+            ],
+            "scope": "Real localSDK configuration and camera pipeline; failure injection installed ONLY after preview and ONLY file upload. Rejection is a controlled client response, not a real provider/backend rejection certification."
+          }
+        },
+        {
+          "name": "qa439-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "report": "442-batch-001-resultados.json",
+      "file": "ak207-438-fotocabina-sdk.spec.ts",
+      "title": "438 red fotos1",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "qa438-neutro-y-frontera",
+          "data": {
+            "mode": "red",
+            "count": 1,
+            "uploadsIntercepted": 1,
+            "responses": [],
+            "states": [
+              {
+                "label": "antes",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nFiesta de esta noche\n\nPrepara tu pose. La foto se captura con la camara web de esta pantalla.\n\nPREPARAR FOTO\nPersonalizar mi foto (fondo, marco y stickers)\nVer galería de la noche",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "preview-estable",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\nTus tres fotos\n\nImprimila para llevartela, o repetí la tanda si alguna no te gustó.\n\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "final",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\nFoto guardada en este equipo\n\nTu foto quedó guardada en este equipo y se subirá automáticamente apenas vuelva internet.\n\nGUARDADA EN ESTE EQUIPO, SE SUBE CUANDO VUELVA LA SEÑAL\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→\n1 esperando subida",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              }
+            ],
+            "scope": "Real localSDK configuration and camera pipeline; failure injection installed ONLY after preview and ONLY file upload. Rejection is a controlled client response, not a real provider/backend rejection certification."
+          }
+        },
+        {
+          "name": "qa439-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "report": "442-batch-001-resultados.json",
+      "file": "ak207-438-fotocabina-sdk.spec.ts",
+      "title": "438 rechazo fotos1",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "qa438-neutro-y-frontera",
+          "data": {
+            "mode": "rechazo",
+            "count": 1,
+            "uploadsIntercepted": 1,
+            "responses": [],
+            "states": [
+              {
+                "label": "antes",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nFiesta de esta noche\n\nPrepara tu pose. La foto se captura con la camara web de esta pantalla.\n\nPREPARAR FOTO\nPersonalizar mi foto (fondo, marco y stickers)\nVer galería de la noche",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "preview-estable",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\nASI SE IMPRIME\nTus tres fotos\n\nImprimila para llevartela, o repetí la tanda si alguna no te gustó.\n\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false
+                }
+              },
+              {
+                "label": "final",
+                "text": "FOTOCABINA AK\n\nFiesta de esta noche\n\n📷🚫\n\nContenido inapropiado\nREINTENTAR CAMARA\nASI SE IMPRIME\nNo se pudo publicar\n\nTu foto no llegó al muro. Podés imprimirla o volver a intentar.\n\nContenido inapropiado\n\nFirmar o dibujar sobre la foto\nIMPRIMIR MI RECUERDO\nPublicar en el muro\nRepetir foto\n¿CUÁNDO CUMPLÍS TUS QUINCE?\nYa los festejé\nEste año\nEl año que viene\nNo es lo mío\nEsto lo hizo AK Producciones\nEscribinos por WhatsApp\n¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta\n→",
+                "savedConfig": {
+                  "enabled": true,
+                  "fotosPorTanda": 1,
+                  "countdownSeconds": 2,
+                  "segundosCuentaRegresiva": 2,
+                  "autoPublish": false,
+                  "media": [
+                    {
+                      "id": "ent_offline_1792872788180_9idfc5r",
+                      "moduleId": "fotocabina",
+                      "fileName": "fotocabina-1792872788198.jpg",
+                      "url": "http://127.0.0.1:9195/v0/b/demo-ak-producciones.appspot.com/o/entertainment%2Fe2e_438_rechazo_1_1792872778910%2Ffotocabina%2Fent_offline_1792872788180_9idfc5r.jpg?alt=media",
+                      "type": "image",
+                      "caption": "",
+                      "authorName": "Fotocabina AK",
+                      "uploadedAt": "2026-10-24T20:13:08.658Z",
+                      "publishTarget": "muro-social",
+                      "socialPostId": "post_ent_offline_1792872788180_9idfc5r",
+                      "syncStatus": "pendiente_aprobacion",
+                      "revisionImagen": "sin_revisar"
+                    }
+                  ]
+                }
+              }
+            ],
+            "scope": "Real localSDK configuration and camera pipeline; failure injection installed ONLY after preview and ONLY file upload. Rejection is a controlled client response, not a real provider/backend rejection certification."
+          }
+        },
+        {
+          "name": "qa439-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "report": "442-batch-002-resultados.json",
+      "file": "ak207-espejo-moderacion-caida-y-reintento.spec.ts",
+      "title": "con el analisis de imagen caido: la foto queda pendiente, la pantalla lo dice, y reintentar no duplica",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "qa439-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "report": "442-batch-003-resultados.json",
+      "file": "ak207-prospecto-simulador.spec.ts",
+      "title": "llega desde el simulador hasta ver un precio",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "attachments": [
+        {
+          "name": "qa439-sdk-persistence",
+          "data": {
+            "budgets": [
+              {
+                "id": "pres_public_074c381733f081407f26a95f",
+                "nombre": "Prospecto de prueba"
+              }
+            ],
+            "leads": [
+              {
+                "id": "lead_public_fabf256c49f7c6059facf009",
+                "nombre": "Prospecto de prueba"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "observed": {
+    "simulatorBudgets": 1,
+    "simulatorLeads": 1,
+    "cleanupStatus": 200,
+    "trackedDiff": "",
+    "ownedProcessesRunning": []
+  },
+  "limitations": [
+    "Photo preview stable with synthetic camera and real local Firestore, not hardware/printing/face model quality.",
+    "Three-photo control records invalid-transition responses: preview PASS is not synchronized state acceptance.",
+    "Photo rejection is a controlled client response AFTER real local upload; not real provider rejection.",
+    "Photo network loss confirms local backup and truthful UI, not later automatic upload delivery.",
+    "Vision unavailable scenario uses dummy key/local failure, not external Vision service.",
+    "Original simulator failure skipped clicking Ver Resumen; readiness adaptation preserves business assertions.",
+    "421 old QA data snapshot incomplete: quarantine .qa-392, no claim of exact restoration. Fresh427 source/runtime verified and restored.",
+    "Existing estree type artifact mismatch disclosed in406; not clean npm-ci.",
+    "No global zero-error, every-role/every-control or production approval."
+  ]
+}

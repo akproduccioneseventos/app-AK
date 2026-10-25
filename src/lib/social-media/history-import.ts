@@ -374,21 +374,21 @@ export function assertHistoryPlatform(platform: string): asserts platform is Soc
  * Lee de forma segura el contenido de un File en cualquier entorno (Navegador, Node.js, Jest).
  */
 async function readFileTextSafe(file: File | Blob): Promise<string> {
-  if (typeof (file as any).text === 'function') {
+  if (typeof file.text === 'function') {
     try {
       const txt = await file.text();
       if (typeof txt === 'string' && txt.length > 0) return txt;
     } catch {
-      // Continuar al fallback de arrayBuffer
+      // no pasa nada si falla: continuar al fallback de arrayBuffer
     }
   }
 
-  if (typeof (file as any).arrayBuffer === 'function') {
+  if (typeof file.arrayBuffer === 'function') {
     try {
       const buffer = await file.arrayBuffer();
       return Buffer.from(buffer).toString('utf-8');
     } catch {
-      // Continuar al fallback
+      // no pasa nada si falla: continuar al fallback de FileReader
     }
   }
 
@@ -406,7 +406,7 @@ async function readFileTextSafe(file: File | Blob): Promise<string> {
 }
 
 async function readFileArrayBufferSafe(file: File | Blob): Promise<ArrayBuffer> {
-  if (typeof (file as any).arrayBuffer === 'function') {
+  if (typeof file.arrayBuffer === 'function') {
     return file.arrayBuffer();
   }
   const text = await readFileTextSafe(file);

@@ -10,6 +10,7 @@ import {
   correspondeContestarSolo,
   type ReferenciaDeOrigen,
 } from '@/lib/whatsapp/vino-de-la-publicidad';
+import { atenderProspectoAnuncioWhatsApp } from '@/lib/asistente/por-whatsapp';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

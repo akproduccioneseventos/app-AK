@@ -103,3 +103,21 @@ export function formatEventDateHub(value?: string): string | null {
     year: 'numeric',
   }).format(date);
 }
+
+/**
+ * El año de una fecha de evento tal como está escrita ("2027-01-01" → 2027), sin pasar por la hora de
+ * Greenwich: `new Date("2027-01-01").getFullYear()` en Uruguay da 2026, y con eso el ajuste anual se
+ * calculaba con un año de menos (barrido de Codex 159, 21/10/2026).
+ */
+export function anioDeLaFechaDelEvento(fecha?: string | Date | null): number | null {
+  if (!fecha) return null;
+  // Una fecha elegida en el calendario de la pantalla ya está en la hora local.
+  if (fecha instanceof Date) return Number.isNaN(fecha.getTime()) ? null : fecha.getFullYear();
+  const texto = String(fecha).trim();
+  const iso = texto.match(/^(\d{4})-\d{2}-\d{2}/);
+  if (iso) return Number(iso[1]);
+  const barras = texto.match(/^\d{1,2}\/\d{1,2}\/(\d{4})/);
+  if (barras) return Number(barras[1]);
+  const d = new Date(texto);
+  return Number.isNaN(d.getTime()) ? null : d.getFullYear();
+}

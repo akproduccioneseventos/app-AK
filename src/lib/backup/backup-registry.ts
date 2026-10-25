@@ -28,6 +28,7 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'whatsapp-conversations.json', defaultValue: [] },
   { file: 'feature-flags.json', defaultValue: [] },
   { file: 'galeria-publica.json', defaultValue: [] },
+  { file: 'fiesta-crowd-sync.json', defaultValue: {} },
   { file: 'menus.json', defaultValue: [] },
   { file: 'menus-catering.json', defaultValue: [] },
   { file: 'reposteria-template.json', defaultValue: {} },

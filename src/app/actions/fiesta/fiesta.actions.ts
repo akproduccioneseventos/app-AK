@@ -1,7 +1,8 @@
 'use server';
+import { compraGuardadaDeCadaUna } from '@/lib/fiesta/reponer-la-plata';
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
-import { PERMISOS, puede } from '@/lib/auth/perfiles';
+import { PERMISOS, puede, perfilDe } from '@/lib/auth/perfiles';
 
 import type {
     FiestaEnPlanificacion,
@@ -54,10 +55,12 @@ import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion
 import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
+import { conLaConstanciaGuardada } from '@/lib/fiesta/constancia-de-firma';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera, recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
+import { buscarRol, barmanPorInvitados, personalDeCocina, utilerosPorInvitados } from '@/lib/fiesta/personal-por-invitados';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -164,9 +167,11 @@ function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanific
     else delete copia[campo];
   }
   if (Array.isArray(copia.estadosCompra)) {
-    const antes = guardada?.estadosCompra || [];
-    copia.estadosCompra = (copia.estadosCompra as Record<string, unknown>[]).map((e) => {
-      const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
+    const antes = (guardada?.estadosCompra || []) as unknown as Record<string, unknown>[];
+    const nuevas = copia.estadosCompra as Record<string, unknown>[];
+    const previos = compraGuardadaDeCadaUna(antes, nuevas);
+    copia.estadosCompra = nuevas.map((e, i) => {
+      const previo = previos[i];
       const r = { ...e };
       for (const k of PAGO_DE_LA_COMPRA) {
         if (previo && k in previo) r[k] = previo[k]; else delete r[k];
@@ -194,8 +199,10 @@ function pideCambiarLaPlata(parcial: Partial<FiestaEnPlanificacion>, guardada: F
   if (CAMPOS_DE_PLATA_Y_CONTRATO.some((campo) => campo in p && !mismoValor(p[campo], g[campo]))) return true;
   if (Array.isArray(p.estadosCompra)) {
     const antes = (guardada?.estadosCompra || []) as unknown as Record<string, unknown>[];
-    return (p.estadosCompra as Record<string, unknown>[]).some((e) => {
-      const previo = antes.find((o) => o.proveedorId ? o.proveedorId === e.proveedorId : o.proveedor === e.proveedor);
+    const nuevas = p.estadosCompra as Record<string, unknown>[];
+    const previos = compraGuardadaDeCadaUna(antes, nuevas);
+    return nuevas.some((e, i) => {
+      const previo = previos[i];
       // Sin la casilla (llegó recortada por el perfil, orden 183) no pide cambiarla: se conserva.
       return PAGO_DE_LA_COMPRA.some((k) => k in e && !mismoValor(e[k], previo?.[k]));
     });
@@ -320,7 +327,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     if (await getFiestaByIdRaw(fiestaData.id)) {
       const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
       const datos = fiestaData;
-      const r = await actualizarFiesta(datos.id, (actual) => reponer(datos, actual));
+      const r = await actualizarFiesta(datos.id, (actual) => conLaConstanciaGuardada(reponer(datos, actual), actual));
       if (!r.success) return { success: false, error: 'No se pudo guardar el evento.' };
       if (!quienGuarda.success) return { success: true };
       return { success: true, fiesta: recortarFiestaPorPerfil(r.updatedFiesta ?? datos, usuarioQueGuarda) };
@@ -329,6 +336,8 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   }
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaData.id}.json`;
+    const { getFiestaByIdRaw: leerGuardada } = await import('@/lib/fiesta/get-fiesta-raw');
+    fiestaData = conLaConstanciaGuardada(fiestaData, await leerGuardada(fiestaData.id));
     await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
     // A quien no es del equipo no se le devuelve la fiesta entera: varias acciones públicas
     // devuelven directo lo que contesta esto (ver recortar-para-afuera).
@@ -347,6 +356,38 @@ export async function updateFiestaPartial(
   partialData: Partial<FiestaEnPlanificacion>,
   options?: { allowPortal?: boolean }
 ): Promise<{ success: boolean; error?: string }> {
+  // La constancia de la firma digital sólo la escribe `signContractDigitally` (Codex 240, C2).
+  if ('firmaDigitalConstancia' in (partialData as Record<string, unknown>)) {
+    return { success: false, error: 'La constancia de la firma sólo se registra firmando desde el portal.' };
+  }
+  // Con la constancia puesta, el texto que firmó el cliente no se cambia por el guardado parcial.
+  // Se mira antes (para no hacer trabajo de más) Y adentro de la escritura: una firma que llega
+  // entre la lectura y el guardado dejaba la constancia de A junto al texto B (Codex 264, orden 219).
+  // Lo mismo con el contrato en papel y con el plan de pagos (barrido de la pregunta 94).
+  const tocaElContrato = 'contratoServicioTexto' in (partialData as Record<string, unknown>)
+    || Boolean(partialData.contratoDatos && 'planPagos' in (partialData.contratoDatos as Record<string, unknown>));
+  const noPisaLoFirmado = (actual: FiestaEnPlanificacion) => {
+    const firmado = Boolean(actual.firmaDigitalConstancia || actual.contratoFirmaInfo?.isSigned);
+    if (!firmado) return;
+    if ('contratoServicioTexto' in (partialData as Record<string, unknown>) && actual.contratoServicioTexto !== partialData.contratoServicioTexto) {
+      throw new Error(actual.contratoFirmaInfo?.isSigned
+        ? 'No se puede modificar el contrato una vez firmado.'
+        : 'El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda.');
+    }
+    const planNuevo = (partialData.contratoDatos as any)?.planPagos;
+    if (planNuevo !== undefined && JSON.stringify(planNuevo) !== JSON.stringify((actual.contratoDatos as any)?.planPagos)) {
+      throw new Error('El contrato ya está firmado: el plan de pagos no se cambia sin una adenda.');
+    }
+  };
+  if (tocaElContrato) {
+    const { getFiestaByIdRaw: leerGuardada } = await import('@/lib/fiesta/get-fiesta-raw');
+    const guardada = await leerGuardada(fiestaId);
+    try {
+      if (guardada) noPisaLoFirmado(guardada);
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  }
   if (options?.allowPortal) {
     await requireFiestaWriteAccess(fiestaId);
     if (!(await esEquipoParaFiesta(fiestaId))) {
@@ -379,6 +420,7 @@ export async function updateFiestaPartial(
         }
       }
       const r = await actualizarFiesta(fiestaId, (actual) => {
+        noPisaLoFirmado(actual);
         const parcial = sinPlata ? sinLaPlata(partialData, actual) : partialData;
         return reponerLoDelPerfil({ ...actual, ...parcial }, actual, usuario);
       });
@@ -393,7 +435,19 @@ export async function updateFiestaPartial(
     // Lo de plata que vino igual a lo leído no se escribe: se queda lo de ESE momento, adentro de
     // la operación (auditoría 73). Si no, un cobro anotado en el medio volvía a cero.
     const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
-    const r = await actualizarFiesta(fiestaId, (actual) => ({ ...actual, ...sinLaPlata(partialData, actual) }));
+    const r = await actualizarFiesta(fiestaId, (actual) => {
+      noPisaLoFirmado(actual);
+      return { ...actual, ...sinLaPlata(partialData, actual) };
+    });
+    return r.success ? { success: true } : { success: false, error: r.error || 'No se pudo actualizar parcialmente el evento.' };
+  }
+  if (tocaElContrato) {
+    // El texto del contrato se escribe adentro de la escritura de la fiesta, donde se ve la firma.
+    const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+    const r = await actualizarFiesta(fiestaId, (actual) => {
+      noPisaLoFirmado(actual);
+      return { ...actual, ...partialData };
+    });
     return r.success ? { success: true } : { success: false, error: r.error || 'No se pudo actualizar parcialmente el evento.' };
   }
   try {
@@ -406,12 +460,22 @@ export async function updateFiestaPartial(
 }
 
 export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise<FiestaEnPlanificacion | null> {
+    return (await leerFiestaConEstado(fiestaId, lectura)).fiesta;
+}
+
+async function leerFiestaConEstado(
+    fiestaId: string,
+    lectura?: symbol
+): Promise<{ fiesta: FiestaEnPlanificacion | null; fallo: boolean }> {
     const activePath = `${FIESTAS_DIR}/${fiestaId}.json`;
     let fiesta: FiestaEnPlanificacion | null = null;
+    let readFailed = false;
     try {
         const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
         if (active && active.id === fiestaId) fiesta = active;
-    } catch (e) {}
+    } catch (e) {
+        readFailed = true;
+    }
     if (!fiesta) {
         try {
             const localCandidates = [
@@ -431,9 +495,13 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
         } catch {}
     }
     if (!fiesta) {
-        const archivadas = await getHistorialFiestas();
-        fiesta = archivadas.find(f => f.id === fiestaId) || null;
+        try {
+            const archivadas = await getHistorialFiestas();
+            fiesta = archivadas.find(f => f.id === fiestaId) || null;
+        } catch {}
     }
+
+    const fallo = !fiesta && readFailed;
 
     if (fiesta) {
         if (fiesta.modulosContratados) {
@@ -444,10 +512,7 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
         }
         if (lectura !== LECTURA_COMPLETA && !(await quienEsElEquipo())(fiesta)) {
             if (fiesta.clientPortalSettings) {
-                fiesta.clientPortalSettings = {
-                    ...fiesta.clientPortalSettings,
-                    accessKey: undefined as any,
-                };
+                fiesta.clientPortalSettings = { ...fiesta.clientPortalSettings, accessKey: undefined as any };
             }
             // Quien no es del equipo no se lleva la fiesta entera (ver recortar-para-afuera).
             const { verifyPortalSession } = await import('@/lib/security/portal-session');
@@ -459,9 +524,17 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
             const { verifySession } = await import('@/lib/auth/session-token');
             const sesion = await verifySession();
             fiesta = recortarFiestaPorPerfil(fiesta, sesion.success ? sesion.user : null);
+            if (sesion.success && perfilDe(sesion.user) === 'personal') {
+                delete (fiesta as any).clientPortalSettings;
+            }
         }
     }
-    return fiesta;
+    return { fiesta, fallo };
+}
+
+export async function getFiestaParaPantalla(fiestaId: string): Promise<{ fiesta: FiestaEnPlanificacion | null; fallo: boolean }> {
+    await requireAppSession();
+    return await leerFiestaConEstado(fiestaId);
 }
 
 export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {
@@ -959,32 +1032,38 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     // 2. CÁLCULO DE PERSONAL AUTOMÁTICO (VACANTES)
     const personalReq: PersonalAsignadoDetalleStorage[] = [];
 
-    const addVacantes = (roleSearch: string, qty: number) => {
-        const rol = roles.find(r => r.nombre.toLowerCase().includes(roleSearch.toLowerCase()));
+    const addVacantes = (roleSearch: string, qty: number, sueldo?: number) => {
+        const rol = buscarRol(roles, roleSearch);
         if (rol) {
             for (let i = 0; i < qty; i++) {
                 personalReq.push({
                     empleadoId: '', // Vacante
                     rolId: rol.id,
-                    eventSalary: rol.sueldoPorEvento
+                    eventSalary: sueldo ?? rol.sueldoPorEvento
                 });
             }
         }
     };
 
-    // Regla: 1 mozo cada 25 invitados (si hay catering)
+    // Regla: 1 mozo cada 25 invitados (si hay catering). Cocina, regla del dueño (21/10/2026): una
+    // persona cada 25 invitados, y la primera es el chef. 100 invitados = chef + 3 ayudantes.
     if (modulos.catering) {
         addVacantes('Mozo', Math.ceil(guests / 25));
-        addVacantes('Ayudante de Cocina', Math.ceil(guests / 50));
+        const cocina = personalDeCocina(guests);
+        addVacantes(roles.some(r => r.nombre.toLowerCase().includes('chef')) ? 'Chef' : 'Cocinero', cocina.chef);
+        addVacantes('Ayudante de Cocina', cocina.ayudantes);
     }
 
-    // Regla: 1 utilero cada 25 invitados para logística
-    addVacantes('Utilero', Math.ceil(guests / 25));
+    // Regla: 1 utilero cada 30 invitados para logística (dueño, 21/10/2026)
+    addVacantes('Utilero', utilerosPorInvitados(guests));
 
     // Regla: Especialistas según presupuesto
     if (modulos.musica) addVacantes('DJ', 1);
     if (hasItem('asado')) addVacantes('Asador', 1);
-    if (hasItem('barra') || hasItem('trago')) addVacantes('Barman', Math.ceil(guests / 75));
+    if (hasItem('barra') || hasItem('trago')) {
+        const barra = barmanPorInvitados(guests);
+        addVacantes('Barman', barra.cantidad, barra.sueldo);
+    }
 
     // Solo actualizar si no hay personal asignado manualmente aún para no borrar trabajo
     if (!updatedFiesta.personalAsignado || updatedFiesta.personalAsignado.length === 0) {

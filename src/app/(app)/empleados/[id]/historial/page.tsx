@@ -161,11 +161,23 @@ export default function EmpleadoHistorialPage() {
   };
 
   const totalCobrado = useMemo(
-    () => filteredRows.filter(estaCobrado).reduce((sum, row) => sum + montoDe(row), 0),
+    () =>
+      filteredRows
+        .filter((row) => {
+          const estado = editableByFiesta[row.fiestaId]?.estado || 'pendiente';
+          return estado === 'pagado' || estado === 'firmado_subido';
+        })
+        .reduce((sum, row) => sum + Number(editableByFiesta[row.fiestaId]?.monto ?? row.montoBase), 0),
     [editableByFiesta, filteredRows]
   );
   const totalPendiente = useMemo(
-    () => filteredRows.filter((row) => !estaCobrado(row)).reduce((sum, row) => sum + montoDe(row), 0),
+    () =>
+      filteredRows
+        .filter((row) => {
+          const estado = editableByFiesta[row.fiestaId]?.estado || 'pendiente';
+          return estado !== 'pagado' && estado !== 'firmado_subido';
+        })
+        .reduce((sum, row) => sum + Number(editableByFiesta[row.fiestaId]?.monto ?? row.montoBase), 0),
     [editableByFiesta, filteredRows]
   );
   const cantidadCobrados = filteredRows.filter(estaCobrado).length;

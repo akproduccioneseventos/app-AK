@@ -18,6 +18,7 @@ jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (_f: string, d: any) => (_f.includes('presupuesto') ? JSON.parse(JSON.stringify(guardado)) : d)),
   writeData: jest.fn(async (_f: string, datos: any) => { if (_f.includes('presupuesto')) guardado = JSON.parse(JSON.stringify(datos)); }),
   mutateDataItem: jest.fn(),
+  readDataConDetalle: jest.fn(async (_f: string, d: any) => ({ valor: _f.includes('presupuesto') ? JSON.parse(JSON.stringify(guardado)) : d, huboFalla: false })),
 }));
 jest.mock('@/app/actions/crm', () => ({
   findLeadByBudgetOrCreate: jest.fn(async () => ({ lead: { id: 'lead1' } })),

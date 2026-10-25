@@ -1,0 +1,190 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "at": "2026-10-24T20:00:05.996Z",
+  "notNewExecution": true,
+  "result": [
+    {
+      "title": "Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-desktop",
+      "trace": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\425-batch-003-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-desktop\\trace.zip",
+      "responses": [
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871170126?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTE3MDEyNiIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzU5NzE5MDcsIm5vbmNlIjoiMGY4NjZlODEtNzA2Mi00NDVkLWE0NjgtMDE3N2ZhNWE4NTE5In0.Saj3HM27YAAwcqbCY3ivQpk-0NZju6zRw7hsMruG6KA",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871170126?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTE3MDEyNiIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzU5NzE5MDcsIm5vbmNlIjoiMGY4NjZlODEtNzA2Mi00NDVkLWE0NjgtMDE3N2ZhNWE4NTE5In0.Saj3HM27YAAwcqbCY3ivQpk-0NZju6zRw7hsMruG6KA",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871170126?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTE3MDEyNiIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzU5NzE5MDcsIm5vbmNlIjoiMGY4NjZlODEtNzA2Mi00NDVkLWE0NjgtMDE3N2ZhNWE4NTE5In0.Saj3HM27YAAwcqbCY3ivQpk-0NZju6zRw7hsMruG6KA",
+          "fields": [
+            "\"success\":false",
+            "\"error\":\"La transicion solicitada no es valida para el estado actual.\""
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871170126?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTE3MDEyNiIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzU5NzE5MDcsIm5vbmNlIjoiMGY4NjZlODEtNzA2Mi00NDVkLWE0NjgtMDE3N2ZhNWE4NTE5In0.Saj3HM27YAAwcqbCY3ivQpk-0NZju6zRw7hsMruG6KA",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871170126?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTE3MDEyNiIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzU5NzE5MDcsIm5vbmNlIjoiMGY4NjZlODEtNzA2Mi00NDVkLWE0NjgtMDE3N2ZhNWE4NTE5In0.Saj3HM27YAAwcqbCY3ivQpk-0NZju6zRw7hsMruG6KA",
+          "fields": [
+            "\"success\":false",
+            "\"error\":\"La transicion solicitada no es valida para el estado actual.\""
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-desktop",
+      "trace": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\425-batch-003-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\trace.zip",
+      "responses": [
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871216144?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTIxNjE0NCIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYwMTgyMDEsIm5vbmNlIjoiMTYxMGNlYzQtOGVmMy00ZGRkLTk5ODUtMzEzZDE2NWM5YWRhIn0.v6BCpSvYe03lZ1KIufUbVSNw-tiedZvj40Kf1Gv0_nA",
+          "fields": [
+            "\"success\":true",
+            "\"countdownSeconds\":4",
+            "\"consentRequired\":false",
+            "\"fotosPorTanda\":3",
+            "\"segundosCuentaRegresiva\":10"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871216144?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTIxNjE0NCIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYwMTgyMDEsIm5vbmNlIjoiMTYxMGNlYzQtOGVmMy00ZGRkLTk5ODUtMzEzZDE2NWM5YWRhIn0.v6BCpSvYe03lZ1KIufUbVSNw-tiedZvj40Kf1Gv0_nA",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871216144?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTIxNjE0NCIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYwMTgyMDEsIm5vbmNlIjoiMTYxMGNlYzQtOGVmMy00ZGRkLTk5ODUtMzEzZDE2NWM5YWRhIn0.v6BCpSvYe03lZ1KIufUbVSNw-tiedZvj40Kf1Gv0_nA",
+          "fields": [
+            "\"success\":false",
+            "\"error\":\"La transicion solicitada no es valida para el estado actual.\""
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-mobile",
+      "trace": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\425-batch-003-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-mobile\\trace.zip",
+      "responses": [
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871266464?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTI2NjQ2NCIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYwNjgxMjMsIm5vbmNlIjoiN2YxNjIyZmQtNmZmNS00YmMzLWFlODUtODQ0MzRhNDM0ZTJkIn0.ezQK_EZsGbbfmSnRX6ZTgZnQLQFRnm5640vC_tQbSjw",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871266464?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTI2NjQ2NCIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYwNjgxMjMsIm5vbmNlIjoiN2YxNjIyZmQtNmZmNS00YmMzLWFlODUtODQ0MzRhNDM0ZTJkIn0.ezQK_EZsGbbfmSnRX6ZTgZnQLQFRnm5640vC_tQbSjw",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871266464?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTI2NjQ2NCIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYwNjgxMjMsIm5vbmNlIjoiN2YxNjIyZmQtNmZmNS00YmMzLWFlODUtODQ0MzRhNDM0ZTJkIn0.ezQK_EZsGbbfmSnRX6ZTgZnQLQFRnm5640vC_tQbSjw",
+          "fields": [
+            "\"success\":false",
+            "\"error\":\"La transicion solicitada no es valida para el estado actual.\""
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871266464?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTI2NjQ2NCIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYwNjgxMjMsIm5vbmNlIjoiN2YxNjIyZmQtNmZmNS00YmMzLWFlODUtODQ0MzRhNDM0ZTJkIn0.ezQK_EZsGbbfmSnRX6ZTgZnQLQFRnm5640vC_tQbSjw",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871266464?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTI2NjQ2NCIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYwNjgxMjMsIm5vbmNlIjoiN2YxNjIyZmQtNmZmNS00YmMzLWFlODUtODQ0MzRhNDM0ZTJkIn0.ezQK_EZsGbbfmSnRX6ZTgZnQLQFRnm5640vC_tQbSjw",
+          "fields": [
+            "\"success\":false",
+            "\"error\":\"La transicion solicitada no es valida para el estado actual.\""
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-mobile",
+      "trace": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\425-batch-003-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-mobile\\trace.zip",
+      "responses": [
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871306165?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTMwNjE2NSIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYxMDc5OTcsIm5vbmNlIjoiOWQ2MjFiNjUtOWNlZC00YTI2LTk4M2YtOGY1MThkNjFhM2VjIn0.FEQ_LLq0uvhVltJYba4xfNJUcPeoV6qad6fHZx_uD8Q",
+          "fields": [
+            "\"success\":true",
+            "\"countdownSeconds\":4",
+            "\"consentRequired\":false",
+            "\"fotosPorTanda\":3",
+            "\"segundosCuentaRegresiva\":10"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871306165?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTMwNjE2NSIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYxMDc5OTcsIm5vbmNlIjoiOWQ2MjFiNjUtOWNlZC00YTI2LTk4M2YtOGY1MThkNjFhM2VjIn0.FEQ_LLq0uvhVltJYba4xfNJUcPeoV6qad6fHZx_uD8Q",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871306165?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTMwNjE2NSIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYxMDc5OTcsIm5vbmNlIjoiOWQ2MjFiNjUtOWNlZC00YTI2LTk4M2YtOGY1MThkNjFhM2VjIn0.FEQ_LLq0uvhVltJYba4xfNJUcPeoV6qad6fHZx_uD8Q",
+          "fields": [
+            "\"success\":false",
+            "\"error\":\"La transicion solicitada no es valida para el estado actual.\""
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871306165?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTMwNjE2NSIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYxMDc5OTcsIm5vbmNlIjoiOWQ2MjFiNjUtOWNlZC00YTI2LTk4M2YtOGY1MThkNjFhM2VjIn0.FEQ_LLq0uvhVltJYba4xfNJUcPeoV6qad6fHZx_uD8Q",
+          "fields": [
+            "\"success\":true"
+          ]
+        },
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/evento/fotocabina/e2e_orden_90_1792871306165?access=eyJ2ZXJzaW9uIjoiZW50LXYyIiwiZmllc3RhSWQiOiJlMmVfb3JkZW5fOTBfMTc5Mjg3MTMwNjE2NSIsIm1vZHVsZUlkIjoiZm90b2NhYmluYSIsInNjb3BlIjoiZ3Vlc3QiLCJleHBpcmVzQXQiOjE3OTI5MzYxMDc5OTcsIm5vbmNlIjoiOWQ2MjFiNjUtOWNlZC00YTI2LTk4M2YtOGY1MThkNjFhM2VjIn0.FEQ_LLq0uvhVltJYba4xfNJUcPeoV6qad6fHZx_uD8Q",
+          "fields": [
+            "\"success\":false",
+            "\"error\":\"La transicion solicitada no es valida para el estado actual.\""
+          ]
+        }
+      ]
+    },
+    {
+      "title": "llega desde el simulador hasta ver un precio",
+      "project": "chromium-desktop",
+      "trace": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\425-batch-005-artifacts\\ak207-prospecto-simulador--c77c1-mulador-hasta-ver-un-precio-chromium-desktop\\trace.zip",
+      "responses": [
+        {
+          "status": 200,
+          "url": "http://127.0.0.1:3300/simulador-de-presupuesto",
+          "fields": [
+            "\"success\":true"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -50,6 +50,18 @@ describe('el visor del video de ayuda maneja el foco (orden 199)', () => {
     await esperarCuadro();
     expect(document.activeElement?.getAttribute('aria-label')).toBe('Cerrar video de ayuda');
 
+    // Codex 160-169: Tab y Shift+Tab se escapaban del visor. Ahora dan la vuelta adentro.
+    const visor = lugar.querySelector<HTMLElement>('[role="dialog"]')!;
+    const enfocables = visor.querySelectorAll<HTMLElement>('button, iframe');
+    enfocables[enfocables.length - 1].focus();
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+    act(() => { window.dispatchEvent(tab); });
+    expect(tab.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(enfocables[0]);
+    const atras = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, cancelable: true });
+    act(() => { window.dispatchEvent(atras); });
+    expect(document.activeElement).toBe(enfocables[enfocables.length - 1]);
+
     act(() => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })); });
     expect(lugar.querySelector('[role="dialog"]')).toBeNull();
     expect(document.activeElement).toBe(abrir);
@@ -61,6 +73,7 @@ describe('el visor del video de ayuda maneja el foco (orden 199)', () => {
     expect(codigo).toMatch(/previousFocusRef\.current = document\.activeElement/);
     expect(codigo).toMatch(/ref=\{closeButtonRef\}/);
     expect(codigo).toMatch(/previo\.focus\(\)/);
+    expect(codigo).toMatch(/mantenerElFocoAdentro\(event,/);
   });
 });
 

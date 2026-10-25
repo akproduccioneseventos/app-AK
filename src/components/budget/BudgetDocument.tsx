@@ -1,3 +1,5 @@
+import { parseEventDate } from '@/lib/public-experience/event-date';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 /**
  * BudgetDocument — Unified formal budget document component for AK Producciones.
  * Resolves duplicate templates across step 4 summary, Client Portal `/ver`, and PDF exports.
@@ -16,6 +18,7 @@ import {
 import { presentacionComercialMercadoPago, calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 import { buildPresupuestoNarrative } from '@/lib/budget/budget-narrative';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
+import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -38,10 +41,10 @@ function formatCurrency(amount?: number): string {
 function formatDateShort(dateString?: string): string {
   if (!dateString) return '—';
   try {
-    const d = new Date(dateString);
-    const day = dateString.includes('T') ? d.getUTCDate() : d.getDate();
-    const month = dateString.includes('T') ? d.getUTCMonth() + 1 : d.getMonth() + 1;
-    const year = dateString.includes('T') ? d.getUTCFullYear() : d.getFullYear();
+    const d = parseEventDate(dateString) || new Date(dateString);
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
     return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
   } catch {
     return '—';
@@ -51,15 +54,7 @@ function formatDateShort(dateString?: string): string {
 function formatDateLong(dateString?: string): string {
   if (!dateString) return '—';
   try {
-    const d = new Date(dateString);
-    const day = dateString.includes('T') ? d.getUTCDate() : d.getDate();
-    const month = dateString.includes('T') ? d.getUTCMonth() : d.getMonth();
-    const year = dateString.includes('T') ? d.getUTCFullYear() : d.getFullYear();
-    return new Date(year, month, day).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
+    return formatearFechaEvento(dateString);
   } catch {
     return '—';
   }
@@ -69,6 +64,57 @@ function getItemUnitLabel(item: ItemPresupuestado): string {
   if (item.unidad) return item.unidad;
   if (item.calculationMethod === 'porPersona') return 'persona';
   return 'serv.';
+}
+
+export function FranjaTranquilidad({
+  itemsRegalo = [],
+  mostrarMercadoPago = true,
+}: {
+  itemsRegalo?: ItemPresupuestado[];
+  mostrarMercadoPago?: boolean;
+}) {
+  return (
+    <section className="mb-4 rounded-xl border border-emerald-200/90 bg-emerald-50/60 p-3.5 print:border-slate-300 print:bg-slate-50 print:p-2.5">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <p className="text-[11px] font-black uppercase tracking-wider text-emerald-950 print:text-slate-900">
+            Tranquilidad incluida con tu fiesta
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 print:text-[8pt]">
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-emerald-700">✓</span>
+            <span>Reservás tu fecha con una seña</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-emerald-700">✓</span>
+            <span>Plan de pagos mensuales a tu medida</span>
+          </div>
+          {mostrarMercadoPago && (
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-emerald-700">✓</span>
+              <span>Hasta 12 cuotas con tarjeta</span>
+            </div>
+          )}
+          {itemsRegalo.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 sm:col-span-2 mt-1 pt-1 border-t border-emerald-200/50">
+              <Gift className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span className="font-bold text-emerald-900">Regalos bonificados:</span>
+              {itemsRegalo.map((r, idx) => (
+                <span
+                  key={(r as any).id || r.idServicioCatalogo || idx}
+                  className="inline-flex items-center gap-1 rounded bg-white/90 border border-emerald-300/80 px-2 py-0.5 text-[10px] font-semibold text-emerald-800"
+                >
+                  {r.nombreServicio} <span className="text-[9px] uppercase font-black text-emerald-600">(Incluido)</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export interface BudgetDocumentProps {
@@ -114,15 +160,17 @@ export default function BudgetDocument({
 
   const clientName = clienteNombre || presupuesto.clienteNombre;
 
-  const validUntil = new Date(presupuesto.timestamp);
+  const timestampDate = presupuesto.timestamp ? new Date(presupuesto.timestamp) : new Date();
+  const validUntil = isNaN(timestampDate.getTime()) ? new Date() : new Date(timestampDate);
   validUntil.setDate(validUntil.getDate() + BUDGET_VALIDITY_DAYS);
 
   // Group items by category if no override is provided
   const itemsAgrupados = React.useMemo(() => {
     if (itemsAgrupadosOverride) return itemsAgrupadosOverride;
 
-    const itemsRegulares = presupuesto.itemsPresupuestados.filter((i) => !i.esRegalo);
-    const itemsRegalo = presupuesto.itemsPresupuestados.filter((i) => i.esRegalo);
+    const todosItems = presupuesto.itemsPresupuestados ?? [];
+    const itemsRegulares = todosItems.filter((i) => !i.esRegalo);
+    const itemsRegalo = todosItems.filter((i) => i.esRegalo);
 
     const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce(
       (acc, item) => {
@@ -170,7 +218,7 @@ export default function BudgetDocument({
     ? annualProjection.rows
     : annualAdjustmentAmount > 0
       ? [{
-          year: new Date(presupuesto.eventoFecha || presupuesto.timestamp).getFullYear(),
+          year: anioDeLaFechaDelEvento(presupuesto.eventoFecha) ?? new Date(presupuesto.timestamp).getFullYear(),
           total: totalFinal + annualAdjustmentAmount,
           adjustmentAmount: annualAdjustmentAmount,
         }]
@@ -183,7 +231,7 @@ export default function BudgetDocument({
     presupuesto.invitadosCantidad ||
     0;
 
-  const clubUruguayItem = presupuesto.itemsPresupuestados.find(
+  const clubUruguayItem = (presupuesto.itemsPresupuestados ?? []).find(
     (item) => item.idServicioCatalogo === 'serv_salon_club_uruguay'
   );
   const clubUruguayCostoCalculated = clubUruguayCosto > 0
@@ -379,8 +427,14 @@ export default function BudgetDocument({
           );
         })()}
 
+        {/* Franja de tranquilidad (Orden 181): regalos, tarjeta, seña y plan de pagos sin tocar números */}
+        <FranjaTranquilidad
+          itemsRegalo={(presupuesto.itemsPresupuestados || (presupuesto as any).items || []).filter((i: any) => i.esRegalo)}
+          mostrarMercadoPago={Boolean(presentacionMercadoPago)}
+        />
+
         {/* Items table */}
-        {showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (
+        {showPriceBreakdown && (presupuesto.itemsPresupuestados?.length ?? 0) > 0 && (
           <section className="mb-4">
             <table className="w-full text-xs print:text-[8pt] border-collapse">
               <thead>
@@ -470,7 +524,7 @@ export default function BudgetDocument({
                             key={`${catIdx}-${itemIdx}`}
                             className="bg-white border-b border-slate-200"
                           >
-                            <td 
+                            <td
                               className="border border-slate-200 px-3 py-2 align-top"
                               style={{ color: item.esRegalo ? '#dc2626' : '#334155' }}
                             >
@@ -574,7 +628,7 @@ export default function BudgetDocument({
             <span>💳 Opciones de Pago & Transparencia Financiera</span>
             <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full font-bold">Mercado Pago / Transferencia</span>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-slate-700">
             <div className="bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm">
               <p className="font-extrabold text-slate-900 flex items-center justify-between">

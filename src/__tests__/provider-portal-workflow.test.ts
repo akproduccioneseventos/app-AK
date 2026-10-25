@@ -28,7 +28,9 @@ describe('provider portal workflow', () => {
 
     expect(actions).toMatch(/getProveedoresPortal[\s\S]*requirePermisoAlguno\(PERMISOS.ORGANIZACION/);
     expect(actions).toMatch(/createProveedorAcceso[\s\S]*requirePermisoAlguno\(PERMISOS\.ORGANIZACION, PERMISOS\.CONTABILIDAD\)/);
-    expect(actions).toMatch(/updateProveedorEstado[\s\S]*getProveedorByToken\(token\)/);
-    expect(actions).toMatch(/toggleTareaProveedor[\s\S]*getProveedorByToken\(token\)/);
+    // Orden 204: el token se valida al leer y otra vez adentro del cambio, contra el registro actual.
+    expect(actions).toMatch(/cambiarAccesoDelProveedor[\s\S]*getProveedorByToken\(token\)[\s\S]*motivoDeRechazo\(actual, token\)/);
+    expect(actions).toMatch(/updateProveedorEstado[\s\S]*cambiarAccesoDelProveedor\(token/);
+    expect(actions).toMatch(/toggleTareaProveedor[\s\S]*cambiarAccesoDelProveedor\(token/);
   });
 });

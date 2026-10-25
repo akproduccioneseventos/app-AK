@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');
+let code=fs.readFileSync(path.join(dir,'314-jest-final-aislado.mjs'),'utf8');
+code=code.replace("const root=fileURLToPath(new URL('../../',import.meta.url)),dir=",`const root=${JSON.stringify(root)},dir=`).replaceAll('314','349').replaceAll('3e45a4ac6b479f89605163168e31b37dc84f2d0f','3f9460185143ef034dcd713e975d2a0af5e20f1a').replaceAll('291-entorno.json','347-entorno.json').replaceAll('ak-qa-280-','ak-qa-347-');
+const start=code.indexOf('const forced=spawnSync('),end=code.indexOf('const report=path.join');assert(start>0&&end>start);
+const environment="const env={...safe,HOME:home,USERPROFILE:home,APPDATA:path.join(home,'config'),XDG_CONFIG_HOME:path.join(home,'config'),NODE_ENV:'test',GOOGLE_APPLICATION_CREDENTIALS:'',NODE_OPTIONS:`--max-old-space-size=1536 --require \"${path.join(dir,'323-egress-unit-canonico.cjs').replaceAll('\\\\','/')}\"`};\n";
+code=code.slice(0,start)+environment+code.slice(end);
+code=code.replace('ONE full existing Jest suite on frozenQA3e after native jobs end; original assertions/mocks retained.','ONE canonical full existing Jest suite on NEW frozen candidate3f after build347; NOT repeat main3e. Official env/config, no forced browser/demo/model keys. No app/test assertions changed.');
+await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));

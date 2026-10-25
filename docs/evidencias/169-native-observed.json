@@ -1,0 +1,90 @@
+{
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "desktop": {
+    "source": "Claude108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+    "device": "Desktop Chrome",
+    "case": "native-tab-containment",
+    "health": {
+      "status": 200,
+      "version": "108e17b4387237fc921ea12e8d1eb65b20f62ac9 · compilada 2026-10-21T11:22:17.916Z",
+      "services": {
+        "firebase": false,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      }
+    },
+    "blockedExternal": [
+      "https://www.googletagmanager.com/gtag/js",
+      "https://connect.facebook.net/en_US/fbevents.js"
+    ],
+    "galleryLoaded": true,
+    "tabSteps": [
+      {
+        "inside": true,
+        "label": "Foto anterior"
+      },
+      {
+        "inside": true,
+        "label": "Compartir foto por WhatsApp"
+      },
+      {
+        "inside": true,
+        "label": "Foto siguiente"
+      },
+      {
+        "inside": false,
+        "label": "Ver reseña de Liliana Reyes"
+      }
+    ],
+    "shiftTabSteps": [
+      {
+        "inside": false,
+        "label": ""
+      }
+    ],
+    "nativeTabContainment": false,
+    "finalUrl": "http://127.0.0.1:3300/#landing-gallery",
+    "finalFocus": {
+      "tag": "BUTTON",
+      "text": "Abrir foto: Prueba nativa galería 166 foto uno"
+    }
+  },
+  "mobile": {
+    "source": "Claude108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+    "device": "Pixel 7",
+    "case": "entrada-flechas-escape-retorno",
+    "health": {
+      "status": 200,
+      "version": "108e17b4387237fc921ea12e8d1eb65b20f62ac9 · compilada 2026-10-21T11:22:17.916Z",
+      "services": {
+        "firebase": false,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      }
+    },
+    "blockedExternal": [
+      "https://www.googletagmanager.com/gtag/js",
+      "https://connect.facebook.net/en_US/fbevents.js"
+    ],
+    "galleryLoaded": true,
+    "opened": true,
+    "autofocusClose": "Cerrar galería",
+    "arrowRight": true,
+    "arrowLeft": true,
+    "escapeAndReturn": true,
+    "finalUrl": "http://127.0.0.1:3300/#landing-gallery",
+    "finalFocus": {
+      "tag": "BUTTON",
+      "text": "Abrir foto: Prueba nativa galería 166 foto uno"
+    }
+  },
+  "initialMobileQaError": [
+    "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-testid=\"gallery-section\"]')\nExpected: visible\nError: strict mode violation: locator('[data-testid=\"gallery-section\"]') resolved to 2 elements:\n    1) <section id=\"galeria\" aria-busy=\"true\" data-testid=\"gallery-section\" class=\"border-y border-neutral-200 bg-neutral-100 py-20 text-slate-950 sm:py-24\">…</section> aka locator('#landing-gallery').getByTestId('gallery-section')\n    2) <section id=\"galeria\" data-testid=\"gallery-section\" class=\"border-y border-neutral-200 bg-neutral-100 py-20 text-slate-950 sm:py-24\">…</section> aka locator('section').filter({ hasText: 'Galería y Producciones' }).getByTestId('gallery-section')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid=\"gallery-section\"]')\u001b[22m\n\n\n  62 |   await page.goto('/#landing-gallery', { waitUntil: 'domcontentloaded' });\n  63 |   const section = page.locator(GALERIA);\n> 64 |   await expect(section).toBeVisible();\n     |                         ^\n  65 |   await expect(section).not.toHaveAttribute('aria-busy', 'true');\n  66 |   for (const title of FOTOS) await expect(section.getByRole('button', { name: new RegExp(title) })).toBeVisible();\n  67 |   observations.galleryLoaded = true;\n    at preparar (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-166-vjtu7f\\tests\\e2e\\166-galeria-nativa.spec.ts:64:25)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-166-vjtu7f\\tests\\e2e\\166-galeria-nativa.spec.ts:74:5"
+  ]
+}

@@ -1,0 +1,651 @@
+{
+  "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+  "testSha256": "1d117fdc1a9787896b6602b656b35a8ae7b9cbbd7eb7ca0b5b57d33cce7fc5aa",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/app/actions/empleados.ts": "d8ac1c2f070f306df731d562e31b7f0e742fe7b5ff33ae59cbbade3368761bb1",
+    "src/lib/auth/equipo-de-la-fiesta.ts": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+    "src/lib/fiesta/leer-fiestas.ts": "4b2ca612d7f10715edf299897fa0d95edd7eab7c8967fbeb459c38806022582b",
+    "src/app/actions/fiesta/fiesta.actions.ts": "0a1298508b729a73a16c0e8f63a942419b5f248b058bbcf29181ec8fb947609e",
+    "src/lib/google-workspace.ts": "cab582a5be6ccd0eac8fc8edc8632bc701f52918b26a1af8cbe79e27f243c74f",
+    "src/app/actions/google-workspace.ts": "789f071606b3b9cf01c9b09aa0eb4fa7ed17a0283f74615578479cd76ea4b7b2",
+    "src/lib/automatico/puerta-de-las-tareas.ts": "358875e9072aafb0d0b6940e499588f9bc11e236c098e39c4b6caf257602ff96",
+    "src/lib/agentes/motor-agentes.ts": "55f3711741382cb2b6c3d56b3561f870bc5c25a92caef3b8bccea90d48497321",
+    "src/app/api/cron/prospectos-seguimiento/route.ts": "3631a339a5cc0fe959e40cc0284889a96ad365de4542909fe6d1974901627493",
+    "src/app/api/cron/fiesta-proxima-revision/route.ts": "14ea924bab14c3ba5377997790b0c9b76cd08aaef335f9a0eb18bd2ca52d40f3"
+  },
+  "cases": [
+    {
+      "name": "portal-profile-dueno",
+      "pass": true,
+      "result": {
+        "employee": {
+          "id": "qa160-ea",
+          "nombre": "Empleado ficticio a",
+          "email": "a@qa.invalid",
+          "cedula": "QA-a"
+        },
+        "googleAccount": {
+          "id": "employee_qa160-ea",
+          "kind": "employee",
+          "employeeId": "qa160-ea",
+          "email": "a@qa.invalid",
+          "status": "connected"
+        },
+        "events": [
+          {
+            "fiestaId": "qa160-fa",
+            "title": "Fiesta ficticia qa160-fa",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 1500.25,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-fa&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-fa%0ARol%3A+Mozo%0APago+del+evento%3A+1500.25%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-fa&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          },
+          {
+            "fiestaId": "qa160-archived",
+            "title": "Fiesta ficticia qa160-archived",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 700.5,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-archived&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-archived%0ARol%3A+Mozo%0APago+del+evento%3A+700.5%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-archived&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          }
+        ]
+      }
+    },
+    {
+      "name": "portal-profile-secretaria",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "Solo puedes consultar tu propio portal de trabajo."
+      }
+    },
+    {
+      "name": "portal-profile-operador",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "Solo puedes consultar tu propio portal de trabajo."
+      }
+    },
+    {
+      "name": "portal-profile-personal",
+      "pass": true,
+      "result": {
+        "employee": {
+          "id": "qa160-ea",
+          "nombre": "Empleado ficticio a",
+          "email": "a@qa.invalid",
+          "cedula": "QA-a"
+        },
+        "googleAccount": {
+          "id": "employee_qa160-ea",
+          "kind": "employee",
+          "employeeId": "qa160-ea",
+          "email": "a@qa.invalid",
+          "status": "connected"
+        },
+        "events": [
+          {
+            "fiestaId": "qa160-fa",
+            "title": "Fiesta ficticia qa160-fa",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 1500.25,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-fa&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-fa%0ARol%3A+Mozo%0APago+del+evento%3A+1500.25%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-fa&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          },
+          {
+            "fiestaId": "qa160-archived",
+            "title": "Fiesta ficticia qa160-archived",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 700.5,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-archived&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-archived%0ARol%3A+Mozo%0APago+del+evento%3A+700.5%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-archived&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          }
+        ]
+      }
+    },
+    {
+      "name": "portal-profile-cliente",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "Solo puedes consultar tu propio portal de trabajo."
+      }
+    },
+    {
+      "name": "portal-profile-prospecto",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "Solo puedes consultar tu propio portal de trabajo."
+      }
+    },
+    {
+      "name": "portal-profile-invitado",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "Solo puedes consultar tu propio portal de trabajo."
+      }
+    },
+    {
+      "name": "own-events-exclude-other-salary-and-unassigned-event",
+      "pass": true,
+      "result": {
+        "employee": {
+          "id": "qa160-ea",
+          "nombre": "Empleado ficticio a",
+          "email": "a@qa.invalid",
+          "cedula": "QA-a"
+        },
+        "googleAccount": {
+          "id": "employee_qa160-ea",
+          "kind": "employee",
+          "employeeId": "qa160-ea",
+          "email": "a@qa.invalid",
+          "status": "connected"
+        },
+        "events": [
+          {
+            "fiestaId": "qa160-fa",
+            "title": "Fiesta ficticia qa160-fa",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 1500.25,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-fa&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-fa%0ARol%3A+Mozo%0APago+del+evento%3A+1500.25%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-fa&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          },
+          {
+            "fiestaId": "qa160-archived",
+            "title": "Fiesta ficticia qa160-archived",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 700.5,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-archived&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-archived%0ARol%3A+Mozo%0APago+del+evento%3A+700.5%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-archived&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          }
+        ]
+      }
+    },
+    {
+      "name": "calendar-template-does-not-include-other-salary",
+      "pass": true,
+      "result": {
+        "employee": {
+          "id": "qa160-ea",
+          "nombre": "Empleado ficticio a",
+          "email": "a@qa.invalid",
+          "cedula": "QA-a"
+        },
+        "googleAccount": {
+          "id": "employee_qa160-ea",
+          "kind": "employee",
+          "employeeId": "qa160-ea",
+          "email": "a@qa.invalid",
+          "status": "connected"
+        },
+        "events": [
+          {
+            "fiestaId": "qa160-fa",
+            "title": "Fiesta ficticia qa160-fa",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 1500.25,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-fa&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-fa%0ARol%3A+Mozo%0APago+del+evento%3A+1500.25%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-fa&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          },
+          {
+            "fiestaId": "qa160-archived",
+            "title": "Fiesta ficticia qa160-archived",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 700.5,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-archived&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-archived%0ARol%3A+Mozo%0APago+del+evento%3A+700.5%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-archived&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          }
+        ]
+      }
+    },
+    {
+      "name": "public-account-hides-access-and-refresh-tokens",
+      "pass": true,
+      "result": {
+        "employee": {
+          "id": "qa160-ea",
+          "nombre": "Empleado ficticio a",
+          "email": "a@qa.invalid",
+          "cedula": "QA-a"
+        },
+        "googleAccount": {
+          "id": "employee_qa160-ea",
+          "kind": "employee",
+          "employeeId": "qa160-ea",
+          "email": "a@qa.invalid",
+          "status": "connected"
+        },
+        "events": [
+          {
+            "fiestaId": "qa160-fa",
+            "title": "Fiesta ficticia qa160-fa",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 1500.25,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-fa&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-fa%0ARol%3A+Mozo%0APago+del+evento%3A+1500.25%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-fa&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          },
+          {
+            "fiestaId": "qa160-archived",
+            "title": "Fiesta ficticia qa160-archived",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 700.5,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-archived&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-archived%0ARol%3A+Mozo%0APago+del+evento%3A+700.5%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-archived&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          }
+        ]
+      }
+    },
+    {
+      "name": "other-employee-denied-before-reading-events-accounts",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "Solo puedes consultar tu propio portal de trabajo."
+      }
+    },
+    {
+      "name": "own-verified-email-matches-case-and-trim",
+      "pass": true,
+      "result": {
+        "employee": {
+          "id": "qa160-ea",
+          "nombre": "Empleado ficticio a",
+          "email": "a@qa.invalid",
+          "cedula": "QA-a"
+        },
+        "googleAccount": {
+          "id": "employee_qa160-ea",
+          "kind": "employee",
+          "employeeId": "qa160-ea",
+          "email": "a@qa.invalid",
+          "status": "connected"
+        },
+        "events": [
+          {
+            "fiestaId": "qa160-fa",
+            "title": "Fiesta ficticia qa160-fa",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 1500.25,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-fa&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-fa%0ARol%3A+Mozo%0APago+del+evento%3A+1500.25%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-fa&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          },
+          {
+            "fiestaId": "qa160-archived",
+            "title": "Fiesta ficticia qa160-archived",
+            "dateTime": "2027-08-09T00:00:00.000Z",
+            "venue": "Salon ficticio",
+            "address": "",
+            "mapsUrl": "",
+            "guestCount": 100,
+            "roleName": "Mozo",
+            "salary": 700.5,
+            "calendarTemplateUrl": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=%5BAK%5D+Mozo+-+Fiesta+ficticia+qa160-archived&details=Hola+Empleado+ficticio+a%2C+esta+es+tu+asignacion+para+AK+Producciones.%0AFiesta%3A+Fiesta+ficticia+qa160-archived%0ARol%3A+Mozo%0APago+del+evento%3A+700.5%0AInvitados+estimados%3A+100%0ALugar%3A+Salon+ficticio%0ACualquier+cambio+queda+registrado+en+tu+pagina+personal+de+AK.%0AAK_FIESTA_ID%3A+qa160-archived&dates=20270809T000000Z%2F20270809T060000Z&location=Salon+ficticio"
+          }
+        ]
+      }
+    },
+    {
+      "name": "general-directory-remains-denied",
+      "pass": true,
+      "thrown": "Tu perfil no tiene acceso a los datos del personal."
+    },
+    {
+      "name": "general-events-remain-denied",
+      "pass": true,
+      "thrown": "Tu usuario no tiene acceso a las fiestas."
+    },
+    {
+      "name": "anonymous-denied-before-data-read",
+      "pass": true,
+      "result": {
+        "employee": null,
+        "events": [],
+        "error": "QA no session"
+      }
+    },
+    {
+      "name": "own-google-credential-save-uses-narrow-reader",
+      "pass": true,
+      "result": {
+        "success": true,
+        "account": {
+          "id": "employee_qa160-ea",
+          "kind": "employee",
+          "employeeId": "qa160-ea",
+          "email": "a@qa.invalid",
+          "calendarId": "primary",
+          "connectedAt": "2026-10-21T10:33:55.111Z",
+          "updatedAt": "2026-10-21T10:33:55.111Z",
+          "status": "connected"
+        }
+      }
+    },
+    {
+      "name": "other-google-account-save-denied-no-write",
+      "pass": true,
+      "thrown": "Solo puedes conectar tu propia cuenta de Google."
+    },
+    {
+      "name": "company-google-account-save-denied-to-personal",
+      "pass": true,
+      "thrown": "Solo el dueño puede conectar la cuenta corporativa de Google."
+    },
+    {
+      "name": "missing-employee-google-save-denied",
+      "pass": true,
+      "thrown": "Solo puedes conectar tu propia cuenta de Google."
+    },
+    {
+      "name": "denied-saves-never-call-provider-or-write",
+      "pass": true,
+      "result": {
+        "writes": 1,
+        "googleCalls": 1
+      }
+    },
+    {
+      "name": "prospectos-seguimiento-anonymous-no-secret",
+      "pass": true,
+      "result": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "recortada": true
+        },
+        "engineCalls": 1,
+        "marks": 1,
+        "prepared": 1
+      }
+    },
+    {
+      "name": "prospectos-seguimiento-configured-no-key",
+      "pass": true,
+      "result": {
+        "status": 401,
+        "body": {
+          "error": "Unauthorized"
+        },
+        "engineCalls": 0,
+        "marks": 0,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "prospectos-seguimiento-configured-wrong-key",
+      "pass": true,
+      "result": {
+        "status": 401,
+        "body": {
+          "error": "Unauthorized"
+        },
+        "engineCalls": 0,
+        "marks": 0,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "prospectos-seguimiento-configured-correct-header",
+      "pass": true,
+      "result": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "resultado": {
+            "id": "reg_perseguidor_1792594800000",
+            "agenteId": "perseguidor_presupuestos",
+            "agenteNombre": "Perseguidor de Presupuestos",
+            "ejecutadoEn": "2026-10-21T15:00:00.000Z",
+            "hallazgos": [
+              "Presupuesto de QA160-PRIVATE-CLIENT (Evento ficticio) sin respuesta hace 6 días."
+            ],
+            "accionesPreparadas": [
+              "Borrador de seguimiento preparado para QA160-PRIVATE-CLIENT en la bandeja de salida."
+            ],
+            "estado": "exito"
+          }
+        },
+        "engineCalls": 1,
+        "marks": 1,
+        "prepared": 1
+      }
+    },
+    {
+      "name": "prospectos-seguimiento-configured-correct-query",
+      "pass": true,
+      "result": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "resultado": {
+            "id": "reg_perseguidor_1792594800000",
+            "agenteId": "perseguidor_presupuestos",
+            "agenteNombre": "Perseguidor de Presupuestos",
+            "ejecutadoEn": "2026-10-21T15:00:00.000Z",
+            "hallazgos": [
+              "Presupuesto de QA160-PRIVATE-CLIENT (Evento ficticio) sin respuesta hace 6 días."
+            ],
+            "accionesPreparadas": [
+              "Borrador de seguimiento preparado para QA160-PRIVATE-CLIENT en la bandeja de salida."
+            ],
+            "estado": "exito"
+          }
+        },
+        "engineCalls": 1,
+        "marks": 1,
+        "prepared": 1
+      }
+    },
+    {
+      "name": "prospectos-seguimiento-no-secret-throttled",
+      "pass": true,
+      "result": {
+        "status": 429,
+        "body": {
+          "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+        },
+        "engineCalls": 0,
+        "marks": 0,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "prospectos-seguimiento-worker-throws",
+      "pass": true,
+      "result": {
+        "status": 500,
+        "body": {
+          "error": "QA storage unavailable"
+        },
+        "engineCalls": 1,
+        "marks": 0,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "fiesta-proxima-revision-anonymous-no-secret",
+      "pass": true,
+      "result": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "recortada": true
+        },
+        "engineCalls": 1,
+        "marks": 1,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "fiesta-proxima-revision-configured-no-key",
+      "pass": true,
+      "result": {
+        "status": 401,
+        "body": {
+          "error": "Unauthorized"
+        },
+        "engineCalls": 0,
+        "marks": 0,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "fiesta-proxima-revision-configured-wrong-key",
+      "pass": true,
+      "result": {
+        "status": 401,
+        "body": {
+          "error": "Unauthorized"
+        },
+        "engineCalls": 0,
+        "marks": 0,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "fiesta-proxima-revision-configured-correct-header",
+      "pass": true,
+      "result": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "resultado": {
+            "id": "reg_vigilante_1792594800000",
+            "agenteId": "vigilante_fiestas",
+            "agenteNombre": "Vigilante de Fiestas",
+            "ejecutadoEn": "2026-10-21T15:00:00.000Z",
+            "hallazgos": [
+              "[URGENTE_7_DIAS] QA160-PRIVATE-CLIENT: Pendiente ficticio - Detalle interno QA"
+            ],
+            "accionesPreparadas": [
+              "Se publicaron 1 avisos urgentes listos para revisar en /repaso-diario."
+            ],
+            "estado": "alerta"
+          }
+        },
+        "engineCalls": 1,
+        "marks": 1,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "fiesta-proxima-revision-configured-correct-query",
+      "pass": true,
+      "result": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "resultado": {
+            "id": "reg_vigilante_1792594800000",
+            "agenteId": "vigilante_fiestas",
+            "agenteNombre": "Vigilante de Fiestas",
+            "ejecutadoEn": "2026-10-21T15:00:00.000Z",
+            "hallazgos": [
+              "[URGENTE_7_DIAS] QA160-PRIVATE-CLIENT: Pendiente ficticio - Detalle interno QA"
+            ],
+            "accionesPreparadas": [
+              "Se publicaron 1 avisos urgentes listos para revisar en /repaso-diario."
+            ],
+            "estado": "alerta"
+          }
+        },
+        "engineCalls": 1,
+        "marks": 1,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "fiesta-proxima-revision-no-secret-throttled",
+      "pass": true,
+      "result": {
+        "status": 429,
+        "body": {
+          "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+        },
+        "engineCalls": 0,
+        "marks": 0,
+        "prepared": 0
+      }
+    },
+    {
+      "name": "fiesta-proxima-revision-worker-throws",
+      "pass": true,
+      "result": {
+        "status": 500,
+        "body": {
+          "error": "QA storage unavailable"
+        },
+        "engineCalls": 1,
+        "marks": 0,
+        "prepared": 0
+      }
+    }
+  ],
+  "summary": {
+    "total": 34,
+    "pass": 34,
+    "fail": 0
+  },
+  "scope": "Orders200/201: actual portal/action/profile/guard/raw-filter/calendar/token-DTO and cron/gate/engine bodies composed with fictional I/O",
+  "limits": [
+    "No real session cookie, HTTP server, Firestore transaction or Google OAuth/network",
+    "Calendar helpers real; fixture collections and accounts controlled, no external sync or delivery certified",
+    "Cron two actual handlers and engines, conditional no-secret fixture; not production configuration or all eleven engines"
+  ],
+  "appEdited": false
+}

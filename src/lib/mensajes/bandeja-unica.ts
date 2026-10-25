@@ -280,6 +280,7 @@ export async function evaluarRespuestaAutomatica(params: {
 
   // Anotar consumo de tope
   registroTopes[remitenteId] = { fecha: hoyStr, count: countHoy + 1 };
+  // no pasa nada si falla: es la cuenta del tope diario; la respuesta ya salió y se cuenta en la próxima.
   await writeData(ARCHIVO_TOPES_RESPUESTAS, registroTopes).catch(() => {});
 
   return {

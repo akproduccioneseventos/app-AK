@@ -19,10 +19,12 @@ async function correrTarea(request: Request) {
     }
 
     const resultado = await correrTareaRecordarInvitacionNoAbierta();
-    await marcarCorrida('recordar-invitacion-no-abierta');
+    if (resultado.corrio && (!resultado.reservasFallidas || resultado.reservasFallidas === 0)) {
+      await marcarCorrida('recordar-invitacion-no-abierta');
+    }
 
     return NextResponse.json(respuestaDeLaTarea(puerta, {
-      ok: true,
+      ok: Boolean(resultado.corrio && (!resultado.reservasFallidas || resultado.reservasFallidas === 0)),
       ...resultado,
     }));
   } catch (error: any) {

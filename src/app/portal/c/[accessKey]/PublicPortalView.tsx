@@ -2097,12 +2097,16 @@ export default function PublicPortalView({
             {/* Tabs */}
             <div className="flex border-b bg-white px-5">
               <button
+                role="tab"
+                aria-selected={orgActiveTab === 'ak'}
                 onClick={() => setOrgActiveTab('ak')}
                 className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors ${orgActiveTab === 'ak' ? 'border-slate-800 text-slate-800' : 'border-transparent text-muted-foreground hover:text-slate-600'}`}
               >
                 📋 Lo que AK prepara
               </button>
               <button
+                role="tab"
+                aria-selected={orgActiveTab === 'cliente'}
                 onClick={() => setOrgActiveTab('cliente')}
                 className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors ${orgActiveTab === 'cliente' ? 'border-slate-800 text-slate-800' : 'border-transparent text-muted-foreground hover:text-slate-600'}`}
               >

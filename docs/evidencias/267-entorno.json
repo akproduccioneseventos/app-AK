@@ -1,0 +1,174 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "baseline": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "started": "2026-10-23T18:32:25.698Z",
+  "phase": "built",
+  "probes": [
+    {
+      "at": "2026-10-23T18:32:28.277Z",
+      "freeBytes": 206118912,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:33:38.209Z",
+      "freeBytes": 232775680,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:34:40.633Z",
+      "freeBytes": 126504960,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:35:46.827Z",
+      "freeBytes": 1182937088,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:36:57.201Z",
+      "freeBytes": 1632948224,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 14292,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        },
+        {
+          "ProcessId": 11820,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:38:01.830Z",
+      "freeBytes": 284110848,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 14292,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:39:04.038Z",
+      "freeBytes": 154779648,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 14292,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:40:06.790Z",
+      "freeBytes": 3652517888,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 10004,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        },
+        {
+          "ProcessId": 13828,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        },
+        {
+          "ProcessId": 3908,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:41:08.681Z",
+      "freeBytes": 1316671488,
+      "probeExit": 0,
+      "foreignHeavy": [
+        {
+          "ProcessId": 15332,
+          "CommandLine": "node  scripts/build-next-with-memory.mjs"
+        },
+        {
+          "ProcessId": 10004,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        },
+        {
+          "ProcessId": 13828,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        },
+        {
+          "ProcessId": 3908,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        },
+        {
+          "ProcessId": 13300,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        },
+        {
+          "ProcessId": 1332,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        },
+        {
+          "ProcessId": 14340,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\compiled\\jest-worker/processChild.js"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T18:42:09.534Z",
+      "freeBytes": 4137267200,
+      "probeExit": 0,
+      "foreignHeavy": []
+    }
+  ],
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz",
+  "buildPid": 14848,
+  "buildExit": 0,
+  "sourceDiff": "",
+  "finished": "2026-10-23T19:11:26.022Z"
+}

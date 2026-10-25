@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -109,13 +108,22 @@ export default function NotificationsSettingsPage() {
     { id: "systemAlerts", title: "Alertas del Sistema", description: "Notificaciones importantes sobre tu cuenta o el sistema.", isDisabled: false },
   ];
 
-  if (isLoading || !preferences) {
+  if (isLoading) {
       return (
         <div className="flex items-center justify-center p-8">
-            <Loader2 className="w-8 h-8 animate-spin text-primary"/>
+          <Loader2 className="w-8 h-8 animate-spin text-primary"/>
         </div>
-      )
-  }
+      );
+    }
+    if (!preferences) {
+      return (
+        <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center">
+          <h2 className="text-xl font-bold">Preferencias no disponibles</h2>
+          <p className="text-muted-foreground">No se pudieron cargar las notificaciones.</p>
+          <Button onClick={() => window.location.reload()} variant="outline">Reintentar</Button>
+        </div>
+      );
+    }
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">

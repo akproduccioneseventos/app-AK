@@ -1,8 +1,8 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -322,7 +322,8 @@ function SalonLayoutContent() {
     };
   }, [fiesta?.invitados, guestSearchTerm]);
 
-  if (isLoading || !fiestaId) return <div className="flex items-center justify-center p-8"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>
+  if (!fiestaId) return <EventSelectionRequired moduleName="el cálculo de costos y plano" />;
+  if (isLoading) return <div className="flex items-center justify-center p-8"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   if (error || !decoracion || !fiesta) return <div className="text-destructive text-center p-4">{error}</div>
 
   const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;

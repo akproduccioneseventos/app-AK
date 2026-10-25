@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+const dir=fileURLToPath(new URL('./',import.meta.url));
+const previous=JSON.parse(fs.readFileSync(path.join(dir,'392-entorno.json'),'utf8'));
+assert.equal(previous.source,'917a98e32c63fe2f832f5cdc16db87f4fc722b6c');
+assert(!previous.buildPid&&!previous.buildExit&&previous.finished);
+assert(previous.qa.replaceAll('\\','/').startsWith('C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-392-candidate-'));
+assert(!fs.existsSync(path.join(previous.qa,'.next/BUILD_ID')),'Do not build an already compiled source again');
+let code=fs.readFileSync(path.join(dir,'392-entorno-actual.mjs'),'utf8').replaceAll('392','406');
+const start=code.indexOf('  const qa=fs.mkdtempSync('),end=code.indexOf('\n  assert.equal(git(',start);
+assert(start>0&&end>start);
+code=code.slice(0,start)+'  const qa='+JSON.stringify(previous.qa)+';record.qa=qa;record.reusedPreparedWorkspace=true;'+code.slice(end);
+const file=path.join(dir,'406-entorno-actual.mjs');assert(!fs.existsSync(file));fs.writeFileSync(file,code);
+await import(new URL('./406-entorno-actual.mjs',import.meta.url));

@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo, Tarea } from '@/types/fiesta';
@@ -11,6 +10,9 @@ import { addDays } from 'date-fns';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getPresupuestoById } from '../presupuestos';
+import { resolveDepositAmount } from '@/lib/fiesta/sena-del-contrato';
+import { generateBudgetToken } from '@/lib/auth/session-token';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -45,8 +47,14 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
     let senia = DEFAULT_DEPOSIT_AMOUNT;
 
     if (fiesta.presupuestoId) {
-      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
-      if (presupuesto) {
+      // El portal ya está verificado: se lee SU presupuesto con el enlace de ese presupuesto. Sin el
+      // enlace, el cliente sin cuenta del equipo recibía nada y veía 0 / seña por defecto (Codex 240, C1).
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId, await generateBudgetToken(fiesta.presupuestoId));
+      if (!presupuesto) {
+        // No se inventan importes: si el presupuesto no se puede leer, se dice.
+        return { success: false, error: 'No pudimos leer tu presupuesto. Probá de nuevo en un rato.' };
+      }
+      {
         // Lo que se le va a cobrar de verdad, con el ajuste anual si corresponde (pregunta 36): antes
         // el cliente veía antes de firmar un saldo $15.000 menor que el real.
         totalEstimado = getBudgetCollectibleTotal(presupuesto);
@@ -84,33 +92,6 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
   } catch (e: any) {
     return { success: false, error: e.message };
   }
-}
-
-/** Resolves the booking deposit amount for a fiesta from its linked presupuesto. */
-async function resolveDepositAmount(fiesta: FiestaEnPlanificacion): Promise<number> {
-  if (fiesta.presupuestoId) {
-    try {
-      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
-      if (presupuesto) {
-        if (presupuesto.senia && presupuesto.senia > 0) {
-          return presupuesto.senia;
-        }
-        const total = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
-        if (total > 0) {
-          return Math.round(total * 0.2);
-        }
-      }
-    } catch {
-      // fall through to default
-    }
-  }
-  // Check plan de pagos for a seña cuota
-  const seniaCuota = fiesta.planDePagos?.cuotas?.find(c =>
-    c.descripcion?.toLowerCase().includes('seña') || c.descripcion?.toLowerCase().includes('señal')
-  );
-  if (seniaCuota && seniaCuota.monto > 0) return seniaCuota.monto;
-
-  return DEFAULT_DEPOSIT_AMOUNT; // fallback default
 }
 
 /**
@@ -177,8 +158,10 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
     // borraba el contrato o la factura de verdad, el guardado le fallaba despues, y
     // quedaba la ficha apuntando a un archivo que ya no existe.
     //
-    // Subir un documento si pedia permiso; borrarlo, no.
-    await requireAppSession();
+    // Subir un documento si pedia permiso; borrarlo, no. Ahora pide el mismo que subir (barrido de la
+    // pregunta 35, 21/10/2026): con sólo sesión, el personal borraba el contrato o la factura.
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, error: permiso.error };
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
@@ -225,38 +208,63 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
  * bloqueado, preparación). La reserva, la seña y el estado "Contratada" salen ÚNICAMENTE del
  * contrato en papel (`uploadPhysicalContract`). No hay atajo digital para contratar.
  */
-export async function signContractDigitally(fiestaId: string, signerName: string, acceptedPlanPagos?: boolean): Promise<{ success: boolean; error?: string }> {
+export async function signContractDigitally(
+    fiestaId: string,
+    signerName: string,
+    acceptedPlanPagos?: boolean,
+    /** Huella (sha256) del texto que el cliente tenía en pantalla al tocar "Firmar". */
+    huellaVista?: string,
+): Promise<{ success: boolean; error?: string }> {
     if (!(await verifyPortalSession(fiestaId))) {
       return { success: false, error: 'Sesión del portal no autorizada.' };
     }
     try {
-        const fiesta = await getFiestaById(fiestaId);
-        if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-        // Ya firmado (en el portal o en papel): no se firma dos veces.
-        if (fiesta.firmaDigitalConstancia || fiesta.contratoFirmaInfo?.isSigned) return { success: true };
-        const texto = fiesta.contratoServicioTexto;
-        if (!texto || !texto.trim()) return { success: false, error: 'El contrato todavía no está listo para firmar.' };
-        if (fiesta.contratoDatos?.planPagos?.activo && !acceptedPlanPagos) {
-            return { success: false, error: 'Para firmar tenés que aceptar el plan de pagos.' };
-        }
         const nombre = String(signerName || '').trim().slice(0, 120) || 'Cliente';
         const h = await headers();
         const ip = (h.get('x-forwarded-for') || h.get('x-real-ip') || '').split(',')[0].trim() || undefined;
         const { createHash } = await import('crypto');
-        const firmaDigitalConstancia = {
-            signedAt: new Date().toISOString(),
-            signedBy: nombre,
-            ...(ip ? { ip } : {}),
-            textoHuella: createHash('sha256').update(texto).digest('hex'),
-            planPagosAceptado: Boolean(acceptedPlanPagos),
-        };
-        const { updateFiestaPartial } = await import('./fiesta.actions');
-        const guardado = await updateFiestaPartial(fiestaId, { firmaDigitalConstancia }, { allowPortal: true });
+        let error: string | null = null;
+        let firmadaAhora = false;
+        let nombreEvento = fiestaId;
+        // Todo se decide adentro de la escritura (Codex 240, C3 y C4): dos firmas a la vez ya no pisan
+        // la primera, y si el texto cambió después de que el cliente lo leyó, no se le atribuye el nuevo.
+        const guardado = await actualizarFiesta(fiestaId, (actual) => {
+            error = null;
+            firmadaAhora = false;
+            nombreEvento = actual.configuracion?.nombreEvento || actual.id;
+            // Ya firmado (en el portal o en papel): no se firma dos veces ni se cambia la constancia.
+            if (actual.firmaDigitalConstancia || actual.contratoFirmaInfo?.isSigned) return actual;
+            const texto = actual.contratoServicioTexto;
+            if (!texto || !texto.trim()) { error = 'El contrato todavía no está listo para firmar.'; return actual; }
+            if (actual.contratoDatos?.planPagos?.activo && !acceptedPlanPagos) {
+                error = 'Para firmar tenés que aceptar el plan de pagos.';
+                return actual;
+            }
+            const textoHuella = createHash('sha256').update(texto).digest('hex');
+            if (!huellaVista || huellaVista !== textoHuella) {
+                error = 'El contrato cambió desde que lo abriste. Recargá la página, leelo de nuevo y volvé a firmar.';
+                return actual;
+            }
+            firmadaAhora = true;
+            return {
+                ...actual,
+                firmaDigitalConstancia: {
+                    signedAt: new Date().toISOString(),
+                    signedBy: nombre,
+                    ...(ip ? { ip } : {}),
+                    textoHuella,
+                    planPagosAceptado: Boolean(acceptedPlanPagos),
+                },
+            };
+        });
         if (!guardado.success) return { success: false, error: guardado.error || 'No se pudo registrar la firma.' };
+        if (error) return { success: false, error };
+        if (!guardado.updatedFiesta && !firmadaAhora) return { success: false, error: 'Evento no encontrado.' };
+        if (!firmadaAhora) return { success: true };
 
         createNotification({
             titulo: 'El cliente firmó el contrato en su portal',
-            mensaje: `${nombre} firmó en el portal el contrato de ${fiesta.configuracion.nombreEvento || fiesta.id}. Falta el contrato firmado en papel para confirmar la reserva.`,
+            mensaje: `${nombre} firmó en el portal el contrato de ${nombreEvento}. Falta el contrato firmado en papel para confirmar la reserva.`,
             href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`,
             icono: 'ListChecks',
             tipo: 'info',
@@ -357,6 +365,9 @@ async function dejarLaFiestaContratada(
         if (!hasDeposit) {
             try {
                 const depositAmount = await resolveDepositAmount(fiesta);
+                if (depositAmount === null) {
+                    throw new Error('No se pudo leer el presupuesto para calcular la seña: el recibo queda pendiente.');
+                }
                 const depositResult = await registerBookingDeposit({
                     fiestaId: fiesta.id,
                     amount: depositAmount,

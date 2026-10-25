@@ -43,4 +43,29 @@ describe('Pantallas operativas, documentales y configuración de cuenta', () => 
     expect(content).toContain('buildSocialFinalReadiness');
     expect(content).toContain('getSocialFinalScore');
   });
+
+  it('la pantalla /fiestas/nueva/gestion-documental requiere fiesta seleccionada con EventSelectionRequired', () => {
+    const filePath = path.join(root, 'src/app/(app)/fiestas/nueva/gestion-documental/page.tsx');
+    expect(fs.existsSync(filePath)).toBe(true);
+    const content = fs.readFileSync(filePath, 'utf8');
+    expect(content).toContain('EventSelectionRequired');
+    expect(content).toContain('la gestión documental');
+  });
+
+  it('la pantalla /settings/contratos tiene atributos de accesibilidad y selección', () => {
+    const filePath = path.join(root, 'src/app/(app)/settings/contratos/page.tsx');
+    expect(fs.existsSync(filePath)).toBe(true);
+    const content = fs.readFileSync(filePath, 'utf8');
+    expect(content).toContain('aria-pressed');
+    expect(content).toContain('Plantillas de Contratos');
+  });
+
+  it('la pantalla /settings/agentes-autonomos tiene panel de control y estado de agentes', () => {
+    const filePath = path.join(root, 'src/app/(app)/settings/agentes-autonomos/page.tsx');
+    expect(fs.existsSync(filePath)).toBe(true);
+    const content = fs.readFileSync(filePath, 'utf8');
+    expect(content).toContain('getAgentesConfig');
+    expect(content).toContain('getHistorialAgentes');
+    expect(content).toContain('ejecutarAgenteManual');
+  });
 });

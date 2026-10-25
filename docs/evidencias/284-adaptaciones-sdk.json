@@ -1,0 +1,42 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "changes": [
+    {
+      "from": "263-aprobacion-sdk.mjs",
+      "to": "285-aprobacion-sdk.mjs",
+      "fromSha256": "d488a43b2d4168bfbdb24e63f3160d53f3b5479fb0b8c63899c4a840afae979f",
+      "toSha256": "bd671e8c8a8316eba683335c64b0e2a0b9646f09f01eff768700a920b1940f40",
+      "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+      "assertionsChanged": false
+    },
+    {
+      "from": "263-ejecutar.mjs",
+      "to": "285-ejecutar.mjs",
+      "fromSha256": "cdee1b794001eeba9409ac5f883e953f5e32b295583970e07baa6142f84ca3ed",
+      "toSha256": "6e745ade72e62964976635fe5520b1e95f5284dd200df35556e1ebe1e5667c27",
+      "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+      "assertionsChanged": false
+    },
+    {
+      "case": "286",
+      "adaptation": "The owner contract write now uses actualizarFiesta, not syncToFirestore. Invoke the SAME real client signature immediately before that real updater starts; the sign action itself uses the unwrapped real updater. No assertion replaced or relaxed."
+    },
+    {
+      "from": "264-contrato-guardado-sdk.mjs",
+      "to": "286-contrato-guardado-sdk.mjs",
+      "fromSha256": "c947db231329420950838f5d9ef19f97b158295db9056abd0e98b31e09acb8cc",
+      "toSha256": "314136e7a352871ddaeaeebeb5f86da61287397adbd989ad1f3baa52092d6119",
+      "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+      "assertionsChanged": false
+    },
+    {
+      "from": "264-ejecutar.mjs",
+      "to": "286-ejecutar.mjs",
+      "fromSha256": "56758746c83fc6b51c8a38c4864407a1ef0654b69833d0c4566e218ec55dd8fa",
+      "toSha256": "249df717396114a8bdae03393784365bac9b7d6d2f147347930be9af3b12d151",
+      "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+      "assertionsChanged": false
+    }
+  ],
+  "scope": "QA namespace/source and corrected persistence-boundary hook only. Not app edits, not results or acceptance."
+}

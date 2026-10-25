@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Upload, Download, Info, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, CartaTragosData, Trago } from '@/types/fiesta';
-import { getFiestaById, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, getFiestaParaPantalla, updateCartaTragos as updateCartaTragosAction } from '@/app/actions/fiesta/fiesta.actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -55,12 +55,20 @@ function CartaTragosContent() {
       return;
     }
     setIsLoading(true);
+    setError(null);
     try {
-      const [fiestaData, masterItems] = await Promise.all([
-        getFiestaById(fiestaId),
+      const [{ fiesta: fiestaData, fallo }, masterItems] = await Promise.all([
+        getFiestaParaPantalla(fiestaId),
         getCartaTragosMaster(),
       ]);
-      if (!fiestaData) throw new Error("Fiesta no encontrada");
+      if (fallo) {
+        setError("No se pudo cargar la fiesta");
+        return;
+      }
+      if (!fiestaData) {
+        setFiesta(null);
+        return;
+      }
       setFiesta(fiestaData);
       setMasterItems(masterItems);
 
@@ -73,8 +81,8 @@ function CartaTragosContent() {
       setCartaTragos(mergedData);
 
     } catch (e: any) {
-      setError("No se pudo cargar la información del evento.");
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      setError("No se pudo cargar la fiesta");
+      toast({ title: "Error", description: "No se pudo cargar la fiesta", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -273,11 +281,28 @@ function CartaTragosContent() {
     openEditModal(newDrink);
   };
 
-  if (isLoading || !fiesta) {
+  if (isLoading) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
   if (error) {
-    return <div className="p-8 max-w-4xl mx-auto text-center">{error}</div>;
+    return (
+      <div className="p-8 max-w-4xl mx-auto flex flex-col items-center justify-center text-center space-y-4">
+        <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => loadData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
+  }
+  if (!fiesta) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto flex flex-col items-center justify-center text-center space-y-4">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
+      </div>
+    );
   }
 
   return (

@@ -1,0 +1,15 @@
+{
+  "started": "2026-10-22T04:04:02.761Z",
+  "probes": [
+    {
+      "at": "2026-10-22T04:04:04.224Z",
+      "freeBytes": 3351318528,
+      "probeExit": 0,
+      "builds": []
+    }
+  ],
+  "limitMinutes": 20,
+  "foreignProcessesStopped": false,
+  "ready": true,
+  "finished": "2026-10-22T04:04:04.226Z"
+}

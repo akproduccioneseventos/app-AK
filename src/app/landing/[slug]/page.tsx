@@ -44,7 +44,7 @@ interface PromoPageProps {
 
 export async function generateMetadata({ params }: PromoPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const config: AnyLandingConfig | undefined = PROMO_PAGES[slug] || CAMPAIGN_LANDING_MAP[slug];
+  const config: AnyLandingConfig | undefined = ((Object.hasOwn(PROMO_PAGES, slug) ? PROMO_PAGES[slug] : undefined) || (Object.hasOwn(CAMPAIGN_LANDING_MAP, slug) ? CAMPAIGN_LANDING_MAP[slug] : undefined));
   if (!config) return { title: 'Promo — AK Producciones' };
   const meta = getConfigMetadata(config);
   return {
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: PromoPageProps): Promise<Meta
 
 export default async function PromoLandingPage({ params }: PromoPageProps) {
   const { slug } = await params;
-  const config: AnyLandingConfig | undefined = PROMO_PAGES[slug] || CAMPAIGN_LANDING_MAP[slug];
+  const config: AnyLandingConfig | undefined = ((Object.hasOwn(PROMO_PAGES, slug) ? PROMO_PAGES[slug] : undefined) || (Object.hasOwn(CAMPAIGN_LANDING_MAP, slug) ? CAMPAIGN_LANDING_MAP[slug] : undefined));
 
   if (!config) notFound();
 
@@ -76,8 +76,8 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
       {config.services && (
         <ServicesSection services={config.services} whatsappNumber={whatsappNumber} />
       )}
-      {config.gallery && <GallerySection images={config.gallery} />}
-      {config.testimonials && <TestimonialsSection testimonials={config.testimonials} />}
+      {'gallery' in config && config.gallery && <GallerySection images={(config as any).gallery} />}
+      {'testimonials' in config && config.testimonials && <TestimonialsSection testimonials={(config as any).testimonials} />}
       <CTASection
         whatsappNumber={whatsappNumber}
         headline={config.cta.headline}

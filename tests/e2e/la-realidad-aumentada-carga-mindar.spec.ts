@@ -1,17 +1,20 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Realidad Aumentada MindAR en pantalla del evento', () => {
-  test('con un archivo .mind configurado la pantalla carga MindAR y no muestra cartel de error', async ({ page }) => {
-    // Interceptar la llamada a getPublicSocialEvent para devolver una fiesta con AR activada
-    await page.route('**/api/**', async (route) => {
-      await route.continue();
-    });
+/**
+ * Orden 196 y Orden 222 Bloque 4:
+ * En el entorno de pruebas no hay cámara ni archivo .mind, así que la prueba abre
+ * /evento/ar/fiesta-sin-realidad-aumentada y comprueba:
+ * - que aparece el texto 'Esta invitación todavía no tiene realidad aumentada';
+ * - que 'Cargando Realidad Aumentada...' ya no está.
+ */
+test('la realidad aumentada sin target muestra aviso claro y no se queda cargando', async ({ page }) => {
+  await page.goto('/evento/ar/fiesta-sin-realidad-aumentada');
 
-    await page.goto('/evento/ar/fiesta-demo-ar');
-    await page.waitForLoadState('domcontentloaded');
+  // Comprueba que aparece el texto de invitación sin AR
+  const mensajeAviso = page.getByText('Esta invitación todavía no tiene realidad aumentada');
+  await expect(mensajeAviso).toHaveCount(1, { timeout: 15000 });
 
-    // Comprobar que no muestre el error de "Esta invitación todavía no tiene realidad aumentada"
-    const cartelSinAR = page.locator('text=Esta invitación todavía no tiene realidad aumentada');
-    await expect(cartelSinAR).not.toBeVisible({ timeout: 5000 });
-  });
+  // Comprueba que el mensaje de carga ya no está
+  const textoCargando = page.getByText('Cargando Realidad Aumentada...');
+  await expect(textoCargando).toHaveCount(0);
 });

@@ -1,5 +1,668 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23/10/2026 - El candado de la plata ve los ayudantes que guardan plata (pregunta 95)
+
+- La entrega 1353 de Gemini volvió a exportar `updateGestionCostosInterno`: una acción pública que reescribe
+  los costos de una fiesta sin permiso. El candado no la vio porque sólo miraba nombres de archivos y campos.
+  Ahora también cuenta las llamadas a los ayudantes que guardan plata. La entrega se devolvió con la orden 220.
+
+```comprobar
+usa: mutarCostosInterno en src/__tests__/el-candado-de-la-plata.test.ts
+prueba: src/__tests__/el-candado-de-la-plata.test.ts
+```
+
+## 24/10/2026 - Cierre406-443: build y controlesSDK, tres ordenes aun abiertas
+
+- Fuente917:406buildPASS exit0 con tipos/lint.392 fue un preflight anterior
+  sinbuild; no seguir diciendo que917 no compilo.386 sigue5243PASS oficial.
+- 442SDKdemo8PASS:preview foto1/3, red/rechazoPC/movil, Visioncaida ysimulador.
+ 443 verifica presupuesto1/prospecto1 guardados,sourceDiff0,cleanup200/PID0.
+ No camara/impresora/modelo/proveedor real, rechazo simulado del lado cliente.
+ En3fotos hay respuestas de transicion invalida:preview no certifica estado.
+- 425TouchpixA/B tardioPASS conSDK; mantener ese cierre acotado.407camara
+ estatica como causa NOdemostrada:408preview pasa estatica yanimada.
+- 437 test simulador no clicaba resumen:439 espera boton y442SI persiste.
+ No reencargar CTA/generacion por ese falso diagnostico. Fotocabina438 instala
+ fallo SOLO en subida, DESPUES depreview; originales fallidos se conservan.
+- IMPORTANTE220/Claude223 SIGUEPARCIAL:se quito main.flex-1 pero otroselector
+ ak-internal-experience-polish.css pinta gradiente blanco en hijo.423/425
+ PC/movil1.390/1.376:1FAIL ycaptura416.393/410falsePASS ignoraba gradientes.
+ Orden220 ampliada, NOreencargar selector ya corregido ni borrar el falsoPASS.
+- 415 muestra refFotocabina inicializada[] y nunca alimentada. Extension de
+ MISMA causa214carasvacias, no cuarta causa. Con reactivos/ruleta sonTRES.
+ Factura387 sigueUNA causa221 pendiente; totalCINCOcausas/TRESordenes, no17.
+- 405 clasifica34SKIP desktop-only;412 ensaya34variantesmoviles27PASS6FAIL1SKIP.
+ No son34funciones ausentes ni aceptacion retroactiva.400 detalla limites.
+- 421 guardia preflight no restaurodatos deSUQA392:quarantena. No afirmar
+ restauracion exacta.427fuenteGitnueva+copia3897runtimeSHA256;443restaurada.
+ 426carrera antes delrecibo427 y433argumentosPS fueronQA, ningunbugapp.
+ No appedit/merge. Informe400/recuento253/manifiesto399 actualizados juntos.
+
+## 24/10/2026 - Cierre consolidado:5243 canonicasPASS, sin certificado total
+
+- Fuente917a98e32c63fe2f832f5cdc16db87f4fc722b6c:386 bateria oficial
+  862suites5243PASS0FAIL0pending SIN adaptador370. No usar los13fallos
+  historicos349 como resultado actual; conservarlos y su diagnostico.
+- 388 CIERRA217 completa por alcance,10criteriosPASS, incluido503 con
+  trace incidental403. No repetir orden217 ni extension350/Claude225.
+- 387 CIERRA221null (ya no spinner) y prueba pendientePASS. Queda UNA
+  variante de la MISMA221/Claude224:lectura de plantilla rechazada termina
+  diciendo factura no encontrada/no existe/eliminada.2PASS1FAIL realReactDOM;
+  no desaparicion real de factura ni error de importes. Orden221 actualizada.
+- 220/Claude223 quita selector globalmain.flex-1. Correccion PARCIAL:
+  ampliacion423 de arriba demuestra otro selector hijo todavia aplicado.
+- 356 sigue vigente en seis blobs pertinentes3f/917 identicos,390 los compara:
+  TRES causas214, no nuevas ordenes. No hardware/modelo certificado.
+- 374 SOLO27nativos antes no aprobados:10PASS17FAIL/timeout.390 concilia
+  210unicos159PASS17FAIL34SKIP, no17bugs ni210flujosaceptados.381 confirma
+  cinco ciclos sugerir/cancelar;382 confirma fechaDOM8/8/2027 pantalla/print,
+  sin transformar el error de captura/variableQA de381 enPASS nativo entero.
+- 366 reconstruyo buildmain3e ausente,exit0tipos/lint/sourceDiff0; no reusar
+  como compilacion917.392 es el intento/resultado NUEVO para esa entrega.
+- 363/364 causa blog demostrada:sparse checkout omitia archivotrackedS;
+  materializar SOLO su blobGit hace pasar ese caso.364 conserva12fallos.
+  376 diagnostico26PASS con adaptadorIOmock, NO era canonico niSDKreal.
+  386 SI es oficial sinadaptador, diferencia fundamental, no permisos quitados.
+- ErroresQA conservados:367 variableqa antes de iniciar;371 adapterv1
+  rechaza callback anidado y guard mezcla slash;375 limpia sin repetir casos;
+  381testInfo en captura;388wrapper quoting. Ninguno nuevo bugapp.
+- 383/384 corregidos por principal:Publicar en el muro no es selector
+  obsoleto demostrado;gtag/Unsplash no prueban modelo bloqueado;3eSIexiste;
+  no falloBogue/CDP confirmado. No publicar esas hipotesis como defectos.
+- 391 restaura notifications escrito por tests en copiaQA/sourceDiff0.
+  390 observa privadoHEAD917/trackedlimpio a17:21UTC; posteriores privados
+  NO CONTRASTADOS.400 es informe final;253 sigue siendo unico recuento.
+  Aperturas/inventario no certifican cada boton/rol ni0errores.
+
+## 24/10/2026 - Codex347-359 candidata1353 contrastada, no aprobada globalmente
+
+- Fuente3f9460185143ef034dcd713e975d2a0af5e20f1a:347buildPASS con tipos/lint;
+ 349861suites5237tests5224PASS13FAIL0pending, sin sourceDiff. Una corrida,
+ no aprobar por existencia del codigo ni repetir una amplia por documentos.
+- 357 CIERRA212A7/A8:4PASS pagina/DTO/ReactDOM/Radix. Album entregado visible,
+ borrador sinenlace, Informar pago abre y cerrar no guarda/sube. No toda212.
+ 352/355 con fasefinanciera eran errores de fixtureQA, no defectos del portal.
+- 350 CIERRA ocho criterios originales217R1-R4 en3f por alcance;9PASS/1FAIL
+ incluyendo dos variantes. NUEVO caso de la MISMA217R3 NO RESUELTO:status503
+ con trace incidental403 provoca2intentos;control503neutral1yrevision.
+ Proveedores/reserva controlados, no duplicacion real de mensajes demostrada.
+- 356 conserva MISMAS tres causas214:caras[] enTouchpix/Bogue/Espejo,
+ guino/cejas sin efecto activo y ruleta inestable.12criterios9PASS3FAIL,
+ ASTreal de consumidores. FotocabinaSI pasa ref; no modelo/camara certificado.
+- 349trecefallos son11timeouts,1asercion ajustes y1fixture ausente; NO13bugs.
+ 353 ayudante no determina causa final; accion/test iguales, dependencia ahora
+ usa mutarDocumento ausente del mock. No bajar permisos. BlogJSONexisteGit;
+ no se demostro por que falto enQA.354 intento focal NO ejecuto, RAM<2GiB,
+ yTemp347ausente en reanudacion358; no esconder13 ni afirmar retestverde.
+- Build antiguo y .nextausente no sirven para aceptar nativos nuevos.359
+ cierra EJECUCIONES y limites de esta tanda;253 conserva recuento unico.
+ 220/221 siguen entregadas, no programadas porCodex. Privados NO CONTRASTADOS.
+
+## 24/10/2026 - Validacion canonica y cierres nativos sobre3e45a4ac
+
+- Cierre318:210casos nativos/176ejecutados,149PASS/27FAIL o timeout/34SKIP;
+  no27bugs.374/374paginas visitadas,359PASO/1FALLO/14NO_PROBADA,0sin visitar.
+  334 corrige67entradasQA sinfiestaId;344 recoge15diagnosticos sin cambiar
+  sus etiquetas ni dar por comprobados todos los controles o perfiles.
+- DOS observaciones nuevas NO RESUELTAS:220/Gemini contraste de pantalla
+  tragos listos (341 captura/paleta1.42:1);221/Claude factura null que sigue
+  cargando (345 ReactDOM1PASScontrol/1FAILnull). No ignorarlas por estar en
+  este registro ni afirmar queCodex las programo. Sus consumidores contrastados
+  son identicos3e/3f; privados NO CONTRASTADOS.
+- 342 observaPR1353 nueva3f9460185143ef034dcd713e975d2a0af5e20f1a,
+  131entradas src/tests distintas. b91 historica;217 motor tiene propuesta nueva,
+  212/214/215 consumidores cambiados. No reemitir sin contraste ni aceptar
+  candidata3f por pruebas de3e. La tanda se cierra por fuente, no por promesa0errores.
+- 339/340 fueron diagnosticosQA interrumpidos;343 localiza espera sin timeout
+  de unmain ausente en estaciones basadas endiv.344 termino con lectura
+  acotada,15/15diagnosticos ysourceDiff0; no un fallo probado deBogue/CDP.
+- 321:834suites/5136tests PASS,0FAIL/0pending,exit0/sourceDiff0. Configuracion
+  oficial de Jest, sin forzadas globales de navegador/demo ni claves heredadas;
+  transporte externo bloqueado323.324:7controles del arnes, no7funciones app.
+- 314 NO es una regresion de72funciones: el propio arnes habia forzado variables
+  que cambian permisos/escrituras/modelos. Se preservan resultado y diagnostico;
+  321 no cambia app, aserciones ni mocks para pasar. No reencargar esos72fallos.
+- 307:2PASS escritorio/celular, clic confiable cambia seleccion y enlace360.
+  Los intentos previos con coordenadas inestables quedan como erroresQA.
+- 304:5PASS1SKIP, lectoresVideoVida ante error/reintento y espejo moderado
+  con AdminSDK/Storage demo.0documentos/cleanup200, camara/modelo controlados;
+  no aceptar proveedor/hardware reales. SKIPmovil del espejo es deliberado.
+- 327:2PASS con sesion completa y DOBLE LOCAL FIS invocado, portada/panel/fiesta
+  ficticia visibles. No acredita OAuth ni un proveedorFirebase real.
+- 319:9casos FailedToFetch del reensayo nativo:6FirebaseInstallations,
+  3Firebase mas initScript de almacenamientoQA. No nueve modulos rotos.
+- Inventario actual3e:374paginas y50handlers,424entradas.421era inventario
+  historico, no421pantallas aprobadas.334 corrige entradasQA sinfiestaId;
+  mantiene originales y no convierte ruta abierta en cada accion/rol aceptado.
+
+## 23/10/2026 - Reensayo independiente Codex de218/219 en3e45a4ac
+
+- **218 comprobada por285:** AdminSDK real al emulador demo,2criterios PASS:
+  el reintento acredita1000 y la respuesta tardia del intento fallido no vuelve
+  el aviso a pendiente; control positivo acredita una vez. Datos ficticios,
+  identidad/notificaciones y respaldos controlados; no proveedor ni cobro real.
+- **219 comprobada por286:** AdminSDK real al emulador demo,2criterios PASS:
+  firmaA en el borde real de actualizarFiesta impide guardar textoB y conserva
+  texto/huellaA; control de firma previa tambien rechaza.284 explica la
+  adaptacion del gancho al nuevo consumidor, no se aflojaron las aserciones.
+- Ambas limpiezas dejaron0documentos y devolvieron200; procesos propios cerrados.
+ 287 ejecuto3suites/16tests del autor PASS; no equivale a toda la app ni a dos
+ servidores reales.291 compilo fuente3e sin cambios de app por Codex.
+- **Contador QA, no app:**276/277 corrigen el parser del reporte Playwright:
+ proyecto vive en cada test, status expected/unexpected no es passed/failed,
+ identidad necesita spec.id y proyecto.8pruebas del parser PASS. Los542casos
+ ejecutados del baseline no son1144aprobados;273 preliminar queda archivado.
+
+
+## 23/10/2026 - Órdenes 218 y 219 (Codex 263-264): las dos fallas, arregladas por Claude
+
+- **218, el aviso de pago que volvía a pendiente:** un intento A fallaba en el presupuesto (supera el
+  saldo). Mientras su respuesta tardaba, B reintentaba el mismo aviso y lo acreditaba. La vuelta atrás
+  de A lo dejaba "pendiente" con la plata adentro. Ahora quien acredita deja la marca
+  `cobroConfirmadoAt` en el aviso, adentro de la escritura de la fiesta. La vuelta atrás no toca un aviso
+  marcado, y si llegó antes, la marca lo vuelve a aprobado. El mail al cliente lo manda una sola vez
+  quien pone la marca. Si alguien lo rechazó en el medio, se avisa en pantalla que el cobro quedó en el
+  presupuesto.
+- **219, el texto del contrato cambiado después de firmar:** el guardado del equipo miraba la firma,
+  después el cliente firmaba y recién ahí se escribía el texto nuevo. Ahora el texto del contrato se
+  escribe adentro de la escritura de la fiesta (`noPisaLoFirmado`, en `updateFiestaPartial`), donde se
+  ve la firma. Con firma, se rechaza y se pide una adenda.
+- **Barrido de las preguntas 93 y 94:**
+  - Cancelar servicios o cambiar la fecha desde el portal, si la fiesta no se guardaba, devolvía el
+    saldo al de antes y borraba un cobro que entró en el medio. Ahora resta sólo lo suyo
+    (`restarLoNuestro`).
+  - El cobro de factura que no llegaba al presupuesto se sacaba aunque otro intento ya lo hubiera
+    pasado. Ahora no se saca si está marcado, y quien lo pasa lo vuelve a poner si faltaba.
+  - El plan de pagos se podía cambiar con el contrato firmado, y el texto con firma en papel entraba
+    si la firma llegaba en el medio. Ahora se mira adentro de la escritura.
+  - Falso positivo verificado: subir el contrato en papel no pisa lo que otro cambió mientras subía.
+- **No cambia:** cobrar sigue después de tomar el aviso; la constancia sigue sin reemplazar el papel.
+
+```comprobar
+usa: restarLoNuestro en src/app/actions/fiesta/portal.actions.ts
+usa: pasadoAlPresupuesto en src/app/actions/invoices.ts
+prueba: src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts
+usa: cobroConfirmadoAt en src/app/actions/fiesta/portal.actions.ts
+usa: noPisaLoFirmado en src/app/actions/fiesta/fiesta.actions.ts
+prueba: src/__tests__/pago-aprobado-no-vuelve-pendiente-por-reintento.test.ts
+prueba: src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts
+```
+
+## 23/10/2026 - Codex260-264: contraste focal1358, DOS causas nuevas sin corregir
+
+Fuente725e62ba2, no cambia appCodex.260/261/263/264:14criterios11PASS3FAIL,
+DOS causas porque260/263 repiten el mismo intercalado por metodos distintos.
+218/Claude AK-CODEX-263-PAGO-REINTENTO-REVIERTE-APROBADO: A obtiene rechazo real
+por saldo500; B reintenta el mismo aviso y acredita1000; A tardio vuelve el aviso
+a pendiente.260adaptadores3criterios2PASS1FAIL y263AdminSDKreal2criterios1PASS1FAIL.
+No doble cobro. ReintentoB real, presupuesto/actualizador/transaccion reales,
+actor/acceso/sync/avisos controlados. Remover otro pago del fixture fue porSDK,
+no pantalla de borrar.0fiestas/0presupuestos/cleanup200. NOcorregido.
+219/Claude AK-CODEX-264-CONTRATO-GUARDADO-DESPUES-DE-FIRMA: guardarB pasa guardas,
+cliente firmaA, set merge real escribeB despues y deja constanciaA.264AdminSDK
+2criterios1PASS1FAIL; control firmadoantes rechaza. No reabre216C4: ese escenario
+firma DESPUES de texto cambiado y254 sigue vigente.0fiestas/cleanup200.
+2617PASS costos/seña reales con adaptadores: conserva100.50manual con lavanderia,
+callback repetido no duplica; negativo/guardado fallido no pisan/dicen success;
+lectura vinculada ausente/fallida devuelve null; respeta30000explicitos/default20000.
+NoSDK/UI para261. No toda1358finanzas/contrato ni cada consumidor aceptados.
+262 falloQA de import antes de casos, preservado con logs;263 cargo helper real.
+264 no errorQA. Procesos propios cerrados, sin servicios/cuentas/cargos reales.
+Ver265, ordenes218/219; privados posteriores NO CONTRASTADOS.253 es recuentounico.
+
+## 22/10/2026 - Codex254/255 CIERRA216 y217R1 por alcance
+
+Main725e62ba2 integra1357/1358.254SDKreal11PASS0FAIL cierraC1-C4contrato:
+resumencliente100000/30000/70000;partialnoaltera constancia; dosllamadas
+conservan1firma/1aviso;huellaA noacepta textoB. Controlesanterioresconservados.
+Unmodulodeactualizador/1proceso, NOdosservidores; NOHTTP/nativo/PDF/legal.
+2553PASS puerta/GET/motor reales conadaptadores:sinCRON_SECRET503,0envios,
+0marcas;claveausenteconfigurada401;clavevalidaejecuta.217R1CERRADA poralcance.
+0docs/cleanup200/procesos propios cerrados. No reabrir240/249R1 historicas.
+217R2-R4 engineidenticobaa/725,212/214/215Gemini conservan entrega. Noaceptacion
+de toda1358finanzas/CRM/costos/presupuestos ni14areas.253 actualizado,ver256.
+
+## 22/10/2026 - Recuento unico253, no inventar nuevos pendientes
+
+253-recuento-unico-auditoria.md concilia14areas/alcances/cierres/limites de165-250.
+NOauditoria nueva ni aceptaciontotal. Separa fallo yaauditado esperando arreglo,
+entrega esperando retest y evidencia nunca acreditada. Sustituye las listas
+generales contradictorias del chat.1357abierta675a908a informa216C1-C4 y217R1
+corregidas; NO comprobadas porCodex todavia ni publicadas en mainbaa observado.
+217R2-R4,212UI,214filtros,215devolucion siguen su entrega; no reencargarlas.
+
+## 22/10/2026 - Codex247-250 motores automaticos
+
+Orden217 NUEVA, NOcorregida:2498criterios4PASS4FAIL son CUATRO causas del
+recordatorio noabierto, no defecto del recorte201. SinCRON_SECRET, puerta publica
+permite llegar al remitente; fecha reprogramada no se reevalua en reserva;
+rechazo403+contingenciafallida consumen dia; reservafallida se marca corridaok.
+R2/R3confirmadas250 conactualizador/transaccionSDKdemo:2FAIL/0docs/cleanup200,
+NOdosbugsmas. Fuentes249 igualesbaa/1353b91.248respuesta vacia era incierta:
+NOjustifica reenvio ciego;249/250 rechazo controlado explicito. No proveedorrreal,
+HTTPservidor ni configuracionCRONdeproduccion certificados.4controlesPASS249.
+247publicador2asercionesPASS, solo frontera15min nueva;PROCESSING control yaexistia.
+Ayudante cerrado. Error exit1por[] del harness corregido/preservadoSINrepetir ni
+reescribirrecibo; no falloapp ni exit0 original. Ver251 para limites. No11motores
+completos/14areas/0errores. No meter envio dentro del callback transaccional.
+
+## 22/10/2026 - Codex240/242: contrato y cierre213
+
+Mainbaa034fd2 integra1355/213.242 repite los DOS intercalados218 conSDKreal:
+2PASS0FAIL, firma intercalada conserva1000 y rollbackA conserva28/1120deB.
+Orden213 CERRADA por ese alcance; no reabrir por fallos historicos218.
+240accionescontrato/permisos/HMAC+SDKreal:11criterios6PASS5FAIL, CUATRO causas
+NUEVAS216/Claude: resumen0/20000/0 para cliente conpresupuesto100000/30000/70000;
+partialcliente falsifica constancia; firmaBconcurrente pisaA; se acepta textoB
+no visto (clientevioA). Los dos FAILdelresumen NOson dosbugs. NOcorregidas.
+16fuentesefectivas+pagina identicas9d/baa/b91 en240-contraste-fuentes.json.
+NoHTTP/nativo/PDF/validezlegal, notificacionescontroladas, NOreserva/cargo/papel.
+Politica25/9 sigue intacta.240/242cleanup200/0docs yprocesos cerrados.241soloindice,
+no aceptaciondeareas ni reaperturadeordenesantiguas. Nunca14areas por14criterios.
+
+## 22/10/2026 - Codex237 voz/Meta candidato
+2378PASS enb91: dosinstancias/IDs/retry yoperadorfinanzasdenegado;Meta firmaHMAC,
+dosmensajesdistintos/repetidos/canalIG. Adaptadorde transaccionoptimista,
+identidaddeequipo/proveedorcontrolados, NOFirestore/voz/modelo/canalreal.
+No equivale a asistentesautonomos completos. Proteccionegress activa.
+
+## 22/10/2026 - Codex233 candidato1353, entretenimiento
+Fuente b91,12criterios9PASS3FAIL; orden214/Gemini delta191. SonTRES causas:
+tresconsumidores pasan[] ydibujadornunca recibecaras; guiño/cejas flags sin
+efecto(2FAILmisma causa); ruletacambia3100/6100/9100. No seisbugs por estaciones.
+FotocabinaSIpasacarasref; marcosSIseconsumen. El primerinforme230 era incorrecto
+al no hallarlos; principal rectifico conGitAST yTSlocaldisponible. No reencargar
+ausenciadeconsumidor ni instalartool por230. Espiacanvas/puntossinteticos,NO
+modelo/pixeles/camarareal. Nofiltrosdecaraa360(191diceNO),preservarmarcos.
+
+## 22/10/2026 - Codex221-229: retests de main y candidato1353
+Main9d:221SDK9PASS(A9),222SDK12PASS(A1/A2),223compuesto15PASS(A5/A6/PIN/fechas),
+224DOM14PASS1FAIL(A3/A4cerrados,A7persiste),225DOM8PASS(A10zero/10/errores).
+No son areas enteras limpias.226 compara archivos efectivos conb91: nucleoigual;
+public-fiesta distinto impidio homologar224/225, ejecutadas227/228ENb91:
+14PASS1FAIL y8PASS.229 reproduceA8DTOpierdeelalbum. A7/A8 siguen212/Gemini,
+NO reencargar ni contabilizar como nuevos.219 cinco pasos: solo contrasteestatico.
+Los nuevos213/Claude siguen siendo DOS intercalados confirmados218SDK, no cinco
+por sumar sondas/recurrencias. TodosSDKemuladores0docs/cleanup200/cerrados.
+
+## 22/10/2026 - Codex216/218:211 contrastada, dos intercalados nuevos
+
+Main9d1a07f99 incorpora1352/211.21614PASS cierra B1-B5 por su alcance compuesto,
+NO14areas.2172FAIL y218SDKreal2FAIL son las MISMASdoscausas nuevas213/Claude:
+firma guardada entre lectura/escritura no protege1000->1200; compensacion A
+fallida pisa invitadosevento25, aunque Baprobo+3 ypresupuesto28/1120. No reemitir211.
+218sin excepcionQA,0fiestas/0presupuestos/cleanup200/procesos cerrados.
+Blobportal.actionsf313igual en1353b91; no homologacion de toda1353 ni cambiosprivados.
+213nativo8PASS4FAIL enfa3b eshistorico:doscausas210A7/A8,NO cuatro nuevas.
+215solo DOSbloques terminados52casos49PASS/1SKIP/2inconclusos; restoCANCELADO al
+llegar entrega nueva. No1144PASS/no appbug por configs retiradas. Ver220recuento.
+
+## 22/10/2026 - Codex203/204 y build206 cerrado, misma PR1350
+
+204final sourcefa3b:12criterios4PASS/8FAIL, CINCOcausas nuevas211/Claude,
+no ocho errores independientes ni arreglo hecho. Aprobaciones ignoran fallo de
+updatePresupuesto (firma/escritura/ausencia); +2adultos deja fiesta27 pero
+presupuesto25/1000 ytotalFinal1080; dos extras200 terminan800/total1800 envez
+400/1400; fallafiesta tras guardar presupuesto yretry duplica extra; si falla
+leer firma la guarda la trata como nofirmado y permite modificar. Motor,
+normalizador,mutex,guardia de estructura yacciones reales; persistencia/CRM/
+sesion/sync controlados, NO SDK/HTTP/realcobro. No quitar proteccion del contrato.
+203:3salidas ICS capturadas conservan fecha civil/medianoche/1enero. Observacion
+TZflotante es RIESGO/PROPUESTA, NO otro bug confirmado del importador; RFC5545
+lo permite. Ver revisionprincipal203; no reencargarporallPass/FAILcontradictorio.
+Ayudante cerrado.205preflight rechazo768MiB antes de casos/servidor, NOappbug.
+Herramienta esbuild0.28.2 SOLO.qa-tools/native205, no dependencia de produccion.
+206 compila copiaQAfa3b tras medirse3GiB ysinotraNext/Jest. No usar .nextviejo.
+Artefactodepsreutilizado:unico delta lock @types/estree1.0.8instalado/1.0.9lock,
+documentado; no npmci limpio ni validacion de eseparcheTipos.206 termino exit0,
+tipos/lint ysourceDiffvacio.209 selecciono1172casos, NO loscompleto: interrumpida
+porJSONsin altasatomicas yRAM16MiB conbuildajena. No inventarPASS/bugsdeapp.
+76JSONrestaurados, servidor/pruebaspropios cerrados.213esperarecursos paraportal.
+Codex SOLOaudita, no appedit/merge; no pararprocesos ajenos ni otra corrida pesada.
+
+## 21/10/2026 - Extension Codex200/201 en la MISMA210/PR1350
+
+NO corregido aun en mainfa3b: A9 solicitudes de menu/servicio distintas se pisan:
+dosrequestIdsuccess, solo1guardado, incluso con saveFiesta y transaccion SDKreales.
+2009casos6PASS3FAIL sonUNAcausa/tresvariantes. Secuenciales3preservadas,
+pendientes sin cobrar/modificar presupuesto, clave/sueldo conservados;0docs y
+cleanup200/JavaNodecerrados. A10:UIactiva transforma porcentaje0explicito en15,
+extra200->230 y adultos80->92;2018casos6PASS2FAIL sonUNAcausa/dosseñales.
+Con10->220PASS, falloguardar mantieneinputs yerror; no son cargosconfirmados.
+Final202:84criterios69PASS15FAIL, DIEZdefectos+UNAfriccion en210, no15bugs.
+198/199 se conservan como corte/entrega anterior, no reescribirlos para inflar
+aceptacion. No appedit ni merge. Ver202-extension-solicitudes.md ysondas200/201.
+
+## 21/10/2026 - Codex186-198: portal activo probado y cierres contrastados
+
+NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS. Codex SOLO audito/pruebo;
+no arreglo app ni fusiono. Main ejecutada fa3b492b8f1d6a77433a92f4d63b665cfea3747c;
+runtime equivalente a Claude6e67caa14, Gemini512881c25 ya integrada. PR1345
+integrada; no subir a su rama cerrada. Recuento completo198-cierre-y-recuento.md.
+
+-NUEVA210, NO corregida: ocho defectos y una friccion del portal activo. Informar
+ pago no abre formulario; lector fallido dice Falta presupuesto; sesion cliente
+ invalida acceso de su token publico propio; dos avisos concurrentes del mismo
+ informe quedan duplicados; adjunto fallido devuelve exito y no se recupera;
+ DTO activo pierde album oficial; dos cancelaciones distintas anuncian devolucion10
+ con deuda200; descuento fijo anuncia pendiente170 y guarda70. Friccion separada:
+ atajo Pagos cierra su destino ya abierto. No son errores nuevos en la ruta legado86.
+-193/194/195/196/197:67criterios57PASS/10FAIL en MISMAfuente, no diez bugs.
+ DosFAIL194 son un defecto de album; dosFAIL190 SDK confirman188 sin sumarse.
+ 190FirestoreAdminSDKdemo9PASS/2FAIL fuente09ea con0docs alcerrar/cleanup200.
+ 198 compara cuatro cuerpos y cinco dependencias iguales a fa3b; no otra corridaSDK.
+-CIERRE209personal:1913PASS con syncFiestaFromBudget real y catalogo cocina antes
+ de atencion, fuente56c4a425 ya integrada. No cambia reglas/sueldos deldueno.
+-CIERRE209proveedor/208 poralcance:19613PASS DOM enfa3b: transporte caido muestra
+ error, libera espera y Reintentar recupera. No repetir183 como defecto actual.
+-CIERRE residuales180/205 vozMeta por protocolo:1978PASS enfa3b, dos modulos y
+ callback repetido ante conflicto. No SDK/CloudRun/proveedor externo/modelo vivo.
+-Cadena184 nueva retirada: lockfa3b sinmind-ar/canvas/node-pre-gyp, tarraiz7.5.21.
+ No se afirma npm-audit global limpio ni se reencarga163/208 por esa cadena.
+-FalsospositivosQA conservados:188acordeon,189selectorh3,193/194limiteVM5s,
+ 196copyliteral; JSDOMreload es limitacionQA, no appbug. costoTotalEstimado/
+ costoTotalItem son precio deventa, no costo interno por el nombre.186 ayudante
+ duplico209: borrador no aceptado ni cobertura extra. Agentes cerrados.
+-187 no inicio build porRAM<2GiB, ni existeentorno187. No falloapp. No se
+ certifica nativo/buildactual/todosroles/14areas/0errores; manualdueno fuera.
+-Entrega1350 BORRADOR:199 verifica46blobs y arbol remoto identicosd1da90d79.
+ Primer verificador uso commit donde correspondia tree.sha; incidenteQA y fuente
+ conservados, corregido sin quitar aserciones. No defectoapp ni aceptacionglobal.
+
+```comprobar
+archivo: docs/ordenes/210-portal-cliente-pagos-entregas-cancelacion.md
+usa: submitClientPayment en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+prueba: docs/evidencias/193-portal-cliente-version-nueva.mjs
+prueba: docs/evidencias/194-portal-controles-version-nueva.mjs
+prueba: docs/evidencias/195-portal-operaciones-contrato.mjs
+prueba: docs/evidencias/196-proveedor-corregido-dom.mjs
+prueba: docs/evidencias/197-voz-meta-correcciones.mjs
+```
+
+## 22/10/2026 - Revisión contable y de contratos con ayudantes (pedido del dueño: "todo lo contable y contratos")
+
+Cinco ayudantes revisaron cobros, facturas, presupuestos, contratos, y gastos, costos y sueldos, con
+las preguntas de perfil, dos a la vez, "dice que sí sin mirar" y reintento. Claude confirmó en el código
+cada hallazgo antes de arreglarlo.
+
+- **Aviso de pago aprobado y rechazado a la vez:** el cobro se anotaba antes de tomar el aviso. Con un
+  rechazo en el medio quedaba "rechazado" con la plata sumada.
+  - Ahora `approveClientPayment` toma el aviso adentro de la escritura y después cobra.
+  - Si el presupuesto no toma el cobro, el aviso vuelve a pendiente.
+  - `rejectClientPayment` dejó de guardar la fiesta entera leída antes.
+- **Costos automáticos que borraban un costo cargado a mano:** lavandería, decoración y "sincronizar
+  todo" calculan ahora sobre los costos de ese momento (`mutarCostosInterno`).
+- **Presupuesto Facturado vuelto atrás por un formulario viejo:** el guardado conserva "Facturado", el
+  número de factura y la fecha de firma.
+- **Seña que la factura no aceptaba, callada:** `registerContractDeposit` mira lo que contesta la
+  factura y la confirmación de reserva lo avisa en pantalla.
+- **Texto del contrato cambiado después de la firma en el portal:** con la constancia puesta, hace falta
+  una adenda. Lo frenan `updateContratoFiestaActual` y el guardado parcial.
+- **Seña de $20.000 inventada:** si el presupuesto no se puede leer, el recibo queda pendiente con el
+  motivo (`resolveDepositAmount` en `src/lib/fiesta/sena-del-contrato.ts`).
+- **Se sacó `updatePagosProveedores`:** reemplazaba la lista entera y no la usaba nadie. Queda
+  `agregarPagoProveedor`.
+- **Descartado o consultado al dueño, no arreglado:**
+  - el PIN de cancelación vacío;
+  - la cuota marcada "pagada" en el plan, que no anota el cobro en el presupuesto;
+  - el CRM, que cambia precios por el guardado general;
+  - la factura marcada "Pagada" sin cobros;
+  - los documentos que se suben con cualquier sesión.
+
+```comprobar
+usa: mutarCostosInterno en src/app/actions/fiesta/costos.actions.ts
+usa: mutarCostosInterno en src/app/actions/fiesta/decoracion.actions.ts
+usa: resolveDepositAmount en src/app/actions/fiesta/documentos.actions.ts
+usa: avisoFactura en src/app/actions/crm.ts
+usa: firmaDigitalConstancia en src/app/actions/fiesta-actual.ts
+no-usa: updatePagosProveedores en src/app/actions/fiesta/pagos.actions.ts
+prueba: src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts
+prueba: src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts
+```
+
+## 22/10/2026 - Orden 217 (Codex 249-250), R1: el recordatorio que manda no se dispara desde afuera
+
+- El recordatorio a los invitados que no abrieron la invitación **manda** WhatsApp y Gmail, y estaba en
+  la lista de tareas que corren sin clave. Sin `CRON_SECRET`, cualquiera desde internet lo disparaba.
+  Salió de esa lista: sin clave, la puerta contesta 503 y el motor no corre.
+- La tarea sigue corriendo sola todos los días, por dentro, cuando el equipo entra a la app
+  (`al-entrar-a-la-app.ts`), que no pasa por esta puerta.
+- Barrido de la pregunta 92: de las tareas sin clave, ninguna otra le escribe a un cliente o invitado.
+  El asistente proactivo le avisa al dueño sólo las alertas nuevas.
+- R2, R3 y R4 (fecha reprogramada, envío fallido que consume el día, reserva fallida anotada como
+  corrida) son del motor: van a Gemini, en el bloque 6 de la orden 215.
+
+```comprobar
+usa: correrTareaRecordarInvitacionNoAbierta en src/lib/automatico/al-entrar-a-la-app.ts
+prueba: src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts
+```
+
+## 22/10/2026 - Orden 216-claude (Codex 240): la firma del contrato desde el portal
+
+- **C1, el resumen antes de firmar:** el cliente sin cuenta del equipo veía total 0, seña de $20.000 y
+  saldo vacío, porque su presupuesto se leía sin el enlace. Ahora se lee con el enlace de ESE
+  presupuesto (`generateBudgetToken`), después de verificar el portal. Si no se puede leer, lo dice y
+  no inventa importes.
+- **C2, la constancia falsificable:** el guardado parcial aceptaba una constancia nueva con cualquier
+  nombre y fecha. Ahora el parcial la rechaza y el guardado entero la deja como estaba
+  (`conLaConstanciaGuardada`). Sólo la escribe `signContractDigitally`.
+- **C3, dos firmas a la vez:** las dos "salían bien" y la segunda pisaba a la primera. Ahora la firma
+  se decide adentro de la escritura: queda la primera y sale un solo aviso.
+- **C4, el texto que el cliente vio:** la pantalla manda la huella del texto que tiene abierto. Si el
+  equipo lo cambió después, no se firma y se le pide recargar.
+- **No cambia:** la constancia sigue sin contratar, reservar, cobrar ni reemplazar el papel.
+
+```comprobar
+usa: generateBudgetToken en src/app/actions/fiesta/documentos.actions.ts
+usa: conLaConstanciaGuardada en src/app/actions/fiesta/fiesta.actions.ts
+usa: huellaVista en src/app/actions/fiesta/documentos.actions.ts
+usa: huellaDelTexto en src/app/portal/[fiestaId]/contrato/page.tsx
+prueba: src/__tests__/contrato-constancia-version-y-permisos.test.ts
+```
+
+## 22/10/2026 - Orden 213-claude (Codex 217-218): aprobar mientras pasa otra cosa
+
+- **La firma que llega en el medio:** el contrato se miraba en la primera lectura de la fiesta. Si se
+  firmaba entre esa lectura y la aprobación, el extra igual entraba al presupuesto. Ahora la firma se
+  vuelve a mirar **adentro** de la escritura que toma el pedido (`rechazarSi` de `tomarSolicitud`). Si
+  se firma después de aprobado, lo aprobado queda.
+- **Deshacer sin pisar a otro:** si el presupuesto fallaba, la fiesta volvía a la foto que se leyó al
+  aprobar. Si otra persona había aprobado otro pedido en el medio, le borraba sus invitados.
+  - Ahora `devolverAPendiente` deshace sobre la fiesta de AHORA.
+  - Un pedido que suma (menú) resta lo suyo.
+  - Uno que pone un número fijo (invitados) vuelve atrás sólo si nadie lo cambió después
+    (`deshacerSiNadieLoToco`).
+- **Barrido de la pregunta 90:** al sacar un cobro de factura que no llegó al presupuesto, el estado
+  volvía a la foto vieja. Con el cobro de otro adentro quedaba "Borrador". Ahora se cuenta sobre los
+  pagos que quedan (`estadoAlSacarElPago`, en `invoices.ts`).
+
+```comprobar
+usa: rechazarSi en src/app/actions/fiesta/portal.actions.ts
+usa: deshacerSiNadieLoToco en src/app/actions/fiesta/portal.actions.ts
+usa: estadoAlSacarElPago en src/app/actions/invoices.ts
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts
+```
+
+## 22/10/2026 - Orden 211 (Codex 203-206): aprobar los pedidos del cliente, de verdad
+
+- **Error mío de la madrugada del 22/10, ya publicado:** al pasar las aprobaciones a una transacción
+  para que no sumaran dos veces, se salteó el bloqueo de contrato firmado. Lo encontró Codex. Ahora
+  `aprobarConPresupuesto` (en `portal.actions.ts`) hace esto:
+  - Con el contrato firmado no aprueba: el pedido queda pendiente y dice que hace falta una adenda.
+  - Sin presupuesto, o si guardarlo falla, el pedido vuelve a pendiente.
+  - Rehace el presupuesto con la cuenta del guardado normal (`presupuestoRecalculado`, en
+    `src/lib/budget/recalcular-presupuesto.ts`).
+  - Deja una marca por pedido, para que un reintento no lo sume dos veces.
+- **Adultos y menores:** los adultos aprobados ahora llegan al desglose y el precio por persona se
+  recalcula. Los menores del pedido van como niños, que es como el portal los estima.
+- **Dos unidades de un extra:** ya no se multiplican dos veces. `precioBase` es el total del renglón,
+  sin el ajuste anual.
+- **Contrato sin leer:** si no se puede leer la fiesta, ya no se trata el contrato como "no firmado"
+  (`estadoDelContrato`). Archivar, borrar y cambiar un presupuesto frenan con un aviso cierto.
+
+```comprobar
+usa: aprobarConPresupuesto< en src/app/actions/fiesta/portal.actions.ts
+usa: estadoDelContrato en src/app/actions/presupuestos.ts
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts
+```
+
+## 22/10/2026 - Orden 210 (Codex 186-202): la plata del portal del cliente
+
+- **Aviso de pago:** dos toques a la vez dejaban dos avisos del mismo pago. Ahora se busca el repetido
+  adentro de la escritura.
+- **Comprobante:** si no se subía, se perdía en silencio y el reintento devolvía el aviso viejo sin
+  subirlo. Ahora se avisa, y el reintento lo agrega al mismo aviso.
+- **Segunda cancelación:** anunciaba devolución aunque quedaba deuda, porque olvidaba la multa anterior.
+- **Cancelación total con descuento fijo:** descontaba dos veces.
+- Lo guardado, el documento y lo que ve el cliente salen ahora de la misma cuenta
+  (`totalTrasCancelar`, en `src/lib/budget/total-tras-cancelar.ts`): los servicios llevan su descuento
+  y las multas van enteras.
+- **El presupuesto con la sesión del portal:** el cliente con sesión y el enlace de SU presupuesto no
+  lo veía, y el portal decía "falta el presupuesto". Un error al leerlo ahora se dice como error, no como
+  "falta".
+- **Pedidos del cliente:** dos pedidos a la vez decían que se habían guardado y quedaba uno.
+- **Ajuste anual:** un 0 puesto a propósito ya no se vuelve 15.
+- **Barrido de la misma forma en `portal.actions`:**
+  - Aprobar a la vez el mismo pedido del cliente sumaba el extra dos veces al presupuesto. Ahora
+    aprobar y rechazar pasan por `tomarSolicitud`, que mira "pendiente" adentro de la escritura.
+  - Si el presupuesto no se puede tocar, la solicitud vuelve a quedar pendiente.
+  - Rechazar un pedido pedía sólo sesión; ahora pide contabilidad o CRM.
+  - El pedido de cambio de invitados se guarda sobre la lista actual.
+- Lo que es de pantalla (el formulario de pago que no abría, la entrega de fotos que no llegaba y la
+  tarjeta Pagos que cerraba la sección) va en la orden 212 para Gemini.
+
+```comprobar
+usa: tomarSolicitud< en src/app/actions/fiesta/portal.actions.ts
+usa: totalTrasCancelar(updatedItems en src/app/actions/fiesta/portal.actions.ts
+usa: errorPresupuesto={errorPresupuesto} en src/app/portal/c/[accessKey]/page.tsx
+prueba: src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts
+prueba: src/__tests__/el-cliente-con-sesion-ve-su-presupuesto.test.ts
+```
+
+## 21/10/2026 - Entrega de Gemini 1346 (órdenes 205 a 208) juntada, con un arreglo de Claude
+
+- Entra la entrega de Gemini 1346. Las fechas ya no se corren un día. El barrido de la 207 está hecho. La
+  realidad aumentada muestra el video sobre la invitación, sin el paquete `mind-ar`: los archivos del
+  navegador quedaron copiados en `src/lib/vendor/mind-ar/`. La voz y Meta ya no duplican ni pierden con
+  dos servidores, y el portal del proveedor ya no queda cargando si se corta la señal.
+- Al revisarla apareció un caso: si la base repetía el guardado del intento de voz (porque otro servidor
+  escribió en el medio), lo que había anotado el intento descartado seguía valiendo. Los dos servidores
+  creían ser los primeros y la tarea salía dos veces. Ahora el intento se arranca de cero en cada vuelta,
+  y la espera sólo lee: antes reescribía la lista cada 20 milésimas.
+
+```comprobar
+usa: pasaAEnCurso = false; en src/app/api/asistente/voz-en-vivo/accion/route.ts
+prueba: src/__tests__/voz-un-intento-en-dos-servidores.test.ts
+```
+
+## 21/10/2026 - Codex 178: el mozo de salón no cae en el rol de cocina
+
+- Al armar el personal, "Mozo" buscaba el primer rol que lo contuviera. Con un catálogo "Mozo de
+  Cocina, Mozo de Atención", los 4 mozos de salón de una fiesta de 100 quedaban en la cocina. Ahora
+  `buscarRol` busca primero el nombre exacto y no pasa a otro puesto: no elige uno que diga "cocina"
+  o "ayudante" si lo buscado no lo dice. Las cantidades y los sueldos no cambiaron. Con esa forma
+  (pregunta 87) se barrió la app y aparecieron dos más en el asistente: "barra" le cambiaba el precio a
+  la primera barra del catálogo, y "Ana" le agendaba la cita a "Mariana Pérez". Ahora, si hay varios
+  parecidos, pregunta cuál y no toca nada. El resto del
+  informe (voz y Meta en dos servidores, el portal del proveedor y la dependencia de la realidad
+  aumentada) va en la orden 208 para Gemini.
+
+```comprobar
+usa: buscarRol(roles, roleSearch) en src/app/actions/fiesta/fiesta.actions.ts
+prueba: src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts
+prueba: src/__tests__/el-asistente-no-confunde-contactos-parecidos.test.ts
+prueba: src/__tests__/assistant-actions.test.ts
+```
+
+## 21/10/2026 - El personal de cada fiesta sale de las reglas del dueño
+
+- El dueño fijó las reglas: en la cocina una persona cada 25 invitados y la primera es el chef (100
+  invitados = chef y 3 ayudantes); un utilero cada 30; el barman cobra $2000 hasta 99 invitados, $2800 de
+  100 a 150, y con más de 150 van dos a $2000 cada uno. Antes había un ayudante cada 50 y ningún chef, un
+  utilero cada 25 y un barman cada 75 al sueldo de la ficha. Además "Barman" caía en "Ayudante de Barman"
+  (estaba antes en la lista), y la línea "Mozo de cocina" del presupuesto se contaba como mozos. Todo vive
+  en `src/lib/fiesta/personal-por-invitados.ts`, y lo usan el armado automático y la pantalla de personal.
+  Lo que se le cobra al cliente en el presupuesto no cambió. Entre 141 y 150 invitados se tomó $2800.
+
+```comprobar
+usa: personalDeCocina(guests) en src/app/actions/fiesta/fiesta.actions.ts
+usa: utilerosPorInvitados(totalGuests) en src/app/(app)/fiestas/nueva/personal/page.tsx
+prueba: src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts
+```
+
+## 21/10/2026 - Barrido completo de las 26 preguntas que estaban "a medias"
+
+Pedido del dueño: que todo lo de Codex desde el principio esté arreglado, con su pregunta, y buscado en toda
+la app. Las 26 preguntas marcadas "parcial" se terminaron. Lo de plata y permisos lo arregló Claude:
+
+- La lista de presupuestos avisa si no pudo leer (antes decía "no hay presupuestos" y alguien los cargaba de nuevo).
+- El chat con Sofía pasa los invitados al simulador manual (antes arrancaba con 50).
+- El portal del cliente muestra todas las cuentas bancarias (antes cortaba en 2).
+- Sin Meta conectada, pausar una campaña no dice que salió.
+- Cinco acciones que pedían sólo sesión ahora piden permiso, y una (`extractReceiptDataAction`) lo pedía y no
+  miraba la respuesta. El control `un-permiso-que-no-se-mira-no-frena` frena esa forma en toda la app.
+
+Lo demás va en la orden 207 para Gemini.
+
+```comprobar
+usa: readDataConDetalle<Presupuesto[]> en src/app/actions/presupuestos.ts
+usa: &guests= en src/app/simulador-ak/page.tsx
+no-usa: cuentasBancarias.slice(0, 2) en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+prueba: src/__tests__/un-permiso-que-no-se-mira-no-frena.test.ts
+prueba: src/__tests__/la-lista-de-presupuestos-no-dice-vacia-si-no-leyo.test.ts
+```
+
+## 21/10/2026 - Orden 185: el pago de un proveedor no se le copia a otro del mismo nombre
+
+- Al guardar la fiesta, el pago de cada compra se repone desde lo guardado, y se buscaba por nombre: con
+  dos proveedores que se llaman igual, el pago del primero se le copiaba al segundo. Ahora
+  `compraGuardadaDeCadaUna` (`src/lib/fiesta/reponer-la-plata.ts`) empareja por `proveedorId` y, sin id, por
+  nombre y orden. La orden figuraba a medias desde el 18/10 y nadie lo vio: `ordenes?` informa y no frena.
+  Ahora las órdenes `-claude-` a medias frenan la publicación.
+
+```comprobar
+usa: compraGuardadaDeCadaUna(antes, nuevas) en src/app/actions/fiesta/fiesta.actions.ts
+prueba: src/__tests__/reponer-plata-identidad-proveedor.test.ts
+prueba: src/__tests__/las-ordenes-de-plata-de-claude-estan-hechas.test.ts
+```
+
+## 21/10/2026 - El ajuste anual con fiestas del 1 de enero, y cada hallazgo con su propia búsqueda
+
+- `new Date("2027-01-01").getFullYear()` en Uruguay da 2026: el ajuste anual del simulador, del presupuesto
+  impreso, del resumen y de la factura se calculaba con un año de menos. Ahora usan
+  `anioDeLaFechaDelEvento`, que lee el año tal como está escrito. El resto de la fecha corrida (sólo
+  pantalla) va en la orden 206 para Gemini.
+- `cada-pregunta-se-barrio-en-toda-la-app.test.ts` exige un barrido propio por cada hallazgo nuevo
+  (`hallazgos` en `docs/barridos.json`), aunque su pregunta ya estuviera barrida (error 42 de CLAUDE.md).
+
+```comprobar
+usa: anioDeLaFechaDelEvento(eventoFecha) en src/app/simulador-de-presupuesto/page.tsx
+prueba: src/__tests__/el-ajuste-anual-usa-el-anio-de-la-fiesta.test.ts
+```
+
+## 21/10/2026 - Orden 204 (portal del proveedor) y Tab en los visores (199), por Claude
+
+- **El portal del proveedor ya no pisa cambios ni reactiva accesos.** Las acciones leían la ficha antes de
+  guardar y la guardaban entera: dos toques a la vez perdían uno, y un acceso desactivado o con token nuevo
+  en el medio volvía a quedar activo. Ahora cada acción cambia sólo su parte con `mutateDataItem`, sobre el
+  registro actual, y vuelve a mirar token, activo y vencimiento adentro del cambio.
+- **Tab y Shift+Tab dan la vuelta adentro** del visor de la galería y del video de ayuda.
+- **Barrido de la misma forma (pregunta 22):** la ficha del personal, guardada por la secretaria, **borraba
+  la cédula, la fecha de nacimiento y el contrato** (ella los lee vacíos). Ahora lo personal lo cambia sólo
+  quien tiene SUELDOS, y la ficha del personal y la de proveedores se guardan sobre el registro actual.
+
+```comprobar
+usa: cambiarAccesoDelProveedor(token en src/app/actions/provider-portal.ts
+no-usa: updateDataItem en src/app/actions/provider-portal.ts
+usa: mantenerElFocoAdentro(event, en src/components/landing/GallerySection.tsx
+prueba: src/__tests__/provider-portal-actions.test.ts
+prueba: src/__tests__/la-secretaria-no-borra-la-cedula-del-personal.test.ts
+```
+
 ## 20/10/2026 - Lo chico de las órdenes 199, 193 y 202, hecho por Claude
 
 - **El foco en los visores (199).** El video de ayuda del simulador y del Video de Vida lleva el foco al
@@ -14,6 +677,143 @@
 usa: formatearFechaEvento(p.eventoFecha) en src/lib/agentes/motor-agentes.ts
 usa: previousFocusRef.current = document.activeElement en src/components/landing/GallerySection.tsx
 prueba: src/__tests__/orden-199-el-foco-vuelve-y-la-fecha-del-seguimiento.test.tsx
+```
+
+## 21/10/2026 - Codex176-185: delta1346, portal empleado y consumidores finales
+
+- Fuentesmain9b7ee982,Claude16e197cc,Gemini1346d95c35ba. Cambios privados no
+  publicados NO CONTRASTADOS. Codex soloQA/documentacion, noappedit/merge.
+-178 fuenteClaude c3e8f59(igualsrc16e):86casos85PASS/1FAIL.60guardias con
+  firmas/verificador reales;6pagosID,12fechas civiles,8syncpersonal. NUEVO209:
+  cocina antes deatencion sinMozoexacto asigna4cocina/0atencion para100personas.
+  NOcambiar reglas/salarios deldueno. Almacen/efectos dobles, noBDreal.
+-179/181 CIERRAN23criterios distintos portal empleado:13HTTP+10nativosPCPixel7,
+  recarga/propios/ajeno/7negativos. Build108e con10blobs consumidores iguales16e,
+  noequivalenciatotal.8FAILiniciales erancriterioQA HTTP:200streaming+notfound
+  NOexposicion.181corrigecriterio9PASS, no32controles.177OOMlimiteQA archivado.
+-180/182 fuente1346:27criterios previos205 AHORAPASS. No reencargar bfde.
+ 180doscasosNUEVOS FAIL: vozmismointento en2modulos2tareas;Metadosmodulos
+  dosmid/dos200guardados1/solounpersistido. Mismo205 ampliado, nootraorden.
+  POST/mutex reales, almacen compartidocontrolado; NOCloudRun/HTTPfirmado.
+-183 proveedorDOM12criterios11PASS/1FAIL. Botones/tarea/nota/relectura/fallos
+  guardar pasan. NUEVO209:rejectedlecturainicial deja spinner sinerror.
+  Acciones/toast/params controlados;noHTTPproveedor/SDK.204SDK173siguecerrada.
+-184auditlockd95:91entradasall(1crit/12high/78mod),68prod(1/9/58), sininstalar
+  niscripts. NUEVAcadenamind-ar/canvas/node-pre-gyp/tar6.2.1,sinmarcadev;
+ 125lock42a25solo teniatar7.5.21dev. Raiztar7.5.21SIGUEcorregida.163ampliada,
+  noreabrirfirebaseCLI/noforce. GHSA23hp verificado,noexplotabilidadafirmada.
+-185consolida resultados,4falloscomportamiento+1cadenadependencia, no0errores.
+  ARvideo/207 YAdevueltos208porClaude, nohallazgosnuevos.166/167solo108e,
+  noaceptancianuevaconjunta. ManualduenoNOpendienteCodex.176borradorhistorico.
+ 421rutas/14areas/6401AST sigueninventario, noaceptacionporcontrol/estado/rol.
+  Unayudante cerrado;QA179/181 restaura76JSON/sourceDiff0,servicioscerrados.
+  EntregaunaPR1345, nocompilar/grafo por docs ni repetir fuentes sin delta.
+
+## 21/10/2026 - Codex171-175: entrega1344 devuelta,199/204 comprobadas en Claude nuevo
+
+-1344bfde/base108e auditada:17122casos11PASS/11FAIL,1745casos2PASS/3FAIL.
+ 14aserciones NO14bugs.205 agrupa devolucion196/202/203, no appedit/merge.
+- Vozcache antes depermiso devuelve resultado deldueno aloperador con mismoID;
+  confirmacion mismoid noavanza ysimultaneos2tareas. Lectura fallida=ausencia.
+  Borrador escrito no aparece enoutbox; mailtrue no pasa alsecretario.
+- WAhandler ReferenceError llamada noimportada,catch200/0atencion;helper dice
+  completo:true con0borradores antefalse/throw. MetaHMACbien,concurrentes2->1,
+  IGnumerico comoMessenger. Album pierde capsulaTiempo;ARDTO noactiva ystart
+  doble anuncia deteccion sin evento. JSON171/174 con hashes/limites.
+- Sospecha delagente album/invitados DESCARTADA, guard sigue.171crypto/buffer
+  son erroresQA archivados, noapp. Positivos conservados, unaLuna cerrada.
+- Claude daefbdc00b7a43f4f252dcca6e7d9565d4d30d10 YA corrige199/204.
+ 17218PASS DOMreal/user-event;17310PASS SDKREAL sin cambios perdidos ni
+  reactivacion/tokenviejo,0docs/cleanup200/cerrados. CORREGIDAS porClaude y
+  comprobadas POR ALCANCE, noHTTP/UIproveedor/buildnuevo. No reemitir199/204.
+- Decision nueva: MANUAL deldueno noespendienteCodex. Conservarhistoricos y
+  limites, no inventar prueba tecnica.175cierre diferencia esas responsabilidades.
+-166/167805suites5010PASS siguen108e NOdaef/bfde. No amplia pesada RAM<2GiB.
+  Lockbfde139nuevas/1versioncambiada/0hostsajenos, no npmseguridadcompleta.
+
+```comprobar
+prueba: docs/evidencias/171-entrega-1344.mjs
+prueba: docs/evidencias/172-retest-foco-claude.mjs
+prueba: docs/evidencias/173-retest-proveedor-sdk.mjs
+prueba: docs/evidencias/174-consumidores-1344.mjs
+```
+
+## 21/10/2026 - Continuacion166-169: build, regresion ySDK real, sin cierre total
+
+-Al liberarse RAM se compilo108e17b4387237fc921ea12e8d1eb65b20f62ac9 en copia
+  QA aislada:exit0, tipos/lint.167 en MISMA fuente:805suites5010tests PASS,
+  0fallos/omitidos/todo. Fixture blog canonico delGit repuesto SOLO para test;
+  76JSON restaurados ydiffQAfuentes0. No otra amplia si app108e no cambia.
+-166PC confirmaTab/ShiftTab fuera de galeria, MISMA friccion199 ya existente.
+  Pixel7focal1PASS tap/autofocus/flechas/Escape/retorno. Primer movil fallo por
+  selector que incluia skeleton: QA archivado; noappbug ni repetirfalloPC.
+  Imagenes interceptadasSVG ymotionreduce: no prueba de fotos/estetica/movimiento.
+-168 refuerza204 de163 con FirestoreAdminSDK REAL al emulador propio:10casos
+  4PASS/6FAIL, mismas causas snapshot viejo. Transaccionactual pierde tareas/
+  nota/llegada aun respondiendo success y puede restauraractivo/tokenviejo.
+  PositivomutateDataItem conserva dos tareas con retrySDK. Lecturas coordinadas,
+  revocacion/rotacion inyectadas porSDK; respaldoadaptado; noHTTP/UI/produccion.
+  0documentos alcerrar,cleanupAPI200,Java/SDK cerrados, QAfuentes0. No otra204.
+-Metadato packageScriptsDiffer de166 heredado decia true: package igual9b7/108e.
+  Corregido SOLO ese flag, originalguardado; source/build no se alteraron.
+-169 consolida160-168 y enlaza14areas. No cada control/estado/rol aceptado,
+  no toda193/Gemini devuelta, no integraciones/hardware/19originales ni0errores.
+  No appedit/merge. DosLuna acotados cerrados. Evidencia con su tanda, no docs solas.
+-Empaquetado170: diffcheck del delta completo encontro espacios finales en
+  dos error-context generados. Originales preservados .md.gz y copia legible
+  solo normalizada; sin cambiar pruebas/resultados. Gate ampliado al delta
+  completo desde9b7.170-manifest es lista final;169-manifest queda historico.
+
+```comprobar
+prueba: docs/evidencias/166-galeria-nativa.spec.ts
+prueba: docs/evidencias/167-regresion.mjs
+prueba: docs/evidencias/168-proveedor-sdk.mjs
+prueba: docs/evidencias/169-validar.mjs
+```
+
+## 21/10/2026 - Codex160-165: cierres200/201 por contrato,199 parcial y204 nueva
+
+-Main fuente9b7ee982c5d6ff1377fccc0490abc85a9cfd8419. Candidato Claude publico
+  108e17b4387237fc921ea12e8d1eb65b20f62ac9 distinto de main; privado desconocido.
+  PR1340 integrada, esta tanda usa rama nueva codex/160-contraste-correcciones-20261021.
+-160:34PASS, portal propio ID/correo/7perfiles, dos empleados con sueldos
+  diferentes y tres fiestas, cuenta/URL sin datos ajenos ni tokens y lecturas
+  generales aun denegadas.200 CORREGIDA por Claude, contrato funcional probado;
+  noHTTP/cookies/UI/OAuth/SDK real. La conexionGoogle se simula, no se certifica.
+-164:84PASS, oncehandlers/21metodosGETPOST con puerta real y motores DOBLES.
+  Sinclave respuesta recortada, conclave detalle, wrong401/freno429 sin ejecutar
+  ni marcar.160 ademas compone los dosmotores originales reales.201 CORREGIDA
+  porClaude/aceptada SOLO respuesta, no11integraciones/tareas reales publicadas.
+-161 sobre108e:14PASS/2FAIL,199 PARCIAL. Entrada/retorno/Escape de galeria/video
+  ya funcionan; Tab/ShiftTab salen del visor galeria. Radix positivo contiene
+  foco. DOM/user-event, no teclado nativo. Conservar lo corregido, no nueva199.
+-162 sobre108e:8PASS,seguimiento5/14dias UTCUy dice8agosto y conserva sufijo
+  horario. Cierra SOLO consumidor ampliado159 en193; no toda193 ni envio real.
+-163 NUEVA204/Claude: diezcasos4PASS/6FAIL deUNA familia. Snapshot proveedor
+  leido antes de transaccion pisa tarea/nota/llegada concurrente o restaura
+  activo/tokenviejo. Ambas acciones responden success. Cuerpos reales de acciones
+  y updateDataItem contra protocoloBD DOBLE serializado, NO SDK/Firestore/UI.
+  Revocar/rotar se inyecto en fixture, no flujo administrativo real. No pagos.
+  Positivo mutateDataItem real compone dos cambios; proveedorB intacto donde
+  se comprobo. Simbolos comparados main9b7/Claude108e/Gemini45a; no otraorden185.
+-165:152casos144PASS/8FAIL; dos causas pendientes, no8bugs. No appedit/merge,
+  build/amplia/grafo repetidos. Recuento14areas enlaza historicos por alcance,
+  no declara cada ruta/control/rol aprobado. Ver165-recuento-y-limites.md.
+-QA archivado:161 arranco sin user-event; instalado SOLO en .qa-tools externo.
+  Su primer recibo no esperaba RAF tras commit: autofocus falsopositivo,
+  arreglada la espera con positivoRAF y preservado inicial.163 extractor fallo
+  por constexportada, se carga modulo real de marcas. No defectos de producto.
+-RAM bajo2GiB: no build/navegador pesado ni detener ajenos. Luna documental
+  cerrado, cero servicios/datos propios. DNS GitHub fallo; no confundir commit
+  local con entrega sin verificar remoto.19originales/cuentas/modelo/voz/
+  Hosting/hardware y matriz completa siguen sin certificado. No ceroerrores.
+
+```comprobar
+prueba: docs/evidencias/160-retest-portales-tareas.mjs
+prueba: docs/evidencias/161-galeria-video-retest.mjs
+prueba: docs/evidencias/162-seguimiento-fecha-retest.mjs
+prueba: docs/evidencias/163-proveedor-concurrencia.mjs
+prueba: docs/evidencias/164-once-tareas-respuestas.mjs
 ```
 
 ## 20/10/2026 - Una orden ya no se cumple con un comentario (entrega 1341 de Gemini, cerrada)

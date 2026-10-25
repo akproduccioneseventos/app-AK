@@ -1,0 +1,63 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "selected": [
+    "143-cocina-fecha-local.spec.ts",
+    "48-fotocabina-recuerdo-seguro.spec.ts",
+    "48-touchpix-entrega-sin-reinicio.spec.ts",
+    "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+    "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+    "carga-rapido.spec.ts",
+    "entertainment-stations.spec.ts",
+    "internal-dynamic-route-inventory.spec.ts",
+    "la-grilla-de-caras.spec.ts",
+    "la-hoja-de-cocina.spec.ts",
+    "la-web-de-venta-no-se-rompe.spec.ts",
+    "las-estaciones-respetan-los-ajustes.spec.ts",
+    "layout-baseline.spec.ts",
+    "limpiar-la-agenda.spec.ts",
+    "mobile-overflow.spec.ts",
+    "noche-de-fiesta.spec.ts",
+    "pantallas-con-iconos-react19.spec.ts",
+    "pantallas-tocadas-tanda-12-10.spec.ts",
+    "prospecto-simulador.spec.ts"
+  ],
+  "byProject": {
+    "chromium-desktop": [
+      "ak207-143-cocina-fecha-local\\.spec\\.ts.*fecha civil del evento se conserva en hoja de cocina y modo impresion",
+      "ak207-48-fotocabina-recuerdo-seguro\\.spec\\.ts.*Orden 48: la fotocabina levanta y deja sacar la foto\\s+ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+      "ak207-89-la-barra-no-ofrece-lo-agotado\\.spec\\.ts.*Orden 89 — Bloque 2: La barra no ofrece lo agotado\\s+trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "ak207-90-lo-que-va-atras-dice-donde-quedo\\.spec\\.ts.*Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura\\s+Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "ak207-90-lo-que-va-atras-dice-donde-quedo\\.spec\\.ts.*Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura\\s+Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "ak207-carga-rapido\\.spec\\.ts.*Orden 37 — Que cargue rápido \\(límite 2500 ms\\)\\s+/quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+      "ak207-entertainment-stations\\.spec\\.ts.*time capsule exposes every media mode and records the configured frame",
+      "ak207-entertainment-stations\\.spec\\.ts.*time capsule bakes the configured frame into an uploaded gallery video",
+      "ak207-internal-dynamic-route-inventory\\.spec\\.ts.*representative dynamic screens hydrate without browser errors",
+      "ak207-la-grilla-de-caras\\.spec\\.ts.*Orden 36: La grilla de caras\\s+la selfie no sale del teléfono ni se manda a la red",
+      "ak207-la-hoja-de-cocina\\.spec\\.ts.*la hoja de cocina se abre, se puede imprimir y avisa si falta cargar algo",
+      "ak207-la-web-de-venta-no-se-rompe\\.spec\\.ts.*las pantallas de venta se abren solas sin romperse por dentro",
+      "ak207-las-estaciones-respetan-los-ajustes\\.spec\\.ts.*cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "ak207-layout-baseline\\.spec\\.ts.*huella de maquetación\\s+las pantallas de referencia mantienen su geometría",
+      "ak207-limpiar-la-agenda\\.spec\\.ts.*la pantalla de sincronizaciones ofrece limpiar la agenda y contesta al tocarla",
+      "ak207-mobile-overflow\\.spec\\.ts.*sin desborde horizontal en celular\\s+rutas internas del staff",
+      "ak207-noche-de-fiesta\\.spec\\.ts.*noche de fiesta\\s+las pantallas del equipo funcionan con una fiesta real",
+      "ak207-pantallas-con-iconos-react19\\.spec\\.ts.*decoracion/pdf: cada zona contratada muestra su icono y su nombre",
+      "ak207-pantallas-con-iconos-react19\\.spec\\.ts.*experiencia-mundial: los seis bloques del recorrido muestran icono, titulo y estado",
+      "ak207-pantallas-con-iconos-react19\\.spec\\.ts.*zona-digital: las doce funciones muestran su icono, su nombre y su interruptor",
+      "ak207-pantallas-tocadas-tanda-12-10\\.spec\\.ts.*/fiestas/nueva/servicios-contratados\\?fiestaId=B muestra los datos de B",
+      "ak207-prospecto-simulador\\.spec\\.ts.*recorrido del prospecto\\s+llega desde el simulador hasta ver un precio"
+    ],
+    "chromium-mobile": [
+      "ak207-48-touchpix-entrega-sin-reinicio\\.spec\\.ts.*Orden 48: Touchpix levanta entero\\s+ENT-03: sesion segura - subida lenta de A no pisa la sesion de B al llegar tarde",
+      "ak207-90-lo-que-va-atras-dice-donde-quedo\\.spec\\.ts.*Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura\\s+Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "ak207-90-lo-que-va-atras-dice-donde-quedo\\.spec\\.ts.*Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura\\s+Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "ak207-layout-baseline\\.spec\\.ts.*huella de maquetación\\s+las pantallas de referencia mantienen su geometría",
+      "ak207-noche-de-fiesta\\.spec\\.ts.*noche de fiesta\\s+las pantallas del equipo funcionan con una fiesta real"
+    ]
+  },
+  "expectedPairs": 27,
+  "originalDriver": "209-ejecutar-bateria.mjs",
+  "driverSha256": "77bda0337f291d86074688737b799ba27457d5a40bc73f8f4b28daa50c331f76",
+  "assertionsChanged": false,
+  "provider": "LOCAL FIS registration only",
+  "build": 366
+}

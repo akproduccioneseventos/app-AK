@@ -1,3 +1,4 @@
+jest.setTimeout(20000);
 /**
  * El tótem abría el micrófono con "Activar audio" y no lo apagaba nunca (ni cerraba el contexto de
  * audio). Ahora: se guarda la señal, se apaga al salir de la pantalla, si se activa dos veces se

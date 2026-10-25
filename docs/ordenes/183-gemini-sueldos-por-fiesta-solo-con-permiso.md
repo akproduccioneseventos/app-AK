@@ -87,5 +87,5 @@ usa: PERMISOS.GANANCIAS en src/app/actions/fiesta/costos.actions.ts
 no-usa: role !== 'admin' en src/app/actions/presupuestos.ts
 no-usa: role !== 'admin' en src/app/actions/invoices.ts
 usa: PERMISOS.SUELDOS en src/app/(app)/fiestas/nueva/personal/recibos/page.tsx
-prueba: PENDIENTE src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts
+prueba: src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts
 ```

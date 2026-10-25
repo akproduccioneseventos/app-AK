@@ -1,5 +1,7 @@
 'use client';
 
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -45,7 +47,7 @@ import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModa
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
 
 type ViewMode = 'libro' | 'cuadricula';
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'touchpix' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
 
 function isVideo(url: string = ''): boolean {
   return url.endsWith('.mp4') || url.endsWith('.webm') || url.includes('video');
@@ -279,13 +281,7 @@ export default function PublicAlbumPage() {
   }, [lightboxIndex, showNext, showPrev, viewMode, paginaActual, albumDigital.totalPaginas]);
 
   const nombreFiesta = fiesta?.configuracion?.nombreEvento || 'Álbum del Evento';
-  const fechaFiesta = fiesta?.configuracion?.fechaEvento
-    ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString('es-UY', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
-    : '';
+  const fechaFiesta = fiesta?.configuracion?.fechaEvento ? formatearFechaEvento(fiesta.configuracion.fechaEvento) : '';
 
   const paginaItems = paginaActual > 0 ? albumDigital.paginas[paginaActual - 1]?.recuerdos || [] : [];
 
@@ -608,6 +604,7 @@ export default function PublicAlbumPage() {
                 { id: 'todas', label: `Todas (${posts.length})` },
                 { id: 'fotocabina', label: '📸 Fotocabina' },
                 { id: '360', label: '🌐 360°' },
+                { id: 'touchpix', label: '🎬 Touchpix AI' },
                 { id: 'espejo', label: '✨ Espejo' },
                 { id: 'bogue', label: '⚡ Boomerang' },
                 { id: 'buzon', label: '🎙️ Buzón' },

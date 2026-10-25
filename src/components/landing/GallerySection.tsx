@@ -21,6 +21,26 @@ import {
   galleryIdentityKeys,
 } from "./gallery-media-utils";
 
+
+/** Tab y Shift+Tab dan la vuelta adentro del visor abierto, como en el de videos (orden 199). */
+function mantenerElFocoAdentro(e: KeyboardEvent, dentroDe: HTMLElement | null | undefined) {
+  if (e.key !== "Tab" || !(dentroDe instanceof HTMLElement)) return;
+  const enfocables = Array.from(
+    dentroDe.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], iframe, video[controls], [tabindex]:not([tabindex='-1'])"),
+  );
+  if (enfocables.length === 0) return;
+  const primero = enfocables[0];
+  const ultimo = enfocables[enfocables.length - 1];
+  const actual = document.activeElement;
+  if (e.shiftKey && (actual === primero || !dentroDe.contains(actual))) {
+    e.preventDefault();
+    ultimo.focus();
+  } else if (!e.shiftKey && (actual === ultimo || !dentroDe.contains(actual))) {
+    e.preventDefault();
+    primero.focus();
+  }
+}
+
 export { classifyGalleryCategories } from "./gallery-media-utils";
 
 const passthroughImageLoader = ({ src }: ImageLoaderProps) => src;
@@ -235,6 +255,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
     if (lightboxIndex === null) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setLightboxIndex(null);
+      mantenerElFocoAdentro(event, closeButtonRef.current?.closest("[role=\"dialog\"]") as HTMLElement | null);
       if (event.key === "ArrowLeft") {
         setLightboxIndex((index) => (index === null ? null : (index - 1 + displayedImages.length) % displayedImages.length));
       }

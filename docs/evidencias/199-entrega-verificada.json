@@ -1,0 +1,199 @@
+{
+  "commit": "d1da90d7905820aecda04897218ad096fe562e2f",
+  "base": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "localTree": "bcfffc7da8ef0c02c4f9f30ad4e5639a34d658df",
+  "remoteTree": "bcfffc7da8ef0c02c4f9f30ad4e5639a34d658df",
+  "pr": 1350,
+  "prState": "open",
+  "draft": true,
+  "verifiedCount": 46,
+  "verified": [
+    {
+      "file": "ESTADO-ACTUAL.md",
+      "sha": "ba95929e2c053f2f30f0e2f0bd677f9258e2d793"
+    },
+    {
+      "file": "docs/YA-RESUELTO.md",
+      "sha": "fc66cf2becc523a7f11d730e2558743272a887ce"
+    },
+    {
+      "file": "docs/evidencias/186-pendientes-controles.json",
+      "sha": "de538187c49663e69b6f5cf442f2b488b106e688"
+    },
+    {
+      "file": "docs/evidencias/186-pendientes-controles.md",
+      "sha": "3e3c230c26e7926f14688b8b6135440e44eda3d1"
+    },
+    {
+      "file": "docs/evidencias/187-entorno.mjs",
+      "sha": "fb0c561737d7071fc96fdd48ee18082b17bbbc70"
+    },
+    {
+      "file": "docs/evidencias/187-preflight-primer-intento.json",
+      "sha": "bb4f9390ad219220d8ab85f5ec49f220f75d8605"
+    },
+    {
+      "file": "docs/evidencias/187-preflight.json",
+      "sha": "c23d2d8249c72bc231d9f2b54eab1a51f4bb7dea"
+    },
+    {
+      "file": "docs/evidencias/188-inicial-188-portal-cliente-consumidores.json",
+      "sha": "b01be998980b4f0e54ec7760ef80dc16346a89bb"
+    },
+    {
+      "file": "docs/evidencias/188-inicial-188-portal-cliente-consumidores.mjs",
+      "sha": "7185667a4a68aa93612cd626334cdc41ae80a580"
+    },
+    {
+      "file": "docs/evidencias/188-portal-cliente-consumidores-final.json",
+      "sha": "14956e0796c5ae1dc46e73931f673a46771bdfe8"
+    },
+    {
+      "file": "docs/evidencias/188-portal-cliente-consumidores.json",
+      "sha": "b01be998980b4f0e54ec7760ef80dc16346a89bb"
+    },
+    {
+      "file": "docs/evidencias/188-portal-cliente-consumidores.mjs",
+      "sha": "602b4134edc5fd7d6349ba93ba7907b4e1dd5e05"
+    },
+    {
+      "file": "docs/evidencias/189-inicial-189-portal-cliente-controles.json",
+      "sha": "460476fcd75b74b0cbb22c5c4be8b6e4a73919f7"
+    },
+    {
+      "file": "docs/evidencias/189-inicial-189-portal-cliente-controles.mjs",
+      "sha": "b0d75ee41c33dd93ab1eb0cf851e9e71a4ca51ed"
+    },
+    {
+      "file": "docs/evidencias/189-portal-cliente-controles-final.json",
+      "sha": "4c11804333b96c78f895cec8fcbaf288589b2084"
+    },
+    {
+      "file": "docs/evidencias/189-portal-cliente-controles.json",
+      "sha": "460476fcd75b74b0cbb22c5c4be8b6e4a73919f7"
+    },
+    {
+      "file": "docs/evidencias/189-portal-cliente-controles.mjs",
+      "sha": "67c6016fdebfb02a2c5191b95b4da5a8d1a8c91c"
+    },
+    {
+      "file": "docs/evidencias/190-ejecucion.json",
+      "sha": "8c406c3fd9935bea3313c9b0ad52545c68750ded"
+    },
+    {
+      "file": "docs/evidencias/190-ejecutar.mjs",
+      "sha": "fb33f69d61c4b5e5410ce4efdeac0f6caeb82d2b"
+    },
+    {
+      "file": "docs/evidencias/190-emulator.log.gz",
+      "sha": "a82bac28eff3e001e82fd85b7f7158a52b7da519"
+    },
+    {
+      "file": "docs/evidencias/190-pago-informado-sdk.json",
+      "sha": "2adc11aaf0d07dc05621add641ab4aea65951b4c"
+    },
+    {
+      "file": "docs/evidencias/190-pago-informado-sdk.mjs",
+      "sha": "fc3bb04022c143329a83d189c6ba133a10c7b299"
+    },
+    {
+      "file": "docs/evidencias/190-sdk.log.gz",
+      "sha": "15b9ca4f0d11e7d25689d9ba6f88d2e6217413be"
+    },
+    {
+      "file": "docs/evidencias/191-retest-rol-atencion.json",
+      "sha": "73c195508c28eb28e8cdf9a2e286f0f8e12ffda2"
+    },
+    {
+      "file": "docs/evidencias/191-retest-rol-atencion.mjs",
+      "sha": "754ff6f1e8c3dfcf84770368d1b1b5af498bbebe"
+    },
+    {
+      "file": "docs/evidencias/192-resumen-pruebas.json",
+      "sha": "ab5115438c8ed58d03884beb5ed95d407f7f0cff"
+    },
+    {
+      "file": "docs/evidencias/192-resumen-pruebas.md",
+      "sha": "a1b72f4f7a10b76b47cc90a1f77c8b59a736109b"
+    },
+    {
+      "file": "docs/evidencias/193-194-inicial-qa-timeout.json",
+      "sha": "bbf91c5358dd3fb13ff37861b94742aa648ea2ef"
+    },
+    {
+      "file": "docs/evidencias/193-portal-cliente-version-nueva.json",
+      "sha": "6f1021f42487ea25951a8682b998a29467fbc108"
+    },
+    {
+      "file": "docs/evidencias/193-portal-cliente-version-nueva.mjs",
+      "sha": "25a407cde3f6f0adb8b1b3aad90658b69e033fc2"
+    },
+    {
+      "file": "docs/evidencias/194-portal-controles-version-nueva.json",
+      "sha": "5809b1ddd69d32bdc97b5896a621b8f9256c8ab2"
+    },
+    {
+      "file": "docs/evidencias/194-portal-controles-version-nueva.mjs",
+      "sha": "ae702951c9ab997e77aed7f2c14997c2bd097482"
+    },
+    {
+      "file": "docs/evidencias/195-portal-operaciones-contrato.json",
+      "sha": "6ab63d75c8c1a3e458a8b3decf94282be8de8811"
+    },
+    {
+      "file": "docs/evidencias/195-portal-operaciones-contrato.mjs",
+      "sha": "48f3c911c34aa4de187d89cf60d7321db6563b1a"
+    },
+    {
+      "file": "docs/evidencias/196-inicial-criterio-literal.mjs",
+      "sha": "b291a486bcb675228fa9d4b803a755fa4fde0df8"
+    },
+    {
+      "file": "docs/evidencias/196-proveedor-corregido-dom-final.json",
+      "sha": "4dff7817b0446fa115635777deb4931fe274da79"
+    },
+    {
+      "file": "docs/evidencias/196-proveedor-corregido-dom.json",
+      "sha": "25174af4a128910b70c680764e719f72f11e6cef"
+    },
+    {
+      "file": "docs/evidencias/196-proveedor-corregido-dom.mjs",
+      "sha": "06df59d8b40fe832843b1f0f5dd91970f703010c"
+    },
+    {
+      "file": "docs/evidencias/197-voz-meta-correcciones.json",
+      "sha": "15ead3752504ea7d46fc49fd7b414c0411089282"
+    },
+    {
+      "file": "docs/evidencias/197-voz-meta-correcciones.mjs",
+      "sha": "ce829b4ebf69a40716ca68a72f6dee7e23520475"
+    },
+    {
+      "file": "docs/evidencias/198-cierre-y-recuento.md",
+      "sha": "33431354d53bb6a880447b3c8fd11be7d4f8955a"
+    },
+    {
+      "file": "docs/evidencias/198-consolidado.json",
+      "sha": "419cb246ccd115bb29291b2423d9a22fa3e3b770"
+    },
+    {
+      "file": "docs/evidencias/198-consolidar.mjs",
+      "sha": "82f1f54a0eab03356f1b7ba43dcbeaf7103b0c26"
+    },
+    {
+      "file": "docs/evidencias/198-pr-body.md",
+      "sha": "2d902a7002dd2621f27dc224f96400bb75ad0964"
+    },
+    {
+      "file": "docs/ordenes/209-consumidores-personal-proveedor.md",
+      "sha": "fb7c8efee630a2e4f318a95f106113ab5060a89f"
+    },
+    {
+      "file": "docs/ordenes/210-portal-cliente-pagos-entregas-cancelacion.md",
+      "sha": "91ff641b63f8f18ee24876dd39d9f7135e51aa37"
+    }
+  ],
+  "appChanged": false,
+  "checkedAt": "2026-10-22T01:46:03.596Z",
+  "claim": "Remote content delivery only; not app acceptance or coder execution."
+}

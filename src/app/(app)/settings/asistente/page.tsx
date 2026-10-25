@@ -442,8 +442,8 @@ export default function AsistenteSettingsPage() {
 
           <div className="flex items-start gap-3">
             <div className="flex-1 space-y-1">
-              <Label className="text-xs text-slate-600">Voz de Gemini</Label>
-              <select
+              <Label htmlFor="select-voz-gemini" className="text-xs text-slate-600">Voz de Gemini</Label>
+              <select id="select-voz-gemini" aria-label="Voz de Gemini"
                 value={vozSeleccionada}
                 onChange={(e) => setVozSeleccionada(e.target.value)}
                 className="w-full text-sm border border-slate-300 rounded-md p-2 bg-white"

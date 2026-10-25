@@ -1,0 +1,321 @@
+{
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "base": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+  "members": [
+    {
+      "path": "ESTADO-ACTUAL.md",
+      "bytes": 3007,
+      "sha256": "18ae09683e3b7ec86452154c703c096ea3a53bdfc1b7d7d4fd7794e8ee87caa2"
+    },
+    {
+      "path": "docs/YA-RESUELTO.md",
+      "bytes": 1049321,
+      "sha256": "fac6f91b47c773643dc96f36d4e23c6197141d0d78bef65de911a851b1cd8fd6"
+    },
+    {
+      "path": "docs/ordenes/193-gemini-barrido-de-todas-las-preguntas.md",
+      "bytes": 12236,
+      "sha256": "0813e35715eb58c96f0a7b936afcc158c666bc183a063870b16c2642920d3fb8"
+    },
+    {
+      "path": "docs/ordenes/199-gemini-galeria-foco-teclado.md",
+      "bytes": 5578,
+      "sha256": "608df2267476134db8cecfce6129a4d2c66adac03b43854e1a598b07193131c0"
+    },
+    {
+      "path": "docs/ordenes/200-claude-portal-personal-lecturas-previas.md",
+      "bytes": 4427,
+      "sha256": "fc15417b14d03b6a07760751a7a1e2c7786c9246305d3645d7abda1f5d920af8"
+    },
+    {
+      "path": "docs/ordenes/201-claude-tareas-publicas-respuesta-recortada.md",
+      "bytes": 3824,
+      "sha256": "6922970f86d3ad727b0f2ac5e1270452921a168274e45ad5a47ab24fba0dac15"
+    },
+    {
+      "path": "docs/evidencias/160-retest-portales-tareas.json",
+      "bytes": 24899,
+      "sha256": "5cc96ea5fbe2fb4ebf193043c47a78a7ea4f777269a5ae9ecf97917b02d2f047"
+    },
+    {
+      "path": "docs/evidencias/160-retest-portales-tareas.mjs",
+      "bytes": 14071,
+      "sha256": "1d117fdc1a9787896b6602b656b35a8ae7b9cbbd7eb7ca0b5b57d33cce7fc5aa"
+    },
+    {
+      "path": "docs/evidencias/161-galeria-video-retest.json",
+      "bytes": 3456,
+      "sha256": "f4b235d3f2723ad175e90c11b5c2cfcde757542c9a41dd9417f96eee255a331c"
+    },
+    {
+      "path": "docs/evidencias/161-galeria-video-retest.mjs",
+      "bytes": 10396,
+      "sha256": "be24a7574d459d1c09c25c8e6a1ea532488288f932146ae3450b0a72372ebe05"
+    },
+    {
+      "path": "docs/evidencias/161-inicial-dependencia-ausente.mjs",
+      "bytes": 9432,
+      "sha256": "c9d28709b4359f816100b1abd3e64bc4a3ca720f873f7aacb1621ebaaa7f867b"
+    },
+    {
+      "path": "docs/evidencias/161-inicial-tiempo-raf.json",
+      "bytes": 3370,
+      "sha256": "0fab25b9ccbd89b78f220e519385d7d8ca8c53be5f3e6d4700907e902326a140"
+    },
+    {
+      "path": "docs/evidencias/161-inicial-tiempo-raf.mjs",
+      "bytes": 9557,
+      "sha256": "9e5b2ba48b767f228649e283ed384c19f0220ce17e6e772f6d59a3ca0284277a"
+    },
+    {
+      "path": "docs/evidencias/162-seguimiento-fecha-retest.json",
+      "bytes": 4496,
+      "sha256": "1a44fe16feb0841680fd95bf931b4757836e11ca3706b45e5778705fdc90b1ca"
+    },
+    {
+      "path": "docs/evidencias/162-seguimiento-fecha-retest.mjs",
+      "bytes": 4350,
+      "sha256": "5793eb7a1754309092e633d105cb9aaf4a3313cfbe376474fdd7f05e3f19084e"
+    },
+    {
+      "path": "docs/evidencias/163-inicial-const-exportada.mjs",
+      "bytes": 8901,
+      "sha256": "45532329ce09600c2792bcf402f91d4d0624b43f21874fdfcbd00b820b396fe2"
+    },
+    {
+      "path": "docs/evidencias/163-proveedor-concurrencia.json",
+      "bytes": 27273,
+      "sha256": "9c99edb94b5ef73c67208007a753568ead1ebf458f3d87086622113baac767a7"
+    },
+    {
+      "path": "docs/evidencias/163-proveedor-concurrencia.mjs",
+      "bytes": 8870,
+      "sha256": "8e5bb951a75fd1c39f0d1794b4a15259a411084309391ebd0054ef8dcee2deb0"
+    },
+    {
+      "path": "docs/evidencias/164-once-tareas-respuestas.json",
+      "bytes": 29544,
+      "sha256": "b91ca359ce955e7400bae04d7bd6c24df697364d60d1cbbf4df6fda90fde9339"
+    },
+    {
+      "path": "docs/evidencias/164-once-tareas-respuestas.mjs",
+      "bytes": 5942,
+      "sha256": "b812295bdc56391f20c1b5750ea8da23c64dc74713b9b4b79a6ae1724d07cbf7"
+    },
+    {
+      "path": "docs/evidencias/165-consolidar-validar.mjs",
+      "bytes": 4434,
+      "sha256": "79085cad03b7cc3a656ec42d32e55a518d18aef223e96cc7534bb66146d88017"
+    },
+    {
+      "path": "docs/evidencias/165-recuento-areas.json",
+      "bytes": 6071,
+      "sha256": "4d702526093efa267dae8f146f065563be5d1ef6e53a24fb4f2129b06e91854d"
+    },
+    {
+      "path": "docs/evidencias/165-recuento-y-limites.md",
+      "bytes": 6367,
+      "sha256": "125effd5b4eee158595308a4862b4844b2d30f0fb3628bd245dd94eeb781227d"
+    },
+    {
+      "path": "docs/evidencias/165-validacion.json",
+      "bytes": 4605,
+      "sha256": "2efc1386a58ff0fc89a0727a3f4a703b96a40141a51bc67c8f18d30119768e2b"
+    },
+    {
+      "path": "docs/evidencias/166-build.log.gz",
+      "bytes": 8022,
+      "sha256": "550b94bda379173ca03ee072bf0c808d33b58afacd8d819a72afb0047b55ae26"
+    },
+    {
+      "path": "docs/evidencias/166-entorno-inicial-metadato.json",
+      "bytes": 472,
+      "sha256": "8820443079011701330231adb99743eed057b01287df88a65b4225106b9beb02"
+    },
+    {
+      "path": "docs/evidencias/166-entorno.json",
+      "bytes": 473,
+      "sha256": "475615ec82a7ff171de583ebcbc1183df280b035b94d63e1c29d20c16c755619"
+    },
+    {
+      "path": "docs/evidencias/166-entorno.mjs",
+      "bytes": 4552,
+      "sha256": "2bbb37ae3635123c262adc271679153bfda12f658d4ccdf44085ba5d7fcbbf2a"
+    },
+    {
+      "path": "docs/evidencias/166-galeria-config.ts",
+      "bytes": 696,
+      "sha256": "dce9100eabeb3f02b9369a6c0510dd3d1f3cd3cd64a8e5f712b4fe7e2136383a"
+    },
+    {
+      "path": "docs/evidencias/166-galeria-nativa-inicial.spec.ts",
+      "bytes": 7488,
+      "sha256": "f679171523e21d581dd34b7315a427dd37e4910f4eb9d1080c533155bc762e58"
+    },
+    {
+      "path": "docs/evidencias/166-galeria-nativa.spec.ts",
+      "bytes": 7512,
+      "sha256": "6b674a67bff826e260265a00331a7dbc4ad1236804ddc9f40ebb4758b3da296d"
+    },
+    {
+      "path": "docs/evidencias/166-mobile-execution.json",
+      "bytes": 834,
+      "sha256": "b53041fd9289b62a529512ad8536f8859d62a824d73dd2a368986df29052b3db"
+    },
+    {
+      "path": "docs/evidencias/166-mobile-results.json.gz",
+      "bytes": 2776460,
+      "sha256": "949fa58f9dd1e0f6c7b7a4e156fa6537fc5c814b7de8eb8bd615c95003e2e65a"
+    },
+    {
+      "path": "docs/evidencias/166-mobile-serve.log.gz",
+      "bytes": 272,
+      "sha256": "653325375aff19edf1f2bc29b3ca13c016903aa9d4a5b25c8b5b0d21f340a506"
+    },
+    {
+      "path": "docs/evidencias/166-mobile.log.gz",
+      "bytes": 193,
+      "sha256": "3734743ccef645fb7f5a67337b641e61174333e48335aeb4c07dc709a7df8f06"
+    },
+    {
+      "path": "docs/evidencias/166-native-artifacts/166-galeria-nativa-Chromiu-6828b-en-dentro-del-visor-abierto-chromium-desktop/error-context.md",
+      "bytes": 58815,
+      "sha256": "ddeae413ea865148bbd245fd2b7c68b60a5cc9c6c2fa1c5063f706e55f0ec77b"
+    },
+    {
+      "path": "docs/evidencias/166-native-artifacts/166-galeria-nativa-Chromiu-6828b-en-dentro-del-visor-abierto-chromium-desktop/test-failed-1.png",
+      "bytes": 30273,
+      "sha256": "b6b5cd88d40d36f656614a2a41cae571cb393ec67bb5f65de4a1fc49c2a55106"
+    },
+    {
+      "path": "docs/evidencias/166-native-artifacts/166-galeria-nativa-Pixel-7-87993-cape-cierra-y-devuelve-foco-chromium-mobile/error-context.md",
+      "bytes": 59790,
+      "sha256": "3e4d47eed2a31bedef250c4d6b89b46dc8a725391f47f20d0753f50bf572d66c"
+    },
+    {
+      "path": "docs/evidencias/166-native-artifacts/166-galeria-nativa-Pixel-7-87993-cape-cierra-y-devuelve-foco-chromium-mobile/test-failed-1.png",
+      "bytes": 127146,
+      "sha256": "04d985321985405fff5b3e1b0c5e618c052c566ec9661b8c901c6b36069e5e7e"
+    },
+    {
+      "path": "docs/evidencias/166-native-execution.json",
+      "bytes": 833,
+      "sha256": "2d76402c7270c14dc00f3781e38f26c2f92d174a1de58c32ec7ee13bfed090d0"
+    },
+    {
+      "path": "docs/evidencias/166-native-results.json.gz",
+      "bytes": 2698058,
+      "sha256": "c6960639b5552edc49c2a85694d87c5c9b318d139568d15aeee631b770501cc4"
+    },
+    {
+      "path": "docs/evidencias/166-native-serve.log.gz",
+      "bytes": 358,
+      "sha256": "55730222d91d76a36e5407f85ab67c61c54c5267f3aa1f6e82e61f4f25b46057"
+    },
+    {
+      "path": "docs/evidencias/166-native.log.gz",
+      "bytes": 1393,
+      "sha256": "d6064b9e538b631ba9ec7d2feabd369cdc39ecc190deaa73589a18366aaaf381"
+    },
+    {
+      "path": "docs/evidencias/166-probar-nativo.mjs",
+      "bytes": 6808,
+      "sha256": "5dff3b8a75422734d9c97579c2890b0a80262b2c025eb4883255ff5685c45818"
+    },
+    {
+      "path": "docs/evidencias/167-regresion-execution.json",
+      "bytes": 801,
+      "sha256": "a0b7b5f1638917dd005e5bbbf87a1a86b7d7850fd731d60f13bea5dfb693df90"
+    },
+    {
+      "path": "docs/evidencias/167-regresion-results.json.gz",
+      "bytes": 247663,
+      "sha256": "5b15ec825955d46a10cebab1cdef68c2c2cd01b53c0637b025f364927c896f62"
+    },
+    {
+      "path": "docs/evidencias/167-regresion.log.gz",
+      "bytes": 10754,
+      "sha256": "655db04d388f1f034b9ebe9a46443a3125de3179ac2f2086a2121064d4d6024c"
+    },
+    {
+      "path": "docs/evidencias/167-regresion.mjs",
+      "bytes": 5067,
+      "sha256": "21ebcd64c2eebb761eab6109f0bef56bac14c7ab4625b232639a0479010ec696"
+    },
+    {
+      "path": "docs/evidencias/168-ejecucion.json",
+      "bytes": 467,
+      "sha256": "de8d4a3cdcce3d29cc9aa3004bee509a5b38315849686bfbd31dd19e78d65378"
+    },
+    {
+      "path": "docs/evidencias/168-ejecutar.mjs",
+      "bytes": 5144,
+      "sha256": "0b85aa022f7d0229a9336457d51d0881c6dd16c70c9692a559f3bd4d99b1e041"
+    },
+    {
+      "path": "docs/evidencias/168-emulator.log.gz",
+      "bytes": 1381,
+      "sha256": "455a8c66173199f11a5393469a76264d2db4bc0bdebab8acb4968ba976eeae02"
+    },
+    {
+      "path": "docs/evidencias/168-proveedor-sdk.json",
+      "bytes": 27398,
+      "sha256": "4db044ba72870c3476e8f05fcd69e78dec2bff633823c82b67dcc89e7a565eb1"
+    },
+    {
+      "path": "docs/evidencias/168-proveedor-sdk.mjs",
+      "bytes": 9943,
+      "sha256": "3f44aab9cbc383daf1395a45875e1818c5de818d95b09322df443304300ae5f3"
+    },
+    {
+      "path": "docs/evidencias/168-sdk.log.gz",
+      "bytes": 675,
+      "sha256": "29a0e6f9a07c88f6646c6996bfa80c741d1a69518a1888d8e9045741e30c6e51"
+    },
+    {
+      "path": "docs/evidencias/169-cierre-consolidado.md",
+      "bytes": 5425,
+      "sha256": "350f6bfe45de1e793a00b3effe23218bbb2407e3c5810a14a6ed8d85c5f9534f"
+    },
+    {
+      "path": "docs/evidencias/169-native-observed.json",
+      "bytes": 4042,
+      "sha256": "fb14f9b2ce27a46e8239c151c6cac9285b825e1707858f445a9a2e8d5dc0ad5d"
+    },
+    {
+      "path": "docs/evidencias/169-pr-body.md",
+      "bytes": 1986,
+      "sha256": "9d680160fd567fa8adee383026978429d0d8044e1b081daa1d5e72383419f254"
+    },
+    {
+      "path": "docs/evidencias/169-validacion.json",
+      "bytes": 1529,
+      "sha256": "378a124b5e6779b97a87475b9b958974746dd68b41791d8b2afc453717d8cd24"
+    },
+    {
+      "path": "docs/evidencias/169-validar.mjs",
+      "bytes": 6365,
+      "sha256": "47f18645d08c1b586054527346a1a108d005238a9ca389c12e6fb801b04e019c"
+    },
+    {
+      "path": "docs/ordenes/204-claude-proveedor-cambios-simultaneos.md",
+      "bytes": 5087,
+      "sha256": "38d042e1ba0610936011e75951f9a77a2a53e827e7124bed2832723cc6d56263"
+    }
+  ],
+  "excludedLocalArtifacts": [
+    "docs/evidencias/166-build.log",
+    "docs/evidencias/166-mobile-artifacts/.last-run.json",
+    "docs/evidencias/166-mobile-results.json",
+    "docs/evidencias/166-mobile-serve.log",
+    "docs/evidencias/166-mobile.log",
+    "docs/evidencias/166-native-artifacts/.last-run.json",
+    "docs/evidencias/166-native-results.json",
+    "docs/evidencias/166-native-serve.log",
+    "docs/evidencias/166-native.log",
+    "docs/evidencias/167-regresion-results.json",
+    "docs/evidencias/167-regresion.log",
+    "docs/evidencias/168-emulator.log",
+    "docs/evidencias/168-sdk.log"
+  ]
+}

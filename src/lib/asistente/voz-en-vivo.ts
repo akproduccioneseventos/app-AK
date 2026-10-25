@@ -1,3 +1,102 @@
+
+export const HERRAMIENTAS_VOZ = [
+  {
+    functionDeclarations: [
+      {
+        name: 'crear_tarea',
+        description: 'Crea una tarea pendiente para el equipo o la persona.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            titulo: { type: 'STRING', description: 'Título o descripción de la tarea' },
+            paraQuien: { type: 'STRING', description: 'Nombre o rol a quien se le asigna la tarea' },
+          },
+          required: ['titulo'],
+        },
+      },
+      {
+        name: 'anotar_recordatorio',
+        description: 'Anota un recordatorio con fecha u hora para no olvidar algo importante.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            recordatorio: { type: 'STRING', description: 'Texto del recordatorio' },
+            fechaHora: { type: 'STRING', description: 'Cuándo recordar' },
+          },
+          required: ['recordatorio'],
+        },
+      },
+      {
+        name: 'agendar_reunion',
+        description: 'Agenda una reunión con un cliente o proveedor.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            conQuien: { type: 'STRING', description: 'Con quién es la reunión' },
+            fechaHora: { type: 'STRING', description: 'Fecha y hora propuesta' },
+            motivo: { type: 'STRING', description: 'Motivo de la reunión' },
+          },
+          required: ['conQuien'],
+        },
+      },
+      {
+        name: 'ver_mi_semana',
+        description: 'Consulta los eventos y compromisos de los próximos días.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {},
+        },
+      },
+      {
+        name: 'cuanto_me_deben',
+        description: 'Consulta los saldos y cobros pendientes (sólo para contabilidad o dueño).',
+        parameters: {
+          type: 'OBJECT',
+          properties: {},
+        },
+      },
+      {
+        name: 'que_falta_de_la_fiesta',
+        description: 'Consulta los pendientes importantes y preparación de una fiesta por nombre o agasajado.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            nombreFiesta: { type: 'STRING', description: 'Nombre del agasajado o del evento' },
+          },
+          required: ['nombreFiesta'],
+        },
+      },
+      {
+        name: 'preparar_borrador_whatsapp',
+        description: 'Prepara un borrador de mensaje de WhatsApp para que una persona lo revise y envíe con un toque.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            destinatario: { type: 'STRING', description: 'Nombre o teléfono del destinatario' },
+            mensaje: { type: 'STRING', description: 'Texto sugerido del mensaje' },
+          },
+          required: ['destinatario', 'mensaje'],
+        },
+      },
+      {
+        name: 'preparar_mail',
+        description: 'Prepara un borrador de correo electrónico.',
+        parameters: {
+          type: 'OBJECT',
+          properties: {
+            destinatario: { type: 'STRING', description: 'Correo del destinatario' },
+            asunto: { type: 'STRING', description: 'Asunto del mail' },
+            cuerpo: { type: 'STRING', description: 'Contenido del mail' },
+          },
+          required: ['destinatario', 'asunto'],
+        },
+      },
+    ],
+  },
+];
+
+import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
 /**
  * @fileOverview Voz en vivo del Asistente AK (orden 105, bloque 3): el dueño habla, el asistente
  * contesta con voz en tiempo real, con la API en vivo de Gemini (audio de ida y vuelta).
@@ -95,6 +194,7 @@ export function armarCuerpoFicha({ modelo, voz, instrucciones, minutos, ahora = 
         responseModalities: ['AUDIO'],
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voz } } },
         systemInstruction: { parts: [{ text: instrucciones }] },
+        tools: HERRAMIENTAS_VOZ,
       },
     },
   };
@@ -121,7 +221,8 @@ export function armarInstruccionesDeVoz(contextoDelNegocio: string): string {
     'Hablás con el dueño o con el equipo, en castellano rioplatense, con voz cálida y natural.',
     'Contestá corto, como se habla: una o dos frases, sin listas largas ni símbolos. Si hay mucho para decir, ofrecé seguir en el chat.',
     'Si te interrumpen, callate y escuchá.',
-    'No ejecuto acciones por voz: si te piden cambiar, cargar, cobrar, mandar o borrar algo, decí que lo dejás listo en el chat y que la persona lo confirma ahí.',
+    'Cuando te piden algo, usá la herramienta. Si la herramienta dice que hay que confirmar, preguntá "¿lo hago?" y sólo con un sí claro volvé a llamarla confirmada.',
+    'Fuera de las herramientas no cambies, cobres, mandes ni borres nada: decí que lo dejás listo en el chat y que la persona lo confirma ahí.',
     'Nunca inventes números, fechas ni nombres: usá sólo lo que figura en el contexto de abajo. Si no lo sabés, decilo.',
     'Reglas de la empresa: no prometas plazos de respuesta, no congeles precios (hay un ajuste anual) y no ofrezcas nada por fuera de lo que figura en el contexto.',
     '',
@@ -141,4 +242,94 @@ export function resumirContextoParaVoz(briefing: {
     lineas.push(`- ${item.priority ? `[${item.priority}] ` : ''}${item.title || ''}${item.detail ? `: ${item.detail}` : ''}`);
   }
   return lineas.filter(Boolean).join('\n').slice(0, LIMITE_CONTEXTO);
+}
+
+
+export interface ContextoVozDatos {
+  fiestas?: any[];
+  briefing?: any;
+  prospectos?: any[];
+  agenda?: any[];
+}
+
+export function contextoDeVozParaPerfil(
+  usuario: { role?: string; roles?: string[]; permissions?: string[] },
+  datos: ContextoVozDatos = {}
+): string {
+  const puedeContabilidad = puede(usuario, PERMISOS.CONTABILIDAD);
+  const puedeOrganizacion = puede(usuario, PERMISOS.ORGANIZACION);
+  const puedeCrm = puede(usuario, PERMISOS.CRM);
+
+  const lineas: string[] = [];
+
+  // 1. Saludo inicial según perfil
+  if (puedeContabilidad && datos.briefing?.items?.length) {
+    const primerCobro = datos.briefing.items[0];
+    lineas.push(`¡Hola! Tenés cobros pendientes para revisar hoy: ${primerCobro.title || primerCobro.detail}.`);
+  } else if (puedeOrganizacion && datos.fiestas?.length) {
+    const proxima = datos.fiestas[0];
+    const prep = calculateFiestaPreparationScore(proxima);
+    const primerItem = prep.importantPending?.[0];
+    const primerPendiente = typeof primerItem === 'string' ? primerItem : primerItem?.label || (primerItem as any)?.title || 'revisar cronograma';
+    const nombre = proxima.configuracion?.nombreEvento || proxima.configuracion?.clienteNombre || 'próxima fiesta';
+    lineas.push(`¡Hola! A la fiesta de ${nombre} le falta: ${primerPendiente}.`);
+  } else {
+    lineas.push('¡Hola! Soy tu asistente de AK Producciones. ¿En qué te puedo ayudar hoy?');
+  }
+
+  // 2. Todos: Fiestas de los próximos 30 días y agenda
+  lineas.push('\n--- FIESTAS DE LOS PRÓXIMOS 30 DÍAS ---');
+  if (datos.fiestas && datos.fiestas.length > 0) {
+    for (const f of datos.fiestas.slice(0, 10)) {
+      const nombre = f.configuracion?.nombreEvento || f.configuracion?.clienteNombre || f.nombre || 'Fiesta';
+      const fecha = f.configuracion?.fechaEvento || f.fecha || '';
+      lineas.push(`- ${nombre} (${fecha})`);
+      if (puedeOrganizacion) {
+        const prep = calculateFiestaPreparationScore(f);
+        const top3 = (prep.importantPending || []).slice(0, 3).map((c: any) => typeof c === 'string' ? c : c.label || c.title || 'pendiente');
+        if (top3.length > 0) {
+          lineas.push(`  Pendientes importantes: ${top3.join(', ')}`);
+        }
+      }
+    }
+  } else {
+    lineas.push('No hay fiestas registradas en los próximos 30 días.');
+  }
+
+  // 3. Contabilidad: saldos y cuotas vencidas (SOLO si puede CONTABILIDAD)
+  if (puedeContabilidad) {
+    lineas.push('\n--- COBROS Y SALDOS PENDIENTES ---');
+    if (datos.briefing?.items && datos.briefing.items.length > 0) {
+      for (const item of datos.briefing.items.slice(0, 8)) {
+        lineas.push(`- ${item.title || ''}: ${item.detail || ''}`);
+      }
+    } else {
+      lineas.push('No hay cobros pendientes urgentes.');
+    }
+  }
+
+  // 4. CRM: prospectos para seguir hoy
+  if (puedeCrm) {
+    lineas.push('\n--- PROSPECTOS PARA SEGUIMIENTO HOY ---');
+    if (datos.prospectos && datos.prospectos.length > 0) {
+      for (const p of datos.prospectos.slice(0, 8)) {
+        lineas.push(`- ${p.nombre || p.name}: ${p.tipoFiesta || p.partyType || 'Consulta'} (${p.telefono || p.phone || 'Sin tel'})`);
+      }
+    } else {
+      lineas.push('No hay prospectos pendientes para hoy.');
+    }
+  }
+
+  const textoFinal = lineas.join('\n').slice(0, LIMITE_CONTEXTO);
+
+  // Candado estricto: si NO puede contabilidad, JAMÁS puede haber $, saldo, seña o cuota en el texto final
+  if (!puedeContabilidad) {
+    return textoFinal
+      .replace(/\$/g, '')
+      .replace(/\bsaldo(s)?\b/gi, 'estado')
+      .replace(/\bseña(s)?\b/gi, 'reserva')
+      .replace(/\bcuota(s)?\b/gi, 'pago');
+  }
+
+  return textoFinal;
 }

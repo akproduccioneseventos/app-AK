@@ -1,0 +1,115 @@
+{
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "testSha256": "be24a7574d459d1c09c25c8e6a1ea532488288f932146ae3450b0a72372ebe05",
+  "hashes": {
+    "src/components/landing/GallerySection.tsx": "df87995ab8e98a25a13c93572f2cc2e7699290d7e66579ca1c610852ec3dcae9",
+    "src/lib/utils.ts": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+    "src/lib/reportes/rango-de-dias.ts": "e64cb6a73f65c7f6f4d3b848783dd42be63abe0acf6f7e525ddb20875ed3956f",
+    "src/lib/next-image-url.ts": "96625c1d47ff7dddc67d55cf750e9f11a98ebf5b89c6b5b1638c38496e974dd6",
+    "src/lib/galeria/texto-de-la-foto.ts": "ac29b0c0c8ae2d645813aa018521baf7408c29854d69e58fa9dcd8634aa70c1e",
+    "src/components/landing/gallery-media-utils.ts": "aa38827afe414711190856b8cbe6d8b4f8b394d73a5517cbcb92e2751b4f82e1",
+    "src/components/ayuda/VideoDeAyuda.tsx": "73be7cca174d56833b7a61856e31dccfae8e47787ea5ad3f43f74c315d30f0f1"
+  },
+  "cases": [
+    {
+      "name": "positive-control-autofocus",
+      "pass": true,
+      "observed": "control-first"
+    },
+    {
+      "name": "positive-control-tab-stays-inside",
+      "pass": true,
+      "observed": "control-first"
+    },
+    {
+      "name": "positive-control-effect-frame-flushed",
+      "pass": true,
+      "observed": true
+    },
+    {
+      "name": "gallery-opens",
+      "pass": true,
+      "observed": "https://qa.invalid/qa161-a.jpg"
+    },
+    {
+      "name": "gallery-autofocus-enters",
+      "pass": true,
+      "observed": "Cerrar galería"
+    },
+    {
+      "name": "gallery-next",
+      "pass": true,
+      "observed": "https://qa.invalid/qa161-b.jpg"
+    },
+    {
+      "name": "gallery-previous",
+      "pass": true,
+      "observed": "https://qa.invalid/qa161-a.jpg"
+    },
+    {
+      "name": "gallery-wraps",
+      "pass": true,
+      "observed": "https://qa.invalid/qa161-c.jpg"
+    },
+    {
+      "name": "gallery-forward-tab-stays-inside",
+      "pass": false,
+      "observed": {
+        "tag": "BUTTON",
+        "label": null,
+        "id": "after"
+      }
+    },
+    {
+      "name": "gallery-backward-tab-stays-inside",
+      "pass": false,
+      "observed": {
+        "tag": "BUTTON",
+        "label": "Abrir foto: Evento QA161c",
+        "id": ""
+      }
+    },
+    {
+      "name": "gallery-escape-closes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "gallery-return-to-trigger",
+      "pass": true,
+      "observed": "Abrir foto: Evento QA161a"
+    },
+    {
+      "name": "gallery-close-button-returns-focus",
+      "pass": true,
+      "observed": "Abrir foto: Evento QA161a"
+    },
+    {
+      "name": "video-autofocus-enters",
+      "pass": true,
+      "observed": "Cerrar video de ayuda"
+    },
+    {
+      "name": "video-escape-closes",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "name": "video-return-to-trigger",
+      "pass": true,
+      "observed": "¿Cómo se usa? Ver video de ayuda"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "pass": 14,
+    "fail": 2
+  },
+  "scope": "Actual GallerySection/VideoDeAyuda React components, real framer-motion/NextImage/Radix; user-event Tab/Shift+Tab DOM with positive trap control",
+  "limits": [
+    "Not native browser keyboard or assistive technology; no image/YouTube network, no mobile visual acceptance",
+    "Video action returns empty fictitious catalog; initialVideo supplied, no real fetch",
+    "Public Claude candidate108e, not main9b7 or deployment"
+  ],
+  "appEdited": false
+}

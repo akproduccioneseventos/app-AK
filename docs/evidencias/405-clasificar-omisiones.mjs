@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');
+const baseline=JSON.parse(fs.readFileSync(path.join(dir,'318-conciliacion-cierre.json'),'utf8'));
+const skipped=baseline.cases.filter(c=>c.latest.status==='skipped').map(c=>c.latest);assert.equal(skipped.length,34);
+const cases=skipped.map(c=>{
+ assert.equal(c.project,'chromium-mobile');const skip=c.annotations.find(a=>a.type==='skip');assert(skip?.description,'Runtime skip reason missing');
+ const file='tests/e2e/'+c.sourceFile,r=spawnSync('git',['show',baseline.source+':'+file],{cwd:root,encoding:'utf8'});assert.equal(r.status,0);
+ const lines=r.stdout.split(/\r?\n/),guard=lines.map((line,i)=>({line:i+1,text:line.trim()})).filter(x=>x.text.includes('test.skip(')&&x.text.includes("project.name !== 'chromium-desktop'"));
+ assert(guard.length,'No matching original project guard');
+ return{file,title:c.fullTitle,project:c.project,status:c.status,report:c.report,runtimeReason:skip.description,matchingProjectGuards:guard,classification:'DELIBERATE_DESKTOP_ONLY_PROJECT_GUARD',notMissingHardware:true,acceptance:'NOT_EXECUTED_ON_MOBILE; do not mark passed'};
+});
+const groups=Object.values(cases.reduce((acc,c)=>{(acc[c.file]??={file:c.file,count:0,reasons:[]}).count++;if(!acc[c.file].reasons.includes(c.runtimeReason))acc[c.file].reasons.push(c.runtimeReason);return acc;},{}));
+assert.equal(groups.reduce((n,g)=>n+g.count,0),34);
+const result={source:baseline.source,at:new Date().toISOString(),notNewExecution:true,total:34,groups,cases,conclusion:'All34 omissions are original desktop-only guards in the mobile project. They are not34 missing business functions and do not require owner hardware/credentials. Desktop counterparts were executed; a mobile variant remains an additional QA scope, not a silent PASS.'};
+fs.writeFileSync(path.join(dir,'405-omisiones.json'),JSON.stringify(result,null,2)+'\n');
+fs.writeFileSync(path.join(dir,'405-clasificacion-omisiones.md'),'# Clasificacion comprobada de las34omisiones\n\nFuente'+baseline.source+'. Runtime annotations y guardas de los specs originales.\nNo son pruebas nuevas ni34funciones nuevas sin implementar.\n\n| Archivo | Casos | Motivo de la suite |\n| --- | ---: | --- |\n'+groups.map(g=>'|'+g.file+'|'+g.count+'|'+g.reasons.join(';')+'|').join('\n')+'\n\nSuma34, todoschromium-mobile, todos omitidos expresamente por proyecto.\nNo falta hardware ni credencial para esos34. Sus equivalentesPC ya tienen\nrecibo de ejecucion; no significa que la variante movil se haya ejecutado.\nEl analisis inicial del ayudante no completo el contraste; esta clasificacion\nsi une cada caso real omitido con su anotacion y su guarda originalGit.\n');
+console.log(JSON.stringify({total:34,groups:groups.length,allProjectGuards:true}));

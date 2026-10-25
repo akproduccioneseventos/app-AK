@@ -1,4 +1,3 @@
-
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';

@@ -105,7 +105,8 @@ export async function deletePlaybook(id: string): Promise<{ success: boolean; er
 export async function applyPlaybookToFiesta(
   playbookId: string,
   fiestaId: string,
-  _userId?: string
+  _userId?: string,
+  operacionId?: string
 ): Promise<{
   success: boolean;
   tareasGeneradas: number;
@@ -121,6 +122,23 @@ export async function applyPlaybookToFiesta(
     return { success: false, tareasGeneradas: 0, documentosGenerados: 0, comprasGeneradas: 0, error: session.error || 'Sesion no autorizada.' };
   }
   const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';
+
+  if (operacionId) {
+    try {
+      const previas = await getPlaybookAplicaciones();
+      const yaAplicada = previas.find(a => a.operacionId === operacionId && a.fiestaId === fiestaId);
+      if (yaAplicada) {
+        return {
+          success: true,
+          tareasGeneradas: yaAplicada.tareasGeneradas,
+          documentosGenerados: yaAplicada.documentosGenerados,
+          comprasGeneradas: 0,
+        };
+      }
+    } catch {
+      // continuar si no se pudo leer previas
+    }
+  }
   try {
     const [playbook, fiesta] = await Promise.all([
       getPlaybookById(playbookId),
@@ -200,6 +218,7 @@ export async function applyPlaybookToFiesta(
         aplicadoPor: usuarioReal,
         tareasGeneradas: nuevasTareas.length,
         documentosGenerados: nuevosDocumentos.length,
+        ...(operacionId ? { operacionId } : {}),
       };
       aplicaciones.push(aplicacion);
       await writeData(APLICACIONES_FILE, aplicaciones);

@@ -36,6 +36,8 @@ import {
   Layers,
   DollarSign,
 } from 'lucide-react';
+import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+import { getMisPermisos } from '@/app/actions/sesion';
 
 interface HubItem {
   title: string;
@@ -45,6 +47,7 @@ interface HubItem {
   color: string;
   badge?: string;
   external?: boolean;
+  permiso?: Permiso;
 }
 
 const VENDER_ITEMS: HubItem[] = [
@@ -91,6 +94,7 @@ const VENDER_ITEMS: HubItem[] = [
 const PLATA_ITEMS: HubItem[] = [
   {
     title: 'Cobros y Pagos Rápidos',
+    permiso: PERMISOS.CONTABILIDAD,
     description: 'Registrar cobros, señas, cuotas y emitir recibos al instante sin dar vueltas.',
     href: '/pagos-rapidos',
     icon: Wallet,
@@ -99,6 +103,7 @@ const PLATA_ITEMS: HubItem[] = [
   },
   {
     title: 'Panel Contable y Financiero',
+    permiso: PERMISOS.CONTABILIDAD,
     description: 'Control de ingresos, egresos, rentabilidad neta por evento y balances.',
     href: '/empresa/contabilidad',
     icon: BarChart3,
@@ -106,6 +111,7 @@ const PLATA_ITEMS: HubItem[] = [
   },
   {
     title: 'Facturación',
+    permiso: PERMISOS.CONTABILIDAD,
     description: 'Emisión, control y registro de facturas emitidas por la empresa.',
     href: '/invoices',
     icon: DollarSign,
@@ -113,6 +119,7 @@ const PLATA_ITEMS: HubItem[] = [
   },
   {
     title: 'Flujo de Caja',
+    permiso: PERMISOS.CONTABILIDAD,
     description: 'Entradas y salidas proyectadas para anticipar compromisos y liquidez.',
     href: '/empresa/contabilidad/flujo-caja',
     icon: TrendingUp,
@@ -120,6 +127,7 @@ const PLATA_ITEMS: HubItem[] = [
   },
   {
     title: 'Métricas del Negocio',
+    permiso: PERMISOS.GANANCIAS,
     description: 'Panel gerencial con evolución mensual de ventas, ticket promedio y cobros.',
     href: '/empresa/dashboard',
     icon: BarChart3,
@@ -278,13 +286,40 @@ const CANVA_CATALOGS = [
 
 export default function EmpresaHubPage() {
   const [activeTab, setActiveTab] = useState('todos');
+  const [misPermisos, setMisPermisos] = useState<Permiso[] | null>(null);
+
+  React.useEffect(() => {
+    let cancelado = false;
+    getMisPermisos()
+      .then((res) => {
+        if (!cancelado) setMisPermisos(res.permisos);
+      })
+      .catch(() => {
+        if (!cancelado) setMisPermisos([]);
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  const filtrarPorPermiso = (items: HubItem[]) => {
+    if (!misPermisos) {
+      return items.filter((i) => !i.permiso);
+    }
+    return items.filter((i) => !i.permiso || misPermisos.includes(i.permiso));
+  };
+
+  const venderItemsFiltrados = filtrarPorPermiso(VENDER_ITEMS);
+  const plataItemsFiltrados = filtrarPorPermiso(PLATA_ITEMS);
+  const recursosItemsFiltrados = filtrarPorPermiso(RECURSOS_ITEMS);
+  const marketingItemsFiltrados = filtrarPorPermiso(MARKETING_ITEMS);
 
   const groups = [
-    { id: 'vender', label: '1. Vender', count: VENDER_ITEMS.length, items: VENDER_ITEMS, emoji: '💼' },
-    { id: 'plata', label: '2. Plata', count: PLATA_ITEMS.length, items: PLATA_ITEMS, emoji: '💰' },
-    { id: 'recursos', label: '3. Recursos', count: RECURSOS_ITEMS.length, items: RECURSOS_ITEMS, emoji: '📦' },
-    { id: 'marketing', label: '4. Marketing', count: MARKETING_ITEMS.length, items: MARKETING_ITEMS, emoji: '🚀' },
-  ];
+    { id: 'vender', label: '1. Vender', count: venderItemsFiltrados.length, items: venderItemsFiltrados, emoji: '💼' },
+    { id: 'plata', label: '2. Plata', count: plataItemsFiltrados.length, items: plataItemsFiltrados, emoji: '💰' },
+    { id: 'recursos', label: '3. Recursos', count: recursosItemsFiltrados.length, items: recursosItemsFiltrados, emoji: '📦' },
+    { id: 'marketing', label: '4. Marketing', count: marketingItemsFiltrados.length, items: marketingItemsFiltrados, emoji: '🚀' },
+  ].filter((g) => g.items.length > 0);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-24">

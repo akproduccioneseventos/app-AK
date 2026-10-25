@@ -12,7 +12,6 @@ import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { readData, writeData } from '@/lib/data-service';
-import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 
 export interface AtenderEquipoParams {
   from: string;
@@ -47,6 +46,7 @@ export interface ResultadoPresupuestoProspecto {
   presupuestoId?: string;
   token?: string;
   linkPresupuesto?: string;
+  error?: string;
 }
 
 /**
@@ -104,7 +104,7 @@ export function extraerDatosPresupuestoProspecto(texto: string): DatosPresupuest
 /**
  * Atiende a un prospecto que llega desde un anuncio de WhatsApp.
  * Si faltan fecha, invitados o salón, le pregunta lo que falta sin llamar al simulador.
- * Con los tres datos, llama a generateBudgetAndLeadFromSimulator y prepara el borrador
+ * Con los tres datos, prepara el enlace al simulador
  * sin dar nada por cerrado ni prometer precios ni plazos.
  */
 export async function atenderProspectoAnuncioWhatsApp(params: {
@@ -133,11 +133,11 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
     };
   }
 
-  // Tenemos los 3 datos: armamos el enlace al simulador pre-cargado con fecha, invitados y salón
+  // Armamos el enlace al simulador pre-cargado con fecha, invitados y salón
   const queryParams = new URLSearchParams();
-  queryParams.set('fecha', datos.fecha);
-  queryParams.set('guests', String(datos.invitados));
-  queryParams.set('salon', datos.salon);
+  queryParams.set('fecha', datos.fecha || '');
+  queryParams.set('guests', String(datos.invitados || 0));
+  queryParams.set('salon', datos.salon || '');
   queryParams.set('source', 'whatsapp_ad');
   const linkSimulador = 'https://akproducciones.uy/simulador-de-presupuesto?' + queryParams.toString();
 
@@ -145,21 +145,39 @@ export async function atenderProspectoAnuncioWhatsApp(params: {
   try {
     const { saveScheduledMessage } = await import('@/app/actions/scheduled-messages');
     const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
-    await saveScheduledMessage(
+    const saveResult = await saveScheduledMessage(
       {
         channel: 'whatsapp',
+        targetType: 'prospecto',
+        targetId: params.phone,
         targetPhone: params.phone,
         targetName: params.name || 'Prospecto',
+        templateType: 'personalizado',
         messageText: '¡Hola! Podés ver tu propuesta personalizada y ajustar los detalles en el simulador: ' + linkSimulador + '. Quedamos a las órdenes para coordinar sin compromiso.',
-        scheduledFor: new Date().toISOString(),
+        scheduledAt: new Date().toISOString(),
         status: 'pendiente',
-        ruleKey: 'presupuesto-anuncio:' + params.phone,
+        sendingMode: 'manual_click',
       },
       WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
       { idEstable: 'draft_presupuesto_anuncio_' + params.phone }
     );
-  } catch (err) {
+
+    if (!saveResult || !saveResult.success) {
+      return {
+        completo: false,
+        faltantes: [],
+        respuestaTexto: 'Hubo un error al preparar tu propuesta en el simulador. Por favor intentá nuevamente.',
+        error: saveResult?.error || 'No se pudo guardar el borrador del presupuesto',
+      };
+    }
+  } catch (err: any) {
     console.warn('[WhatsApp] No se pudo guardar borrador en bandeja de salida:', err);
+    return {
+      completo: false,
+      faltantes: [],
+      respuestaTexto: 'Hubo un error al preparar tu propuesta en el simulador. Por favor intentá nuevamente.',
+      error: err?.message || 'Error al guardar borrador',
+    };
   }
 
   const respuestaTexto = '¡Perfecto! Te preparamos el simulador con tu fecha (' + datos.fecha + '), ' + datos.invitados + ' invitados en ' + datos.salon + ': ' + linkSimulador + ' para revisar sin compromiso.';

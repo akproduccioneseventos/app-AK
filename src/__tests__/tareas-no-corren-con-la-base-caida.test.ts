@@ -27,7 +27,7 @@ jest.mock('@/lib/alertas/errores-humanos', () => ({ detectarErroresHumanos: () =
 jest.mock('@/lib/automatico/parte-manana', () => ({ getParteDeLaManana: jest.fn(async () => null) }));
 jest.mock('@/lib/asistente/clima-de-las-fiestas', () => ({ detectarAlertasClimaFiestas: jest.fn(async () => []) }));
 jest.mock('@/lib/asistente/fechas-comerciales', () => ({ obtenerProximasFechasComerciales: () => [] }));
-jest.mock('@/lib/asistente/avisar-al-duenio', () => ({ avisarAlDuenio: jest.fn(), getHoraUruguay: () => 12 }));
+jest.mock('@/lib/asistente/avisar-al-duenio', () => ({ avisarAlDuenio: jest.fn(), getHoraUruguay: () => 12, getAsistenteSettings: jest.fn(async () => ({ avisosProactivosActivos: true })) }));
 const agregar = jest.fn(async () => ({ agregadas: [], ignoradas: 0 }));
 jest.mock('@/lib/asistente/propuestas-service', () => ({
   agregarPropuestasDeduplicadas: (...a: any[]) => (agregar as any)(...a),

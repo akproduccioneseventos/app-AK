@@ -1,4 +1,3 @@
-
 'use server';
 
 import { idDelIntento } from '@/lib/intento-en-servidor';
@@ -260,9 +259,28 @@ export async function saveCustomer(
 export async function deleteCustomer(id: string): Promise<{ success: boolean; error?: string }> {
   const auth = await requirePermisoParaTocarClientes();
   if (!auth.ok) return { success: false, error: auth.error };
-  let customers = await getCustomers();
+  const customers = await getCustomers();
   const customerToDelete = customers.find(c => c.id === id);
-  const initialLength = customers.length;
+
+  // 1. Primero la ficha: eliminar el registro del cliente
+  if (!SIN_BASE()) {
+    const borrado = await deleteDataItem(CUSTOMERS_FILE, CUSTOMERS_COLLECTION, id);
+    if (!borrado) return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
+  } else {
+    const res = await customersMutex.runExclusive(async () => {
+      let list = await readData<Customer[]>(CUSTOMERS_FILE, []);
+      const initialLength = list.length;
+      list = list.filter(c => c.id !== id);
+      if (list.length === initialLength) {
+        return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
+      }
+      await writeData(CUSTOMERS_FILE, list);
+      return { success: true };
+    });
+    if (!res.success) return res;
+  }
+
+  // 2. Los archivos después: sólo tras confirmar la eliminación de la ficha
   if (customerToDelete?.contractFileName) {
     try {
       await deleteFromStorage(customerToDelete.contractFileName);
@@ -285,22 +303,7 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
     }
   }
 
-  if (!SIN_BASE()) {
-    const borrado = await deleteDataItem(CUSTOMERS_FILE, CUSTOMERS_COLLECTION, id);
-    if (!borrado) return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
-    return { success: true };
-  }
-
-  return customersMutex.runExclusive(async () => {
-    let list = await readData<Customer[]>(CUSTOMERS_FILE, []);
-    const initialLength = list.length;
-    list = list.filter(c => c.id !== id);
-    if (list.length === initialLength) {
-      return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
-    }
-    await writeData(CUSTOMERS_FILE, list);
-    return { success: true };
-  });
+  return { success: true };
 }
 
 export async function getContractFilePath(filename: string): Promise<string | null> {

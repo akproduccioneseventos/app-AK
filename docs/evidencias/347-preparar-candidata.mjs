@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const dir=fileURLToPath(new URL('./',import.meta.url));
+const source='3f9460185143ef034dcd713e975d2a0af5e20f1a';
+const contrast=JSON.parse(fs.readFileSync(path.join(dir,'342-candidata-publica.json'),'utf8'));assert.equal(contrast.publicCandidate.sha,source);
+assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'345-jest-final.json'),'utf8')).phase,'finished');
+const original=fs.readFileSync(path.join(dir,'280-entorno-actual.mjs'),'utf8');assert(original.includes('3e45a4ac6b479f89605163168e31b37dc84f2d0f'));
+const code=original.replaceAll('280','347').replaceAll('3e45a4ac6b479f89605163168e31b37dc84f2d0f',source);
+const target=path.join(dir,'347-entorno-actual.mjs');assert(!fs.existsSync(target));
+const syntax=spawnSync(process.execPath,['--check','--input-type=module'],{input:code,encoding:'utf8'});assert.equal(syntax.status,0,syntax.stderr);
+fs.writeFileSync(target,code,{flag:'wx'});
+fs.writeFileSync(path.join(dir,'347-adaptacion.json'),JSON.stringify({source,from:'280-entorno-actual.mjs',purpose:'NEW frozen candidate1353, not rerun main3e. Same resource/empty-credentials/dependency guards, no app edits or foreign process stops.',assertionsChanged:false,build291AcceptedForCandidate:false},null,2)+'\n');
+await import('./347-entorno-actual.mjs');

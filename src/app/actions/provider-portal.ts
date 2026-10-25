@@ -1,6 +1,6 @@
 'use server';
 
-import { createDataItem, readData, updateDataItem } from '@/lib/data-service';
+import { createDataItem, mutateDataItem, readData } from '@/lib/data-service';
 import type { ProveedorPortalAccess, EstadoProveedorPortal } from '@/types/provider-portal';
 import { randomUUID } from 'crypto';
 import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
@@ -24,17 +24,41 @@ type ProviderMutationResult = {
   error?: string;
 };
 
-async function persistProvider(access: ProveedorPortalAccess): Promise<ProviderMutationResult> {
-  const updated = await updateDataItem(
-    DATA_PATH,
-    DATA_COLLECTION,
-    access.id,
-    access,
-  );
-  if (!updated) {
-    return { success: false, error: 'El acceso del proveedor ya no existe.' };
-  }
-  return { success: true, data: access };
+function motivoDeRechazo(actual: ProveedorPortalAccess, token: string): string | null {
+  if (actual.token !== token || !actual.activo) return 'Proveedor no encontrado o acceso inactivo';
+  if (actual.venceEl && new Date(actual.venceEl).getTime() < Date.now()) return 'Acceso de proveedor vencido';
+  return null;
+}
+
+/**
+ * Cambia sólo lo que pidió el proveedor, sobre el registro como está AHORA (Codex 163/168, orden 204).
+ * Antes se guardaba la ficha entera leída antes de la transacción: dos toques a la vez perdían uno, y
+ * un acceso desactivado o con token nuevo en el medio volvía a quedar activo o con el token viejo.
+ * Por eso el token, el estado activo y el vencimiento se vuelven a mirar adentro del cambio.
+ */
+async function cambiarAccesoDelProveedor(
+  token: string,
+  cambiar: (actual: ProveedorPortalAccess) => ProveedorPortalAccess | string,
+): Promise<ProviderMutationResult> {
+  const access = await getProveedorByToken(token);
+  if (!access.success || !access.data) return { success: false, error: access.error };
+  let rechazo: string | undefined;
+  const guardado = await mutateDataItem<ProveedorPortalAccess>(DATA_PATH, DATA_COLLECTION, access.data.id, (actual) => {
+    rechazo = undefined;
+    const motivo = motivoDeRechazo(actual, token);
+    if (motivo) {
+      rechazo = motivo;
+      return null;
+    }
+    const nuevo = cambiar(actual);
+    if (typeof nuevo === 'string') {
+      rechazo = nuevo;
+      return null;
+    }
+    return nuevo;
+  });
+  if (!guardado) return { success: false, error: rechazo || 'El acceso del proveedor ya no existe.' };
+  return { success: true, data: guardado };
 }
 
 export async function getProveedoresPortal(fiestaId: string): Promise<{ success: boolean; data?: ProveedorPortalAccess[]; error?: string }> {
@@ -91,9 +115,7 @@ export async function updateProveedorEstado(token: string, estado: EstadoProveed
     if (!VALID_STATES.has(estado)) {
       return { success: false, error: 'El estado indicado no es válido.' };
     }
-    const access = await getProveedorByToken(token);
-    if (!access.success || !access.data) return { success: false, error: access.error };
-    return await persistProvider({ ...access.data, estadoActual: estado });
+    return await cambiarAccesoDelProveedor(token, (actual) => ({ ...actual, estadoActual: estado }));
   } catch (error) {
     return { success: false, error: String(error) };
   }
@@ -101,13 +123,11 @@ export async function updateProveedorEstado(token: string, estado: EstadoProveed
 
 export async function confirmarLlegada(token: string): Promise<ProviderMutationResult> {
   try {
-    const access = await getProveedorByToken(token);
-    if (!access.success || !access.data) return { success: false, error: access.error };
-    return await persistProvider({
-      ...access.data,
+    return await cambiarAccesoDelProveedor(token, (actual) => ({
+      ...actual,
       estadoActual: 'Llegó',
       llegadaConfirmadaEn: new Date().toISOString(),
-    });
+    }));
   } catch (error) {
     return { success: false, error: String(error) };
   }
@@ -115,13 +135,11 @@ export async function confirmarLlegada(token: string): Promise<ProviderMutationR
 
 export async function confirmarPartida(token: string): Promise<ProviderMutationResult> {
   try {
-    const access = await getProveedorByToken(token);
-    if (!access.success || !access.data) return { success: false, error: access.error };
-    return await persistProvider({
-      ...access.data,
+    return await cambiarAccesoDelProveedor(token, (actual) => ({
+      ...actual,
       estadoActual: 'Completó',
       partidaConfirmadaEn: new Date().toISOString(),
-    });
+    }));
   } catch (error) {
     return { success: false, error: String(error) };
   }
@@ -129,21 +147,20 @@ export async function confirmarPartida(token: string): Promise<ProviderMutationR
 
 export async function toggleTareaProveedor(token: string, tareaId: string): Promise<ProviderMutationResult> {
   try {
-    const access = await getProveedorByToken(token);
-    if (!access.success || !access.data) return { success: false, error: access.error };
-    if (!access.data.tareas.some((task) => task.id === tareaId)) {
-      return { success: false, error: 'La tarea indicada no existe.' };
-    }
-    const tareas = access.data.tareas.map((task) => {
-      if (task.id !== tareaId) return task;
-      const completada = !task.completada;
-      return {
-        ...task,
-        completada,
-        completadoEn: completada ? new Date().toISOString() : undefined,
-      };
+    return await cambiarAccesoDelProveedor(token, (actual) => {
+      const tareasActuales = actual.tareas || [];
+      if (!tareasActuales.some((task) => task.id === tareaId)) return 'La tarea indicada no existe.';
+      const tareas = tareasActuales.map((task) => {
+        if (task.id !== tareaId) return task;
+        const completada = !task.completada;
+        return {
+          ...task,
+          completada,
+          completadoEn: completada ? new Date().toISOString() : undefined,
+        };
+      });
+      return { ...actual, tareas };
     });
-    return await persistProvider({ ...access.data, tareas });
   } catch (error) {
     return { success: false, error: String(error) };
   }
@@ -151,13 +168,11 @@ export async function toggleTareaProveedor(token: string, tareaId: string): Prom
 
 export async function addNotaProveedor(token: string, nota: string): Promise<ProviderMutationResult> {
   try {
-    const access = await getProveedorByToken(token);
-    if (!access.success || !access.data) return { success: false, error: access.error };
     const normalizedNote = nota.trim();
     if (normalizedNote.length > 2000) {
       return { success: false, error: 'La nota es demasiado extensa.' };
     }
-    return await persistProvider({ ...access.data, notas: normalizedNote });
+    return await cambiarAccesoDelProveedor(token, (actual) => ({ ...actual, notas: normalizedNote }));
   } catch (error) {
     return { success: false, error: String(error) };
   }

@@ -1,0 +1,255 @@
+{
+  "checkedAt": "2026-10-22T05:35:16.560Z",
+  "scope": "Audit helper syntax and JSON parsing only, NOT application typecheck/build or all features",
+  "stateLines": 36,
+  "appDiff": "",
+  "results": [
+    {
+      "file": "docs/evidencias/205-portal-nativo-aislado.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/205-preflight-inicial.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/207-portal-activo.spec.ts",
+      "status": 0,
+      "error": []
+    },
+    {
+      "file": "docs/evidencias/208-config.ts",
+      "status": 0,
+      "error": []
+    },
+    {
+      "file": "docs/evidencias/208-egress-guard.cjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/209-ejecucion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/209-ejecutar-bateria.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/209-primer-inicio-ejecucion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/209-version-ejecutada.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/212-cobertura-bateria.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/213-ejecucion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/213-espera-recursos.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/213-esperar-recursos.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/213-resultados.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/213-version-ejecutada.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/214-ejecucion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/214-espera-recursos.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/214-resto-compatible.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/214-seleccion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/214-version-ejecutada.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/215-batch-001-resultados.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/215-batch-002-resultados.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/215-bateria-por-bloques.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/215-ejecucion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/215-espera-recursos.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/215-resultados.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/215-seleccion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/216-contraste-aprobaciones.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/216-contraste-aprobaciones.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/217-casos-concurrencia.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/217-contraste-concurrencia.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/217-contraste-concurrencia.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/217-generar.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/218-ejecucion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/218-ejecutar.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/218-solicitudes-portal-sdk.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/218-solicitudes-portal-sdk.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/221-ejecucion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/221-ejecutar.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/221-solicitudes-portal-sdk.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/221-solicitudes-portal-sdk.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/222-ejecucion.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/222-ejecutar.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/222-pago-informado-sdk.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/222-pago-informado-sdk.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/223-portal-operaciones-contrato.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/223-portal-operaciones-contrato.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/224-portal-cliente-version-nueva.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/224-portal-cliente-version-nueva.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/225-solicitudes-ui.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/225-solicitudes-ui.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/226-contraste-fuentes.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/227-portal-candidato-version-nueva.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/227-portal-candidato-version-nueva.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/228-solicitudes-candidato-ui.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/228-solicitudes-candidato-ui.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/229-album-candidato-ui.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/229-album-candidato-ui.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/231-manifiesto-artefactos.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/233-filtros-funciones.json",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/233-filtros-funciones.mjs",
+      "status": 0
+    }
+  ],
+  "failures": 0
+}

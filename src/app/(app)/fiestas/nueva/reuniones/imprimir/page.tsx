@@ -80,12 +80,20 @@ function ReunionesImprimirContent({ fiestaId }: { fiestaId: string | null }) {
       } else {
         throw new Error();
       }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: 'Enlace Copiado',
-        description: 'El enlace ha sido copiado a tu portapapeles.',
-      });
+    } catch {
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        toast({
+          title: 'Enlace Copiado',
+          description: 'El enlace ha sido copiado a tu portapapeles.',
+        });
+      } catch {
+        toast({
+          title: 'No se pudo copiar el enlace',
+          description: shareData.url,
+          variant: 'destructive',
+        });
+      }
     }
   };
 

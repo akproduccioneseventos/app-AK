@@ -38,6 +38,9 @@ export type PublicSocialEvent = Pick<
     trivia: { nombre: string; puntos: number }[];
     cazadores: { nombre: string; puntos: number }[];
   };
+  tieneRealidadAumentada?: boolean;
+  mindTargetUrl?: string;
+  arVideoUrl?: string;
 };
 
 export function toPublicSocialEvent(
@@ -98,5 +101,11 @@ export function toPublicSocialEvent(
       fiesta.socialGallerySettings?.modoCaras === 'apagado'
         ? []
         : (fiesta.socialGallerySettings?.carasPreparadas || fiesta.carasIndexadas?.length ? fiesta.carasIndexadas : undefined),
+    tieneRealidadAumentada: Boolean(
+      (fiesta.invitacionDigital?.realidadAumentada?.mindTargetUrl && fiesta.invitacionDigital?.realidadAumentada?.videoUrl) ||
+      (fiesta as any).tieneRealidadAumentada
+    ),
+    mindTargetUrl: fiesta.invitacionDigital?.realidadAumentada?.mindTargetUrl || (fiesta as any).mindTargetUrl || undefined,
+    arVideoUrl: fiesta.invitacionDigital?.realidadAumentada?.videoUrl || undefined,
   };
 }

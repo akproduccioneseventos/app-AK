@@ -1,0 +1,57 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "observedAt": "2026-10-24T16:37:33.540Z",
+  "observed": {
+    "fixtureDate": "2027-08-08",
+    "expectedCivilDate": [
+      8,
+      8,
+      2027
+    ],
+    "screen": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+    "printed": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+    "timezone": "America/Montevideo"
+  },
+  "attachmentSha256": "0d49a70cf1073a6ae2077771cc7752a2db578be5e15c4ea5ada188ce91cab8fc",
+  "actualTestParser": "const civilParts = (text: string) => text.match(/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/)?.slice(1).map(Number);",
+  "cases": [
+    {
+      "mode": "screen",
+      "text": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+      "actual": [
+        8,
+        8,
+        2027
+      ],
+      "expected": [
+        8,
+        8,
+        2027
+      ],
+      "pass": true
+    },
+    {
+      "mode": "printed",
+      "text": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+      "actual": [
+        8,
+        8,
+        2027
+      ],
+      "expected": [
+        8,
+        8,
+        2027
+      ],
+      "pass": true
+    }
+  ],
+  "scope": "Execute EXACT original date assertions against screen+print DOM strings ALREADY captured by actual381 native page before its QA catch alias error. Not new browser run or whole-test PASS. Original381 FAILED status retained. No new app/probe input values invented.",
+  "summary": {
+    "total": 2,
+    "pass": 2,
+    "fail": 0
+  },
+  "appEdited": false,
+  "visualAcceptance": false
+}

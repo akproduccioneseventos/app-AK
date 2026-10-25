@@ -863,7 +863,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
         </div>
         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
           <Button asChild variant="ghost" className="min-w-0 flex-1 rounded-full border border-border px-4 text-xs text-foreground bg-muted/30 hover:bg-muted sm:flex-none">
-            <Link href={`/simulador-de-presupuesto?tipo=${encodeURIComponent(eventoTipo || '15 Años')}${adultos ? `&adultos=${adultos}` : ''}${ninosYAdolescentes ? `&ninos=${ninosYAdolescentes}` : ''}`}>
+            <Link href={`/simulador-de-presupuesto?tipo=${encodeURIComponent(eventoTipo || '15 Años')}${(Number(adultos) || 0) + (Number(ninosYAdolescentes) || 0) > 0 ? `&guests=${(Number(adultos) || 0) + (Number(ninosYAdolescentes) || 0)}` : ''}${adultos ? `&adultos=${adultos}` : ''}${ninosYAdolescentes ? `&ninos=${ninosYAdolescentes}` : ''}`}>
               <span>Simulador Manual</span>
             </Link>
           </Button>
