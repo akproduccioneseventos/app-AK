@@ -1,20 +1,21 @@
 ## Descripcion del Cambio
 
 Cierre documental y pruebas de auditoria, NO correcciones de app ni fusion.
-Informe definitivo: `docs/evidencias/597-cierre-final-25octubre.md` y400.
-Recuento unico253; libro596 concilia258casos/proyectos sin sumar intentos.
+Informe actualizado: `docs/evidencias/650-cierre-recorridos-enumerados.md` y400.
+Recuento unico253; libro640 concilia258casos/proyectos sin sumar intentos.
 No fusionar documentacion sola. No declarar toda app libre de errores.
 
 - Candidata finalPR1353:`f8f7cf34e8778de784b20e2654058fd722b2a2ec`.
  574buildPASS tipos/lint;593oficial865suites5253PASS0FAIL0pending exit0/diff0.
  Dependencias reutilizadas, estree1.0.8 instalado vs1.0.9 lock: no clean npmci.
-- Cobertura amplia978:486build/490canonico5253PASS; nativos512/520/554/568
- concilian258claves:199PASS19FAIL3timeout37SKIP. No22bugs ni258funciones.
-- Tres defectos confirmados:230P1 perfilrestringido salta guardiaadmin,
- 229P2 procesadorf8f7 elimina pista audio del importado,231P2 titulo blanco
- sobreclaro en selectorpublico. No appedit porCodex ni tareasduplicadas.
-- 585mediosf8f7:1PASS marcoimportado,2criteriosNOaceptados;589 audio antesSI
- despuesNO con procesador real, fuente sintetica, Recorder/canvas yFFmpeg.
+- Cobertura amplia978 yretests f8f7:640 concilia258claves conSHAporfila,
+ 211PASS11FAIL36SKIP;2Muronuevos apartePASS. No11bugs ni258funciones.
+- Incidencias comprobadas:230P1 perfilrestringido salta guardiaadmin;
+ 229P2 audioimportado perdido ycapturavacia presentada lista;231P2 titulo
+ blanco sobreclaro. SelfiePC sigue criterio noaceptado, no causa inventada.
+- 609 cierra foto4,totem1,grilla2,selfiemovil1,ventas1,Bogue1.620 stock20PASS;
+ 614 espejoJSONPASS;647Muro PCymovil2PASS:unID/pendingoculto/recargasinrepetir.
+ 600 clasifica37omisiones ycierraunicoPCJSON;36guardasmoviles siguenrawSKIP.
 - 51350HTTPPASS de descargas NO cierra230: diferentesfronteras.499/506 usan
  guardia/firmador/consumidor reales ytransporte/BDdobles, sin datos reales.
 - 594clasifica criterios inconclusos, errores propios y limites. Preserva
@@ -51,7 +52,7 @@ la hayan leido. Privados no publicados NO CONTRASTADOS.
 
 ## Decision
 
-**NO APROBAR una declaracion de app sin errores.** Corregir229audio/230/231
+**NO APROBAR una declaracion de app sin errores.** Corregir229audio/captura/PC,230/231
 y demostrar los criterios no aceptados antes de dar una aprobacion mayor.
 Este cierre NO altera funcionamiento ni autoriza ocultar funciones para
 pasar pruebas. Claude valida/fusiona; Codex no fusiona esta propuesta.

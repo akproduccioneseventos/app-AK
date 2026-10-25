@@ -1,6 +1,24 @@
 # Informe final de auditoria AK
 
-## Corte definitivo25/10/2026 - prevalece sobre el historico inferior
+## Cierre650 de los recorridos enumerados -25/10/2026
+
+Informe650 ylibro640 completan las comprobaciones enumeradas despues de597.
+609 cierra fotocabina4,totem1,grilla2,selfiemovil1,ventas9rutas1,Bogue1 PASS.
+614 cierra espejoJSONlocal1PASS.620 cierra stock0/20sugerencias1PASS.
+647Muro PCymovil2PASS:foto valida,1posteo/ID,pending/Momentoenviado,
+recarga sin duplicar ypendiente no visible aanonimo. No proveedorGoogle real.
+600 clasifica EXACTAMENTE37omisiones; el unicoPC condicionado aJSON ya paso,
+36variantesmoviles conservanrawSKIP, no36funciones ausentes.
+640:258claves originales,211PASS11FAIL36SKIP;2viajesMuronuevos apartePASS.
+Los11FAIL no son11bugs:650 separa oraculos/fixture/captura auxiliar/baselines.
+NO aprobar globalmente:230guardia,231contraste,229audio yCAPTURA VACIA620
+son incidencias comprobadas; selfiePC609 sigue criterio noaceptado de229,
+conresultados enadjunto posterior ysin causa/fuga inventada. Home10064ms es
+medicion LOCAL con carga compartida, no Hosting. NOappedit/merge porCodex.
+Se ejecutaron los recorridos enumerados, no es un certificado de cada boton
+de toda app en cada rol.652 verifica servicios cerrados/cleanup200/diff0.
+
+## Corte597 anterior - limites y contexto conservados
 
 **NO APROBAR la candidata como libre de errores.** Informe final completo:
 `597-cierre-final-25octubre.md`. Libro de casos sin sumar repeticiones:

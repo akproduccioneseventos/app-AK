@@ -1,0 +1,48 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "stats": {
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T13:05:40.987Z",
+      "report": "620-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T13:01:31.571Z",
+        "duration": 249356.955,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-entertainment-stations.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T13:07:21.769Z",
+      "report": "620-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T13:05:42.543Z",
+        "duration": 99129.348,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

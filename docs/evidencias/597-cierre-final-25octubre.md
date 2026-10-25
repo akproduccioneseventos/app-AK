@@ -1,5 +1,10 @@
 # Cierre de auditoria ejecutada - 25/10/2026
 
+ACTUALIZACION650:los recorridos enumerados despuesdeeste corte ya se
+ejecutaron. Ver650-cierre-recorridos-enumerados.md,640-recuento-final.json
+y652-cierre-higiene.json. Actualiza258a211PASS11FAIL36SKIP,2MuronuevosPASS.
+Los cuadros deabajo conservan el corte597 anterior, no pendientes nuevos.
+
 ## Decision final de esta tanda
 
 **NO APROBAR la candidata como libre de errores ni certificar cada control

@@ -1,0 +1,1 @@
+import{defineConfig}from'@playwright/test';import base from'./208-config';export default defineConfig({...base,globalTimeout:15*60*1000,projects:base.projects?.filter(p=>p.name==='chromium-desktop').map(p=>({...p,grep:/ak207-espejo-moderacion.*si la pantalla termina bien|ak207-carga-rapido.*\.ts.*\/ responde/}))});

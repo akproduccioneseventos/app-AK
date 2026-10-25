@@ -44,6 +44,31 @@ reales ni una prueba end-to-end de subida/descarga del proveedor.
 
 ## Evidencia original conservada
 
+### Extension ejecutada25/10: no aceptar una grabacion vacia
+
+620, sobre el mismo build574/f8f7, repite SOLO grabacion en vivo con camara
+sintetica ANIMADA y pista real deAudioContext/oscillator, no un grabador
+simulado. Observaciones604:MediaRecorder nativo con video+audio live,
+MIMEvideo/webm;codecs=vp9,opus; eventosstart/dataavailable(bytes0)/stop.
+La pantalla presenta VideoGrabado, duracion4segundos yENVIARRECUERDO, pero
+la URLblob tiene0bytes yel reproductorreadyState0/videoWidth0. La asercion
+del resultado falla despues de45s; no es el caso anterior con pista ausente.
+El primer609 usaba entrada video-only y conserva su limite;620 lo corrige.
+
+Esto confirma una salida vacia presentada como lista en ese navegador QA,
+NO todoslos dispositivos/hardware ni una causa unica del encoder. El cuerpo
+real startLiveVideoRecording/onstop crea File(chunks) yestado review SIN
+comprobar tamaño/decodificacion. Extender ESTA orden, no otra duplicada:
+conservar el contenido durantegrabacion, verificar artefacto no vacio y
+reproducible ANTES de mostrar listo/permitir enviar; anteerror recuperar o
+avisar con reintento, nunca inventar duracion/archivo valido. Investigar
+ciclo de canvas/MediaRecorder ylimpieza; no retirar el test para aceptar.
+
+609 tambien cierra grilla/descarga PCymovil yselfieMOVIL por sus criterios;
+selfiePC no alcanza su asercion en75s aunque el adjunto final de cuerpo
+contiene resultados. Mantener esa discrepancia como criterio noaceptado,
+no filtracion ni causa de modelo inventadas, y no repetir grilla yaPASS.
+
 NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS. Tanda publica observada:
 PR1353/rama gemini/ordenes-180-195, HEAD978af7d65a60bd287f3ee3cc05037a29566074f4.
 La reproduccion nativa es de917a98e32c63fe2f832f5cdc16db87f4fc722b6c/build406.

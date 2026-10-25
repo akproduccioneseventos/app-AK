@@ -1,0 +1,28 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-606-sdk-WWmmH0",
+  "temp": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-606-sdk-WWmmH0\\tmp",
+  "started": "2026-10-25T12:34:59.465Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "freeBytesAtStart": 2867912704,
+  "firestorePid": 13824,
+  "storagePid": 8772,
+  "runnerPid": 3280,
+  "nativeExit": 1,
+  "cleanupStatus": 200,
+  "stoppedOwnPids": [
+    {
+      "pid": 8772,
+      "exit": 0
+    },
+    {
+      "pid": 13824,
+      "exit": 0
+    }
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-25T12:35:16.435Z"
+}

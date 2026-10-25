@@ -1,5 +1,38 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 25/10/2026 - Continuacion650: recorridos enumerados ejecutados, no reabrir lista
+
+- Sobre f8f7/build574:609 fotocabina4PASS (red/rechazoPCymovil),totem1PASS,
+  grilla2PASS,selfiemovil1PASS,ventas9rutas1PASS,Bogue1PASS. No appedit.
+- 620 stock0/orden/20sugerencias/cancelacionesPASS; tiempo global240s conserva
+  aserciones.614 espejoJSONlocalPASS:posteo unico,pending oculto yrecarga.
+- 647 muro2PASS PCymovil con foto640x480 valida:AdminSDKdemo prueba1posteo,
+  mismIDtrasrecarga,statuspending/Momentoenviado,anonimo no ve caption.
+  No proveedorGoogle real. Los dos casosviejos fallaban conPNG1px/regex que
+  noaceptabaMomentoenviado. No inventar bugStorage ni cambiar copy para test.
+- 622 RESTanonimo obtuvo403: NOprueba que no habia posteos.647 SIusoAdminSDK.
+- 600 clasifica37SKIP:36guardasmoviles y1PCmodoJSON, unicoPC cerrado614.
+  No37funciones ausentes ni deuda humana.640 actualiza258claves originales
+  a211PASS11FAIL36SKIP, conSHAporfila,2viajes Murovalidos apartePASS.
+  Originalesnoreescritos. No11bugs ni258funciones/todosroles aceptados.
+- 620 captura viva convideoANIMADO+audio produce0bytes yUIVideoGrabado/listo:
+  extension229, no firma dehardware ni causaencoder inventada. SelfiePC609
+  llega tarde/discrepante aresultados:75sasercionFAIL, adjunto finalSIresultados.
+  No fuga ni nuevacausa; movilSIpass, no repetirgrilla ni movil para resolverPC.
+- Home61410064ms local contra2500:failmedicion no rendimientodeHosting;
+  hubo buildajeno durante tanda.650 conserva el limite, no reintentos enbucle.
+- AdaptacionesQA604/616:camara conframes/audio,selector ambiguo.first(),
+  espera selfiesolo trasconsentir,tiempo20ciclos yguardia encontextosnuevos.
+  El campo limits heredado de losdrivers no detalla estasadaptaciones.
+- ErroresQA preservados:603/606 y636/638 renombrado numerico alteraba
+  cadenaSHAde comparacion;guardia rechazo antesdetest.608importobservaciones
+  faltante corregido,originalgz.629/634RAMrechazada antesdelbrowser.
+  645 protege TODOSlosSHA40 al renombrar; nodetenerbuild/procesos ajenos.
+  649 final2PASS,cleanup200/sourceDiff0;652 confirma servicios/puertos cerrados.
+- Registrarantesdeaprobar:230guardia,231contraste,229audio/capturavacia y
+  criterioPC aun requierenresponsables. No convertirlos en pendientes sin
+  auditar ni afirmar app0errores. Manualdeldueno no es deudaCodex.
+
 ## 25/10/2026 - Cierre597, canonica finalf8f7 y defectos contrastados
 
 - Informe400/597 yrecuento253 actualizados;596 reconcilia258casos/proyectos

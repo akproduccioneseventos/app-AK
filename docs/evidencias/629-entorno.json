@@ -1,0 +1,28 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-629-sdk-aKQc3L",
+  "temp": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-629-sdk-aKQc3L\\tmp",
+  "started": "2026-10-25T13:07:34.573Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "freeBytesAtStart": 2526547968,
+  "firestorePid": 1296,
+  "storagePid": 9632,
+  "runnerPid": 9012,
+  "nativeExit": 1,
+  "cleanupStatus": 200,
+  "stoppedOwnPids": [
+    {
+      "pid": 9632,
+      "exit": 0
+    },
+    {
+      "pid": 1296,
+      "exit": 0
+    }
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-25T13:11:57.588Z"
+}

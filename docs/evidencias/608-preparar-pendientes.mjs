@@ -1,0 +1,15 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import{fileURLToPath,pathToFileURL}from'node:url';
+import{observations604}from'./604-transformaciones-qa.mjs';
+const dir=fileURLToPath(new URL('./',import.meta.url)),target=path.join(dir,'608-recorridos-generados.mjs');assert(!fs.existsSync(target));
+const ledger=JSON.parse(fs.readFileSync(path.join(dir,'596-recuento-resultados.json'),'utf8'));
+const chosen=ledger.rows.filter(r=>r.report.startsWith('568-')&&!['passed','skipped'].includes(r.status)&&r.file!=='carga-rapido.spec.ts');assert.equal(chosen.length,15);
+const escape=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');const patterns={};for(const r of chosen)(patterns[r.project]??=[]).push(escape('ak207-'+r.file)+'.*'+escape(r.titles.at(-1))+'$');
+fs.writeFileSync(path.join(dir,'607-seleccion-config.ts'),"import{defineConfig}from'@playwright/test';import base from'./208-config';const patterns="+JSON.stringify(Object.fromEntries(Object.entries(patterns).map(([k,v])=>[k,v.join('|')])))+";export default defineConfig({...base,globalTimeout:45*60*1000,projects:base.projects?.map(p=>({...p,grep:new RegExp(patterns[p.name]||'(?!)')}))});\n");
+let code=fs.readFileSync(path.join(dir,'566-recorridos-sdk.mjs'),'utf8').replaceAll('978af7d65a60bd287f3ee3cc05037a29566074f4','f8f7cf34e8778de784b20e2654058fd722b2a2ec').replaceAll('566','608').replaceAll('568','609').replaceAll('486-entorno.json','574-entorno.json').replaceAll('.qa-480-delta-','.qa-574-f8f-').replaceAll('565-seleccion-config.ts','607-seleccion-config.ts').replaceAll('list.length===31','list.length===15');
+code=code.replace('process.env.AK_AUDIT_SPEC_FILTER=', 'process.env.AK_AUDIT_SPEC_FILTER=');
+const filterLine=code.split('\n').find(l=>l.startsWith('process.env.AK_AUDIT_SPEC_FILTER='));assert(filterLine);
+code=code.replace(filterLine,'process.env.AK_AUDIT_SPEC_FILTER='+JSON.stringify([...new Set(chosen.map(r=>r.file))].join(','))+";process.env.AK_AUDIT_SKIP_PORTAL='true';process.env.AK_AUDIT_BATCH_SIZE='1';");
+const before="const physical=path.join(dir,'609-driver.mjs');";assert(code.includes(before));
+code=code.replace(before,'code="import {transform604} from "+JSON.stringify('+JSON.stringify(pathToFileURL(path.join(dir,'604-transformaciones-qa.mjs')).href)+')+";\\n"+code;\ncode=code.replace("const raw=fs.readFileSync(file,\'utf8\');","const original604=fs.readFileSync(file,\'utf8\');const raw=transform604(file,original604);");\ncode=code.replace("fs.writeFileSync(dest,hook+sdkHook608+raw)","fs.writeFileSync(dest,hook+sdkHook608+"+JSON.stringify(observations604)+"+raw)");\n'+before);
+fs.writeFileSync(target,code);console.log(JSON.stringify({source:'f8f7cf34e8778de784b20e2654058fd722b2a2ec',chosen:chosen.length,tests:[...new Set(chosen.map(r=>r.file))],generated:target}));
+await import(pathToFileURL(target).href);
