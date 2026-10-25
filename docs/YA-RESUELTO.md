@@ -1,5 +1,47 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 25/10/2026 - Cierre597, canonica finalf8f7 y defectos contrastados
+
+- Informe400/597 yrecuento253 actualizados;596 reconcilia258casos/proyectos
+  nativos978 sin sumar intentos:199PASS19FAIL3timeout37SKIP. No22bugs,
+  no258funciones aceptadas.594 clasifica fallos/errores propios y limites.
+- 486build978 y490canonico865suites5253PASS. NuevaPR1353f8f7cf34e8778de784b20e2654058fd722b2a2ec
+  SOLO cambia cuatrofuentes de medios;574buildPASS tipos/lint;593canonico
+ 865suites5253PASS0FAIL0pending exit0/fuente0diff. No repetir por documentos.
+- 585 marco importado229 ahoraPASS:conservarlo. Otrosdoscriterios nativos
+  no alcanzan revision de captura/resultado selfie y siguen NOaceptados,
+  sin causa interna ni filtracion demostradas.525fallos978 ya son historicos.
+- 589 demuestra NUEVA regresion del MISMO procesador229:inputH264/AAC tiene
+  audio, salida978decodifica audio, salidaf8f7solo video/no pista0:a:0.
+  Chromium/Recorder/canvas/modulos reales yFFmpeg; no microfono/proveedor.
+  Gemini conserva marco eimagen yrestaura audio ORIGINAL; no pista muda.
+- 230ClaudeP1 actual:requireAdminSession ignora perfil explicito restringido
+  si rol viejoadmin;4993PASS6FAIL y5062PASS6FAIL con firmador/guardia/cuerpo
+  real resetAllFiestasHistoricas yBDcontrolada. No datos reales borrados,
+  noHTTPreal ni afirmar cuentas vivas con esos campos. Productor de sesiones
+  SI permite los campos independientes. Una causa, no seis encargos.
+- 51350fronterasHTTPPASS con7perfiles/anonimo/alterada/vencida. NO cierra230:
+  es otra politica.231GeminiP2 titulo simulador blanco sobre claro en546.
+  Guardia ysimulador siguen iguales978/f8f7. Privados NO CONTRASTADOS.
+- Factura221 ya cerrada482ReactDOM11PASS;480ochoefectos/PINPASS. No reabrir
+  cinco defectos917 como actuales ni aceptar modelo entero por esos cierres.
+- ErroresQA conservados:491fixture notifications alterada,500bytes/restaura
+  SOLOQA;512JavaOOM05:05:21UTC invalida cola como prueba de fallosapp;
+  540TEMPStoragecompartidoENOENT,542huerfana cerrada548/restaura79JSON;
+  552TEMPaislado/supervisorpropio,55456casos45PASS1oraculoviejo10SKIP,
+  56831casos15PASS16noPASS,cleanup200/sourceDiff0. Nunca parar ajenos.
+- 556 traza demuestra prospecto no clicabaVerResumen: no bug deCTA.557
+  cuatroobservaciones fecha8/8/2027DOM/printcorrectas; capturaPCrawFAIL
+  sigueFAIL, noPDFvisual certificado. Dosgrillafail son strictlocator.
+- Borrador594 barato errado: atribuia autoPublish:false comoexpectativa
+  automatica y modo desarrollo en velocidad. Director leyo originales y
+  rectifico: publicar manual SIclick previsto;productionLOCAL3560>2500.
+  Son inferenciasQA descartadas, no cambios de app ni cierres positivos.
+- 577pathQAincorrecto fue RECHAZADOantesdeJest;593 ejecuta fuente correcta.
+  Todoslosrecibos se conservan; no appedit/merge porCodex ni0errores.
+  Manualdeldueno no es pendienteCodex.399 documenta artefactos locales
+  no publicados, no anunciar trazas grandes como entregadas.
+
 ## 24/10/2026 - Cierre483 de pendientes y entrega nueva978
 
 - 455 SOLOpendientes917:barra20sugerencias/cancelacionesPASS,overflow390PASS.

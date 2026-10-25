@@ -1,0 +1,48 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "stats": {
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-entertainment-stations.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:57:02.826Z",
+      "report": "525-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:54:18.120Z",
+        "duration": 164589.731,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-la-grilla-de-caras.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T06:00:35.510Z",
+      "report": "525-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:57:35.892Z",
+        "duration": 179534.001,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

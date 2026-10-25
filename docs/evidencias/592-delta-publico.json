@@ -1,0 +1,33 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "previous": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "started": "2026-10-25T07:56:09.384Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "reason": "New PUBLIC1353 four media consumers only; one final frozen-source official suite. No replay of258 browser matrix.",
+  "probes": [
+    {
+      "at": "2026-10-25T07:56:10.614Z",
+      "freeBytes": 4293976064,
+      "probeExit": 0,
+      "foreignHeavy": []
+    }
+  ],
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d",
+  "reusedCompiledSource": true,
+  "pid": 15612,
+  "canonical": {
+    "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+    "exit": 0,
+    "suites": 865,
+    "total": 5253,
+    "pass": 5253,
+    "fail": 0,
+    "pending": 0,
+    "scope": "Canonical existing full suite on NEW frozenf8f7 source, original configuration/assertions, no custom370 adapter"
+  },
+  "preCleanupDiff": "",
+  "sourceDiff": "",
+  "finished": "2026-10-25T08:06:40.367Z"
+}

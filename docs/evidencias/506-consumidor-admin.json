@@ -1,0 +1,130 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "created": "2026-10-25T02:15:34.230Z",
+  "scope": "Exact exported resetAllFiestasHistoricas function body + actual signed session/verification/admin guard; ONLY cookie transport and DB are controlled doubles. Synthetic deletion ledger only, NOT live HTTP/real records/Firestore mutation.",
+  "issuer": "auth.ts writeSessionCookie copies role:data.role and independently validated perfil:data.perfil",
+  "cases": [
+    {
+      "perfil": "dueno",
+      "legacyRole": "admin",
+      "expectedAllowed": true,
+      "actualAllowed": true,
+      "dbReads": 1,
+      "deleted": [
+        "qa506-fictitious-only"
+      ],
+      "commits": 1,
+      "result": {
+        "success": true,
+        "deletedCount": 1
+      },
+      "pass": true
+    },
+    {
+      "perfil": "secretaria",
+      "legacyRole": "admin",
+      "expectedAllowed": false,
+      "actualAllowed": true,
+      "dbReads": 1,
+      "deleted": [
+        "qa506-fictitious-only"
+      ],
+      "commits": 1,
+      "result": {
+        "success": true,
+        "deletedCount": 1
+      },
+      "pass": false
+    },
+    {
+      "perfil": "operador",
+      "legacyRole": "admin",
+      "expectedAllowed": false,
+      "actualAllowed": true,
+      "dbReads": 1,
+      "deleted": [
+        "qa506-fictitious-only"
+      ],
+      "commits": 1,
+      "result": {
+        "success": true,
+        "deletedCount": 1
+      },
+      "pass": false
+    },
+    {
+      "perfil": "personal",
+      "legacyRole": "admin",
+      "expectedAllowed": false,
+      "actualAllowed": true,
+      "dbReads": 1,
+      "deleted": [
+        "qa506-fictitious-only"
+      ],
+      "commits": 1,
+      "result": {
+        "success": true,
+        "deletedCount": 1
+      },
+      "pass": false
+    },
+    {
+      "perfil": "cliente",
+      "legacyRole": "admin",
+      "expectedAllowed": false,
+      "actualAllowed": true,
+      "dbReads": 1,
+      "deleted": [
+        "qa506-fictitious-only"
+      ],
+      "commits": 1,
+      "result": {
+        "success": true,
+        "deletedCount": 1
+      },
+      "pass": false
+    },
+    {
+      "perfil": "prospecto",
+      "legacyRole": "admin",
+      "expectedAllowed": false,
+      "actualAllowed": true,
+      "dbReads": 1,
+      "deleted": [
+        "qa506-fictitious-only"
+      ],
+      "commits": 1,
+      "result": {
+        "success": true,
+        "deletedCount": 1
+      },
+      "pass": false
+    },
+    {
+      "perfil": "invitado",
+      "legacyRole": "admin",
+      "expectedAllowed": false,
+      "actualAllowed": true,
+      "dbReads": 1,
+      "deleted": [
+        "qa506-fictitious-only"
+      ],
+      "commits": 1,
+      "result": {
+        "success": true,
+        "deletedCount": 1
+      },
+      "pass": false
+    },
+    {
+      "control": "anonymous",
+      "result": {
+        "success": false,
+        "error": "Sesión no válida o expirada."
+      },
+      "pass": true
+    }
+  ],
+  "pass": 2,
+  "fail": 6
+}

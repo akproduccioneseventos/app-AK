@@ -1,0 +1,446 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "512-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts",
+      "ak207-video-vida-error-lectura.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\512-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 14400000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-045-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-045-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-video-vida-error-lectura.spec.ts",
+      "file": "ak207-video-vida-error-lectura.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "video de vida: foto guardada que no se puede leer avisa y deja reintentar",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 43855,
+                  "error": {
+                    "message": "TypeError: fetch failed",
+                    "stack": "TypeError: fetch failed",
+                    "cause": {
+                      "message": "Error: connect ECONNREFUSED 127.0.0.1:8085",
+                      "stack": "Error: connect ECONNREFUSED 127.0.0.1:8085"
+                    }
+                  },
+                  "errors": [
+                    {
+                      "message": "TypeError: fetch failed\n[cause]: Error: connect ECONNREFUSED 127.0.0.1:8085"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-video-vida-error-lectura.spec.ts",
+                        "column": 192,
+                        "line": 30
+                      },
+                      "message": "Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:8085. Resolution note: \n\n  28 |  if(count)await batch.commit();\n  29 | });\n> 30 | __akAudit207.afterEach(async({},info)=>{const result={budgets:[],leads:[]};for(const[name,key]of[['presupuestos','budgets'],['prospectos','leads']]){const rows=await __db509.collection(name).get();result[key]=rows.docs.map(d=>({id:d.id,nombre:d.data().clienteNombre||d.data().nombre||d.data().name,total:d.data().totalFinal||d.data().total||d.data().totalAmount}));}await info.attach('qa509-sdk-persistence',{contentType:'application/json',body:Buffer.from(JSON.stringify(result))});});\n     |                                                                                                                                                                                                ^\n  31 | __akAudit207.afterAll(async()=>{await __db509.terminate();await __app509.deleteApp(__instance509);});\n  32 | // @ts-nocheck -- pagina publica real contra emuladores; no hay firmante de Google en el emulador.\n  33 | /**\n    at callErrorFromStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\call.ts:84:17)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:612:51)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:424:48)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\resolving-call.ts:206:24\n    at ServiceClientImpl.makeServerStreamRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:595:42)\n    at ServiceClientImpl.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\make-client.ts:189:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\v1\\firestore_client.js:242:33\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\streamingCalls\\streamingApiCaller.ts:59:19\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\timeout.ts:54:13\n    at Object.request (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\streamingCalls\\streaming.ts:331:28)\n    at Timeout.makeRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\retry-request\\index.js:159:28)\n    at QueryUtil._getResponse (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query-util.js:44:23)\n    at CollectionReference._getResponse (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:784:32)\n    at CollectionReference._get (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:777:35)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:745:43\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:110:30\n    at NoopContextManager.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\context\\NoopContextManager.ts:20:15)\n    at ContextAPI.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\api\\context.ts:68:42)\n    at NoopTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\NoopTracer.ts:87:27)\n    at ProxyTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\ProxyTracer.ts:51:20)\n    at EnabledTraceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:102:28)\n    at CollectionReference.get (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:744:43)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-video-vida-error-lectura.spec.ts:30:192"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:7328) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:42:48.184Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-8aaf2-eer-avisa-y-deja-reintentar-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-8aaf2-eer-avisa-y-deja-reintentar-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-8aaf2-eer-avisa-y-deja-reintentar-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-8aaf2-eer-avisa-y-deja-reintentar-chromium-desktop\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "5cd2a2376b23bfb6749d-61d1d53a106eab792708",
+          "file": "ak207-video-vida-error-lectura.spec.ts",
+          "line": 68,
+          "column": 7
+        },
+        {
+          "title": "video de vida: galería vacía de verdad sigue diciendo 0 y deja subir",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 43508,
+                  "error": {
+                    "message": "TypeError: fetch failed",
+                    "stack": "TypeError: fetch failed",
+                    "cause": {
+                      "message": "Error: connect ECONNREFUSED 127.0.0.1:8085",
+                      "stack": "Error: connect ECONNREFUSED 127.0.0.1:8085"
+                    }
+                  },
+                  "errors": [
+                    {
+                      "message": "TypeError: fetch failed\n[cause]: Error: connect ECONNREFUSED 127.0.0.1:8085"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-video-vida-error-lectura.spec.ts",
+                        "column": 192,
+                        "line": 30
+                      },
+                      "message": "Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:8085. Resolution note: \n\n  28 |  if(count)await batch.commit();\n  29 | });\n> 30 | __akAudit207.afterEach(async({},info)=>{const result={budgets:[],leads:[]};for(const[name,key]of[['presupuestos','budgets'],['prospectos','leads']]){const rows=await __db509.collection(name).get();result[key]=rows.docs.map(d=>({id:d.id,nombre:d.data().clienteNombre||d.data().nombre||d.data().name,total:d.data().totalFinal||d.data().total||d.data().totalAmount}));}await info.attach('qa509-sdk-persistence',{contentType:'application/json',body:Buffer.from(JSON.stringify(result))});});\n     |                                                                                                                                                                                                ^\n  31 | __akAudit207.afterAll(async()=>{await __db509.terminate();await __app509.deleteApp(__instance509);});\n  32 | // @ts-nocheck -- pagina publica real contra emuladores; no hay firmante de Google en el emulador.\n  33 | /**\n    at callErrorFromStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\call.ts:84:17)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:612:51)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:424:48)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\resolving-call.ts:206:24\n    at ServiceClientImpl.makeServerStreamRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:595:42)\n    at ServiceClientImpl.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\make-client.ts:189:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\v1\\firestore_client.js:242:33\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\streamingCalls\\streamingApiCaller.ts:59:19\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\timeout.ts:54:13\n    at Object.request (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\streamingCalls\\streaming.ts:331:28)\n    at Timeout.makeRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\retry-request\\index.js:159:28)\n    at QueryUtil._getResponse (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query-util.js:44:23)\n    at CollectionReference._getResponse (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:784:32)\n    at CollectionReference._get (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:777:35)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:745:43\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:110:30\n    at NoopContextManager.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\context\\NoopContextManager.ts:20:15)\n    at ContextAPI.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\api\\context.ts:68:42)\n    at NoopTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\NoopTracer.ts:87:27)\n    at ProxyTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\ProxyTracer.ts:51:20)\n    at EnabledTraceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:102:28)\n    at CollectionReference.get (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:744:43)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-video-vida-error-lectura.spec.ts:30:192"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:10652) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:43:34.531Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-ebff6-gue-diciendo-0-y-deja-subir-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-ebff6-gue-diciendo-0-y-deja-subir-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-ebff6-gue-diciendo-0-y-deja-subir-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-ebff6-gue-diciendo-0-y-deja-subir-chromium-desktop\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "5cd2a2376b23bfb6749d-a24ff7a95ab8536be2c8",
+          "file": "ak207-video-vida-error-lectura.spec.ts",
+          "line": 68,
+          "column": 7
+        },
+        {
+          "title": "video de vida: foto guardada que no se puede leer avisa y deja reintentar",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 45641,
+                  "error": {
+                    "message": "TypeError: fetch failed",
+                    "stack": "TypeError: fetch failed",
+                    "cause": {
+                      "message": "Error: connect ECONNREFUSED 127.0.0.1:8085",
+                      "stack": "Error: connect ECONNREFUSED 127.0.0.1:8085"
+                    }
+                  },
+                  "errors": [
+                    {
+                      "message": "TypeError: fetch failed\n[cause]: Error: connect ECONNREFUSED 127.0.0.1:8085"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-video-vida-error-lectura.spec.ts",
+                        "column": 192,
+                        "line": 30
+                      },
+                      "message": "Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:8085. Resolution note: \n\n  28 |  if(count)await batch.commit();\n  29 | });\n> 30 | __akAudit207.afterEach(async({},info)=>{const result={budgets:[],leads:[]};for(const[name,key]of[['presupuestos','budgets'],['prospectos','leads']]){const rows=await __db509.collection(name).get();result[key]=rows.docs.map(d=>({id:d.id,nombre:d.data().clienteNombre||d.data().nombre||d.data().name,total:d.data().totalFinal||d.data().total||d.data().totalAmount}));}await info.attach('qa509-sdk-persistence',{contentType:'application/json',body:Buffer.from(JSON.stringify(result))});});\n     |                                                                                                                                                                                                ^\n  31 | __akAudit207.afterAll(async()=>{await __db509.terminate();await __app509.deleteApp(__instance509);});\n  32 | // @ts-nocheck -- pagina publica real contra emuladores; no hay firmante de Google en el emulador.\n  33 | /**\n    at callErrorFromStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\call.ts:84:17)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:612:51)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:424:48)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\resolving-call.ts:206:24\n    at ServiceClientImpl.makeServerStreamRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:595:42)\n    at ServiceClientImpl.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\make-client.ts:189:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\v1\\firestore_client.js:242:33\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\streamingCalls\\streamingApiCaller.ts:59:19\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\timeout.ts:54:13\n    at Object.request (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\streamingCalls\\streaming.ts:331:28)\n    at Timeout.makeRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\retry-request\\index.js:159:28)\n    at QueryUtil._getResponse (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query-util.js:44:23)\n    at CollectionReference._getResponse (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:784:32)\n    at CollectionReference._get (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:777:35)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:745:43\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:110:30\n    at NoopContextManager.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\context\\NoopContextManager.ts:20:15)\n    at ContextAPI.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\api\\context.ts:68:42)\n    at NoopTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\NoopTracer.ts:87:27)\n    at ProxyTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\ProxyTracer.ts:51:20)\n    at EnabledTraceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:102:28)\n    at CollectionReference.get (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:744:43)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-video-vida-error-lectura.spec.ts:30:192"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:13688) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:44:30.861Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-8aaf2-eer-avisa-y-deja-reintentar-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-8aaf2-eer-avisa-y-deja-reintentar-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-8aaf2-eer-avisa-y-deja-reintentar-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-8aaf2-eer-avisa-y-deja-reintentar-chromium-mobile\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "5cd2a2376b23bfb6749d-0dc3f19c9b618e8769c3",
+          "file": "ak207-video-vida-error-lectura.spec.ts",
+          "line": 68,
+          "column": 7
+        },
+        {
+          "title": "video de vida: galería vacía de verdad sigue diciendo 0 y deja subir",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 44837,
+                  "error": {
+                    "message": "TypeError: fetch failed",
+                    "stack": "TypeError: fetch failed",
+                    "cause": {
+                      "message": "Error: connect ECONNREFUSED 127.0.0.1:8085",
+                      "stack": "Error: connect ECONNREFUSED 127.0.0.1:8085"
+                    }
+                  },
+                  "errors": [
+                    {
+                      "message": "TypeError: fetch failed\n[cause]: Error: connect ECONNREFUSED 127.0.0.1:8085"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-video-vida-error-lectura.spec.ts",
+                        "column": 192,
+                        "line": 30
+                      },
+                      "message": "Error: 14 UNAVAILABLE: No connection established. Last error: Error: connect ECONNREFUSED 127.0.0.1:8085. Resolution note: \n\n  28 |  if(count)await batch.commit();\n  29 | });\n> 30 | __akAudit207.afterEach(async({},info)=>{const result={budgets:[],leads:[]};for(const[name,key]of[['presupuestos','budgets'],['prospectos','leads']]){const rows=await __db509.collection(name).get();result[key]=rows.docs.map(d=>({id:d.id,nombre:d.data().clienteNombre||d.data().nombre||d.data().name,total:d.data().totalFinal||d.data().total||d.data().totalAmount}));}await info.attach('qa509-sdk-persistence',{contentType:'application/json',body:Buffer.from(JSON.stringify(result))});});\n     |                                                                                                                                                                                                ^\n  31 | __akAudit207.afterAll(async()=>{await __db509.terminate();await __app509.deleteApp(__instance509);});\n  32 | // @ts-nocheck -- pagina publica real contra emuladores; no hay firmante de Google en el emulador.\n  33 | /**\n    at callErrorFromStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\call.ts:84:17)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:612:51)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:424:48)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\resolving-call.ts:206:24\n    at ServiceClientImpl.makeServerStreamRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:595:42)\n    at ServiceClientImpl.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\make-client.ts:189:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\v1\\firestore_client.js:242:33\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\streamingCalls\\streamingApiCaller.ts:59:19\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\timeout.ts:54:13\n    at Object.request (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\streamingCalls\\streaming.ts:331:28)\n    at Timeout.makeRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\retry-request\\index.js:159:28)\n    at QueryUtil._getResponse (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query-util.js:44:23)\n    at CollectionReference._getResponse (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:784:32)\n    at CollectionReference._get (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:777:35)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:745:43\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:110:30\n    at NoopContextManager.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\context\\NoopContextManager.ts:20:15)\n    at ContextAPI.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\api\\context.ts:68:42)\n    at NoopTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\NoopTracer.ts:87:27)\n    at ProxyTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\ProxyTracer.ts:51:20)\n    at EnabledTraceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:102:28)\n    at CollectionReference.get (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query.js:744:43)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-video-vida-error-lectura.spec.ts:30:192"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:856) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:45:21.931Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-ebff6-gue-diciendo-0-y-deja-subir-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-ebff6-gue-diciendo-0-y-deja-subir-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-ebff6-gue-diciendo-0-y-deja-subir-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-045-artifacts\\ak207-video-vida-error-lec-ebff6-gue-diciendo-0-y-deja-subir-chromium-mobile\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "5cd2a2376b23bfb6749d-bf4081cac22325508207",
+          "file": "ak207-video-vida-error-lectura.spec.ts",
+          "line": 68,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T05:42:46.027Z",
+    "duration": 202830.161,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

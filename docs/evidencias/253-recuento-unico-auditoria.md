@@ -1,4 +1,30 @@
-# Recuento unico - 24/10/2026
+# Recuento unico - cierre25/10/2026
+
+## Corte vigente - sustituye conclusiones de versiones anteriores
+
+Informe final597 y400; libro596 contiene258claves caso/proyecto, intentos
+originales y reemplazos SIN sumar diferentes ejecuciones como funciones.
+Main3e45a4ac6b479f89605163168e31b37dc84f2d0f; PR1353 final seleccionada
+f8f7cf34e8778de784b20e2654058fd722b2a2ec; privados NO CONTRASTADOS.
+978build486/canonica490:865suites5253PASS. f8f7build574/canonica593:
+865suites5253PASS0FAIL0pending,exit0/fuente0diff; tipos/lintPASS porbuild.
+No repetir estas baterias por documentos ni aceptar todo por verde unitario.
+258nativos978 conciliados:199PASS19FAIL3timeout37SKIP; DOSvisuales aparte.
+585deltaf8f7:1PASS(marco importado),2FAIL(criterios vivo/selfie no alcanzados).
+589audioentradaSI/978SI/f8f7NO; defectoP2 reproducido, MISMA229 actualizada.
+230P1:6perfiles con antiguo roladmin saltan guardia;4993PASS6FAIL,
+5062PASS6FAIL consumidorreal/BDdoble.51350HTTPPASS es otrafrontera.
+231P2 titulo del selector de simuladores blanco sobre fondo claro546.
+TRESdefectos confirmados actuales, no22bugs ni solo3errores posibles.
+221variante cerrada48211ReactDOMPASS;214ochoefectos/PINPASS480; no repetir
+cinco causas917 por leer tablas historicas. Detector/calidad no globalmente
+certificados. 594 clasifica noPASS sin inventar causa ni PASS.
+Los fallos propios OOM512/TEMP540/542/577 quedan conservados y explicados.
+552/554/568/584 limpiaron datos/procesos/fuente; no procesos ajenos parados.
+NOdeclarar14areas enteras/cada control/todosroles/0errores acreditados.
+Manualdeldueno NOpendienteCodex.597cierra la tanda con NOaprobacion y limites.
+
+## Contexto historico24/10 - leer cierres anteriores con su SHA
 
 Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
 Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.

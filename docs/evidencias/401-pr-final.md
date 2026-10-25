@@ -1,49 +1,41 @@
 ## Descripcion del Cambio
 
-Cierre consolidado de auditoria, NO correcciones de app ni fusion.
-Actualizacion483:terminadas455/457/472/477,22ejecuciones con variantes,
-13PASS8FAIL1timeout. Grabacion,bar20,overflow,Bogue y9rutasPASS. Doscriterios
-medios negativos229 requieren contraste978 antes de programar. Velocidad
-local10519/612/3599ms, no produccion.480/482 agrega ocho efectos/PIN y once
-ReactDOM positivos en978; Reactprod inicial falloQA conservado.
-Informe final: docs/evidencias/400-informe-final.md. Recuento unico253;
-evidencias anteriores316/360 y suplemento399. Se conservan fallos iniciales
-del arnes y de versiones anteriores; no se sustituyen por verdes retroactivos.
+Cierre documental y pruebas de auditoria, NO correcciones de app ni fusion.
+Informe definitivo: `docs/evidencias/597-cierre-final-25octubre.md` y400.
+Recuento unico253; libro596 concilia258casos/proyectos sin sumar intentos.
+No fusionar documentacion sola. No declarar toda app libre de errores.
 
-- Publicada/main3e: se concluyeron los27casos nativos antes no aprobados;
- 10PASS17FAIL/timeout. Conciliacion390:210unicos159PASS17FAIL34SKIP.
-- Nueva candidata1353/917:862suites5243PASS0FAIL0pending en bateria oficial386.
- 388 cierra diez criterios217.387 cierra null y pendiente, pero conserva
- una variante de error que muestra factura inexistente. Orden221 actualizada,
- no otro encargo.214 mantiene tres causas en seis blobs pertinentes identicos.
-- Blog ausente era sparsecheckout, demostrado363/364; diagnostico37626PASS
- con adaptador focal NO se confunde con la bateria oficial verde386 sin el.
-- Compilacion406 de917 PASS con tipos/lint.392 anterior no inicio por RAM.
- 427 copia3897runtime archivos verificadosSHA256 a fuenteGit fresca917.
-- 412:34variantesmoviles27PASS6FAIL1SKIP.425:9SDK1PASS7FAIL1SKIP;
- TouchpixA/BtardioPASS.442:8SDKPASS sin omisiones, foto6/Espejo1/simulador1.
- 443 comprueba presupuesto1/prospecto1 guardados,cleanup200/fuente0diff/PID0.
-- 423 raster PC/movilFAIL1.390/1.376:1 confirma MISMA220 parcialmente corregida.
- 393/410falsePASS ignoraba gradiente; originales preservados.415 extiende
- MISMA causa214 a refFotocabina no alimentada.437descarta CTA/guardado roto
- inferido de un test que no clico resumen;439 espera boton y442 pasa.
-- Cierres285/286 y portal357 conservados por su alcance. No se reauditan por
- documentos ni se aceptan otras funciones/roles por abrir374paginas.
+- Candidata finalPR1353:`f8f7cf34e8778de784b20e2654058fd722b2a2ec`.
+ 574buildPASS tipos/lint;593oficial865suites5253PASS0FAIL0pending exit0/diff0.
+ Dependencias reutilizadas, estree1.0.8 instalado vs1.0.9 lock: no clean npmci.
+- Cobertura amplia978:486build/490canonico5253PASS; nativos512/520/554/568
+ concilian258claves:199PASS19FAIL3timeout37SKIP. No22bugs ni258funciones.
+- Tres defectos confirmados:230P1 perfilrestringido salta guardiaadmin,
+ 229P2 procesadorf8f7 elimina pista audio del importado,231P2 titulo blanco
+ sobreclaro en selectorpublico. No appedit porCodex ni tareasduplicadas.
+- 585mediosf8f7:1PASS marcoimportado,2criteriosNOaceptados;589 audio antesSI
+ despuesNO con procesador real, fuente sintetica, Recorder/canvas yFFmpeg.
+- 51350HTTPPASS de descargas NO cierra230: diferentesfronteras.499/506 usan
+ guardia/firmador/consumidor reales ytransporte/BDdobles, sin datos reales.
+- 594clasifica criterios inconclusos, errores propios y limites. Preserva
+ OOM512/TEMP540/542huerfana/577QAincorrecto; no trasladarlos a app.
+- Cierres480/482,217/218/219/portal anteriores conservanSHA yalcance. No
+ reencargar por informes917viejos ni aceptar todosroles por abrir paginas.
 
 ## Tipo de Cambio
-- [ ] Correccion de errores de la app
+- [ ] Correccion de errores de app
 - [ ] Nueva funcionalidad
 - [ ] Refactorizacion / Optimizacion
 - [x] Actualizacion de documentacion y sondas de auditoria
 
 ## Lista de Verificacion antes de solicitar revision
-- [x] Build406 sobre917 incluye tipos/lint; no comandos independientes ficticios.
-- [x] Bateria canonica completa386 sobre917, mas sondas387/388 focales con resultados separados.
-- [x] Recibos de builds y pruebas ligados aSHA, aislamiento de datos y limites documentados.
+- [x] Build574 final incluiyo tipos/lint; no comandos independientes ficticios.
+- [x] Bateria canonica593 final original:865suites5253PASS0FAIL0pending.
+- [x] SDKdemo/navegador local, contexto ficticio yfuente congelada documentados.
 - [x] Sin app/package-lock/reglas/Hosting/variables reales modificados porCodex.
-- [x] Se actualizan YA-RESUELTO, ESTADO-ACTUAL y253 en esta misma propuesta.
-- [x] Graphify no se reconstruye por documentacion; no cambios estructurales de app.
-- [ ] Aceptacion global/cada control en cada rol: NO acreditada ni pretendida.
+- [x] YA-RESUELTO/ESTADO/253/400/597 actualizados en esta propuesta.
+- [x] Graphify no reconstruido por documentos; no cambios estructurales de app.
+- [ ] Todoscontroles/todosroles/0errores: NO acreditado ni pretendido.
 
 ## Impacto en Firebase
 - [ ] Cambia reglas de Firestore / Seguridad
@@ -51,15 +43,15 @@ del arnes y de versiones anteriores; no se sustituyen por verdes retroactivos.
 - [ ] Modifica Hosting / Frontend
 - [ ] Requiere variables reales nuevas
 
-Sin despliegue ni merge porCodex. Los dobles/emuladores de pruebas no certifican
-proveedores/modelo/voz reales. Los controles rojos de facturacion deGitHub no
-se presentan como errores de la app.
+QA no certifica modelo/voz/canales/proveedor/Hosting/hardware reales.
+Controles rojosGitHub porfacturacion no se usan como fallo deapp.
+Artefactos grandes LOCAL_ONLY identificados en399; no anunciar entrega total
+de trazas locales. Gemini/Claude reciben la orden en rama, no se afirma que
+la hayan leido. Privados no publicados NO CONTRASTADOS.
 
 ## Decision
 
-NO aprobar una declaracion de0errores ni toda1353 por el verde unitario.
-CINCO causas de917 YA tienen correcciones presentes en entrega978:ver480/482
-para cierres focales y limites, no reencargarlas. No build ni native978.400 detalla
-objetivos no aceptados; ocho controles442PASS no certifican toda app/proveedor.
-Claude/Gemini reciben la evidencia en esta propuesta; no se asegura que la
-hayan leido ni ejecutado. No fusionar documentacion sola.
+**NO APROBAR una declaracion de app sin errores.** Corregir229audio/230/231
+y demostrar los criterios no aceptados antes de dar una aprobacion mayor.
+Este cierre NO altera funcionamiento ni autoriza ocultar funciones para
+pasar pruebas. Claude valida/fusiona; Codex no fusiona esta propuesta.

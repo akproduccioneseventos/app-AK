@@ -1,0 +1,1 @@
+import {defineConfig} from '@playwright/test';import base from './208-config';export default defineConfig({...base,projects:base.projects?.filter(p=>p.name==='chromium-desktop').map(p=>({...p,grep:/ak207-entertainment-stations.*time capsule|ak207-la-grilla.*la selfie no sale/}))});

@@ -1,0 +1,527 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "buildFinishedAt": "2026-10-25T01:56:50.413Z",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-25T02:17:42.038Z",
+    "version": "978af7d65a60bd287f3ee3cc05037a29566074f4 · compilada 2026-10-25T01:42:56.218Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 39
+  },
+  "finishedAt": "2026-10-25T02:17:45.832Z",
+  "fixtureSha256": "25e28cd1851f53ed37edc6b1fea14a9ca9311d196d70fe0e245de566aabc8eba",
+  "fixtureRemoved": true,
+  "cases": [
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "dueno",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "secretaria",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "operador",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "personal",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "cliente",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "prospecto",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "invitado",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "anonymous",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "tampered",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "budgets",
+      "permission": "contabilidad",
+      "perfil": "expired",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "dueno",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "secretaria",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "operador",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "personal",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "cliente",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "prospecto",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "invitado",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "anonymous",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "tampered",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "contracts",
+      "permission": "contabilidad",
+      "perfil": "expired",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "dueno",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "secretaria",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "operador",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "personal",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "cliente",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "prospecto",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "invitado",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "anonymous",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "tampered",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "salon-contracts",
+      "permission": "contabilidad",
+      "perfil": "expired",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "dueno",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "secretaria",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "operador",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "personal",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "cliente",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "prospecto",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "invitado",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "anonymous",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "tampered",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "payment-proofs",
+      "permission": "contabilidad",
+      "perfil": "expired",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "dueno",
+      "signedRole": "admin",
+      "expected": 200,
+      "actual": 200,
+      "exactSyntheticBytes": true,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "secretaria",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "operador",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "personal",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "cliente",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "prospecto",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "invitado",
+      "signedRole": "admin",
+      "expected": 403,
+      "actual": 403,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "anonymous",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "tampered",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    },
+    {
+      "endpoint": "employee-contracts",
+      "permission": "sueldos",
+      "perfil": "expired",
+      "signedRole": "admin",
+      "expected": 401,
+      "actual": 401,
+      "exactSyntheticBytes": false,
+      "pass": true
+    }
+  ],
+  "passed": 50,
+  "failed": 0,
+  "scope": "Actual HTTP routes and signed demo sessions; not OAuth login, real records, UI role navigation or all permissions"
+}

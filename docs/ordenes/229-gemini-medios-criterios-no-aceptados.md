@@ -1,5 +1,49 @@
 # 229 - Gemini: cerrar los dos criterios de medios no aceptados
 
+## Actualizacion25/10: correccion publica presente, no reprogramar
+
+PR1353 avanzo a f8f7cf34e8778de784b20e2654058fd722b2a2ec.
+Solo cambian buzon, galeria, video-frame-processor y extractor-facial.
+571 documenta el delta.573 prepara fuente/build y prueba esa entrega por
+separado: los fallos de525 en978 son HISTORICOS, no un rechazo automatico
+del nuevo codigo. No duplicar esta orden ni implementar otra vez lo presente.
+La aceptacion del archivo RESULTANTE debe conservar imagen, marco, sonido
+y duracion. No resolver el marco suprimiendo el audio del video importado;
+589 ya termino y demuestra una regresion de sonido, no una sospecha por grep.
+Los resultados del contraste se agregan con su SHA, no por presencia de codigo.
+
+### Dictamen de la entrega f8f7, fuente y build nuevos
+
+574 compilo f8f7 con tipos/lint, exit0 y sourceDiff0.585 ejecuta TRES
+criterios nativos reales con SDKdemo:1PASS/2FAIL. El video IMPORTADO ahora
+SI supera el criterio de marco incorporado al archivo: conservar ese avance.
+La grabacion en vivo no alcanza la revision esperada en45s y la busqueda
+selfie no alcanza resultado terminal en60s. Esos DOS criterios siguen NO
+ACEPTADOS, sin afirmar por el timeout una causa interna ni filtracion.
+No usar el PASS historico472 de grabacion para aceptar esa variante en f8f7.
+
+589 ejecuta el procesador ORIGINAL de cada SHA dentro de Chromium, con
+MediaRecorder/canvas reales y el MISMO MP4 H264/AAC ficticio de1.5s. FFmpeg
+decodifica video Y pista de audio en el archivo de entrada y en la salida
+978; en la salida f8f7 decodifica video pero NO existe pista0:a:0. Recibo
+589-audio-procesador.json conserva hashes/archivos/codigos de salida.
+Esto SI es regresion reproducida del procesador, no prueba de microfono ni
+una afirmacion sobre todos los videos de la aplicacion.
+
+Consumidor f8f7 verificado: processSelectedVideoFile llama
+renderUploadedVideoWithFrame y guarda processed.file sin remultiplexar audio,
+en src/app/evento/buzon/[fiestaId]/page.tsx. El procesador captura el canvas
+y pasa ese stream solo de video a MediaRecorder. Corregir conservando el
+marco ya logrado, imagen, duracion y el audio ORIGINAL; no agregar silencio
+como sustituto ni mutear el resultado para pasar la prueba. Aceptar entradas
+sin audio, limpiar pistas/URL y permitir un error recuperable al fallar.
+La implementacion corresponde aGemini, no aCodex. La regresion de producto
+con pista reconocible y comprobacion de contenido queda PROPUESTA/PENDIENTE;
+589 demuestra presencia/ausencia de pista con entrada sintetica, no voces
+reales ni una prueba end-to-end de subida/descarga del proveedor.
+
+## Evidencia original conservada
+
 NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS. Tanda publica observada:
 PR1353/rama gemini/ordenes-180-195, HEAD978af7d65a60bd287f3ee3cc05037a29566074f4.
 La reproduccion nativa es de917a98e32c63fe2f832f5cdc16db87f4fc722b6c/build406.

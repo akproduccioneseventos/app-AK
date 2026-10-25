@@ -1,0 +1,32 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "previous": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "started": "2026-10-25T01:57:04.402Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "reason": "New PUBLIC1353 changes shared generic-json-store and invoice/error/CSS/reminder consumers. One new-source canonical Jest run; no rerun main374pages/native27 or old3f build.",
+  "probes": [
+    {
+      "at": "2026-10-25T01:57:05.499Z",
+      "freeBytes": 4514668544,
+      "probeExit": 0,
+      "foreignHeavy": []
+    }
+  ],
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q",
+  "reusedCompiledSource": true,
+  "pid": 8256,
+  "canonical": {
+    "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+    "exit": 0,
+    "suites": 865,
+    "total": 5253,
+    "pass": 5253,
+    "fail": 0,
+    "pending": 0,
+    "scope": "Canonical existing full suite on NEW frozen917 source, original configuration/assertions, no custom370 adapter"
+  },
+  "sourceDiff": "data/notifications.json",
+  "finished": "2026-10-25T02:10:20.891Z"
+}

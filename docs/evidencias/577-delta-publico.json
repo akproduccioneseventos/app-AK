@@ -1,0 +1,23 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "previous": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "started": "2026-10-25T07:51:10.007Z",
+  "phase": "qa-setup-or-run-error",
+  "appEdited": false,
+  "realServices": false,
+  "reason": "New PUBLIC1353 four media consumers only; one final frozen-source official suite. No replay of258 browser matrix.",
+  "probes": [
+    {
+      "at": "2026-10-25T07:51:11.986Z",
+      "freeBytes": 4778250240,
+      "probeExit": 0,
+      "foreignHeavy": []
+    }
+  ],
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q",
+  "reusedCompiledSource": true,
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '978af7d65a60bd287f3ee3cc05037a29566074f4'\n- 'f8f7cf34e8778de784b20e2654058fd722b2a2ec'\n\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/577-canonica-generada.mjs:26:9\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async node:internal/modules/esm/loader:643:26\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/573-validar-entrega-f8f7.mjs:27:179",
+  "preCleanupDiff": "",
+  "sourceDiff": "",
+  "finished": "2026-10-25T07:51:13.177Z"
+}

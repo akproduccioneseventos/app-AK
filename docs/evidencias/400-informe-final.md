@@ -1,6 +1,46 @@
 # Informe final de auditoria AK
 
-Fecha de corte:24/10/2026. Este es el dictamen consolidado de la revision,
+## Corte definitivo25/10/2026 - prevalece sobre el historico inferior
+
+**NO APROBAR la candidata como libre de errores.** Informe final completo:
+`597-cierre-final-25octubre.md`. Libro de casos sin sumar repeticiones:
+`596-recuento-resultados.json`, generado por596-conciliar-casos-unicos.mjs.
+
+- FinalPR1353:f8f7cf34e8778de784b20e2654058fd722b2a2ec; main3e45a4ac.
+  Verificados remotos25/10 al cierre; cambios privados NO CONTRASTADOS.
+- 574build finalPASS con tipos/lint, fuente0diff.593canonico finalPASS:
+  865suites/5253pruebas/0FAIL/0pending,exit0,fuente0diff. No limpieza npmci:
+  dependencias reutilizadas y estree instalado1.0.8 vs lock1.0.9 declarados.
+- Fuente978 anterior SI tuvo486build y490canonico5253PASS, no sigue pendiente.
+  512/520/554/568 concilian258casos/proyectos:199PASS19FAIL3timeout37SKIP.
+  No258funciones ni22bugs;594 clasifica limites/errores de prueba.
+- 513cierra50fronterasHTTP de descargas con7perfiles y sesiones negativas.
+  NO cierra guardia administrativa230, que usa otra politica.
+- Tres defectos confirmados:230P1 perfil explicito restringido ignorado por
+  guardia admin;229P2 procesador nuevo elimina audio del video importado;
+  231P2 titulo publico del simulador blanco sobre fondo claro en movil.
+  Ordenes reales, sin appedit/merge porCodex ni suponer que responsables las
+  leyeron. Antes de programar contrastar fuente privada del responsable.
+- 585f8f7:1PASS marco de video importado,2criteriosNOaceptados por no llegar
+  a revision de grabacion/resultado selfie. No afirmar filtracion ni codecs
+  rotos por timeout.589 prueba audio previoSI/nuevoNO con procesador real.
+- 221factura cierra variante por482ReactDOM11PASS;214 ocho efectos/PINPASS
+  en480; cambios posteriores de medios se retestean separadamente. No usar
+  los cinco defectos917 de abajo como encargos actuales en978/f8f7.
+- 594rectifica dos afirmaciones del ayudante: fotocabina SIclicaba publicar
+  manual y velocidad corria NODE_ENVproduction LOCAL. No cierres falsos.
+- Registros de OOM512/TEMP540/542 huerfana/577preflight conservados. No son
+  bugs de app;552/554/568/584 cerraron sus procesos/datos y fuente0diff.
+
+La cobertura documentada abarca las14areas indicadas en253, pero NO equivale
+a todaslasacciones/todoslosroles aceptados.37SKIP y22resultados noPASS no se
+promueven aPASS. Trabajo manualdeldueno no es una deudaCodex ni evidencia suya.
+No se certifican servicios/modelo/voz/Hosting/hardware reales por QA local.
+Este es un dictamen de NO aprobacion, no un certificado de ceroerrores.
+
+## Historico conservado24/10, NO dictamen vigente por si solo
+
+Fecha de corte historico:24/10/2026. Este es el dictamen consolidado de la revision,
 no una promesa de una revision futura ni un certificado de cero errores.
 El historial unico sigue en253-recuento-unico-auditoria.md; este informe lo
 resume y resuelve las contradicciones de los recuentos anteriores.
