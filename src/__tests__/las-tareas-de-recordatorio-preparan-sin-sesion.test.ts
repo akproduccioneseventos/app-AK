@@ -47,6 +47,7 @@ const marcar = jest.fn();
 jest.mock('@/lib/automatico/tareas-automaticas', () => ({ marcarCorrida: (...a: any[]) => marcar(...a) }));
 jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({
   abrirPuertaDeLaTarea: jest.fn(async () => ({ permitido: true, conClave: true })),
+  respuestaDeLaTarea: (_puerta: unknown, cuerpo: unknown) => cuerpo,
 }));
 const fiestas = jest.fn();
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: () => fiestas() }));

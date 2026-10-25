@@ -1,0 +1,556 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "208-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-007-artifacts",
+      "ak207-internal-dynamic-route-inventory.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\208-config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/310-batch-007-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/310-batch-007-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-007-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-internal-dynamic-route-inventory.spec.ts",
+      "file": "ak207-internal-dynamic-route-inventory.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "every dynamic internal route responds with representative local data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 1800000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1134,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T02:57:45.848Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5e43484170c5635d965a-cf9c4e829af3001cefd5",
+          "file": "ak207-internal-dynamic-route-inventory.spec.ts",
+          "line": 198,
+          "column": 5
+        },
+        {
+          "title": "representative dynamic screens hydrate without browser errors",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 900000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 66966,
+                  "error": {
+                    "message": "Error: /empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\n/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\n/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\n/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: /empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\n/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\n/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\n/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts:292:41",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts",
+                      "column": 41,
+                      "line": 292
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 290 |\u001b[39m   }\n \u001b[90m 291 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 292 |\u001b[39m   expect(failures\u001b[33m,\u001b[39m failures\u001b[33m.\u001b[39mjoin(\u001b[32m'\\n'\u001b[39m))\u001b[33m.\u001b[39mtoEqual([])\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 293 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 294 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts",
+                        "column": 41,
+                        "line": 292
+                      },
+                      "message": "Error: /empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\n/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\n/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\n/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  290 |   }\n  291 |\n> 292 |   expect(failures, failures.join('\\n')).toEqual([]);\n      |                                         ^\n  293 | });\n  294 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts:292:41"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T02:57:47.239Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-007-artifacts\\ak207-internal-dynamic-rou-9e6a7-rate-without-browser-errors-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-007-artifacts\\ak207-internal-dynamic-rou-9e6a7-rate-without-browser-errors-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-007-artifacts\\ak207-internal-dynamic-rou-9e6a7-rate-without-browser-errors-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-007-artifacts\\ak207-internal-dynamic-rou-9e6a7-rate-without-browser-errors-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts",
+                    "column": 41,
+                    "line": 292
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "5e43484170c5635d965a-517fe8f0bb6ad5311ce4",
+          "file": "ak207-internal-dynamic-route-inventory.spec.ts",
+          "line": 236,
+          "column": 5
+        },
+        {
+          "title": "every dynamic internal route responds with representative local data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "The dynamic inventory only needs one browser project.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts",
+                    "line": 199,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 93,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T02:58:56.937Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "The dynamic inventory only needs one browser project.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts",
+                        "line": 199,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "5e43484170c5635d965a-c983df7694d06982f380",
+          "file": "ak207-internal-dynamic-route-inventory.spec.ts",
+          "line": 198,
+          "column": 5
+        },
+        {
+          "title": "representative dynamic screens hydrate without browser errors",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "The hydration pass only needs one browser project.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts",
+                    "line": 237,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 286,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T02:58:57.287Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "The hydration pass only needs one browser project.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts",
+                        "line": 237,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "5e43484170c5635d965a-589481f4fa57f704590f",
+          "file": "ak207-internal-dynamic-route-inventory.spec.ts",
+          "line": 236,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T02:57:44.838Z",
+    "duration": 75277.54199999999,
+    "expected": 1,
+    "skipped": 2,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

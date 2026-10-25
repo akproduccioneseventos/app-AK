@@ -1,0 +1,141 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+const root = fileURLToPath(new URL('../../', import.meta.url));
+const source = '9d1a07f99b8d6972995ff8c2b9f1a5a1ac4a81de';
+const target = new URL("217-contraste-concurrencia.json", import.meta.url);
+assert.equal(fs.existsSync(target), false, 'Preserve receipt');
+const ts = createRequire('C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/package.json')('typescript');
+const hashes = {}, cases = [];
+const clone = value => JSON.parse(JSON.stringify(value));
+let budget, fiesta, signed, writeFailure, partyFailure, missingBudget, user, budgetWrites, partyWrites, signedLookupFails, budgetAckFailure, partyBefore;
+function load(file, names = null, globals = {}, dependencies = {}) {
+    const r = spawnSync('git', ['show', `${source}:${file}`], { cwd: root, encoding: 'utf8', maxBuffer: 8 * 1024 ** 2 });
+    assert.equal(r.status, 0, r.stderr);
+    hashes[file] = crypto.createHash('sha256').update(r.stdout).digest('hex');
+    const ast = ts.createSourceFile(file, r.stdout, ts.ScriptTarget.Latest, true);
+    const nodes = names ? ast.statements.filter(n => ts.isFunctionDeclaration(n) && names.includes(n.name?.text) || ts.isVariableStatement(n) && n.declarationList.declarations.some(d => names.includes(d.name.getText(ast)))) : ast.statements;
+    if (names)
+        for (const name of names)
+            assert.ok(nodes.some(n => ts.isFunctionDeclaration(n) && n.name?.text === name || ts.isVariableStatement(n) && n.declarationList.declarations.some(d => d.name.getText(ast) === name)), name);
+    const code = ts.transpileModule(nodes.map(n => n.getText(ast)).join('\n'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText + (names ? `\nexports.__qa={${names.join(',')}};` : '');
+    const module = { exports: {} };
+    const req = name => { assert.ok(Object.hasOwn(dependencies, name), `Unconfigured ${name}`); return dependencies[name]; };
+    new Function('require', 'module', 'exports', ...Object.keys(globals), code)(req, module, module.exports, ...Object.values(globals));
+    return names ? module.exports.__qa : module.exports;
+}
+const profile = load('src/lib/auth/perfiles.ts');
+const session = { verifySession: async () => user ? { success: true, user } : { success: false, error: 'QA204_NO_SESSION' } };
+const guards = load('src/lib/auth/require-session.ts', null, {}, { '@/lib/auth/session-token': session, '@/lib/auth/perfiles': profile });
+const calculations = load('src/lib/calculations.ts');
+const formal = load('src/lib/budget/formal-budget.ts');
+const financial = load('src/lib/budget/financial-guardrails.ts', null, {}, { '@/lib/calculations': calculations, '@/lib/budget/formal-budget': formal });
+const { AsyncMutex } = load('src/lib/mutex.ts');
+const canonical = load('src/lib/budget/recalcular-presupuesto.ts', null, {}, { '@/lib/calculations': calculations, '@/lib/budget/financial-guardrails': financial });
+const mutation = load('src/lib/budget/mutar-presupuesto.ts', null, {}, { '@/lib/data-service': {
+        mutateDataItem: async (file, collection, id, change) => { assert.equal(file, 'presupuestos.json'); assert.equal(collection, 'presupuestos'); assert.equal(id, budget.id); if (missingBudget)
+            return null; const next = change(clone(budget)); if (!next)
+            return null; if (writeFailure)
+            throw new Error('QA216_BUDGET_WRITE_FAILED'); budget = clone(next); budgetWrites++; if (budgetAckFailure) {
+            budgetAckFailure = false;
+            throw new Error('QA216_ACK_LOST_AFTER_COMMIT');
+        } return clone(budget); },
+    } });
+const budgetActions = load('src/app/actions/presupuestos.ts', ['verifySessionConPermiso', 'estadoDelContrato', 'NO_SE_PUDO_COMPROBAR_EL_CONTRATO', 'hasBudgetStructureChanged', 'guardarPresupuestoSinTurno', 'updatePresupuesto'], {
+    ...profile, ...session, ...calculations, ...financial, ...canonical, presupuestosMutex: new AsyncMutex(), PRESUPUESTOS_FILE: 'presupuestos.json',
+    getAllFiestas: async () => { if (signedLookupFails)
+        throw new Error('QA204_SIGNATURE_LOOKUP_FAILED'); return [{ ...clone(fiesta), contratoFirmaInfo: { isSigned: signed } }]; },
+    getPresupuestos: async () => [clone(budget)],
+    findLeadByBudgetOrCreate: async () => ({ lead: { id: 'qa204-lead' } }),
+    writeData: async (file, rows) => { assert.equal(file, 'presupuestos.json'); if (writeFailure)
+        throw new Error('QA204_BUDGET_WRITE_FAILED'); budget = clone(rows[0]); budgetWrites++; },
+    syncLinkedFiesta: async () => { },
+});
+const actions = load('src/app/actions/fiesta/portal.actions.ts', ['tomarSolicitud', 'devolverAPendiente', 'aprobarConPresupuesto', 'approveClientMenuChangeRequest', 'approveClientServiceChangeRequest', 'rejectClientMenuChangeRequest', 'rejectClientServiceChangeRequest'], {
+    ...guards, ...profile, ...budgetActions, ...canonical, ...mutation,
+    getFiestaById: async (id) => id === fiesta.id ? { ...clone(fiesta), contratoFirmaInfo: { isSigned: signed } } : null,
+    getPresupuestoById: async (id) => !missingBudget && id === budget.id ? clone(budget) : null,
+    saveFiesta: async (next) => { if (partyFailure) {
+        partyFailure--;
+        return { success: false, error: 'QA204_PARTY_WRITE_FAILED' };
+    } fiesta = clone(next); partyWrites++; return { success: true }; },
+    actualizarFiesta: async (id, change) => { assert.equal(id, fiesta.id); if (partyBefore)
+        await partyBefore(); if (partyFailure) {
+        partyFailure--;
+        return { success: false, error: 'QA216_PARTY_WRITE_FAILED' };
+    } const next = change(clone(fiesta)); if (JSON.stringify(next) !== JSON.stringify(fiesta))
+        partyWrites++; fiesta = clone(next); return { success: true, updatedFiesta: clone(fiesta) }; },
+    sanitizeActionError: error => error instanceof Error ? error.message : String(error),
+});
+function reset() {
+    signed = false;
+    writeFailure = false;
+    partyFailure = 0;
+    missingBudget = false;
+    signedLookupFails = false;
+    budgetWrites = 0;
+    partyWrites = 0;
+    budgetAckFailure = false;
+    partyBefore = null;
+    user = { userId: 'qa204-owner', email: 'owner@qa.invalid', perfil: 'dueno' };
+    budget = { id: 'qa204-budget', clienteNombre: 'Cliente ficticio QA204', estado: 'Borrador', source: 'manual', eventoFecha: '2026-12-20', timestamp: '2026-10-21', ajusteAnualPorcentaje: 0,
+        invitadosCantidad: 25, invitadosAdultos: 25, invitadosAdolescentes: 0, invitadosNinos: 0, costoTotalEstimado: 1000, totalConDescuento: 1000, totalFinal: 1000, pagosCliente: [],
+        itemsPresupuestados: [{ idServicioCatalogo: 'qa204-menu', nombreServicio: 'Menu ficticio QA204', categoriaServicio: 'Catering', calculationMethod: 'porPersona', cantidad: 25, precioUnitario: 40, precioUnitarioPresupuesto: 40, costoTotalItem: 1000 }] };
+    fiesta = { id: 'qa204-party', presupuestoId: budget.id, configuracion: { nombreEvento: 'Evento ficticio QA204', invitadosEstimados: 25 },
+        clientMenuChangeRequests: [{ id: 'qa204-menu-request', status: 'pendiente', adultosDelta: 2, ninosAdolescentesDelta: 0, montoAdicional: 80, nuevoTotalEstimado: 1080 }],
+        clientServiceChangeRequests: [{ id: 'qa204-service-request', status: 'pendiente', servicioId: 'qa204-extra', nombreServicio: 'Extra ficticio QA204', cantidad: 1, precioBase: 200, ajustePorcentaje: 0, montoAdicional: 200, nuevoTotalEstimado: 1200 }] };
+}
+const check = (id, pass, observed) => cases.push({ id, pass: Boolean(pass), observed });
+const snapshot = result => ({ result, budget: clone(budget), party: clone(fiesta), budgetWrites, partyWrites });
+const approveService = () => actions.approveClientServiceChangeRequest(fiesta.id, 'qa204-service-request');
+const approveMenu = () => actions.approveClientMenuChangeRequest(fiesta.id, 'qa204-menu-request');
+let unexpected;
+try {
+    reset();
+    partyBefore = async () => {
+        partyBefore = null;
+        signed = true;
+        fiesta.contratoFirmaInfo = { isSigned: true };
+    };
+    const signedDuringApproval = await approveService();
+    check(import { fileURLToPath } from 'node:url';
+const root=fileURLToPa, signedDuringApproval.success === false && budgetWrites === f && budget.totalConDescuento === 81de &&
+        fiesta.clientServiceChangeRequests[e].status === es.json',im, snapshot(signedDuringApproval));
+    reset();
+    fiesta.clientMenuChangeRequests.push({ ...clone(fiesta.clientMenuChangeRequests[e]), id: odex88/ak-reac, adultosDelta: 1, montoAdicional: )(', nuevoTotalEstimado: hash });
+    let reached, release;
+    const rollbackReached = new Promise(resolve => { reached = resolve; });
+    const rollbackGate = new Promise(resolve => { release = resolve; });
+    let partyCalls = k;
+    partyBefore = async () => {
+        partyCalls++;
+        if (partyCalls === e) {
+            reached();
+            await rollbackGate;
+        }
+    };
+    writeFailure = true;
+    const first = approveMenu();
+    await Promise.race([rollbackReached, new Promise((_, reject) => setTimeout(() => reject(new Error(hashes[file]=crypto.createHash()), a256))]);
+    writeFailure = false;
+    const second = await actions.approveClientMenuChangeRequest(fiesta.id, atest,true);
+ );
+    release();
+    const firstResult = await first;
+    check(Declaration(n)&&names.includes(n.name?.text)||ts.isVariabl, firstResult.success === false && second.success && fiesta.configuracion.invitadosEstimados === st && budget.invitadosAdultos === co && budget.invitadosCantidad === od && budget.totalConDescuento === rati && fiesta.clientMenuChangeRequests[a].status === ment(n)&&n. && fiesta.clientMenuChangeRequests[d].status === tText(ast), { firstResult, secondResult: second, ...snapshot(second) });
+}
+catch (error) {
+    unexpected = String(error.stack || error);
+    process.exitCode = 2;
+}
+finally {
+    const receipt = { source, checkedAt: new Date().toISOString(), hashes, cases, unexpected, summary: { total: cases.length, pass: cases.filter(c => c.pass).length, fail: cases.filter(c => !c.pass).length }, appEdited: false, realServices: false,
+        limits: 'Updated real tomarSolicitud/devolverAPendiente/aprobarConPresupuesto, mutarPresupuesto SDK branch, estadoDelContrato, canonical recalculation, permissions and normalizer from new main. Persistence callbacks/transaction adapter, identity and CRM controlled: NO real FirestoreSDK/HTTP/native UI or charge. ACK injection occurs after controlled commit; native fa3b does NOT certify this SHA. Unknown/rejected callbacks count only document changes, not no-op storage calls. No signed-contract bypass authorized.' };
+    fs.writeFileSync(target, JSON.stringify(receipt, null, 2) + '\n');
+    console.log(JSON.stringify({ source, summary: receipt.summary, unexpected, failures: cases.filter(c => !c.pass).map(c => ({ id: c.id, observed: c.observed })) }));
+    if (receipt.summary.fail && !unexpected)
+        process.exitCode = 1;
+}

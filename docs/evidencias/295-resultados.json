@@ -1,0 +1,277 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "208-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\295-artifacts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\208-config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/295-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/295-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\295-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-294-home-interaccion-real.spec.ts",
+      "file": "ak207-294-home-interaccion-real.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "portada: tecnologia visible y plataforma360 responde a un clic real",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 16657,
+                  "error": {
+                    "message": "Error: El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts:27:118",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts",
+                      "column": 118,
+                      "line": 27
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 25 |\u001b[39m       \u001b[36mreturn\u001b[39m{x\u001b[33m,\u001b[39my\u001b[33m,\u001b[39mreachable\u001b[33m:\u001b[39mx\u001b[33m>=\u001b[39m\u001b[35m0\u001b[39m\u001b[33m&&\u001b[39my\u001b[33m>=\u001b[39m\u001b[35m0\u001b[39m\u001b[33m&&\u001b[39mx\u001b[33m<\u001b[39m\u001b[33minnerWidth\u001b[39m\u001b[33m&&\u001b[39my\u001b[33m<\u001b[39m\u001b[33minnerHeight\u001b[39m\u001b[33m&&\u001b[39m\u001b[33mBoolean\u001b[39m(hit\u001b[33m&&\u001b[39m(hit\u001b[33m===\u001b[39melement\u001b[33m||\u001b[39melement\u001b[33m.\u001b[39mcontains(hit)))}\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m     })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 27 |\u001b[39m     expect(point\u001b[33m.\u001b[39mreachable\u001b[33m,\u001b[39m\u001b[32m'El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo'\u001b[39m)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 28 |\u001b[39m     \u001b[90m// A moving showcase need not settle forever; click the visible, hit-tested point.\u001b[39m\n \u001b[90m 29 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mmouse\u001b[33m.\u001b[39mclick(point\u001b[33m.\u001b[39mx\u001b[33m,\u001b[39mpoint\u001b[33m.\u001b[39my)\u001b[33m;\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[36mawait\u001b[39m expect(showcase)\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Video Dinámico HD'\u001b[39m\u001b[33m,\u001b[39m{timeout\u001b[33m:\u001b[39m\u001b[35m20000\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts",
+                        "column": 118,
+                        "line": 27
+                      },
+                      "message": "Error: El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  25 |       return{x,y,reachable:x>=0&&y>=0&&x<innerWidth&&y<innerHeight&&Boolean(hit&&(hit===element||element.contains(hit)))};\n  26 |     });\n> 27 |     expect(point.reachable,'El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo').toBe(true);\n     |                                                                                                                      ^\n  28 |     // A moving showcase need not settle forever; click the visible, hit-tested point.\n  29 |     await page.mouse.click(point.x,point.y);\n  30 |     await expect(showcase).toContainText('Video Dinámico HD',{timeout:20000});\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts:27:118"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T01:34:53.435Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa-red-y-js",
+                      "contentType": "application/json",
+                      "body": "eyJuZXR3b3JrRmFpbHVyZXMiOlt7InVybCI6Imh0dHBzOi8vd3d3Lmdvb2dsZXRhZ21hbmFnZXIuY29tL2d0YWcvanMiLCJlcnJvciI6Im5ldDo6RVJSX0JMT0NLRURfQllfQ0xJRU5ULkluc3BlY3RvciJ9LHsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTozMzAwLyIsImVycm9yIjoibmV0OjpFUlJfQUJPUlRFRCJ9LHsidXJsIjoiaHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcyIsImVycm9yIjoibmV0OjpFUlJfQkxPQ0tFRF9CWV9DTElFTlQuSW5zcGVjdG9yIn1dLCJqc0Vycm9ycyI6W10sImNhcHR1cmVBbmltYXRpb25zRGlzYWJsZWRPbmx5Ijp0cnVlfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\295-artifacts\\ak207-294-home-interaccion-6ed2e-360-responde-a-un-clic-real-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\295-artifacts\\ak207-294-home-interaccion-6ed2e-360-responde-a-un-clic-real-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts",
+                    "column": 118,
+                    "line": 27
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "82f12468560f90bcc093-45d9c4cf8c6dc9c522e0",
+          "file": "ak207-294-home-interaccion-real.spec.ts",
+          "line": 8,
+          "column": 5
+        },
+        {
+          "title": "portada: tecnologia visible y plataforma360 responde a un clic real",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 15968,
+                  "error": {
+                    "message": "Error: El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts:27:118",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts",
+                      "column": 118,
+                      "line": 27
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 25 |\u001b[39m       \u001b[36mreturn\u001b[39m{x\u001b[33m,\u001b[39my\u001b[33m,\u001b[39mreachable\u001b[33m:\u001b[39mx\u001b[33m>=\u001b[39m\u001b[35m0\u001b[39m\u001b[33m&&\u001b[39my\u001b[33m>=\u001b[39m\u001b[35m0\u001b[39m\u001b[33m&&\u001b[39mx\u001b[33m<\u001b[39m\u001b[33minnerWidth\u001b[39m\u001b[33m&&\u001b[39my\u001b[33m<\u001b[39m\u001b[33minnerHeight\u001b[39m\u001b[33m&&\u001b[39m\u001b[33mBoolean\u001b[39m(hit\u001b[33m&&\u001b[39m(hit\u001b[33m===\u001b[39melement\u001b[33m||\u001b[39melement\u001b[33m.\u001b[39mcontains(hit)))}\u001b[33m;\u001b[39m\n \u001b[90m 26 |\u001b[39m     })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 27 |\u001b[39m     expect(point\u001b[33m.\u001b[39mreachable\u001b[33m,\u001b[39m\u001b[32m'El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo'\u001b[39m)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 28 |\u001b[39m     \u001b[90m// A moving showcase need not settle forever; click the visible, hit-tested point.\u001b[39m\n \u001b[90m 29 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mmouse\u001b[33m.\u001b[39mclick(point\u001b[33m.\u001b[39mx\u001b[33m,\u001b[39mpoint\u001b[33m.\u001b[39my)\u001b[33m;\u001b[39m\n \u001b[90m 30 |\u001b[39m     \u001b[36mawait\u001b[39m expect(showcase)\u001b[33m.\u001b[39mtoContainText(\u001b[32m'Video Dinámico HD'\u001b[39m\u001b[33m,\u001b[39m{timeout\u001b[33m:\u001b[39m\u001b[35m20000\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts",
+                        "column": 118,
+                        "line": 27
+                      },
+                      "message": "Error: El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  25 |       return{x,y,reachable:x>=0&&y>=0&&x<innerWidth&&y<innerHeight&&Boolean(hit&&(hit===element||element.contains(hit)))};\n  26 |     });\n> 27 |     expect(point.reachable,'El boton tiene que recibir un clic de verdad, sin force ni disparar eventos por codigo').toBe(true);\n     |                                                                                                                      ^\n  28 |     // A moving showcase need not settle forever; click the visible, hit-tested point.\n  29 |     await page.mouse.click(point.x,point.y);\n  30 |     await expect(showcase).toContainText('Video Dinámico HD',{timeout:20000});\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts:27:118"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T01:35:15.715Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa-red-y-js",
+                      "contentType": "application/json",
+                      "body": "eyJuZXR3b3JrRmFpbHVyZXMiOlt7InVybCI6Imh0dHBzOi8vd3d3Lmdvb2dsZXRhZ21hbmFnZXIuY29tL2d0YWcvanMiLCJlcnJvciI6Im5ldDo6RVJSX0JMT0NLRURfQllfQ0xJRU5ULkluc3BlY3RvciJ9LHsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTozMzAwLyIsImVycm9yIjoibmV0OjpFUlJfQUJPUlRFRCJ9LHsidXJsIjoiaHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcyIsImVycm9yIjoibmV0OjpFUlJfQkxPQ0tFRF9CWV9DTElFTlQuSW5zcGVjdG9yIn1dLCJqc0Vycm9ycyI6W10sImNhcHR1cmVBbmltYXRpb25zRGlzYWJsZWRPbmx5Ijp0cnVlfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\295-artifacts\\ak207-294-home-interaccion-6ed2e-360-responde-a-un-clic-real-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\295-artifacts\\ak207-294-home-interaccion-6ed2e-360-responde-a-un-clic-real-chromium-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-294-home-interaccion-real.spec.ts",
+                    "column": 118,
+                    "line": 27
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "82f12468560f90bcc093-1a6966d653a5abf7c186",
+          "file": "ak207-294-home-interaccion-real.spec.ts",
+          "line": 8,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T01:34:52.386Z",
+    "duration": 46283.938,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

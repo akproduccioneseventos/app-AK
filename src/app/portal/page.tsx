@@ -111,21 +111,21 @@ export const PORTAL_EXTRA_DEFINITIONS = [
     id: 'totem_touch_ia',
     titulo: 'Tótem Touch IA',
     descripcion: 'Pantalla táctil vertical de 55 pulgadas con IA, fotos personalizadas y trivia interactiva.',
-    aliases: ['totem', 'totem touch', 'tótem touch', 'totem ia', 'face swap', 'pantalla interactiva'],
+    aliases: ['totem touch', 'tótem touch', 'face swap', 'totem', 'pantalla interactiva'],
     icono: '🤖',
   },
   {
     id: 'vogue_boomerang',
     titulo: 'Cabina Vogue (boomerangs y GIFs)',
     descripcion: 'Túnel de luces LED y efecto de moda para videos de alto impacto.',
-    aliases: ['vogue', 'cabina vogue', 'bogue', 'boomerang'],
+    aliases: ['vogue', 'bogue', 'cabina vogue', 'boomerang'],
     icono: '💎',
   },
   {
     id: 'espejo_magico',
     titulo: 'Espejo mágico',
     descripcion: 'Firma en pantalla gigante con props digitales e impresión fotográfica instantánea.',
-    aliases: ['espejo', 'espejo magico', 'espejo mágico', 'espejo ia'],
+    aliases: ['espejo magico', 'espejo mágico', 'espejo', 'espejo ia'],
     icono: '🪞',
   },
 ] as const;
@@ -145,12 +145,7 @@ function getPublicServicePriceLabel(service?: ServicioEmpresa): string {
     : formatCurrency(amount);
 }
 
-import {
-  portalModules,
-  type PasoPortal,
-  type PortalModule,
-  type ModuleId,
-} from '@/lib/portal/portal-modules';
+import { portalModules, PASOS_PORTAL } from '@/lib/portal/portal-modules';
 
 function hasVisibleFlag(value: unknown): value is { visible: boolean } {
   return typeof value === 'object' && value !== null && 'visible' in value;
@@ -1027,37 +1022,48 @@ function ClientPortalContent() {
             </PortalSection>
           )}
 
-          <PortalSection title="Accesos rápidos" icon={ArrowRight}>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {modulesForQuickAccess.map((module) => {
-                const Icon = module.icon;
-                const href = module.id === 'informarPago'
-                  ? `/portal/c/${settings.accessKey || fiesta.id}`
-                  : module.href?.(fiesta.id);
-                return href ? (
-                  <Link key={module.id} href={href} className="ak-public-action p-4">
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="font-semibold text-sm">{module.label}</p>
-                        <p className="text-xs text-muted-foreground">Abrir módulo</p>
-                      </div>
-                    </div>
-                  </Link>
-                ) : (
-                  <div key={module.id} className="ak-public-card-soft p-4">
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="font-semibold text-sm">{module.label}</p>
-                        <p className="text-xs text-muted-foreground">Disponible en esta pantalla</p>
-                      </div>
-                    </div>
+          {/* El portal del cliente en 5 pasos (Orden 182) */}
+          <div className="space-y-6">
+            {PASOS_PORTAL.map(({ paso, titulo, descripcion }) => {
+              const modulesPaso = modulesForQuickAccess.filter((m) => m.paso === paso);
+              if (modulesPaso.length === 0) return null;
+
+              return (
+                <PortalSection key={paso} title={titulo} icon={ArrowRight}>
+                  <p className="text-xs text-muted-foreground mb-3 -mt-1 font-medium">{descripcion}</p>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {modulesPaso.map((module) => {
+                      const Icon = module.icon;
+                      const href = module.id === 'informarPago'
+                        ? `/portal/c/${settings.accessKey || fiesta.id}`
+                        : module.href?.(fiesta.id);
+                      return href ? (
+                        <Link key={module.id} href={href} className="ak-public-action p-4">
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-semibold text-sm">{module.label}</p>
+                              <p className="text-xs text-muted-foreground">Abrir módulo</p>
+                            </div>
+                          </div>
+                        </Link>
+                      ) : (
+                        <div key={module.id} className="ak-public-card-soft p-4">
+                          <div className="flex items-center gap-3">
+                            <Icon className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-semibold text-sm">{module.label}</p>
+                              <p className="text-xs text-muted-foreground">Disponible en esta pantalla</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
-          </PortalSection>
+                </PortalSection>
+              );
+            })}
+          </div>
         </div>
       </div>
 

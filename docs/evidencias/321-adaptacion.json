@@ -1,0 +1,8 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "previous": "314-jest-final.json",
+  "reason": "Official unit suite does not globally enable AK_ENTORNO_AISLADO, LOCAL_JSON or dummy model keys.314 incorrectly forced browser/demo variables, changing data/permissions/moderation paths and key precedence. Correct runner environment, NEVER app/tests/assertions.",
+  "assertionsChanged": false,
+  "sourceFilesChanged": false,
+  "externalSocketsDenied": true
+}

@@ -47,7 +47,7 @@ export function buildDailySnapshots(params: {
   for (const platform of platforms) {
     const conn = params.connections.find((c) => c.platform === platform);
     const postStats = postsByPlatform.get(platform) || { count: 0, interactions: 0 };
-    
+
     // Seguidores y alcance: NO se inventan.
     //
     // Antes esto ponia 1420 seguidores en Instagram, 2850 en Facebook, y el
@@ -126,20 +126,7 @@ export function calculateCommercialAdsRoi(params: {
     }
   }
 
-  // Si no hay campañas cargadas desde la API, asegurar entrada por defecto para atribución
-  if (campaignsMap.size === 0) {
-    campaignsMap.set('general-meta', {
-      id: 'camp_general_meta',
-      name: 'Publicidad General (Instagram / Facebook)',
-      spend: params.adsSummary?.totalSpend || 4500,
-      impressions: 12400,
-      clicks: 340,
-      leadsCount: 0,
-      budgetsCount: 0,
-      conversionsCount: 0,
-      revenue: 0,
-    });
-  }
+  // Sin campañas reales no se sintetizan métricas ficticias de general-meta
 
   // 2. Asociar Leads/Consultas
   const leadsByCampaign = new Map<string, CrmLead[]>();

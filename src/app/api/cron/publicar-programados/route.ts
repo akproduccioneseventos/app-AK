@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { procesarPosteosProgramados } from '@/lib/presencia-digital/publicador';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { intentarAdquirirLock, liberarLock } from '@/lib/automatico/control-concurrencia';
@@ -29,7 +29,7 @@ async function correrTarea(request: Request) {
     // publicando, ésta no repite (publicaría lo mismo dos veces).
     const dueno = await intentarAdquirirLock('despertador');
     if (!dueno) {
-      return NextResponse.json({ ok: true, omitidoPorConcurrencia: true });
+      return NextResponse.json(respuestaDeLaTarea(puerta, { ok: true, omitidoPorConcurrencia: true }));
     }
     try {
       const resultado = await procesarPosteosProgramados();
@@ -37,7 +37,7 @@ async function correrTarea(request: Request) {
       // una tarea automatica esta funcionando o solo esta escrita.
       await marcarCorrida('publicar-programados');
 
-      return NextResponse.json(resultado);
+      return NextResponse.json(respuestaDeLaTarea(puerta, resultado));
     } finally {
       // no pasa nada si falla: el candado vence solo y la próxima corrida lo toma.
       await liberarLock(dueno).catch(() => {});

@@ -100,7 +100,17 @@ function HojaDeCocinaContenido() {
     );
   }
 
-  const fecha = hoja.fecha ? new Date(hoja.fecha).toLocaleDateString('es-UY') : '';
+  const fecha = hoja.fecha
+    ? (() => {
+        const match = hoja.fecha.match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (match) {
+          const [, anio, mes, dia] = match;
+          return `${Number(dia)}/${Number(mes)}/${anio}`;
+        }
+        const d = new Date(hoja.fecha);
+        return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('es-UY');
+      })()
+    : '';
 
   return (
     <div className="mx-auto max-w-4xl p-6 print:p-0">

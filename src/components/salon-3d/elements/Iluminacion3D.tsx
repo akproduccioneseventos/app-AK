@@ -1,5 +1,6 @@
-// @ts-nocheck
 'use client';
+
+// @ts-nocheck
 
 import React from 'react';
 
@@ -31,7 +32,7 @@ export function Iluminacion3D({
         color={accentColor}
       />
       <pointLight position={[0, 8, 0]} intensity={0.8} color={secondaryColor} distance={30} />
-      <hemisphereLight skyColor={primaryColor} groundColor="#888888" intensity={0.4} />
+      <hemisphereLight color={primaryColor} groundColor="#888888" intensity={0.4} />
     </>
   );
 }

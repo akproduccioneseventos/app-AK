@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { extractReceiptData, type ExtractReceiptDataOutput } from '@/ai/flows/extract-receipt-data';
+import { extractReceiptDataAction as extractReceiptData } from '@/app/actions/gastos';
+import type { ExtractReceiptDataOutput } from '@/types/gastos';
 import { Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export interface ReceiptProcessorProps {
@@ -87,7 +88,7 @@ export function ReceiptProcessor({ onDataExtracted }: ReceiptProcessorProps = {}
       setIsLoading(false);
     }
   };
-  
+
   return (
     <Card className="w-full max-w-lg">
       <CardHeader>

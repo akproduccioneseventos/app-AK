@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
@@ -72,7 +71,10 @@ async function getCargaOperativaAuthorization(
   fiestaId: string,
   accessToken?: string,
 ): Promise<{ authorized: boolean; operatorName?: string }> {
-  if ((await verifySession()).success) return { authorized: true };
+  const ses = await verifySession();
+  const { puede } = await import('@/lib/auth/perfiles');
+  const { PERMISOS } = await import('@/lib/auth/perfiles');
+  if (ses.success && ses.user && (puede(ses.user, PERMISOS.ORGANIZACION) || ses.user.role === 'admin')) return { authorized: true };
   if (!accessToken) return { authorized: false };
 
   const access = await getAccesoById(accessToken);

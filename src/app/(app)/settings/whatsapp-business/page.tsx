@@ -361,7 +361,14 @@ export default function WhatsAppBusinessPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => { navigator.clipboard.writeText(webhookUrl); toast({ title: 'Copiado', description: 'URL copiada al portapapeles.' }); }}
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(webhookUrl);
+                      toast({ title: 'Copiado', description: 'URL copiada al portapapeles.' });
+                    } catch {
+                      toast({ title: 'Error al copiar', description: 'No se pudo copiar la URL.', variant: 'destructive' });
+                    }
+                  }}
                 >
                   <LinkIcon className="w-4 h-4" />
                 </Button>

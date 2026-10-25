@@ -2,7 +2,7 @@
 
 import { requireAppSession } from '@/lib/auth/require-session';
 import { getEmpleados } from '@/app/actions/empleados';
-import { getRoles } from '@/app/actions/roles';
+import { leerRolesInterno } from '@/lib/roles/leer-roles-interno';
 import { getFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
 import {
@@ -29,7 +29,7 @@ export async function obtenerPropuestaEquipoAction(
 
     const [empleados, roles, todasLasFiestas] = await Promise.all([
       getEmpleados(),
-      getRoles(),
+      leerRolesInterno(),
       readActiveFiestasForStaffAgenda(() => getFiestas(false)).catch(() => getFiestas(false)),
     ]);
 

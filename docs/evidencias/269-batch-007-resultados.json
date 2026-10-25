@@ -1,0 +1,1053 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "208-config.ts",
+      "--global-timeout",
+      "2700000",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-007-artifacts",
+      "ak207-el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+      "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+      "ak207-el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+      "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+      "ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+      "ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\208-config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-267-diB8tz/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 2700000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal/docs/evidencias/269-batch-007-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-267-diB8tz/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal/docs/evidencias/269-batch-007-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-267-diB8tz/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-007-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+      "file": "ak207-el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "el panel del asistente abierto entra entero en la pantalla",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9501,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T20:44:09.673Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b99c548ebf600d1f6bb7-46c51b88b48e569ad31f",
+          "file": "ak207-el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+          "line": 14,
+          "column": 5
+        },
+        {
+          "title": "el panel del asistente abierto entra entero en la pantalla",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7756,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T20:49:03.961Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b99c548ebf600d1f6bb7-7c4ed218aceb5773d23d",
+          "file": "ak207-el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+          "line": 14,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+      "file": "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 96 - Bloque 4: El carrusel de tecnología se ve entero",
+          "file": "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "en computadora (1280x800) los botones se ven enteros y cambian la ficha",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 36213,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:44:19.416Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a044a52660887e025550-8c210706b5a7e76dc3ec",
+              "file": "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+              "line": 15,
+              "column": 9
+            },
+            {
+              "title": "en celular (390x844) los botones se ven enteros y cambian la ficha",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 15959,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:44:55.768Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a044a52660887e025550-32f6662429f224c1b91d",
+              "file": "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+              "line": 15,
+              "column": 9
+            },
+            {
+              "title": "en computadora (1280x800) los botones se ven enteros y cambian la ficha",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 22899,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:49:11.956Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a044a52660887e025550-0c6a2312e1e62297f25a",
+              "file": "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+              "line": 15,
+              "column": 9
+            },
+            {
+              "title": "en celular (390x844) los botones se ven enteros y cambian la ficha",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:49:34.945Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a044a52660887e025550-9cd869becf326695210d",
+              "file": "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+              "line": 15,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+      "file": "ak207-el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "el panel de la barra muestra el cierre de barra",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16375,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T20:45:12.053Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "593c80a38976b9a75cd3-e8c0511ca3b841d54807",
+          "file": "ak207-el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+          "line": 18,
+          "column": 5
+        },
+        {
+          "title": "el panel de la barra muestra el cierre de barra",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11998,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T20:49:55.288Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "593c80a38976b9a75cd3-6091170d4b784a6f5ae8",
+          "file": "ak207-el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+          "line": 18,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+      "file": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas puertas",
+          "file": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+          "line": 27,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Puerta 1 (/portal/[fiestaId]/decoracion): con plano muestra salón 3D y permite girar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 28643,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:45:28.592Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "578ac184069aed5faedf-9fecf96c59656ff4db00",
+              "file": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+              "line": 134,
+              "column": 7
+            },
+            {
+              "title": "Puerta 2 (/portal/c/[accessKey]): con plano muestra salón 3D y permite girar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20878,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:45:57.626Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "578ac184069aed5faedf-41569548e9d9dc5b106a",
+              "file": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+              "line": 162,
+              "column": 7
+            },
+            {
+              "title": "Puerta 2 (/portal/c/[accessKey]): sin plano muestra cartel de preparación y NO un cuadro roto",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 24361,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:46:18.582Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "578ac184069aed5faedf-5bc484ba680c1088079e",
+              "file": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+              "line": 193,
+              "column": 7
+            },
+            {
+              "title": "Puerta 1 (/portal/[fiestaId]/decoracion): con plano muestra salón 3D y permite girar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 24300,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:50:08.959Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "578ac184069aed5faedf-4062dbe5f733b5c99372",
+              "file": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+              "line": 134,
+              "column": 7
+            },
+            {
+              "title": "Puerta 2 (/portal/c/[accessKey]): con plano muestra salón 3D y permite girar",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 28070,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:50:34.275Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "578ac184069aed5faedf-36a5eab29deab05fb827",
+              "file": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+              "line": 162,
+              "column": 7
+            },
+            {
+              "title": "Puerta 2 (/portal/c/[accessKey]): sin plano muestra cartel de preparación y NO un cuadro roto",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14430,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:51:02.494Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "578ac184069aed5faedf-44f7dd7e38fe4daf9549",
+              "file": "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+              "line": 193,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+      "file": "ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 43: El cliente le escribe al equipo",
+          "file": "ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el cliente escribe un mensaje y lo ve en el hilo al recargar la pantalla",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 30744,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:46:43.103Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5a5b11a88c9511069c79-64478671f61e78c87aa4",
+              "file": "ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+              "line": 30,
+              "column": 7
+            },
+            {
+              "title": "el cliente escribe un mensaje y lo ve en el hilo al recargar la pantalla",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20098,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:51:17.094Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "5a5b11a88c9511069c79-5b5382a2010d241ce118",
+              "file": "ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+              "line": 30,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts",
+      "file": "ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "El cliente ve sus entregas oficiales",
+          "file": "ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts",
+          "line": 21,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la entrega aparece con su enlace, sigue al recargar y otra clave no la ve",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 107334,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:47:14.075Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42a54eacaa8b209c69e2-518cec5f506f383789c8",
+              "file": "ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts",
+              "line": 34,
+              "column": 7
+            },
+            {
+              "title": "la entrega aparece con su enlace, sigue al recargar y otra clave no la ve",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 56263,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T20:51:37.557Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "42a54eacaa8b209c69e2-2e6bb73f9ce409bcf851",
+              "file": "ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts",
+              "line": 34,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T20:44:07.034Z",
+    "duration": 508237.29,
+    "expected": 18,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

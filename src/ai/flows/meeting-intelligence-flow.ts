@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { ai, ejecutarPromptConFallback, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';

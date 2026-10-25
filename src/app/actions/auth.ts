@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
@@ -10,7 +10,7 @@ import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import crypto from 'crypto';
 import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
-import { esPerfilValido, perfilDesdeRolViejo, type Perfil } from '@/lib/auth/perfiles';
+import { esPerfilValido, perfilDesdeRolViejo, puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
@@ -543,7 +543,16 @@ export interface SecurityQuestionsResult {
 export async function getSecurityQuestions(
   email: string
 ): Promise<SecurityQuestionsResult> {
-  await requireAppSession();
+  try {
+    await enforcePublicRateLimit({
+      scope: 'preguntas-seguridad-get',
+      identity: email.trim().toLowerCase(),
+      limit: 10,
+      windowMs: 60_000,
+    });
+  } catch {
+    return { success: false, error: 'Demasiados intentos seguidos. Esperá un minuto y volvé a probar.' };
+  }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -592,6 +601,16 @@ export async function resetPasswordWithQuestions(
   answers: { a1: string; a2: string; a3: string },
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
+  try {
+    await enforcePublicRateLimit({
+      scope: 'preguntas-seguridad-reset',
+      identity: email.trim().toLowerCase(),
+      limit: 5,
+      windowMs: 15 * 60_000,
+    });
+  } catch {
+    return { success: false, error: 'Demasiados intentos seguidos con respuestas incorrectas. Esperá 15 minutos.' };
+  }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -654,6 +673,15 @@ export async function changePassword(
   currentPassword: string,
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
+  const session = await verifySession();
+  if (!session.success || !session.user) {
+    return { success: false, error: 'Sesion no autorizada.' };
+  }
+  const esPropio = session.user.userId === userId;
+  const esAdmin = puede(session.user, PERMISOS.ADMINISTRACION);
+  if (!esPropio && !esAdmin) {
+    return { success: false, error: 'No autorizado para cambiar la contraseña de otro usuario.' };
+  }
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -775,7 +803,7 @@ export async function listUsers(): Promise<{
 
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
+  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
   try {
     const snapshot = await dbAdmin
@@ -817,7 +845,7 @@ export async function createUser(data: {
 
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
+  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
   try {
     const email = data.email.trim().toLowerCase();
@@ -866,7 +894,7 @@ export async function updateUserModules(
 
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
+  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
   try {
     await dbAdmin.collection('users').doc(userId).update({
@@ -889,7 +917,7 @@ export async function deleteUser(
 
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
+  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
   try {
     await dbAdmin.collection('users').doc(userId).delete();
@@ -908,7 +936,7 @@ export async function adminResetUserPassword(
 
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
+  if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
   try {
     if (newPassword.length < 8) {

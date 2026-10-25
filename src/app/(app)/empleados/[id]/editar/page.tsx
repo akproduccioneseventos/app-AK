@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
@@ -122,7 +121,7 @@ export default function EditarEmpleadoPage() {
     }
 
     setIsSaving(true);
-    
+
     const formData = new FormData();
     formData.append('id', empleado.id);
     formData.append('nombre', nombre.trim());

@@ -198,3 +198,37 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     ya tienen las otras, y sumala ahí también.
 53. **¿Tu dato es de plata o de sueldos?** Fijate si viaja adentro de la fiesta o del presupuesto a perfiles
     que no lo ven en su pantalla propia. Y si lo sacás al leer, que guardar no lo borre.
+54. **¿Hiciste una versión "interna" que no pide permiso?** No la exportes de un archivo `'use server'`:
+    ahí todo se puede llamar desde el navegador. Va en un archivo aparte con `import 'server-only'`.
+55. **¿Lo que arreglaste está repetido en otro archivo?** Corré `node scripts/formas-ya-arregladas.mjs` y
+    buscá la misma línea en toda la app. Y tu prueba, que recorra `src/`, no sólo tu archivo.
+56. **¿Lo que mandás de una pantalla a otra llega con el mismo nombre?** Parámetros del enlace, campos
+    del recorte que ve el cliente y datos opcionales de los que depende una protección.
+57. **¿Lo que pide la orden lo hace el código, o sólo aparece el nombre?** Un comentario con la palabra o
+    un import que no se usa **no cumple nada**, y `npm run ordenes?` ya no los cuenta. Y una prueba que
+    sólo dice `expect(true)` no prueba nada: el control `una-orden-no-se-cumple-con-un-comentario` la frena.
+58. **¿Elegís algo por su nombre con `includes`?** Primero el nombre exacto. Si hay varios parecidos,
+    preguntá cuál: no te quedes con el primero. "Mozo" no es "Mozo de Cocina" y "Ana" no es "Mariana".
+59. **¿Pusiste un valor por defecto con `||` sobre un número de plata?** `Number(x) || 15` convierte un 0
+    a propósito en 15. El valor por defecto va sólo si el dato falta (`x == null ? 15 : Number(x)`).
+60. **¿Cambiaste un guardado por otro?** Hacé la lista de lo que controlaba el viejo (permiso, contrato
+    firmado, recálculo, avisos) y comprobá que el nuevo lo haga. Ganar en un lado y perder un control en
+    el otro ya pasó con las aprobaciones del portal.
+61. **¿Deshacés algo si falla?** Deshacé sobre el dato de ahora, no sobre el que leíste al principio:
+    restá lo tuyo, o volvé un valor sólo si nadie lo cambió. Y lo que decide si se escribe (firma,
+    saldo, estado) miralo adentro de la transacción, no antes.
+62. **¿El cliente acepta o firma algo?** Que la pantalla mande lo que vio (la huella del texto) y que el
+    servidor lo compare al guardar. Lo aceptado lo escribe sólo su acción, nunca el guardado general.
+63. **¿Tu tarea programada le escribe a alguien?** Entonces no va en la lista de las que corren sin clave.
+    Y si falla a mitad, no la anotes como corrida ni dejes el día consumido.
+64. **¿Deshacés porque falló?** Fijate si otro intento de lo mismo pudo terminar bien en el medio. Deshacé
+    sólo si no hay marca de "terminado", y que el que termina la deje donde vos la mirás.
+65. **¿Agregaste un control que frena una escritura?** Ponelo adentro de esa misma escritura. Si leés
+    antes y escribís después con `updateDataPartial` o `writeData`, el control no frena nada.
+66. **¿Tu acción del servidor llama a un ayudante que guarda plata?** Entonces pide el permiso ella. Un
+    ayudante "interno" no se exporta desde un archivo con `'use server'`.
+67. **¿Tocaste una regla de estilo general o pusiste texto claro?** Mirá el fondo que queda de verdad en
+    cada pantalla que la recibe. Y si la pantalla espera un dato, que diga "no encontrado" cuando no llega:
+    `cargando || !dato` gira para siempre.
+68. **¿Clasificás un error por su código?** Si trae `status`, decidí por el número. Un 503 con "403" en
+    el texto no es un rechazo: no se sabe si salió, y liberarlo manda el mensaje dos veces.

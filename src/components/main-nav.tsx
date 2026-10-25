@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -57,20 +57,20 @@ import {
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
 import { getAlertasGlobalesConLeidas } from "@/app/actions/alertas.actions";
-import { PERMISOS, type Permiso } from "@/lib/auth/perfiles";
 import { getMisPermisos } from "@/app/actions/sesion";
+import { PERMISOS, puede, perfilDe, type Permiso } from "@/lib/auth/perfiles";
 
-type NavItem = {
+export type NavItem = {
   title: string;
   href: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   active?: (pathname: string) => boolean;
   highlight?: boolean;
   subgroup?: string;
-  permiso?: Permiso;
+  permiso?: Permiso | Permiso[];
 };
 
-type NavGroup = {
+export type NavGroup = {
   label: string;
   emoji: string;
   items: NavItem[];
@@ -79,10 +79,29 @@ type NavGroup = {
 const isPathActive = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
 /**
+ * Determina si un usuario con su perfil/permisos puede ver una entrada del menú lateral.
+ */
+export function puedeVerEntradaMenu(
+  item: NavItem,
+  user: { role?: string; profile?: string; permissions?: string[] } | null
+): boolean {
+  if (!user) return false;
+  const perfil = perfilDe(user);
+  if (perfil === "personal" && (!user.permissions || user.permissions.length === 0)) {
+    return false;
+  }
+  if (!item.permiso) {
+    return true;
+  }
+  const requeridos = Array.isArray(item.permiso) ? item.permiso : [item.permiso];
+  return requeridos.some((p) => puede(user, p));
+}
+
+/**
  * Las tres puertas de la app (Mi Día, Fiestas, La Empresa) + Configuración en el pie.
  * No se pierde ninguna entrada: cada destino conserva su ruta exacta.
  */
-const navGroups: NavGroup[] = [
+export const navGroups: NavGroup[] = [
   {
     label: "Mi Día",
     emoji: "☀️",
@@ -101,7 +120,7 @@ const navGroups: NavGroup[] = [
       { title: "Guias de Armado", href: "/playbooks", icon: ClipboardList },
       { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias", icon: Wheat },
       { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: HardHat },
-      { title: "Personal en dos fiestas", href: "/recursos-multi-evento", icon: Users2 },
+      { title: "Personal en dos fiestas", href: "/recursos-multi-evento", icon: Users2, permiso: PERMISOS.ORGANIZACION },
     ],
   },
   {
@@ -111,8 +130,8 @@ const navGroups: NavGroup[] = [
       { title: "Gestión de Empresa", href: "/empresa", icon: Building2, highlight: true, active: (pathname) => pathname === "/empresa" },
 
       // 1. Vender
-      { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, subgroup: "Vender", active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads"), permiso: PERMISOS.CRM },
-      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, subgroup: "Vender", highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos"), permiso: PERMISOS.CRM },
+      { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, subgroup: "Vender", permiso: PERMISOS.CRM, active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads") },
+      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, subgroup: "Vender", highlight: true, permiso: PERMISOS.CRM, active: (pathname) => isPathActive(pathname, "/presupuestos") },
       { title: "Clientes", href: "/customers", icon: Users, subgroup: "Vender", permiso: PERMISOS.CRM },
       { title: "Simulador IA", href: "/simulador-ak", icon: Wand2, subgroup: "Vender" },
 
@@ -133,13 +152,15 @@ const navGroups: NavGroup[] = [
 
       // 4. Marketing
       { title: "Marketing y Redes", href: "/marketing", icon: Target, subgroup: "Marketing", highlight: true, permiso: PERMISOS.CRM },
+      { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, subgroup: "Marketing", permiso: PERMISOS.CRM },
+      { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion", icon: Tv, subgroup: "Marketing" },
     ],
   },
   {
     label: "Configuración",
     emoji: "⚙️",
     items: [
-      { title: "Ajustes Generales", href: "/settings", icon: Settings, active: (pathname) => pathname === "/settings", permiso: PERMISOS.ADMINISTRACION },
+      { title: "Ajustes Generales", href: "/settings", icon: Settings, permiso: PERMISOS.ADMINISTRACION, active: (pathname) => pathname === "/settings" },
       { title: "Tareas Automáticas", href: "/settings/tareas-automaticas", icon: Zap, permiso: PERMISOS.ADMINISTRACION },
       { title: "Conexiones", href: "/settings/sincronizaciones", icon: LinkIcon, permiso: PERMISOS.ADMINISTRACION },
       { title: "WhatsApp", href: "/settings/whatsapp", icon: MessageCircle, permiso: PERMISOS.ADMINISTRACION },
@@ -152,6 +173,24 @@ const navGroups: NavGroup[] = [
     ],
   },
 ];
+
+export function obtenerGruposMenuPorPerfil(
+  user: { role?: string; profile?: string; permissions?: string[] } | null
+): NavGroup[] {
+  if (!user) return [];
+  return navGroups
+    .filter((group) => {
+      if (group.label === "Configuración" && !puede(user, PERMISOS.ADMINISTRACION)) {
+        return false;
+      }
+      return true;
+    })
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => puedeVerEntradaMenu(item, user)),
+    }))
+    .filter((group) => group.items.length > 0);
+}
 
 export function MainNav() {
   const pathname = usePathname();
@@ -208,14 +247,15 @@ export function MainNav() {
   const isExactly = (path: string) => pathname === path;
   const isActive = (item: NavItem) => item.active ? item.active(pathname) : isPathActive(pathname, item.href);
 
-  const gruposVisibles = React.useMemo(() => {
+  const visibleGroups = useMemo(() => {
     return navGroups
       .map((group) => ({
         ...group,
         items: group.items.filter((item) => {
           if (!item.permiso) return true;
           if (misPermisos === null) return false;
-          return misPermisos.includes(item.permiso);
+          const reqs = Array.isArray(item.permiso) ? item.permiso : [item.permiso];
+          return reqs.some((p) => misPermisos.includes(p));
         }),
       }))
       .filter((group) => group.items.length > 0);
@@ -252,7 +292,7 @@ export function MainNav() {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {gruposVisibles.map((group) => {
+        {visibleGroups.map((group) => {
           let lastSubgroup = "";
           return (
             <SidebarGroup key={group.label} className="p-0 space-y-2">

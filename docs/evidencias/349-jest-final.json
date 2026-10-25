@@ -1,0 +1,22 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-347-ZUMKZ8",
+  "started": "2026-10-24T08:35:21.169Z",
+  "phase": "finished",
+  "scope": "ONE canonical full existing Jest suite on NEW frozen candidate3f after build347; NOT repeat main3e. Official env/config, no forced browser/demo/model keys. No app/test assertions changed. One worker, recycling at512MiB. Egress denied; no real providers. Not native/all-role/all-control acceptance.",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "appEdited": false,
+  "pid": 15136,
+  "exitCode": 1,
+  "summary": {
+    "suites": 861,
+    "total": 5237,
+    "passed": 5224,
+    "failed": 13,
+    "pending": 0,
+    "failedSuites": 7
+  },
+  "snapshotCount": 72,
+  "sourceDiff": "",
+  "finished": "2026-10-24T08:46:01.423Z"
+}

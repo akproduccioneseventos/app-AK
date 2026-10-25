@@ -1,0 +1,273 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "testSha256": "7d447df082324c59d078d92fbe32dbb3c0636d3b33d895f2f1bf42a1244f77d3",
+  "hashes": {
+    "src/lib/automatico/puerta-de-las-tareas.ts": "c11793e10b367723fdef066f7942382d49a0c8d843d6a38c3b467320bd1b322f",
+    "src/lib/agentes/motor-agentes.ts": "55f3711741382cb2b6c3d56b3561f870bc5c25a92caef3b8bccea90d48497321",
+    "src/app/api/cron/prospectos-seguimiento/route.ts": "a0704ddcb0aeb7f1ec629b45e28544a5ee3395f20bda5ac668fb44696c5788c6",
+    "src/app/api/cron/fiesta-proxima-revision/route.ts": "6c344df3c99e58a75063c7d096ae73fc0928bbeaba35b5ac37dfc3bd234a5280"
+  },
+  "cases": [
+    {
+      "task": "prospectos-seguimiento",
+      "variant": "anonymous-no-secret",
+      "pass": false,
+      "status": 200,
+      "containsPrivateMarker": true,
+      "engineCalls": 1,
+      "marks": 1,
+      "throttleCalls": 1,
+      "preparedDraftCount": 1,
+      "response": {
+        "ok": true,
+        "resultado": {
+          "id": "reg_perseguidor_1792508400000",
+          "agenteId": "perseguidor_presupuestos",
+          "agenteNombre": "Perseguidor de Presupuestos",
+          "ejecutadoEn": "2026-10-20T15:00:00.000Z",
+          "hallazgos": [
+            "Presupuesto de QA158-CLIENTE-FICTICIO-NO-PUBLICO (Evento ficticio privado) sin respuesta hace 6 días."
+          ],
+          "accionesPreparadas": [
+            "Borrador de seguimiento preparado para QA158-CLIENTE-FICTICIO-NO-PUBLICO en la bandeja de salida."
+          ],
+          "estado": "exito"
+        }
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "variant": "configured-no-key",
+      "pass": true,
+      "status": 401,
+      "containsPrivateMarker": false,
+      "engineCalls": 0,
+      "marks": 0,
+      "throttleCalls": 0,
+      "preparedDraftCount": 0
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "variant": "configured-wrong-key",
+      "pass": true,
+      "status": 401,
+      "containsPrivateMarker": false,
+      "engineCalls": 0,
+      "marks": 0,
+      "throttleCalls": 0,
+      "preparedDraftCount": 0
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "variant": "configured-correct-header",
+      "pass": true,
+      "status": 200,
+      "containsPrivateMarker": true,
+      "engineCalls": 1,
+      "marks": 1,
+      "throttleCalls": 0,
+      "preparedDraftCount": 1,
+      "response": {
+        "ok": true,
+        "resultado": {
+          "id": "reg_perseguidor_1792508400000",
+          "agenteId": "perseguidor_presupuestos",
+          "agenteNombre": "Perseguidor de Presupuestos",
+          "ejecutadoEn": "2026-10-20T15:00:00.000Z",
+          "hallazgos": [
+            "Presupuesto de QA158-CLIENTE-FICTICIO-NO-PUBLICO (Evento ficticio privado) sin respuesta hace 6 días."
+          ],
+          "accionesPreparadas": [
+            "Borrador de seguimiento preparado para QA158-CLIENTE-FICTICIO-NO-PUBLICO en la bandeja de salida."
+          ],
+          "estado": "exito"
+        }
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "variant": "configured-correct-query",
+      "pass": true,
+      "status": 200,
+      "containsPrivateMarker": true,
+      "engineCalls": 1,
+      "marks": 1,
+      "throttleCalls": 0,
+      "preparedDraftCount": 1,
+      "response": {
+        "ok": true,
+        "resultado": {
+          "id": "reg_perseguidor_1792508400000",
+          "agenteId": "perseguidor_presupuestos",
+          "agenteNombre": "Perseguidor de Presupuestos",
+          "ejecutadoEn": "2026-10-20T15:00:00.000Z",
+          "hallazgos": [
+            "Presupuesto de QA158-CLIENTE-FICTICIO-NO-PUBLICO (Evento ficticio privado) sin respuesta hace 6 días."
+          ],
+          "accionesPreparadas": [
+            "Borrador de seguimiento preparado para QA158-CLIENTE-FICTICIO-NO-PUBLICO en la bandeja de salida."
+          ],
+          "estado": "exito"
+        }
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "variant": "no-secret-throttled",
+      "pass": true,
+      "status": 429,
+      "containsPrivateMarker": false,
+      "engineCalls": 0,
+      "marks": 0,
+      "throttleCalls": 1,
+      "preparedDraftCount": 0
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "variant": "worker-throws",
+      "pass": true,
+      "status": 500,
+      "containsPrivateMarker": false,
+      "engineCalls": 1,
+      "marks": 0,
+      "throttleCalls": 1,
+      "preparedDraftCount": 0
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "variant": "anonymous-no-secret",
+      "pass": false,
+      "status": 200,
+      "containsPrivateMarker": true,
+      "engineCalls": 1,
+      "marks": 1,
+      "throttleCalls": 1,
+      "preparedDraftCount": 0,
+      "response": {
+        "ok": true,
+        "resultado": {
+          "id": "reg_vigilante_1792508400000",
+          "agenteId": "vigilante_fiestas",
+          "agenteNombre": "Vigilante de Fiestas",
+          "ejecutadoEn": "2026-10-20T15:00:00.000Z",
+          "hallazgos": [
+            "[URGENTE_7_DIAS] QA158-CLIENTE-FICTICIO-NO-PUBLICO: Pendiente ficticio interno - Detalle operativo QA"
+          ],
+          "accionesPreparadas": [
+            "Se publicaron 1 avisos urgentes listos para revisar en /repaso-diario."
+          ],
+          "estado": "alerta"
+        }
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "variant": "configured-no-key",
+      "pass": true,
+      "status": 401,
+      "containsPrivateMarker": false,
+      "engineCalls": 0,
+      "marks": 0,
+      "throttleCalls": 0,
+      "preparedDraftCount": 0
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "variant": "configured-wrong-key",
+      "pass": true,
+      "status": 401,
+      "containsPrivateMarker": false,
+      "engineCalls": 0,
+      "marks": 0,
+      "throttleCalls": 0,
+      "preparedDraftCount": 0
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "variant": "configured-correct-header",
+      "pass": true,
+      "status": 200,
+      "containsPrivateMarker": true,
+      "engineCalls": 1,
+      "marks": 1,
+      "throttleCalls": 0,
+      "preparedDraftCount": 0,
+      "response": {
+        "ok": true,
+        "resultado": {
+          "id": "reg_vigilante_1792508400000",
+          "agenteId": "vigilante_fiestas",
+          "agenteNombre": "Vigilante de Fiestas",
+          "ejecutadoEn": "2026-10-20T15:00:00.000Z",
+          "hallazgos": [
+            "[URGENTE_7_DIAS] QA158-CLIENTE-FICTICIO-NO-PUBLICO: Pendiente ficticio interno - Detalle operativo QA"
+          ],
+          "accionesPreparadas": [
+            "Se publicaron 1 avisos urgentes listos para revisar en /repaso-diario."
+          ],
+          "estado": "alerta"
+        }
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "variant": "configured-correct-query",
+      "pass": true,
+      "status": 200,
+      "containsPrivateMarker": true,
+      "engineCalls": 1,
+      "marks": 1,
+      "throttleCalls": 0,
+      "preparedDraftCount": 0,
+      "response": {
+        "ok": true,
+        "resultado": {
+          "id": "reg_vigilante_1792508400000",
+          "agenteId": "vigilante_fiestas",
+          "agenteNombre": "Vigilante de Fiestas",
+          "ejecutadoEn": "2026-10-20T15:00:00.000Z",
+          "hallazgos": [
+            "[URGENTE_7_DIAS] QA158-CLIENTE-FICTICIO-NO-PUBLICO: Pendiente ficticio interno - Detalle operativo QA"
+          ],
+          "accionesPreparadas": [
+            "Se publicaron 1 avisos urgentes listos para revisar en /repaso-diario."
+          ],
+          "estado": "alerta"
+        }
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "variant": "no-secret-throttled",
+      "pass": true,
+      "status": 429,
+      "containsPrivateMarker": false,
+      "engineCalls": 0,
+      "marks": 0,
+      "throttleCalls": 1,
+      "preparedDraftCount": 0
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "variant": "worker-throws",
+      "pass": true,
+      "status": 500,
+      "containsPrivateMarker": false,
+      "engineCalls": 1,
+      "marks": 0,
+      "throttleCalls": 1,
+      "preparedDraftCount": 0
+    }
+  ],
+  "summary": {
+    "pass": 12,
+    "fail": 2
+  },
+  "scope": "Actual cron GET/body and key/rate-limit gate with actual agent record/queue preparation; fictional storage and clock",
+  "limits": [
+    "Conditional no-CRON_SECRET environment, not evidence of current production secret configuration or real data exposure",
+    "Request/Response objects in-process, NextResponse.json adapter; no HTTP server, scheduler or real messages",
+    "Rate-limit storage and error detector are controlled; not a throttle concurrency or alert-accuracy test"
+  ],
+  "appEdited": false
+}

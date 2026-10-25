@@ -24,6 +24,7 @@ const syncReunionToGoogleWorkspace = jest.fn(async () => ({ success: true }));
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
+  requirePermiso: jest.fn(async () => ({ ok: true, user: { role: 'admin' } })),
 }));
 
 jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({

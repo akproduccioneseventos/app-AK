@@ -1,0 +1,63 @@
+{
+  "checkedAt": "2026-10-21T12:10:02.100Z",
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "base": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+  "build": {
+    "exit": 0,
+    "typesLint": true
+  },
+  "wide": {
+    "suites": 805,
+    "passedSuites": 805,
+    "failedSuites": 0,
+    "tests": 5010,
+    "pass": 5010,
+    "fail": 0,
+    "pending": 0,
+    "todo": 0
+  },
+  "native": {
+    "desktop": "FAIL same199 focus containment",
+    "mobile": "PASS",
+    "initialMobile": "QA selector ambiguity, not product defect"
+  },
+  "sdk": {
+    "total": 10,
+    "pass": 4,
+    "fail": 6,
+    "remaining": 0,
+    "cleanupStatus": 200,
+    "actualSdk": true
+  },
+  "focal": {
+    "total": 152,
+    "pass": 144,
+    "fail": 8
+  },
+  "distinctPendingCauses": 2,
+  "equalBlobFiles": [
+    {
+      "file": "src/app/actions/google-workspace.ts",
+      "blob": "dd3935221f2fe06d276bb2e0c22f063bdfc4df3e"
+    },
+    {
+      "file": "src/lib/automatico/puerta-de-las-tareas.ts",
+      "blob": "914fabb862a03dc2ad2184bb7c371393b7aee58d"
+    },
+    {
+      "file": "src/app/actions/provider-portal.ts",
+      "blob": "3e4566d417f7e9d9a664448a9938ed725ceffe99"
+    },
+    {
+      "file": "src/lib/data-service.ts",
+      "blob": "b68054b107010a199b8481a1855c1c0b21e7e5a7"
+    }
+  ],
+  "scriptSyntaxPass": 15,
+  "jsonParsed": 19,
+  "stateLines": 39,
+  "appDiff": "",
+  "whitespacePass": true,
+  "allAppCertified": false,
+  "scope": "Tanda160-169 with reusable prior evidence, NOT complete per-control/state/role or production acceptance"
+}

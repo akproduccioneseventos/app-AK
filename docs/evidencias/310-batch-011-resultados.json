@@ -1,0 +1,529 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "208-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-011-artifacts",
+      "ak207-la-web-publica-se-ve.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\208-config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/310-batch-011-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/310-batch-011-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-011-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-la-web-publica-se-ve.spec.ts",
+      "file": "ak207-la-web-publica-se-ve.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "La web pública se ve — Prueba de visibilidad real y SEO",
+          "file": "ak207-la-web-publica-se-ve.spec.ts",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "La portada muestra todas las secciones hasta el pie de página y el botón de contacto es visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8876,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-24T03:05:29.959Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-5401404377ecab9dacaf",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 10,
+              "column": 7
+            },
+            {
+              "title": "Las páginas públicas tienen título y descripción válidos, y no redirigen a login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 89533,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-24T03:05:39.057Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-9afb09f36497b33de74a",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 29,
+              "column": 7
+            },
+            {
+              "title": "La dirección canónica apunta a la página misma",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 29350,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-24T03:07:08.621Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-3ca61be2e0ca95a4fd07",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "La portada muestra todas las secciones hasta el pie de página y el botón de contacto es visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8387,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-24T03:07:40.764Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-5d50bd48781646c05d0f",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 10,
+              "column": 7
+            },
+            {
+              "title": "Las páginas públicas tienen título y descripción válidos, y no redirigen a login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 23686,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-24T03:07:49.409Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-8992e9740de4f1bdc28e",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 29,
+              "column": 7
+            },
+            {
+              "title": "La dirección canónica apunta a la página misma",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12943,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-24T03:08:13.170Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-4f1795b14120059bdd7e",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 47,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T03:05:28.876Z",
+    "duration": 178624.387,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -37,14 +37,17 @@ import {
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
+import { extraerDescriptorFacial } from '@/lib/caras/extractor-facial';
 
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'vogue' | 'bogue' | 'totem' | 'touchpix' | 'invitados';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'vogue' | 'touchpix' | 'totem' | 'invitados';
 
 /**
  * Extrae 128 números normalizados desde un cuadro del video capturado en el teléfono.
  * Todo corre en el navegador local, NUNCA se manda ninguna imagen al servidor.
  */
-function extraerVectorLocal(video: HTMLVideoElement): VectorDeCara | null {
+async function extraerVectorLocal(video: HTMLVideoElement): Promise<VectorDeCara | null> {
+  const descriptorReal = await extraerDescriptorFacial(video);
+  if (descriptorReal) return descriptorReal;
   try {
     const canvas = document.createElement('canvas');
     canvas.width = 160;
@@ -93,12 +96,13 @@ export default function GaleriaPage() {
   const [camaraError, setCamaraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const selfieCanceladaRef = useRef<boolean>(false);
 
   // El filtro puede venir en la direccion: el portal del cliente enlaza aca ya
   // apuntando a una estacion (`?estacion=fotocabina`). **Se valida contra la
   // lista**: lo que llega por la direccion lo escribe cualquiera, y un valor
   // inventado tiene que caer en "todas", no romper la pantalla.
-  const FILTROS: FilterTab[] = ['todas', 'fotocabina', '360', 'espejo', 'invitados'];
+  const FILTROS: FilterTab[] = ['todas', 'fotocabina', '360', 'espejo', 'bogue', 'vogue', 'touchpix', 'totem', 'invitados'];
   const filtroPedido = useSearchParams().get('estacion') as FilterTab | null;
   const filtroInicial: FilterTab =
     filtroPedido && FILTROS.includes(filtroPedido) ? filtroPedido : 'todas';
@@ -184,12 +188,10 @@ export default function GaleriaPage() {
   }, [selfieResult, rejectedDudosas, confirmedDudosas, posts]);
 
   const filteredPosts = useMemo(() => {
-    // Si hay una persona seleccionada en la grilla de caras
     if (selectedPersona) {
       const setIds = new Set(selectedPersona.fotoIds);
       return posts.filter((p) => setIds.has(p.id));
     }
-
     return filtrarPorEstacion(posts, activeTab);
   }, [posts, activeTab, selectedPersona]);
 
@@ -276,6 +278,7 @@ export default function GaleriaPage() {
   }, []);
 
   const iniciarCamara = useCallback(async () => {
+    selfieCanceladaRef.current = false;
     setCamaraError(null);
     setSelfiePermisoAceptado(true);
     setCapturandoSelfie(true);
@@ -288,21 +291,76 @@ export default function GaleriaPage() {
         video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
         audio: false,
       });
+
+      if (selfieCanceladaRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+
       streamRef.current = stream;
+
+      // Esperar a que React monte <video> en el DOM (hasta 1000ms de a 25ms)
+      const inicioMontaje = Date.now();
+      while (!videoRef.current && Date.now() - inicioMontaje < 1000) {
+        if (selfieCanceladaRef.current) {
+          detenerCamara();
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 25));
+      }
+
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        if (videoRef.current.srcObject !== stream) {
+          videoRef.current.srcObject = stream;
+        }
         // no pasa nada si falla: el navegador ya reproduce el video solo al recibir la cámara.
         await videoRef.current.play().catch(() => {});
       }
 
-      // Tomar 3 cuadros seguidos automáticamente (Bloque 3)
-      const vectoresExtraidos: VectorDeCara[] = [];
-      for (let i = 0; i < 3; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        if (videoRef.current) {
-          const v = extraerVectorLocal(videoRef.current);
-          if (v) vectoresExtraidos.push(v);
+      // Esperar brevemente a que el video tenga fotogramas listos (máximo 400ms)
+      const inicioEspera = Date.now();
+      while (
+        videoRef.current &&
+        videoRef.current.videoWidth === 0 &&
+        videoRef.current.readyState < 2 &&
+        Date.now() - inicioEspera < 400
+      ) {
+        if (selfieCanceladaRef.current) {
+          detenerCamara();
+          return;
         }
+        await new Promise((r) => setTimeout(r, 50));
+      }
+
+      // Tomar cuadros automáticamente (Bloque 3) con límite de tiempo total de 6s
+      const vectoresExtraidos: VectorDeCara[] = [];
+      const limiteTiempoTotal = Date.now() + 6000;
+
+      for (let i = 0; i < 3; i++) {
+        if (selfieCanceladaRef.current) {
+          detenerCamara();
+          return;
+        }
+        if (Date.now() > limiteTiempoTotal) break;
+
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        if (selfieCanceladaRef.current) {
+          detenerCamara();
+          return;
+        }
+
+        if (videoRef.current) {
+          const v = await extraerVectorLocal(videoRef.current);
+          if (v) {
+            vectoresExtraidos.push(v);
+            if (vectoresExtraidos.length >= 2) break;
+          }
+        }
+      }
+
+      if (selfieCanceladaRef.current) {
+        detenerCamara();
+        return;
       }
 
       // La selfie NUNCA sale del teléfono ni se sube. Se detiene la cámara de inmediato.
@@ -321,11 +379,14 @@ export default function GaleriaPage() {
     } catch (err: any) {
       detenerCamara();
       setCapturandoSelfie(false);
-      setCamaraError(err?.message || 'No pudimos acceder a la cámara local.');
+      if (!selfieCanceladaRef.current) {
+        setCamaraError(err?.message || 'No pudimos acceder a la cámara local.');
+      }
     }
   }, [caras, detenerCamara]);
 
   const cerrarModalSelfie = useCallback(() => {
+    selfieCanceladaRef.current = true;
     detenerCamara();
     setShowSelfieModal(false);
     setSelfiePermisoAceptado(false);
@@ -399,15 +460,15 @@ export default function GaleriaPage() {
               { id: 'fotocabina', label: '📸 Fotocabina' },
               { id: '360', label: '🌐 360°' },
               { id: 'espejo', label: '✨ Espejo' },
-              { id: 'bogue', label: '💎 Cabina Vogue' },
-              { id: 'touchpix', label: '🤖 Tótem IA' },
+              ...(posts.some(p => p.sourceModule === 'bogue' || p.sourceModule === 'vogue' || p.sourceModule === 'cabinaVogue' || p.sourceModule === 'boomerang') ? [{ id: 'bogue', label: 'Cabina Vogue' }] : []),
+              ...(posts.some(p => p.sourceModule === 'touchpix' || p.sourceModule === 'espejoMagicoIA' || p.sourceModule === 'totem' || p.sourceModule === 'totemIA' || p.sourceModule === 'pantallasTotem') ? [{ id: 'touchpix', label: '🤖 Tótem IA' }] : []),
               { id: 'invitados', label: '📱 Invitados' },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as FilterTab)}
                 className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                  activeTab === tab.id || (tab.id === 'bogue' && activeTab === 'vogue') || (tab.id === 'touchpix' && activeTab === 'totem')
+                  activeTab === tab.id
                     ? 'bg-white text-zinc-950 border-white'
                     : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-300'
                 }`}
@@ -895,7 +956,13 @@ export default function GaleriaPage() {
                 <div>
                   <div className="relative w-56 h-56 mx-auto rounded-full overflow-hidden border-4 border-rose-500 shadow-xl mb-4 bg-black">
                     <video
-                      ref={videoRef}
+                      ref={(el) => {
+                        videoRef.current = el;
+                        if (el && streamRef.current && el.srcObject !== streamRef.current) {
+                          el.srcObject = streamRef.current;
+                          el.play().catch(() => {});
+                        }
+                      }}
                       autoPlay
                       playsInline
                       muted

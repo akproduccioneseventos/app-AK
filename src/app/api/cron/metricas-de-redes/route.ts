@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
 import { syncMetaPublicHistory, DEFAULT_EARLIEST_DATE } from '@/lib/social-media/meta-history-backfill';
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
 import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
+import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
+import { readData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
 /**
@@ -76,11 +79,25 @@ async function correrTarea(request: Request) {
       error: error instanceof Error ? error.message : 'No se pudieron sincronizar los comentarios diarios.',
     }));
 
+    // Generar revisión diaria con IA y 3 propuestas para hoy
+    try {
+      const [posts, connections] = await Promise.all([
+        readData<any[]>('social-posts.json', []),
+        readData<any[]>('social-connections.json', []),
+      ]);
+      const revision = await buildDigitalPresenceDailyReview({ posts, connections });
+      if (revision) {
+        await mutarDocumento('presencia-digital-revision.json', revision, () => revision);
+      }
+    } catch (err) {
+      console.warn('[cron-metricas-redes] Error generando revisión diaria:', err);
+    }
+
     // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
     // una tarea automatica esta funcionando o solo esta escrita.
     await marcarCorrida('metricas-de-redes');
 
-    return NextResponse.json({
+    return NextResponse.json(respuestaDeLaTarea(puerta, {
       ok: true,
       guardado: resultado.guardado,
       fecha: resultado.fecha,
@@ -90,7 +107,7 @@ async function correrTarea(request: Request) {
         otrasRedes: historialOtrasRedes,
       },
       comentarios: comentariosSincronizados,
-    });
+    }));
   } catch (error: any) {
     console.error('[cron-metricas-redes] No se pudieron guardar los numeros del dia:', error);
     return NextResponse.json(

@@ -15,7 +15,7 @@ import {
   ListChecks,
   Clapperboard,
   Sparkles,
-  Wand2,
+  Smartphone,
   Mic,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
@@ -30,7 +30,6 @@ import { AhoraEnVivo, type PuntoDelPrograma } from './ahora-en-vivo';
 import { EquipoCheckIn } from '@/components/centro/EquipoCheckIn';
 import { DownloadPartyBookButton } from '@/components/fiesta/DownloadPartyBookButton';
 import { ComprobacionEquipo } from './comprobacion-equipo';
-import { estaEstacionHabilitada } from '@/lib/entertainment/station-config';
 
 /**
  * Centro de Fiesta: la única pantalla para dirigir la noche.
@@ -53,45 +52,6 @@ type Bloque = { titulo: string; bajada: string; herramientas: Herramienta[] };
 
 function construirBloques(fiestaId: string, fiesta?: any): Bloque[] {
   const e = (tool: string) => `/evento/${tool}/${encodeURIComponent(fiestaId)}`;
-
-  const estacionesCandidatas: Array<{
-    id: 'fotocabina' | 'espejoMagicoFoto' | 'plataforma360' | 'bogue' | 'espejoMagicoIA' | 'buzon' | 'barra';
-    herramienta: Herramienta;
-  }> = [
-    {
-      id: 'fotocabina',
-      herramienta: { titulo: 'Fotocabina', detalle: 'Fotos con marco del evento', ruta: e('fotocabina'), icono: Camera, aparato: 'Tablet de la estación' },
-    },
-    {
-      id: 'espejoMagicoFoto',
-      herramienta: { titulo: 'Espejo mágico', detalle: 'Espejo interactivo', ruta: e('espejo-magico'), icono: ScanFace, aparato: 'Pantalla del espejo' },
-    },
-    {
-      id: 'plataforma360',
-      herramienta: { titulo: 'Plataforma 360', detalle: 'Video giratorio', ruta: e('plataforma-360'), icono: MonitorPlay, aparato: 'Tablet de la 360' },
-    },
-    {
-      id: 'bogue',
-      herramienta: { titulo: 'Cabina Vogue', detalle: 'Pasarela editorial interactiva', ruta: e('bogue'), icono: Sparkles, aparato: 'Tablet de Vogue' },
-    },
-    {
-      id: 'espejoMagicoIA',
-      herramienta: { titulo: 'Tótem IA', detalle: 'Fotos con estilos inteligentes', ruta: e('touchpix'), icono: Wand2, aparato: 'Tótem Touch' },
-    },
-    {
-      id: 'buzon',
-      herramienta: { titulo: 'Buzón de saludos', detalle: 'Mensajes de audio de los invitados', ruta: e('buzon'), icono: Mic, aparato: 'Teléfono o tablet' },
-    },
-    {
-      id: 'barra',
-      herramienta: { titulo: 'Barra', detalle: 'Pedidos y carta de tragos', ruta: e('barra'), icono: Martini, aparato: 'Tablet de la barra' },
-    },
-  ];
-
-  const estacionesHabilitadas = estacionesCandidatas
-    .filter((item) => estaEstacionHabilitada(fiesta, item.id as any))
-    .map((item) => item.herramienta);
-
   return [
     {
       titulo: 'Lo que manejás vos',
@@ -119,7 +79,21 @@ function construirBloques(fiestaId: string, fiesta?: any): Bloque[] {
     {
       titulo: 'Estaciones para los invitados',
       bajada: 'Cada una se abre en su propia tablet o pantalla.',
-      herramientas: estacionesHabilitadas,
+      herramientas: [
+        { titulo: 'Fotocabina', detalle: 'Fotos con marco del evento', ruta: e('fotocabina'), icono: Camera, aparato: 'Tablet de la estación' },
+        { titulo: 'Espejo mágico', detalle: 'Espejo interactivo', ruta: e('espejo-magico'), icono: ScanFace, aparato: 'Pantalla del espejo' },
+        { titulo: 'Plataforma 360', detalle: 'Video giratorio', ruta: e('plataforma-360'), icono: MonitorPlay, aparato: 'Tablet de la 360' },
+        { titulo: 'Barra', detalle: 'Pedidos y carta de tragos', ruta: e('barra'), icono: Martini, aparato: 'Tablet de la barra' },
+        ...(fiesta?.bogue || fiesta?.vogueBooth || fiesta?.zonaDigital?.features?.includes?.('bogue') || fiesta?.experience?.bogue
+          ? [{ titulo: 'Vogue Booth', detalle: 'Videos estilo revista y boomerang', ruta: e('bogue'), icono: Sparkles, aparato: 'Tablet de la estación' }]
+          : []),
+        ...(fiesta?.pantallasTotem || fiesta?.totemScreens?.length || fiesta?.zonaDigital?.features?.includes?.('totems') || fiesta?.totem
+          ? [{ titulo: 'Tótem IA', detalle: 'Pantalla interactiva con IA', ruta: `/evento/totem/${encodeURIComponent(fiestaId)}`, icono: Smartphone, aparato: 'Tótem o tablet' }]
+          : []),
+        ...(fiesta?.buzon || fiesta?.showBuzon || fiesta?.buzonConfig || fiesta?.zonaDigital?.features?.includes?.('buzon')
+          ? [{ titulo: 'Buzón de recuerdos', detalle: 'Mensajes y saludos en audio o texto', ruta: e('buzon'), icono: Mic, aparato: 'Tablet del buzón' }]
+          : []),
+      ],
     },
   ];
 }
@@ -193,7 +167,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
     .filter((p) => p?.hora && p?.titulo)
     .map((p) => ({ id: p.id, hora: p.hora, titulo: p.titulo }));
 
-  const bloques = construirBloques(params.id);
+  const bloques = construirBloques(params.id, fiesta);
 
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-6 text-white sm:px-6 lg:px-8">

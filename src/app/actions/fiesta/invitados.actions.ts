@@ -354,10 +354,6 @@ export async function checkInGuest(
    * manual de recepción), no se pide QR.
    */
   qr?: { token: string | null },
-  /**
-   * Momento real del escaneo en puerta (Orden 181). Si el lector estaba sin señal y subió
-   * encolado después, conserva la hora en que el invitado pasó por la puerta.
-   */
   escaneadoEn?: string
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   try {
@@ -382,15 +378,15 @@ export async function checkInGuest(
           invitadoActualizado = inv;
           return inv;
         }
-        let timestampSeguro = new Date().toISOString();
+        let timestamp = new Date().toISOString();
         if (escaneadoEn) {
           const t = new Date(escaneadoEn).getTime();
           const ahora = Date.now();
-          if (!isNaN(t) && t <= ahora && ahora - t <= 12 * 60 * 60 * 1000) {
-            timestampSeguro = escaneadoEn;
+          if (!isNaN(t) && t <= ahora && ahora - t < 12 * 60 * 60 * 1000) {
+            timestamp = new Date(t).toISOString();
           }
         }
-        invitadoActualizado = { ...inv, checkedIn: true, checkInTimestamp: timestampSeguro };
+        invitadoActualizado = { ...inv, checkedIn: true, checkInTimestamp: timestamp };
         return invitadoActualizado;
       }
       return inv;

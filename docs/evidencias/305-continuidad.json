@@ -1,0 +1,10 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "pid": 2268,
+  "started": "2026-10-24T01:54:45.300Z",
+  "phase": "interrupted-resource-restart",
+  "jobs": [],
+  "appEdited": false,
+  "finished": "2026-10-24T02:26:46.271Z",
+  "interruptionReceipt": "312-recuperacion.json"
+}

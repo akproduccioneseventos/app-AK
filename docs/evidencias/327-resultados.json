@@ -1,0 +1,289 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "208-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\327-artifacts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\208-config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/327-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/327-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-280-gzMK2z/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\327-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-326-control-fixture-navegacion-qa.spec.ts",
+      "file": "ak207-326-control-fixture-navegacion-qa.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fixture normal: portada, panel y fiesta real con sesion completa y registroFIS local",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 33309,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T05:08:20.603Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "control-fixture",
+                      "contentType": "application/json",
+                      "body": "eyJyZXN1bHRzIjpbeyJyb3V0ZSI6Ii8iLCJmaW5hbCI6Ii8iLCJzdGF0dXMiOjIwMH0seyJyb3V0ZSI6Ii9lbXByZXNhL2Rhc2hib2FyZCIsImZpbmFsIjoiL2VtcHJlc2EvZGFzaGJvYXJkIiwic3RhdHVzIjoyMDB9LHsicm91dGUiOiIvZmllc3Rhcy9udWV2YT9maWVzdGFJZD1lMmVfY29udHJvbDMyNl8xNzkyODE4NTAwNTU4IiwiZmluYWwiOiIvZmllc3Rhcy9udWV2YSIsInN0YXR1cyI6MjAwLCJjb250YWluc0ZpeHR1cmUiOmZhbHNlfV0sInJlZ2lzdHJhdGlvbiI6WyIvdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucyJdLCJlcnJvcnMiOltdLCJwcm92aWRlciI6IkxPQ0FMIERPVUJMRSBGSVMgcmVnaXN0cmF0aW9uIG9ubHksIG5vIHJlYWxGaXJlYmFzZSBhY2NlcHRhbmNlIn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cfa5cc990bb9d7e0f5e7-34cf8f24a69f1765dc0f",
+          "file": "ak207-326-control-fixture-navegacion-qa.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "fixture normal: portada, panel y fiesta real con sesion completa y registroFIS local",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16668,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T05:09:12.677Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "control-fixture",
+                      "contentType": "application/json",
+                      "body": "eyJyZXN1bHRzIjpbeyJyb3V0ZSI6Ii8iLCJmaW5hbCI6Ii8iLCJzdGF0dXMiOjIwMH0seyJyb3V0ZSI6Ii9lbXByZXNhL2Rhc2hib2FyZCIsImZpbmFsIjoiL2VtcHJlc2EvZGFzaGJvYXJkIiwic3RhdHVzIjoyMDB9LHsicm91dGUiOiIvZmllc3Rhcy9udWV2YT9maWVzdGFJZD1lMmVfY29udHJvbDMyNl8xNzkyODE4NTUyNjM1IiwiZmluYWwiOiIvZmllc3Rhcy9udWV2YSIsInN0YXR1cyI6MjAwLCJjb250YWluc0ZpeHR1cmUiOmZhbHNlfV0sInJlZ2lzdHJhdGlvbiI6WyIvdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucyJdLCJlcnJvcnMiOltdLCJwcm92aWRlciI6IkxPQ0FMIERPVUJMRSBGSVMgcmVnaXN0cmF0aW9uIG9ubHksIG5vIHJlYWxGaXJlYmFzZSBhY2NlcHRhbmNlIn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "cfa5cc990bb9d7e0f5e7-e249fdc6bb77e5e47267",
+          "file": "ak207-326-control-fixture-navegacion-qa.spec.ts",
+          "line": 13,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T05:08:19.490Z",
+    "duration": 74903.417,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "changes": [
+    [
+      "const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');",
+      "const root=\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-auditoria267-cierre\\\\\",dir=path.join(root,'docs/evidencias');"
+    ],
+    [
+      "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+      "3e45a4ac6b479f89605163168e31b37dc84f2d0f"
+    ],
+    [
+      "206-entorno.json",
+      "291-entorno.json"
+    ],
+    [
+      "ak-qa-206-",
+      "ak-qa-280-"
+    ],
+    [
+      "const runId=process.env.AK_AUDIT_RUN_ID||'209';",
+      "const runId='304';"
+    ],
+    [
+      "NODE_OPTIONS:`--max-old-space-size=1024",
+      "AK_USE_LOCAL_JSON_ONLY:'false',FIRESTORE_EMULATOR_HOST:'127.0.0.1:8085',FIREBASE_STORAGE_EMULATOR_HOST:'127.0.0.1:9195',STORAGE_EMULATOR_HOST:'http://127.0.0.1:9195',GCLOUD_PROJECT:'demo-ak-producciones',GOOGLE_CLOUD_PROJECT:'demo-ak-producciones',GOOGLE_APPLICATION_CREDENTIALS:'',\n  NODE_OPTIONS:`--max-old-space-size=768"
+    ],
+    [
+      "assert.ok(Object.values(h.services).every(v=>v===false));",
+      "assert.ok(Object.entries(h.services).every(([key,value])=>key==='firebase'||value===false));"
+    ],
+    [
+      "'--config','208-config.ts','--output'",
+      "'--config','208-config.ts','--grep','video de vida:|con el analisis de imagen caido','--output'"
+    ]
+  ],
+  "scope": "Original SDK-only video reading recovery and public mirror moderation cases; grep excludes previously run JSON cases. Actual emulator SDK; no real provider/camera.",
+  "assertionsChanged": false
+}

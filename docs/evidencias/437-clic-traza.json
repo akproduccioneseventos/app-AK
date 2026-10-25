@@ -1,0 +1,154 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "notNewExecution": true,
+  "events": [
+    {
+      "type": "before",
+      "callId": "pw:api@360",
+      "stepId": "pw:api@360",
+      "startTime": 38842.629,
+      "class": "Test",
+      "method": "pw:api",
+      "title": "Is visible getByRole('button', { name: /Mantener mi selección actual/i }).first()",
+      "params": {
+        "selector": "internal:role=button[name=/Mantener mi selección actual/i] >> nth=0",
+        "strict": "true"
+      },
+      "stack": [
+        {
+          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-prospecto-simulador.spec.ts",
+          "line": 114,
+          "column": 24
+        }
+      ],
+      "group": "getter"
+    },
+    {
+      "type": "after",
+      "callId": "pw:api@360",
+      "endTime": 40340.238,
+      "annotations": []
+    },
+    {
+      "type": "before",
+      "callId": "pw:api@362",
+      "stepId": "pw:api@362",
+      "startTime": 40349.848,
+      "class": "Test",
+      "method": "pw:api",
+      "title": "Click getByRole('button', { name: /Mantener mi selección actual/i }).first()",
+      "params": {
+        "selector": "internal:role=button[name=/Mantener mi selección actual/i] >> nth=0",
+        "strict": "true",
+        "timeout": "0"
+      },
+      "stack": [
+        {
+          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-prospecto-simulador.spec.ts",
+          "line": 115,
+          "column": 22
+        }
+      ]
+    },
+    {
+      "type": "after",
+      "callId": "pw:api@362",
+      "endTime": 44725.832,
+      "annotations": []
+    },
+    {
+      "type": "before",
+      "callId": "pw:api@381",
+      "stepId": "pw:api@381",
+      "startTime": 47570.379,
+      "class": "Test",
+      "method": "pw:api",
+      "title": "Is visible getByRole('button', { name: /Ver Resumen y Propuesta/i }).first()",
+      "params": {
+        "selector": "internal:role=button[name=/Ver Resumen y Propuesta/i] >> nth=0",
+        "strict": "true"
+      },
+      "stack": [
+        {
+          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-prospecto-simulador.spec.ts",
+          "line": 130,
+          "column": 26
+        }
+      ],
+      "group": "getter"
+    },
+    {
+      "type": "after",
+      "callId": "pw:api@381",
+      "endTime": 47681.988,
+      "annotations": []
+    },
+    {
+      "type": "before",
+      "callId": "call@652",
+      "startTime": 38842.841,
+      "class": "Frame",
+      "method": "isVisible",
+      "params": {
+        "selector": "internal:role=button[name=/Mantener mi selección actual/i] >> nth=0",
+        "strict": true
+      },
+      "stepId": "pw:api@360",
+      "pageId": "page@07c0fe3c8c470e6a80091721eb0b002b",
+      "beforeSnapshot": "before@call@652"
+    },
+    {
+      "type": "after",
+      "callId": "call@652",
+      "endTime": 39804.604,
+      "result": {
+        "value": true
+      },
+      "afterSnapshot": "after@call@652"
+    },
+    {
+      "type": "before",
+      "callId": "call@656",
+      "startTime": 40350.56,
+      "class": "Frame",
+      "method": "click",
+      "params": {
+        "selector": "internal:role=button[name=/Mantener mi selección actual/i] >> nth=0",
+        "strict": true,
+        "timeout": 0
+      },
+      "stepId": "pw:api@362",
+      "pageId": "page@07c0fe3c8c470e6a80091721eb0b002b",
+      "beforeSnapshot": "before@call@656"
+    },
+    {
+      "type": "after",
+      "callId": "call@656",
+      "endTime": 44675.678,
+      "afterSnapshot": "after@call@656"
+    },
+    {
+      "type": "before",
+      "callId": "call@690",
+      "startTime": 47570.599,
+      "class": "Frame",
+      "method": "isVisible",
+      "params": {
+        "selector": "internal:role=button[name=/Ver Resumen y Propuesta/i] >> nth=0",
+        "strict": true
+      },
+      "stepId": "pw:api@381",
+      "pageId": "page@07c0fe3c8c470e6a80091721eb0b002b",
+      "beforeSnapshot": "before@call@690"
+    },
+    {
+      "type": "after",
+      "callId": "call@690",
+      "endTime": 47618.051,
+      "result": {
+        "value": false
+      },
+      "afterSnapshot": "after@call@690"
+    }
+  ]
+}

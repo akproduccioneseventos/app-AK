@@ -1,0 +1,259 @@
+{
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "contrast": "16e197cc3591bf0812c1e8910c880d83f04eb94b",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-166-vjtu7f",
+  "buildFinished": "2026-10-21T11:35:49.179Z",
+  "started": "2026-10-21T15:41:55.818Z",
+  "realServices": false,
+  "appEdited": false,
+  "equivalence": {
+    "src/app/personal/[empleadoId]/page.tsx": "7f969b6c1a548f2f464a010d5d5901f625ff1942",
+    "src/app/actions/google-workspace.ts": "dd3935221f2fe06d276bb2e0c22f063bdfc4df3e",
+    "src/lib/auth/session-token.ts": "d6bb484f24168f5ca15fa77c84a3be38d7fe7f12",
+    "src/lib/auth/perfiles.ts": "f15d0c1ef38ded15137bbb393ccbca2bb6470d76",
+    "src/middleware.ts": "fb0d7789e344b8cc4f313c03d3240995ad6f0b43",
+    "src/lib/auth/public-paths.ts": "b5540bc73df569553d3b1e4a68fd65c522fef693",
+    "src/lib/google-workspace.ts": "df616e1d369a00c703353412251c3b6c773ca760",
+    "src/lib/fiesta/leer-fiestas.ts": "ddccc4ae5c258caf43cb854ef508b5c0d86eca94",
+    "src/lib/roles/leer-roles-interno.ts": "ca538c2eef693ffec64bdaf7fc829f60e42a5dd4",
+    "src/lib/data-service.ts": "b68054b107010a199b8481a1855c1c0b21e7e5a7"
+  },
+  "cases": [
+    {
+      "id": "http-role-dueno",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": true,
+        "foreignMarkers": [],
+        "bytes": 53867
+      }
+    },
+    {
+      "id": "http-role-secretaria",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-operador",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-personal",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": true,
+        "foreignMarkers": [],
+        "bytes": 53867
+      }
+    },
+    {
+      "id": "http-role-cliente",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-prospecto",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-invitado",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "bytes": 24997
+      }
+    },
+    {
+      "id": "http-role-anonymous",
+      "pass": true,
+      "observed": {
+        "status": 307,
+        "location": "http://localhost:3300/login?redirect=%2Fpersonal%2Fqa177-a",
+        "ownContent": false,
+        "foreignMarkers": [],
+        "bytes": 58
+      }
+    },
+    {
+      "id": "http-role-tampered",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "bytes": 24954
+      }
+    },
+    {
+      "id": "http-role-expired",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "location": null,
+        "ownContent": false,
+        "foreignMarkers": [],
+        "bytes": 24954
+      }
+    },
+    {
+      "id": "http-other-employee-denied",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "id": "http-own-verified-email-case-trim",
+      "pass": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "id": "http-own-data-after-reload",
+      "pass": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "id": "ui-pc-own-event-and-no-other",
+      "pass": true,
+      "observed": {
+        "visible": "Volver a empleados\n\nPAGINA PERSONAL AK\n\nQA177 Empleado A\n\nAca ve sus fiestas contratadas, rol, lugar, pago y acceso rapido a Google Calendar.\n\nGoogle conectado\n2 fiestas\nMis proximas fiestas\nQA177 Fiesta qa177-archived\nMozo\nviernes, 08 de agosto de 2025, 09:00 p. m.\nQA177 Salon\n$ 701\n100 invitados estimados\nAgregar a Google\nQA177 Fiesta qa177-shared\nMozo\ndomingo, 08 de agosto de 2027, 09:00 p. m.\nQA177 Salon\n$ 1.500\n100 invitados estimados\nAgregar a Google\nGoogle Calendar\n\nSi conecta Google, las fiestas asignadas entran solas en su calendario personal.\n\nReconectar Google\n\nCuenta actual: qa177-a@qa.invalid\n\nDatos de contacto\n\nMail: qa177-a@qa.invalid\n\nTelefono: 099000177\n\nPara que el aviso por Gmail funcione, este integrante necesita un mail cargado en su ficha de empleado."
+      }
+    },
+    {
+      "id": "ui-pc-calendar-links-own-salary-only",
+      "pass": true,
+      "observed": {
+        "details": [
+          "Hola QA177 Empleado A, esta es tu asignacion para AK Producciones.\nFiesta: QA177 Fiesta qa177-archived\nRol: Mozo\nPago del evento: 700.5\nInvitados estimados: 100\nLugar: QA177 Salon\nCualquier cambio queda registrado en tu pagina personal de AK.\nAK_FIESTA_ID: qa177-archived",
+          "Hola QA177 Empleado A, esta es tu asignacion para AK Producciones.\nFiesta: QA177 Fiesta qa177-shared\nRol: Mozo\nPago del evento: 1500.25\nInvitados estimados: 100\nLugar: QA177 Salon\nCualquier cambio queda registrado en tu pagina personal de AK.\nAK_FIESTA_ID: qa177-shared"
+        ]
+      }
+    },
+    {
+      "id": "ui-pc-horizontal-fit",
+      "pass": true,
+      "observed": {
+        "scroll": 1440,
+        "width": 1440
+      }
+    },
+    {
+      "id": "ui-pc-reload-keeps-own-data",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "ui-pc-direct-other-denied",
+      "pass": true,
+      "observed": {
+        "url": "http://127.0.0.1:3300/personal/qa177-b"
+      }
+    },
+    {
+      "id": "ui-pixel7-own-event-and-no-other",
+      "pass": true,
+      "observed": {
+        "visible": "Volver a empleados\n\nPAGINA PERSONAL AK\n\nQA177 Empleado A\n\nAca ve sus fiestas contratadas, rol, lugar, pago y acceso rapido a Google Calendar.\n\nGoogle conectado\n2 fiestas\nMis proximas fiestas\nQA177 Fiesta qa177-archived\nMozo\nviernes, 08 de agosto de 2025, 09:00 p. m.\nQA177 Salon\n$ 701\n100 invitados estimados\nAgregar a Google\nQA177 Fiesta qa177-shared\nMozo\ndomingo, 08 de agosto de 2027, 09:00 p. m.\nQA177 Salon\n$ 1.500\n100 invitados estimados\nAgregar a Google\nGoogle Calendar\n\nSi conecta Google, las fiestas asignadas entran solas en su calendario personal.\n\nReconectar Google\n\nCuenta actual: qa177-a@qa.invalid\n\nDatos de contacto\n\nMail: qa177-a@qa.invalid\n\nTelefono: 099000177\n\nPara que el aviso por Gmail funcione, este integrante necesita un mail cargado en su ficha de empleado."
+      }
+    },
+    {
+      "id": "ui-pixel7-calendar-links-own-salary-only",
+      "pass": true,
+      "observed": {
+        "details": [
+          "Hola QA177 Empleado A, esta es tu asignacion para AK Producciones.\nFiesta: QA177 Fiesta qa177-archived\nRol: Mozo\nPago del evento: 700.5\nInvitados estimados: 100\nLugar: QA177 Salon\nCualquier cambio queda registrado en tu pagina personal de AK.\nAK_FIESTA_ID: qa177-archived",
+          "Hola QA177 Empleado A, esta es tu asignacion para AK Producciones.\nFiesta: QA177 Fiesta qa177-shared\nRol: Mozo\nPago del evento: 1500.25\nInvitados estimados: 100\nLugar: QA177 Salon\nCualquier cambio queda registrado en tu pagina personal de AK.\nAK_FIESTA_ID: qa177-shared"
+        ]
+      }
+    },
+    {
+      "id": "ui-pixel7-horizontal-fit",
+      "pass": true,
+      "observed": {
+        "scroll": 393,
+        "width": 393
+      }
+    },
+    {
+      "id": "ui-pixel7-reload-keeps-own-data",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "ui-pixel7-direct-other-denied",
+      "pass": true,
+      "observed": {
+        "url": "http://127.0.0.1:3300/personal/qa177-b"
+      }
+    }
+  ],
+  "observations": [],
+  "serverPid": 12624,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-21T15:42:16.984Z",
+    "version": "108e17b4387237fc921ea12e8d1eb65b20f62ac9 · compilada 2026-10-21T11:22:17.916Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 14
+  },
+  "snapshotCount": 76,
+  "sourceDiff": "",
+  "finished": "2026-10-21T15:42:28.041Z",
+  "summary": {
+    "total": 23,
+    "pass": 15,
+    "fail": 8
+  },
+  "limits": [
+    "Actual Next build108e, signed synthetic sessions and local JSON data; named source consumers match public daef, not a full daef build",
+    "No creation/payment/notification/OAuth flow, external browser requests blocked, no new app code",
+    "HTML absence checks include SSR/RSC response; UI only where native steps completed; not seven complete role portals"
+  ]
+}

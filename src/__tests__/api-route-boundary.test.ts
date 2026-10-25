@@ -12,6 +12,7 @@ const PUBLIC_ROUTES = new Set([
   'social-gallery/[fiestaId]/[filename]/route.ts',
   'social-media-assets/[filename]/route.ts',
   'whatsapp/webhook/route.ts',
+  'meta/webhook/route.ts',
   // El invitado busca su cancion desde la invitacion, sin sesion. Es publica a
   // proposito: no devuelve datos del evento, solo resultados de Spotify, y tiene
   // tope de 30 busquedas por minuto.
@@ -51,7 +52,7 @@ describe('API route authentication boundary', () => {
       // lugar: exige la clave si esta configurada, y si no lo esta deja pasar
       // unicamente las tareas que se pueden repetir sin hacer dano, con freno. La
       // que le escribe al cliente por WhatsApp no pasa nunca sin clave.
-      return !/requireAppSession|requirePermiso|hasAppSession|verifySession|esDelEquipoDeLaFiesta|CRON_SECRET|abrirPuertaDeLaTarea|LOOKER_STUDIO_TOKEN|MARKETING_API_SECRET_KEY/.test(
+      return !/requireAppSession|requirePermiso|hasAppSession|verifySession|esDelEquipoDeLaFiesta|usuarioDelEquipo|CRON_SECRET|abrirPuertaDeLaTarea|LOOKER_STUDIO_TOKEN|MARKETING_API_SECRET_KEY|getFiestaForPortalSession/.test(
         read(route),
       );
     });

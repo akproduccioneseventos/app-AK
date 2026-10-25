@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image, { type ImageLoaderProps } from "next/image";
 import {
   Camera,
@@ -20,6 +20,26 @@ import {
   classifyGalleryCategories,
   galleryIdentityKeys,
 } from "./gallery-media-utils";
+
+
+/** Tab y Shift+Tab dan la vuelta adentro del visor abierto, como en el de videos (orden 199). */
+function mantenerElFocoAdentro(e: KeyboardEvent, dentroDe: HTMLElement | null | undefined) {
+  if (e.key !== "Tab" || !(dentroDe instanceof HTMLElement)) return;
+  const enfocables = Array.from(
+    dentroDe.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], iframe, video[controls], [tabindex]:not([tabindex='-1'])"),
+  );
+  if (enfocables.length === 0) return;
+  const primero = enfocables[0];
+  const ultimo = enfocables[enfocables.length - 1];
+  const actual = document.activeElement;
+  if (e.shiftKey && (actual === primero || !dentroDe.contains(actual))) {
+    e.preventDefault();
+    ultimo.focus();
+  } else if (!e.shiftKey && (actual === ultimo || !dentroDe.contains(actual))) {
+    e.preventDefault();
+    primero.focus();
+  }
+}
 
 export { classifyGalleryCategories } from "./gallery-media-utils";
 
@@ -217,10 +237,25 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
     setLightboxIndex(null);
   }, [activeCategory, activeSubCategory]);
 
+  // Orden 199: el foco entra al visor al abrirlo y, al cerrarlo, vuelve a la foto elegida.
+  const visorAbierto = lightboxIndex !== null;
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!visorAbierto) return;
+    const focusFrame = requestAnimationFrame(() => closeButtonRef.current?.focus());
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      const previo = previousFocusRef.current;
+      if (previo && previo.isConnected) previo.focus();
+    };
+  }, [visorAbierto]);
+
   useEffect(() => {
     if (lightboxIndex === null) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setLightboxIndex(null);
+      mantenerElFocoAdentro(event, closeButtonRef.current?.closest("[role=\"dialog\"]") as HTMLElement | null);
       if (event.key === "ArrowLeft") {
         setLightboxIndex((index) => (index === null ? null : (index - 1 + displayedImages.length) % displayedImages.length));
       }
@@ -333,7 +368,10 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                         ease: [0.22, 1, 0.36, 1] as const,
                       }
                 }
-                onClick={() => setLightboxIndex(index)}
+                onClick={() => {
+                  previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+                  setLightboxIndex(index);
+                }}
                 className="group relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-neutral-200 text-left shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-700"
                 aria-label={`Abrir foto: ${visible.titulo || image.alt}`}
               >
@@ -397,6 +435,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
             aria-label="Vista ampliada de la galería"
           >
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={() => setLightboxIndex(null)}
               className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/20"

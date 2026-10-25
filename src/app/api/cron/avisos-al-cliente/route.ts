@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { correrTareaAvisosAlCliente } from '@/lib/whatsapp/avisos-al-cliente';
 
@@ -21,10 +21,10 @@ async function correrTarea(request: Request) {
     const resultado = await correrTareaAvisosAlCliente();
     await marcarCorrida('avisos-al-cliente');
 
-    return NextResponse.json({
+    return NextResponse.json(respuestaDeLaTarea(puerta, {
       ok: true,
       ...resultado,
-    });
+    }));
   } catch (error: any) {
     console.error('[cron-avisos-al-cliente] Error:', error);
     return NextResponse.json(

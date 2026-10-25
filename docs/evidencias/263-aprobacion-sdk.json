@@ -1,0 +1,179 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/lib/calculations.ts": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/lib/budget/pago-duplicado.ts": "9f02ee3ea135c129d37eacf9f375f820b6e467441518c42cdc904036fe72b980",
+    "src/lib/mutex.ts": "610f35d8d92ff55948b2ecba4dfa5c985dca047a5f4c93ca6132930183fc7c1e",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/app/actions/fiesta/fiesta.actions.ts": "27d2a3734f9046f042c0e8baaa9e96dd83c89cc9fb926013d68f8d820c975249",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/lib/data-service.ts": "89e1ab7ca0a6efee931bce2a4c26ef83c429c364fcffe7b74bebeee86f8c781a",
+    "src/app/actions/presupuestos.ts": "f82c797e4f1716ad314831be5307b485ccd9f47a2aab826700266b84407b7e6c",
+    "src/lib/client-portal/payment-notifications.ts": "9e65a0adfa3b6e3bb6d2dffbc7dcdd29d88078b3fe8825450e28ea05452d595b",
+    "src/app/actions/fiesta/portal.actions.ts": "b4058fc01c85ab4fab3feca09adac962b2657fca339d188dcc6c03542f25c0ff"
+  },
+  "cases": [
+    {
+      "id": "SDK-positive-approval-confirms-once",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true,
+          "approvedAt": "2026-10-23T18:05:52.732Z"
+        },
+        "party": {
+          "id": "qa263-party",
+          "presupuestoId": "qa263-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA263"
+          },
+          "clientPaymentNotifications": [
+            {
+              "id": "qa263-notification",
+              "monto": 1000,
+              "estado": "aprobado",
+              "fecha": "2026-10-23",
+              "approvedAt": "2026-10-23T18:05:52.732Z"
+            }
+          ],
+          "_syncedAt": "2026-10-23T18:05:52.765Z"
+        },
+        "budget": {
+          "id": "qa263-budget",
+          "clienteNombre": "Persona ficticia QA263",
+          "estado": "Aceptado",
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosNinos": 0,
+          "invitadosAdolescentes": 0,
+          "costoTotalEstimado": 10000,
+          "totalConDescuento": 10000,
+          "totalFinal": 10000,
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "pagosCliente": [
+            {
+              "fecha": "2026-10-23T18:05:52.786Z",
+              "monto": 1000,
+              "metodoPago": "Transferencia Bancaria",
+              "referencia": "Pago verificado desde Portal VIP (qa263-notification)",
+              "id": "pago_qa263-budget_1792778752838_pqjrr",
+              "estadoPago": "confirmado"
+            }
+          ],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa263-service",
+              "nombreServicio": "Servicio QA263",
+              "cantidad": 1,
+              "precioUnitario": 10000,
+              "precioUnitarioPresupuesto": 10000,
+              "costoTotalItem": 10000
+            }
+          ],
+          "saldo": 9000,
+          "_syncedAt": "2026-10-23T18:05:52.841Z"
+        }
+      }
+    },
+    {
+      "id": "SDK-failed-approval-does-not-undo-successful-same-reference-retry",
+      "pass": false,
+      "observed": {
+        "firstBudgetResult": {
+          "success": false,
+          "error": "El pago supera el saldo pendiente. Saldo: $500."
+        },
+        "first": {
+          "success": false,
+          "error": "El pago supera el saldo pendiente. Saldo: $500."
+        },
+        "retry": {
+          "success": true,
+          "approvedAt": "2026-10-23T18:05:53.133Z"
+        },
+        "party": {
+          "id": "qa263-party",
+          "presupuestoId": "qa263-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA263"
+          },
+          "clientPaymentNotifications": [
+            {
+              "id": "qa263-notification",
+              "monto": 1000,
+              "estado": "pendiente",
+              "fecha": "2026-10-23"
+            }
+          ],
+          "_syncedAt": "2026-10-23T18:05:53.507Z"
+        },
+        "budget": {
+          "id": "qa263-budget",
+          "clienteNombre": "Persona ficticia QA263",
+          "estado": "Aceptado",
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosNinos": 0,
+          "invitadosAdolescentes": 0,
+          "costoTotalEstimado": 10000,
+          "totalConDescuento": 10000,
+          "totalFinal": 10000,
+          "ajusteAnualActivo": false,
+          "ajusteAnualPorcentaje": 0,
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa263-service",
+              "nombreServicio": "Servicio QA263",
+              "cantidad": 1,
+              "precioUnitario": 10000,
+              "precioUnitarioPresupuesto": 10000,
+              "costoTotalItem": 10000
+            }
+          ],
+          "pagosCliente": [
+            {
+              "fecha": "2026-10-23T18:05:53.368Z",
+              "monto": 1000,
+              "metodoPago": "Transferencia Bancaria",
+              "referencia": "Pago verificado desde Portal VIP (qa263-notification)",
+              "id": "pago_qa263-budget_1792778753415_s28na",
+              "estadoPago": "confirmado"
+            }
+          ],
+          "saldo": 9000,
+          "_syncedAt": "2026-10-23T18:05:53.416Z"
+        },
+        "notifications": [
+          {
+            "kind": "budget",
+            "titulo": "Pago Registrado",
+            "mensaje": "Pago de $ 1.000 registrado para Persona ficticia QA263 (Transferencia Bancaria).",
+            "href": "/presupuestos/qa263-budget/ver",
+            "icono": "ListChecks",
+            "tipo": "exito",
+            "entidadRelacionadaId": "qa263-budget",
+            "rolDestino": "admin"
+          }
+        ]
+      }
+    }
+  ],
+  "cleanup": {
+    "fiestas": 0,
+    "presupuestos": 0
+  },
+  "summary": {
+    "total": 2,
+    "pass": 1,
+    "fail": 1
+  },
+  "appEdited": false,
+  "scope": "Actual approve/reject, actual budget payment action/validation/normalizer/dedup, actual fiesta updater and data-service/generic Firestore transactions with real AdminSDK demo. Actor identity/event-access predicate, notification/sync sinks and delayed reply controlled. Interim removal of other fixture payment by SDK is scheduling input, NOT tested delete-payment UI. NO HTTP, real accounts/messages/charges or production."
+}

@@ -1,4 +1,3 @@
-
 'use server';
 
 import type { ItineraryTemplate, ProgramaEventoItem } from '@/types/fiesta';

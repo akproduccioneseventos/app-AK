@@ -2,7 +2,7 @@
 
 > **Se programa con la orden 176 (para Gemini), que tiene el camino exacto.**
 
-**Estado:** hallazgo reproducido; correccion y revalidacion pendientes.
+**Estado actual:** CERRADA la disposicion movil comprobada por151, fuente2e5363f259461a31bf6b31807872c227855415de,1PASS Pixel7: titulo2lineas, sello/etiqueta separados y texto contenido en boton. Fuentes relacionadas sin cambio hasta main894d. No certifica logica legal ni todas las variantes del contrato. El retest142 parcial queda como historico; ver154-cierre.md.
 **Prioridad:** P2, afecta lectura y descarga/impresion en el portal del cliente.
 **Base auditada:** app `d10f332a17241de5a4705a560336585853073a76`, copia QA compilada en `a635b27071ecea22092eba2a285892c84c6f9d08`; `src` coincide con `origin/main` `9aa64f991f5ddceefa8d278a3f298be861eb10bb`.
 
@@ -31,5 +31,5 @@ No se encontro este defecto en los antecedentes consultados. Las correcciones pr
 ```comprobar
 archivo: src/app/portal/[fiestaId]/contrato/page.tsx
 no-usa: absolute -top-12 left-1/2 en src/app/portal/[fiestaId]/contrato/page.tsx
-prueba: docs/evidencias/133-contrato-responsive.spec.ts
+prueba: docs/evidencias/151-mobile-source.spec.ts
 ```

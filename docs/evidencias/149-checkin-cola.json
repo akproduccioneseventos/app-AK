@@ -1,0 +1,71 @@
+{
+  "targetSha": "b8491bda3f25aadc71f36f42d5878a47261bb1bf",
+  "sourcePath": "src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx",
+  "status": "FAIL",
+  "extraction": {
+    "sha256": "4beb27c86427bb36b1d0c782636a6325cbeb096f632081ea64943eebb983d33f",
+    "symbol": "CheckinScannerContent/sincronizarCola",
+    "sourceLines": [
+      83,
+      107
+    ],
+    "parser": "TypeScript 5.9.3",
+    "method": "git show SHA:path -> TypeScript AST variable initializer -> transpileModule"
+  },
+  "cases": [
+    {
+      "name": "single_sync_ack_control",
+      "expected": [],
+      "observed": [],
+      "requests": 1,
+      "pass": true
+    },
+    {
+      "name": "new_entry_added_during_await",
+      "expected": [
+        "B"
+      ],
+      "observed": [],
+      "lostEntryIds": [
+        "B"
+      ],
+      "requests": 1,
+      "pass": false
+    },
+    {
+      "name": "ack_lost_one_attempt",
+      "expected": {
+        "serverCheckedIn": true,
+        "queuedIds": [
+          "A"
+        ],
+        "requests": 1
+      },
+      "observed": {
+        "serverCheckedIn": true,
+        "queuedIds": [
+          "A"
+        ],
+        "requests": 1
+      },
+      "pass": true
+    }
+  ],
+  "note": "Sonda pura. No app, build, Jest, navegador, red ni credenciales.",
+  "memory": {
+    "freeMiB": 664,
+    "requiredMiB": 256
+  },
+  "serverContract": {
+    "path": "src/app/actions/fiesta/invitados.actions.ts",
+    "sha256": "97113367e82da2b992798d8123ab0d63ecb65daf4301bf0033f860c95bcf29ac",
+    "symbol": "checkInGuest",
+    "sourceLines": [
+      343,
+      405
+    ],
+    "repeatedCheckinReturnsExistingGuest": true,
+    "implication": "Repeated requests are possible; this branch does not create a second checked-in guest record."
+  },
+  "summary": "FAIL means an observed local queue invariant violation only; request retries do not establish duplicate server entries."
+}

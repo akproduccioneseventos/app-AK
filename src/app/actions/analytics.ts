@@ -4,7 +4,7 @@ import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
 import { getAllFiestas } from './fiesta/fiesta.actions';
-import { getRoles } from './roles';
+import { leerRolesInterno } from '@/lib/roles/leer-roles-interno';
 import { getEmpleados } from './empleados';
 import { subMonths, format, startOfToday, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -102,7 +102,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       getPresupuestos(),
       getInvoices(),
       getAllFiestas(),
-      getRoles(),
+      leerRolesInterno(),
       getEmpleados(),
     ]);
 

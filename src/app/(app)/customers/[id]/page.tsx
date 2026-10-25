@@ -1,5 +1,6 @@
-
 'use client';
+
+import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -109,11 +110,11 @@ export default function CustomerDetailsPage() {
         getHistorialFiestas(),
         getFiestaActual()
       ]);
-      
+
       const todasLasFiestasDelCliente = [actual, ...(Array.isArray(historial) ? historial : [])].filter(
         (f): f is FiestaEnPlanificacion => f !== null && f.configuracion.clienteId === customerId
       );
-      
+
       const paymentHistory: EventPaymentDetails[] = [];
       for (const fiesta of todasLasFiestasDelCliente) {
         let presupuestoFiesta: Presupuesto | null = null;
@@ -126,7 +127,7 @@ export default function CustomerDetailsPage() {
           const invoicePromises = fiesta.invoiceIds.map(id => getInvoiceById(id));
           facturasFiesta = (await Promise.all(invoicePromises)).filter(inv => inv !== null) as Invoice[];
         }
-        
+
         let totalPagadoFacturas = 0;
         facturasFiesta.forEach(factura => {
           totalPagadoFacturas += factura.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
@@ -150,7 +151,7 @@ export default function CustomerDetailsPage() {
               ? 'facturas'
               : 'sin_pagos';
 
-        const costoTotalFiesta = presupuestoFiesta?.totalConDescuento ?? presupuestoFiesta?.costoTotalEstimado ?? 0;
+        const costoTotalFiesta = presupuestoFiesta ? getBudgetCollectibleTotal(presupuestoFiesta) : 0;
         const saldoFiesta = costoTotalFiesta - totalPagadoFiesta;
 
         paymentHistory.push({
@@ -163,8 +164,8 @@ export default function CustomerDetailsPage() {
           fuentePagos,
         });
       }
-      setEventPaymentHistory(paymentHistory.sort((a,b) => 
-        (b.fiesta.configuracion.fechaEvento ? new Date(b.fiesta.configuracion.fechaEvento).getTime() : 0) - 
+      setEventPaymentHistory(paymentHistory.sort((a,b) =>
+        (b.fiesta.configuracion.fechaEvento ? new Date(b.fiesta.configuracion.fechaEvento).getTime() : 0) -
         (a.fiesta.configuracion.fechaEvento ? new Date(a.fiesta.configuracion.fechaEvento).getTime() : 0)
       ));
 

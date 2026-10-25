@@ -18,6 +18,7 @@ jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (_f: string, d: any) => (_f.includes('presupuesto') ? JSON.parse(JSON.stringify(guardado)) : d)),
   writeData: jest.fn(async (_f: string, datos: any) => { if (_f.includes('presupuesto')) guardado = JSON.parse(JSON.stringify(datos)); }),
   mutateDataItem: jest.fn(),
+  readDataConDetalle: jest.fn(async (_f: string, d: any) => ({ valor: _f.includes('presupuesto') ? JSON.parse(JSON.stringify(guardado)) : d, huboFalla: false })),
 }));
 jest.mock('@/app/actions/crm', () => ({
   findLeadByBudgetOrCreate: jest.fn(async () => ({ lead: { id: 'lead1' } })),
@@ -25,6 +26,14 @@ jest.mock('@/app/actions/crm', () => ({
   moveCrmLead: jest.fn(async () => ({ success: true })),
 }));
 jest.mock('@/lib/notifications/create-notification', () => ({ createNotification: jest.fn(async () => undefined) }));
+// Los costos que recalcula el servidor se guardan por costos-interno (orden 183): mismo destino que
+// el updateFiestaPartial de mentira de esta prueba.
+jest.mock('@/lib/fiesta/costos-interno', () => ({
+  guardarCostosInterno: async (id: string, costos: unknown) => {
+    const r = await require('@/app/actions/fiesta/fiesta.actions').updateFiestaPartial(id, { gestionCostos: costos });
+    return r?.success ? { success: true, updatedData: costos } : { success: false, error: r?.error };
+  },
+}));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getAllFiestas: jest.fn(async () => []),
   saveFiesta: jest.fn(async () => ({ success: true })),

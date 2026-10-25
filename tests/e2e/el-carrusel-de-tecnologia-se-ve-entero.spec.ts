@@ -22,20 +22,24 @@ test.describe('Orden 96 - Bloque 4: El carrusel de tecnología se ve entero', ()
       await expect(boton360).toContainText('Plataforma 360');
 
       // Verificamos que el botón no quede cortado y se pueda hacer clic
-      await boton360.click();
-
-      // La ficha cambia al nombre de la estación seleccionada
+      // Con la máquina cargada, el primer toque puede llegar antes de que la portada termine de
+      // arrancar y se pierde (falló así dos veces en la puerta del 21/10/2026, y pasaba sola). Se
+      // vuelve a tocar hasta que la ficha cambie: lo que se comprueba es que el botón la cambia.
       const tituloFicha = page.locator('h3', { hasText: 'Plataforma 360' }).first();
-      await expect(tituloFicha).toContainText('Plataforma 360');
+      await expect(async () => {
+        await boton360.click();
+        await expect(tituloFicha).toContainText('Plataforma 360', { timeout: 3_000 });
+      }).toPass({ timeout: 45_000 });
 
       // Probamos también con Espejo Mágico
       const botonEspejo = page.locator('button', { hasText: 'Espejo Mágico' }).first();
       await botonEspejo.scrollIntoViewIfNeeded();
       await expect(botonEspejo).toContainText('Espejo Mágico');
-      await botonEspejo.click();
-
       const tituloEspejo = page.locator('h3', { hasText: 'Espejo Mágico' }).first();
-      await expect(tituloEspejo).toContainText('Espejo Mágico');
+      await expect(async () => {
+        await botonEspejo.click();
+        await expect(tituloEspejo).toContainText('Espejo Mágico', { timeout: 3_000 });
+      }).toPass({ timeout: 45_000 });
     });
   }
 });

@@ -426,7 +426,8 @@ export async function syncReunionToGoogleWorkspace(
 const turnoDeInvitaciones = new AsyncMutex();
 
 export async function notifyGuestsWithCalendarLinks(fiestaId: string, options: { forceEmail?: boolean } = {}) {
-  await requireAppSession();
+  // Les manda mails a los invitados: organización de la fiesta, no cualquier sesión (pregunta 35).
+  await requirePermisoAlguno(PERMISOS.ORGANIZACION);
   return turnoDeInvitaciones.runExclusive(() => notifyGuestsWithCalendarLinksInterno(fiestaId, options));
 }
 
@@ -567,7 +568,8 @@ export async function notifyContractSignedToClient(
   fiestaId: string,
   input: { signerName?: string; method: 'digital' | 'physical' }
 ) {
-  await requireAppSession();
+  // Le avisa al cliente "evento confirmado": lo decide quien maneja el contrato (pregunta 35).
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 

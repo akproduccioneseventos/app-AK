@@ -64,7 +64,8 @@ describe('pedido de cambio de invitados desde el portal del cliente', () => {
       portalActions.indexOf('export async function approveClientServiceChangeRequest'),
     );
     expect(aprobar).toContain('requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM)');
-    expect(rechazar).toContain('requireAppSession');
+    // Orden 210: rechazar también pide permiso (antes, sólo sesión).
+    expect(rechazar).toContain('requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM)');
   });
 
   it('al aprobar se actualiza el presupuesto, que es de donde sale el conteo', () => {
@@ -72,7 +73,8 @@ describe('pedido de cambio de invitados desde el portal del cliente', () => {
       portalActions.indexOf('export async function approveClientGuestCountChangeRequest'),
       portalActions.indexOf('export async function rejectClientGuestCountChangeRequest'),
     );
-    expect(aprobar).toContain('updatePresupuesto');
+    // Orden 210/211: el presupuesto se cambia adentro de su transacción y con la cuenta de siempre.
+    expect(aprobar).toContain('aprobarConPresupuesto<ClientGuestCountChangeRequest>');
     expect(aprobar).toContain('invitadosAdultos');
     expect(aprobar).toContain('invitadosAdolescentes');
     expect(aprobar).toContain('invitadosNinos');
@@ -83,8 +85,10 @@ describe('pedido de cambio de invitados desde el portal del cliente', () => {
       portalActions.indexOf('export async function approveClientGuestCountChangeRequest'),
       portalActions.indexOf('export async function approveClientServiceChangeRequest'),
     );
-    const vecesQueControla = aprobar.split("status !== 'pendiente'").length - 1;
-    // Una vez en aprobar y otra en rechazar.
-    expect(vecesQueControla).toBe(2);
+    // Orden 210: aprobar y rechazar pasan por `tomarSolicitud`, que mira "pendiente" adentro de la
+    // escritura (dos aprobaciones a la vez no suman dos veces).
+    expect(aprobar).toContain('aprobarConPresupuesto<ClientGuestCountChangeRequest>');
+    expect(aprobar).toContain('tomarSolicitud<ClientGuestCountChangeRequest>');
+    expect(portalActions).toMatch(/if \(solicitud\.status !== 'pendiente'\) \{ error = 'La solicitud ya fue procesada\.'/);
   });
 });

@@ -187,7 +187,50 @@ const TAREAS_DEFAULT = [
   { tarea: 'Seguimiento WhatsApp', canal: 'WhatsApp' },
 ];
 
-import { MARKETING_HUB_ITEMS } from '@/lib/marketing/marketing-hub';
+const MARKETING_HUB_ITEMS = [
+  {
+    title: 'Redes sociales',
+    description: 'Planifica publicaciones, calendario, piezas y contenido real para Instagram, Facebook, TikTok y WhatsApp.',
+    href: '/empresa/redes-sociales',
+    icon: Megaphone,
+    tone: 'bg-pink-50 text-pink-700 border-pink-100',
+  },
+  {
+    title: 'IA de marketing',
+    description: 'Genera copies, ideas de campana, respuestas de venta y mensajes para seguimiento comercial.',
+    href: '/empresa/redes-sociales/ia-marketing',
+    icon: Sparkles,
+    tone: 'bg-violet-50 text-violet-700 border-violet-100',
+  },
+  {
+    title: 'Plantilla LED',
+    description: 'Portafolio visual para vender en reunion: beneficios, servicios, tecnologia y cierre comercial.',
+    href: '/presentacion-led/portafolio',
+    icon: Presentation,
+    tone: 'bg-blue-50 text-blue-700 border-blue-100',
+  },
+  {
+    title: 'Demo tecnologia AK',
+    description: 'Pagina de demostracion para mostrar portal, pantalla, muro, QR y estaciones sin crear una fiesta real.',
+    href: '/marketing/demo-tecnologia',
+    icon: MonitorPlay,
+    tone: 'bg-slate-100 text-slate-800 border-slate-200',
+  },
+  {
+    title: 'Web publica',
+    description: 'Editar la landing, beneficios, servicios, imagen del equipo, fotos y llamados a WhatsApp.',
+    href: '/empresa/landing-editor',
+    icon: Globe2,
+    tone: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+  },
+  {
+    title: 'Biblioteca visual',
+    description: 'Fotos, videos y recursos para que la venta muestre la empresa real y no solo textos.',
+    href: '/settings/biblioteca-visual-ak',
+    icon: RadioTower,
+    tone: 'bg-amber-50 text-amber-700 border-amber-100',
+  },
+];
 
 const MARKETING_FOCUS = [
   'Vender AK como solucion completa: salon, organizacion, servicios y tranquilidad.',
@@ -561,6 +604,90 @@ export default function MarketingPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 pb-20">
+        {/* Puertas principales de Marketing (Orden 182) */}
+        <section className="mt-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link href="/empresa/redes-sociales" className="group">
+              <Card className="h-full border border-slate-200/80 bg-white hover:border-indigo-400 hover:shadow-lg transition-all rounded-2xl p-5 flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-900 text-sm mb-1 group-hover:text-indigo-600 transition-colors">
+                    Calendario y publicaciones con IA
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Programá fotos, Reels y contenido semanal asistido por inteligencia artificial.
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center text-xs font-bold text-indigo-600 gap-1 group-hover:translate-x-1 transition-transform">
+                  <span>Abrir publicaciones</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Card>
+            </Link>
+
+            <Link href="/contabilidad/crm/marketing-ads" className="group">
+              <Card className="h-full border border-slate-200/80 bg-white hover:border-violet-400 hover:shadow-lg transition-all rounded-2xl p-5 flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <Megaphone className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-900 text-sm mb-1 group-hover:text-violet-600 transition-colors">
+                    Campañas y anuncios
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Rendimiento de pauta publicitaria en Meta, Google Ads y conversiones al CRM.
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center text-xs font-bold text-violet-600 gap-1 group-hover:translate-x-1 transition-transform">
+                  <span>Ver campañas</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Card>
+            </Link>
+
+            <Link href="/empresa/presencia-digital" className="group">
+              <Card className="h-full border border-slate-200/80 bg-white hover:border-amber-400 hover:shadow-lg transition-all rounded-2xl p-5 flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <Globe2 className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-900 text-sm mb-1 group-hover:text-amber-600 transition-colors">
+                    Reseñas y Google
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Ficha de Google Mi Negocio, reputación, reseñas y posicionamiento local.
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center text-xs font-bold text-amber-600 gap-1 group-hover:translate-x-1 transition-transform">
+                  <span>Ver presencia</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Card>
+            </Link>
+
+            <Link href="/empresa/marketing" className="group">
+              <Card className="h-full border border-slate-200/80 bg-white hover:border-emerald-400 hover:shadow-lg transition-all rounded-2xl p-5 flex flex-col justify-between">
+                <div>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <Presentation className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-slate-900 text-sm mb-1 group-hover:text-emerald-600 transition-colors">
+                    Web pública y portada
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Diseño de la landing comercial, banners de temporada y textos de venta.
+                  </p>
+                </div>
+                <div className="mt-4 flex items-center text-xs font-bold text-emerald-600 gap-1 group-hover:translate-x-1 transition-transform">
+                  <span>Gestionar web</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Card>
+            </Link>
+          </div>
+        </section>
         <section className="mt-5 grid gap-4 lg:grid-cols-[1.05fr_.95fr]">
           <Card className="overflow-hidden rounded-2xl border-slate-200 bg-slate-950 text-white shadow-xl">
             <CardContent className="grid gap-6 p-5 sm:p-6 md:grid-cols-[1fr_.85fr]">

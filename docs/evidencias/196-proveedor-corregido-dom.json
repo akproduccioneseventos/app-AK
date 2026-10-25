@@ -1,0 +1,233 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "environment": "ReactDOM + real page/UI components in JSDOM; action, token-param and toast adapters controlled; no Next HTTP/real provider/SDK/native geometry",
+  "hashes": {
+    "src/app/proveedor/acceso/[token]/page.tsx": "bae8431d69805cba89c0ae539e1dabbdbf05045005946f4b56c83390fc93fdca",
+    "src/components/ui/alert.tsx": "ed78a053a9db783f48d5dfab7398b630f87c17ed2e237b6f30a3eb153675960c",
+    "src/lib/utils.ts": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+    "src/lib/reportes/rango-de-dias.ts": "e64cb6a73f65c7f6f4d3b848783dd42be63abe0acf6f7e525ddb20875ed3956f",
+    "src/components/ui/badge.tsx": "3d9ca59ebbd7c9907dbdd5af76d8fb3f5222c0ae930346324bff5c6ff167fa9f",
+    "src/components/ui/button.tsx": "6af925415b5056d9526d3dbcdbca140ef8f09a1afbba85576d008cf5e9000646",
+    "src/components/ui/checkbox.tsx": "870e9819040c04fe40dd869b1076f908c63661fae5c627d657d759e4532c2334",
+    "src/components/ui/label.tsx": "2eac8fbb04002c42b0fbc4062d20d131e421796eaf65c37d2049e29e42ecbc5a",
+    "src/components/ui/textarea.tsx": "6d2c1753fa2c3caca5ca3f329fc5ea0c63dae85c55b79cf5f133a8a26fb8e723"
+  },
+  "cases": [
+    {
+      "name": "positive-load",
+      "pass": true,
+      "observed": "Acceso de proveedorProveedor ficticio QA183FotografiaPendienteLlegada estimada18:00Partida estimada23:00Estado operativoActualizalo para que producción vea tu avance.ConfirmarEn caminoTareas asignadas0/1 completadasProbar equipo ficticioNotas para producciónUsá este espacio para avisos operativos. No incluyas datos sensibles.Guardar notaAK Producciones: coordinación operativa del evento."
+    },
+    {
+      "name": "confirm-consumer-state",
+      "pass": true,
+      "observed": {
+        "state": "Confirmado",
+        "lastCall": [
+          "status",
+          "qa183",
+          "Confirmado"
+        ]
+      }
+    },
+    {
+      "name": "travel-consumer-state",
+      "pass": true,
+      "observed": {
+        "state": "En Camino",
+        "lastCall": [
+          "status",
+          "qa183",
+          "En Camino"
+        ]
+      }
+    },
+    {
+      "name": "arrival-consumer-state",
+      "pass": true,
+      "observed": {
+        "state": "Llegó",
+        "lastCall": [
+          "arrival",
+          "qa183"
+        ]
+      }
+    },
+    {
+      "name": "finish-consumer-state",
+      "pass": true,
+      "observed": {
+        "state": "Completó",
+        "lastCall": [
+          "finish",
+          "qa183"
+        ]
+      }
+    },
+    {
+      "name": "task-consumer-state",
+      "pass": true,
+      "observed": {
+        "task": {
+          "id": "qa183-task",
+          "texto": "Probar equipo ficticio",
+          "completada": true
+        },
+        "lastCall": [
+          "task",
+          "qa183",
+          "qa183-task"
+        ]
+      }
+    },
+    {
+      "name": "note-consumer-payload",
+      "pass": true,
+      "observed": {
+        "note": "Nota ficticia QA183",
+        "lastCall": [
+          "note",
+          "qa183",
+          "Nota ficticia QA183"
+        ]
+      }
+    },
+    {
+      "name": "remount-rereads-action-store",
+      "pass": true,
+      "observed": {
+        "state": "Completó",
+        "note": "Nota ficticia QA183"
+      }
+    },
+    {
+      "name": "note-rejected-no-success-and-enabled",
+      "pass": true,
+      "observed": {
+        "note": "Nota ficticia QA183",
+        "toast": {
+          "title": "No se pudo actualizar",
+          "description": "QA183: no se guardo",
+          "variant": "destructive"
+        }
+      }
+    },
+    {
+      "name": "note-transport-failure-shown-and-enabled",
+      "pass": true,
+      "observed": {
+        "title": "No se pudo actualizar",
+        "description": "QA183: fallo del transporte al guardar",
+        "variant": "destructive"
+      }
+    },
+    {
+      "name": "structured-read-failure-visible",
+      "pass": true,
+      "observed": "Acceso no disponibleQA183: acceso revocadoQA legal"
+    },
+    {
+      "name": "transport-read-failure-leaves-loading",
+      "pass": false,
+      "observed": {
+        "body": "No pudimos abrir tu acceso. Revisá la conexión y tocá ReintentarReintentar",
+        "spinner": false,
+        "unhandled": []
+      }
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 11,
+    "failed": 1
+  },
+  "calls": [
+    [
+      "read",
+      "qa183"
+    ],
+    [
+      "status",
+      "qa183",
+      "Confirmado"
+    ],
+    [
+      "status",
+      "qa183",
+      "En Camino"
+    ],
+    [
+      "arrival",
+      "qa183"
+    ],
+    [
+      "finish",
+      "qa183"
+    ],
+    [
+      "task",
+      "qa183",
+      "qa183-task"
+    ],
+    [
+      "note",
+      "qa183",
+      "Nota ficticia QA183"
+    ],
+    [
+      "read",
+      "qa183"
+    ],
+    [
+      "note",
+      "qa183",
+      "No se debe guardar"
+    ],
+    [
+      "note",
+      "qa183",
+      "No se debe guardar"
+    ],
+    [
+      "read",
+      "qa183"
+    ],
+    [
+      "read",
+      "qa183"
+    ]
+  ],
+  "toasts": [
+    {
+      "title": "Asistencia confirmada"
+    },
+    {
+      "title": "Producción ya sabe que estás en camino"
+    },
+    {
+      "title": "Llegada confirmada"
+    },
+    {
+      "title": "Trabajo finalizado"
+    },
+    {
+      "title": "Tarea actualizada"
+    },
+    {
+      "title": "Nota guardada"
+    },
+    {
+      "title": "No se pudo actualizar",
+      "description": "QA183: no se guardo",
+      "variant": "destructive"
+    },
+    {
+      "title": "No se pudo actualizar",
+      "description": "QA183: fallo del transporte al guardar",
+      "variant": "destructive"
+    }
+  ],
+  "rejections": [],
+  "servicesStarted": false,
+  "appChanged": false
+}

@@ -648,6 +648,16 @@ async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount
   }
 }
 
+/**
+ * El estado de la factura al sacar UN pago que no llegó al presupuesto. Se cuenta sobre los pagos que
+ * quedan AHORA, no se vuelve a la foto de antes: si en el medio otro cobro la dejó pagada, volver a la
+ * foto la mostraba impaga estando cobrada (pregunta 90, barrido de Codex 218).
+ */
+function estadoAlSacarElPago(actual: Invoice, restantes: Payment[], estadoAntes: Invoice['status']): Invoice['status'] {
+  const base = actual.status === 'Paid' ? (estadoAntes === 'Paid' ? 'Sent' : estadoAntes) : actual.status;
+  return estadoTrasElPago({ ...actual, status: base }, restantes);
+}
+
 function estadoTrasElPago(invoice: Invoice, pagos: Payment[]): Invoice['status'] {
   const totalPaid = pagos.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
   if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
@@ -727,7 +737,7 @@ async function pasarCobroAlPresupuesto(
   }
 
   if (resultado.success) {
-    await marcarCobroPasadoAlPresupuesto(invoiceId, pago.id).catch((error) => {
+    await marcarCobroPasadoAlPresupuesto(invoiceId, pago.id, pago).catch((error) => {
       // Si esto falla, el cobro sigue marcado como no pasado y el parte de la mañana lo
       // avisa; pasarlo de nuevo no lo duplica (se reconoce por la referencia).
       logger.warn('[Facturas] No se pudo marcar el cobro como pasado al presupuesto:', error);
@@ -746,16 +756,19 @@ async function pasarCobroAlPresupuesto(
     if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
       const facturas = await leerFacturasSinGuardia();
       const i = facturas.findIndex((f) => f.id === invoiceId);
-      if (i >= 0) {
-        facturas[i] = { ...facturas[i], payments: (facturas[i].payments || []).filter((p) => p.id !== pago.id), status: invoiceAntes.status };
+      if (i >= 0 && !(facturas[i].payments || []).some((p) => p.id === pago.id && p.pasadoAlPresupuesto)) {
+        const restantes = (facturas[i].payments || []).filter((p) => p.id !== pago.id);
+        facturas[i] = { ...facturas[i], payments: restantes, status: estadoAlSacarElPago(facturas[i], restantes, invoiceAntes.status) };
         await writeData(INVOICES_FILE, facturas);
       }
     } else {
-      await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => ({
-        ...actual,
-        payments: (actual.payments || []).filter((p) => p.id !== pago.id),
-        status: invoiceAntes.status,
-      }));
+      await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => {
+        // Un reintento que ya lo pasó al presupuesto lo dejó marcado: ese cobro no se saca
+        // (barrido de la pregunta 93, 23/10).
+        if ((actual.payments || []).some((p) => p.id === pago.id && p.pasadoAlPresupuesto)) return actual;
+        const restantes = (actual.payments || []).filter((p) => p.id !== pago.id);
+        return { ...actual, payments: restantes, status: estadoAlSacarElPago(actual, restantes, invoiceAntes.status) };
+      });
     }
   } catch (rollbackError) {
     logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
@@ -951,11 +964,17 @@ export async function scanAndTriggerPaymentReminders(): Promise<{ success: boole
 }
 
 /** Marca un cobro de factura como ya pasado al presupuesto. */
-async function marcarCobroPasadoAlPresupuesto(invoiceId: string, paymentId: string): Promise<void> {
-  const marcar = (factura: Invoice): Invoice => ({
-    ...factura,
-    payments: (factura.payments || []).map((p) => (p.id === paymentId ? { ...p, pasadoAlPresupuesto: true } : p)),
-  });
+async function marcarCobroPasadoAlPresupuesto(invoiceId: string, paymentId: string, pagoSiFalta?: Payment): Promise<void> {
+  const marcar = (factura: Invoice): Invoice => {
+    const pagos = factura.payments || [];
+    // Si la vuelta atrás de otro intento lo sacó de la factura mientras éste lo pasaba al
+    // presupuesto, se vuelve a poner: la plata ya está en el presupuesto (pregunta 93).
+    if (pagoSiFalta && !pagos.some((p) => p.id === paymentId)) {
+      const conElPago = [...pagos, { ...pagoSiFalta, pasadoAlPresupuesto: true }];
+      return { ...factura, payments: conElPago, status: estadoTrasElPago(factura, conElPago) };
+    }
+    return { ...factura, payments: pagos.map((p) => (p.id === paymentId ? { ...p, pasadoAlPresupuesto: true } : p)) };
+  };
   if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
     const todas = await leerFacturasSinGuardia();
     await writeData(INVOICES_FILE, todas.map((f) => (f.id === invoiceId ? marcar(f) : f)));

@@ -1,0 +1,866 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "checkedAt": "2026-10-22T02:05:02.802Z",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/lib/calculations.ts": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/lib/mutex.ts": "610f35d8d92ff55948b2ecba4dfa5c985dca047a5f4c93ca6132930183fc7c1e",
+    "src/app/actions/presupuestos.ts": "74042b3ab13058a2afc935b3c950fea2f7046cb123a0c24e96447ed31fe30a04",
+    "src/app/actions/fiesta/portal.actions.ts": "d7dcefbbb0b2f0fc589c3ceb297a20bfd2707c80201d07a461f7a1e4b30dace0"
+  },
+  "cases": [
+    {
+      "id": "single-extra-positive-updates-budget-and-request",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1200,
+          "totalConDescuento": 1200,
+          "totalFinal": 1200,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            },
+            {
+              "idServicioCatalogo": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "categoriaServicio": "Otros Servicios",
+              "cantidad": 1,
+              "precioUnitario": 200,
+              "precioUnitarioPresupuesto": 200,
+              "costoTotalItem": 200
+            }
+          ],
+          "saldo": 1200,
+          "leadId": "qa204-lead"
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 25
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "aprobada",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 1,
+              "precioBase": 200,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 200,
+              "nuevoTotalEstimado": 1200
+            }
+          ]
+        },
+        "budgetWrites": 1,
+        "partyWrites": 1
+      }
+    },
+    {
+      "id": "signed-budget-rejection-does-not-mark-service-approved",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "totalFinal": 1000,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            }
+          ]
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 25
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "aprobada",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 1,
+              "precioBase": 200,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 200,
+              "nuevoTotalEstimado": 1200
+            }
+          ]
+        },
+        "budgetWrites": 0,
+        "partyWrites": 1
+      }
+    },
+    {
+      "id": "signed-budget-rejection-does-not-mark-menu-approved",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "totalFinal": 1000,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            }
+          ]
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 27
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "aprobada",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "pendiente",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 1,
+              "precioBase": 200,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 200,
+              "nuevoTotalEstimado": 1200
+            }
+          ]
+        },
+        "budgetWrites": 0,
+        "partyWrites": 1
+      }
+    },
+    {
+      "id": "budget-write-failure-does-not-mark-approved",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "totalFinal": 1000,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            }
+          ]
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 25
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "aprobada",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 1,
+              "precioBase": 200,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 200,
+              "nuevoTotalEstimado": 1200
+            }
+          ]
+        },
+        "budgetWrites": 0,
+        "partyWrites": 1
+      }
+    },
+    {
+      "id": "missing-budget-does-not-mark-approved",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "totalFinal": 1000,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            }
+          ]
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 25
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "aprobada",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 1,
+              "precioBase": 200,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 200,
+              "nuevoTotalEstimado": 1200
+            }
+          ]
+        },
+        "budgetWrites": 0,
+        "partyWrites": 1
+      }
+    },
+    {
+      "id": "approved-adult-increase-reaches-budget-split-count-and-price",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "totalFinal": 1080,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            }
+          ],
+          "saldo": 1000,
+          "leadId": "qa204-lead"
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 27
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "aprobada",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "pendiente",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 1,
+              "precioBase": 200,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 200,
+              "nuevoTotalEstimado": 1200
+            }
+          ]
+        },
+        "budgetWrites": 1,
+        "partyWrites": 1
+      }
+    },
+    {
+      "id": "two-extra-units-do-not-multiply-line-subtotal-twice",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1800,
+          "totalConDescuento": 1800,
+          "totalFinal": 1400,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            },
+            {
+              "idServicioCatalogo": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "categoriaServicio": "Otros Servicios",
+              "cantidad": 2,
+              "precioUnitario": 400,
+              "precioUnitarioPresupuesto": 400,
+              "costoTotalItem": 800
+            }
+          ],
+          "saldo": 1800,
+          "leadId": "qa204-lead"
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 25
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "aprobada",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 2,
+              "precioBase": 400,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 400,
+              "nuevoTotalEstimado": 1400
+            }
+          ]
+        },
+        "budgetWrites": 1,
+        "partyWrites": 1
+      }
+    },
+    {
+      "id": "party-save-failure-retry-does-not-add-extra-twice",
+      "pass": false,
+      "observed": {
+        "afterPartial": {
+          "result": {
+            "success": false,
+            "error": "QA204_PARTY_WRITE_FAILED"
+          },
+          "budget": {
+            "id": "qa204-budget",
+            "clienteNombre": "Cliente ficticio QA204",
+            "estado": "Borrador",
+            "source": "manual",
+            "eventoFecha": "2026-12-20",
+            "timestamp": "2026-10-21",
+            "ajusteAnualPorcentaje": 0,
+            "invitadosCantidad": 25,
+            "invitadosAdultos": 25,
+            "invitadosAdolescentes": 0,
+            "invitadosNinos": 0,
+            "costoTotalEstimado": 1200,
+            "totalConDescuento": 1200,
+            "totalFinal": 1200,
+            "pagosCliente": [],
+            "itemsPresupuestados": [
+              {
+                "idServicioCatalogo": "qa204-menu",
+                "nombreServicio": "Menu ficticio QA204",
+                "categoriaServicio": "Catering",
+                "calculationMethod": "porPersona",
+                "cantidad": 25,
+                "precioUnitario": 40,
+                "precioUnitarioPresupuesto": 40,
+                "costoTotalItem": 1000
+              },
+              {
+                "idServicioCatalogo": "qa204-extra",
+                "nombreServicio": "Extra ficticio QA204",
+                "categoriaServicio": "Otros Servicios",
+                "cantidad": 1,
+                "precioUnitario": 200,
+                "precioUnitarioPresupuesto": 200,
+                "costoTotalItem": 200
+              }
+            ],
+            "saldo": 1200,
+            "leadId": "qa204-lead"
+          },
+          "party": {
+            "id": "qa204-party",
+            "presupuestoId": "qa204-budget",
+            "configuracion": {
+              "nombreEvento": "Evento ficticio QA204",
+              "invitadosEstimados": 25
+            },
+            "clientMenuChangeRequests": [
+              {
+                "id": "qa204-menu-request",
+                "status": "pendiente",
+                "adultosDelta": 2,
+                "ninosAdolescentesDelta": 0,
+                "montoAdicional": 80,
+                "nuevoTotalEstimado": 1080
+              }
+            ],
+            "clientServiceChangeRequests": [
+              {
+                "id": "qa204-service-request",
+                "status": "pendiente",
+                "servicioId": "qa204-extra",
+                "nombreServicio": "Extra ficticio QA204",
+                "cantidad": 1,
+                "precioBase": 200,
+                "ajustePorcentaje": 0,
+                "montoAdicional": 200,
+                "nuevoTotalEstimado": 1200
+              }
+            ]
+          },
+          "budgetWrites": 1,
+          "partyWrites": 0
+        },
+        "afterRetry": {
+          "result": {
+            "success": true
+          },
+          "budget": {
+            "id": "qa204-budget",
+            "clienteNombre": "Cliente ficticio QA204",
+            "estado": "Borrador",
+            "source": "manual",
+            "eventoFecha": "2026-12-20",
+            "timestamp": "2026-10-21",
+            "ajusteAnualPorcentaje": 0,
+            "invitadosCantidad": 25,
+            "invitadosAdultos": 25,
+            "invitadosAdolescentes": 0,
+            "invitadosNinos": 0,
+            "costoTotalEstimado": 1400,
+            "totalConDescuento": 1400,
+            "totalFinal": 1400,
+            "pagosCliente": [],
+            "itemsPresupuestados": [
+              {
+                "idServicioCatalogo": "qa204-menu",
+                "nombreServicio": "Menu ficticio QA204",
+                "categoriaServicio": "Catering",
+                "calculationMethod": "porPersona",
+                "cantidad": 25,
+                "precioUnitario": 40,
+                "precioUnitarioPresupuesto": 40,
+                "costoTotalItem": 1000
+              },
+              {
+                "idServicioCatalogo": "qa204-extra",
+                "nombreServicio": "Extra ficticio QA204",
+                "categoriaServicio": "Otros Servicios",
+                "cantidad": 1,
+                "precioUnitario": 200,
+                "precioUnitarioPresupuesto": 200,
+                "costoTotalItem": 200
+              },
+              {
+                "idServicioCatalogo": "qa204-extra",
+                "nombreServicio": "Extra ficticio QA204",
+                "categoriaServicio": "Otros Servicios",
+                "cantidad": 1,
+                "precioUnitario": 200,
+                "precioUnitarioPresupuesto": 200,
+                "costoTotalItem": 200
+              }
+            ],
+            "saldo": 1400,
+            "leadId": "qa204-lead"
+          },
+          "party": {
+            "id": "qa204-party",
+            "presupuestoId": "qa204-budget",
+            "configuracion": {
+              "nombreEvento": "Evento ficticio QA204",
+              "invitadosEstimados": 25
+            },
+            "clientMenuChangeRequests": [
+              {
+                "id": "qa204-menu-request",
+                "status": "pendiente",
+                "adultosDelta": 2,
+                "ninosAdolescentesDelta": 0,
+                "montoAdicional": 80,
+                "nuevoTotalEstimado": 1080
+              }
+            ],
+            "clientServiceChangeRequests": [
+              {
+                "id": "qa204-service-request",
+                "status": "aprobada",
+                "servicioId": "qa204-extra",
+                "nombreServicio": "Extra ficticio QA204",
+                "cantidad": 1,
+                "precioBase": 200,
+                "ajustePorcentaje": 0,
+                "montoAdicional": 200,
+                "nuevoTotalEstimado": 1200
+              }
+            ]
+          },
+          "budgetWrites": 2,
+          "partyWrites": 1
+        }
+      }
+    },
+    {
+      "id": "already-rejected-request-not-approved-again",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": false,
+          "error": "La solicitud ya fue procesada."
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "totalFinal": 1000,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            }
+          ]
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 25
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "rechazada",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 1,
+              "precioBase": 200,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 200,
+              "nuevoTotalEstimado": 1200
+            }
+          ]
+        },
+        "budgetWrites": 0,
+        "partyWrites": 0
+      }
+    },
+    {
+      "id": "unknown-request-no-write",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": false,
+          "error": "Solicitud no encontrada"
+        },
+        "budget": {
+          "id": "qa204-budget",
+          "clienteNombre": "Cliente ficticio QA204",
+          "estado": "Borrador",
+          "source": "manual",
+          "eventoFecha": "2026-12-20",
+          "timestamp": "2026-10-21",
+          "ajusteAnualPorcentaje": 0,
+          "invitadosCantidad": 25,
+          "invitadosAdultos": 25,
+          "invitadosAdolescentes": 0,
+          "invitadosNinos": 0,
+          "costoTotalEstimado": 1000,
+          "totalConDescuento": 1000,
+          "totalFinal": 1000,
+          "pagosCliente": [],
+          "itemsPresupuestados": [
+            {
+              "idServicioCatalogo": "qa204-menu",
+              "nombreServicio": "Menu ficticio QA204",
+              "categoriaServicio": "Catering",
+              "calculationMethod": "porPersona",
+              "cantidad": 25,
+              "precioUnitario": 40,
+              "precioUnitarioPresupuesto": 40,
+              "costoTotalItem": 1000
+            }
+          ]
+        },
+        "party": {
+          "id": "qa204-party",
+          "presupuestoId": "qa204-budget",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA204",
+            "invitadosEstimados": 25
+          },
+          "clientMenuChangeRequests": [
+            {
+              "id": "qa204-menu-request",
+              "status": "pendiente",
+              "adultosDelta": 2,
+              "ninosAdolescentesDelta": 0,
+              "montoAdicional": 80,
+              "nuevoTotalEstimado": 1080
+            }
+          ],
+          "clientServiceChangeRequests": [
+            {
+              "id": "qa204-service-request",
+              "status": "pendiente",
+              "servicioId": "qa204-extra",
+              "nombreServicio": "Extra ficticio QA204",
+              "cantidad": 1,
+              "precioBase": 200,
+              "ajustePorcentaje": 0,
+              "montoAdicional": 200,
+              "nuevoTotalEstimado": 1200
+            }
+          ]
+        },
+        "budgetWrites": 0,
+        "partyWrites": 0
+      }
+    },
+    {
+      "id": "no-session-approval-denied-before-writes",
+      "pass": true,
+      "observed": {}
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "pass": 4,
+    "fail": 7
+  },
+  "appEdited": false,
+  "realServices": false,
+  "limits": "Actual approval actions, permission helpers, updatePresupuesto/guardarPresupuestoSinTurno, signed-contract structure guard, mutex, calculations and normalization. Session identity, party reads/save, budget list read/write, CRM and linked-event synchronization controlled. No SDK/NextHTTP/native toast, external contract or actual charge. Does not authorize bypassing signed-contract protection."
+}

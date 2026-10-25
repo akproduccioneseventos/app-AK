@@ -1,0 +1,123 @@
+{
+  "checkedAt": "2026-10-22T05:41:00.575Z",
+  "scope": "Only own newly added audit artifacts. Lossless gzip, originals retained locally and in previous unpublished commit; no application or evidence content changed.",
+  "records": [
+    {
+      "file": "docs/evidencias/209-ejecucion.json",
+      "published": "docs/evidencias/209-ejecucion.json.gz",
+      "bytes": 50371,
+      "gzipBytes": 15328,
+      "sha256": "9676e035ef71e65bb2d3d954085a7f0e33718b5b06bf62811e203793eef26cb7",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/209-primer-inicio-ejecucion.json",
+      "published": "docs/evidencias/209-primer-inicio-ejecucion.json.gz",
+      "bytes": 49964,
+      "gzipBytes": 15144,
+      "sha256": "afc200c77514167685b6a8b1fa2d8b2c52a4189960e60b846a9e299cfe668a31",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/213-resultados.json",
+      "published": "docs/evidencias/213-resultados.json.gz",
+      "bytes": 48048,
+      "gzipBytes": 3410,
+      "sha256": "e3ec30c159873898b9ec3e140b8f5c0c7c13a4a1f0e801bf89e53cc82516f9be",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/214-ejecucion.json",
+      "published": "docs/evidencias/214-ejecucion.json.gz",
+      "bytes": 55583,
+      "gzipBytes": 16333,
+      "sha256": "53217c6cd4aa46be6dcdc2ee6bdd34a05fe3cdb1fb7ab5544bdc4c236c02250f",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/215-ejecucion.json",
+      "published": "docs/evidencias/215-ejecucion.json.gz",
+      "bytes": 67881,
+      "gzipBytes": 18244,
+      "sha256": "e08629934a2f0c3c4ec7eef1ed459de1591666f18bbe4d3ae51c59397d348038",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/215-resultados.json",
+      "published": "docs/evidencias/215-resultados.json.gz",
+      "bytes": 12325,
+      "gzipBytes": 2725,
+      "sha256": "4ef6bf0a86095c15a4ebab4864c74e690a2afe7646f5dfb0180ae88b90a3b705",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/215-batch-001-resultados.json",
+      "published": "docs/evidencias/215-batch-001-resultados.json.gz",
+      "bytes": 107515,
+      "gzipBytes": 29014,
+      "sha256": "e8d20e2e2da32bb30155c03aaa0694d92257f75bd52673ca7d773472691fb89d",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/215-batch-002-resultados.json",
+      "published": "docs/evidencias/215-batch-002-resultados.json.gz",
+      "bytes": 46418,
+      "gzipBytes": 3487,
+      "sha256": "8ae98256b0c5f5eee6d5104d715c764642b7d77163d8591cfa3bcae9ef27225c",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/231-manifiesto-artefactos.json",
+      "published": "docs/evidencias/231-manifiesto-artefactos.json.gz",
+      "bytes": 746859,
+      "gzipBytes": 134899,
+      "sha256": "ac01ce9dfefbb43741e26616e34b4884b9e2f42e152c2d5c5f12e65afe83f5a9",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/213-artifacts/ak207-portal-activo-AK-KNO-4790b--oficial-debe-ser-accesible-chromium-desktop/error-context.md",
+      "published": "docs/evidencias/213-artifacts/ak207-portal-activo-AK-KNO-4790b--oficial-debe-ser-accesible-chromium-desktop/error-context.md.gz",
+      "bytes": 21599,
+      "gzipBytes": 6955,
+      "sha256": "a67fdc9f04b4b3b73af30eba976f48a068fb87dca3a8c0aa0454d26a0513825c",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/213-artifacts/ak207-portal-activo-AK-KNO-4790b--oficial-debe-ser-accesible-chromium-mobile/error-context.md",
+      "published": "docs/evidencias/213-artifacts/ak207-portal-activo-AK-KNO-4790b--oficial-debe-ser-accesible-chromium-mobile/error-context.md.gz",
+      "bytes": 21555,
+      "gzipBytes": 6949,
+      "sha256": "a62f0ae8570bcc49c42eab684c209652592a25dcaa52c2c4e636ff24287e5a46",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/213-artifacts/ak207-portal-activo-AK-KNO-5ad00--pago-debe-abrir-formulario-chromium-desktop/error-context.md",
+      "published": "docs/evidencias/213-artifacts/ak207-portal-activo-AK-KNO-5ad00--pago-debe-abrir-formulario-chromium-desktop/error-context.md.gz",
+      "bytes": 21403,
+      "gzipBytes": 6902,
+      "sha256": "412c7270daf80e5c87d6a0d33e2e2227cacefa6cdf52d42606b0834664a980d3",
+      "lossless": true,
+      "localOriginalRetained": true
+    },
+    {
+      "file": "docs/evidencias/213-artifacts/ak207-portal-activo-AK-KNO-5ad00--pago-debe-abrir-formulario-chromium-mobile/error-context.md",
+      "published": "docs/evidencias/213-artifacts/ak207-portal-activo-AK-KNO-5ad00--pago-debe-abrir-formulario-chromium-mobile/error-context.md.gz",
+      "bytes": 21359,
+      "gzipBytes": 6897,
+      "sha256": "7f919d15caa0c3248613f4cb26cbb36cbb5aee88f46630fb3aa97b53dff81b51",
+      "lossless": true,
+      "localOriginalRetained": true
+    }
+  ]
+}

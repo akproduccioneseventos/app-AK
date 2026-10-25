@@ -1,0 +1,389 @@
+{
+  "source": "2e5363f259461a31bf6b31807872c227855415de",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-20T12:49:54.958Z",
+    "version": "2e5363f259461a31bf6b31807872c227855415de · compilada 2026-10-20T12:31:41.882Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 9
+  },
+  "ids": {
+    "saveFiesta": "4014ee8509b95b6754f0bec9b0c97427928d01c300"
+  },
+  "cases": [
+    {
+      "kind": "save",
+      "perfil": "dueno",
+      "status": 200,
+      "success": false,
+      "allowed": true,
+      "changedFiles": [],
+      "fieldsPreserved": true,
+      "forbiddenOutput": false,
+      "salaryAfter": [],
+      "pass": false,
+      "response": "{}",
+      "persisted": [
+        {
+          "file": "data\\fiestas\\qa151_dueno_dca6dc31-b2e4-493c-b35b-3c439ad20941.json",
+          "value": {
+            "id": "qa151_dueno_dca6dc31-b2e4-493c-b35b-3c439ad20941",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "file": "src\\data\\fiestas\\qa151_dueno_dca6dc31-b2e4-493c-b35b-3c439ad20941.json",
+          "value": {
+            "id": "qa151_dueno_dca6dc31-b2e4-493c-b35b-3c439ad20941",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "save",
+      "perfil": "secretaria",
+      "status": 200,
+      "success": false,
+      "allowed": true,
+      "changedFiles": [],
+      "fieldsPreserved": true,
+      "forbiddenOutput": false,
+      "salaryAfter": [],
+      "pass": false,
+      "response": "{}",
+      "persisted": [
+        {
+          "file": "data\\fiestas\\qa151_secretaria_a74444c6-f75e-43ca-8829-c04234f32f05.json",
+          "value": {
+            "id": "qa151_secretaria_a74444c6-f75e-43ca-8829-c04234f32f05",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "file": "src\\data\\fiestas\\qa151_secretaria_a74444c6-f75e-43ca-8829-c04234f32f05.json",
+          "value": {
+            "id": "qa151_secretaria_a74444c6-f75e-43ca-8829-c04234f32f05",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "save",
+      "perfil": "personal",
+      "status": 200,
+      "success": false,
+      "allowed": false,
+      "changedFiles": [],
+      "fieldsPreserved": true,
+      "forbiddenOutput": false,
+      "salaryAfter": [],
+      "pass": true,
+      "response": "{}",
+      "persisted": [
+        {
+          "file": "data\\fiestas\\qa151_personal_0e76fafe-1204-4bf1-9d01-b52ae64d8961.json",
+          "value": {
+            "id": "qa151_personal_0e76fafe-1204-4bf1-9d01-b52ae64d8961",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "file": "src\\data\\fiestas\\qa151_personal_0e76fafe-1204-4bf1-9d01-b52ae64d8961.json",
+          "value": {
+            "id": "qa151_personal_0e76fafe-1204-4bf1-9d01-b52ae64d8961",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "save",
+      "perfil": "anonymous",
+      "status": 307,
+      "success": false,
+      "allowed": false,
+      "changedFiles": [],
+      "fieldsPreserved": true,
+      "forbiddenOutput": false,
+      "salaryAfter": [],
+      "pass": true,
+      "response": "http://localhost:3300/login?redirect=%2Feventos",
+      "persisted": [
+        {
+          "file": "data\\fiestas\\qa151_anonymous_7bf61dee-d838-4a4e-a9c0-5c12a9c384bb.json",
+          "value": {
+            "id": "qa151_anonymous_7bf61dee-d838-4a4e-a9c0-5c12a9c384bb",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "file": "src\\data\\fiestas\\qa151_anonymous_7bf61dee-d838-4a4e-a9c0-5c12a9c384bb.json",
+          "value": {
+            "id": "qa151_anonymous_7bf61dee-d838-4a4e-a9c0-5c12a9c384bb",
+            "configuracion": {
+              "nombreEvento": "QA151 no real",
+              "fechaEvento": "2027-08-08"
+            },
+            "gestionCostos": {
+              "total": 9500
+            },
+            "personalAsignado": [
+              {
+                "empleadoId": "otro151",
+                "rolId": "dj",
+                "eventSalary": 3000
+              }
+            ],
+            "estadosCompra": [
+              {
+                "proveedorId": "a151",
+                "proveedor": "QA151",
+                "pagado": true,
+                "montoPagado": 60.3
+              }
+            ],
+            "planDePagos": {
+              "cuotas": [
+                {
+                  "id": "q151",
+                  "monto": 1000,
+                  "pagada": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "pass": 2,
+    "fail": 2
+  },
+  "fixturesRemoved": true,
+  "scope": "Actual compiled Next server actions, signed synthetic sessions and local JSON persistence; no function mocks",
+  "limits": [
+    "Not Firestore SDK atomic path, production, OAuth or real user/data",
+    "Only full save in these four session cases; not every action or role"
+  ]
+}

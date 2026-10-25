@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import Link from 'next/link';
 import { ArrowRight, Camera, Film, MonitorPlay, PartyPopper, Sparkles } from 'lucide-react';
 

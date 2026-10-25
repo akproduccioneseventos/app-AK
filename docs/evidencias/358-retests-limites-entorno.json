@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-24T13:57:25.305Z",
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "qaPath": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-347-ZUMKZ8",
+  "qaArtifactCurrentlyPresent": false,
+  "freeBytes": 906194944,
+  "buildWasObserved": true,
+  "fullJestCompleted": true,
+  "focused354": {
+    "executed": false,
+    "reason": "First wrapper syntax error before execution; corrected runner resource preflight rejected (<2GiB). Frozen TempQA directory absent at current check; do not silently rebuild/reuse another source."
+  },
+  "realData": false,
+  "foreignProcessesStopped": false,
+  "servicesOwnedActive": 0,
+  "agentsOwnedActive": 0
+}

@@ -1,0 +1,1513 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "208-config.ts",
+      "--global-timeout",
+      "2700000",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts",
+      "ak207-la-web-publica-se-ve.spec.ts",
+      "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+      "ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+      "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+      "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\208-config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-267-diB8tz/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 2700000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal/docs/evidencias/269-batch-017-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-267-diB8tz/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria192-portal/docs/evidencias/269-batch-017-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-267-diB8tz/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-la-web-publica-se-ve.spec.ts",
+      "file": "ak207-la-web-publica-se-ve.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "La web pública se ve — Prueba de visibilidad real y SEO",
+          "file": "ak207-la-web-publica-se-ve.spec.ts",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "La portada muestra todas las secciones hasta el pie de página y el botón de contacto es visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14627,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:10:04.551Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-5401404377ecab9dacaf",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 10,
+              "column": 7
+            },
+            {
+              "title": "Las páginas públicas tienen título y descripción válidos, y no redirigen a login",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 103745,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:10:19.466Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-la-web-publica-se-ve-643c8-idos-y-no-redirigen-a-login-chromium-desktop\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-la-web-publica-se-ve-643c8-idos-y-no-redirigen-a-login-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-la-web-publica-se-ve-643c8-idos-y-no-redirigen-a-login-chromium-desktop\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-9afb09f36497b33de74a",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 29,
+              "column": 7
+            },
+            {
+              "title": "La dirección canónica apunta a la página misma",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 29156,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:12:05.039Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-3ca61be2e0ca95a4fd07",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "La portada muestra todas las secciones hasta el pie de página y el botón de contacto es visible",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12142,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:21:30.233Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-5d50bd48781646c05d0f",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 10,
+              "column": 7
+            },
+            {
+              "title": "Las páginas públicas tienen título y descripción válidos, y no redirigen a login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 74388,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:21:42.783Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-8992e9740de4f1bdc28e",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 29,
+              "column": 7
+            },
+            {
+              "title": "La dirección canónica apunta a la página misma",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 57198,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:22:57.263Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "0acaad0f9a9687d43f00-4f1795b14120059bdd7e",
+              "file": "ak207-la-web-publica-se-ve.spec.ts",
+              "line": 47,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+      "file": "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 101 - Bloque 3: La web lista para asistentes de afuera (accesibilidad y llms.txt)",
+          "file": "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "public/llms.txt responde 200 y menciona Salto",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2509,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:12:34.522Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "669b4b0398b34fe1c220-60776e81a721e5ffc580",
+              "file": "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+              "line": 9,
+              "column": 7
+            },
+            {
+              "title": "asistente externo puede navegar el simulador por accesibilidad (getByRole/getByLabel) hasta ver el total",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3810,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:12:37.241Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "669b4b0398b34fe1c220-88cd3d776d7557bcb0cc",
+              "file": "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+              "line": 18,
+              "column": 7
+            },
+            {
+              "title": "public/llms.txt responde 200 y menciona Salto",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 277,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:23:54.790Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "669b4b0398b34fe1c220-89912dba92eda0bd6391",
+              "file": "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+              "line": 9,
+              "column": 7
+            },
+            {
+              "title": "asistente externo puede navegar el simulador por accesibilidad (getByRole/getByLabel) hasta ver el total",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+                        "line": 19,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 315,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:23:55.102Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Alcanza con un navegador.",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+                            "line": 19,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "669b4b0398b34fe1c220-325b7ad18b7ba16b44e9",
+              "file": "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+              "line": 18,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+      "file": "ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 73 Bloque 4: Las entregas de fotografía no se pisan",
+          "file": "ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+          "line": 19,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la pantalla carga el seguimiento sin quedarse en sincronizando y muestra los servicios existentes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10771,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:12:41.147Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4ac54471fcea6bff0ca4-0db9dc9789d6bebe5e5b",
+              "file": "ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+              "line": 42,
+              "column": 7
+            },
+            {
+              "title": "la pantalla carga el seguimiento sin quedarse en sincronizando y muestra los servicios existentes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14921,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:23:55.485Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4ac54471fcea6bff0ca4-feda9a0f2a5625fae736",
+              "file": "ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+              "line": 42,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 276880,
+                  "error": {
+                    "message": "Error: Plataforma 360: no llego a la pantalla de compartir en 90 segundos\nBogue: no llego a la pantalla de compartir en 90 segundos\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Plataforma 360: no llego a la pantalla de compartir en 90 segundos\u001b[39m\n\u001b[31mBogue: no llego a la pantalla de compartir en 90 segundos\"\u001b[39m",
+                    "stack": "Error: Plataforma 360: no llego a la pantalla de compartir en 90 segundos\nBogue: no llego a la pantalla de compartir en 90 segundos\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Plataforma 360: no llego a la pantalla de compartir en 90 segundos\u001b[39m\n\u001b[31mBogue: no llego a la pantalla de compartir en 90 segundos\"\u001b[39m\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts:167:60",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+                      "column": 60,
+                      "line": 167
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 165 |\u001b[39m   }\n \u001b[90m 166 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 167 |\u001b[39m   expect(noLoRespetan\u001b[33m.\u001b[39mjoin(\u001b[32m'\\n'\u001b[39m)\u001b[33m,\u001b[39m noLoRespetan\u001b[33m.\u001b[39mjoin(\u001b[32m'\\n'\u001b[39m))\u001b[33m.\u001b[39mtoBe(\u001b[32m''\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 168 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 169 |\u001b[39m\n \u001b[90m 170 |\u001b[39m test(\u001b[32m'el buzón respeta la cuenta regresiva que puso el equipo'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page }\u001b[33m,\u001b[39m testInfo) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+                        "column": 60,
+                        "line": 167
+                      },
+                      "message": "Error: Plataforma 360: no llego a la pantalla de compartir en 90 segundos\nBogue: no llego a la pantalla de compartir en 90 segundos\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Plataforma 360: no llego a la pantalla de compartir en 90 segundos\u001b[39m\n\u001b[31mBogue: no llego a la pantalla de compartir en 90 segundos\"\u001b[39m\n\n  165 |   }\n  166 |\n> 167 |   expect(noLoRespetan.join('\\n'), noLoRespetan.join('\\n')).toBe('');\n      |                                                            ^\n  168 | });\n  169 |\n  170 | test('el buzón respeta la cuenta regresiva que puso el equipo', async ({ page }, testInfo) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts:167:60"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T22:12:52.443Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+                    "column": 60,
+                    "line": 167
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "a7966f971fee9df7579a-71e92c48548e00c330a7",
+          "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+          "line": 127,
+          "column": 5
+        },
+        {
+          "title": "el buzón respeta la cuenta regresiva que puso el equipo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7781,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T22:17:34.009Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a7966f971fee9df7579a-fbfe67f68c05646f51fb",
+          "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+          "line": 170,
+          "column": 5
+        },
+        {
+          "title": "cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Alcanza con un navegador.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+                    "line": 129,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 3016,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T22:24:11.738Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+                        "line": 129,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "a7966f971fee9df7579a-969f65fc94081d6bcd32",
+          "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+          "line": 127,
+          "column": 5
+        },
+        {
+          "title": "el buzón respeta la cuenta regresiva que puso el equipo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Alcanza con un navegador.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+                    "line": 172,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 308,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T22:24:15.426Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+                        "line": 172,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "a7966f971fee9df7579a-ca9a0e1cfd79ad4501a8",
+          "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+          "line": 170,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+      "file": "ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Las guias de armado se aplican de verdad",
+          "file": "ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+          "line": 31,
+          "column": 6,
+          "specs": [
+            {
+              "title": "aplicar una guia deja las tareas, los documentos y las compras en la fiesta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 27464,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:17:42.183Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e9d28e42145b0295b838-200df088b1738cc9eb27",
+              "file": "ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+              "line": 42,
+              "column": 7
+            },
+            {
+              "title": "aplicar una guia deja las tareas, los documentos y las compras en la fiesta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 44210,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:24:15.815Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e9d28e42145b0295b838-916acdfa0c267c31501f",
+              "file": "ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+              "line": 42,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "file": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Las pantallas del invitado no quedan colgadas",
+          "file": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "/feedback/<id> no queda colgada si la respuesta del servidor se corta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 89197,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:18:11.792Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c6b226ce84ab06958700-b9aac55e8197ee4ae9d2",
+              "file": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+              "line": 31,
+              "column": 7
+            },
+            {
+              "title": "/invitacion/<id>/rsvp no queda colgada si la respuesta del servidor se corta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 91835,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:19:41.562Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c6b226ce84ab06958700-cbca2f4ac02fc88e64ab",
+              "file": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "/feedback/<id> no queda colgada si la respuesta del servidor se corta",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 122048,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('No se pudieron enviar tus comentarios').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('No se pudieron enviar tus comentarios').first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('No se pudieron enviar tus comentarios').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('No se pudieron enviar tus comentarios').first()\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts:68:83",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+                          "column": 83,
+                          "line": 68
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 66 |\u001b[39m\n \u001b[90m 67 |\u001b[39m     \u001b[90m// Aparece el aviso de que no se pudo enviar\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 68 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'No se pudieron enviar tus comentarios'\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m10\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 69 |\u001b[39m\n \u001b[90m 70 |\u001b[39m     \u001b[90m// 5. Lo que escribió el invitado sigue en los campos: no se perdió\u001b[39m\n \u001b[90m 71 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#client-name'\u001b[39m))\u001b[33m.\u001b[39mtoHaveValue(nombre)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+                            "column": 83,
+                            "line": 68
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('No se pudieron enviar tus comentarios').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('No se pudieron enviar tus comentarios').first()\u001b[22m\n\n\n  66 |\n  67 |     // Aparece el aviso de que no se pudo enviar\n> 68 |     await expect(page.getByText('No se pudieron enviar tus comentarios').first()).toBeVisible({ timeout: 10_000 });\n     |                                                                                   ^\n  69 |\n  70 |     // 5. Lo que escribió el invitado sigue en los campos: no se perdió\n  71 |     await expect(page.locator('#client-name')).toHaveValue(nombre);\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts:68:83"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:25:01.663Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-las-pantallas-del-in-e7dba-uesta-del-servidor-se-corta-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-las-pantallas-del-in-e7dba-uesta-del-servidor-se-corta-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria192-portal\\docs\\evidencias\\269-batch-017-artifacts\\ak207-las-pantallas-del-in-e7dba-uesta-del-servidor-se-corta-chromium-mobile\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+                        "column": 83,
+                        "line": 68
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c6b226ce84ab06958700-3b8775ff79ea5e419564",
+              "file": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+              "line": 31,
+              "column": 7
+            },
+            {
+              "title": "/invitacion/<id>/rsvp no queda colgada si la respuesta del servidor se corta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8579,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T22:27:06.984Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c6b226ce84ab06958700-262f2b2c09115b5b8126",
+              "file": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+              "line": 77,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T22:10:02.901Z",
+    "duration": 1037691.492,
+    "expected": 16,
+    "skipped": 3,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

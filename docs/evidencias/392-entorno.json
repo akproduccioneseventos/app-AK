@@ -1,0 +1,183 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "baseline": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "started": "2026-10-24T17:18:35.098Z",
+  "phase": "qa-setup-or-build-error",
+  "probes": [
+    {
+      "at": "2026-10-24T17:18:38.287Z",
+      "freeBytes": 1393143808,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:19:39.197Z",
+      "freeBytes": 1522008064,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:20:41.316Z",
+      "freeBytes": 1510105088,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:21:43.999Z",
+      "freeBytes": 290496512,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:22:45.993Z",
+      "freeBytes": 572637184,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:23:49.044Z",
+      "freeBytes": 720330752,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:24:51.010Z",
+      "freeBytes": 964313088,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:25:52.593Z",
+      "freeBytes": 1043582976,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:26:54.054Z",
+      "freeBytes": 1008394240,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:27:56.183Z",
+      "freeBytes": 1052635136,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:28:58.580Z",
+      "freeBytes": 1096839168,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:29:59.676Z",
+      "freeBytes": 1248419840,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:31:00.401Z",
+      "freeBytes": 1340100608,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:32:02.032Z",
+      "freeBytes": 1329557504,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:33:03.379Z",
+      "freeBytes": 1352351744,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:34:04.106Z",
+      "freeBytes": 1280135168,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:35:05.751Z",
+      "freeBytes": 1545064448,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:36:07.694Z",
+      "freeBytes": 1609342976,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:37:08.403Z",
+      "freeBytes": 1622749184,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:38:09.673Z",
+      "freeBytes": 1613135872,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:39:10.406Z",
+      "freeBytes": 1591586816,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:40:11.070Z",
+      "freeBytes": 1880518656,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:41:11.723Z",
+      "freeBytes": 1929433088,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:42:12.359Z",
+      "freeBytes": 1935118336,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:43:13.016Z",
+      "freeBytes": 1936719872,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:44:13.669Z",
+      "freeBytes": 1844617216,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:45:14.298Z",
+      "freeBytes": 2114764800,
+      "probeExit": 0,
+      "foreignHeavy": []
+    },
+    {
+      "at": "2026-10-24T17:46:14.922Z",
+      "freeBytes": 2151899136,
+      "probeExit": 0,
+      "foreignHeavy": []
+    }
+  ],
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-392-candidate-02Lhke",
+  "error": "AssertionError [ERR_ASSERTION]: No heavy build under2GiB after preparation\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/392-entorno-actual.mjs:38:3",
+  "finished": "2026-10-24T17:46:36.583Z"
+}

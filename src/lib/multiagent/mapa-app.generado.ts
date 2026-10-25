@@ -119,6 +119,14 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/marketing"
   },
   {
+    "etiqueta": "WhatsApp del Día",
+    "ruta": "/contabilidad/crm/outbox"
+  },
+  {
+    "etiqueta": "Presentación LED",
+    "ruta": "/empresa/presentacion-led/configuracion"
+  },
+  {
     "etiqueta": "Ajustes Generales",
     "ruta": "/settings"
   },
@@ -486,6 +494,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/evento/actual/checkin",
     "/evento/actual/mesa",
     "/evento/album/:fiestaId",
+    "/evento/ar/:fiestaId",
     "/evento/barra",
     "/evento/barra/:fiestaId",
     "/evento/barra/:fiestaId/barman",

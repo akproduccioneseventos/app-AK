@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias'),target=path.join(dir,'342-candidata-publica.json');assert(!fs.existsSync(target));
+const main='3e45a4ac6b479f89605163168e31b37dc84f2d0f',candidate='3f9460185143ef034dcd713e975d2a0af5e20f1a';
+const git=args=>execFileSync('git',args,{cwd:root,encoding:'utf8',maxBuffer:2*1024*1024}).trim();
+assert.equal(git(['rev-parse','origin/audit-pr1353-20261024']),candidate);
+const relevant=['src/app/ak-global-premium.css','src/app/layout.tsx','src/app/evento/barra/[fiestaId]/listo/page.tsx'];
+const identical=relevant.map(file=>{const a=git(['rev-parse',main+':'+file]),b=git(['rev-parse',candidate+':'+file]);assert.equal(a,b);return{file,mainBlob:a,candidateBlob:b};});
+const consumerFiles=['src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx','src/lib/invitaciones/recordatorio-no-abiertas.ts','src/app/evento/bogue/[fiestaId]/page.tsx','src/app/evento/espejo-magico/[fiestaId]/page.tsx','src/app/evento/fotocabina/[fiestaId]/page.tsx','src/app/evento/touchpix/[fiestaId]/page.tsx'];
+const consumers=consumerFiles.map(file=>({file,mainBlob:git(['rev-parse',main+':'+file]),candidateBlob:git(['rev-parse',candidate+':'+file])}));
+const delta=git(['diff','--name-status',main,candidate,'--','src','tests/e2e','package.json','package-lock.json']).split('\n').filter(Boolean).map(line=>{const[status,...parts]=line.split('\t');return{status,file:parts.join('\t')};});
+const record={observed:new Date().toISOString(),runtimeSource:main,publicCandidate:{pr:1353,branch:'gemini/ordenes-180-195',sha:candidate},appEdited:false,kind:'Static exact-blob/delta contrast, NOT runtime acceptance of candidate.',barContrastSame:identical,changedConsumers:consumers,delta,classification:{order220:'Reproduced on main; same3consumer blobs on candidate. Private later changes NOT CONTRASTED.',order217:'Candidate contains changed engine/rejection/reprogramming/reservation code. Correction proposal present; no independent candidate execution in this receipt.',orders212214215:'New public delivery; consumers changed. Prior b91 failures MUST NOT be silently promoted to current3f failures or current3e acceptance to3f acceptance.'},limits:'Frozen291/321/318 prove their main3e scopes only. Candidate3f has additional app/test changes and is not approved by these results. No app build/source changed during active QA.'};
+fs.writeFileSync(target,JSON.stringify(record,null,2)+'\n');console.log(JSON.stringify({runtime:main,candidate,unchangedBarConsumers:identical.length,changedEntries:delta.length,appEdited:false}));

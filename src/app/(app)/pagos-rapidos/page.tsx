@@ -1,5 +1,7 @@
 'use client';
 
+import { buildWhatsAppLink } from '@/lib/commercial/contact';
+
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import Link from 'next/link';
@@ -176,9 +178,7 @@ function ReciboView({
 
     const clienteContacto = presupuesto.clienteContacto || '';
     const phoneNumber = clienteContacto.replace(/\D/g, '') || whatsappNumber;
-    const target = phoneNumber
-      ? `https://wa.me/${phoneNumber}?text=${encodeURIComponent(texto)}`
-      : `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    const target = buildWhatsAppLink(phoneNumber, texto);
     window.open(target, '_blank');
   };
 

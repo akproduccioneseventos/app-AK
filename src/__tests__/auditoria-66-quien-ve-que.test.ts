@@ -25,6 +25,10 @@ jest.mock('@/lib/auth/session-token', () => ({
 }));
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (f: string, d: any) => (f === 'presupuestos.json' ? JSON.parse(JSON.stringify(presupuestos)) : d)),
+  readDataConDetalle: jest.fn(async (f: string, d: any) => ({
+    valor: f === 'presupuestos.json' ? JSON.parse(JSON.stringify(presupuestos)) : d,
+    huboFalla: false,
+  })),
   writeData: jest.fn(),
   mutateDataItem: jest.fn(),
 }));

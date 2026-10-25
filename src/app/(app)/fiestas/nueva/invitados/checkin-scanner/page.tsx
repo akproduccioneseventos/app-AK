@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, useRef } from 'react';
@@ -40,7 +39,78 @@ function CheckinScannerContent() {
   const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [pendientesSubida, setPendientesSubida] = useState<Set<string>>(new Set());
 
+  const colaKey = fiestaId ? `ak_checkin_pendientes_${fiestaId}` : null;
+
+  const getColaPendientes = useCallback((): Array<{ guestId: string; token: string | null; escaneadoEn: string }> => {
+    if (!colaKey || typeof window === 'undefined') return [];
+    try {
+      const raw = localStorage.getItem(colaKey);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }, [colaKey]);
+
+  const guardarColaPendientes = useCallback((cola: Array<{ guestId: string; token: string | null; escaneadoEn: string }>) => {
+    if (!colaKey || typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(colaKey, JSON.stringify(cola));
+      setPendientesSubida(new Set(cola.map((c) => c.guestId)));
+    } catch {}
+  }, [colaKey]);
+
+  const sincronizarCola = useCallback(async () => {
+    if (!fiestaId || !colaKey || typeof window === 'undefined') return;
+    const cola = getColaPendientes();
+    if (cola.length === 0) {
+      setPendientesSubida(new Set());
+      return;
+    }
+    const confirmados = new Set<string>();
+    for (const item of cola) {
+      try {
+        const res = await checkInGuestFiestaActual(
+          fiestaId,
+          item.guestId,
+          item.token ? { token: item.token } : undefined,
+          item.escaneadoEn
+        );
+        if (res.success || (res.error && (res.error.includes('ya hab') || res.error.includes('ya estaba')))) {
+          confirmados.add(item.guestId);
+        }
+      } catch {
+        // Red sigue fallando, reintentará en el próximo turno
+      }
+    }
+    if (confirmados.size > 0) {
+      // Re-leer la cola actual para no borrar lo que entró mientras esperábamos la red (Orden 195)
+      const colaActual = getColaPendientes();
+      const nuevaCola = colaActual.filter((item) => !confirmados.has(item.guestId));
+      guardarColaPendientes(nuevaCola);
+    }
+  }, [fiestaId, colaKey, getColaPendientes, guardarColaPendientes]);
+
+  useEffect(() => {
+    if (!colaKey || typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(colaKey);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          setPendientesSubida(new Set(arr.map((p: any) => p.guestId)));
+        }
+      }
+    } catch {}
+
+    const interval = setInterval(sincronizarCola, 10000);
+    window.addEventListener('online', sincronizarCola);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('online', sincronizarCola);
+    };
+  }, [colaKey, sincronizarCola]);
 
   const loadInitialData = useCallback(async (showLoading = true) => {
     if(showLoading) setIsLoading(true);
@@ -59,63 +129,6 @@ function CheckinScannerContent() {
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
-
-  const [pendientesCount, setPendientesCount] = useState(0);
-
-  const getColaPendientes = useCallback((): Array<{ guestId: string; token: string | null; escaneadoEn: string }> => {
-    if (!fiestaId || typeof window === 'undefined') return [];
-    try {
-      const guardado = localStorage.getItem(`ak_checkin_pendientes_${fiestaId}`);
-      return guardado ? JSON.parse(guardado) : [];
-    } catch {
-      return [];
-    }
-  }, [fiestaId]);
-
-  const guardarColaPendientes = useCallback((cola: Array<{ guestId: string; token: string | null; escaneadoEn: string }>) => {
-    if (!fiestaId || typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(`ak_checkin_pendientes_${fiestaId}`, JSON.stringify(cola));
-      setPendientesCount(cola.length);
-    } catch {}
-  }, [fiestaId]);
-
-  const sincronizarCola = useCallback(async () => {
-    if (!fiestaId || typeof window === 'undefined') return;
-    const cola = getColaPendientes();
-    if (cola.length === 0) {
-      setPendientesCount(0);
-      return;
-    }
-    const pendientesRestantes: typeof cola = [];
-    for (const item of cola) {
-      try {
-        const res = await checkInGuestFiestaActual(
-          fiestaId,
-          item.guestId,
-          item.token ? { token: item.token } : undefined,
-          item.escaneadoEn
-        );
-        if (!res.success && res.error && !res.error.includes('ya')) {
-          pendientesRestantes.push(item);
-        }
-      } catch {
-        pendientesRestantes.push(item);
-      }
-    }
-    guardarColaPendientes(pendientesRestantes);
-  }, [fiestaId, getColaPendientes, guardarColaPendientes]);
-
-  useEffect(() => {
-    setPendientesCount(getColaPendientes().length);
-    const interval = setInterval(sincronizarCola, 10000);
-    const handleOnline = () => sincronizarCola();
-    window.addEventListener('online', handleOnline);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('online', handleOnline);
-    };
-  }, [getColaPendientes, sincronizarCola]);
 
   const processCheckIn = useCallback(async (guestId: string, qr?: { token: string | null }) => {
     if (isProcessingCheckin || !fiestaId) return;
@@ -140,15 +153,13 @@ function CheckinScannerContent() {
         return;
     }
 
-    const escaneadoEn = new Date().toISOString();
-
     try {
-      const result = await checkInGuestFiestaActual(fiestaId, guestId, qr, escaneadoEn);
+      const result = await checkInGuestFiestaActual(fiestaId, guestId, qr);
       if (result.success && result.invitado) {
         setAllGuests(prevGuests => prevGuests.map(g => g.id === guestId ? result.invitado! : g));
         toast({
             title: "¡Check-in Exitoso!",
-            description: `${result.invitado.nombre} (Mesa: ${result.invitado.tableNumber || 'N/A'})`,
+            description: `¡Adelante, ${result.invitado.nombre}! — Mesa ${result.invitado.tableNumber || 'N/A'}`,
             variant: "default",
             duration: 5000,
             className: "bg-green-100 border-green-300 text-green-800"
@@ -158,26 +169,27 @@ function CheckinScannerContent() {
       }
     } catch (e: any) {
       const bruto = String(e?.message ?? '');
-      const esDeRed = !navigator.onLine || /failed to fetch|networkerror|load failed|fetch failed|timeout/i.test(bruto);
-
-      if (esDeRed) {
-        // Modo offline: admitir y encolar
-        setAllGuests(prevGuests => prevGuests.map(g => g.id === guestId ? { ...g, checkedIn: true, checkInTimestamp: escaneadoEn } : g));
-        const colaActual = getColaPendientes();
-        if (!colaActual.some(i => i.guestId === guestId)) {
-          guardarColaPendientes([...colaActual, { guestId, token: qr?.token ?? null, escaneadoEn }]);
+      const esDeRed = (typeof navigator !== 'undefined' && !navigator.onLine) || /failed to fetch|networkerror|load failed|fetch failed|timeout/i.test(bruto);
+      if (esDeRed && guestToCheck && !guestToCheck.checkedIn) {
+        const escaneadoEn = new Date().toISOString();
+        const cola = getColaPendientes();
+        if (!cola.some(c => c.guestId === guestId)) {
+          cola.push({ guestId, token: qr?.token ?? null, escaneadoEn });
+          guardarColaPendientes(cola);
         }
+        setAllGuests(prevGuests => prevGuests.map(g => g.id === guestId ? { ...g, checkedIn: true, checkInTimestamp: escaneadoEn } : g));
         toast({
-          title: `¡Adelante, ${guestToCheck.nombre}!`,
-          description: `Mesa ${guestToCheck.tableNumber || 'N/A'} (entrada anotada, pendiente de subir)`,
-          variant: "default",
+          title: `¡Adelante, ${guestToCheck.nombre}! — Mesa ${guestToCheck.tableNumber || 'N/A'}`,
+          description: "Ingreso registrado sin señal (pendiente de subir).",
+          className: "bg-emerald-600 text-white border-none",
           duration: 5000,
-          className: "bg-emerald-100 border-emerald-300 text-emerald-800"
         });
       } else {
         toast({
-          title: 'No se pudo registrar la entrada',
-          description: bruto || 'Probá de nuevo. Si sigue fallando, anotalo a mano desde la lista.',
+          title: esDeRed ? 'Sin conexión' : 'No se pudo registrar la entrada',
+          description: esDeRed
+            ? 'El celular perdió la señal del salón. El ingreso no quedó guardado: volvé a escanear el QR en unos segundos.'
+            : bruto || 'Proba de nuevo. Si sigue fallando, anotalo a mano desde la lista.',
           variant: 'destructive',
         });
       }

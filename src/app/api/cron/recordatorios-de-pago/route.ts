@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { ejecutarEscaneoDeRecordatorios } from '@/app/actions/invoices';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
@@ -36,11 +36,11 @@ async function correrTarea(request: Request) {
     // anota: si no, figura al dia y nadie reintenta hasta mañana.
     if (resultado.success) await marcarCorrida('recordatorios-de-pago');
 
-    return NextResponse.json({
+    return NextResponse.json(respuestaDeLaTarea(puerta, {
       ok: resultado.success,
       recordatoriosProgramados: resultado.triggeredCount,
       errores: resultado.errors,
-    }, { status: resultado.success ? 200 : 500 });
+    }), { status: resultado.success ? 200 : 500 });
   } catch (error: any) {
     console.error('[cron-recordatorios] Error al escanear recordatorios de pago:', error);
     return NextResponse.json(

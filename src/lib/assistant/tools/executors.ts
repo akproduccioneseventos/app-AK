@@ -147,7 +147,14 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
   // Buscar lead existente
   const leads = await getCrmLeads();
   const nameNorm = input.name.trim().toLowerCase();
-  const existing = leads.find(l => l.name.toLowerCase().includes(nameNorm) || nameNorm.includes(l.name.toLowerCase()));
+  // Sólo el mismo nombre, o uno solo que lo contenga: "Ana" no puede agendarle la cita a "Mariana Pérez" (pregunta 87).
+  const exacto = leads.find(l => l.name.trim().toLowerCase() === nameNorm);
+  const parecidos = leads.filter(l => l.name.toLowerCase().includes(nameNorm));
+  if (!exacto && parecidos.length > 1) {
+    const nombres = parecidos.slice(0, 5).map(l => l.name).join(', ');
+    return { success: false, error: 'Hay varios contactos con ese nombre.', message: `Hay varios contactos que dicen "${input.name}" (${nombres}). Decime el nombre completo.` };
+  }
+  const existing = exacto || (parecidos.length === 1 ? parecidos[0] : undefined);
 
   if (existing) {
     // Lead existe: agendar reunión

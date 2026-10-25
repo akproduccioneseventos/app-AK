@@ -1060,6 +1060,125 @@ graves que nadie había pedido (un prospecto firmado que se podía borrar si fal
 ayudantes de sólo lectura con las preguntas de sus líneas en `LO-QUE-NO-VI.md`, y lo confirmado sale
 como orden para Gemini (así salió la 168). Juntar sin barrer es una tanda incompleta.
 
+### 39. Dejar las órdenes para Gemini en una rama que Gemini no mira
+
+**Pasó el 19 de octubre de 2026.** Escribí las órdenes 188 a 191 en la rama de trabajo, sin
+fusionar, y Gemini arranca de la versión principal: no las vio. Entregó la 1336 sobre la entrega
+ya devuelta, con el mismo agujero de plata y con lo que el dueño había descartado.
+
+**Qué se hace distinto:** cada vez que queda una orden nueva para Gemini, el aviso al dueño lleva
+**el mensaje listo para pegarle a Gemini**, con la rama de donde arrancar y los números de orden.
+
+### 40. Arreglar en un archivo, controlar un archivo, y barrer con ayudantes que dicen "sin hallazgos"
+
+**Pasó el 20 de octubre de 2026.** El dueño: *"cada vez que hacemos una auditoría siguen habiendo
+problemas, cosas que ya habías resuelto"*. Medido sobre los 45 hallazgos de Gemini: 36 ciertos.
+Volvían por tres lados:
+
+- **El control miraba un archivo.** El álbum al disco de todos se arregló en una pantalla y su control
+  leía sólo esa; la misma línea seguía en otra.
+- **Lo anotado como "sigue pendiente" en `YA-RESUELTO.md` no tenía orden**: el despertador bloqueado
+  y la llegada del personal estaban escritos ahí, sin arreglar.
+- **El barrido de la mañana dio "sin hallazgos"** en las preguntas 3, 24 y 35, y esa noche Gemini
+  encontró casos.
+
+**Qué se hace distinto:**
+
+- `npm run formas-ya-arregladas` busca en toda la app cada forma que un control prohíbe en un
+  archivo. Se corre al juntar cada entrega.
+- Preguntas 74 a 81 en `COMO-AUDITAR.md`.
+- Un "sin hallazgos" de un ayudante económico en plata o permisos se confirma mirando yo al menos
+  un caso.
+- Una nota de "sigue pendiente" sale como orden en la misma tanda.
+
+### 41. Encontrar un error de plata y dejarlo esperando adentro de una entrega grande
+
+**Pasó del 16 al 20 de octubre de 2026.** Codex encontró que, con dos proveedores con el mismo nombre,
+se podía borrar un pago. La pregunta 71 lo encontraba y la orden lo pedía. Igual siguió en la app
+publicada cuatro días, porque viajó dentro de entregas grandes (1333 y 1337) que se devolvieron por
+otras cosas. El dueño: *"no funcionó, ya que seguía el error"*.
+
+**Qué era lo cierto:** encontrar no es arreglar. Una pregunta que encuentra el error sirve si el
+arreglo llega a la app.
+
+**Qué se hace distinto:**
+
+- Lo de plata y permisos **que ya está roto en la app publicada** va en una propuesta chica aparte,
+  primero (orden 197).
+- `ESTADO-ACTUAL.md` lleva la lista "Errores de plata abiertos", con el día en que se encontró
+  cada uno.
+- El despertador le avisa al dueño si alguno pasa de 2 días.
+
+### 42. Arreglar un hallazgo sin buscarlo en el resto de la app porque su pregunta "ya estaba barrida"
+
+**Pasó el 21 de octubre de 2026.** Arreglé la fecha corrida un día en el mensaje de seguimiento (Codex
+159) y no busqué la misma forma en otros lugares: la pregunta 70, la de las fechas, figuraba barrida de
+antes. El dueño: *"otro error de esos, mejorá"*.
+
+**Qué era lo cierto:** una pregunta barrida una vez no encuentra lo que se escribió después. Cada
+hallazgo nuevo es un aviso de que la forma volvió, y hay que buscarla de nuevo.
+
+**Qué se hace distinto, y ya está enganchado:** `docs/barridos.json` lleva `hallazgos`, uno por cada
+línea nueva de `LO-QUE-NO-VI.md` (órdenes desde la 199, auditorías desde la 159), con su búsqueda propia.
+Sin esa línea, `cada-pregunta-se-barrio-en-toda-la-app.test.ts` no deja publicar. Y un hallazgo que se
+agrega adentro de una orden vieja ("ampliación") lleva igual su línea "- Auditoria N → pregunta M".
+
+### 43. Decir "ningún error de plata abierto" con una orden de plata mía a medias
+
+**Pasó el 21 de octubre de 2026.** La orden 185 (el pago de un proveedor se le copiaba a otro del mismo
+nombre) figuraba "FALTA" en `ordenes?` desde el 18/10, y en `ESTADO-ACTUAL.md` escribí "ningún error de
+plata abierto". Lo encontré al cruzar todo lo de Codex desde el principio, porque lo pidió el dueño.
+
+**Qué era lo cierto:** `ordenes?` informa y no frena; una orden mía a medias no le saltaba a nadie.
+
+**Qué se hace distinto, y ya está enganchado:** `las-ordenes-de-plata-de-claude-estan-hechas.test.ts` frena
+la publicación si una orden `-claude-` está a medias.
+
+### 44. Cambiar un guardado de plata por otro y perder un control que hacía el viejo
+
+**Pasó el 22 de octubre de 2026, y quedó publicado unas horas.** Para que aprobar un pedido del cliente
+no sumara dos veces, pasé las aprobaciones de `updatePresupuesto` a `mutarPresupuesto`. El viejo frenaba
+los contratos firmados y rehacía la cuenta; el nuevo no. Lo encontró Codex.
+
+**Qué era lo cierto:** un arreglo de concurrencia que cambia la función que guarda tiene que llevarse
+todos los controles de la vieja, no sólo el que se estaba arreglando.
+
+**Qué se hace distinto:** pregunta 89 del método y 60 de `ANTES-DE-ENTREGAR.md`. Y el control
+`sin-saber-si-el-contrato-esta-firmado-no-se-toca` más las pruebas de aprobación con contrato firmado.
+
+### 45. Escribir la comprobación de un bloque mirando un archivo de seis
+
+**Pasó el 23 de octubre de 2026, en la orden 220.** El bloque 5 pedía pasar a transacción seis guardados y
+el bloque `comprobar` miraba uno solo. La entrega arregló ese y en los otros cuatro agregó un `import` sin
+usarlo. `ordenes?` dio la orden por hecha.
+
+**Qué era lo cierto:** `ordenes?` mira lo que dice `comprobar`, no lo que dice el texto del bloque.
+
+**Qué se hace distinto:** cuando un bloque nombra varios archivos, va una línea de `comprobar` por cada
+uno (así quedó la orden 221).
+
+### 46. Juntar una entrega en mi rama antes de saber si compila
+
+**Pasó el 24 de octubre de 2026.** La entrega 1353 se veía bien leyendo el cambio. La junté en mi rama y
+lancé la puerta, que frenó en el segundo paso. Recién ahí vi que no compilaba. Tuve que deshacer la
+unión de las dos ramas.
+
+**Qué era lo cierto:** leer el cambio no dice si compila. La entrega decía "tipos en cero" y tenía cinco
+errores.
+
+**Qué se hace distinto:** antes de juntar una entrega, `npx tsc --noEmit` y `npm run "publicar?:rapido"`
+sobre una copia aparte. Sólo si dan verde, se junta y se corre la puerta completa.
+
+### 47. Pedir que se toque una pantalla sin pedir su prueba de navegador
+
+**Pasó el 24 de octubre de 2026, en la orden 224.** Pedí arreglar el "cargando para siempre" en 14 pantallas
+y la comprobación pedía una sola prueba. Cinco de esas pantallas no tenían ninguna, y la puerta frena toda
+pantalla tocada sin prueba: la entrega volvió por un descuido de la orden.
+
+**Qué se hace distinto:** antes de mandar a tocar pantallas, correr `node scripts/lo-que-se-dijo-es-lo-que-es.mjs`
+mentalmente: por cada pantalla de la lista, buscar si ya tiene prueba (`grep -rl "<ruta>" tests/e2e`). Las que
+no tienen, la orden pide la prueba con el texto del resultado (orden 226).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1209,6 +1328,11 @@ ubicar.
 **La única excepción:** si la pregunta nueva sólo puede aplicarse a plata, cobros, comida o
 permisos, el barrido es mío y no hay orden.
 
+**Y queda anotado en `docs/barridos.json` (20 de octubre de 2026):** cada pregunta con la fecha en que
+se buscó en toda la app y qué salió. Una pregunta sin su línea **no deja publicar**
+(`cada-pregunta-se-barrio-en-toda-la-app.test.ts`), y lo mismo una pregunta de un hallazgo de Codex que
+no existe o no se barrió. Lo `parcial` se termina en una orden.
+
 **Lo que NO es esta lista:** no es para pedir perdón ni para llevar la cuenta de quién encontró
 más. Es la única forma de que el rango suba: cada cosa que se me escapó, se convierte en una
 pregunta que de ahí en adelante hago solo.
@@ -1265,6 +1389,39 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Claude se despierta solo y revisa lo que entregan Gemini y Codex (20 de octubre de 2026).**
+  Palabras suyas: *"cuando ellos terminen, tú lo detectas y trabajas solo; te activas solo"*. Hay un
+  despertador cada hora que mira las propuestas abiertas.
+  - Si hay algo nuevo, se revisa con ayudantes económicos: lista de controles, `formas-ya-arregladas`,
+    puerta y fusión con `expectedHeadSha`.
+  - Si no pasa, se devuelve como orden.
+  - Si es un informe de Codex, se suman sus preguntas, se barre la app y sale la orden para Gemini.
+  - **El dueño no hace de intermediario**: sólo pega el mensaje a Gemini cuando hay una orden nueva.
+
+- **Un solo centro de presencia y redes, con los mensajes juntos y automáticos (20 de octubre de
+  2026).** Palabras suyas: *"quiero un centro de presencia digital y redes juntos, mensajes juntos y
+  automáticos"*, y aprobó el ayudante diario de redes. Va en la orden 192. Se contestan solos los
+  comentarios en publicaciones de AK y el primer mensaje directo de quien no es cliente, con interruptor
+  por canal. **No cambia:** el WhatsApp personal sólo contesta solo a quien viene de un anuncio o
+  publicación; a un cliente con fiesta y las quejas los contesta una persona; nada automático dice
+  precios ni promesas.
+
+- **Filtros divertidos que siguen la cara (19 de octubre de 2026).** Pedido del dueño: filtros "tipo
+  Instagram" para fotos y videos, uno personalizado del 15 con el nombre, y diseños estilo Canva. Va en
+  la orden 191: hechos en la app, con lo que ya está instalado y sin servicios pagos.
+
+- **Voz con IA: el cliente sí, el invitado no (19 de octubre de 2026).** Palabras suyas: *"al cliente
+  quizás le pueda hablar, pero al invitado no: imaginate 100 personas hablándole"*. El cliente habla
+  desde su portal con tope propio (orden 190, bloque 6); el invitado sólo por escrito, y las estaciones
+  con la voz del teléfono, que es gratis. No se propone voz con IA para invitados.
+
+- **Novedades elegidas y la app en los teléfonos (19 de octubre de 2026).** De las propuestas 1330 a 1335
+  entra lo que va en la orden 189. **La realidad aumentada ahora SÍ va** (manda sobre el descarte del 1
+  de octubre): apuntar el celular a la invitación impresa y ver un video encima. La app va a **Play Store**
+  (unos 25 dólares, una sola vez) y en **iPhone se instala desde la web**, sin la tienda de Apple. No van:
+  respuestas automáticas en redes, las "4 puertas", el teléfono rojo, el WhatsApp de invitados en el hub,
+  el walkie-talkie, la lista de regalos ni el brindis cruzado.
 
 - **Mejoras de la auditoría de Gemini aprobadas (16 de octubre de 2026).** Puerta que deja pasar sin
   señal, de "mi mesa" a la app, Vogue/Espejo/Tótem IA como extras del portal, la franja de
@@ -1355,8 +1512,10 @@ lo que hice?* Si es lo segundo, no se manda.
   personal**: se destaca el trabajo en equipo y el organizador. Amplía la regla de agosto de no prometer plazos ni precios. Lo hace la orden 96,
   bloque 5.
 
-- **Personal por invitados (28 de septiembre de 2026).** Un mozo de cocina y un mozo de atención
-  **cada 25 invitados** (`applyAutomaticStaffByGuests`). Las islas pueden ahorrar vajilla, **no
+- **Personal por invitados (28 de septiembre de 2026, precisado el 21 de octubre).** Un mozo de cocina y un mozo de atención
+  **cada 25 invitados** (`applyAutomaticStaffByGuests`). En la cocina **primero va el chef** y después un ayudante cada
+  25 (100 invitados = chef y 3 ayudantes); un **utilero cada 30**; el **barman** cobra $2000 hasta 99 invitados, $2800
+  de 100 a 150, y con más de 150 van dos a $2000 (`src/lib/fiesta/personal-por-invitados.ts`). Las islas pueden ahorrar vajilla, **no
   mozos**. Y la IA del blog escribe con respaldo: busca páginas del rubro y los datos de AK, y no
   afirma lo que no está ahí (orden 96, bloque 6).
 
@@ -1701,6 +1860,24 @@ con otra cara.
 | El entorno de pruebas no podía probar estaciones, mural ni fotos porque la base estaba apagada | `tests/firebase/estaciones-y-mural-con-emulador.test.ts` (corre en `npm run test:rules`) |
 | Pruebas que armaban "hoy" con la hora de Greenwich y fallaban de noche en Uruguay | `src/__tests__/las-pruebas-cuentan-los-dias-en-uruguay.test.ts` |
 | Codex encontraba la misma forma de error una y otra vez porque el método no sumaba la pregunta | `src/__tests__/cada-hallazgo-de-codex-tiene-su-pregunta.test.ts` |
+| Lo arreglado en un archivo seguía igual en otro, y su control miraba sólo el primero | `npm run formas-ya-arregladas` con `src/__tests__/lo-ya-arreglado-se-busca-en-toda-la-app.test.ts` |
+| El asistente contestaba importes escritos a mano como si fueran los cobros del mes | `src/__tests__/el-asistente-no-inventa-plata.test.ts` |
+| Rutas del despertador rebotadas, funciones internas llamables desde afuera y guardados que devolvían costos y sueldos ajenos: cada forma nueva frena la publicación | `src/__tests__/las-fugas-de-plata-no-crecen.test.ts` |
+| Se sumaban preguntas al método y nadie las buscaba en el resto de la app | `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
+| Una orden figuraba hecha con un comentario o un import sin usar, y pruebas que sólo decían `expect(true)` | `enCodigoQueCorre` en `scripts/ordenes-cumplidas.mjs` con `src/__tests__/una-orden-no-se-cumple-con-un-comentario.test.ts` |
+| La tarea sin clave devolvía nombres de clientes, y el empleado no llegaba a su portal | `src/__tests__/codex-156-158-portal-propio-y-tareas-recortadas.test.ts` |
+| Un permiso pedido sin mirar la respuesta dejaba pasar a cualquiera | `src/__tests__/un-permiso-que-no-se-mira-no-frena.test.ts` |
+| Una orden de plata de Claude quedaba a medias y la lista decía "ningún error abierto" | `src/__tests__/las-ordenes-de-plata-de-claude-estan-hechas.test.ts` |
+| Un hallazgo se arreglaba sin buscarlo en el resto de la app porque su pregunta ya figuraba barrida | `hallazgos` en `docs/barridos.json` con `src/__tests__/cada-pregunta-se-barrio-en-toda-la-app.test.ts` |
+| El portal del proveedor perdía un toque de dos y reactivaba accesos; la secretaria borraba la cédula del personal al guardar | `src/__tests__/provider-portal-actions.test.ts` y `src/__tests__/la-secretaria-no-borra-la-cedula-del-personal.test.ts` |
+| Elegir por nombre parcial: los mozos de salón caían en la cocina, y el asistente cambiaba el precio o agendaba la cita de otro | `src/__tests__/el-personal-sale-de-las-reglas-del-duenio.test.ts` y `src/__tests__/el-asistente-no-confunde-contactos-parecidos.test.ts` |
+| El portal del cliente: avisos de pago dobles, comprobante perdido, cancelaciones que anunciaban otra cuenta, pedidos que se pisaban y aprobaciones que sumaban dos veces | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` |
+| Aprobar un pedido del cliente salteaba el contrato firmado, dejaba el desglose viejo y multiplicaba dos veces; un error de lectura daba el contrato por no firmado | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` y `src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts` |
+| Una firma que llegaba en el medio no frenaba la aprobación, y deshacer un pedido fallido borraba los invitados que otro aprobó | `src/__tests__/el-portal-del-cliente-no-pierde-ni-inventa-plata.test.ts` y `src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts` |
+| La firma del contrato en el portal: resumen en cero, constancia falsificable, dos firmas que se pisaban y un texto que el cliente no vio | `src/__tests__/contrato-constancia-version-y-permisos.test.ts` |
+| El recordatorio que manda a los invitados se podía disparar desde internet sin clave | `src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts` |
+| Un reintento acreditaba un aviso de pago y la respuesta tardía del primero lo volvía a pendiente; el texto del contrato se guardaba después de que el cliente firmaba | `src/__tests__/pago-aprobado-no-vuelve-pendiente-por-reintento.test.ts` y `src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts` |
+| Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
 
 ### Cómo se elige el matafuego
 

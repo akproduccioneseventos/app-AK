@@ -1,0 +1,30 @@
+{
+  "source": "2e5363f259461a31bf6b31807872c227855415de",
+  "scope": "boundary",
+  "buildFinished": "2026-10-20T12:43:46.937Z",
+  "started": "2026-10-20T12:49:39.499Z",
+  "realServices": false,
+  "serverPid": 2924,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-20T12:49:45.099Z",
+    "version": "2e5363f259461a31bf6b31807872c227855415de · compilada 2026-10-20T12:31:41.882Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "run": {
+    "pid": 15612,
+    "exitCode": 1
+  },
+  "snapshotCount": 76,
+  "sourceDiff": "",
+  "finished": "2026-10-20T12:49:57.342Z"
+}

@@ -1,0 +1,12 @@
+{
+  "source": "253838732287c2704d78113d15ace9c025cb82c9",
+  "started": "2026-10-20T13:18:23.507Z",
+  "realServices": false,
+  "snapshotCount": 76,
+  "run": {
+    "pid": 3060,
+    "exitCode": 4294967295
+  },
+  "sourceDiff": "",
+  "finished": "2026-10-20T13:25:32.554Z"
+}

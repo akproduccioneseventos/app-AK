@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import type { PresupuestoFormData, TipoEvento } from '@/types/presupuesto';
@@ -22,7 +20,7 @@ interface Paso1Props {
 
 export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1Props) {
   const [isDateOccupied, setIsDateOccupied] = useState(false);
-  
+
   useEffect(() => {
     // Update total guest count whenever adults or ninos change
     const total = (formData.invitadosAdultos || 0) + (formData.invitadosNinos || 0);
@@ -45,7 +43,7 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
       setIsDateOccupied(false);
     }
   };
-  
+
   const eventoTipoEnSelect =
     formData.eventoTipo && ALL_TIPOS_EVENTO.includes(formData.eventoTipo as TipoEvento)
       ? formData.eventoTipo
@@ -57,7 +55,7 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
     setFormData(prev => ({
       ...prev,
       eventoTipo: newTipoEvento,
-      nombreEmpresa: newTipoEvento === 'Evento corporativo' ? prev.nombreEmpresa : '', 
+      nombreEmpresa: newTipoEvento === 'Evento corporativo' ? prev.nombreEmpresa : '',
       protagonista1Nombre: (newTipoEvento !== 'Evento corporativo' && newTipoEvento !== 'Boda') ? prev.protagonista1Nombre : '',
       protagonista2Nombre: newTipoEvento === 'Boda' ? prev.protagonista2Nombre : '',
     }));
@@ -66,7 +64,7 @@ export function Paso1DatosEvento({ formData, setFormData, occupiedDates }: Paso1
   const handleCustomTipoEventoInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, eventoTipo: e.target.value }));
   };
-  
+
   const finalEventType = formData.eventoTipo.trim();
   const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !ALL_TIPOS_EVENTO.includes(finalEventType as TipoEvento));
 

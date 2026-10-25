@@ -81,6 +81,24 @@ function bloquesSinComprobacion(texto, checks) {
   return faltan;
 }
 
+// Si el nombre aparece en una línea que hace algo: no cuenta una línea que es sólo un comentario
+// `//`, ni un import cuyo nombre nadie usa después. Sólo para las órdenes: en YA-RESUELTO hay
+// comprobaciones que piden a propósito un aviso escrito en un comentario.
+export function enCodigoQueCorre(texto, simbolo) {
+  const lineas = texto.split('\n');
+  return lineas.some((l) => {
+    if (!l.includes(simbolo)) return false;
+    if (/^\s*\/\//.test(l)) return false;
+    const imp = l.match(/^\s*import\s+(?:type\s+)?\{?\s*([\w$,\s]+?)\s*\}?\s+from\s/);
+    if (imp) {
+      const nombres = imp[1].split(',').map((n) => n.trim().split(/\s+as\s+/).pop()).filter(Boolean);
+      return nombres.some((n) => lineas.some((otra) => otra !== l && !/^\s*(\/\/|\*)/.test(otra)
+        && new RegExp(`(^|[^\\w$])${n.replace(/\$/g, '\\$')}([^\\w$]|$)`).test(otra)));
+    }
+    return true;
+  });
+}
+
 function comprobar(c) {
   if (c.tipo === 'archivo' || c.tipo === 'prueba') {
     return fs.existsSync(path.join(process.cwd(), c.valor));
@@ -94,8 +112,12 @@ function comprobar(c) {
     const [, simbolo, archivo] = m;
     const ruta = path.join(process.cwd(), archivo.trim());
     if (!fs.existsSync(ruta)) return false;
-    const esta = fs.readFileSync(ruta, 'utf8').includes(simbolo.trim());
-    return c.tipo === 'usa' ? esta : !esta;
+    const texto = fs.readFileSync(ruta, 'utf8');
+    if (c.tipo === 'no-usa') return !texto.includes(simbolo.trim());
+    // "usa:" cuenta sólo en código que corre: no en un comentario ni en un import suelto. La
+    // entrega 1341 (20/10/2026) agregó `// ak_checkin_pendientes_` y un import sin usar en cada
+    // pantalla para que la orden figurara hecha sin haber programado nada.
+    return c.estricta ? enCodigoQueCorre(texto, simbolo.trim()) : texto.includes(simbolo.trim());
   }
   return false;
 }
@@ -141,7 +163,7 @@ for (const archivo of archivos) {
     sinComprobaciones.push(archivo);
     continue;
   }
-  const fallan = checks.filter((c) => !comprobar(c));
+  const fallan = checks.filter((c) => !comprobar({ ...c, estricta: !archivo.startsWith('../') }));
   const sinCubrir = archivo.startsWith('../') ? [] : bloquesSinComprobacion(texto, checks);
   conComprobaciones.push({ archivo, total: checks.length + sinCubrir.length, fallan: [...fallan, ...sinCubrir] });
 }
@@ -244,4 +266,7 @@ if (comparaciones.length > 0) {
 }
 
 // Informa, no frena: una orden a medias no es un error del codigo.
-process.exit(0);
+// `exitCode` y no salir de golpe con `exit`: eso corta lo que todavía no se escribió en la
+// tubería, y con la máquina cargada la salida quedaba sin las cuentas del rubro. Eso hacía fallar
+// a veces `los-dos-controles-dicen-lo-mismo` (medido el 20/10/2026: salió cortada en la orden 33).
+process.exitCode = 0;

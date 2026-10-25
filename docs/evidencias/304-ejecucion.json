@@ -1,0 +1,82 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z",
+  "started": "2026-10-24T02:29:11.585Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-24T01:33:47.333Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "video-vida-error-lectura.spec.ts",
+    "espejo-moderacion-caida-y-reintento.spec.ts"
+  ],
+  "batchSize": 0,
+  "copiedTests": 2,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts",
+      "copy": "tests/e2e/ak207-espejo-moderacion-caida-y-reintento.spec.ts",
+      "originalSha256": "fbaf3ecaad5934c196c45765eb1459cc4db20b56604df1b8553166d1ae37a5b9",
+      "instrumentedSha256": "edd9a5319096e98c704545601c39d3f6f0fd719bf341dd5184dbc103743ef25c"
+    },
+    {
+      "original": "tests/e2e/video-vida-error-lectura.spec.ts",
+      "copy": "tests/e2e/ak207-video-vida-error-lectura.spec.ts",
+      "originalSha256": "9322084503ee05c515be448b234d4ed06c4bebbe85309ffe31941ccb5c70f67b",
+      "instrumentedSha256": "0b25679788294727c7d53b913dcf29ee61955778d4c36096f51010d405f0d657"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 12248,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-24T02:29:27.179Z",
+    "version": "3e45a4ac6b479f89605163168e31b37dc84f2d0f · compilada 2026-10-24T01:20:45.087Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 10
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [],
+      "exitCode": 0,
+      "finished": "2026-10-24T02:30:29.764Z",
+      "report": "304-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T02:29:28.381Z",
+        "duration": 61353.03,
+        "expected": 5,
+        "skipped": 1,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 0,
+  "currentBatch": 1,
+  "totalBatches": 1,
+  "testPid": 13708,
+  "stats": {
+    "startTime": "2026-10-24T02:29:28.381Z",
+    "duration": 61353.03,
+    "expected": 5,
+    "skipped": 1,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 71,
+  "sourceDiff": "",
+  "finished": "2026-10-24T02:30:30.638Z"
+}

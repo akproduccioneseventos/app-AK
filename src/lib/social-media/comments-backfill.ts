@@ -19,17 +19,45 @@ const STATE_FILE = 'social-comments-backfill-state.json';
 const AJUSTES_RESPUESTAS_FILE = 'marketing-respuestas-comentarios.json';
 
 export interface AjustesRespuestasComentarios {
-  activo: boolean;
+  activo?: boolean;
+  comentarios?: boolean;
+  mensajesDirectos?: boolean;
   actualizadoAt?: string;
 }
 
 export async function getAjustesRespuestasComentarios(): Promise<AjustesRespuestasComentarios> {
   const guardados = await readData<AjustesRespuestasComentarios>(AJUSTES_RESPUESTAS_FILE, { activo: false });
-  return { ...guardados, activo: guardados?.activo === true };
+  const comentarios = guardados?.comentarios !== undefined ? guardados.comentarios : (guardados?.activo === true);
+  const mensajesDirectos = guardados?.mensajesDirectos !== undefined ? guardados.mensajesDirectos : true;
+  return {
+    ...guardados,
+    activo: comentarios,
+    comentarios,
+    mensajesDirectos,
+  };
 }
 
-export async function setAjustesRespuestasComentarios(activo: boolean): Promise<AjustesRespuestasComentarios> {
-  const ajustes = { activo, actualizadoAt: new Date().toISOString() };
+export async function setAjustesRespuestasComentarios(
+  opciones: boolean | { comentarios?: boolean; mensajesDirectos?: boolean }
+): Promise<AjustesRespuestasComentarios> {
+  const actuales = await getAjustesRespuestasComentarios();
+  let nuevosValores: Partial<AjustesRespuestasComentarios> = {};
+  if (typeof opciones === 'boolean') {
+    nuevosValores = { activo: opciones, comentarios: opciones };
+  } else {
+    nuevosValores = opciones;
+  }
+  const comentarios = nuevosValores.comentarios !== undefined ? nuevosValores.comentarios : actuales.comentarios;
+  const mensajesDirectos = nuevosValores.mensajesDirectos !== undefined ? nuevosValores.mensajesDirectos : actuales.mensajesDirectos;
+
+  const ajustes: AjustesRespuestasComentarios = {
+    ...actuales,
+    ...nuevosValores,
+    activo: comentarios,
+    comentarios,
+    mensajesDirectos,
+    actualizadoAt: new Date().toISOString(),
+  };
   await writeData(AJUSTES_RESPUESTAS_FILE, ajustes);
   return ajustes;
 }

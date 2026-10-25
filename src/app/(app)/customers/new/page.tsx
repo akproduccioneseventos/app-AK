@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -30,7 +29,7 @@ export default function NewCustomerPage() {
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
   const [taxId, setTaxId] = useState('');
-  
+
   // Party-related fields
   const [partyDate, setPartyDate] = useState<Date | undefined>(undefined);
   const [partyTime, setPartyTime] = useState(''); // Campo de texto simple para horario
@@ -41,29 +40,29 @@ export default function NewCustomerPage() {
   const [guestCount, setGuestCount] = useState<string>('');
   const [partyForWhom, setPartyForWhom] = useState(''); // Nuevo campo
   const [venueName, setVenueName] = useState('');
-  
+
   const [contractFile, setContractFile] = useState<File | null>(null);
   const [budgetFile, setBudgetFile] = useState<File | null>(null);
   const [salonContractFile, setSalonContractFile] = useState<File | null>(null);
 
   const handlePartyTypeChange = (value: string) => {
     if (value === "Otro") {
-      setSelectedPartyType("Otro"); 
-      setCustomPartyType(''); 
+      setSelectedPartyType("Otro");
+      setCustomPartyType('');
     } else {
       setSelectedPartyType(value as TipoEvento);
-      setCustomPartyType(''); 
+      setCustomPartyType('');
     }
     if (value !== 'Evento corporativo') {
-      setCorporateEventCompanyName(''); 
+      setCorporateEventCompanyName('');
     }
   };
-  
+
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
-    
+
     const formData = new FormData();
     if (name.trim()) formData.append('name', name.trim());
     else if (customerCompanyName.trim()) formData.append('name', customerCompanyName.trim());
@@ -80,7 +79,7 @@ export default function NewCustomerPage() {
 
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
-    
+
     const finalPartyType = selectedPartyType === "Otro" ? customPartyType.trim() : selectedPartyType.trim();
     if (finalPartyType) formData.append('partyType', finalPartyType);
 
@@ -126,7 +125,7 @@ export default function NewCustomerPage() {
             Volver a Clientes
           </Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <form onSubmit={handleSubmit}>
           <CardHeader>
@@ -168,7 +167,7 @@ export default function NewCustomerPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="party-type-select">Tipo de Fiesta</Label>
-                   <Select 
+                   <Select
                     value={selectedPartyType}
                     onValueChange={handlePartyTypeChange}
                   >
@@ -182,9 +181,9 @@ export default function NewCustomerPage() {
                     </SelectContent>
                   </Select>
                   {selectedPartyType === 'Otro' && (
-                     <Input 
-                        id="party-type-otro" 
-                        placeholder="Especificá el tipo de fiesta" 
+                     <Input
+                        id="party-type-otro"
+                        placeholder="Especificá el tipo de fiesta"
                         value={customPartyType}
                         onChange={(e) => setCustomPartyType(e.target.value)}
                         className="text-base p-3 mt-2"
@@ -194,11 +193,11 @@ export default function NewCustomerPage() {
                 {selectedPartyType === 'Evento corporativo' && (
                     <div className="space-y-2">
                         <Label htmlFor="corporate-event-company-name">Nombre de la Empresa (Evento Corp.)</Label>
-                        <Input 
-                        id="corporate-event-company-name" 
-                        value={corporateEventCompanyName} 
-                        onChange={(e) => setCorporateEventCompanyName(e.target.value)} 
-                        placeholder="Nombre de la empresa organizadora" 
+                        <Input
+                        id="corporate-event-company-name"
+                        value={corporateEventCompanyName}
+                        onChange={(e) => setCorporateEventCompanyName(e.target.value)}
+                        placeholder="Nombre de la empresa organizadora"
                         />
                     </div>
                 )}
@@ -209,10 +208,10 @@ export default function NewCustomerPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="party-for-whom">Para quién es la Fiesta</Label>
-              <Input 
-                id="party-for-whom" 
-                value={partyForWhom} 
-                onChange={(e) => setPartyForWhom(e.target.value)} 
+              <Input
+                id="party-for-whom"
+                value={partyForWhom}
+                onChange={(e) => setPartyForWhom(e.target.value)}
                 placeholder="Ej: “Lucía – 15 años”, “Bautismo de Thiago”, “Aniversario de Juan y Laura”"
               />
             </div>

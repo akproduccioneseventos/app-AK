@@ -1095,10 +1095,18 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
     } else if (result.action?.type === 'update_service_price' && result.action.data) {
       const d = result.action.data;
       try {
+        // Por nombre, sólo si hay uno solo que lo contiene (o uno exacto): con "Barra" y tres barras en el
+        // catálogo, antes se cambiaba el precio de la primera que apareciera (pregunta 87).
+        const buscado = (d.servicioNombre || '').trim().toLowerCase();
+        const exacto = buscado ? servicios.find(s => s.nombre.trim().toLowerCase() === buscado) : undefined;
+        const parecidos = buscado ? servicios.filter(s => s.nombre.toLowerCase().includes(buscado)) : [];
         let servicio = d.servicioId
           ? servicios.find(s => s.id === d.servicioId)
-          : servicios.find(s => s.nombre.toLowerCase().includes((d.servicioNombre || '').toLowerCase()));
-        if (!servicio) {
+          : exacto || (parecidos.length === 1 ? parecidos[0] : undefined);
+        if (!servicio && !d.servicioId && parecidos.length > 1) {
+          actionResult = { success: false, error: `Hay ${parecidos.length} servicios que dicen "${d.servicioNombre}".` };
+          finalResponse = `⚠️ No cambié ningún precio: hay varios servicios que dicen "${d.servicioNombre}" (${parecidos.slice(0, 5).map(s => s.nombre).join(', ')}). Decime cuál es.`;
+        } else if (!servicio) {
           actionResult = { success: false, error: `No se encontró el servicio "${d.servicioNombre}".` };
           finalResponse = `❌ No se pudo actualizar el precio: No se encontró el servicio "${d.servicioNombre}". Verificá el nombre en /empresa/servicios.`;
         } else {

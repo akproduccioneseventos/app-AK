@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData, GiftItem, TextWithStyle } from '@/types/fiesta';
@@ -25,7 +24,7 @@ export const SeccionRegalosEditor: React.FC<Props> = ({ data, update, fiestaId }
   const handleFieldChange = (field: keyof typeof data, value: any) => {
     update({ ...data, [field]: value });
   };
-  
+
   const handleItemChange = (itemId: string, field: keyof GiftItem, value: string) => {
     const updatedItems = (data.items || []).map(item =>
       item.id === itemId ? { ...item, [field]: value } : item
@@ -45,7 +44,7 @@ export const SeccionRegalosEditor: React.FC<Props> = ({ data, update, fiestaId }
   const deleteItem = (itemId: string) => {
      handleFieldChange('items', (data.items || []).filter(i => i.id !== itemId));
   };
-  
+
   const handleTextStyleChange = (field: 'titulo' | 'texto', style: Partial<TextWithStyle>) => {
     const textData = data[field] || { text: '', style: {} };
     handleFieldChange(field, { ...textData, style: {...(textData.style || {}), ...style } });
@@ -72,7 +71,7 @@ export const SeccionRegalosEditor: React.FC<Props> = ({ data, update, fiestaId }
             <div className="space-y-2 p-2 border rounded-md">
                 <Label>Título</Label>
                 <Input value={data.titulo.text || ''} onChange={(e) => handleTextChange('titulo', e.target.value)} />
-                 <TextStyleEditor 
+                 <TextStyleEditor
                     style={data.titulo.style || {}}
                     onStyleChange={(newStyle) => handleTextStyleChange('titulo', {style: newStyle})}
                 />
@@ -80,7 +79,7 @@ export const SeccionRegalosEditor: React.FC<Props> = ({ data, update, fiestaId }
             <div className="space-y-2 p-2 border rounded-md">
                 <Label>Texto introductorio</Label>
                 <Textarea value={data.texto.text || ''} onChange={(e) => handleTextChange('texto', e.target.value)} rows={3}/>
-                 <TextStyleEditor 
+                 <TextStyleEditor
                     style={data.texto.style || {}}
                     onStyleChange={(newStyle) => handleTextStyleChange('texto', {style: newStyle})}
                 />

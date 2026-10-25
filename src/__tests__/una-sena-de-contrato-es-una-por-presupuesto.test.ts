@@ -16,6 +16,14 @@ jest.mock('@/lib/auth/session-token', () => ({
 }));
 jest.mock('@/lib/notifications/create-notification', () => ({ createNotification: jest.fn().mockResolvedValue(undefined) }));
 jest.mock('@/lib/firebase/server', () => ({ dbAdmin: null }));
+// Los costos que recalcula el servidor se guardan por costos-interno (orden 183): mismo destino que
+// el updateFiestaPartial de mentira de esta prueba.
+jest.mock('@/lib/fiesta/costos-interno', () => ({
+  guardarCostosInterno: async (id: string, costos: unknown) => {
+    const r = await require('@/app/actions/fiesta/fiesta.actions').updateFiestaPartial(id, { gestionCostos: costos });
+    return r?.success ? { success: true, updatedData: costos } : { success: false, error: r?.error };
+  },
+}));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getAllFiestas: jest.fn().mockResolvedValue([]),
   saveFiesta: jest.fn().mockResolvedValue({ success: true }),
@@ -97,6 +105,29 @@ describe('Una seña de contrato es una por presupuesto', () => {
     expect(a.pagoId).not.toBe(b.pagoId);
     expect(almacen['presupuestos.json'][0].pagosCliente).toHaveLength(1);
     expect(almacen['presupuestos.json'][1].pagosCliente).toHaveLength(1);
+  });
+});
+
+describe('la seña que la factura no acepta no queda callada (revisión contable 22/10)', () => {
+  beforeEach(() => {
+    for (const k of Object.keys(almacen)) delete almacen[k];
+    almacen['presupuestos.json'] = [{ ...JSON.parse(JSON.stringify(PRESUPUESTO)), invoiceId: 'inv-1' }];
+    // Una factura de $10.000 ya cobrada entera: una seña de $20.000 la pasa del total.
+    almacen['invoices.json'] = [{
+      id: 'inv-1', invoiceNumber: 'A-1', customer: { id: 'cli-1', name: 'Cliente' }, issueDate: '2026-09-01T00:00:00.000Z',
+      dueDate: '2026-09-15T00:00:00.000Z', items: [{ id: 'i1', description: 'Servicio', quantity: 1, unitPrice: 10000, total: 10000 }],
+      subtotal: 10000, taxRate: 0, taxAmount: 0, totalAmount: 10000, status: 'Paid', currency: 'UYU', vendorName: 'AK',
+      payments: [{ id: 'pg0', amount: 10000, paymentDate: '2026-09-02T00:00:00.000Z', method: 'Efectivo' }],
+    }];
+  });
+
+  it('el cobro queda en el presupuesto y avisa que no entró en la factura', async () => {
+    const r = await registerContractDeposit({
+      presupuesto: JSON.parse(JSON.stringify(almacen['presupuestos.json'][0])), monto: 20000, metodoPago: 'Efectivo',
+    });
+    expect(almacen['presupuestos.json'][0].pagosCliente).toHaveLength(1);
+    expect(almacen['invoices.json'][0].payments).toHaveLength(1);
+    expect(r.avisoFactura).toMatch(/no en su factura|no se pudo pasar/);
   });
 });
 

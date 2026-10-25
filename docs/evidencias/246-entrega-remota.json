@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-22T11:16:31.709Z",
+  "pr": {
+    "headRefOid": "91b394fa4a033d231a80822021fb4eb3cd3d7fcb",
+    "isDraft": true,
+    "state": "OPEN",
+    "url": "https://github.com/akproduccioneseventos/app-AK/pull/1356"
+  },
+  "head": "91b394fa4a033d231a80822021fb4eb3cd3d7fcb",
+  "tree": "439bd78f6c15ae7210fb4423223c4ed67a4edf16",
+  "remoteTree": "439bd78f6c15ae7210fb4423223c4ed67a4edf16",
+  "localOrder": "34d1af67add1b858143f527d89a189d5461efa57",
+  "remoteOrder": "34d1af67add1b858143f527d89a189d5461efa57",
+  "verified": true,
+  "appModified": false,
+  "mergedByCodex": false,
+  "scope": "Published audit artifacts and order only; defects not implemented byCodex."
+}

@@ -199,8 +199,17 @@ describe('release security boundaries', () => {
     //
     // `deleteEmpleado` es la ficha de una persona, con su contrato adjunto: no
     // alcanza con tener sesion.
+    //
+    // Orden 194 (hallazgo 21): asignar personal pasó a ser de ORGANIZACION, pero el sueldo sigue
+    // siendo de SUELDOS: sin ese permiso, `eventSalary` se conserva del guardado.
+    const personal = readSource('src/app/actions/fiesta/personal.actions.ts');
+    const inicio = personal.indexOf('export async function updatePersonal');
+    const cuerpo = personal.slice(inicio, personal.indexOf('export async function ', inicio + 1));
+    expect(cuerpo).toContain('requirePermiso(PERMISOS.ORGANIZACION)');
+    expect(cuerpo).toContain('puede(permiso.user, PERMISOS.SUELDOS)');
+    expect(cuerpo).toMatch(/eventSalary:\s*previo/);
+
     const casos: Array<[string, string]> = [
-      ['fiesta/personal.actions.ts', 'updatePersonal'],
       ['empleados.ts', 'deleteEmpleado'],
     ];
     for (const [archivo, functionName] of casos) {
@@ -295,7 +304,8 @@ describe('release security boundaries', () => {
     const resetStart = crm.indexOf('export async function resetCrm');
     const resetEnd = crm.indexOf('export async function ', resetStart + 1);
     const resetSource = crm.slice(resetStart, resetEnd);
-    expect(resetSource).toContain("auth.user?.role !== 'admin'");
+    // Orden 194 (hallazgo 18): se decide por el perfil, no por el rol viejo.
+    expect(resetSource).toContain('puede(auth.user, PERMISOS.ADMINISTRACION)');
     expect(resetSource).toContain('Acceso restringido a administradores.');
   });
 

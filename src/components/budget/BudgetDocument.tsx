@@ -1,3 +1,5 @@
+import { parseEventDate } from '@/lib/public-experience/event-date';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 /**
  * BudgetDocument — Unified formal budget document component for AK Producciones.
  * Resolves duplicate templates across step 4 summary, Client Portal `/ver`, and PDF exports.
@@ -16,6 +18,7 @@ import {
 import { presentacionComercialMercadoPago, calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 import { buildPresupuestoNarrative } from '@/lib/budget/budget-narrative';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
+import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -38,10 +41,10 @@ function formatCurrency(amount?: number): string {
 function formatDateShort(dateString?: string): string {
   if (!dateString) return '—';
   try {
-    const d = new Date(dateString);
-    const day = dateString.includes('T') ? d.getUTCDate() : d.getDate();
-    const month = dateString.includes('T') ? d.getUTCMonth() + 1 : d.getMonth() + 1;
-    const year = dateString.includes('T') ? d.getUTCFullYear() : d.getFullYear();
+    const d = parseEventDate(dateString) || new Date(dateString);
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
     return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
   } catch {
     return '—';
@@ -51,15 +54,7 @@ function formatDateShort(dateString?: string): string {
 function formatDateLong(dateString?: string): string {
   if (!dateString) return '—';
   try {
-    const d = new Date(dateString);
-    const day = dateString.includes('T') ? d.getUTCDate() : d.getDate();
-    const month = dateString.includes('T') ? d.getUTCMonth() : d.getMonth();
-    const year = dateString.includes('T') ? d.getUTCFullYear() : d.getFullYear();
-    return new Date(year, month, day).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
+    return formatearFechaEvento(dateString);
   } catch {
     return '—';
   }
@@ -165,18 +160,17 @@ export default function BudgetDocument({
 
   const clientName = clienteNombre || presupuesto.clienteNombre;
 
-  const rawDate = presupuesto.timestamp ? new Date(presupuesto.timestamp) : new Date();
-  const validBase = isNaN(rawDate.getTime()) ? new Date() : rawDate;
-  const validUntil = new Date(validBase);
+  const timestampDate = presupuesto.timestamp ? new Date(presupuesto.timestamp) : new Date();
+  const validUntil = isNaN(timestampDate.getTime()) ? new Date() : new Date(timestampDate);
   validUntil.setDate(validUntil.getDate() + BUDGET_VALIDITY_DAYS);
 
   // Group items by category if no override is provided
   const itemsAgrupados = React.useMemo(() => {
     if (itemsAgrupadosOverride) return itemsAgrupadosOverride;
 
-    const todosLosItems = presupuesto.itemsPresupuestados || (presupuesto as any).items || [];
-    const itemsRegulares = todosLosItems.filter((i: any) => !i.esRegalo);
-    const itemsRegalo = todosLosItems.filter((i: any) => i.esRegalo);
+    const todosItems = presupuesto.itemsPresupuestados ?? [];
+    const itemsRegulares = todosItems.filter((i) => !i.esRegalo);
+    const itemsRegalo = todosItems.filter((i) => i.esRegalo);
 
     const agrupados: Record<string, ItemPresupuestado[]> = itemsRegulares.reduce(
       (acc, item) => {
@@ -224,7 +218,7 @@ export default function BudgetDocument({
     ? annualProjection.rows
     : annualAdjustmentAmount > 0
       ? [{
-          year: new Date(presupuesto.eventoFecha || presupuesto.timestamp).getFullYear(),
+          year: anioDeLaFechaDelEvento(presupuesto.eventoFecha) ?? new Date(presupuesto.timestamp).getFullYear(),
           total: totalFinal + annualAdjustmentAmount,
           adjustmentAmount: annualAdjustmentAmount,
         }]
@@ -237,7 +231,7 @@ export default function BudgetDocument({
     presupuesto.invitadosCantidad ||
     0;
 
-  const clubUruguayItem = (presupuesto.itemsPresupuestados || []).find(
+  const clubUruguayItem = (presupuesto.itemsPresupuestados ?? []).find(
     (item) => item.idServicioCatalogo === 'serv_salon_club_uruguay'
   );
   const clubUruguayCostoCalculated = clubUruguayCosto > 0
@@ -359,7 +353,7 @@ export default function BudgetDocument({
                   {formatDateShort(presupuesto.timestamp)}
                 </td>
                 <td className="border border-slate-200 px-2 py-1.5 text-slate-600">
-                  {!isNaN(validUntil.getTime()) ? formatDateShort(validUntil.toISOString()) : '-'}
+                  {formatDateShort(validUntil.toISOString())}
                 </td>
               </tr>
             </tbody>
@@ -440,7 +434,7 @@ export default function BudgetDocument({
         />
 
         {/* Items table */}
-        {showPriceBreakdown && (presupuesto.itemsPresupuestados || (presupuesto as any).items || []).length > 0 && (
+        {showPriceBreakdown && (presupuesto.itemsPresupuestados?.length ?? 0) > 0 && (
           <section className="mb-4">
             <table className="w-full text-xs print:text-[8pt] border-collapse">
               <thead>

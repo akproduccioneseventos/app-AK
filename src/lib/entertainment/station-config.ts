@@ -71,6 +71,8 @@ export interface EntertainmentStationRuntimeConfig {
   recorteSinTela?: boolean;
   /** Fondo seleccionado para el muro en vivo / pantalla gigante. */
   fondoMuro?: string;
+  /** Filtros de cara activos habilitados por el operador para esta estación. */
+  filtrosActivos?: string[];
 }
 
 export interface PublicEntertainmentEvent {
@@ -428,7 +430,11 @@ export function filtrarPorEstacion<T extends { sourceModule?: string | null; sou
 
   if (pestana === 'buzon') {
     return posts.filter(
-      (p) => p.sourceModule === 'buzon' || p.sourceModule === 'capsulaTiempo'
+      (p) =>
+        p.sourceModule === 'buzon' ||
+        p.sourceModule === 'capsulaTiempo' ||
+        p.sourceModule === 'capsula_tiempo' ||
+        p.sourceModule === 'audio_guestbook'
     );
   }
 
@@ -445,12 +451,9 @@ export function filtrarPorEstacion<T extends { sourceModule?: string | null; sou
   return posts;
 }
 
-/**
- * Comprueba si una estación de entretenimiento está prendida en la fiesta.
- */
 export function estaEstacionHabilitada(
-  fiesta: FiestaEnPlanificacion | null | undefined,
-  moduleId: EntertainmentModuleId | 'barra' | 'buzon'
+  fiesta: any,
+  moduleId: any
 ): boolean {
   if (!fiesta) return true;
   if (moduleId === 'barra') return true;
@@ -461,6 +464,6 @@ export function estaEstacionHabilitada(
     );
   }
   const modKey = moduleId === 'totems' ? 'totems' : moduleId;
-  const mod = fiesta.others?.entretenimiento?.modules?.[modKey as EntertainmentModuleId];
+  const mod = fiesta.others?.entretenimiento?.modules?.[modKey];
   return mod?.enabled !== false;
 }

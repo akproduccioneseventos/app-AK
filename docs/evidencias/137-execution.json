@@ -1,0 +1,31 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T16:05:47.053Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 61
+  },
+  "args": [
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+    "test",
+    "--config",
+    "137-playwright.config.ts",
+    "137-maestros.spec.ts",
+    "--output",
+    "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\137-artifacts"
+  ],
+  "exitCode": 1,
+  "finishedAt": "2026-10-16T16:10:01.885Z",
+  "testSha256": "49df105c14c01d5e5059f51745c23122e6a751a5b8a37896137b9fa8c57f880d"
+}

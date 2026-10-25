@@ -1,0 +1,142 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/app/actions/fiesta/reuniones.actions.ts": "335a3ed3593430473583f595bde0e2ad8d1ecd30f9aee30adabb2833b17ed5f8",
+    "src/app/actions/multiagent.ts": "938221c8c70e2fa555a73bd15f63e1d1e4ffd076735c039c30f1bb7aaf1984be",
+    "src/app/actions/fiesta/fiesta.actions.ts": "0a1298508b729a73a16c0e8f63a942419b5f248b058bbcf29181ec8fb947609e"
+  },
+  "cases": [
+    {
+      "kind": "addReunion",
+      "perfil": "dueno",
+      "success": true,
+      "writes": 1,
+      "exposed": false,
+      "suppressed": [
+        "google-no-send"
+      ],
+      "pass": true
+    },
+    {
+      "kind": "addReunion",
+      "perfil": "secretaria",
+      "success": true,
+      "writes": 1,
+      "exposed": false,
+      "suppressed": [
+        "google-no-send"
+      ],
+      "pass": true
+    },
+    {
+      "kind": "addReunion",
+      "perfil": "personal",
+      "success": false,
+      "writes": 0,
+      "exposed": false,
+      "suppressed": [],
+      "pass": true
+    },
+    {
+      "kind": "crearTareaDesdeMultiagente",
+      "perfil": "dueno",
+      "success": true,
+      "writes": 1,
+      "exposed": false,
+      "suppressed": [
+        "notification-local-double",
+        "learning-local-double"
+      ],
+      "pass": true
+    },
+    {
+      "kind": "crearTareaDesdeMultiagente",
+      "perfil": "secretaria",
+      "success": true,
+      "writes": 1,
+      "exposed": false,
+      "suppressed": [
+        "notification-local-double",
+        "learning-local-double"
+      ],
+      "pass": true
+    },
+    {
+      "kind": "crearTareaDesdeMultiagente",
+      "perfil": "personal",
+      "success": false,
+      "writes": 0,
+      "exposed": false,
+      "suppressed": [],
+      "pass": true
+    },
+    {
+      "kind": "suspenderFiestaAction",
+      "perfil": "dueno",
+      "success": true,
+      "writes": 1,
+      "exposed": false,
+      "suppressed": [],
+      "pass": true
+    },
+    {
+      "kind": "suspenderFiestaAction",
+      "perfil": "secretaria",
+      "success": true,
+      "writes": 1,
+      "exposed": false,
+      "suppressed": [],
+      "pass": true
+    },
+    {
+      "kind": "suspenderFiestaAction",
+      "perfil": "personal",
+      "error": "Error: Tu perfil no tiene acceso a esta parte.",
+      "writes": 0,
+      "exposed": false,
+      "suppressed": [],
+      "pass": true
+    },
+    {
+      "kind": "reactivarFiestaAction",
+      "perfil": "dueno",
+      "success": true,
+      "writes": 1,
+      "exposed": false,
+      "suppressed": [],
+      "pass": true
+    },
+    {
+      "kind": "reactivarFiestaAction",
+      "perfil": "secretaria",
+      "success": true,
+      "writes": 1,
+      "exposed": false,
+      "suppressed": [],
+      "pass": true
+    },
+    {
+      "kind": "reactivarFiestaAction",
+      "perfil": "personal",
+      "error": "Error: Tu perfil no tiene acceso a esta parte.",
+      "writes": 0,
+      "exposed": false,
+      "suppressed": [],
+      "pass": true
+    }
+  ],
+  "summary": {
+    "pass": 12,
+    "fail": 0
+  },
+  "scope": "Four actual consumer return paths and actual session/profile permission helpers; deliberately full sensitive fixture from controlled storage",
+  "limits": [
+    "Session/read/update/save and secondary effects are doubles; not another SDK/HTTP test",
+    "Suspension/reactivation helpers and liquidation are controlled fixtures: no acceptance of financial liquidation arithmetic",
+    "No Google email, notification delivery, assistant learning, production data or dedicated portal credentials tested"
+  ],
+  "appEdited": false
+}

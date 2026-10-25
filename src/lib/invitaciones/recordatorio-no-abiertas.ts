@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
-import { hoyEnUruguay } from '@/lib/utils';
+import { hoyEnUruguay, diasHastaEnUruguay } from '@/lib/utils';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
@@ -44,6 +44,62 @@ export async function setAjustesRecordatorioInvitacion(
   return ajustes;
 }
 
+
+export function tocaRecordarHoy(
+  fechaEvento: string | Date | undefined | null,
+  ahora: Date = new Date(),
+): boolean {
+  if (!fechaEvento) return false;
+  let dias: number;
+  if (typeof diasHastaEnUruguay === 'function') {
+    dias = diasHastaEnUruguay(fechaEvento, ahora);
+  } else {
+    const fEvento = typeof fechaEvento === 'string' ? fechaEvento.split('T')[0] : fechaEvento.toISOString().split('T')[0];
+    const fAhora = ahora.toISOString().split('T')[0];
+    const dEvento = new Date(fEvento + 'T12:00:00Z').getTime();
+    const dAhora = new Date(fAhora + 'T12:00:00Z').getTime();
+    dias = Math.round((dEvento - dAhora) / (1000 * 60 * 60 * 24));
+  }
+  return dias === 21 || dias === 10;
+}
+
+export async function liberarReservaDelDia(
+  fiestaId: string,
+  invitadoId: string,
+  hoyFechaStr: string,
+  opciones?: { revisarEnvio?: boolean },
+): Promise<boolean> {
+  const res = await actualizarFiesta(
+    fiestaId,
+    async (fiesta) => {
+      const inv = (fiesta.invitados || []).find((i) => i.id === invitadoId);
+      if (!inv) return fiesta;
+      if (opciones?.revisarEnvio) {
+        (inv as any).revisarEnvio = true;
+      } else {
+        inv.recordatoriosApertura = (inv.recordatoriosApertura || []).filter((d) => d !== hoyFechaStr);
+      }
+      return fiesta;
+    },
+    { publicRsvp: true },
+  );
+  return Boolean(res?.success);
+}
+
+function esRechazoConocido(error: any): boolean {
+  if (!error) return false;
+  const rawStatus = error.status ?? error.statusCode ?? error.response?.status;
+  const status = typeof rawStatus === 'number' ? rawStatus : Number(rawStatus);
+  if (!Number.isNaN(status) && status > 0) {
+    return status >= 400 && status < 500;
+  }
+  const msg = String(error.message || error);
+  if (/\b(400|401|403|404|422)\b/i.test(msg) || /HTTP\s*4\d\d/i.test(msg) || /REJECTED/i.test(msg)) {
+    return true;
+  }
+  return false;
+}
+
 export interface ResultadoRecordatorioInvitacion {
   corrio: boolean;
   motivo?: string;
@@ -52,6 +108,7 @@ export interface ResultadoRecordatorioInvitacion {
   enviados: number;
   fallados: number;
   omitidos: number;
+  reservasFallidas?: number;
 }
 
 async function getCompanyGmailAccount(): Promise<GoogleWorkspaceAccount | null> {
@@ -115,6 +172,7 @@ export async function correrTareaRecordarInvitacionNoAbierta(
   let enviados = 0;
   let fallados = 0;
   let omitidos = 0;
+  let reservasFallidas = 0;
 
   const companyGmailAccount = await getCompanyGmailAccount();
   const apiToken = process.env.META_WHATSAPP_TOKEN || '';
@@ -124,17 +182,7 @@ export async function correrTareaRecordarInvitacionNoAbierta(
     const fechaEvento = fiesta.configuracion?.fechaEvento;
     if (!fechaEvento) continue;
 
-    const fechaEventoStr = fechaEvento.slice(0, 10);
-    const [yH, mH, dH] = hoyFechaStr.split('-').map(Number);
-    const [yE, mE, dE] = fechaEventoStr.split('-').map(Number);
-    if (!yE || !mE || !dE) continue;
-
-    const fechaHoyUru = Date.UTC(yH, mH - 1, dH);
-    const fechaEvUru = Date.UTC(yE, mE - 1, dE);
-    const diasHastaEvento = Math.round((fechaEvUru - fechaHoyUru) / (1000 * 60 * 60 * 24));
-
-    // Sólo actúa si faltan exactamente 21 o 10 días
-    if (diasHastaEvento !== 21 && diasHastaEvento !== 10) continue;
+    if (!tocaRecordarHoy(fechaEvento, ahora)) continue;
 
     const invitados = fiesta.invitados || [];
     let hayParaEnviar = false;
@@ -180,6 +228,9 @@ export async function correrTareaRecordarInvitacionNoAbierta(
 
     const reserva = await actualizarFiesta(fiesta.id, async (fiestaFresca) => {
       elegidos = [];
+      if (!tocaRecordarHoy(fiestaFresca.configuracion?.fechaEvento, ahora)) {
+        return fiestaFresca;
+      }
       const invitadosFrescos = fiestaFresca.invitados || [];
       const nombreEventoFresco = fiestaFresca.configuracion.nombreEvento || 'la fiesta';
 
@@ -214,92 +265,44 @@ export async function correrTareaRecordarInvitacionNoAbierta(
     }, { publicRsvp: true });
 
     // Si la reserva no se guardó, no se manda nada: no hay constancia de que quedó anotado.
-    if (reserva && reserva.success === false) continue;
+    if (reserva && reserva.success === false) {
+      reservasFallidas++;
+      continue;
+    }
 
     // Fase 2 (afuera de la transaccion): el envío real.
     for (const { inv, nombreEventoFresco } of elegidos) {
-    // Preparar enlace y mensaje
-    const enlace = `https://akproducciones.uy/invitacion/${fiestaId}/invitado/${inv.id}?token=${inv.guestAccessToken || ''}`;
-    const nombreEvento = nombreEventoFresco;
-    const mensajeTexto = `¡Hola ${inv.nombre}! Te recordamos acceder a tu invitación digital para ${nombreEvento}. Podés ver los detalles del evento y confirmar tu asistencia acá: ${enlace}`;
+      // Preparar enlace y mensaje
+      const enlace = `https://akproducciones.uy/invitacion/${fiestaId}/invitado/${inv.id}?token=${inv.guestAccessToken || ''}`;
+      const nombreEvento = nombreEventoFresco;
+      const mensajeTexto = `¡Hola ${inv.nombre}! Te recordamos acceder a tu invitación digital para ${nombreEvento}. Podés ver los detalles del evento y confirmar tu asistencia acá: ${enlace}`;
 
-    const contactoLimpio = (inv.contacto || '').trim();
-    let envioExitoso = false;
+      const contactoLimpio = (inv.contacto || '').trim();
+      let envioExitoso = false;
+      let proveedorError: any = null;
 
-    if (contactoLimpio.includes('@')) {
-      // Enviar por Gmail
-      if (companyGmailAccount) {
-        try {
-          const resGmail = await sendGoogleGmailMessage(
-            companyGmailAccount,
-            contactoLimpio,
-            `Invitación para ${nombreEvento} - AK Producciones`,
-            `<p>${mensajeTexto}</p><p><a href="${enlace}">Abrir Invitación</a></p>`,
-          );
-          envioExitoso = Boolean(resGmail?.id || (resGmail as any)?.enviado);
-        } catch {
-          envioExitoso = false;
-        }
-      } else {
-        envioExitoso = false;
-      }
-
-      if (!envioExitoso) {
-        const resAgendar = await saveScheduledMessage(
-          {
-            targetType: 'cliente',
-            targetId: fiestaId,
-            targetName: inv.nombre,
-            targetPhone: contactoLimpio,
-            templateType: 'personalizado',
-            messageText: mensajeTexto,
-            scheduledAt: ahora.toISOString(),
-            status: 'pendiente',
-            sendingMode: 'manual_click',
-            fiestaId: fiestaId,
-          },
-          WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-        );
-        if (!resAgendar?.success) {
-          console.warn(`[recordatorio] No se pudo agendar contingencia: ${resAgendar?.error}`);
-        }
-        fallados++;
-      }
-    } else {
-      // Enviar por WhatsApp
-      if (apiToken && phoneNumberId) {
-        try {
-          const resWa = await sendMetaWhatsAppMessage({
-            to: contactoLimpio,
-            text: mensajeTexto,
-            apiToken,
-            phoneNumberId,
-          });
-          if (resWa?.success) {
-            envioExitoso = true;
-          } else {
-            const resAgendarWa = await saveScheduledMessage(
-              {
-                targetType: 'cliente',
-                targetId: fiestaId,
-                targetName: inv.nombre,
-                targetPhone: contactoLimpio,
-                templateType: 'personalizado',
-                messageText: mensajeTexto,
-                scheduledAt: ahora.toISOString(),
-                status: 'pendiente',
-                sendingMode: 'manual_click',
-                fiestaId: fiestaId,
-              },
-              WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
+      if (contactoLimpio.includes('@')) {
+        // Enviar por Gmail
+        if (companyGmailAccount) {
+          try {
+            const resGmail = await sendGoogleGmailMessage(
+              companyGmailAccount,
+              contactoLimpio,
+              `Invitación para ${nombreEvento} - AK Producciones`,
+              `<p>${mensajeTexto}</p><p><a href="${enlace}">Abrir Invitación</a></p>`,
             );
-            if (!resAgendarWa?.success) {
-              console.warn(`[recordatorio] No se pudo agendar contingencia WhatsApp: ${resAgendarWa?.error}`);
-            }
-            fallados++;
+            envioExitoso = Boolean(resGmail?.id || (resGmail as any)?.enviado);
+          } catch (err) {
+            proveedorError = err;
+            envioExitoso = false;
           }
-        } catch {
-          const resAgendarCatch = await saveScheduledMessage(
+        } else {
+          envioExitoso = false;
+          proveedorError = new Error('No hay cuenta de correo conectada');
+        }
+
+        if (!envioExitoso) {
+          const resAgendar = await saveScheduledMessage(
             {
               targetType: 'cliente',
               targetId: fiestaId,
@@ -314,33 +317,66 @@ export async function correrTareaRecordarInvitacionNoAbierta(
             },
             WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
           );
-          if (!resAgendarCatch?.success) {
-            console.warn(`[recordatorio] No se pudo agendar contingencia catch: ${resAgendarCatch?.error}`);
+          if (!resAgendar?.success) {
+            console.warn(`[recordatorio] No se pudo agendar contingencia: ${resAgendar?.error}`);
+            if (esRechazoConocido(proveedorError)) {
+              await liberarReservaDelDia(fiestaId, inv.id, hoyFechaStr);
+            } else {
+              await liberarReservaDelDia(fiestaId, inv.id, hoyFechaStr, { revisarEnvio: true });
+            }
           }
           fallados++;
         }
       } else {
-        const resAgendarSinApi = await saveScheduledMessage(
-          {
-            targetType: 'cliente',
-            targetId: fiestaId,
-            targetName: inv.nombre,
-            targetPhone: contactoLimpio,
-            templateType: 'personalizado',
-            messageText: mensajeTexto,
-            scheduledAt: ahora.toISOString(),
-            status: 'pendiente',
-            sendingMode: 'manual_click',
-            fiestaId: fiestaId,
-          },
-          WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-        );
-        if (!resAgendarSinApi?.success) {
-          console.warn(`[recordatorio] No se pudo agendar contingencia sin API: ${resAgendarSinApi?.error}`);
+        // Enviar por WhatsApp
+        if (apiToken && phoneNumberId) {
+          try {
+            const resWa = await sendMetaWhatsAppMessage({
+              to: contactoLimpio,
+              text: mensajeTexto,
+              apiToken,
+              phoneNumberId,
+            });
+            if (resWa?.success) {
+              envioExitoso = true;
+            } else {
+              proveedorError = new Error(resWa?.error || 'HTTP 400 rejection WhatsApp');
+            }
+          } catch (err) {
+            proveedorError = err;
+            envioExitoso = false;
+          }
+        } else {
+          proveedorError = new Error('No hay credenciales de WhatsApp');
         }
-        fallados++;
+
+        if (!envioExitoso) {
+          const resAgendarWa = await saveScheduledMessage(
+            {
+              targetType: 'cliente',
+              targetId: fiestaId,
+              targetName: inv.nombre,
+              targetPhone: contactoLimpio,
+              templateType: 'personalizado',
+              messageText: mensajeTexto,
+              scheduledAt: ahora.toISOString(),
+              status: 'pendiente',
+              sendingMode: 'manual_click',
+              fiestaId: fiestaId,
+            },
+            WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
+          );
+          if (!resAgendarWa?.success) {
+            console.warn(`[recordatorio] No se pudo agendar contingencia WhatsApp: ${resAgendarWa?.error}`);
+            if (esRechazoConocido(proveedorError)) {
+              await liberarReservaDelDia(fiestaId, inv.id, hoyFechaStr);
+            } else {
+              await liberarReservaDelDia(fiestaId, inv.id, hoyFechaStr, { revisarEnvio: true });
+            }
+          }
+          fallados++;
+        }
       }
-    }
 
       if (envioExitoso) {
         enviados++;
@@ -349,11 +385,12 @@ export async function correrTareaRecordarInvitacionNoAbierta(
   }
 
   return {
-    corrio: true,
+    corrio: reservasFallidas === 0,
     totalFiestas: fiestas.length,
     totalInvitadosEvaluados: totalInvitados,
     enviados,
     fallados,
     omitidos,
+    ...(reservasFallidas > 0 ? { reservasFallidas, motivo: 'fallaron reservas' } : {}),
   };
 }

@@ -1,0 +1,13 @@
+{
+  "source": "253838732287c2704d78113d15ace9c025cb82c9",
+  "scope": "boundary",
+  "buildFinished": "2026-10-20T13:18:08.610Z",
+  "started": "2026-10-20T13:36:32.135Z",
+  "realServices": false,
+  "serverPid": 15520,
+  "emulatorPid": 13560,
+  "error": "TypeError: fetch failed",
+  "snapshotCount": 76,
+  "sourceDiff": "",
+  "finished": "2026-10-20T13:37:33.012Z"
+}

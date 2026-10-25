@@ -563,6 +563,8 @@ fiesta.** Si falta una, el total miente y nadie lo ve, porque el número se mues
 
 ### 19. Si la pantalla se abre con datos en la dirección, ¿sobreviven a un rebote por el ingreso? Y si falta el dato, ¿lo dice o se queda cargando?
 
+**Ampliada el 24/10 (Codex 345, orden 224):** el barrido viejo miró el rebote y no la condición del cargando. Se busca `isLoading || !` (y `loading || !`) antes del `return` de la ruedita en `src/app`: si la lectura terminó sin dato, esa condición gira para siempre. La rama "no encontrado" va antes que la ruedita.
+
 Son dos mitades del mismo agujero, y las dos pasaron el mismo día:
 
 - El portero mandaba al ingreso guardando sólo la ruta y tiraba el `?fiestaId=...`. Al volver,
@@ -1153,3 +1155,275 @@ cobra cada persona (`personalAsignado[].eventSalary`), y la pantalla de recibos 
 dato protegido por un permiso, se busca **en qué objetos más grandes va metido** (la fiesta, el
 presupuesto, el cliente) y se mira qué perfiles reciben ese objeto entero. Y al revés: si se lo saca al
 leer, **al guardar** el objeto sin ese dato no tiene que borrarlo (pregunta 38).
+
+**Ampliada el 20/10 (Codex 150, orden 198):** también **lo que DEVUELVE un guardado**. `saveFiesta`
+reponía la plata para guardar y devolvía la fiesta entera, con costos y sueldos ajenos. Se busca cada
+`return { ..., fiesta: … }` o `updatedFiesta` de una acción, no sólo lo que se lee.
+
+### 69. Una función "interna" sin permiso, ¿vive en un archivo `'use server'`?
+
+La entrega de la orden 183 (propuesta 1333) agregó `updateGestionCostosInterno` sin pedir permiso, para
+que la sincronización automática pudiera guardar costos. Pero la exportó desde `costos.actions.ts`, que
+empieza con `'use server'`: **todo lo que se exporta de ahí se puede llamar desde el navegador**. "Interna"
+era sólo el nombre. Lo frenó el candado de la plata. Al verificar: una función que se saltea el permiso
+vive en un archivo **sin** `'use server'` (con `import 'server-only'`), y la acción pública la llama.
+
+### 70. Una fecha sin hora (la del evento, un vencimiento), ¿se muestra el mismo día en Uruguay?
+
+Codex 143 (orden 184): la hoja de cocina guardaba 2027-08-08 y mostraba el 7/8 en Uruguay, porque leía la
+fecha como medianoche de Greenwich. Una fecha "civil" se arma con año, mes y día, nunca con
+`new Date('AAAA-MM-DD')`, y la prueba corre con la zona `America/Montevideo`.
+
+### 71. Dos registros con el mismo nombre, ¿la cuenta los distingue por su identificador?
+
+Codex 148 (orden 185): al guardar la fiesta, los pagos a proveedores se reponían buscando por nombre; con dos
+proveedores de igual nombre, uno se quedaba con la plata del otro. Si hay `id`, se empareja por `id`; el
+nombre sólo para filas viejas sin `id`, y sólo si no es ambiguo.
+
+### 72. Un número de teléfono local, ¿sale con el 598 cuando arma el enlace de WhatsApp?
+
+Codex 136 (orden 186): el recordatorio de la agenda armaba `wa.me/099...` y WhatsApp no lo abría. Todo enlace
+de WhatsApp pasa por la misma función que agrega el prefijo del país.
+
+### 73. Una lista de nombres permitidos, ¿acepta nombres que el lenguaje trae de fábrica?
+
+Codex 138 (orden 187): `esPerfilValido` preguntaba `valor in PERMISOS_POR_PERFIL`, y `"toString"` o `"constructor"`
+pasaban como perfiles. Se pregunta con `Object.hasOwn` (o `hasOwnProperty`), nunca con `in`.
+
+### 74. Lo que llama una máquina de afuera (despertador, webhook), ¿pasa la puerta general de la app?
+
+Gemini, 20/10 (orden 194): el despertador de cada 15 minutos llama a `/api/cron-despachador` con su
+clave, pero `src/middleware.ts` manda a `/login` todo lo que no tiene cookie y no figura en
+`src/lib/auth/public-paths.ts`. La ruta revisaba su clave, sus pruebas daban verde… porque **llamaban a
+la ruta directo, salteando la puerta**. Ya estaba anotado en `YA-RESUELTO.md` ("cron sin cookie dio
+HTML") y nadie lo arregló. Se busca: toda ruta de `src/app/api/` que mire `CRON_SECRET`,
+`TAREAS_SECRET` o una firma de webhook tiene que figurar como pública, y su prueba pasa por
+`isPublicPath`, no sólo por el manejador.
+
+### 75. Una función que se cuida sola con un dato opcional, ¿quien la llama le pasa ese dato?
+
+Gemini, 20/10 (orden 194): `atenderAlEquipo` ignora los ecos si `isEcho` viene en verdadero, y el
+webhook no se lo pasa nunca (tampoco `to`, `type` ni el audio). La protección existe y no se prende.
+Se busca: parámetros opcionales de los que depende un `if` de seguridad o de plata; se mira cada
+llamada y se comprueba que lo mande.
+
+### 76. Todos los lugares que arman la sesión, ¿guardan los mismos datos que después mira el permiso?
+
+Gemini, 20/10 (orden 194): el ingreso con clave guarda `perfil`; el ingreso con Google no, y
+`perfilDe` cae a `secretaria` (o a dueño si falta el rol). Y once acciones miran `role !== 'admin'` en
+vez del perfil, así que rol y perfil pueden decir cosas distintas. Se busca: cada `writeSessionCookie`
+con los mismos campos, y ningún permiso decidido por `role`.
+
+### 77. Lo que el cliente o el invitado puede hacer sin sesión, ¿termina en algo que pide sesión del equipo?
+
+Amplía la 24 al portal del cliente. Gemini, 20/10 (orden 194): `updateDecoracion` con `allowPortal`
+guarda y después llama a `syncDecoGastosToModule`, que pide sesión: la decoración queda guardada y el
+cliente ve "no se pudo guardar". Se busca: cada acción con `allowPortal`, `publicRsvp` o token de
+invitado, y **todo lo que llama después**, hasta el final.
+
+### 78. Una acción pública que prueba una clave o respuestas, ¿tiene tope de intentos? Y si recibe un id de usuario, ¿mira que sea el de la sesión?
+
+Gemini, 20/10 (orden 194): `resetPasswordWithQuestions` se puede probar sin límite; `changePassword`
+recibe cualquier `userId`. Se busca: acciones sin sesión que comparan claves, PIN, respuestas o códigos
+(van con `enforcePublicRateLimit`), y acciones que reciben `userId`, `empleadoId` o `clienteId` del
+navegador.
+
+### 79. Lo que una pantalla lee de una versión recortada, ¿viaja en esa versión?
+
+La inversa de la 68. Gemini, 20/10 (orden 194): el portal del cliente recibe la fiesta por una lista
+blanca (`mapGuest` en `src/lib/client-portal/public-fiesta.ts`) que no trae `checkedIn` ni
+`photosUploaded`: la pantalla dice siempre "0 llegaron" y "faltan fotos". Se busca: cada campo que
+lee una pantalla pública, contra lo que deja pasar su recorte.
+
+### 80. Lo que una pantalla le pasa a otra (enlace, parámetro, estado), ¿la otra lo lee con ese nombre?
+
+Gemini, 20/10 (orden 194): el simulador manda `&adultos=` y el otro lee `guests`; el plato elegido
+queda en un estado que no llega a lo que se guarda; el enlace a confirmar pierde `guestId` y el de
+"mi mesa" al hub también. Se busca: cada `href` y `router.push` con parámetros, contra el
+`searchParams.get` de la pantalla de destino; y cada estado que se muestra elegido, contra lo que se
+manda al guardar.
+
+### 81. El arreglo y su control, ¿miran la forma en toda la app o sólo el archivo donde apareció?
+
+**Es la que explica por qué "vuelven" cosas ya arregladas** (dueño, 20/10). El álbum que mandaba al
+disco de todos los clientes se arregló en una pantalla y su control leía sólo esa; la misma línea
+seguía en `src/app/post-fiesta/[fiestaId]/page.tsx`. **`node scripts/formas-ya-arregladas.mjs`** toma
+cada forma que un control prohíbe en un archivo y la busca en toda la app. Se corre al juntar cada
+entrega; lo que encuentra se confirma y va a una orden. Y un control nuevo que prohíbe una forma se
+escribe recorriendo `src/`, no un archivo.
+
+### 82. Lo que dice el asistente, la voz o un agente, ¿sale de los datos o es un texto fijo que parece un dato?
+
+Entrega 1337 (orden 196): el Contador de "los dots" contestaba "este mes se cobraron $240.000 y restan
+$85.000" siempre igual; la acción "ejecutada automáticamente" no hacía nada; el borrador de WhatsApp
+"dejado listo en Mi Día" no se guardaba en ningún lado, y una acción desconocida respondía "recibida y
+registrada". Todo con pruebas en verde. Se busca: cada respuesta del asistente que nombre un número, una
+acción hecha o algo guardado, y se sigue hasta el dato o el guardado que la respalda. El control
+`src/__tests__/el-asistente-no-inventa-plata.test.ts` frena los importes escritos a mano.
+
+### 83. Un visor o ventana hecho a mano (`role="dialog"` sin el Dialog de Radix), ¿lleva el foco adentro, cierra con Escape y devuelve el foco a lo que lo abrió?
+
+Codex 155 (orden 199): en la galería de la portada, abrir una foto con el teclado dejaba el foco detrás del
+visor y, al cerrar, el foco quedaba en la nada: quien navega con teclado o lector de pantalla pierde su lugar.
+Los visores de video y de historias de la portada ya lo hacían bien (guardan `document.activeElement` y lo
+vuelven a enfocar). Se busca `role="dialog"` y `aria-modal` en `src/` y, en los que no importan
+`@/components/ui/dialog`, se miran las tres cosas.
+
+### 84. Donde alguien puede ver "lo suyo" (su portal, su ficha, sus recibos), ¿llega a la comprobación de que es suyo, o antes lo frena una lectura general que a su perfil le dice que no?
+
+Codex 156 (orden 200): el portal del empleado leía la lista entera del personal y todas las fiestas antes
+de mirar si el portal era el suyo; esas lecturas rechazan al perfil personal, así que nunca llegaba. La
+regla estaba bien y el control de "es lo suyo" también: fallaba el orden. Se busca cada comprobación de
+"propio" y se mira qué se llama antes; lo propio se lee con una lectura interna acotada a esa persona,
+**sin** abrirle a ese perfil las lecturas generales.
+
+### 85. Lo que una ruta contesta cuando entró sin clave, ¿trae datos de clientes, fiestas o mensajes?
+
+Codex 158 (orden 201): las tareas automáticas que pueden correr sin la clave (porque sólo preparan
+borradores) contestaban con todo el detalle: nombres de clientes, tipo de fiesta y días sin respuesta. La
+puerta ya decía "sin clave, la respuesta va recortada" y nadie la recortaba. Ahora toda respuesta de una
+tarea pasa por `respuestaDeLaTarea`, y `codex-156-158-portal-propio-y-tareas-recortadas.test.ts` lo exige
+en todas las rutas que abren la puerta.
+
+### 86. Una respuesta guardada para no repetir trabajo, ¿se devuelve antes de mirar quién la pide?
+
+Codex 171 (orden 205, sobre la entrega 1344 de Gemini): la acción de voz guardaba en memoria el resultado
+de cada pedido por su número y, si el número se repetía, lo devolvía **antes** de mirar el permiso. El
+dueño preguntaba cuánto le deben; con el mismo número, un operador recibía la respuesta. Se busca todo
+`Map`/caché de resultados por id en `src/app` y `src/lib`, y se mira que el permiso vaya primero y que el
+resultado quede atado a quién lo pidió.
+
+
+### 87. Cuando se elige un registro por su nombre (un rol, un servicio, un contacto), ¿puede caer en otro que contiene la misma palabra?
+
+Codex 178 (orden 209): al armar el personal, "Mozo" agarraba el primer rol que lo contuviera, y con
+"Mozo de Cocina, Mozo de Atención" los mozos de salón quedaban en la cocina. El barrido encontró lo mismo
+en el asistente: "barra" cambiaba el precio de la primera barra del catálogo, y "Ana" le agendaba la cita a
+"Mariana Pérez". Se busca `.find(` con `.includes(` sobre `nombre`/`name` en `src/`. Se mira que vaya
+primero el nombre exacto y que, si hay más de uno parecido, se pregunte en vez de elegir.
+
+### 88. Un valor por defecto escrito con `||` (`Number(x) || 15`), ¿pisa un 0 puesto a propósito?
+
+Codex 201 (orden 210, A10): el portal calculaba el ajuste anual con `Number(...) || 15`. Un presupuesto
+con ajuste 0 a propósito le mostraba y le pedía al cliente un 15% de más. Se buscan `|| <número>` sobre
+porcentajes, precios, descuentos, sueldos y montos en `src/`. El valor por defecto va sólo cuando falta
+el dato (`== null`), no cuando vale 0.
+
+### 89. Cuando un guardado se cambia por otro (de `updatePresupuesto` a una transacción, por ejemplo), ¿el nuevo hace TODOS los controles que hacía el viejo?
+
+Codex 204 (orden 211): Claude pasó las aprobaciones del portal a `mutarPresupuesto` para que no se
+sumaran dos veces, y con eso se salteó lo que hacía `updatePresupuesto`: frenar si el contrato está
+firmado y rehacer la cuenta desde los renglones. El arreglo quedó publicado unas horas con un agujero
+nuevo. Antes de cambiar un guardado, se lista qué controles hace el viejo (permiso, contrato firmado,
+recálculo, normalización, aviso al CRM) y se mira que el nuevo los haga o diga por qué no hacen falta.
+Se buscan los `mutarPresupuesto(` y `mutateDataItem<Presupuesto>` de `src/` y se mira si cambian la
+estructura del presupuesto (invitados, renglones, descuento) sin mirar la firma.
+
+### 90. Un control que se mira ANTES de la transacción, y un "deshacer" que vuelve a una foto vieja: ¿aguantan que otro haga algo en el medio?
+
+Codex 217-218 (orden 213-claude). Las aprobaciones del portal miraban la firma del contrato en la primera
+lectura. Si se firmaba antes de la escritura, el extra entraba igual. Y al fallar el presupuesto, la
+fiesta volvía a la configuración leída al principio, borrando lo que otro aprobó en el medio.
+
+Dos cosas se miran:
+
+1. Todo control que decide si se escribe (firma, saldo, estado, permiso del dueño del dato) va adentro
+   de la transacción, sobre el dato que se va a guardar.
+2. Todo "deshacer" o "volver atrás" trabaja sobre el dato de AHORA. Resta lo suyo, o vuelve un valor
+   sólo si sigue siendo el que puso él.
+
+Se buscan en `src/app/actions` y `src/lib` los `catch` y los "revertir/deshacer/rollback" que guardan
+algo leído antes (`...antes`, `status: xAntes.status`, `writeData(archivo, original...)`).
+
+### 91. Cuando el cliente acepta o firma algo, ¿queda registrado lo que VIO, y sólo por el camino de firmar?
+
+Codex 240 (orden 216-claude). La firma del portal guardaba la huella del texto de ese momento, no la del
+que el cliente tenía en pantalla. Si el equipo lo cambiaba en el medio, se le atribuía el nuevo. Además, la
+constancia se podía reescribir por el guardado general, y dos firmas a la vez se pisaban.
+
+Se miran tres cosas en cada aceptación del cliente:
+
+1. Que la pantalla mande qué versión vio (huella, versión o fecha) y que el servidor la compare adentro
+   de la escritura.
+2. Que lo que se aceptó sólo lo escriba su acción, y que el guardado general lo deje como está.
+3. Que el resumen que se le muestra antes de aceptar salga de sus datos reales. Si no se pueden leer,
+   se dice, sin importes por defecto.
+
+Se buscan en `src/app/actions` las acciones con `verifyPortalSession` que guardan una aceptación, una
+firma o una aprobación del cliente.
+
+### 92. Una tarea que corre sin clave, ¿le escribe a alguien? Y si falla a mitad, ¿queda anotada como corrida?
+
+Codex 249-250 (orden 217). El recordatorio a los invitados mandaba WhatsApp y Gmail, y estaba en la lista
+de "las que no hacen daño". La pregunta 85 miraba qué contestaba la ruta, no qué hacía.
+
+Además se mira:
+
+- Si una reserva o un envío fallan, ¿la corrida se anota igual como hecha?
+- ¿El día queda consumido sin haberse mandado nada?
+
+Se recorre `TAREAS_QUE_NO_HACEN_DANO` en `src/lib/automatico/puerta-de-las-tareas.ts` y, por cada una, se
+busca en su motor `sendMetaWhatsAppMessage`, `sendGoogleGmailMessage` o cualquier envío a una persona
+que no sea el dueño.
+
+### 93. Si deshago porque falló, ¿pudo otro intento de LA MISMA operación haberla completado en el medio?
+
+Codex 263 (orden 218). Aprobar un aviso de pago volvía a pendiente si el presupuesto no tomaba el cobro, y
+miraba que el aviso siguiera "aprobado por mí". Un reintento que acreditaba el mismo aviso no cambiaba esa
+marca, así que la respuesta tardía del primero lo deshacía con la plata adentro. La pregunta 90 miraba si
+OTRA operación había tocado el dato; no si la misma, reintentada, había terminado bien.
+
+Se mira que la vuelta atrás pregunte por una marca de que la operación TERMINÓ (cobro acreditado), no por la
+de que empezó. Y que quien termina deje esa marca en el mismo lugar que lee la vuelta atrás.
+
+Se buscan en `src/app/actions` los `if (!...success)` que vuelven algo a pendiente o deshacen, después de un
+cobro, una factura o un descuento de stock.
+
+### 94. Un control nuevo que frena una escritura, ¿está en la MISMA escritura?
+
+Codex 264 (orden 219). En la revisión contable del 22/10 agregué "con firma no se cambia el texto" en
+`updateFiestaPartial`, leyendo antes y escribiendo después con `updateDataPartial`. Una firma entre las dos
+dejaba la constancia de un texto y el contrato con otro. La pregunta 90 ya lo decía; el barrido de esa
+pregunta no miró el control que yo mismo acababa de agregar.
+
+Se mira cada `if (...) return` que frena por firma, factura, cobro o estado cerrado, y se sigue hasta la
+escritura: si es `updateDataPartial`, `writeData` o `saveFiesta`, el control tiene que repetirse adentro de
+`actualizarFiesta`, `mutateDataItem` o la transacción. Vale primero para los controles agregados en la
+misma tanda.
+
+### 95. Una acción del servidor que llama a un ayudante que guarda plata, ¿pide permiso ella?
+
+Revisión de la entrega 1353 de Gemini (23/10). `updateGestionCostosInterno` era una acción pública que sólo
+llamaba a `guardarCostosInterno`, importado de otro archivo. El candado de la plata miraba los nombres de los
+archivos y campos de plata adentro de la acción, no las llamadas a los ayudantes que los escriben, y no la vio.
+
+Ahora el candado también cuenta como plata llamar a `guardarCostosInterno`, `mutarCostosInterno`,
+`mutarPresupuesto`, `addPagoToPresupuesto`, `registerBookingDeposit` o `saveInvoice`. Cuando aparece un
+ayudante nuevo que guarda plata, se suma a esa lista en `src/__tests__/el-candado-de-la-plata.test.ts`.
+
+### 96. Una regla de estilo general, ¿le cambia el COLOR DE FONDO a una pantalla que se pensó oscura?
+
+Codex 341 (orden 223). La regla `main.flex-1 { background:#f8fafc }` de `ak-global-premium.css` pintaba casi
+blanco el fondo de cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología), y su texto
+claro quedaba ilegible. La pregunta 52 miraba lugar y tamaño, no color.
+
+Por cada regla de alcance general (`main`, `body`, `> *`, clases de marca) que pone `background` o `color`, se
+buscan las pantallas que la reciben y escriben texto claro (`text-white`, `text-slate-100`…). La prueba mide
+el color calculado del fondo (`getComputedStyle`), no la clase escrita.
+
+**Ampliada el 24/10 (Codex 423, orden 227):** el barrido miró un solo archivo de estilos y la prueba miró
+`background-color`. Quedaba `main.flex-1 > div:first-child` en `ak-internal-experience-polish.css` con un
+degradado (`background-image`) casi blanco, y la prueba dio verde con el texto ilegible. Se buscan **todos**
+los `.css` que importa `src/app/layout.tsx`, también los selectores de hijo (`main.flex-1 > ...`), y cada
+`<main ... flex-1>` fuera del panel. La prueba compara píxeles de una captura, no estilos calculados.
+
+### 97. Si hay un código de estado numérico, ¿se decide por el número o por el texto del error?
+
+Codex 350 (orden 225). `esRechazoConocido` del recordatorio a invitados miraba el número y, si no era 4xx,
+buscaba "403" en el texto. Un 503 con un rastreo que decía `qa403` se tomaba como rechazo: se liberaba la
+reserva y el invitado recibía el recordatorio dos veces. La pregunta 93 miraba la marca de terminado, no cómo
+se clasifica la falla.
+
+Se buscan en `src` las expresiones que leen números de estado en el texto de un error
+(`.test(msg)`, `.includes('403')`…). Si el error trae `status`, manda el número; el texto sólo cuenta cuando no
+hay número, y con números enteros (`\b403\b`).

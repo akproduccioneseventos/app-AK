@@ -1,0 +1,234 @@
+{
+  "source": "9d1a07f99b8d6972995ff8c2b9f1a5a1ac4a81de",
+  "checkedAt": "2026-10-22T06:22:43.009Z",
+  "hashes": {
+    "src/lib/auth/session-token.ts": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/equipo-de-la-fiesta.ts": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/app/actions/fiesta/fiesta.actions.ts": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/lib/fiesta/reponer-la-plata.ts": "97dcc858e11ee28fd1f9901fd98c3aa59a0f267267ab3b1b99bc0972afdca119",
+    "src/lib/calculations.ts": "7708962a326b4b6e7189d0e79ce2110204483337f66a50e322415cb6be37eed3",
+    "src/lib/budget/formal-budget.ts": "d1e0420c799db7caab2aaf6a3c9972255dc78546fca26d70b0e949ea26e8bba0",
+    "src/lib/budget/financial-guardrails.ts": "168fc970a11d35ec8893a6af6374d371f559003d9f7d193e61029c192bb5d072",
+    "src/app/actions/presupuestos.ts": "320f46de3beb0a86b37fc73cf13715c02aed1f99ea3a87396ade64da050d9bf3",
+    "src/app/actions/fiesta/documentos.actions.ts": "339b54f151c6b5406b80d493fc89fa3869494da9080a32fe59210949b876025c"
+  },
+  "cases": [
+    {
+      "id": "no-portal-session-summary-denied",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Sesión del portal no autorizada."
+      }
+    },
+    {
+      "id": "portal-only-client-gets-own-financial-summary",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true,
+          "summary": {
+            "nombreEvento": "Evento ficticio QA240",
+            "clienteNombre": "Evento ficticio QA240",
+            "salon": "Lugar QA240",
+            "fechaEvento": "2027-08-08",
+            "totalEstimado": 0,
+            "senia": 20000,
+            "saldo": 0,
+            "presupuestoId": "qa240-budget"
+          }
+        },
+        "budgetExists": true,
+        "portalValid": true
+      }
+    },
+    {
+      "id": "client-app-session-gets-own-financial-summary",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true,
+          "summary": {
+            "nombreEvento": "Evento ficticio QA240",
+            "clienteNombre": "Evento ficticio QA240",
+            "salon": "Lugar QA240",
+            "fechaEvento": "2027-08-08",
+            "totalEstimado": 0,
+            "senia": 20000,
+            "saldo": 0,
+            "presupuestoId": "qa240-budget"
+          }
+        },
+        "session": {
+          "success": true,
+          "user": {
+            "userId": "qa240-client",
+            "email": "client@qa.invalid",
+            "role": "client",
+            "perfil": "cliente"
+          }
+        }
+      }
+    },
+    {
+      "id": "owner-session-financial-positive-control",
+      "pass": true,
+      "observed": {
+        "success": true,
+        "summary": {
+          "nombreEvento": "Evento ficticio QA240",
+          "clienteNombre": "Evento ficticio QA240",
+          "salon": "Lugar QA240",
+          "fechaEvento": "2027-08-08",
+          "totalEstimado": 100000,
+          "senia": 30000,
+          "saldo": 70000,
+          "presupuestoId": "qa240-budget"
+        }
+      }
+    },
+    {
+      "id": "payment-plan-needs-acceptance",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Para firmar tenés que aceptar el plan de pagos."
+      }
+    },
+    {
+      "id": "client-signature-persists-without-booking-or-charge",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "party": {
+          "id": "qa240-party",
+          "presupuestoId": "qa240-budget",
+          "estado": "Planificando",
+          "configuracion": {
+            "nombreEvento": "Evento ficticio QA240",
+            "nombreLugar": "Lugar QA240",
+            "fechaEvento": "2027-08-08"
+          },
+          "contratoServicioTexto": "Contrato ficticio QA240 version A. Total acordado100000.",
+          "contratoDatos": {
+            "planPagos": {
+              "activo": false
+            }
+          },
+          "contratoFirmaInfo": {
+            "isSigned": false
+          },
+          "clientPortalSettings": {
+            "enabled": true,
+            "accessKey": "key-qa240"
+          },
+          "personalAsignado": [
+            {
+              "empleadoId": "qa240-worker",
+              "eventSalary": 3000
+            }
+          ],
+          "firmaDigitalConstancia": {
+            "signedAt": "2026-10-22T06:22:41.760Z",
+            "signedBy": "Firmante QA240",
+            "ip": "192.0.2.240",
+            "textoHuella": "48df191f6ce4829300da8cf0f597a6f2cf42056eae4db73a3b52777e8d198882",
+            "planPagosAceptado": false
+          },
+          "_syncedAt": "2026-10-22T06:22:41.913Z"
+        }
+      }
+    },
+    {
+      "id": "sequential-signature-preserves-first-constancia",
+      "pass": true,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "notifications": 1
+      }
+    },
+    {
+      "id": "generic-client-patch-cannot-rewrite-server-signature",
+      "pass": false,
+      "observed": {
+        "result": {
+          "success": true
+        },
+        "stored": {
+          "signedBy": "Reemplazo desde parcial",
+          "signedAt": "1900-01-01",
+          "textoHuella": "falso"
+        }
+      }
+    },
+    {
+      "id": "storage-failure-not-reported-signed",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "QA240_WRITE_FAILED"
+      }
+    },
+    {
+      "id": "signature-does-not-acknowledge-unseen-contract-version",
+      "pass": false,
+      "observed": {
+        "viewedText": "Contrato ficticio QA240 version A. Total acordado100000.",
+        "result": {
+          "success": true
+        },
+        "stored": {
+          "signedAt": "2026-10-22T06:22:42.406Z",
+          "signedBy": "Firmante QA240",
+          "ip": "192.0.2.240",
+          "textoHuella": "7f8cbacb062f1f1d3a9e6e5ced57a7c2ae467666f5d9a89a606b9a7632d430eb",
+          "planPagosAceptado": false
+        },
+        "currentText": "Contrato ficticio QA240 version B. Total acordado120000."
+      }
+    },
+    {
+      "id": "concurrent-stale-signer-preserves-first-committed-constancia",
+      "pass": false,
+      "observed": {
+        "first": {
+          "success": true
+        },
+        "second": {
+          "success": true
+        },
+        "stored": {
+          "signedAt": "2026-10-22T06:22:42.732Z",
+          "signedBy": "Firmante B",
+          "ip": "192.0.2.240",
+          "textoHuella": "48df191f6ce4829300da8cf0f597a6f2cf42056eae4db73a3b52777e8d198882",
+          "planPagosAceptado": false
+        },
+        "notifications": 2
+      }
+    }
+  ],
+  "cleanup": {
+    "fiestas": 0,
+    "presupuestos": 0
+  },
+  "summary": {
+    "total": 11,
+    "pass": 6,
+    "fail": 5
+  },
+  "realServices": false,
+  "appEdited": false,
+  "scope": "Actual contract summary/sign action, getFiestaById, updateFiestaPartial, permission/role and HMAC session modules, budget reader, generic updater/transactions against real Firestore Admin SDK demo. Cookie/headers/notifications/readData transport controlled; no HTTP/native page/PDF/physical contract, legal validity or real charge. Constancia is explicitly NOT physical booking acceptance."
+}

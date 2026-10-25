@@ -130,5 +130,5 @@ usa: registrarMantenimientoDeEquipo en src/app/(app)/empresa/activos-fijos/[id]/
 no-usa: .slice(0, 6) en src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx
 no-usa: void persistItemPatch en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
 usa: ak-equipo en src/app/(app)/empresa/activos-fijos/page.tsx
-usa: mantenimiento-equipo-vencido en src/app/actions/alertas.actions.ts
+usa: evaluarReglasParaFiesta(fiesta, undefined, activos) en src/app/actions/alertas.actions.ts
 ```

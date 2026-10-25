@@ -1,0 +1,194 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "374-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-001-artifacts",
+      "ak207-143-cocina-fecha-local.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\374-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/374-batch-001-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/374-batch-001-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-001-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-143-cocina-fecha-local.spec.ts",
+      "file": "ak207-143-cocina-fecha-local.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fecha civil del evento se conserva en hoja de cocina y modo impresion",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 75872,
+                  "error": {
+                    "message": "TimeoutError: locator.screenshot: Timeout 4850.448000000004ms exceeded.\nCall log:\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n",
+                    "stack": "TimeoutError: locator.screenshot: Timeout 4850.448000000004ms exceeded.\nCall log:\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-143-cocina-fecha-local.spec.ts:39:86",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-143-cocina-fecha-local.spec.ts",
+                      "column": 86,
+                      "line": 39
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 37 |\u001b[39m     fixtureDate\u001b[33m:\u001b[39m fiesta\u001b[33m.\u001b[39mconfiguracion\u001b[33m.\u001b[39mfechaEvento\u001b[33m,\u001b[39m expectedCivilDate\u001b[33m:\u001b[39m [\u001b[35m8\u001b[39m\u001b[33m,\u001b[39m \u001b[35m8\u001b[39m\u001b[33m,\u001b[39m \u001b[35m2027\u001b[39m]\u001b[33m,\u001b[39m screen\u001b[33m,\u001b[39m printed\u001b[33m,\u001b[39m timezone\u001b[33m,\u001b[39m\n \u001b[90m 38 |\u001b[39m   })) })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 39 |\u001b[39m   \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'cabecera.jpeg'\u001b[39m\u001b[33m,\u001b[39m { contentType\u001b[33m:\u001b[39m \u001b[32m'image/jpeg'\u001b[39m\u001b[33m,\u001b[39m body\u001b[33m:\u001b[39m \u001b[36mawait\u001b[39m header\u001b[33m.\u001b[39mscreenshot({ type\u001b[33m:\u001b[39m \u001b[32m'jpeg'\u001b[39m\u001b[33m,\u001b[39m quality\u001b[33m:\u001b[39m \u001b[35m65\u001b[39m\u001b[33m,\u001b[39m timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m }) })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 40 |\u001b[39m   \u001b[36mconst\u001b[39m civilParts \u001b[33m=\u001b[39m (text\u001b[33m:\u001b[39m string) \u001b[33m=>\u001b[39m text\u001b[33m.\u001b[39mmatch(\u001b[35m/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/\u001b[39m)\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mslice(\u001b[35m1\u001b[39m)\u001b[33m.\u001b[39mmap(\u001b[33mNumber\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 41 |\u001b[39m   expect(civilParts(screen))\u001b[33m.\u001b[39mtoEqual([\u001b[35m8\u001b[39m\u001b[33m,\u001b[39m \u001b[35m8\u001b[39m\u001b[33m,\u001b[39m \u001b[35m2027\u001b[39m])\u001b[33m;\u001b[39m\n \u001b[90m 42 |\u001b[39m   expect(civilParts(printed))\u001b[33m.\u001b[39mtoEqual([\u001b[35m8\u001b[39m\u001b[33m,\u001b[39m \u001b[35m8\u001b[39m\u001b[33m,\u001b[39m \u001b[35m2027\u001b[39m])\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-143-cocina-fecha-local.spec.ts",
+                        "column": 86,
+                        "line": 39
+                      },
+                      "message": "TimeoutError: locator.screenshot: Timeout 4850.448000000004ms exceeded.\nCall log:\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\n\n  37 |     fixtureDate: fiesta.configuracion.fechaEvento, expectedCivilDate: [8, 8, 2027], screen, printed, timezone,\n  38 |   })) });\n> 39 |   await info.attach('cabecera.jpeg', { contentType: 'image/jpeg', body: await header.screenshot({ type: 'jpeg', quality: 65, timeout: 5000 }) });\n     |                                                                                      ^\n  40 |   const civilParts = (text: string) => text.match(/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/)?.slice(1).map(Number);\n  41 |   expect(civilParts(screen)).toEqual([8, 8, 2027]);\n  42 |   expect(civilParts(printed)).toEqual([8, 8, 2027]);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-143-cocina-fecha-local.spec.ts:39:86"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T15:36:09.544Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "fecha.json",
+                      "contentType": "application/json",
+                      "body": "eyJmaXh0dXJlRGF0ZSI6IjIwMjctMDgtMDgiLCJleHBlY3RlZENpdmlsRGF0ZSI6WzgsOCwyMDI3XSwic2NyZWVuIjoiSE9KQSBERSBDT0NJTkFcblxuRmVjaGEgY29jaW5hIFFBMTQzXG5cbjgvOC8yMDI3IMK3IDE2MCBhZHVsdG9zIHkgMCBjaGljb3Mg4oCUIDE2MCBwZXJzb25hcyDCtyAxMjEgY29uZmlybWFyb24iLCJwcmludGVkIjoiSE9KQSBERSBDT0NJTkFcblxuRmVjaGEgY29jaW5hIFFBMTQzXG5cbjgvOC8yMDI3IMK3IDE2MCBhZHVsdG9zIHkgMCBjaGljb3Mg4oCUIDE2MCBwZXJzb25hcyDCtyAxMjEgY29uZmlybWFyb24iLCJ0aW1lem9uZSI6IkFtZXJpY2EvTW9udGV2aWRlbyJ9"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-001-artifacts\\ak207-143-cocina-fecha-loc-4d181--de-cocina-y-modo-impresion-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-001-artifacts\\ak207-143-cocina-fecha-loc-4d181--de-cocina-y-modo-impresion-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-001-artifacts\\ak207-143-cocina-fecha-loc-4d181--de-cocina-y-modo-impresion-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-143-cocina-fecha-local.spec.ts",
+                    "column": 86,
+                    "line": 39
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3e5a8a82b3f4b9ecda4d-d39f4935e41920f8c40a",
+          "file": "ak207-143-cocina-fecha-local.spec.ts",
+          "line": 13,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T15:36:06.352Z",
+    "duration": 90502.62700000001,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

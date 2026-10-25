@@ -1,0 +1,29 @@
+{
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "started": "2026-10-21T11:53:43.699Z",
+  "snapshotCount": 76,
+  "realServices": false,
+  "sourceDiffBefore": "",
+  "freeBytesBefore": 3176992768,
+  "canonicalBlogFixture": {
+    "restoredForTest": true,
+    "blob": "9a2ac6b8cedaef2b903937b9e2ec16fb43a8d653",
+    "sha256": "b8a86e74b098c9d74badd6cfde97dbfaf47075fde6cdab4c92b092025d4941ab"
+  },
+  "environment": "Clean unit env, isolated HOME, absent credentials sentinel; no inherited provider variables",
+  "pid": 2108,
+  "exitCode": 0,
+  "sourceDiff": "",
+  "finished": "2026-10-21T12:01:56.825Z",
+  "summary": {
+    "suites": 805,
+    "passedSuites": 805,
+    "failedSuites": 0,
+    "tests": 5010,
+    "pass": 5010,
+    "fail": 0,
+    "pending": 0,
+    "todo": 0
+  },
+  "failures": []
+}

@@ -144,7 +144,7 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
     return [...activeEvents, ...archivedEvents, ...reunionEvents];
   } catch (error) {
     console.error("Error fetching calendar events:", error);
-    return [];
+    throw new Error("No se pudieron cargar los eventos del calendario.");
   }
 }
 
@@ -248,7 +248,7 @@ export async function getOcupiedDates(): Promise<string[]> {
 // CITAS Y REUNIONES COMERCIALES (CRM & AGENDA)
 // ──────────────────────────────────────────────────────────────────────────────
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, readDataConDetalle } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { CrmAppointment } from '@/types/crm';
 import { AsyncMutex } from '@/lib/mutex';

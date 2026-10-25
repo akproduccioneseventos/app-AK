@@ -1,0 +1,21 @@
+{
+  "started": "2026-10-16T16:50:46.051Z",
+  "method": "GET",
+  "url": "https://akproducciones.uy/api/health",
+  "scope": "Public health only, no authentication, provider calls, accounts, messages or charges. Flags are configuration indicators, not proof of integrations.",
+  "status": 200,
+  "elapsedMs": 10140,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T16:50:56.748Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:13:49.391Z",
+    "services": {
+      "firebase": true,
+      "gemini": true,
+      "googleWorkspace": true,
+      "mail": true,
+      "instagram": false,
+      "mercadoPago": false
+    }
+  }
+}

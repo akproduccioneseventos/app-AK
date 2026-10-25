@@ -523,3 +523,31 @@ describe('sendAssistantMessage — unrecognized action catch-all', () => {
     expect(res.response).toBe('Te llevo a presupuestos.');
   });
 });
+
+// Pregunta 87 (21/10/2026): por nombre parcial se cambiaba el precio del primer servicio que lo contuviera.
+describe('update_service_price no elige un servicio al azar', () => {
+  it('con dos servicios que dicen lo mismo, pregunta cuál y no cambia ningún precio', async () => {
+    const { getServiciosEmpresa, saveServicioEmpresa } = jest.requireMock('@/app/actions/servicios-empresa');
+    (getServiciosEmpresa as jest.Mock).mockResolvedValueOnce([
+      { id: 'b1', nombre: 'Barra de tragos clásica', precioVenta: 10000 },
+      { id: 'b2', nombre: 'Barra de tragos premium', precioVenta: 20000 },
+    ]);
+    (saveServicioEmpresa as jest.Mock).mockClear();
+    mockChat.mockResolvedValueOnce(aiResult('update_service_price', { servicioNombre: 'barra de tragos', nuevoPrecio: 1 }) as any);
+    const res = await sendAssistantMessage('test', []);
+    expect(saveServicioEmpresa).not.toHaveBeenCalled();
+    expect(res.response).toContain('Decime cuál es');
+  });
+
+  it('con uno solo que lo contiene, lo cambia', async () => {
+    const { getServiciosEmpresa, saveServicioEmpresa } = jest.requireMock('@/app/actions/servicios-empresa');
+    (getServiciosEmpresa as jest.Mock).mockResolvedValueOnce([
+      { id: 'b2', nombre: 'Barra de tragos premium', precioVenta: 20000 },
+      { id: 's1', nombre: 'Sonido', precioVenta: 15000 },
+    ]);
+    (saveServicioEmpresa as jest.Mock).mockClear().mockResolvedValueOnce({ success: true, id: 'b2' });
+    mockChat.mockResolvedValueOnce(aiResult('update_service_price', { servicioNombre: 'premium', nuevoPrecio: 25000 }) as any);
+    await sendAssistantMessage('test', []);
+    expect(saveServicioEmpresa).toHaveBeenCalledWith(expect.objectContaining({ id: 'b2', precioVenta: 25000 }));
+  });
+});

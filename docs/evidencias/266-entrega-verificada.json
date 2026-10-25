@@ -1,0 +1,200 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "checks": [
+    {
+      "id": "exact-source-commit-available",
+      "pass": true,
+      "observed": "725e62ba2f909578628fad47402d125ed9632c70"
+    },
+    {
+      "id": "260-aprobacion-reintento.json-source",
+      "pass": true,
+      "observed": "725e62ba2f909578628fad47402d125ed9632c70"
+    },
+    {
+      "id": "260-aprobacion-reintento.json-no-unexpected",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "id": "260-aprobacion-reintento.json-counts",
+      "pass": true,
+      "observed": {
+        "total": 3,
+        "pass": 2,
+        "fail": 1
+      }
+    },
+    {
+      "id": "261-costos-y-senia.json-source",
+      "pass": true,
+      "observed": "725e62ba2f909578628fad47402d125ed9632c70"
+    },
+    {
+      "id": "261-costos-y-senia.json-no-unexpected",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "id": "261-costos-y-senia.json-counts",
+      "pass": true,
+      "observed": {
+        "total": 7,
+        "pass": 7,
+        "fail": 0
+      }
+    },
+    {
+      "id": "263-aprobacion-sdk.json-source",
+      "pass": true,
+      "observed": "725e62ba2f909578628fad47402d125ed9632c70"
+    },
+    {
+      "id": "263-aprobacion-sdk.json-no-unexpected",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "id": "263-aprobacion-sdk.json-counts",
+      "pass": true,
+      "observed": {
+        "total": 2,
+        "pass": 1,
+        "fail": 1
+      }
+    },
+    {
+      "id": "264-contrato-guardado-sdk.json-source",
+      "pass": true,
+      "observed": "725e62ba2f909578628fad47402d125ed9632c70"
+    },
+    {
+      "id": "264-contrato-guardado-sdk.json-no-unexpected",
+      "pass": true,
+      "observed": null
+    },
+    {
+      "id": "264-contrato-guardado-sdk.json-counts",
+      "pass": true,
+      "observed": {
+        "total": 2,
+        "pass": 1,
+        "fail": 1
+      }
+    },
+    {
+      "id": "aggregate-14-criteria-11-pass-3-fail",
+      "pass": true,
+      "observed": {
+        "total": 14,
+        "pass": 11,
+        "fail": 3
+      }
+    },
+    {
+      "id": "263-cleanup-and-intended-test-failure",
+      "pass": true,
+      "observed": {
+        "exitCode": 1,
+        "cleanupStatus": 200
+      }
+    },
+    {
+      "id": "264-cleanup-and-intended-test-failure",
+      "pass": true,
+      "observed": {
+        "exitCode": 1,
+        "cleanupStatus": 200
+      }
+    },
+    {
+      "id": "262-is-qa-error-before-cases",
+      "pass": true,
+      "observed": {
+        "exitCode": 1,
+        "cleanupStatus": 200
+      }
+    },
+    {
+      "id": "syntax-260-aprobacion-reintento.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "syntax-261-costos-y-senia.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "syntax-262-aprobacion-sdk.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "syntax-262-ejecutar.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "syntax-263-aprobacion-sdk.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "syntax-263-ejecutar.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "syntax-264-contrato-guardado-sdk.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "syntax-264-ejecutar.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "syntax-266-verificar-entrega.mjs",
+      "pass": true,
+      "observed": "PASS"
+    },
+    {
+      "id": "source-consumer-approveClientPayment",
+      "pass": true,
+      "observed": "src/app/(app)/fiestas/nueva/plan-pagos/page.tsx"
+    },
+    {
+      "id": "source-consumer-updateContratoFiestaActual",
+      "pass": true,
+      "observed": "src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx"
+    },
+    {
+      "id": "source-consumer-updateFiestaPartial",
+      "pass": true,
+      "observed": "src/app/actions/fiesta-actual.ts"
+    },
+    {
+      "id": "source-consumer-updateDataPartial",
+      "pass": true,
+      "observed": "src/app/actions/fiesta/fiesta.actions.ts"
+    },
+    {
+      "id": "state-at-most40-lines",
+      "pass": true,
+      "observed": 37
+    },
+    {
+      "id": "no-tracked-app-edits",
+      "pass": true,
+      "observed": [
+        "ESTADO-ACTUAL.md",
+        "docs/YA-RESUELTO.md",
+        "docs/evidencias/253-recuento-unico-auditoria.md"
+      ]
+    }
+  ],
+  "appAcceptance": false,
+  "scope": "Integrity/syntax/source-hash/consumer verification only. Test failures in260/263/264 intentionally retained, TWO causes not accepted. No new app tests rerun."
+}

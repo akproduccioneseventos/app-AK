@@ -1,0 +1,7 @@
+{
+  "source": "3f9460185143ef034dcd713e975d2a0af5e20f1a",
+  "from": "280-entorno-actual.mjs",
+  "purpose": "NEW frozen candidate1353, not rerun main3e. Same resource/empty-credentials/dependency guards, no app edits or foreign process stops.",
+  "assertionsChanged": false,
+  "build291AcceptedForCandidate": false
+}

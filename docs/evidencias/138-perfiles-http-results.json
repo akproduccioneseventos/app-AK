@@ -1,0 +1,56 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-16T12:28:56.250Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 759
+  },
+  "cases": [
+    {
+      "perfil": "inventado",
+      "expected": 404,
+      "actual": 404,
+      "pass": true,
+      "bodyBytes": 21,
+      "bodySha256": "670aa1ecd5fe4ad8354cb2944d691b2e1a52818bbc70e9450df350c6e40e9c0f"
+    },
+    {
+      "perfil": "constructor",
+      "expected": 404,
+      "actual": 500,
+      "pass": false,
+      "bodyBytes": 0,
+      "bodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "perfil": "toString",
+      "expected": 404,
+      "actual": 500,
+      "pass": false,
+      "bodyBytes": 0,
+      "bodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "perfil": "__proto__",
+      "expected": 404,
+      "actual": 500,
+      "pass": false,
+      "bodyBytes": 0,
+      "bodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "pass": 1,
+  "fail": 3,
+  "scope": "GET only, nonexistent synthetic filename, signed fictitious user. Existing invalid-profile legacy-user policy expects secretary then404, not500. No account changed, login or real file/data read."
+}

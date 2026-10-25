@@ -75,7 +75,7 @@ modelo). Tiene que comprobar **el resultado**:
 ```comprobar
 usa: createDataItem en src/app/actions/crm.ts
 usa: mutateDataItem en src/app/actions/customers.ts
-usa: mutateDataItem en src/app/actions/agenda.ts
+usa: mutateGenericJsonArray<CrmAppointment>( en src/app/actions/agenda.ts
 usa: mutateDataItem en src/app/actions/scheduled-messages.ts
 prueba: src/__tests__/los-prospectos-no-se-pierden-entre-servidores.test.ts
 ```

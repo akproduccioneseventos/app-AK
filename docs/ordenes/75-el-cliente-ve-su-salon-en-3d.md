@@ -64,7 +64,7 @@ decide qué ve el cliente. Mientras tanto, programá la pantalla contra esos dos
 
 ```comprobar
 archivo: src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
-usa: SalonScene en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+usa: <SalonDelClienteEn3D en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
 prueba: tests/e2e/el-cliente-gira-su-salon-en-3d.spec.ts
 ```
 
@@ -93,7 +93,7 @@ pregunta antes.
 
 ```comprobar
 archivo: src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
-usa: contarMesas en src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
+usa: generarEscenaAutomatica( en src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
 prueba: src/__tests__/el-salon-se-arma-solo-con-lo-contratado.test.ts
 ```
 

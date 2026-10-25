@@ -1,0 +1,64 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "started": "2026-10-20T10:28:59.923Z",
+  "fixture": "Modo JSON local autorizado; NO acepta el guardado SDK de produccion.",
+  "children": [
+    {
+      "label": "serve",
+      "pid": 11044,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+        "start",
+        "--hostname",
+        "127.0.0.1",
+        "--port",
+        "3300"
+      ]
+    },
+    {
+      "label": "playwright",
+      "pid": 14424,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\@playwright\\test\\cli.js",
+        "test",
+        "--config",
+        "139-playwright.config.ts",
+        "150-comercial-movil.spec.ts",
+        "--project=chromium-mobile",
+        "--output",
+        "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\150-comercial-final-artifacts"
+      ]
+    }
+  ],
+  "realServices": false,
+  "snapshots": 61,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-20T10:29:05.602Z",
+    "version": "7230f9d02b32805952a185f704a0208bd5d643e6 · compilada 2026-10-16T01:34:46.520Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "testSha256": "244aac31f4896a38b8b0463a1a295310e778a3932aa2885bcbdd391f650dff7a",
+  "testName": "150-comercial-movil.spec.ts",
+  "exitCode": 1,
+  "restored": [
+    "src\\data\\crm-leads.json",
+    "src\\data\\presupuestos.json",
+    "data\\crm-leads.json",
+    "data\\presupuestos.json"
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-20T10:29:39.948Z"
+}

@@ -1,0 +1,36 @@
+{
+  "finished": "2026-10-24T04:21:29.381Z",
+  "passed": 7,
+  "tests": [
+    {
+      "name": "net.connect",
+      "blocked": true
+    },
+    {
+      "name": "Socket.connect",
+      "blocked": true
+    },
+    {
+      "name": "tls.connect",
+      "blocked": true
+    },
+    {
+      "name": "http2.connect",
+      "blocked": true
+    },
+    {
+      "name": "https.get",
+      "blocked": true
+    },
+    {
+      "name": "fetch",
+      "blocked": true
+    },
+    {
+      "name": "loopback TCP",
+      "allowed": true
+    }
+  ],
+  "externalRequestsSent": 0,
+  "scope": "QA transport guard only; does not test app or change its functional environment."
+}

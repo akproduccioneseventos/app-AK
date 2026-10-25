@@ -36,9 +36,8 @@ import {
   Layers,
   DollarSign,
 } from 'lucide-react';
-
-import { getMisPermisos } from '@/app/actions/sesion';
 import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+import { getMisPermisos } from '@/app/actions/sesion';
 
 interface HubItem {
   title: string;
@@ -95,6 +94,7 @@ const VENDER_ITEMS: HubItem[] = [
 const PLATA_ITEMS: HubItem[] = [
   {
     title: 'Cobros y Pagos Rápidos',
+    permiso: PERMISOS.CONTABILIDAD,
     description: 'Registrar cobros, señas, cuotas y emitir recibos al instante sin dar vueltas.',
     href: '/pagos-rapidos',
     icon: Wallet,
@@ -103,6 +103,7 @@ const PLATA_ITEMS: HubItem[] = [
   },
   {
     title: 'Panel Contable y Financiero',
+    permiso: PERMISOS.CONTABILIDAD,
     description: 'Control de ingresos, egresos, rentabilidad neta por evento y balances.',
     href: '/empresa/contabilidad',
     icon: BarChart3,
@@ -110,6 +111,7 @@ const PLATA_ITEMS: HubItem[] = [
   },
   {
     title: 'Facturación',
+    permiso: PERMISOS.CONTABILIDAD,
     description: 'Emisión, control y registro de facturas emitidas por la empresa.',
     href: '/invoices',
     icon: DollarSign,
@@ -117,6 +119,7 @@ const PLATA_ITEMS: HubItem[] = [
   },
   {
     title: 'Flujo de Caja',
+    permiso: PERMISOS.CONTABILIDAD,
     description: 'Entradas y salidas proyectadas para anticipar compromisos y liquidez.',
     href: '/empresa/contabilidad/flujo-caja',
     icon: TrendingUp,
@@ -124,6 +127,7 @@ const PLATA_ITEMS: HubItem[] = [
   },
   {
     title: 'Métricas del Negocio',
+    permiso: PERMISOS.GANANCIAS,
     description: 'Panel gerencial con evolución mensual de ventas, ticket promedio y cobros.',
     href: '/empresa/dashboard',
     icon: BarChart3,
@@ -300,7 +304,6 @@ export default function EmpresaHubPage() {
 
   const filtrarPorPermiso = (items: HubItem[]) => {
     if (!misPermisos) {
-      // Mientras carga, mostrar solo items sin permiso explícito
       return items.filter((i) => !i.permiso);
     }
     return items.filter((i) => !i.permiso || misPermisos.includes(i.permiso));

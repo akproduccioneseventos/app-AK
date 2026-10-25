@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData } from '@/types/fiesta';
@@ -30,7 +29,7 @@ export const SeccionMusicaEditor: React.FC<Props> = ({ data, update }) => {
       {data.visible && (
           <div className="space-y-1 pt-2">
               <Label htmlFor="musica-placeholder">Texto de ejemplo en el campo</Label>
-              <Input 
+              <Input
                   id="musica-placeholder"
                   value={data.placeholder || 'Ej: Bohemian Rhapsody - Queen'}
                   onChange={(e) => handleFieldChange('placeholder', e.target.value)}

@@ -139,15 +139,25 @@ export async function getDashboardKpiData() {
     const totalPendiente = ledger.saldoPendiente;
     const prospectosActivos = leadsData.filter((lead) => lead.currentStageId !== 's4' && lead.currentStageId !== 's5').length;
 
-    const activeFiestas = fiestasData.filter(f => f.estado !== 'Archivado' && f.estado !== 'Demo AK' && !f.id.startsWith('demo_'));
+    const activeFiestas = fiestasData.filter(f => f && f.estado !== 'Archivado' && f.estado !== 'Demo AK' && !f.id?.startsWith('demo_'));
     const activeCustomerIds = new Set(
       activeFiestas
-        .filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= now)
-        .map(f => f.configuracion.clienteId)
+        .filter(f => {
+          const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
+          return fecha && new Date(fecha) >= now;
+        })
+        .map(f => f.configuracion?.clienteId || (f as any).clienteId)
+        .filter(Boolean)
     );
     const clientesActivos = activeCustomerIds.size;
-    const fiestasPasadas = activeFiestas.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < now).length;
-    const fiestasFuturas = activeFiestas.filter(f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) >= today).length;
+    const fiestasPasadas = activeFiestas.filter(f => {
+      const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
+      return fecha && new Date(fecha) < now;
+    }).length;
+    const fiestasFuturas = activeFiestas.filter(f => {
+      const fecha = f.configuracion?.fechaEvento || (f as any).fecha;
+      return fecha && new Date(fecha) >= today;
+    }).length;
 
     const alerts: GlobalAlert[] = [];
 
@@ -169,20 +179,20 @@ export async function getDashboardKpiData() {
       });
     });
 
-    if (veLaPlata) {
-      invoicesData.forEach(inv => {
-        if (inv.status !== 'Paid' && inv.dueDate && isBefore(new Date(inv.dueDate), today)) {
-          alerts.push({
-            id: inv.id,
-            type: 'payment',
-            title: `Pago Pendiente: Factura ${inv.invoiceNumber}`,
-            description: `Cliente: ${inv.customer.name || inv.customer.companyName}`,
-            severity: 'high',
-            href: `/invoices/${inv.id}`,
-          });
-        }
-      });
+    invoicesData.forEach(inv => {
+      if (inv.status !== 'Paid' && inv.dueDate && isBefore(new Date(inv.dueDate), today)) {
+        alerts.push({
+          id: inv.id,
+          type: 'payment',
+          title: `Pago Pendiente: Factura ${inv.invoiceNumber}`,
+          description: `Cliente: ${inv.customer.name || inv.customer.companyName}`,
+          severity: 'high',
+          href: `/invoices/${inv.id}`,
+        });
+      }
+    });
 
+    if (veLaPlata) {
       presupuestosData.forEach(pres => {
         if (!isFirmBudgetStatus(pres.estado)) return;
         const summary = getBudgetPaymentSummary(pres, { includeAnnualAdjustment: true });
@@ -238,7 +248,7 @@ export async function getDashboardKpiData() {
       const monthName = getMonthKey(date);
       const monthKey = format(date, 'yyyy-MM');
       const ledgerMonth = ledgerMonthsMap.get(monthKey);
-
+      
       monthlyData.push({
         month: monthName,
         ventas: ledgerMonth ? ledgerMonth.ventas : 0,

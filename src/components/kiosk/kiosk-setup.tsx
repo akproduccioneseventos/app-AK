@@ -36,7 +36,6 @@ export type KioskRole =
   | 'totem'
   | 'fotocabina'
   | 'espejo-magico'
-  | 'bogue'
   | 'touchpix'
   | 'buzon'
   | 'video-vida'
@@ -55,12 +54,12 @@ const ETIQUETAS_DE_ESTACION: Record<string, string> = {
   totem: 'Totem',
   fotocabina: 'Fotocabina',
   'espejo-magico': 'Espejo magico',
-  bogue: 'Cabina Vogue',
   touchpix: 'Touchpix',
   buzon: 'Buzon de saludos',
   'video-vida': 'Video de vida',
   impresion: 'Estacion de impresion',
   dj: 'Pedidos al DJ',
+  bogue: 'Vogue Booth',
 };
 
 export function KioskSetup({ defaultRole }: KioskSetupProps) {
@@ -329,12 +328,12 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                   { id: 'totem', label: 'Tótem LED', icon: Smartphone, color: 'hover:border-emerald-500/50 hover:bg-emerald-500/5' },
                   { id: 'fotocabina', label: 'Fotocabina', icon: Camera, color: 'hover:border-amber-500/50 hover:bg-amber-500/5' },
                   { id: 'espejo-magico', label: 'Espejo Mágico', icon: Sparkles, color: 'hover:border-pink-500/50 hover:bg-pink-500/5' },
-                  { id: 'bogue', label: 'Cabina Vogue', icon: Sparkles, color: 'hover:border-fuchsia-500/50 hover:bg-fuchsia-500/5' },
                   { id: 'touchpix', label: 'Touchpix AI', icon: Wand2, color: 'hover:border-cyan-500/50 hover:bg-cyan-500/5' },
                   { id: 'buzon', label: 'Buzón Saludos', icon: Mic, color: 'hover:border-violet-500/50 hover:bg-violet-500/5' },
                   { id: 'video-vida', label: 'Video de Vida', icon: Film, color: 'hover:border-orange-500/50 hover:bg-orange-500/5' },
                   { id: 'impresion', label: 'Estación Impresión', icon: Printer, color: 'hover:border-indigo-500/50 hover:bg-indigo-500/5' },
                   { id: 'dj', label: 'Pedidos al DJ', icon: Headphones, color: 'hover:border-emerald-500/50 hover:bg-emerald-500/5' },
+                  { id: 'bogue', label: 'Vogue Booth', icon: Sparkles, color: 'hover:border-fuchsia-500/50 hover:bg-fuchsia-500/5' },
                 ].map((role) => {
                   const Icon = role.icon;
                   const isSelected = selectedRole === role.id;

@@ -1,0 +1,179 @@
+{
+  "source": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+  "checkedAt": "2026-10-22T05:25:12.303Z",
+  "hashes": {
+    "src/lib/entretenimiento/filtros-cara.ts": "2924957d23e2b5fe114063a1ee3ba0c573b90698907650d16834cfe2eb5aee05",
+    "src/lib/entretenimiento/marcos-dinamicos.ts": "43de8f4427c462ed664f5ab61b375a53b12f1525edfe3b25c1aab09ff287fe3f",
+    "src/app/evento/fotocabina/[fiestaId]/page.tsx": "d5a1ec8d303019ba907ba9432d2117d313ede15d650950cdd5682ff5333685c4",
+    "src/app/evento/touchpix/[fiestaId]/page.tsx": "4802f4c9a1b8f86e77510c4a27995fa0628ade1d0aa8e8108c42e601ddcb587b",
+    "src/app/evento/bogue/[fiestaId]/page.tsx": "825725aae80fc22701209c1a247a24ce17363df1c8c18349cd9ebbb6e1521916",
+    "src/app/evento/espejo-magico/[fiestaId]/page.tsx": "66d8bfd3a84d601574481c1efb1dc6fa2db58bae2748cfad08e8d6e33e85915c"
+  },
+  "cases": [
+    {
+      "id": "no-face-preserves-context",
+      "pass": true,
+      "observed": {
+        "applied": false,
+        "calls": 0
+      }
+    },
+    {
+      "id": "normalized-face-draws-crown-and-name",
+      "pass": true,
+      "observed": {
+        "center": [
+          500,
+          200
+        ],
+        "calls": 44
+      }
+    },
+    {
+      "id": "pixel-and-normalized-reference-equivalent",
+      "pass": true,
+      "observed": {
+        "pixel": [
+          500,
+          200
+        ],
+        "normalized": [
+          500,
+          200
+        ]
+      }
+    },
+    {
+      "id": "landmarks-move-overlay",
+      "pass": true,
+      "observed": {
+        "before": [
+          500,
+          200
+        ],
+        "after": [
+          600,
+          200
+        ]
+      }
+    },
+    {
+      "id": "resolution-scales-overlay-center",
+      "pass": true,
+      "observed": {
+        "normal": [
+          500,
+          200
+        ],
+        "double": [
+          1000,
+          400
+        ]
+      }
+    },
+    {
+      "id": "disabled-frame-no-draw",
+      "pass": true,
+      "observed": {
+        "calls": 0
+      }
+    },
+    {
+      "id": "enabled-frame-draws-name",
+      "pass": true,
+      "observed": {
+        "calls": 27
+      }
+    },
+    {
+      "id": "swap-requires-exactly-two-faces",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "jaw-cooldown-one-second",
+      "pass": true,
+      "observed": {
+        "jaw": [
+          true,
+          false,
+          true
+        ]
+      }
+    },
+    {
+      "id": "roulette-fixed-after-three-seconds",
+      "pass": false,
+      "observed": {
+        "times": [
+          3100,
+          6100,
+          9100
+        ],
+        "results": [
+          "El que no larga la pista",
+          "El del brindis",
+          "El que llora en el vals"
+        ]
+      }
+    },
+    {
+      "id": "wink-affects-active-renderer",
+      "pass": false,
+      "observed": {
+        "helper": {
+          "confetiBoca": false,
+          "destelloOjo": true,
+          "cambiarFiltro": false
+        },
+        "sameCanvasEvents": true
+      }
+    },
+    {
+      "id": "raised-brows-affect-active-renderer",
+      "pass": false,
+      "observed": {
+        "helper": {
+          "confetiBoca": false,
+          "destelloOjo": false,
+          "cambiarFiltro": true
+        },
+        "sameCanvasEvents": true
+      }
+    }
+  ],
+  "consumers": [
+    {
+      "file": "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+      "line": 455,
+      "faceArgument": "carasDetectadasRef.current",
+      "filter": "selectedFiltroCara"
+    },
+    {
+      "file": "src/app/evento/touchpix/[fiestaId]/page.tsx",
+      "line": 483,
+      "faceArgument": "[]",
+      "filter": "fiesta?.station?.filtrosActivos?.[0] || 'mis15'"
+    },
+    {
+      "file": "src/app/evento/bogue/[fiestaId]/page.tsx",
+      "line": 633,
+      "faceArgument": "[]",
+      "filter": "fiesta?.station?.filtrosActivos?.[0] || 'mis15'"
+    },
+    {
+      "file": "src/app/evento/espejo-magico/[fiestaId]/page.tsx",
+      "line": 605,
+      "faceArgument": "[]",
+      "filter": "fiesta?.station?.filtrosActivos?.[0] || 'mis15'"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "pass": 9,
+    "fail": 3
+  },
+  "appEdited": false,
+  "realServices": false,
+  "limits": "Real candidate filter/frame modules; synthetic landmarks and canvas method/property spy, not pixels, model inference, hardware, camera, recording or full capture. AST locates actual consumer arguments. Empty arrays correctly return false; this is a missing-input integration gap in three consumers, not a broken no-face safeguard. Requirements from191, not a new feature choice."
+}

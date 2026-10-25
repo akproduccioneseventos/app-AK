@@ -1,0 +1,66 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "stats": {
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-438-fotocabina-sdk.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:13:11.725Z",
+      "report": "442-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:10:50.796Z",
+        "duration": 140892.812,
+        "expected": 6,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-espejo-moderacion-caida-y-reintento.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:13:28.620Z",
+      "report": "442-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:13:12.717Z",
+        "duration": 15880.545,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-prospecto-simulador.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:17:38.440Z",
+      "report": "442-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:13:29.625Z",
+        "duration": 248766.726,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

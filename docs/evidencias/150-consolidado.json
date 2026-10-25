@@ -1,0 +1,172 @@
+{
+  "native": [
+    {
+      "prefix": "150-comercial",
+      "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+      "exitCode": 1,
+      "sourceDiff": "",
+      "testSha256": "72bd7dd3a11f1e990f4565c3906980d7c9346fb756e52ae8fdf15e322c8c8b33",
+      "cases": [
+        {
+          "title": "viaje comercial movil conserva UTM, registra presupuesto y prospecto CRM tras recarga",
+          "project": "chromium-mobile",
+          "status": "failed",
+          "duration": 61431,
+          "errors": [
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('QA movil ak-mobile-1792491969601-lmqpor').first()\nExpected: visible\nT"
+          ]
+        }
+      ],
+      "realServices": {
+        "firebase": false,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      }
+    },
+    {
+      "prefix": "150-comercial-final",
+      "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+      "exitCode": 1,
+      "sourceDiff": "",
+      "testSha256": "244aac31f4896a38b8b0463a1a295310e778a3932aa2885bcbdd391f650dff7a",
+      "cases": [
+        {
+          "title": "viaje comercial movil conserva UTM, registra presupuesto y prospecto CRM tras recarga",
+          "project": "chromium-mobile",
+          "status": "failed",
+          "duration": 29343,
+          "errors": [
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 21\u001b[39m\n\u001b[31m+ Received  + 21\u001b[39m\n\n\u001b[33m@@ -"
+          ]
+        }
+      ],
+      "realServices": {
+        "firebase": false,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      }
+    },
+    {
+      "prefix": "150-comercial-cierre",
+      "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+      "exitCode": 1,
+      "sourceDiff": "",
+      "testSha256": "257022e944b3a86cfab565383cc9619cf0b9a54499e95c0d55bd0a4b653d1ace",
+      "cases": [
+        {
+          "title": "viaje comercial movil conserva UTM, registra presupuesto y prospecto CRM tras recarga",
+          "project": "chromium-mobile",
+          "status": "failed",
+          "duration": 40539,
+          "errors": [
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 20\u001b[39m\n\u001b[31m+ Received  + 20\u001b[39m\n\n\u001b[33m@@ -"
+          ]
+        }
+      ],
+      "realServices": {
+        "firebase": false,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      }
+    },
+    {
+      "prefix": "150-comercial-aceptacion",
+      "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+      "exitCode": 0,
+      "sourceDiff": "",
+      "testSha256": "d1666b5b7a130e4bd77bb26d3ab2873162d19685913f786021bdaf667503ae10",
+      "cases": [
+        {
+          "title": "viaje comercial movil conserva UTM, registra presupuesto y prospecto CRM tras recarga",
+          "project": "chromium-mobile",
+          "status": "passed",
+          "duration": 33334,
+          "errors": []
+        }
+      ],
+      "realServices": {
+        "firebase": false,
+        "gemini": false,
+        "googleWorkspace": false,
+        "mail": false,
+        "instagram": false,
+        "mercadoPago": false
+      }
+    }
+  ],
+  "nativeAcceptance": "PASS_COMMERCIAL_MOBILE_MAIN_JSON_ONLY",
+  "priorQaProblems": [
+    "Mobile CRM column collapsed by design; test did not expand it",
+    "Whole-object comparison rejected regenerated timestamp and item IDs",
+    "QA normalizer used items instead of actual itemsPresupuestados"
+  ],
+  "money": {
+    "source": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+    "pass": 4,
+    "fail": 2,
+    "scope": "Actual action bodies and permission model; session, assignment gate, read and transaction are controlled doubles"
+  },
+  "privacy": {
+    "source": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+    "controlPass": true,
+    "failingVariants": 2,
+    "scope": "Output from previously executed actual saveFiesta body; actual permission model and actual response filter"
+  },
+  "queue": {
+    "source": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+    "pass": 2,
+    "fail": 1,
+    "scope": "Actual new1337 callback AST-extracted, controlled localStorage and response promises"
+  },
+  "pdf": {
+    "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+    "pages": 2,
+    "itemCount": 20,
+    "missing": [],
+    "expectedTotal": 84838,
+    "a4": true,
+    "visibleLinkGeometry": [
+      {
+        "page": 2,
+        "pageWidth": 595.280029296875,
+        "left": 42.981685638427734,
+        "right": 554.9686279296875,
+        "outsidePage": false,
+        "rightMarginPoints": 40.3114013671875
+      }
+    ]
+  },
+  "hashes": {
+    "150-comercial-execution.json": "7a3ba477b6be72fbc7ce5f3d125dcbf9df9ace06782ee0cdc5800e3089353a2e",
+    "150-comercial-results.json": "c186cc662d1533294691e0355541fc0bc1f05cd0097e30b42ace66c84d3d5c0d",
+    "150-comercial-final-execution.json": "7230788e491c7a2430897dd36e2d507a53f2042b9180c1be2dc3d1bfc6b2dae6",
+    "150-comercial-final-results.json": "e0cef99f4480eb8a4fa711398c9d1fd70c409dba40cddb01b615154b6e6d6905",
+    "150-comercial-cierre-execution.json": "086667c8adf7e2f89c6c672305ceefd40673137200001d6d8a6d848c10649e65",
+    "150-comercial-cierre-results.json": "538b3e30f3163127be689f8f0368782d170f8e2daa2db1c8202b42b75b8d7cee",
+    "150-comercial-aceptacion-execution.json": "bb11e3d58d123c163a82160b16916a1a5bd3ea3b8a2d9db8cb5cceeaa2ad1205",
+    "150-comercial-aceptacion-results.json": "fe6d3a302194e79a933cb8ce344da423736ff64a4ca988b0af8949c66fd37e14",
+    "150-consumidores-entrega.json": "a218cc2a444f1e8aa5225d607cc4adf170be58ab4481bfe0c53232e63bdf3f67",
+    "150-salidas-perfil.json": "05ea15ebe3ea60aa7be9087d14be01c81cacf88725ab239fb0b1ddac6882c122",
+    "150-cola-entrega.json": "1a4481890433df40d3153b72380bd1bea82b5509d47bc3a65f295152ad759a33",
+    "150-pdf-inspeccion.json": "45b5061cb623ae01a3374a8d097b5da493f6fc36ea4385b95513f5a3718c9148",
+    "150-pdf-margenes.json": "f4bbfb22c5f5ee31a55298db3f573d2a049282aed0b27df0144c81bb411beed8"
+  },
+  "appEdited": false,
+  "productionChanged": false,
+  "limits": [
+    "No SDK acceptance from localJSON native journey",
+    "No real OAuth/model/voice/messages/hardware/19originals",
+    "Bodies with explicit session/store doubles are not signed HTTP acceptance",
+    "No whole-app or zero-error certificate",
+    "Order193 already covers185;195 incorporates186; do not issue those corrections again"
+  ]
+}

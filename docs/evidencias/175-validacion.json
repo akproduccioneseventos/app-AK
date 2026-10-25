@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-10-21T13:03:54.843Z",
+  "base": "f776ae29eded99ad4a11fac099fece2657c7514a",
+  "applicationBase": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+  "gemini": "bfde3916a43afdb700cc0828722268db7b3ea2c1",
+  "claude": "daefbdc00b7a43f4f252dcca6e7d9565d4d30d10",
+  "delivery": {
+    "total": 27,
+    "pass": 13,
+    "fail": 14
+  },
+  "claudeRetest": {
+    "total": 28,
+    "pass": 28,
+    "fail": 0
+  },
+  "sdkCleanup": 200,
+  "remainingDemoDocuments": 0,
+  "appDiff": "",
+  "manualWorkBelongsToOwner": true,
+  "sameCommitSourcesVerified": true,
+  "allAppCertified": false,
+  "scope": "Packaging/source/receipt gate, no repetition of app probes or broad build, no app implementation"
+}

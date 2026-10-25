@@ -1,0 +1,15 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-263-77M6Vz",
+  "started": "2026-10-23T18:05:10.402Z",
+  "actualSdk": true,
+  "realServices": false,
+  "freeBytesAtStart": 1577295872,
+  "memoryPlan": "Java256MiB Node192MiB no Next/browser/build",
+  "appEdited": false,
+  "emulatorPid": 10452,
+  "probePid": 10028,
+  "exitCode": 1,
+  "cleanupStatus": 200,
+  "finished": "2026-10-23T18:05:55.559Z"
+}

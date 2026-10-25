@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url));
+let code=fs.readFileSync(new URL('./309-reinicio-qa-propio.mjs',import.meta.url),'utf8');
+code=code.replace("const root=fileURLToPath(new URL('../../',import.meta.url)),dir=",`const root=${JSON.stringify(root)},dir=`).replaceAll('309-reinicio.json','312-recuperacion.json').replaceAll('309-antes-','312-antes-');
+const start=code.indexOf('const ps=`'),end=code.indexOf('const qa=path.resolve(run.qa);');assert(start>0&&end>start);
+code=code.slice(0,start)+`const checked=spawnSync('powershell.exe',['-NoProfile','-Command',"Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -in 5312,2268,10628 } | Select-Object ProcessId,CommandLine | ConvertTo-Json"],{encoding:'utf8',timeout:45000});assert.equal(checked.status,0,checked.stderr);assert.equal(checked.stdout.trim(),'','Refuse restore while own roots still run');record.stop={rootsAbsent:true,previousAttempt:'309 taskkill ended own roots but returned nonzero for a child already exiting/protected; original terminal failure retained. No second stop, no foreign process touched.'};\n`+code.slice(end);
+code=code.replace('Process interruption discarded in-memory snapshots;76tracked JSON','Process interruption discarded in-memory snapshots; tracked JSON');
+await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));

@@ -1,0 +1,950 @@
+{
+  "actualSdk": true,
+  "remainingDemoDocuments": 0,
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "testSha256": "3f44aab9cbc383daf1395a45875e1818c5de818d95b09322df443304300ae5f3",
+  "hashes": {
+    "src/lib/marca-de-lectura.ts": "b54bd629d3c209029e5eeff4dd29888a02b190b1f14a51ce86b6a00950929eda",
+    "src/lib/data-service.ts": "89e1ab7ca0a6efee931bce2a4c26ef83c429c364fcffe7b74bebeee86f8c781a",
+    "src/app/actions/provider-portal.ts": "8f990bb0112f6efc189c6cb427f536461980c08c1a0ba44abf5efca2b0f2107b"
+  },
+  "symbols": {
+    "src/app/actions/provider-portal.ts:getProveedorByToken": {
+      "sha256": "2d1e386fb73835552059af8221cdddfcd741544ad5a3811cf1289c93b3a3f64c",
+      "sameClaude108e": true,
+      "sameGemini45a": false
+    },
+    "src/app/actions/provider-portal.ts:persistProvider": {
+      "sha256": "fa0dd95193d0d2cd90057a02195c29f48f9141822adddba9acf5129d80e45c03",
+      "sameClaude108e": true,
+      "sameGemini45a": true
+    },
+    "src/app/actions/provider-portal.ts:confirmarLlegada": {
+      "sha256": "fd5cbd3c8395b10f88b03b741c21466075142058b6c79b6dc9e45469f8cdf421",
+      "sameClaude108e": true,
+      "sameGemini45a": true
+    },
+    "src/app/actions/provider-portal.ts:toggleTareaProveedor": {
+      "sha256": "d5e4366ccbbf1ae564c25e56bdb18bb4876a166a9c911339bbfa804fa39ef84d",
+      "sameClaude108e": true,
+      "sameGemini45a": true
+    },
+    "src/app/actions/provider-portal.ts:addNotaProveedor": {
+      "sha256": "405da1d32d88a0ecd9d814a7c33d523b594b6d10dd021c5424bd7615a93f1d4e",
+      "sameClaude108e": true,
+      "sameGemini45a": true
+    },
+    "src/lib/data-service.ts:updateDataItem": {
+      "sha256": "f8c80d57e3dbfbb1001eab0b4e2385fa07ae64498ff00d8d695188af8fb37ba2",
+      "sameClaude108e": true,
+      "sameGemini45a": true
+    },
+    "src/lib/data-service.ts:mutateDataItem": {
+      "sha256": "92af6f67a0a4686e0820c80e1778ccc988d455c325a8976582a8cc22c094adfb",
+      "sameClaude108e": true,
+      "sameGemini45a": true
+    }
+  },
+  "cases": [
+    {
+      "name": "sequential-two-tasks-both-survive",
+      "pass": true,
+      "responses": [
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Pendiente",
+            "notas": "",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": true,
+                "completadoEn": "2026-10-21T12:02:50.198Z"
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": false
+              }
+            ]
+          }
+        },
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Pendiente",
+            "notas": "",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": true,
+                "completadoEn": "2026-10-21T12:02:50.198Z"
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": true,
+                "completadoEn": "2026-10-21T12:02:50.268Z"
+              }
+            ],
+            "_syncedAt": "2026-10-21T12:02:50.237Z"
+          }
+        }
+      ],
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": true,
+              "completadoEn": "2026-10-21T12:02:50.198Z"
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": true,
+              "completadoEn": "2026-10-21T12:02:50.268Z"
+            }
+          ],
+          "_syncedAt": "2026-10-21T12:02:50.283Z"
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 2,
+      "readCount": 2
+    },
+    {
+      "name": "concurrent-two-tasks-task-a-task-b",
+      "pass": false,
+      "responses": [
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Pendiente",
+            "notas": "",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": true,
+                "completadoEn": "2026-10-21T12:02:50.378Z"
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": false
+              }
+            ]
+          }
+        },
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Pendiente",
+            "notas": "",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": false
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": true,
+                "completadoEn": "2026-10-21T12:02:50.378Z"
+              }
+            ]
+          }
+        }
+      ],
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": true,
+              "completadoEn": "2026-10-21T12:02:50.378Z"
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ],
+          "_syncedAt": "2026-10-21T12:02:53.650Z"
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 2,
+      "readCount": 2
+    },
+    {
+      "name": "concurrent-two-tasks-task-b-task-a",
+      "pass": false,
+      "responses": [
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Pendiente",
+            "notas": "",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": false
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": true,
+                "completadoEn": "2026-10-21T12:02:53.727Z"
+              }
+            ]
+          }
+        },
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Pendiente",
+            "notas": "",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": true,
+                "completadoEn": "2026-10-21T12:02:53.727Z"
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": false
+              }
+            ]
+          }
+        }
+      ],
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": true,
+              "completadoEn": "2026-10-21T12:02:53.727Z"
+            }
+          ],
+          "_syncedAt": "2026-10-21T12:02:56.596Z"
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 2,
+      "readCount": 2
+    },
+    {
+      "name": "arrival-and-note-note-first",
+      "pass": false,
+      "responses": [
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Pendiente",
+            "notas": "Nota ficticia QA163",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": false
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": false
+              }
+            ]
+          }
+        },
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Llegó",
+            "notas": "",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": false
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": false
+              }
+            ],
+            "llegadaConfirmadaEn": "2026-10-21T12:02:56.677Z"
+          }
+        }
+      ],
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Llegó",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ],
+          "llegadaConfirmadaEn": "2026-10-21T12:02:56.677Z",
+          "_syncedAt": "2026-10-21T12:02:59.794Z"
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 2,
+      "readCount": 2
+    },
+    {
+      "name": "arrival-and-note-arrival-first",
+      "pass": false,
+      "responses": [
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Llegó",
+            "notas": "",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": false
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": false
+              }
+            ],
+            "llegadaConfirmadaEn": "2026-10-21T12:02:59.894Z"
+          }
+        },
+        {
+          "success": true,
+          "data": {
+            "id": "a",
+            "token": "qa163-token-a",
+            "activo": true,
+            "venceEl": "2099-01-01T00:00:00Z",
+            "fiestaId": "qa163-event-a",
+            "nombreProveedor": "Proveedor ficticio",
+            "estadoActual": "Pendiente",
+            "notas": "Nota ficticia QA163",
+            "tareas": [
+              {
+                "id": "task-a",
+                "texto": "Montaje ficticio A",
+                "completada": false
+              },
+              {
+                "id": "task-b",
+                "texto": "Montaje ficticio B",
+                "completada": false
+              }
+            ]
+          }
+        }
+      ],
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Llegó",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ],
+          "llegadaConfirmadaEn": "2026-10-21T12:02:59.894Z",
+          "_syncedAt": "2026-10-21T12:03:02.536Z"
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 2,
+      "readCount": 2
+    },
+    {
+      "name": "revocation-between-read-and-commit-is-not-undone",
+      "pass": false,
+      "responses": {
+        "success": true,
+        "data": {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": true,
+              "completadoEn": "2026-10-21T12:03:02.625Z"
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      },
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": true,
+              "completadoEn": "2026-10-21T12:03:02.625Z"
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ],
+          "_syncedAt": "2026-10-21T12:03:02.688Z"
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 1,
+      "readCount": 1
+    },
+    {
+      "name": "token-rotation-between-read-and-commit-is-not-undone",
+      "pass": false,
+      "responses": {
+        "success": true,
+        "data": {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "Nota de intento viejo",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      },
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "Nota de intento viejo",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ],
+          "_syncedAt": "2026-10-21T12:03:02.825Z"
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 1,
+      "readCount": 1
+    },
+    {
+      "name": "revoked-before-read-denied",
+      "pass": true,
+      "responses": {
+        "success": false,
+        "error": "Proveedor no encontrado o acceso inactivo"
+      },
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ],
+          "activo": false
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 0,
+      "readCount": 1
+    },
+    {
+      "name": "missing-document-at-commit-not-recreated",
+      "pass": true,
+      "responses": {
+        "success": false,
+        "error": "El acceso del proveedor ya no existe."
+      },
+      "persisted": [
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 0,
+      "readCount": 1
+    },
+    {
+      "name": "positive-control-real-mutator-composes-current-fields",
+      "pass": true,
+      "responses": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": true
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        },
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": true
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": true
+            }
+          ]
+        }
+      ],
+      "persisted": [
+        {
+          "id": "a",
+          "token": "qa163-token-a",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-a",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": true
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": true
+            }
+          ],
+          "_syncedAt": "2026-10-21T12:03:06.755Z"
+        },
+        {
+          "id": "b",
+          "token": "qa163-token-b",
+          "activo": true,
+          "venceEl": "2099-01-01T00:00:00Z",
+          "fiestaId": "qa163-event-b",
+          "nombreProveedor": "Proveedor ficticio",
+          "estadoActual": "Pendiente",
+          "notas": "",
+          "tareas": [
+            {
+              "id": "task-a",
+              "texto": "Montaje ficticio A",
+              "completada": false
+            },
+            {
+              "id": "task-b",
+              "texto": "Montaje ficticio B",
+              "completada": false
+            }
+          ]
+        }
+      ],
+      "commits": 2,
+      "readCount": 0
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "pass": 4,
+    "fail": 6
+  },
+  "scope": "Actual provider actions and data-service transaction bodies with actual Firestore Admin SDK against own demo emulator, two fictitious documents",
+  "limits": [
+    "Firestore SDK/transactions real against own emulator, coordinated read barriers; no production timing or HTTP/native UI",
+    "Revocation/rotation use SDK updates at controlled boundary, not a separate admin HTTP/UI action; fallback backup intentionally adapted",
+    "No payment/salary/cost, external account, real supplier, message or hardware"
+  ],
+  "appEdited": false
+}

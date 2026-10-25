@@ -1,0 +1,49 @@
+{
+  "source": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "buildFinishedAt": "2026-10-16T01:46:41.778Z",
+  "started": "2026-10-16T17:05:47.158Z",
+  "fixture": "Firestore demo local. backup_system/auto_backup con ultimo respaldo ficticio reciente para aislar alta; NO prueba respaldo.",
+  "children": [
+    {
+      "label": "emulator",
+      "pid": 11672,
+      "command": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools/java21/jdk-21.0.12.1+1/bin/java.exe",
+      "args": [
+        "-Xmx512m",
+        "-jar",
+        "C:/Users/Usuario/.cache/firebase/emulators/cloud-firestore-emulator-v1.22.0.jar",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8085",
+        "--project_id",
+        "demo-ak-producciones",
+        "--single_project_mode",
+        "true",
+        "--single_project_mode_error",
+        "true",
+        "--rules",
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\firestore.rules"
+      ]
+    },
+    {
+      "label": "serve",
+      "pid": 1172,
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-135-kFYNyb\\node_modules\\next\\dist\\bin\\next",
+        "start",
+        "--hostname",
+        "127.0.0.1",
+        "--port",
+        "3300"
+      ]
+    }
+  ],
+  "realServices": false,
+  "snapshots": 61,
+  "error": "TypeError: fetch failed",
+  "restored": [],
+  "sourceDiff": "",
+  "finished": "2026-10-16T17:07:40.035Z"
+}

@@ -33,6 +33,8 @@ jest.mock('@/lib/firebase/server', () => ({ dbAdmin: mockDb }));
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (file: string,fallback: any) => file === 'presupuestos.json'
     ? [...mockRecords].filter(([p])=>p.startsWith('presupuestos/')).map(([,v])=>copy(v)) : fallback),
+  readDataConDetalle: jest.fn(async (file: string,fallback: any) => ({ huboFalla: false, valor: file === 'presupuestos.json'
+    ? [...mockRecords].filter(([p])=>p.startsWith('presupuestos/')).map(([,v])=>copy(v)) : fallback })),
   writeData: jest.fn(),
   mutateDataItem: jest.fn(async (_f: string,c: string,id: string,fn: any) => {
   const key=c+'/'+id, current=mockRecords.get(key); if (!current) return null;
@@ -41,6 +43,14 @@ jest.mock('@/lib/data-service', () => ({
 jest.mock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => ({success:true,user:{userId:'actor',email:'qa@example.test',perfil:mockPerfil}})) }));
 jest.mock('@/app/actions/crm', () => ({ findLeadByBudgetOrCreate: jest.fn(async ()=>({lead:{id:'lead1'}})), getCrmStages:jest.fn(async()=>[]), moveCrmLead:jest.fn() }));
 jest.mock('@/lib/notifications/create-notification', () => ({createNotification:jest.fn(async()=>undefined)}));
+// Los costos que recalcula el servidor se guardan por costos-interno (orden 183): mismo destino que
+// el updateFiestaPartial de mentira de esta prueba.
+jest.mock('@/lib/fiesta/costos-interno', () => ({
+  guardarCostosInterno: async (id: string, costos: unknown) => {
+    const r = await require('@/app/actions/fiesta/fiesta.actions').updateFiestaPartial(id, { gestionCostos: costos });
+    return r?.success ? { success: true, updatedData: costos } : { success: false, error: r?.error };
+  },
+}));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({getAllFiestas:jest.fn(async()=>[]),saveFiesta:jest.fn(),syncFiestaFromBudget:jest.fn()}));
 jest.mock('@/app/actions/fiesta/costos.actions', () => ({syncLaundryCosts:jest.fn()}));
 jest.mock('@/app/actions/servicios-empresa', () => ({getServiciosEmpresa:jest.fn(async()=>[])}));

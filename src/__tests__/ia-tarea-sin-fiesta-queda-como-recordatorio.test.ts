@@ -11,7 +11,10 @@
  * (no hay aviso creado); sacando `noSeGuardo = true` del fallo, la tercera da rojo.
  */
 jest.mock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => ({ success: true, user: { role: 'admin' } })) }));
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn(async () => undefined) }));
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn(async () => undefined),
+  requirePermiso: jest.fn(async () => ({ ok: true, user: { role: 'admin' } })),
+}));
 const crearAviso = jest.fn();
 jest.mock('@/lib/notifications/create-notification', () => ({ createNotification: (...a: any[]) => crearAviso(...a) }));
 jest.mock('@/lib/multiagent/memory-store', () => ({ saveAgentLearning: jest.fn(async () => undefined), listAgentMemoryProfiles: jest.fn(async () => []) }));

@@ -5,6 +5,14 @@ jest.mock('@/lib/auth/require-session', () => ({
 const saveFiestaMock = jest.fn();
 const updateFiestaPartialMock = jest.fn();
 
+// Los costos que recalcula el servidor se guardan por costos-interno (orden 183): mismo destino que
+// el updateFiestaPartial de mentira de esta prueba.
+jest.mock('@/lib/fiesta/costos-interno', () => ({
+  guardarCostosInterno: async (id: string, costos: unknown) => {
+    const r = await require('@/app/actions/fiesta/fiesta.actions').updateFiestaPartial(id, { gestionCostos: costos });
+    return r?.success ? { success: true, updatedData: costos } : { success: false, error: r?.error };
+  },
+}));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(),
   saveFiesta: (...args: any[]) => saveFiestaMock(...args),

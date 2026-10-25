@@ -1,20 +1,23 @@
 'use server';
 
 import { verifySession } from '@/lib/auth/session-token';
-import { PERMISOS_POR_PERFIL, perfilDe, type Permiso } from '@/lib/auth/perfiles';
+import { perfilDe, PERMISOS_POR_PERFIL, type Permiso } from '@/lib/auth/perfiles';
 
 /**
- * Acción de servidor para que la interfaz sepa qué permisos tiene el usuario
- * actualmente logueado. Devuelve `{ permisos: Permiso[] }`.
- * Si no hay sesión válida, devuelve `{ permisos: [] }`.
+ * Devuelve la lista de permisos del usuario actual con sesión.
+ * Si no hay sesión válida o autorizada, devuelve permisos vacíos.
  */
 export async function getMisPermisos(): Promise<{ permisos: Permiso[] }> {
-  const auth = await verifySession();
-  if (!auth.success || !auth.user) {
+  try {
+    const session = await verifySession();
+    if (!session.success || !session.user) {
+      return { permisos: [] };
+    }
+
+    const perfil = perfilDe(session.user);
+    const permisos = PERMISOS_POR_PERFIL[perfil] ? [...PERMISOS_POR_PERFIL[perfil]] : [];
+    return { permisos };
+  } catch (err) {
     return { permisos: [] };
   }
-
-  const perfil = perfilDe(auth.user);
-  const permisos = [...PERMISOS_POR_PERFIL[perfil]];
-  return { permisos };
 }

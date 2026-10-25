@@ -569,3 +569,9 @@ Lo mas importante que se arreglo, por lo que le costaba al negocio:
 
 Y la verificacion se acorto: el recorrido de pantallas bajo de 40 a 18 minutos, y se dejaron de
 perder siete minutos por corrida recompilando sin motivo.
+
+## 19/10/2026 — devolución 1333 y órdenes 188 a 190
+La 1333 de Gemini rompía 12 pruebas al juntarse con la rama y exportaba `updateGestionCostosInterno`
+desde un archivo `'use server'` (pregunta 69). Devuelta como orden 188. Cerradas 1330–1335 y 1333;
+lo elegido por el dueño pasó a la 189 (incluida la realidad aumentada, ahora aprobada) y la 190
+(asistente por llamada, avisos por perfil y "dots de AK"). Preguntas 70–73 por Codex 136/138/143/148.

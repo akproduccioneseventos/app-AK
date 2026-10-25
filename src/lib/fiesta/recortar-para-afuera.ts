@@ -1,46 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
-
-/**
- * Recorta datos sensibles de la fiesta según los permisos del usuario que está leyendo (Orden 183).
- */
-export function recortarFiestaPorPerfil(
-  fiesta: FiestaEnPlanificacion,
-  usuario: { perfil?: string; role?: string } | undefined | null
-): FiestaEnPlanificacion {
-  if (!usuario) return fiesta;
-
-  const copia: Record<string, unknown> = { ...fiesta };
-
-  // 1. Sin SUELDOS: no ve eventSalary en el personal asignado
-  if (!puede(usuario, PERMISOS.SUELDOS) && Array.isArray(fiesta.personalAsignado)) {
-    copia.personalAsignado = fiesta.personalAsignado.map((p) => {
-      const { eventSalary: _es, ...resto } = p as any;
-      return resto;
-    });
-  }
-
-  // 2. Sin GANANCIAS: no ve gestionCostos
-  if (!puede(usuario, PERMISOS.GANANCIAS)) {
-    delete copia.gestionCostos;
-  }
-
-  // 3. Sin CONTABILIDAD: no ve pagos a proveedores, plan de pagos, contratoDatos, notificaciones de pago ni montos pagados de compra
-  if (!puede(usuario, PERMISOS.CONTABILIDAD)) {
-    delete copia.pagosProveedores;
-    delete copia.planDePagos;
-    delete copia.clientPaymentNotifications;
-    delete copia.contratoDatos;
-    if (Array.isArray(fiesta.estadosCompra)) {
-      copia.estadosCompra = fiesta.estadosCompra.map((ec) => {
-        const { pagado: _p, montoPagado: _mp, ...resto } = ec as any;
-        return resto;
-      });
-    }
-  }
-
-  return copia as unknown as FiestaEnPlanificacion;
-}
+import { puede, perfilDe, PERMISOS } from '@/lib/auth/perfiles';
 
 /**
  * LO QUE VIAJA A QUIEN NO ES DEL EQUIPO (25 de septiembre de 2026).
@@ -74,6 +33,7 @@ export const CAMPOS_DEL_EQUIPO = [
 ] as const;
 
 export const CAMPOS_DEL_CLIENTE = [
+  'clientPortalSettings',
   'contratoServicioTexto',
   'contratoSalonTexto',
   'contratoGenerado',
@@ -158,4 +118,77 @@ export function reponerLoRecortado(
     });
   }
   return salida as unknown as FiestaEnPlanificacion;
+}
+
+/**
+ * Recorta los campos sensibles de plata según el perfil de un miembro del equipo (Orden 183 y 198).
+ */
+export function recortarFiestaPorPerfil(
+  fiesta: FiestaEnPlanificacion,
+  usuario: { role?: string; profile?: string; perfil?: string; permissions?: string[] } | null | undefined,
+): FiestaEnPlanificacion {
+  const copia: Record<string, unknown> = { ...fiesta };
+
+  if (usuario && (perfilDe(usuario as any) === 'personal' || !puede(usuario as any, PERMISOS.CRM))) {
+    delete copia.clientPortalSettings;
+  }
+
+  if (!puede(usuario ?? null, PERMISOS.SUELDOS)) {
+    if (Array.isArray(fiesta.personalAsignado)) {
+      copia.personalAsignado = fiesta.personalAsignado.map((p) => {
+        const { eventSalary: _eventSalary, ...resto } = p as unknown as Record<string, unknown>;
+        return resto;
+      });
+    }
+  }
+
+  if (!puede(usuario ?? null, PERMISOS.GANANCIAS)) {
+    delete copia.gestionCostos;
+  }
+
+  if (!puede(usuario ?? null, PERMISOS.CONTABILIDAD)) {
+    delete copia.pagosProveedores;
+    delete copia.planDePagos;
+    delete copia.clientPaymentNotifications;
+    delete copia.contratoDatos;
+    if (Array.isArray(fiesta.estadosCompra)) {
+      copia.estadosCompra = fiesta.estadosCompra.map((e) => {
+        const { pagado: _pagado, montoPagado: _montoPagado, ...resto } = e as unknown as Record<string, unknown>;
+        return resto;
+      });
+    }
+  }
+
+  return copia as unknown as FiestaEnPlanificacion;
+}
+
+/**
+ * LO QUE SE LE SACÓ AL LEER, SE REPONE AL GUARDAR (orden 183, 20/10/2026; pregunta 53).
+ *
+ * Desde que `getFiestaById` le recorta a cada perfil lo que no le toca ver (costos sin GANANCIAS,
+ * sueldos sin SUELDOS), la pantalla de una secretaria guarda la fiesta SIN esos campos. Si se
+ * escribiera así, borraría los costos y los sueldos de todos. Por eso, para quien no tiene el
+ * permiso, lo suyo se toma siempre de lo guardado, nunca de lo que mandó la pantalla.
+ */
+export function reponerLoDelPerfil(
+  nueva: FiestaEnPlanificacion,
+  guardada: FiestaEnPlanificacion | null,
+  usuario: { role?: string; perfil?: string } | null | undefined,
+): FiestaEnPlanificacion {
+  const copia: Record<string, unknown> = { ...nueva };
+  if (!puede(usuario ?? null, PERMISOS.GANANCIAS)) {
+    if (guardada && 'gestionCostos' in guardada) copia.gestionCostos = guardada.gestionCostos;
+    else delete copia.gestionCostos;
+  }
+  if (!puede(usuario ?? null, PERMISOS.SUELDOS) && Array.isArray(nueva.personalAsignado)) {
+    const antes = new Map((guardada?.personalAsignado || []).map((p) => [p.empleadoId, p]));
+    copia.personalAsignado = nueva.personalAsignado.map((p) => {
+      const previo = antes.get(p.empleadoId);
+      const r = { ...p } as Record<string, unknown>;
+      if (previo && previo.eventSalary !== undefined) r.eventSalary = previo.eventSalary;
+      else delete r.eventSalary;
+      return r;
+    });
+  }
+  return copia as unknown as FiestaEnPlanificacion;
 }

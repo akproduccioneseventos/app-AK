@@ -10,6 +10,7 @@ import {
   correspondeContestarSolo,
   type ReferenciaDeOrigen,
 } from '@/lib/whatsapp/vino-de-la-publicidad';
+import { atenderProspectoAnuncioWhatsApp } from '@/lib/asistente/por-whatsapp';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -77,6 +78,11 @@ export async function POST(request: NextRequest) {
     let phone: string | null = null;
     let messageText: string | null = null;
     let clientName: string | undefined;
+    let isEcho = false;
+    let metaTo: string | undefined;
+    let messageType: string | undefined;
+    let messageId: string | undefined;
+    let mediaId: string | undefined;
 
     // Parse Meta (WhatsApp Business API) format
     let referencia: ReferenciaDeOrigen | null = null;
@@ -97,11 +103,18 @@ export async function POST(request: NextRequest) {
         const entry = body.entry?.[0];
         const change = entry?.changes?.[0];
         const value = change?.value;
-        const isEcho = Boolean(value?.message_echoes);
+        isEcho = Boolean(value?.message_echoes);
         const messageData = value?.messages?.[0] || value?.message_echoes?.[0];
 
         if (messageData) {
           phone = messageData.from;
+          messageId = messageData.id;
+          messageType = messageData.type;
+          // En un eco (lo que mandó el dueño desde su WhatsApp) `from` es el propio número y el
+          // destinatario viene en `to`. Sólo el chat consigo mismo se atiende como orden.
+          metaTo = isEcho ? messageData.to : value?.metadata?.display_phone_number;
+          if (messageData.type === 'audio') mediaId = messageData.audio?.id;
+          if (messageData.type === 'image') mediaId = messageData.image?.id;
           const msgType = messageData.type;
           if (msgType === 'audio') {
             messageText = messageData.audio?.id ? `[AUDIO:${messageData.audio.id}]` : '[AUDIO]';
@@ -163,6 +176,11 @@ export async function POST(request: NextRequest) {
     const atencionEquipo = await atenderAlEquipo({
       from: phone,
       text: messageText,
+      isEcho,
+      to: metaTo,
+      type: messageType as any,
+      messageId,
+      mediaId,
     });
     if (atencionEquipo.atendido) {
       return NextResponse.json({
@@ -172,6 +190,8 @@ export async function POST(request: NextRequest) {
         nivel: atencionEquipo.nivel,
       });
     }
+    // Un eco es un mensaje que mandó el dueño: no es una consulta de nadie y no se contesta.
+    if (isEcho) return NextResponse.json({ status: 'ok', eco: true }, { status: 200 });
 
     /**
      * **El numero es el personal del dueno: no se le contesta a cualquiera.**
@@ -189,6 +209,20 @@ export async function POST(request: NextRequest) {
         respondido: false,
         motivo: 'No viene de la publicidad: contesta una persona.',
       });
+    }
+
+    // Si viene de la publicidad y trae los datos de la fiesta, se atiende el prospecto de anuncio
+    const atencionAnuncio = await atenderProspectoAnuncioWhatsApp({
+      phone,
+      name: clientName,
+      text: messageText,
+    });
+    if (atencionAnuncio.completo) {
+      return NextResponse.json({
+        status: 'ok',
+        tipo: 'prospecto_anuncio_simulador',
+        completo: true,
+      }, { status: 200 });
     }
 
     const result = await processIncomingMessage(phone, messageText, clientName, WHATSAPP_WEBHOOK_INTERNAL_TOKEN);

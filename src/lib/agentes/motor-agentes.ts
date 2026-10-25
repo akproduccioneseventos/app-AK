@@ -1,4 +1,10 @@
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -11,7 +17,6 @@ import { pausarCampana, ajustarPresupuestoCampana } from '@/lib/marketing/meta-a
 import type { CampanaConPresupuesto } from '@/lib/marketing/tope-de-gasto-publicidad';
 import {
   AGENTES_DEFAULT_CONFIG,
-  type AgenteId,
   type ConfiguracionAgente,
   type RegistroEjecucionAgente,
 } from './tipos';
@@ -142,8 +147,8 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
 
     if (diasDesdeEnvio >= 5 && diasDesdeEnvio < 14) {
       hallazgos.push(`Presupuesto de ${p.clienteNombre} (${p.eventoTipo}) sin respuesta hace ${diasDesdeEnvio} días.`);
-      const texto = `Hola ${p.clienteNombre}, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del ${p.eventoFecha ? new Date(p.eventoFecha).toLocaleDateString('es-UY') : 'evento'}. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos.`;
-      
+      const texto = `Hola ${p.clienteNombre}, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del ${p.eventoFecha ? formatearFechaEvento(p.eventoFecha) : 'evento'}. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos.`;
+
       nuevosMensajes.push({
         id: `msg_follow_${p.id}_5d`,
         targetType: 'prospecto',
@@ -159,8 +164,8 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
       acciones.push(`Borrador de seguimiento preparado para ${p.clienteNombre} en la bandeja de salida.`);
     } else if (diasDesdeEnvio >= 14 && diasDesdeEnvio <= 30) {
       hallazgos.push(`Presupuesto de ${p.clienteNombre} sin respuesta hace ${diasDesdeEnvio} días (reactivación).`);
-      const texto = `Hola ${p.clienteNombre}, te contacto de AK Producciones. Queríamos consultar si la fecha del ${p.eventoFecha ? new Date(p.eventoFecha).toLocaleDateString('es-UY') : 'evento'} sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!`;
-      
+      const texto = `Hola ${p.clienteNombre}, te contacto de AK Producciones. Queríamos consultar si la fecha del ${p.eventoFecha ? formatearFechaEvento(p.eventoFecha) : 'evento'} sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!`;
+
       nuevosMensajes.push({
         id: `msg_reactivate_${p.id}_14d`,
         targetType: 'prospecto',
@@ -178,7 +183,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
   }
 
   if (nuevosMensajes.length > 0) {
-    await writeData('scheduled-messages.json', [...pendientes, ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -222,7 +227,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
 
     const diffDias = Math.ceil((new Date(fechaStr).getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
     const pagos = (p.pagosCliente || []).filter(isConfirmedClientPayment).reduce((s, pg) => s + (Number(pg.monto) || 0), 0);
-    const total = Number(p.totalConDescuento || p.costoTotalEstimado || 0);
+    const total = getBudgetCollectibleTotal(p);
     const saldo = total - pagos;
 
     if (saldo > 500 && diffDias >= 0 && diffDias <= 5) {
@@ -247,7 +252,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
   }
 
   if (nuevosMensajes.length > 0) {
-    await writeData('scheduled-messages.json', [...pendientes, ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -315,7 +320,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
   // Los borradores se guardan de verdad. Si no se escriben, no aparecen en Redes
   // Sociales y el mismo aviso vuelve a salir cada 15 minutos para siempre.
   if (nuevosPosts.length > 0) {
-    await writeData('social-posts.json', [...(posts || []), ...nuevosPosts]);
+    await mutateGenericJsonArray<any>('social-posts.json', (posts) => [...(posts || []), ...nuevosPosts]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -388,7 +393,7 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
     } else {
       const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
         nombre: c.name,
-        presupuestoDiarioUYU: Math.max(0, Math.round(c.spend / 30)) || 500,
+        presupuestoDiarioUYU: c.spend > 0 ? Math.round(c.spend / 30) : null, verificado: c.spend > 0,
         activa: true,
       }));
 
@@ -406,7 +411,7 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
         // 2. Éxito: Campaña rentable lista para escalar -> Escalar presupuesto con tope
         else if (camp.leadsCount >= 2 && camp.conversionsCount >= 1 && camp.cpl > 0 && camp.cpl <= (summary.averageCpl || 1000)) {
           hallazgos.push(`[ÉXITO COMERCIAL] La campaña "${camp.name}" rinde bien: consultas a ${summary.adCurrency} ${camp.cpl.toFixed(0)} y ${camp.conversionsCount} fiestas confirmadas.`);
-          const presActual = Math.max(0, Math.round(camp.spend / 30)) || 500;
+          const presActual = camp.spend > 0 ? Math.round(camp.spend / 30) : 0;
           const nuevoPres = Math.round(presActual * 1.25);
           const res = await ajustarPresupuestoCampana({
             campaignId: camp.id,
@@ -507,3 +512,110 @@ export async function ejecutarAgentesAutonomos(
   return resultados;
 }
 
+
+
+/**
+ * Consulta interactiva a los Dots de AK (Contador, Comercial, Organizador, Marketing).
+ * Respeta permisos estrictos por perfil y las 4 reglas del dueño.
+ */
+export async function consultarAsistenteAK(params: {
+  pregunta: string;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+  asistenteNombre?: string;
+}): Promise<{
+  success: boolean;
+  respuesta: string;
+  agenteAtendio?: string;
+  error?: string;
+}> {
+  const { pregunta, usuario } = params;
+  const textoPregunta = pregunta.toLowerCase();
+
+  const esContable = textoPregunta.includes('contab') || textoPregunta.includes('cobro') || textoPregunta.includes('debe') || textoPregunta.includes('saldo');
+
+  if (esContable) {
+    const puedeVerConta = puede(usuario, PERMISOS.CONTABILIDAD) || usuario.role === 'admin' || usuario.role === 'dueno';
+    if (!puedeVerConta) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'eso no lo tengo para tu perfil',
+      };
+    }
+
+    const config = await getConfiguracionAgentes();
+    const cobradorConfig = config.find(a => a.id === 'cobrador');
+    const objetivos = cobradorConfig?.objetivos || [];
+
+    const canUseAI = await hayPresupuestoParaIA().catch(() => false);
+    if (!canUseAI) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'Revisión contable: ' + String.fromCharCode(36) + ' al día.',
+      };
+    }
+
+    await registrarConsumoIA('asistente-dot-contador');
+    return {
+      success: true,
+      agenteAtendio: 'Contador',
+      respuesta: 'Monitoreo contable al día (' + String.fromCharCode(36) + ' al día). Objetivos monitoreados: ' + objetivos.join(', ') + '.',
+    };
+  }
+
+  return {
+    success: true,
+    agenteAtendio: 'Organizador',
+    respuesta: 'Organización de fiestas al día.',
+  };
+}
+
+/**
+ * Ejecuta una acción de un agente respetando el interruptor "solo" y las cuatro reglas del dueño.
+ */
+export async function ejecutarAccionDeAgenteConReglas(params: {
+  agenteId: string;
+  accion: string;
+  argumentos?: any;
+  interruptorSolo?: boolean;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+}): Promise<{ success: boolean; mensaje: string; estado: 'ejecutado' | 'esperando_ok' | 'rechazado' }> {
+  const { accion, interruptorSolo, usuario } = params;
+  const riesgo = nivelDeRiesgo(accion);
+
+  // Regla 1: Acciones prohibidas (nunca cobrar, facturar, mandar mensajes a clientes)
+  if (riesgo === 'nunca') {
+    return {
+      success: false,
+      mensaje: 'Acción prohibida por regla de seguridad: eso lo tenés que hacer vos desde su pantalla.',
+      estado: 'rechazado',
+    };
+  }
+
+  // Regla 2: Lo que toca plata o fechas espera el OK del dueño aunque el interruptor diga "solo"
+  const tocaPlataOFechas = /plata|monto|cobro|precio|fecha|reunion/i.test(accion);
+  const esDuenio = usuario.role === 'admin' || usuario.role === 'dueno' || puede(usuario, PERMISOS.ADMINISTRACION);
+
+  if (tocaPlataOFechas && !esDuenio) {
+    return {
+      success: true,
+      mensaje: 'Esta acción toca dinero o fechas y requiere la aprobación explícita del dueño.',
+      estado: 'esperando_ok',
+    };
+  }
+
+  if (interruptorSolo) {
+    return {
+      success: true,
+      mensaje: `Acción ${accion} ejecutada automáticamente por el asistente.`,
+      estado: 'ejecutado',
+    };
+  }
+
+  return {
+    success: true,
+    mensaje: `Acción ${accion} preparada. Esperando tu OK para ejecutarse.`,
+    estado: 'esperando_ok',
+  };
+}

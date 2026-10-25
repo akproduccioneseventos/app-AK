@@ -47,6 +47,7 @@ import { parseEventDate } from '@/lib/public-experience/event-date';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
+import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -77,7 +78,7 @@ import {
 } from '@/lib/entretenimiento/modos-captura';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
-export default function BoguePage() {
+export default function VoguePage() {
   usePantallaPrendida();
   const params = useParams();
   const router = useRouter();
@@ -114,7 +115,7 @@ export default function BoguePage() {
   /**
    * El GIF, que es lo que la gente manda por WhatsApp.
    *
-   * Bogue ya guarda los cuadros de la tanda para armar el boomerang, asi que el
+   * Vogue ya guarda los cuadros de la tanda para armar el boomerang, asi que el
    * GIF sale de los mismos cuadros: no se le pide al invitado que pose de nuevo.
    * Se arma cuando lo toca, no antes, para no hacerlo esperar por algo que capaz
    * no quiere.
@@ -188,8 +189,8 @@ export default function BoguePage() {
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [cameraError, setCameraError] = useState<string | null>(null);
 
-  const _modosHabilitadosBogue = useMemo(() => obtenerModosCapturaHabilitados(fiesta?.station.captureModes, 'boomerang'), [fiesta?.station.captureModes]);
-  const _dimensionesBogue = useMemo(() => obtenerDimensionesPorOrientacion(fiesta?.station.orientation), [fiesta?.station.orientation]);
+  const _modosHabilitadosVogue = useMemo(() => obtenerModosCapturaHabilitados(fiesta?.station.captureModes, 'boomerang'), [fiesta?.station.captureModes]);
+  const _dimensionesVogue = useMemo(() => obtenerDimensionesPorOrientacion(fiesta?.station.orientation), [fiesta?.station.orientation]);
   const _metaBoomerang = METADATOS_MODOS_CAPTURA.boomerang;
   // Se separa del mensaje de progreso para que la pantalla final sepa si el
   // video llego al muro o no. Antes no habia forma de distinguirlo y el cuadro
@@ -629,7 +630,14 @@ export default function BoguePage() {
         ctx.drawImage(loop[frameIndex], 0, 0);
 
         // Draw Premium Frame overlay
-        drawFrameOverlay(ctx, drawCanvas.width, drawCanvas.height);
+        void cargarDetectorDeCaras();
+        const carasDetectadas = detectarCarasEnFuente(loop[frameIndex], Date.now());
+        dibujarFiltroDeCara(ctx, drawCanvas, fiesta?.station?.filtrosActivos?.[0] || 'mis15', carasDetectadas, {
+          nombreAgasajado: fiesta?.nombreAgasajado,
+          tipoCelebracion: fiesta?.tipoCelebracion,
+          primaryColor: fiesta?.primaryColor,
+        });
+    drawFrameOverlay(ctx, drawCanvas.width, drawCanvas.height);
 
         // Draw Watermark
         drawWatermark(ctx, drawCanvas.width, drawCanvas.height);

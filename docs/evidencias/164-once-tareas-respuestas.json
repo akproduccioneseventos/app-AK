@@ -1,0 +1,1259 @@
+{
+  "source": "9b7ee982c5d6ff1377fccc0490abc85a9cfd8419",
+  "testSha256": "b812295bdc56391f20c1b5750ea8da23c64dc74713b9b4b79a6ae1724d07cbf7",
+  "hashes": {
+    "src/lib/automatico/puerta-de-las-tareas.ts": "358875e9072aafb0d0b6940e499588f9bc11e236c098e39c4b6caf257602ff96",
+    "src/app/api/cron/asistente-proactivo/route.ts": "037dbec5729391b8f7f3beb3a69049001128daaaef37b32f7c73526b8d17fba7",
+    "src/app/api/cron/avisos-al-cliente/route.ts": "8dab57e82116ddf0426a87f0a1bae707f8d4f245647bbbbcf22e1d2b6f3dcb05",
+    "src/app/api/cron/fiesta-proxima-revision/route.ts": "14ea924bab14c3ba5377997790b0c9b76cd08aaef335f9a0eb18bd2ca52d40f3",
+    "src/app/api/cron/generate-blog-post/route.ts": "2d5e408f555a17f08bdfc47eaa83d333bd7687a0e0e81405c017fd2ebb79a28e",
+    "src/app/api/cron/metricas-de-redes/route.ts": "7705083c50a47a6f8779492cd63b0ab756eedc2eef432fa0ded4f2053fdd9687",
+    "src/app/api/cron/posicionamiento-diario/route.ts": "a581098fd9a46583dbc2dbf288d978cc04b431c85b0dfb327972a7cb13d022ac",
+    "src/app/api/cron/prospectos-seguimiento/route.ts": "3631a339a5cc0fe959e40cc0284889a96ad365de4542909fe6d1974901627493",
+    "src/app/api/cron/publicar-programados/route.ts": "6b80bef9f3555f0e6db059c07d83b99758cd0fd5aad79870bb91920ad76b718e",
+    "src/app/api/cron/recordar-invitacion-no-abierta/route.ts": "49c513e4a5ca75255f81f6a99e7507870fae9b4cf139b073e7959b5b15f0540e",
+    "src/app/api/cron/recordatorio-a-los-invitados/route.ts": "296eda29aeeb6903e99a18e77aac21ee4ff428146067602d50fe8653942e0735",
+    "src/app/api/cron/recordatorios-de-pago/route.ts": "3ca8a5d227b25c11c95014fa1a9ffa939715c041a11befe6ea779c986049754a"
+  },
+  "cases": [
+    {
+      "task": "asistente-proactivo",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 3,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "asistente-proactivo",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 3,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "ejecutadoEn": "2026-10-21T10:47:35.495Z",
+        "propuestasGeneradas": 0,
+        "propuestasNuevasAgregadas": 1,
+        "propuestasIgnoradasODuplicadas": 0,
+        "avisoDuenio": {
+          "detalle": "QA164_PRIVATE_NOT_PUBLIC"
+        },
+        "fallos": []
+      }
+    },
+    {
+      "task": "asistente-proactivo",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "asistente-proactivo",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "avisos-al-cliente",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "avisos-al-cliente",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "success": true,
+        "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "triggeredCount": 1,
+        "errors": []
+      }
+    },
+    {
+      "task": "avisos-al-cliente",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "avisos-al-cliente",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "avisos-al-cliente",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "avisos-al-cliente",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "success": true,
+        "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "triggeredCount": 1,
+        "errors": []
+      }
+    },
+    {
+      "task": "avisos-al-cliente",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "avisos-al-cliente",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "resultado": {
+          "success": true,
+          "ok": true,
+          "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+          "guardado": true,
+          "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+          "triggeredCount": 1,
+          "errors": []
+        }
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "resultado": {
+          "success": true,
+          "ok": true,
+          "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+          "guardado": true,
+          "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+          "triggeredCount": 1,
+          "errors": []
+        }
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "fiesta-proxima-revision",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "generate-blog-post",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "generate-blog-post",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "success": true,
+        "ok": true,
+        "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "triggeredCount": 1,
+        "errors": []
+      }
+    },
+    {
+      "task": "generate-blog-post",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "generate-blog-post",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "generate-blog-post",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "generate-blog-post",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "success": true,
+        "ok": true,
+        "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "triggeredCount": 1,
+        "errors": []
+      }
+    },
+    {
+      "task": "generate-blog-post",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "generate-blog-post",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "metricas-de-redes",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 5,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "metricas-de-redes",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 5,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "historialPublico": {
+          "meta": {
+            "success": true,
+            "ok": true,
+            "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+            "guardado": true,
+            "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+            "triggeredCount": 1,
+            "errors": []
+          },
+          "youtube": {
+            "success": true,
+            "ok": true,
+            "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+            "guardado": true,
+            "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+            "triggeredCount": 1,
+            "errors": []
+          },
+          "otrasRedes": {
+            "success": true,
+            "ok": true,
+            "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+            "guardado": true,
+            "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+            "triggeredCount": 1,
+            "errors": []
+          }
+        },
+        "comentarios": {
+          "success": true,
+          "ok": true,
+          "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+          "guardado": true,
+          "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+          "triggeredCount": 1,
+          "errors": []
+        }
+      }
+    },
+    {
+      "task": "metricas-de-redes",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "metricas-de-redes",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "metricas-de-redes",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 5,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "metricas-de-redes",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 5,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "historialPublico": {
+          "meta": {
+            "success": true,
+            "ok": true,
+            "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+            "guardado": true,
+            "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+            "triggeredCount": 1,
+            "errors": []
+          },
+          "youtube": {
+            "success": true,
+            "ok": true,
+            "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+            "guardado": true,
+            "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+            "triggeredCount": 1,
+            "errors": []
+          },
+          "otrasRedes": {
+            "success": true,
+            "ok": true,
+            "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+            "guardado": true,
+            "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+            "triggeredCount": 1,
+            "errors": []
+          }
+        },
+        "comentarios": {
+          "success": true,
+          "ok": true,
+          "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+          "guardado": true,
+          "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+          "triggeredCount": 1,
+          "errors": []
+        }
+      }
+    },
+    {
+      "task": "metricas-de-redes",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "metricas-de-redes",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "posicionamiento-diario",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "posicionamiento-diario",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "resultado": {
+          "success": true,
+          "ok": true,
+          "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+          "guardado": true,
+          "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+          "triggeredCount": 1,
+          "errors": []
+        }
+      }
+    },
+    {
+      "task": "posicionamiento-diario",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "posicionamiento-diario",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "posicionamiento-diario",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "posicionamiento-diario",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "resultado": {
+          "success": true,
+          "ok": true,
+          "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+          "guardado": true,
+          "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+          "triggeredCount": 1,
+          "errors": []
+        }
+      }
+    },
+    {
+      "task": "posicionamiento-diario",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "posicionamiento-diario",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "resultado": {
+          "success": true,
+          "ok": true,
+          "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+          "guardado": true,
+          "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+          "triggeredCount": 1,
+          "errors": []
+        }
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "resultado": {
+          "success": true,
+          "ok": true,
+          "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+          "guardado": true,
+          "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+          "triggeredCount": 1,
+          "errors": []
+        }
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "prospectos-seguimiento",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "publicar-programados",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 2,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "publicar-programados",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 2,
+      "marks": 1,
+      "body": {
+        "success": true,
+        "ok": true,
+        "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "triggeredCount": 1,
+        "errors": []
+      }
+    },
+    {
+      "task": "publicar-programados",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "publicar-programados",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "publicar-programados",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 2,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "publicar-programados",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 2,
+      "marks": 1,
+      "body": {
+        "success": true,
+        "ok": true,
+        "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "triggeredCount": 1,
+        "errors": []
+      }
+    },
+    {
+      "task": "publicar-programados",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "publicar-programados",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "recordar-invitacion-no-abierta",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "recordar-invitacion-no-abierta",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "success": true,
+        "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "triggeredCount": 1,
+        "errors": []
+      }
+    },
+    {
+      "task": "recordar-invitacion-no-abierta",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "recordar-invitacion-no-abierta",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "recordar-invitacion-no-abierta",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "recordar-invitacion-no-abierta",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "success": true,
+        "resultado": "QA164_PRIVATE_NOT_PUBLIC",
+        "guardado": true,
+        "fecha": "QA164_PRIVATE_NOT_PUBLIC",
+        "triggeredCount": 1,
+        "errors": []
+      }
+    },
+    {
+      "task": "recordar-invitacion-no-abierta",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "recordar-invitacion-no-abierta",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "recordatorio-a-los-invitados",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "recordatorio-a-los-invitados",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "mensajesPreparados": 0,
+        "errores": []
+      }
+    },
+    {
+      "task": "recordatorio-a-los-invitados",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "recordatorio-a-los-invitados",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "recordatorio-a-los-invitados",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "recordatorio-a-los-invitados",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "mensajesPreparados": 0,
+        "errores": []
+      }
+    },
+    {
+      "task": "recordatorio-a-los-invitados",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "recordatorio-a-los-invitados",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "recordatorios-de-pago",
+      "method": "GET",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "recordatorios-de-pago",
+      "method": "GET",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recordatoriosProgramados": 1,
+        "errores": []
+      }
+    },
+    {
+      "task": "recordatorios-de-pago",
+      "method": "GET",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "recordatorios-de-pago",
+      "method": "GET",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    },
+    {
+      "task": "recordatorios-de-pago",
+      "method": "POST",
+      "variant": "anonymous",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recortada": true
+      }
+    },
+    {
+      "task": "recordatorios-de-pago",
+      "method": "POST",
+      "variant": "key",
+      "pass": true,
+      "status": 200,
+      "calls": 1,
+      "marks": 1,
+      "body": {
+        "ok": true,
+        "recordatoriosProgramados": 1,
+        "errores": []
+      }
+    },
+    {
+      "task": "recordatorios-de-pago",
+      "method": "POST",
+      "variant": "wrong-key",
+      "pass": true,
+      "status": 401,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "task": "recordatorios-de-pago",
+      "method": "POST",
+      "variant": "throttled",
+      "pass": true,
+      "status": 429,
+      "calls": 0,
+      "marks": 0,
+      "body": {
+        "error": "Demasiados pedidos seguidos para esta tarea. Probá en unos minutos."
+      }
+    }
+  ],
+  "summary": {
+    "total": 84,
+    "pass": 84,
+    "fail": 0
+  },
+  "scope": "Eleven actual cron handlers, all21 exported HTTP method bodies, actual key/throttle/redaction gate; success/wrong-key/throttle/anonymous",
+  "limits": [
+    "All business engines, network/model/provider/push/WhatsApp/lock/backends are controlled doubles; no external delivery or concurrency certified",
+    "In-process Request/Response/NextResponse.json adapter, not Next middleware/cookies/HTTP or deployed CRON_SECRET",
+    "The two engine compositions are tested separately in160; this84case breadth is handler-contract acceptance only"
+  ],
+  "appEdited": false
+}

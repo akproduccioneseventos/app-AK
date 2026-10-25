@@ -21,6 +21,13 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 
+/** sha256 en hexadecimal, igual que la huella que guarda el servidor en la constancia. */
+async function huellaDelTexto(texto: string): Promise<string> {
+  const datos = new TextEncoder().encode(texto);
+  const resumen = await crypto.subtle.digest('SHA-256', datos);
+  return Array.from(new Uint8Array(resumen)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 
 function formatCurrency(amount: number) {
@@ -102,13 +109,16 @@ export default function ClientContractPage() {
 
     setIsSaving(true);
     try {
-        const result = await signContractDigitally(fiestaId, signerFullName.trim(), acceptedPlanPagos);
+        // La huella del texto que el cliente tiene en pantalla: si el contrato cambió después de que lo
+        // abrió, el servidor no le atribuye la versión nueva (Codex 240, C4).
+        const huellaVista = await huellaDelTexto(fiesta.contratoServicioTexto || '');
+        const result = await signContractDigitally(fiestaId, signerFullName.trim(), acceptedPlanPagos, huellaVista);
         if (result.success) {
             toast({ title: "¡Constancia Registrada!", description: "Se ha registrado tu firma digital como constancia en el portal." });
             await loadData();
         } else throw new Error(result.error);
-    } catch {
-        toast({ title: "No pudimos registrar tu firma", description: "Intentá nuevamente. Si el problema continúa, contactá a tu organizador.", variant: "destructive" });
+    } catch (e: any) {
+        toast({ title: "No pudimos registrar tu firma", description: e?.message || "Intentá nuevamente. Si el problema continúa, contactá a tu organizador.", variant: "destructive" });
     } finally {
         setIsSaving(false);
     }
@@ -157,9 +167,9 @@ export default function ClientContractPage() {
                     <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
                         <FileSignature className="w-6 h-6"/>
                     </div>
-                    <div>
-                        <h1 className="text-xl sm:text-2xl leading-tight font-black text-slate-900 font-headline uppercase">Contrato de Servicio</h1>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Revisión y Firma Digital</p>
+                    <div className="min-w-0 flex-1">
+                        <h1 className="text-lg sm:text-2xl leading-snug font-black text-slate-900 font-headline uppercase tracking-tight">Contrato de Servicio</h1>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest truncate">Revisión y Firma Digital</p>
                     </div>
                 </div>
                 <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-5 h-5"/></Link></Button>
