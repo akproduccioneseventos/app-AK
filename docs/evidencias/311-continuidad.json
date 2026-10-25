@@ -1,0 +1,42 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "pid": 8880,
+  "started": "2026-10-24T02:27:45.203Z",
+  "phase": "finished",
+  "jobs": [
+    {
+      "file": "307-home-estado-ejecutar.mjs",
+      "started": "2026-10-24T02:27:45.205Z",
+      "freeBytesBefore": 4131246080,
+      "pid": 13760,
+      "exitCode": 0,
+      "finished": "2026-10-24T02:28:55.298Z"
+    },
+    {
+      "file": "303-almacenamiento-sdk-ejecutar.mjs",
+      "started": "2026-10-24T02:28:55.299Z",
+      "freeBytesBefore": 4105256960,
+      "pid": 15036,
+      "exitCode": 0,
+      "finished": "2026-10-24T02:30:40.696Z"
+    },
+    {
+      "file": "310-archivos-restantes-ejecutar.mjs",
+      "started": "2026-10-24T02:30:40.698Z",
+      "freeBytesBefore": 4118339584,
+      "pid": 1352,
+      "exitCode": 1,
+      "finished": "2026-10-24T04:05:59.498Z"
+    },
+    {
+      "file": "301-recorrido-contexto-seguro.mjs",
+      "started": "2026-10-24T04:05:59.499Z",
+      "freeBytesBefore": 2950004736,
+      "pid": 9484,
+      "exitCode": 1,
+      "finished": "2026-10-24T04:05:59.638Z"
+    }
+  ],
+  "appEdited": false,
+  "finished": "2026-10-24T04:05:59.640Z"
+}

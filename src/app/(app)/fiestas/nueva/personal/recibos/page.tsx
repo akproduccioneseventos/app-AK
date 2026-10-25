@@ -145,6 +145,7 @@ function RecibosDePagoContent() {
         return;
       }
       setTienePermisoSueldos(true);
+
       const [fiestasData, empleadosData, rolesData, settings] = await Promise.all([
         getAllFiestas(),
         getEmpleados(),

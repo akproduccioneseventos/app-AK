@@ -1,0 +1,13 @@
+{
+  "source": "253838732287c2704d78113d15ace9c025cb82c9",
+  "baseline": "7230f9d02b32805952a185f704a0208bd5d643e6",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-qa-153-2pbQa2",
+  "preparedAt": "2026-10-20T13:43:05.680Z",
+  "phase": "building",
+  "dependencySectionsAndLockEqual": true,
+  "packageScriptsDiffer": true,
+  "realServices": false,
+  "appEdited": false,
+  "reasonForReplacement": "Previous accepted build disappeared from Windows Temp; not a code change or routine rebuild",
+  "blogBeforeBuild": false
+}

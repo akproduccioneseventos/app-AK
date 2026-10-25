@@ -15,14 +15,13 @@ export interface SocialComment {
   text: string;
   createdAt: string; // ISO String
   permalink?: string;
-
+  
   // Clasificación por IA
   sentiment?: CommentSentiment;
   sentimentReason?: string;
   isInsultOrSpam?: boolean;
   isLegitimateComplaint?: boolean;
   esPregunta?: boolean;
-  intentCategory?: string;
   classifiedAt?: string;
 
   // Respuesta automática a preguntas

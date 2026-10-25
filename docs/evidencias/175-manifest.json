@@ -1,0 +1,112 @@
+{
+  "base": "f776ae29eded99ad4a11fac099fece2657c7514a",
+  "gemini": "bfde3916a43afdb700cc0828722268db7b3ea2c1",
+  "claude": "daefbdc00b7a43f4f252dcca6e7d9565d4d30d10",
+  "members": [
+    {
+      "path": "ESTADO-ACTUAL.md",
+      "bytes": 2749,
+      "sha256": "33fc550cc48175c49e4b7a6893ca24f3725042d91dd9d7481d34f38c7ddff4e1"
+    },
+    {
+      "path": "docs/YA-RESUELTO.md",
+      "bytes": 1051407,
+      "sha256": "f69d25db2631fdcd30ccc060a6d235e25467d725d9ccddf73ed59806cb8b858e"
+    },
+    {
+      "path": "docs/evidencias/171-entrega-1344.json",
+      "bytes": 27796,
+      "sha256": "a3ee5a7ea8478881b1e89046259e504d4863f0ca5d8b699ae5c67974502aec1a"
+    },
+    {
+      "path": "docs/evidencias/171-entrega-1344.mjs",
+      "bytes": 19106,
+      "sha256": "464e71dd4daf3520e53e9dd8b45648e04abd966e1bd6648396bda254e6d35a95"
+    },
+    {
+      "path": "docs/evidencias/171-error-inicial-qa.md",
+      "bytes": 807,
+      "sha256": "8e5c8d460ec122a2f96e3c711f9fa54e740e24b218a75d55e91476c7db6d2136"
+    },
+    {
+      "path": "docs/evidencias/171-inicial-buffer-qa.mjs",
+      "bytes": 19080,
+      "sha256": "2cb6f85281d0d4a5dc506d7db36ef41b5b13942a71ad9ff0ce53ef71089aa04d"
+    },
+    {
+      "path": "docs/evidencias/171-inicial-interoperabilidad-qa.mjs",
+      "bytes": 19057,
+      "sha256": "e07c0c5b61410379f919a94f1c3710ac510104db28d28c7341b00896e078579b"
+    },
+    {
+      "path": "docs/evidencias/172-retest-foco-claude.json",
+      "bytes": 3684,
+      "sha256": "a71000b4949888b16ccaa75a1e2e1ac27a9854ccb968a3e7eb266fff274268af"
+    },
+    {
+      "path": "docs/evidencias/172-retest-foco-claude.mjs",
+      "bytes": 10819,
+      "sha256": "5de039b11f4624292d83d78dcde51cf1e6f894782c580738cd09d12cf03bc208"
+    },
+    {
+      "path": "docs/evidencias/173-ejecucion.json",
+      "bytes": 466,
+      "sha256": "b5665d6124c442383ea7ee68ddf1bdf8685ff2085c617cb2682cfe84c7efc3ed"
+    },
+    {
+      "path": "docs/evidencias/173-ejecutar.mjs",
+      "bytes": 5151,
+      "sha256": "c4f7a288120a7482113895927f256c221766cf2066bea93beb254bed390b5ce4"
+    },
+    {
+      "path": "docs/evidencias/173-emulator.log.gz",
+      "bytes": 1375,
+      "sha256": "b342b7230b7eb19b9dd319dae4f0690ab2dcca1b932642ffadd2e9b5f584af30"
+    },
+    {
+      "path": "docs/evidencias/173-retest-proveedor-sdk.json",
+      "bytes": 26696,
+      "sha256": "ce2503dc7f4c4aa000f18c3421575eb21c912c46f8e770915b21e6b6e7c106d3"
+    },
+    {
+      "path": "docs/evidencias/173-retest-proveedor-sdk.mjs",
+      "bytes": 10139,
+      "sha256": "b648ed62699700fbbf5ff156fcce39ef45d08adf5d9285c00abc0ef79309dfd1"
+    },
+    {
+      "path": "docs/evidencias/173-sdk.log.gz",
+      "bytes": 112,
+      "sha256": "97d9fd0b0298ac2e3e997b08e368e125187f916b15753413a360b34bab589580"
+    },
+    {
+      "path": "docs/evidencias/174-consumidores-1344.json",
+      "bytes": 4040,
+      "sha256": "05c502d3fe8f3d37d166d63dcdf66f85ef63362703b4f2d6b65b7c531f92972a"
+    },
+    {
+      "path": "docs/evidencias/174-consumidores-1344.mjs",
+      "bytes": 8541,
+      "sha256": "cee12d1fa0a3063d8cd0c0004dead3d7eefb8da0fefcdcab35454f162982c5c5"
+    },
+    {
+      "path": "docs/evidencias/175-cierre-tecnico-y-entrega.md",
+      "bytes": 3066,
+      "sha256": "1a6a02368ebc9fc5c1704e6682d2847ab72337b9f05f13107fbea0670d27dc9f"
+    },
+    {
+      "path": "docs/evidencias/175-validacion.json",
+      "bytes": 699,
+      "sha256": "da53916716e7e020df84a0fc824b0182017ca45805b58954263c561265db87a0"
+    },
+    {
+      "path": "docs/evidencias/175-validar.mjs",
+      "bytes": 4303,
+      "sha256": "ac738783a9bee043823b7898c383df24bc08b733ed61ed3aff322cdc70049e03"
+    },
+    {
+      "path": "docs/ordenes/205-devolucion-1344-con-resultados.md",
+      "bytes": 5063,
+      "sha256": "ce7f95cf9e4de1c6fe8e05b4df0b9ca22468e9ba597c3d79693345db66a01fd3"
+    }
+  ]
+}

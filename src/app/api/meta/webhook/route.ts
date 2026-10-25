@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { MetaMensajeDirecto } from '@/lib/mensajes/bandeja-unica';
 
 export const runtime = 'nodejs';
@@ -8,11 +8,11 @@ export const dynamic = 'force-dynamic';
 
 const ARCHIVO_MENSAJES = 'social-mensajes-directos.json';
 
-function obtenerMetaAppSecret(): string {
-  return process.env.META_APP_SECRET || process.env.META_CLIENT_SECRET || process.env.FACEBOOK_APP_SECRET || 'meta_ak_secret';
+function obtenerMetaAppSecret(): string | null {
+  return process.env.META_APP_SECRET || process.env.META_CLIENT_SECRET || process.env.FACEBOOK_APP_SECRET || null;
 }
 
-function verificarFirmaMeta(rawBody: string, signature: string | null, appSecret: string): boolean {
+function verificarFirmaMeta(rawBody: string, signature: string | null, appSecret: string | null): boolean {
   if (!signature || !appSecret) return false;
   try {
     const expected = `sha256=${crypto
@@ -38,7 +38,10 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
 
-  const expectedToken = process.env.META_VERIFY_TOKEN || process.env.WHATSAPP_VERIFY_TOKEN || 'ak_meta_verify';
+  const expectedToken = process.env.META_VERIFY_TOKEN || process.env.WHATSAPP_VERIFY_TOKEN;
+  if (!expectedToken) {
+    return NextResponse.json({ error: 'Webhook de Meta sin clave de verificación configurada.' }, { status: 403 });
+  }
 
   if (mode === 'subscribe' && challenge) {
     if (token === expectedToken) {
@@ -53,7 +56,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/meta/webhook
  * Recepción de mensajes directos de Instagram y Messenger.
- * Comprueba X-Hub-Signature-256 y deduplica por mid.
+ * Comprueba X-Hub-Signature-256, determina canal por payload.object y muta transaccionalmente con mutateGenericJsonArray.
  */
 export async function POST(request: NextRequest) {
   // 1. Obtener cuerpo crudo para validar la firma HMAC-SHA256
@@ -61,8 +64,8 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get('x-hub-signature-256') || request.headers.get('X-Hub-Signature-256');
   const secret = obtenerMetaAppSecret();
 
-  // Validación estricta de X-Hub-Signature-256
-  if (!verificarFirmaMeta(rawBody, signature, secret)) {
+  // Validación estricta de X-Hub-Signature-256: sin clave configurada en el servidor, se rechaza todo.
+  if (!secret || !verificarFirmaMeta(rawBody, signature, secret)) {
     return NextResponse.json(
       { error: 'Firma X-Hub-Signature-256 inválida o ausente' },
       { status: 403 }
@@ -78,9 +81,11 @@ export async function POST(request: NextRequest) {
   }
 
   const entries = payload.entry || [];
-  const guardados = await readData<MetaMensajeDirecto[]>(ARCHIVO_MENSAJES, []);
-  const midsExistentes = new Set(guardados.map((m) => m.mid));
-  const nuevos: MetaMensajeDirecto[] = [];
+  const incomingMessages: MetaMensajeDirecto[] = [];
+
+  // Determinación de canal según el objeto principal de Meta (Codex 171/205)
+  // payload.object === 'instagram' -> instagram_dm; caso contrario (ej: 'page') -> messenger.
+  const canal: 'instagram_dm' | 'messenger' = payload.object === 'instagram' ? 'instagram_dm' : 'messenger';
 
   for (const entry of entries) {
     const messaging = entry.messaging || [];
@@ -90,14 +95,11 @@ export async function POST(request: NextRequest) {
       const senderId = msg.sender?.id;
       const recipientId = msg.recipient?.id;
 
-      if (!mid || midsExistentes.has(mid)) {
-        continue; // Deduplicación por mid
-      }
+      if (!mid) continue;
 
-      midsExistentes.add(mid);
-      nuevos.push({
+      incomingMessages.push({
         mid,
-        canal: entry.id?.startsWith('ig_') || msg.recipient?.id?.length > 15 ? 'instagram_dm' : 'messenger',
+        canal,
         senderId: senderId || 'anonimo',
         recipientId: recipientId || 'ak_page',
         texto: texto || '',
@@ -107,9 +109,16 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  if (nuevos.length > 0) {
-    await writeData(ARCHIVO_MENSAJES, [...guardados, ...nuevos]);
+  let agregadosCount = 0;
+  if (incomingMessages.length > 0) {
+    await mutateGenericJsonArray<MetaMensajeDirecto>(ARCHIVO_MENSAJES, (guardados) => {
+      const midsExistentes = new Set(guardados.map((m) => m.mid));
+      const paraAgregar = incomingMessages.filter((m) => !midsExistentes.has(m.mid));
+      agregadosCount = paraAgregar.length;
+      if (agregadosCount === 0) return null;
+      return [...guardados, ...paraAgregar];
+    });
   }
 
-  return NextResponse.json({ status: 'EVENT_RECEIVED', guardados: nuevos.length }, { status: 200 });
+  return NextResponse.json({ status: 'EVENT_RECEIVED', guardados: agregadosCount }, { status: 200 });
 }

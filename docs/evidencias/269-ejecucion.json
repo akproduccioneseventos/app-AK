@@ -1,0 +1,1482 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz",
+  "started": "2026-10-23T19:11:39.227Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-23T19:11:26.022Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "130-compartir-presupuesto-publico.spec.ts",
+    "130-factura-sin-superposicion.spec.ts",
+    "133-invitado-con-red-local.spec.ts",
+    "133-qr-descarga-lector-local.spec.ts",
+    "143-cocina-fecha-local.spec.ts",
+    "45-recorridos-pendientes.spec.ts",
+    "46-estetica-movimiento-visible.spec.ts",
+    "47-redes-confirmaciones-y-videos.spec.ts",
+    "48-fotocabina-recuerdo-seguro.spec.ts",
+    "48-touchpix-entrega-sin-reinicio.spec.ts",
+    "49-contabilidad-cobros-conciliados.spec.ts",
+    "49-contabilidad-permisos-y-errores.spec.ts",
+    "50-tecnologia-app-fiesta-demo.spec.ts",
+    "50-venta-origen-y-galeria-publica.spec.ts",
+    "81-captura-reconexion-entrega.spec.ts",
+    "81-cola-aislamiento-y-reintento.spec.ts",
+    "81-prueba-previa-no-finge-equipo.spec.ts",
+    "81-roles-y-pedidos-sin-duplicados.spec.ts",
+    "89-ia-no-frena-la-fila.spec.ts",
+    "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+    "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+    "anda-en-el-celular.spec.ts",
+    "barra-72-pedido-propio-y-estado.spec.ts",
+    "barra-recupera-cancelacion.spec.ts",
+    "calendarios-react19.spec.ts",
+    "carga-rapido.spec.ts",
+    "catalogo-publico.spec.ts",
+    "catering-maestro-simulador-fotos.spec.ts",
+    "como-se-ven-las-estaciones.spec.ts",
+    "conexiones-redes-error-y-reintento.spec.ts",
+    "contrato-constancia-mantiene-papel.spec.ts",
+    "el-album-del-recuerdo.spec.ts",
+    "el-album-se-arma-solo.spec.ts",
+    "el-album-se-baja-entero.spec.ts",
+    "el-album-suena-o-no-muestra-el-boton.spec.ts",
+    "el-asistente-le-contesta-al-invitado.spec.ts",
+    "el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+    "el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+    "el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+    "el-cliente-gira-su-salon-en-3d.spec.ts",
+    "el-cliente-le-escribe-al-equipo.spec.ts",
+    "el-cliente-ve-sus-entregas-oficiales.spec.ts",
+    "el-control-de-llegada-se-prende-y-queda.spec.ts",
+    "el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts",
+    "el-fondo-se-cambia-de-verdad.spec.ts",
+    "el-informe-de-la-fiesta-se-arma-solo.spec.ts",
+    "el-muro-se-configura.spec.ts",
+    "el-panel-del-cliente-enamora.spec.ts",
+    "el-plan-de-cuotas-no-deshace-un-cobro.spec.ts",
+    "el-secretario-escucha-y-hace.spec.ts",
+    "el-simulador-respeta-el-tipo-de-fiesta.spec.ts",
+    "el-totem-arranca-sin-internet.spec.ts",
+    "el-totem-de-bienvenida.spec.ts",
+    "el-video-resumen-dura-lo-que-promete.spec.ts",
+    "entertainment-stations.spec.ts",
+    "entorno-compilado-verificable.spec.ts",
+    "entretenimientos-a-fondo.spec.ts",
+    "espejo-moderacion-caida-y-reintento.spec.ts",
+    "espejo-pide-permiso.spec.ts",
+    "estaciones-sin-clave.spec.ts",
+    "fotocabina-de-punta-a-punta.spec.ts",
+    "fotos-de-la-app.spec.ts",
+    "galeria-hd-destino-publico.spec.ts",
+    "galeria-servicio-y-contacto-publico.spec.ts",
+    "google-workspace-estado-conexion.spec.ts",
+    "importar-invitados-de-una-planilla.spec.ts",
+    "impresion-a4.spec.ts",
+    "instalar-solo-la-estacion.spec.ts",
+    "internal-dynamic-route-inventory.spec.ts",
+    "internal-smoke.spec.ts",
+    "la-app-se-mueve.spec.ts",
+    "la-carga-operativa-avisa-cuando-no-alcanza.spec.ts",
+    "la-carga-operativa-se-sincroniza.spec.ts",
+    "la-carteleria-dice-la-verdad.spec.ts",
+    "la-decoracion-se-baja-y-se-genera.spec.ts",
+    "la-demo-de-la-barra-respeta-el-trago.spec.ts",
+    "la-fotocabina-saca-la-foto-con-imagen.spec.ts",
+    "la-fotocabina-tiene-todo.spec.ts",
+    "la-grilla-de-caras.spec.ts",
+    "la-hoja-de-cocina.spec.ts",
+    "la-hoja-del-dj-dice-la-verdad.spec.ts",
+    "la-lista-de-regalos-queda-como-la-dejaron.spec.ts",
+    "la-orden-de-evento-junta-todo.spec.ts",
+    "la-pantalla-gigante-anda.spec.ts",
+    "la-portada-aparece-al-toque.spec.ts",
+    "la-portada-espera-sin-cajas-grises.spec.ts",
+    "la-portada-no-dice-cero.spec.ts",
+    "la-portada-nueva.spec.ts",
+    "la-puerta-de-entrada-anda.spec.ts",
+    "la-red-social-de-la-fiesta.spec.ts",
+    "la-reunion-de-organizacion-guarda-donde-corresponde.spec.ts",
+    "la-ubicacion-del-personal-no-esta-bloqueada.spec.ts",
+    "la-vidriera-de-la-tecnologia.spec.ts",
+    "la-vista-3d-muestra-los-muebles.spec.ts",
+    "la-web-de-venta-no-se-rompe.spec.ts",
+    "la-web-de-venta-se-mueve.spec.ts",
+    "la-web-publica-se-ve.spec.ts",
+    "la-web-se-deja-usar-por-asistentes.spec.ts",
+    "las-entregas-de-fotografia-no-se-pisan.spec.ts",
+    "las-estaciones-respetan-los-ajustes.spec.ts",
+    "las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+    "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+    "las-pantallas-no-quedan-en-blanco-al-redirigir.spec.ts",
+    "las-pantallas-rotas-se-arreglaron.spec.ts",
+    "layout-baseline.spec.ts",
+    "lectura-invitados-aislada.spec.ts",
+    "limpiar-la-agenda.spec.ts",
+    "los-enlaces-llegan-a-donde-dicen.spec.ts",
+    "mantenimiento-sin-duplicar.spec.ts",
+    "marketing-tarjetas-llevan-a-su-pantalla.spec.ts",
+    "medicion-no-envia-llaves.spec.ts",
+    "mi-dia-muestra-el-saldo-real.spec.ts",
+    "mobile-overflow.spec.ts",
+    "mural-geometria-visible.spec.ts",
+    "muro-subir-foto.spec.ts",
+    "noche-de-fiesta.spec.ts",
+    "orden-86-pantallas.spec.ts",
+    "pantallas-con-iconos-react19.spec.ts",
+    "pantallas-tocadas-tanda-12-10.spec.ts",
+    "planner-missing-portals.spec.ts",
+    "portal-fecha-y-botones.spec.ts",
+    "presupuesto-publico-sin-sesion.spec.ts",
+    "prospecto-simulador.spec.ts",
+    "public-experience-matrix.spec.ts",
+    "public-smoke.spec.ts",
+    "qr-archivo-rotaciones.spec.ts",
+    "qr-descargado-lector-real.spec.ts",
+    "recorrido-de-pantallas.spec.ts",
+    "salon-3d-ayuda-recorrido.spec.ts",
+    "salon-3d-cliente.spec.ts",
+    "salon-3d-real.spec.ts",
+    "salon-3d-se-dibuja.spec.ts",
+    "senal-mala.spec.ts",
+    "simulador-contacto-oficial.spec.ts",
+    "simulator-budget-journey.spec.ts",
+    "sofia-composer.spec.ts",
+    "tarjetas-whatsapp.spec.ts",
+    "touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+    "trabajos-completos.spec.ts",
+    "viaje-invitado.spec.ts",
+    "video-vida-error-lectura.spec.ts",
+    "voz-en-vivo-reintento-y-cancelacion.spec.ts"
+  ],
+  "batchSize": 6,
+  "copiedTests": 142,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/130-compartir-presupuesto-publico.spec.ts",
+      "copy": "tests/e2e/ak207-130-compartir-presupuesto-publico.spec.ts",
+      "originalSha256": "6747e4ca7ca0f540b82279d209fe90139c1ec05fadd3977e0f47685fcb385d31",
+      "instrumentedSha256": "0e0f103523642b2b56274b1e24082d27667a77c59ede252a2aa0c33b9dcc8ec7"
+    },
+    {
+      "original": "tests/e2e/130-factura-sin-superposicion.spec.ts",
+      "copy": "tests/e2e/ak207-130-factura-sin-superposicion.spec.ts",
+      "originalSha256": "d64f888c81cbe2d9b382b2336ecbd5d4ff8e69bf3787dc945b0265c4d10e2a90",
+      "instrumentedSha256": "a80c216a4966d41f82c91a5ad44312dbcf7066b9f7795d8c8f0d1da39fad9a35"
+    },
+    {
+      "original": "tests/e2e/133-invitado-con-red-local.spec.ts",
+      "copy": "tests/e2e/ak207-133-invitado-con-red-local.spec.ts",
+      "originalSha256": "0231afcb0bd7117cd59095c2e172f605a9c7322566a7fef9c9b731fe1cbec85d",
+      "instrumentedSha256": "5ff5349447deede5131e6b336dce5e1828a072716032488684b163cfe216817e"
+    },
+    {
+      "original": "tests/e2e/133-qr-descarga-lector-local.spec.ts",
+      "copy": "tests/e2e/ak207-133-qr-descarga-lector-local.spec.ts",
+      "originalSha256": "7cd3cd2c626d7e6126f0c467ee2705b3b27facb4e2238ab86964d292e9509350",
+      "instrumentedSha256": "976443815fcb6ba043d4d64767aaf045f415330ceeb761532da336b27b59789c"
+    },
+    {
+      "original": "tests/e2e/143-cocina-fecha-local.spec.ts",
+      "copy": "tests/e2e/ak207-143-cocina-fecha-local.spec.ts",
+      "originalSha256": "9a84359d38fe54d71d87ccca3f49a793f3b574db3d12846831e29f38cc7918f7",
+      "instrumentedSha256": "364c3b3f5e93dcd7e4fa30ee5d47044a94ad3ca6b03212f10546cd13f38e9695"
+    },
+    {
+      "original": "tests/e2e/45-recorridos-pendientes.spec.ts",
+      "copy": "tests/e2e/ak207-45-recorridos-pendientes.spec.ts",
+      "originalSha256": "e50659ee654a336fa8a5dcd258919175722b546c9e7c32448a2115c03be31279",
+      "instrumentedSha256": "6e39de623c7c87132d9f9f49607d4b4d3af32a3747530f9ec5622f093915a849"
+    },
+    {
+      "original": "tests/e2e/46-estetica-movimiento-visible.spec.ts",
+      "copy": "tests/e2e/ak207-46-estetica-movimiento-visible.spec.ts",
+      "originalSha256": "46912063e8b984a15c94639043f19413676ea97fb06d9e3d17d80539e8d820fa",
+      "instrumentedSha256": "718c9bc563a720b3447e43aea3f2a2b188d2e26440394f7571244ccc74e0da39"
+    },
+    {
+      "original": "tests/e2e/47-redes-confirmaciones-y-videos.spec.ts",
+      "copy": "tests/e2e/ak207-47-redes-confirmaciones-y-videos.spec.ts",
+      "originalSha256": "6f1f58691ff6fbb6e64f67ee9b57b6a80a66e24fb8aa133cec7a6c47dc914528",
+      "instrumentedSha256": "7496d4b97cd6502565de9b60d839d9363473312ae55629d3715cbde7c5fd3af4"
+    },
+    {
+      "original": "tests/e2e/48-fotocabina-recuerdo-seguro.spec.ts",
+      "copy": "tests/e2e/ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+      "originalSha256": "26ea4503ceadc3579bb18254a946e10de72961e65fa1046e1561f4a2a21556fe",
+      "instrumentedSha256": "70ad2511c8659a1b8b5083d0022b8a05ece46cc5561ddd07c01994084bb5035d"
+    },
+    {
+      "original": "tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts",
+      "copy": "tests/e2e/ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+      "originalSha256": "2719d1b67d9b083186a2ce0e693961a774fea66f62c9e674afb391145a77a238",
+      "instrumentedSha256": "b5d1a9e53897c5f786311687965f792ca6b01872e8435ad5bc21b9f41331fffb"
+    },
+    {
+      "original": "tests/e2e/49-contabilidad-cobros-conciliados.spec.ts",
+      "copy": "tests/e2e/ak207-49-contabilidad-cobros-conciliados.spec.ts",
+      "originalSha256": "c45bbab7a361cfd03767cf42c9916035489960c46785f447a409bf566eaf11ab",
+      "instrumentedSha256": "1828c5e4c4dd028f0be69b7dde91fdf0f515a750177bcafc475130e60c0eff63"
+    },
+    {
+      "original": "tests/e2e/49-contabilidad-permisos-y-errores.spec.ts",
+      "copy": "tests/e2e/ak207-49-contabilidad-permisos-y-errores.spec.ts",
+      "originalSha256": "b580ef410443b32a75d1190db28057f7df781bcdcc6b9ba79d9d04a0bb8796ab",
+      "instrumentedSha256": "6d8e5224055b50365ec70fb3b3d15ebdba7c3a7a6e656941a69988f47453f8aa"
+    },
+    {
+      "original": "tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts",
+      "copy": "tests/e2e/ak207-50-tecnologia-app-fiesta-demo.spec.ts",
+      "originalSha256": "6ff8045d16c5f4a9122980874181ce3d4bf3afba43de1a633bc0c35858c1d44e",
+      "instrumentedSha256": "c63ffbe1f045ce41b82267d6bca5dd596bb3d5bcb74511564f2dc0199eba1510"
+    },
+    {
+      "original": "tests/e2e/50-venta-origen-y-galeria-publica.spec.ts",
+      "copy": "tests/e2e/ak207-50-venta-origen-y-galeria-publica.spec.ts",
+      "originalSha256": "a4c822de5342498c895017f9d299143466be1e853c87cca1c60196a2017136fc",
+      "instrumentedSha256": "dda1ca22a27dba73a98d258738f1554c4dd9c9eff2008418ea657d66783a2991"
+    },
+    {
+      "original": "tests/e2e/81-captura-reconexion-entrega.spec.ts",
+      "copy": "tests/e2e/ak207-81-captura-reconexion-entrega.spec.ts",
+      "originalSha256": "a49808342f1497da806268d1ecb5f53db8cf4e7d58036b62ae1f845800f079a3",
+      "instrumentedSha256": "08b4d097686621ddec7bbeebcf46c21b0b60ce6e0917269b2c78026ac496a901"
+    },
+    {
+      "original": "tests/e2e/81-cola-aislamiento-y-reintento.spec.ts",
+      "copy": "tests/e2e/ak207-81-cola-aislamiento-y-reintento.spec.ts",
+      "originalSha256": "38b3784800f14965a958aadbc4ba767792a235e55b1f5a101a01d063beda7c37",
+      "instrumentedSha256": "f26bbb34ce899928ebb5ebd035ebc1e3dca275ce5bdaa642c9a5623a6fdd248e"
+    },
+    {
+      "original": "tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts",
+      "copy": "tests/e2e/ak207-81-prueba-previa-no-finge-equipo.spec.ts",
+      "originalSha256": "374cf7b7a6994ae09c7b868beb0b5b4d631b914dd338e58b7ce5be4cb14bfda0",
+      "instrumentedSha256": "f3eb7bd958ca3eb485d58d1d9f8a9be1091f246097c8538039faed1f85fd49d5"
+    },
+    {
+      "original": "tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts",
+      "copy": "tests/e2e/ak207-81-roles-y-pedidos-sin-duplicados.spec.ts",
+      "originalSha256": "77d76662593d8c8fe5216fbf892f25eadbb1b260b5d4ee0b15479918605bf73f",
+      "instrumentedSha256": "0b29183310ef2052348324a4f171cd8cd7ff67a5f644e7da73936edce63d9321"
+    },
+    {
+      "original": "tests/e2e/89-ia-no-frena-la-fila.spec.ts",
+      "copy": "tests/e2e/ak207-89-ia-no-frena-la-fila.spec.ts",
+      "originalSha256": "6d2d72cd029926d80d00de984fd726581faaf09c617a78cb850295a298c51159",
+      "instrumentedSha256": "3f210ceea6ffe9ab808df993980f953658f3afa31e88238227021ca68206b867"
+    },
+    {
+      "original": "tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "copy": "tests/e2e/ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "originalSha256": "422620b2e86ad11c49665296ebac994aefdf6859a1b377d6c8b00a1fd7380a9b",
+      "instrumentedSha256": "7151e13f7e940b18014546fee86899c1569a1f6ad2fb5218e90ec37b895132a4"
+    },
+    {
+      "original": "tests/e2e/90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "copy": "tests/e2e/ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "originalSha256": "efb56b9b9d100c06c90b3230f34b2b9caedcfe4dd1ed003c8c82f4963f2e92fb",
+      "instrumentedSha256": "d5b6a746b12b606ec049733b950b3549f8a64d29d5d0eb7c33cc9f161c243196"
+    },
+    {
+      "original": "tests/e2e/anda-en-el-celular.spec.ts",
+      "copy": "tests/e2e/ak207-anda-en-el-celular.spec.ts",
+      "originalSha256": "6e34948444f8bf082ea6c6e8819d7e40799c39fc22c3561ded7ed3d1f6177d2f",
+      "instrumentedSha256": "7d6c4b4a42aacf5d2b78543e842f2b4c16ac234fbe0e5a84a1a1aa859a01ff4b"
+    },
+    {
+      "original": "tests/e2e/barra-72-pedido-propio-y-estado.spec.ts",
+      "copy": "tests/e2e/ak207-barra-72-pedido-propio-y-estado.spec.ts",
+      "originalSha256": "e763ea14b95a24e5f269e0566a3185ce9279ceaeb74fb28aa67d01e27aebc9e8",
+      "instrumentedSha256": "6a4b788d2bf2a9286eb8c416f8b7286f3b5df00fb9b8048ae9629e3b8bbf572a"
+    },
+    {
+      "original": "tests/e2e/barra-recupera-cancelacion.spec.ts",
+      "copy": "tests/e2e/ak207-barra-recupera-cancelacion.spec.ts",
+      "originalSha256": "72ce1dd58eaab250b6ba2161c810d33550554dc8ffcf41fb8fdd68427069f4c3",
+      "instrumentedSha256": "1ef8884d005829bba81d260a9c6129c0baae7feff95181ac53b9ce46e00fc6df"
+    },
+    {
+      "original": "tests/e2e/calendarios-react19.spec.ts",
+      "copy": "tests/e2e/ak207-calendarios-react19.spec.ts",
+      "originalSha256": "881cc2eb90cbce90d3f6636f4e4a4d8f1a7e7d8f2e1701b21a25638d9e5a897e",
+      "instrumentedSha256": "ae3c8b552143f661d76b4fe754b429fd6b777a3e9d63a7bf055c5a5b258a6878"
+    },
+    {
+      "original": "tests/e2e/carga-rapido.spec.ts",
+      "copy": "tests/e2e/ak207-carga-rapido.spec.ts",
+      "originalSha256": "6676dd0e51ddd973cf1254c3a69822de1bc5b7eb8234f934ba26eff3aa44e725",
+      "instrumentedSha256": "d2d5396627b632b5a7f5121a41cca0d0a55d64e6fa09603fd27bd1dce4faa2a7"
+    },
+    {
+      "original": "tests/e2e/catalogo-publico.spec.ts",
+      "copy": "tests/e2e/ak207-catalogo-publico.spec.ts",
+      "originalSha256": "3b45b15a4940c7fd2a46f0e86c0598545045da6e46616af35f961a63dd2659b8",
+      "instrumentedSha256": "325e24f5a02e5c0a50d6cc1cc3c6a05937987bc2daf1eb762e883c180ac29815"
+    },
+    {
+      "original": "tests/e2e/catering-maestro-simulador-fotos.spec.ts",
+      "copy": "tests/e2e/ak207-catering-maestro-simulador-fotos.spec.ts",
+      "originalSha256": "f29e7bae636a8b8ca83e5aa2d2125fb59cb59b417e8a72aa5090656b31e06781",
+      "instrumentedSha256": "448502ddb1ff3578a131ba66db88a398b168761d7d67ccc31266a41ba0b9035a"
+    },
+    {
+      "original": "tests/e2e/como-se-ven-las-estaciones.spec.ts",
+      "copy": "tests/e2e/ak207-como-se-ven-las-estaciones.spec.ts",
+      "originalSha256": "9fbab999cc9018972de9eda0e0f395ec8795399be70602a2f6bd2652a43d4d5a",
+      "instrumentedSha256": "bb9819a68a0a7fa21bd7df7f566008c8ba215c8071d777d2f0f12ec23b3e3949"
+    },
+    {
+      "original": "tests/e2e/conexiones-redes-error-y-reintento.spec.ts",
+      "copy": "tests/e2e/ak207-conexiones-redes-error-y-reintento.spec.ts",
+      "originalSha256": "7f1751dcdd372a7bfb62536de4f58991f019f3cc29c22f8bb1f47500aee3c8dd",
+      "instrumentedSha256": "71d28df160764e2851e8877f1d493d73f10c1a9c3acc1bc8a6b2ccb3493cc820"
+    },
+    {
+      "original": "tests/e2e/contrato-constancia-mantiene-papel.spec.ts",
+      "copy": "tests/e2e/ak207-contrato-constancia-mantiene-papel.spec.ts",
+      "originalSha256": "13b1724ef232662bc2d10e9388059895466cecd988bf203e1ffeb95582fe88ca",
+      "instrumentedSha256": "19c86da3aa45ee77606cbbe6e2336c5b06c7ed517fbf709619b48fa32d52e353"
+    },
+    {
+      "original": "tests/e2e/el-album-del-recuerdo.spec.ts",
+      "copy": "tests/e2e/ak207-el-album-del-recuerdo.spec.ts",
+      "originalSha256": "88361aa43a99e7aa9d7c49ca1f9c82203af0a931529c38ff6995b0a432c525d8",
+      "instrumentedSha256": "c45c30263def6b127aaf8e81461eef59914d6b107f3cf1de65dc4c24dec8e7ec"
+    },
+    {
+      "original": "tests/e2e/el-album-se-arma-solo.spec.ts",
+      "copy": "tests/e2e/ak207-el-album-se-arma-solo.spec.ts",
+      "originalSha256": "dfffd7accab979e164e8f8a13da7b678661201726f423359bc06236a686dec9d",
+      "instrumentedSha256": "27aa692047c0325618422516ca8668eece24b009e14d8ba1b395821ecb7ed47f"
+    },
+    {
+      "original": "tests/e2e/el-album-se-baja-entero.spec.ts",
+      "copy": "tests/e2e/ak207-el-album-se-baja-entero.spec.ts",
+      "originalSha256": "637c4e8d1a5d3ef6198fa989591510b28f81df8797e65c172b9fdbddc792c177",
+      "instrumentedSha256": "2651819b899388610a13b91c45730fbc8e393f78def9f9699f381e39a0d1431e"
+    },
+    {
+      "original": "tests/e2e/el-album-suena-o-no-muestra-el-boton.spec.ts",
+      "copy": "tests/e2e/ak207-el-album-suena-o-no-muestra-el-boton.spec.ts",
+      "originalSha256": "2a0958c487c497cecf2d38fce8a0bd0b1b497ac0ead265a036a723a6c513658f",
+      "instrumentedSha256": "7cc31388cd16ddb7ff9b2cdff7c5b6203364baa7e0650637a694a1564c7b460d"
+    },
+    {
+      "original": "tests/e2e/el-asistente-le-contesta-al-invitado.spec.ts",
+      "copy": "tests/e2e/ak207-el-asistente-le-contesta-al-invitado.spec.ts",
+      "originalSha256": "fb35a7b27c1005fba1b1c345f19f3e5fb803ab85f4c658649bbc94dbe184d1da",
+      "instrumentedSha256": "106504ffcb5c904ee96eef16c6e08da28adf1bf3bf1fa1b965f27b1627ce3751"
+    },
+    {
+      "original": "tests/e2e/el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+      "copy": "tests/e2e/ak207-el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+      "originalSha256": "f181f5e5aa6bc4c2307f8b876d049dc50e72b5a04fcaf2bb24595606c2986f2f",
+      "instrumentedSha256": "a21ab79e28a18658dc9f5b2f7297d454b86a56a5041b3778b88e600651201071"
+    },
+    {
+      "original": "tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+      "copy": "tests/e2e/ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+      "originalSha256": "06ee55da7e0aa3568106064518dd39016aeb96aa3ef70ba8ab7297293c6ab1e7",
+      "instrumentedSha256": "1921138ffb265334323cf4e8a4e8a9ee59eb59a37abdaaed747fe2ff49c0933e"
+    },
+    {
+      "original": "tests/e2e/el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+      "copy": "tests/e2e/ak207-el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+      "originalSha256": "29cc54f9c43379aa21eb1d6e8c66aed1ecbf621c104b3168b807b528af8100be",
+      "instrumentedSha256": "e6923f1b3e66002157c056c9e8f3b32707d622a31fbd0e7f412427f9f1db7e90"
+    },
+    {
+      "original": "tests/e2e/el-cliente-gira-su-salon-en-3d.spec.ts",
+      "copy": "tests/e2e/ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+      "originalSha256": "83501925605c635980c688f02296b65161091da8daf6921e78fe16671fc35dd7",
+      "instrumentedSha256": "d8c030b90279262a1a3792c6954bb3e03b75a67a7ebf3c42f7729d9fd67d84f5"
+    },
+    {
+      "original": "tests/e2e/el-cliente-le-escribe-al-equipo.spec.ts",
+      "copy": "tests/e2e/ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+      "originalSha256": "8ad64524dc2c283c6047a21d24449748ced02e6ad65883b944031178194aa771",
+      "instrumentedSha256": "7fda9d50f082119551d0517e682b4dfe0b72d9fc8ba3105a64fb98395f7bcd7c"
+    },
+    {
+      "original": "tests/e2e/el-cliente-ve-sus-entregas-oficiales.spec.ts",
+      "copy": "tests/e2e/ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts",
+      "originalSha256": "cdb38ade614aa4ffbce3b6aad83b98f6d489cc3bdb21751d07ffb92d40e09572",
+      "instrumentedSha256": "0b71877c3d810cdec64ea95e5a7f02d5f7b99a55ad7d5d30d502fcd51a1f34ba"
+    },
+    {
+      "original": "tests/e2e/el-control-de-llegada-se-prende-y-queda.spec.ts",
+      "copy": "tests/e2e/ak207-el-control-de-llegada-se-prende-y-queda.spec.ts",
+      "originalSha256": "9ed3a47506306978b89958891e4152d3b8c4cb7bf36dc7f220787e86fd7f638e",
+      "instrumentedSha256": "96a0b45f06fd0ca766738e84d63f314f886c3fba62fbd6d912e7fcd376a9ca1a"
+    },
+    {
+      "original": "tests/e2e/el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts",
+      "copy": "tests/e2e/ak207-el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts",
+      "originalSha256": "5ed6c037b4045ed896506bc51fec5a5eea99dfe191bf1be5991a0e41cb7390df",
+      "instrumentedSha256": "7c498431b6f33b69da16a3ca3737e9141dd7440550310cc9c9e97cb6413b299c"
+    },
+    {
+      "original": "tests/e2e/el-fondo-se-cambia-de-verdad.spec.ts",
+      "copy": "tests/e2e/ak207-el-fondo-se-cambia-de-verdad.spec.ts",
+      "originalSha256": "12718d13eb82b51a2e8aad9cb33e6999de3a801dda133a74594b1a48744816d4",
+      "instrumentedSha256": "2f858799570ea4f7f0897c1cf4e30be3ac0c18bb03a4670b055f3bfcf146b469"
+    },
+    {
+      "original": "tests/e2e/el-informe-de-la-fiesta-se-arma-solo.spec.ts",
+      "copy": "tests/e2e/ak207-el-informe-de-la-fiesta-se-arma-solo.spec.ts",
+      "originalSha256": "4a1067781716f9261e3e59b4ad78ec9fccf9b1a291dc546d46b1a18d1d1739e0",
+      "instrumentedSha256": "6ea5effd9ae971e32c8d232a9f873222c4d36249e6d4cb5d200234f172b7f60d"
+    },
+    {
+      "original": "tests/e2e/el-muro-se-configura.spec.ts",
+      "copy": "tests/e2e/ak207-el-muro-se-configura.spec.ts",
+      "originalSha256": "0fb22750f4a3240d7f3a470c19a66e16aeec346391f5c17a8278c2d5c2e7db39",
+      "instrumentedSha256": "7b48042d6735151bdf01ebd413e3856cf95c64527187fe882cdd467f59bf8094"
+    },
+    {
+      "original": "tests/e2e/el-panel-del-cliente-enamora.spec.ts",
+      "copy": "tests/e2e/ak207-el-panel-del-cliente-enamora.spec.ts",
+      "originalSha256": "3db1e9e95bb8c2302f1a65adc259083a8b989f3892388e1e73ed852e9590a775",
+      "instrumentedSha256": "c9542ca0ce9f7a80490f44986373e4826d9a847afadeca9b36d84793d315aff4"
+    },
+    {
+      "original": "tests/e2e/el-plan-de-cuotas-no-deshace-un-cobro.spec.ts",
+      "copy": "tests/e2e/ak207-el-plan-de-cuotas-no-deshace-un-cobro.spec.ts",
+      "originalSha256": "895ecfed685a93bd7a0169c539eb3865634c08e5e8bb1c0686ce4ea1d92fbd64",
+      "instrumentedSha256": "6c4605e49504c1d39ff48775b1e7df6070e96030f8d13278c5207f690b505c5f"
+    },
+    {
+      "original": "tests/e2e/el-secretario-escucha-y-hace.spec.ts",
+      "copy": "tests/e2e/ak207-el-secretario-escucha-y-hace.spec.ts",
+      "originalSha256": "7774864b034c4cf0c818ef180f080b9475c2b68cf48dcf76cb512662ea09eb02",
+      "instrumentedSha256": "f66180a8d093e8d6a433f4a2fd34c82d311da85ca5be0352601214e2df59f3ae"
+    },
+    {
+      "original": "tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts",
+      "copy": "tests/e2e/ak207-el-simulador-respeta-el-tipo-de-fiesta.spec.ts",
+      "originalSha256": "a8735d76b435bf83bb6e858411456810f413018db2f491b259f39fe86a5c0f73",
+      "instrumentedSha256": "e3968aefbcee2175152f62ecc1b6f519165e5ee5d1b7d89c6b06825412899260"
+    },
+    {
+      "original": "tests/e2e/el-totem-arranca-sin-internet.spec.ts",
+      "copy": "tests/e2e/ak207-el-totem-arranca-sin-internet.spec.ts",
+      "originalSha256": "f039dbe5c91e5ff538786ad6549862f8c58032fc78b9f4cfd12acad8d4000458",
+      "instrumentedSha256": "8d7bf9c4e39f4bca52bcb4e9c791768185938c7202532c7c662b7cd7760f6d05"
+    },
+    {
+      "original": "tests/e2e/el-totem-de-bienvenida.spec.ts",
+      "copy": "tests/e2e/ak207-el-totem-de-bienvenida.spec.ts",
+      "originalSha256": "6081cf5da5048b5d05d8ef6a7322e905c315c07d2c081dc5a2209da181362d3e",
+      "instrumentedSha256": "24badc202f0735b14ea1261383d1c4083f21e809bc7d551582eb3a5a34b78162"
+    },
+    {
+      "original": "tests/e2e/el-video-resumen-dura-lo-que-promete.spec.ts",
+      "copy": "tests/e2e/ak207-el-video-resumen-dura-lo-que-promete.spec.ts",
+      "originalSha256": "7aa4e217e843c216957a8bd00a13832d26a1bc3ee7505702ad80489c80c17c6f",
+      "instrumentedSha256": "9f12825360ed4e2bc949e754c818f0e2b1984aac3f010105c6e6992c6a7f4586"
+    },
+    {
+      "original": "tests/e2e/entertainment-stations.spec.ts",
+      "copy": "tests/e2e/ak207-entertainment-stations.spec.ts",
+      "originalSha256": "3b53c31acae97b827d5e6cbefbb4afe5ea3e6bc0393753f15aa26e14b1adc0f9",
+      "instrumentedSha256": "9a9802530c4147a165643f4c93eb7c380f9ec122eaed1e0497911f03465da626"
+    },
+    {
+      "original": "tests/e2e/entorno-compilado-verificable.spec.ts",
+      "copy": "tests/e2e/ak207-entorno-compilado-verificable.spec.ts",
+      "originalSha256": "d77ac5ef7b30206b32f948c62e2a5d369a41054e2d9a5342fdcda27f474c5ac7",
+      "instrumentedSha256": "75a841e61a6812003d0e597c7ddf8c472b0e76ffbc90da8ca60b102289a3ce47"
+    },
+    {
+      "original": "tests/e2e/entretenimientos-a-fondo.spec.ts",
+      "copy": "tests/e2e/ak207-entretenimientos-a-fondo.spec.ts",
+      "originalSha256": "759dd470e8e9e7a3e990ed7494d4f3ae414c93abec51d73d8055cbd91477b8d0",
+      "instrumentedSha256": "29df6643e6b868834a9e7d6abc384a5cac3d92358db030009aff85395a609773"
+    },
+    {
+      "original": "tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts",
+      "copy": "tests/e2e/ak207-espejo-moderacion-caida-y-reintento.spec.ts",
+      "originalSha256": "fbaf3ecaad5934c196c45765eb1459cc4db20b56604df1b8553166d1ae37a5b9",
+      "instrumentedSha256": "edd9a5319096e98c704545601c39d3f6f0fd719bf341dd5184dbc103743ef25c"
+    },
+    {
+      "original": "tests/e2e/espejo-pide-permiso.spec.ts",
+      "copy": "tests/e2e/ak207-espejo-pide-permiso.spec.ts",
+      "originalSha256": "4c9661eeb3b8fc94c747a5d0b4a45ea3c23417eab957237114ce34d1da91ed33",
+      "instrumentedSha256": "c58bf77ed8638b166381fdff4ef5980b666148c5bc3ffb3ffb5ca9abf42b8b88"
+    },
+    {
+      "original": "tests/e2e/estaciones-sin-clave.spec.ts",
+      "copy": "tests/e2e/ak207-estaciones-sin-clave.spec.ts",
+      "originalSha256": "959f16ff386030ee870665f1eecf314e2e70f2e5d6bfa2a2ba8895a45bacf352",
+      "instrumentedSha256": "f713d7b1b706bbdb258236c469ae72e778716079968741033148c72b4fa887c7"
+    },
+    {
+      "original": "tests/e2e/fotocabina-de-punta-a-punta.spec.ts",
+      "copy": "tests/e2e/ak207-fotocabina-de-punta-a-punta.spec.ts",
+      "originalSha256": "6dd505813a9cd01eecf0130d541693f437d40c4d7afb61a6f9147db808808799",
+      "instrumentedSha256": "dad3757667faa526aa6c2372cacbdc4894012dce458d987c94219f52051d9fbb"
+    },
+    {
+      "original": "tests/e2e/fotos-de-la-app.spec.ts",
+      "copy": "tests/e2e/ak207-fotos-de-la-app.spec.ts",
+      "originalSha256": "5116d8a68691e146758fe02ac27451b482e935f35850f1c5e729873b1ab19227",
+      "instrumentedSha256": "40d2cae67b6cd7d7b456a1637ef3343e360c75720dba1f935a260a5bcf02f7c5"
+    },
+    {
+      "original": "tests/e2e/galeria-hd-destino-publico.spec.ts",
+      "copy": "tests/e2e/ak207-galeria-hd-destino-publico.spec.ts",
+      "originalSha256": "352d6e0b285a971fd3779df978b4e1754b3d18f5ddf440a8b7ee0495e3b2ff76",
+      "instrumentedSha256": "c925d258f27e6651f9dc20ad766d66758a91c7e55a5b473a338d005fed0b1970"
+    },
+    {
+      "original": "tests/e2e/galeria-servicio-y-contacto-publico.spec.ts",
+      "copy": "tests/e2e/ak207-galeria-servicio-y-contacto-publico.spec.ts",
+      "originalSha256": "4f8b05f1f36767632626299978eb1d1c9f7cb44c07026eab68374003d146b955",
+      "instrumentedSha256": "3602cfc74c9467dd991762fb935e247cb9a251108be96647595ecf097a730a97"
+    },
+    {
+      "original": "tests/e2e/google-workspace-estado-conexion.spec.ts",
+      "copy": "tests/e2e/ak207-google-workspace-estado-conexion.spec.ts",
+      "originalSha256": "832be48a789f7f28f133d68af9ad9d8775552faf27a433e1620de7c179237f7e",
+      "instrumentedSha256": "152d6751ebbc29dd3c626eacd2046bc05b6bd2fe217d4c8ef630b17acaeee297"
+    },
+    {
+      "original": "tests/e2e/importar-invitados-de-una-planilla.spec.ts",
+      "copy": "tests/e2e/ak207-importar-invitados-de-una-planilla.spec.ts",
+      "originalSha256": "7b4ed9b8caf7ebecfcafaab7d6124a88ac7c311a79c7c03ad86c32c93986cf0a",
+      "instrumentedSha256": "34f703f5115fe140e5e057c9ac7e9c6b9fd2be39477ce4960bd92c382849147d"
+    },
+    {
+      "original": "tests/e2e/impresion-a4.spec.ts",
+      "copy": "tests/e2e/ak207-impresion-a4.spec.ts",
+      "originalSha256": "626b79adca5a38f90f5541e81257e2f2604792b718a279cea28336019f909656",
+      "instrumentedSha256": "5224810ee1aab52accf13c1d4134d1ab4fa2c467497296177e4ae0bdb8d002fd"
+    },
+    {
+      "original": "tests/e2e/instalar-solo-la-estacion.spec.ts",
+      "copy": "tests/e2e/ak207-instalar-solo-la-estacion.spec.ts",
+      "originalSha256": "076757b5b96c1db67a5a09a95fb3fca69043b18c9ac559889b43e6e78a7d4678",
+      "instrumentedSha256": "af79f1dd177443307a35bda62377f49ae12593c74f40cb4dabf06667e82d74f3"
+    },
+    {
+      "original": "tests/e2e/internal-dynamic-route-inventory.spec.ts",
+      "copy": "tests/e2e/ak207-internal-dynamic-route-inventory.spec.ts",
+      "originalSha256": "86f708625899eaa7514f0779e068a96587c0a05009edd67e5913309f85a0eab8",
+      "instrumentedSha256": "3d23b8c00e566aa6a98bc61d742f51e7f3e835d622557e7c456eaf22cdc9c9f8"
+    },
+    {
+      "original": "tests/e2e/internal-smoke.spec.ts",
+      "copy": "tests/e2e/ak207-internal-smoke.spec.ts",
+      "originalSha256": "4cd4d2a902d35585461e4578af9b9e62ef637cfddad19bdd11721bd4a5135efa",
+      "instrumentedSha256": "1b7c9a6c97544a987e5a50faca6ce5aa6840b8b63fff30abc4e651a0770e1696"
+    },
+    {
+      "original": "tests/e2e/la-app-se-mueve.spec.ts",
+      "copy": "tests/e2e/ak207-la-app-se-mueve.spec.ts",
+      "originalSha256": "9f5dac806a51012eb095c8ab745c1b7885cdf201bb2f66fb2a024b8bfcca0405",
+      "instrumentedSha256": "698b49267e0612e30f439559df4cd0ab492a77a154059288c176b04bcc97bb3b"
+    },
+    {
+      "original": "tests/e2e/la-carga-operativa-avisa-cuando-no-alcanza.spec.ts",
+      "copy": "tests/e2e/ak207-la-carga-operativa-avisa-cuando-no-alcanza.spec.ts",
+      "originalSha256": "c0ac3a246108f04e4ac3435c5e3dc0b5b223e0f52645f7b8a1e8333d4a4b45c3",
+      "instrumentedSha256": "fc0a46b400a233f59b9561ef312b504ed9bdeda7ebbbffb9a5dcbfbb5414fc63"
+    },
+    {
+      "original": "tests/e2e/la-carga-operativa-se-sincroniza.spec.ts",
+      "copy": "tests/e2e/ak207-la-carga-operativa-se-sincroniza.spec.ts",
+      "originalSha256": "fe661912279fa3d79ee35dc678ff6d66bd59a7546efcab40624c912290e23fce",
+      "instrumentedSha256": "58971ceed32aa781625ca684995648dba24d4f4c3ac508becef3a5345cfff1f0"
+    },
+    {
+      "original": "tests/e2e/la-carteleria-dice-la-verdad.spec.ts",
+      "copy": "tests/e2e/ak207-la-carteleria-dice-la-verdad.spec.ts",
+      "originalSha256": "cda6da92bffeb34e91326a2395d7638dba82e1c4aa7ceedb2cb6b5e0dfe7681a",
+      "instrumentedSha256": "ae642a40da5e32cc3ed0f7d9aedad8068a072ee0b8ea85440eed08acd9939925"
+    },
+    {
+      "original": "tests/e2e/la-decoracion-se-baja-y-se-genera.spec.ts",
+      "copy": "tests/e2e/ak207-la-decoracion-se-baja-y-se-genera.spec.ts",
+      "originalSha256": "b3c67dbb2d74053799f13b0eb59415537f5e5349f430b8ee31316a494da40a2e",
+      "instrumentedSha256": "fd3bfc07d52cbb82db5981ea45f015b3e29262335b470c6e1d26401168134736"
+    },
+    {
+      "original": "tests/e2e/la-demo-de-la-barra-respeta-el-trago.spec.ts",
+      "copy": "tests/e2e/ak207-la-demo-de-la-barra-respeta-el-trago.spec.ts",
+      "originalSha256": "1c1c32fbc91a92d470c7d854e08d559f6baf431cb6165c8a287717ab97b058cb",
+      "instrumentedSha256": "c3acde2cf6d80345313cc6a496cc5e061cee515ec9b4e7cb3d5350c5e5085cf0"
+    },
+    {
+      "original": "tests/e2e/la-fotocabina-saca-la-foto-con-imagen.spec.ts",
+      "copy": "tests/e2e/ak207-la-fotocabina-saca-la-foto-con-imagen.spec.ts",
+      "originalSha256": "cc03261ff819e5da7eb41373ef18543388b13e9d2d3e30f664caf0ca200a9836",
+      "instrumentedSha256": "584924c7006937657a13386830524ded9ad7f45435a6098a05caed8f5939cebb"
+    },
+    {
+      "original": "tests/e2e/la-fotocabina-tiene-todo.spec.ts",
+      "copy": "tests/e2e/ak207-la-fotocabina-tiene-todo.spec.ts",
+      "originalSha256": "56d6b2a35680527d436a962f22e11d9c54264b73af1e21be30c6d70ce69aacb2",
+      "instrumentedSha256": "6b23f028ec750ef3f928f2b36cf3d97dcb1bcb7a3cfbacc631b71d0b4efec3e1"
+    },
+    {
+      "original": "tests/e2e/la-grilla-de-caras.spec.ts",
+      "copy": "tests/e2e/ak207-la-grilla-de-caras.spec.ts",
+      "originalSha256": "2c295f7be7fec95f0b711d3f3b67c27386ef68e4d8ab83dad3f8c069281dee31",
+      "instrumentedSha256": "9dfc7499fbe7e2fbab4fa0d509a24cc490aefb6052304e52b63498bf6bb8fd5c"
+    },
+    {
+      "original": "tests/e2e/la-hoja-de-cocina.spec.ts",
+      "copy": "tests/e2e/ak207-la-hoja-de-cocina.spec.ts",
+      "originalSha256": "16039ab03021e1a4fd7d243ac90a5eb8d71d5868a13b0617e007f4371b2795b9",
+      "instrumentedSha256": "a96eae1aa1d1851681dd4ab1b442ea0b11121c3a4ba0c36093cae50daf57cfcb"
+    },
+    {
+      "original": "tests/e2e/la-hoja-del-dj-dice-la-verdad.spec.ts",
+      "copy": "tests/e2e/ak207-la-hoja-del-dj-dice-la-verdad.spec.ts",
+      "originalSha256": "3db88d2867edee37989b43a9cc92f82d1272a1c32221ff7f515ab4f68d08e118",
+      "instrumentedSha256": "2eb4d366ce6c6c6af73c8de15967b9663b75cd42fc1aba8ef2035363913bd36b"
+    },
+    {
+      "original": "tests/e2e/la-lista-de-regalos-queda-como-la-dejaron.spec.ts",
+      "copy": "tests/e2e/ak207-la-lista-de-regalos-queda-como-la-dejaron.spec.ts",
+      "originalSha256": "e922b29e81c63ac70946bcc628bce3aa51668181e07d84be487e3b21da1bfc7f",
+      "instrumentedSha256": "b6fc9cb826a8db1300fc6f518ef042956e2304159905d39699096a334953c5e9"
+    },
+    {
+      "original": "tests/e2e/la-orden-de-evento-junta-todo.spec.ts",
+      "copy": "tests/e2e/ak207-la-orden-de-evento-junta-todo.spec.ts",
+      "originalSha256": "f294a0347dba60145d6f5e1ae1560cff0a3e3603e475a50221cc92eb7252a940",
+      "instrumentedSha256": "4ec915d533469e726b7159fb39a8cbdd4b7d17b75e2024286f64a51601728a12"
+    },
+    {
+      "original": "tests/e2e/la-pantalla-gigante-anda.spec.ts",
+      "copy": "tests/e2e/ak207-la-pantalla-gigante-anda.spec.ts",
+      "originalSha256": "bf0f530962c81be792ba0acc29462a6f3f20009252995738a197d4e905a550ab",
+      "instrumentedSha256": "15cd0e7ba20d8fe2066c028d21f7fafda90d27360852821223b3d27c74aae0e7"
+    },
+    {
+      "original": "tests/e2e/la-portada-aparece-al-toque.spec.ts",
+      "copy": "tests/e2e/ak207-la-portada-aparece-al-toque.spec.ts",
+      "originalSha256": "e195f05780258be12b374902c9d720a01a809438df608de107a60240e2e66346",
+      "instrumentedSha256": "89ebd6c108997f16fa9af8510d46399609eb89ae3db66221114237bca257aff3"
+    },
+    {
+      "original": "tests/e2e/la-portada-espera-sin-cajas-grises.spec.ts",
+      "copy": "tests/e2e/ak207-la-portada-espera-sin-cajas-grises.spec.ts",
+      "originalSha256": "76bf358881f5d9f9bdc96e6f5c05bd84dba59555eb129b8fd83ea5fec975b4cd",
+      "instrumentedSha256": "519538defa62b2dc0b63b424e842b30f2c2eb6eb991ec38eaeb568ff2e4dba33"
+    },
+    {
+      "original": "tests/e2e/la-portada-no-dice-cero.spec.ts",
+      "copy": "tests/e2e/ak207-la-portada-no-dice-cero.spec.ts",
+      "originalSha256": "e6e8090cb7dd87275560a6f1169d683701b8f39f0dacf87342a561945e1210bd",
+      "instrumentedSha256": "13f779c9e9c2b403c08e3bf03da087de657211c54fda665e075034bf600b491f"
+    },
+    {
+      "original": "tests/e2e/la-portada-nueva.spec.ts",
+      "copy": "tests/e2e/ak207-la-portada-nueva.spec.ts",
+      "originalSha256": "03012004b26f8b89ed1310672e9f8d0304d2bc58aa996d3c746d03d02c09f61b",
+      "instrumentedSha256": "7feab881779ce3b0cc4ab972d873984646f90924f3c9daf1be8aacae52ece8cd"
+    },
+    {
+      "original": "tests/e2e/la-puerta-de-entrada-anda.spec.ts",
+      "copy": "tests/e2e/ak207-la-puerta-de-entrada-anda.spec.ts",
+      "originalSha256": "9555276ae150212df004634e56d19b20c1a8902276ef46ffa6d56732bdedb12c",
+      "instrumentedSha256": "95ac399604e70f7bd5d857e6e164f2b01440c061dff12346558be41e06a09d7b"
+    },
+    {
+      "original": "tests/e2e/la-red-social-de-la-fiesta.spec.ts",
+      "copy": "tests/e2e/ak207-la-red-social-de-la-fiesta.spec.ts",
+      "originalSha256": "c55eee6850404c1817d19b398c11cb60506bd3be1b219a7c98215424af45701d",
+      "instrumentedSha256": "f23d1be4fc799a627e2efc6c237dd8c54fe371270a792408fe9f536e121832f1"
+    },
+    {
+      "original": "tests/e2e/la-reunion-de-organizacion-guarda-donde-corresponde.spec.ts",
+      "copy": "tests/e2e/ak207-la-reunion-de-organizacion-guarda-donde-corresponde.spec.ts",
+      "originalSha256": "dcc1e4e38df3b1ccffb0f2d85339a9910e3d4e6efc4be6dc88a4475d77cf8c7d",
+      "instrumentedSha256": "8e3058e88e85e46931dd80736581eaadf42a07d8f2330d36e75412de14b1319c"
+    },
+    {
+      "original": "tests/e2e/la-ubicacion-del-personal-no-esta-bloqueada.spec.ts",
+      "copy": "tests/e2e/ak207-la-ubicacion-del-personal-no-esta-bloqueada.spec.ts",
+      "originalSha256": "deb2717085a15c1767bdc8b4be80a69c6a693daabbc6d84c30ae5433f1a6e98d",
+      "instrumentedSha256": "6faa15c08d0d87412134ad9b2b0928c0a8f5e418d590026c892d0ac03bfb8569"
+    },
+    {
+      "original": "tests/e2e/la-vidriera-de-la-tecnologia.spec.ts",
+      "copy": "tests/e2e/ak207-la-vidriera-de-la-tecnologia.spec.ts",
+      "originalSha256": "c84186e13dc63eadd40a071d22bd0d9c1602a0a18f2d8d59dc04dfbce50d0953",
+      "instrumentedSha256": "0a7d5acbc59111a42b81d5ba68f8d453dd1eefcd7a7b4856541c21e5f8eff4c1"
+    },
+    {
+      "original": "tests/e2e/la-vista-3d-muestra-los-muebles.spec.ts",
+      "copy": "tests/e2e/ak207-la-vista-3d-muestra-los-muebles.spec.ts",
+      "originalSha256": "396687d71298dd5eac0fd0bd93f8da868a69308deedba1c202f77364572f87a0",
+      "instrumentedSha256": "1d91112a90426b81b846f9063df505b9e1a1a68cf9653690cb287f23fd969fe9"
+    },
+    {
+      "original": "tests/e2e/la-web-de-venta-no-se-rompe.spec.ts",
+      "copy": "tests/e2e/ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "originalSha256": "fe9438812f7f9bc112b966bd091f10ae813c49e1a4b612a3a536699b2ca25785",
+      "instrumentedSha256": "fc7f12c432d8949f309b550bf3fa03553fddefe74251bb9b7eaeefe2978889be"
+    },
+    {
+      "original": "tests/e2e/la-web-de-venta-se-mueve.spec.ts",
+      "copy": "tests/e2e/ak207-la-web-de-venta-se-mueve.spec.ts",
+      "originalSha256": "613ae8847853ff4916776e27bbe5919fdd091e11b562930327fa9aceec9ed969",
+      "instrumentedSha256": "b3da37f4864caff10233861ce3e2b92468d0018582088ec409c9b53ec823a685"
+    },
+    {
+      "original": "tests/e2e/la-web-publica-se-ve.spec.ts",
+      "copy": "tests/e2e/ak207-la-web-publica-se-ve.spec.ts",
+      "originalSha256": "3b720f311c799e5a08ad26a7ba01eaf13ef4cf8a83980ff04fe1bdac7e4bbed0",
+      "instrumentedSha256": "3a283aeb39fe490e85c29a827331baa22f6029e9cd66d06325f0bbbdb49356e8"
+    },
+    {
+      "original": "tests/e2e/la-web-se-deja-usar-por-asistentes.spec.ts",
+      "copy": "tests/e2e/ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+      "originalSha256": "50064371f677424386ed4d75956b9f73e9e00eca70410fca0fae588ad1919bce",
+      "instrumentedSha256": "2f5da65126a0ec0cbdcae694e0d7a1d0f5099b2f57352a1610b619d9e2246ecd"
+    },
+    {
+      "original": "tests/e2e/las-entregas-de-fotografia-no-se-pisan.spec.ts",
+      "copy": "tests/e2e/ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+      "originalSha256": "f8af2c105686e9450306b75585a978fa44440998bc637530d77baf68e61669f6",
+      "instrumentedSha256": "ec8a2e227c2041438c14084690b08fdc98c681e04df3bffe977c5ee6d7f7eeb9"
+    },
+    {
+      "original": "tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts",
+      "copy": "tests/e2e/ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "originalSha256": "8d70a4065cade9e5548054e7f2796dfddbeeb80b838e46e7555c7f07a86a7e39",
+      "instrumentedSha256": "3c98e2b31b30770ae87154e87224ec76c8f951ee52d2f7634ec04c5f7f3385c9"
+    },
+    {
+      "original": "tests/e2e/las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+      "copy": "tests/e2e/ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+      "originalSha256": "9e96257c8def28343e91fbef5b10691370568ad9ee9226976d034b4985ddedb7",
+      "instrumentedSha256": "c6f82e74551c9639cb1983e869e1773cc1e12df9ba66250ebbe9a5848584d551"
+    },
+    {
+      "original": "tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "copy": "tests/e2e/ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "originalSha256": "237261db0a75fce4aef303dbfb578eb96d20e77c8c424286e8d422a051cea48e",
+      "instrumentedSha256": "d16a9d11ac1249618eca386ed2a72b5deda9aac6bd66f8b86d69a8d6314a7fb4"
+    },
+    {
+      "original": "tests/e2e/las-pantallas-no-quedan-en-blanco-al-redirigir.spec.ts",
+      "copy": "tests/e2e/ak207-las-pantallas-no-quedan-en-blanco-al-redirigir.spec.ts",
+      "originalSha256": "4629945ca3369752c5cb9468ff47798e5d1136c95c3df2eb3b281deb38e0c669",
+      "instrumentedSha256": "30c7aa99379b990d6a09283a8f054d0fc5f73d7800da55ec0a95af9f4a61e759"
+    },
+    {
+      "original": "tests/e2e/las-pantallas-rotas-se-arreglaron.spec.ts",
+      "copy": "tests/e2e/ak207-las-pantallas-rotas-se-arreglaron.spec.ts",
+      "originalSha256": "74dbb7d47c0dbb498b829249e572100642f4eb214189c9b567e78b3690dd0409",
+      "instrumentedSha256": "d782c3990beb99f7c256fb70e44e64e580f4e93854554b4b88dfe789b9423e7c"
+    },
+    {
+      "original": "tests/e2e/layout-baseline.spec.ts",
+      "copy": "tests/e2e/ak207-layout-baseline.spec.ts",
+      "originalSha256": "ccc8359c4ce965c511d368f620977a1b22ef6eb29f5cd6044e92aeb5299022fa",
+      "instrumentedSha256": "7dc26fb26630df2baa657ac3715a2b870f739db01688bbadcb0c5072dc95476f"
+    },
+    {
+      "original": "tests/e2e/lectura-invitados-aislada.spec.ts",
+      "copy": "tests/e2e/ak207-lectura-invitados-aislada.spec.ts",
+      "originalSha256": "054501cba353109fdaa85b91c17aa9c0171d92324c90f1f3e0f1746b9af6c0e4",
+      "instrumentedSha256": "edc4f134f83723822bda34695eaedf6b14fa53433e98328e74885731a2c21c25"
+    },
+    {
+      "original": "tests/e2e/limpiar-la-agenda.spec.ts",
+      "copy": "tests/e2e/ak207-limpiar-la-agenda.spec.ts",
+      "originalSha256": "8b5d4b0ef05c5cd0fd0c873f629812f551590099974240ba6c386a9b01ce762c",
+      "instrumentedSha256": "9d58891299e0591cdd1ad071b31626a66c78b442a71ab6afd8a95ea4067e2ae0"
+    },
+    {
+      "original": "tests/e2e/los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "copy": "tests/e2e/ak207-los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "originalSha256": "eb4124b5d2f1eb62aa7abd0371ce8d698f75766d569273a1e68d813e3195703d",
+      "instrumentedSha256": "bf4ca2512e52acfc2929a80360548441d41c389eca21e80c949af356ab3e92ef"
+    },
+    {
+      "original": "tests/e2e/mantenimiento-sin-duplicar.spec.ts",
+      "copy": "tests/e2e/ak207-mantenimiento-sin-duplicar.spec.ts",
+      "originalSha256": "779e5bd235e4d227243a191a16d8645f67bffce21f4a3b722bf8b1a4f6b53757",
+      "instrumentedSha256": "b9e9a9a6daf9055944523ec08b6414dcb74ab2fc548b1b00bd7355330d20b4b8"
+    },
+    {
+      "original": "tests/e2e/marketing-tarjetas-llevan-a-su-pantalla.spec.ts",
+      "copy": "tests/e2e/ak207-marketing-tarjetas-llevan-a-su-pantalla.spec.ts",
+      "originalSha256": "c7f8cb2393062db8826af365fb41af010f7fbf41704ba8df2b7348ced8e4cfba",
+      "instrumentedSha256": "834a866546a2965d68cb6bbb4a5ecc7f46830a8e922cacb6078fac57855c9d3f"
+    },
+    {
+      "original": "tests/e2e/medicion-no-envia-llaves.spec.ts",
+      "copy": "tests/e2e/ak207-medicion-no-envia-llaves.spec.ts",
+      "originalSha256": "29647ef942f51069dfb2c8186299748e819261e4625cd848d2cb3d0d0e671447",
+      "instrumentedSha256": "f8fc6a1fcdbf1a3f221487bc31ce8117b0d9b331734cb9d487a489e21265739e"
+    },
+    {
+      "original": "tests/e2e/mi-dia-muestra-el-saldo-real.spec.ts",
+      "copy": "tests/e2e/ak207-mi-dia-muestra-el-saldo-real.spec.ts",
+      "originalSha256": "b17bb8902410f8344becb36cf89ab872f1cf88c17390b38de0b03494cc711bce",
+      "instrumentedSha256": "27e4ef7d8d7909c19398d3c7d304f044e474ce94c27d937ec40611a45ebfa319"
+    },
+    {
+      "original": "tests/e2e/mobile-overflow.spec.ts",
+      "copy": "tests/e2e/ak207-mobile-overflow.spec.ts",
+      "originalSha256": "d70653f5767a26f832638a6ff96cdea9e6901fb3bbeab4c95d6501a9af525336",
+      "instrumentedSha256": "b3d8d8b8bf34f0ca53dc0a3cd1b38240093ad68b80209bcd2f7b97d1161b3c0d"
+    },
+    {
+      "original": "tests/e2e/mural-geometria-visible.spec.ts",
+      "copy": "tests/e2e/ak207-mural-geometria-visible.spec.ts",
+      "originalSha256": "e811906b70a37cc41ddeaa6b9ac13909c58073d577f69b73a7909a963fe397da",
+      "instrumentedSha256": "acedb3de36ec1a4f3c8d8df06ee818c903a11255a9e8996a71b9ccf1f5dad5e1"
+    },
+    {
+      "original": "tests/e2e/muro-subir-foto.spec.ts",
+      "copy": "tests/e2e/ak207-muro-subir-foto.spec.ts",
+      "originalSha256": "fb6a331ba7700825d4413304c7bda52949bbbadcfbb485fe1b61d82587c6325c",
+      "instrumentedSha256": "8b281c2816e7e7f33ac404dc6deeb1dde70a434ccda0414ea6bf81e1f5178037"
+    },
+    {
+      "original": "tests/e2e/noche-de-fiesta.spec.ts",
+      "copy": "tests/e2e/ak207-noche-de-fiesta.spec.ts",
+      "originalSha256": "63e79b830dda052e98488019a2af6e72286e67cd42318d2f4cd3e0e83ce2fa2b",
+      "instrumentedSha256": "091734b1a7ac369c6dd09d8fc1f8cc096b19c4c9214c76d8ab4560c3368da3ad"
+    },
+    {
+      "original": "tests/e2e/orden-86-pantallas.spec.ts",
+      "copy": "tests/e2e/ak207-orden-86-pantallas.spec.ts",
+      "originalSha256": "66558d1ba6e6769ee979780c4e1aaf386d071e92f1c433d990c65b8f838c9f4a",
+      "instrumentedSha256": "2535c90c5495946cb5cca75e5643337aff6ef43d58081fedb9b116c4b9f6c503"
+    },
+    {
+      "original": "tests/e2e/pantallas-con-iconos-react19.spec.ts",
+      "copy": "tests/e2e/ak207-pantallas-con-iconos-react19.spec.ts",
+      "originalSha256": "08d1940cc98dbce2d1ff3da23eac0adc63be3dd38104df6514814c8b17bc752a",
+      "instrumentedSha256": "e9e240c3229c8d905c872b01346427b42d2c6a95637a5ae87819311f9c07cdb7"
+    },
+    {
+      "original": "tests/e2e/pantallas-tocadas-tanda-12-10.spec.ts",
+      "copy": "tests/e2e/ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "originalSha256": "70ca64b246912daf64964ebd73716d7bcfbf865a817610adb1b31d10160d43e1",
+      "instrumentedSha256": "501b91a403087d75b8f75aa26fe47040da96a627ffed54ffb163c03009ac41fa"
+    },
+    {
+      "original": "tests/e2e/planner-missing-portals.spec.ts",
+      "copy": "tests/e2e/ak207-planner-missing-portals.spec.ts",
+      "originalSha256": "617f97d65d653305b7acb94ede1103321893fa7a8984aca216f00d84260cd480",
+      "instrumentedSha256": "bcfc9499c8c38e90f2652a6e340b2a4d67e6e49fd6e52a0cce0b53c53c056477"
+    },
+    {
+      "original": "tests/e2e/portal-fecha-y-botones.spec.ts",
+      "copy": "tests/e2e/ak207-portal-fecha-y-botones.spec.ts",
+      "originalSha256": "1d893fd00f91c91d2c90b6d23879f01a44227fdc12871f3897536dea542d24ed",
+      "instrumentedSha256": "f8eeaf99d796efd7726456e3fa2a17a288b3eda12be7aa18de14843077edcc95"
+    },
+    {
+      "original": "tests/e2e/presupuesto-publico-sin-sesion.spec.ts",
+      "copy": "tests/e2e/ak207-presupuesto-publico-sin-sesion.spec.ts",
+      "originalSha256": "5468041aeebd316b05e1e996c74720e0ad72d2cd1c1d3369660f4e9102d1ca75",
+      "instrumentedSha256": "0528cf534f188cc5c95dd07ac6d00bf21890e479f56838c3221f674d6cce159d"
+    },
+    {
+      "original": "tests/e2e/prospecto-simulador.spec.ts",
+      "copy": "tests/e2e/ak207-prospecto-simulador.spec.ts",
+      "originalSha256": "e2ee360ce033cfa99d10c8c353e9e26ae32846805d96808895de935d969f3e55",
+      "instrumentedSha256": "eb9fc17afaf08b4515e0e38bb81980797cf9ed7060ef9a17f9b72862f96187c2"
+    },
+    {
+      "original": "tests/e2e/public-experience-matrix.spec.ts",
+      "copy": "tests/e2e/ak207-public-experience-matrix.spec.ts",
+      "originalSha256": "7be66d3fbe8a078193de0aff199243a5fb7c2b29d5bd48160ac441ed981369fc",
+      "instrumentedSha256": "ec36e95f8329f4552d6d68919b49fc29171662f11a0007d46e8c05d246083c19"
+    },
+    {
+      "original": "tests/e2e/public-smoke.spec.ts",
+      "copy": "tests/e2e/ak207-public-smoke.spec.ts",
+      "originalSha256": "8d595cfa1c8f5e70f476a079cbeb035de15a693d8dd0bdb7d2ba1781a0e6ad87",
+      "instrumentedSha256": "3a82b0c78412a1bd86f029fd54ca0fb01d1cd53a46964e7b353ba2d3f749de12"
+    },
+    {
+      "original": "tests/e2e/qr-archivo-rotaciones.spec.ts",
+      "copy": "tests/e2e/ak207-qr-archivo-rotaciones.spec.ts",
+      "originalSha256": "9d1c5e8afc2cd5e661f856dd7100b49a10e877d151aab8af6a885f737a112e82",
+      "instrumentedSha256": "73be8978684ad2321fc75f2c4d0c49381ca6dcf7da764f37825c4a6b1e3fb85f"
+    },
+    {
+      "original": "tests/e2e/qr-descargado-lector-real.spec.ts",
+      "copy": "tests/e2e/ak207-qr-descargado-lector-real.spec.ts",
+      "originalSha256": "002c97abd4014249e3fa37e14b025777b92a6e43a16a0873f3d2a5b513e8c590",
+      "instrumentedSha256": "8288a38000c23e029151bf37b6e0fc69cad0e5c32afb064a4a59575ba15dbd07"
+    },
+    {
+      "original": "tests/e2e/recorrido-de-pantallas.spec.ts",
+      "copy": "tests/e2e/ak207-recorrido-de-pantallas.spec.ts",
+      "originalSha256": "59c109a6ce97a5629f0712c7c6f940b361465815c7fafe702d03a897647de18f",
+      "instrumentedSha256": "8089f094335d12acc01ec03abb4a0283408ea5162d02713e5b4b14db2f4c65ca"
+    },
+    {
+      "original": "tests/e2e/salon-3d-ayuda-recorrido.spec.ts",
+      "copy": "tests/e2e/ak207-salon-3d-ayuda-recorrido.spec.ts",
+      "originalSha256": "884e0b9d9e38ba9a128aabb3c505dfbc5d3fb0269c38297936d0c2b3ec003321",
+      "instrumentedSha256": "e9559b309f602a4a9597917b06b816633fafff02a3e7cd5365d5d2dc8d61d78b"
+    },
+    {
+      "original": "tests/e2e/salon-3d-cliente.spec.ts",
+      "copy": "tests/e2e/ak207-salon-3d-cliente.spec.ts",
+      "originalSha256": "cc9f4a30fe3a534ab5aa84ba2799f0bd1b84feb598d26fe1f90e026f6023afe8",
+      "instrumentedSha256": "6a3aaa7e7cc4aad6e5af05a63de20d5612c8f67ce18abf6a81f325f28e82445e"
+    },
+    {
+      "original": "tests/e2e/salon-3d-real.spec.ts",
+      "copy": "tests/e2e/ak207-salon-3d-real.spec.ts",
+      "originalSha256": "c87e6a02fe7e61dbe0ea3f8b45e5fdfa49b980912c673e5f7429001eacc4eebe",
+      "instrumentedSha256": "485a7345cfdb6fc23f9f0c6a2b4a60d1b92b620d54fc72045221120c94b67133"
+    },
+    {
+      "original": "tests/e2e/salon-3d-se-dibuja.spec.ts",
+      "copy": "tests/e2e/ak207-salon-3d-se-dibuja.spec.ts",
+      "originalSha256": "6aee52c6d15f80d14ef9e9f0bbf7c4fa12af522d682d40184bb273bcabcc9812",
+      "instrumentedSha256": "1975c84e869ee265adc61a852351583192d3a7988aac7a6f20954876a7dc5833"
+    },
+    {
+      "original": "tests/e2e/senal-mala.spec.ts",
+      "copy": "tests/e2e/ak207-senal-mala.spec.ts",
+      "originalSha256": "174df0df6a0c3fd53293cfa17f0c741fd87d255ec0db4d4453abb4f1228dd9bf",
+      "instrumentedSha256": "efae4c2306b8f67cebf5bdd7e6f67f6cf169ac23ebe64b8252fb183263704ce3"
+    },
+    {
+      "original": "tests/e2e/simulador-contacto-oficial.spec.ts",
+      "copy": "tests/e2e/ak207-simulador-contacto-oficial.spec.ts",
+      "originalSha256": "ae3984e3b855f325d72bdf89b9fae6d9bfc023d24c5a7aa1cb3b8336b83cbc5b",
+      "instrumentedSha256": "b131e60088dc416e9ab6563391479adc88d2cd9b0cafb65945c7fa577384b09c"
+    },
+    {
+      "original": "tests/e2e/simulator-budget-journey.spec.ts",
+      "copy": "tests/e2e/ak207-simulator-budget-journey.spec.ts",
+      "originalSha256": "7dfb06926283c1c9a2509f59c595056f159672557059cd8a1ac53be2d4c14981",
+      "instrumentedSha256": "f5e35b01e3e5026070fea9fdd92ec1f1d65300ce6fba849edf8f8054216f2743"
+    },
+    {
+      "original": "tests/e2e/sofia-composer.spec.ts",
+      "copy": "tests/e2e/ak207-sofia-composer.spec.ts",
+      "originalSha256": "f288ae11f45a98ec35f94cfec2c7091b266fd8d1c450b447b4e79bbb170c2008",
+      "instrumentedSha256": "dc559a61444626b001b2800a7fbffbcd2433d5e3f6afcefb02472d86a9f2136e"
+    },
+    {
+      "original": "tests/e2e/tarjetas-whatsapp.spec.ts",
+      "copy": "tests/e2e/ak207-tarjetas-whatsapp.spec.ts",
+      "originalSha256": "7c9f34628de6e282594d4be4891a426757c21525da66a6b462987aa0e77e29ff",
+      "instrumentedSha256": "6a17d66f01f7e497939bb7632f5879693936674d9631cfeb333ec63586c67692"
+    },
+    {
+      "original": "tests/e2e/touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+      "copy": "tests/e2e/ak207-touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+      "originalSha256": "c22e821f07bd10ef101f44c9569d035fddc06b8323cc8c38cddf06a33d472823",
+      "instrumentedSha256": "5013c38ad3286b7f443a8c00fb9080f1824dc382026aab184ccd5cfff522490b"
+    },
+    {
+      "original": "tests/e2e/trabajos-completos.spec.ts",
+      "copy": "tests/e2e/ak207-trabajos-completos.spec.ts",
+      "originalSha256": "6f775437d7db217424a7ca6c99d5349bcf59e0ea30ac360919a2793c5f94fbf1",
+      "instrumentedSha256": "13305bf0f143b5dd5824dfeae0fee8d8d5fd26511e386dbb9311b45bf7cd75bb"
+    },
+    {
+      "original": "tests/e2e/viaje-invitado.spec.ts",
+      "copy": "tests/e2e/ak207-viaje-invitado.spec.ts",
+      "originalSha256": "1f56de13bab8a98a77c0198190ab68cbddc9fcf5fd1f7d4ef6e9889860d59f9e",
+      "instrumentedSha256": "b39c324a10d7ab742f662e1ebd9ec374a610f1f7721c5135ff553f6cb305e106"
+    },
+    {
+      "original": "tests/e2e/video-vida-error-lectura.spec.ts",
+      "copy": "tests/e2e/ak207-video-vida-error-lectura.spec.ts",
+      "originalSha256": "9322084503ee05c515be448b234d4ed06c4bebbe85309ffe31941ccb5c70f67b",
+      "instrumentedSha256": "0b25679788294727c7d53b913dcf29ee61955778d4c36096f51010d405f0d657"
+    },
+    {
+      "original": "tests/e2e/voz-en-vivo-reintento-y-cancelacion.spec.ts",
+      "copy": "tests/e2e/ak207-voz-en-vivo-reintento-y-cancelacion.spec.ts",
+      "originalSha256": "6cf427a2c2684e7aaf9e7f3074b60880020cfb23a658f6dccce6ac67a4e12cdb",
+      "instrumentedSha256": "8a8ce91dfe56c5be7aade29094f4a93e3b353d7cb0e46601b421b315051ae2e2"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 12280,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-23T19:11:44.911Z",
+    "version": "725e62ba2f909578628fad47402d125ed9632c70 · compilada 2026-10-23T18:42:38.071Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-130-compartir-presupuesto-publico.spec.ts",
+        "ak207-130-factura-sin-superposicion.spec.ts",
+        "ak207-133-invitado-con-red-local.spec.ts",
+        "ak207-133-qr-descarga-lector-local.spec.ts",
+        "ak207-143-cocina-fecha-local.spec.ts",
+        "ak207-45-recorridos-pendientes.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T19:37:19.871Z",
+      "report": "269-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T19:11:46.710Z",
+        "duration": 1532985.821,
+        "expected": 28,
+        "skipped": 1,
+        "unexpected": 3,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-46-estetica-movimiento-visible.spec.ts",
+        "ak207-47-redes-confirmaciones-y-videos.spec.ts",
+        "ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+        "ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+        "ak207-49-contabilidad-cobros-conciliados.spec.ts",
+        "ak207-49-contabilidad-permisos-y-errores.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T19:52:19.477Z",
+      "report": "269-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T19:37:22.483Z",
+        "duration": 896940.583,
+        "expected": 18,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-50-tecnologia-app-fiesta-demo.spec.ts",
+        "ak207-50-venta-origen-y-galeria-publica.spec.ts",
+        "ak207-81-captura-reconexion-entrega.spec.ts",
+        "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+        "ak207-81-prueba-previa-no-finge-equipo.spec.ts",
+        "ak207-81-roles-y-pedidos-sin-duplicados.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T20:05:38.611Z",
+      "report": "269-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T19:52:20.803Z",
+        "duration": 797766.205,
+        "expected": 13,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-89-ia-no-frena-la-fila.spec.ts",
+        "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+        "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+        "ak207-anda-en-el-celular.spec.ts",
+        "ak207-barra-72-pedido-propio-y-estado.spec.ts",
+        "ak207-barra-recupera-cancelacion.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T20:31:21.984Z",
+      "report": "269-batch-004-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T20:05:40.206Z",
+        "duration": 1541669.993,
+        "expected": 19,
+        "skipped": 3,
+        "unexpected": 8,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 5,
+      "files": [
+        "ak207-calendarios-react19.spec.ts",
+        "ak207-carga-rapido.spec.ts",
+        "ak207-catalogo-publico.spec.ts",
+        "ak207-catering-maestro-simulador-fotos.spec.ts",
+        "ak207-como-se-ven-las-estaciones.spec.ts",
+        "ak207-conexiones-redes-error-y-reintento.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T20:41:50.856Z",
+      "report": "269-batch-005-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T20:31:23.387Z",
+        "duration": 627432.709,
+        "expected": 21,
+        "skipped": 6,
+        "unexpected": 3,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 6,
+      "files": [
+        "ak207-contrato-constancia-mantiene-papel.spec.ts",
+        "ak207-el-album-del-recuerdo.spec.ts",
+        "ak207-el-album-se-arma-solo.spec.ts",
+        "ak207-el-album-se-baja-entero.spec.ts",
+        "ak207-el-album-suena-o-no-muestra-el-boton.spec.ts",
+        "ak207-el-asistente-le-contesta-al-invitado.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-23T20:44:06.034Z",
+      "report": "269-batch-006-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T20:41:51.842Z",
+        "duration": 134158.22,
+        "expected": 32,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 7,
+      "files": [
+        "ak207-el-asistente-no-se-sale-de-la-pantalla.spec.ts",
+        "ak207-el-carrusel-de-tecnologia-se-ve-entero.spec.ts",
+        "ak207-el-cierre-de-barra-se-ve-en-el-panel.spec.ts",
+        "ak207-el-cliente-gira-su-salon-en-3d.spec.ts",
+        "ak207-el-cliente-le-escribe-al-equipo.spec.ts",
+        "ak207-el-cliente-ve-sus-entregas-oficiales.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-23T20:52:35.301Z",
+      "report": "269-batch-007-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T20:44:07.034Z",
+        "duration": 508237.29,
+        "expected": 18,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 8,
+      "files": [
+        "ak207-el-control-de-llegada-se-prende-y-queda.spec.ts",
+        "ak207-el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts",
+        "ak207-el-fondo-se-cambia-de-verdad.spec.ts",
+        "ak207-el-informe-de-la-fiesta-se-arma-solo.spec.ts",
+        "ak207-el-muro-se-configura.spec.ts",
+        "ak207-el-panel-del-cliente-enamora.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-23T20:58:10.689Z",
+      "report": "269-batch-008-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T20:52:36.307Z",
+        "duration": 334331.347,
+        "expected": 24,
+        "skipped": 4,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 9,
+      "files": [
+        "ak207-el-plan-de-cuotas-no-deshace-un-cobro.spec.ts",
+        "ak207-el-secretario-escucha-y-hace.spec.ts",
+        "ak207-el-simulador-respeta-el-tipo-de-fiesta.spec.ts",
+        "ak207-el-totem-arranca-sin-internet.spec.ts",
+        "ak207-el-totem-de-bienvenida.spec.ts",
+        "ak207-el-video-resumen-dura-lo-que-promete.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T21:12:18.228Z",
+      "report": "269-batch-009-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T20:58:11.683Z",
+        "duration": 846512.7559999999,
+        "expected": 22,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 10,
+      "files": [
+        "ak207-entertainment-stations.spec.ts",
+        "ak207-entorno-compilado-verificable.spec.ts",
+        "ak207-entretenimientos-a-fondo.spec.ts",
+        "ak207-espejo-moderacion-caida-y-reintento.spec.ts",
+        "ak207-espejo-pide-permiso.spec.ts",
+        "ak207-estaciones-sin-clave.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T21:27:45.124Z",
+      "report": "269-batch-010-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T21:12:19.241Z",
+        "duration": 925850.165,
+        "expected": 19,
+        "skipped": 13,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 11,
+      "files": [
+        "ak207-fotocabina-de-punta-a-punta.spec.ts",
+        "ak207-fotos-de-la-app.spec.ts",
+        "ak207-galeria-hd-destino-publico.spec.ts",
+        "ak207-galeria-servicio-y-contacto-publico.spec.ts",
+        "ak207-google-workspace-estado-conexion.spec.ts",
+        "ak207-importar-invitados-de-una-planilla.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-23T21:33:03.087Z",
+      "report": "269-batch-011-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T21:27:46.151Z",
+        "duration": 316874.7,
+        "expected": 13,
+        "skipped": 517,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 12,
+      "files": [
+        "ak207-impresion-a4.spec.ts",
+        "ak207-instalar-solo-la-estacion.spec.ts",
+        "ak207-internal-dynamic-route-inventory.spec.ts",
+        "ak207-internal-smoke.spec.ts",
+        "ak207-la-app-se-mueve.spec.ts",
+        "ak207-la-carga-operativa-avisa-cuando-no-alcanza.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T21:39:32.618Z",
+      "report": "269-batch-012-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T21:33:04.104Z",
+        "duration": 388475.876,
+        "expected": 12,
+        "skipped": 5,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 13,
+      "files": [
+        "ak207-la-carga-operativa-se-sincroniza.spec.ts",
+        "ak207-la-carteleria-dice-la-verdad.spec.ts",
+        "ak207-la-decoracion-se-baja-y-se-genera.spec.ts",
+        "ak207-la-demo-de-la-barra-respeta-el-trago.spec.ts",
+        "ak207-la-fotocabina-saca-la-foto-con-imagen.spec.ts",
+        "ak207-la-fotocabina-tiene-todo.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-23T21:44:38.493Z",
+      "report": "269-batch-013-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T21:39:33.701Z",
+        "duration": 304730.54600000003,
+        "expected": 12,
+        "skipped": 2,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 14,
+      "files": [
+        "ak207-la-grilla-de-caras.spec.ts",
+        "ak207-la-hoja-de-cocina.spec.ts",
+        "ak207-la-hoja-del-dj-dice-la-verdad.spec.ts",
+        "ak207-la-lista-de-regalos-queda-como-la-dejaron.spec.ts",
+        "ak207-la-orden-de-evento-junta-todo.spec.ts",
+        "ak207-la-pantalla-gigante-anda.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T21:49:05.131Z",
+      "report": "269-batch-014-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T21:44:40.711Z",
+        "duration": 264371.814,
+        "expected": 18,
+        "skipped": 4,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 15,
+      "files": [
+        "ak207-la-portada-aparece-al-toque.spec.ts",
+        "ak207-la-portada-espera-sin-cajas-grises.spec.ts",
+        "ak207-la-portada-no-dice-cero.spec.ts",
+        "ak207-la-portada-nueva.spec.ts",
+        "ak207-la-puerta-de-entrada-anda.spec.ts",
+        "ak207-la-red-social-de-la-fiesta.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-23T22:00:53.917Z",
+      "report": "269-batch-015-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T21:49:06.247Z",
+        "duration": 707595.3269999999,
+        "expected": 20,
+        "skipped": 6,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 16,
+      "files": [
+        "ak207-la-reunion-de-organizacion-guarda-donde-corresponde.spec.ts",
+        "ak207-la-ubicacion-del-personal-no-esta-bloqueada.spec.ts",
+        "ak207-la-vidriera-de-la-tecnologia.spec.ts",
+        "ak207-la-vista-3d-muestra-los-muebles.spec.ts",
+        "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+        "ak207-la-web-de-venta-se-mueve.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T22:10:01.684Z",
+      "report": "269-batch-016-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T22:00:56.841Z",
+        "duration": 544792.832,
+        "expected": 13,
+        "skipped": 4,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 17,
+      "files": [
+        "ak207-la-web-publica-se-ve.spec.ts",
+        "ak207-la-web-se-deja-usar-por-asistentes.spec.ts",
+        "ak207-las-entregas-de-fotografia-no-se-pisan.spec.ts",
+        "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+        "ak207-las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+        "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T22:27:20.653Z",
+      "report": "269-batch-017-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T22:10:02.901Z",
+        "duration": 1037691.492,
+        "expected": 16,
+        "skipped": 3,
+        "unexpected": 3,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 18,
+      "files": [
+        "ak207-las-pantallas-no-quedan-en-blanco-al-redirigir.spec.ts",
+        "ak207-las-pantallas-rotas-se-arreglaron.spec.ts",
+        "ak207-layout-baseline.spec.ts",
+        "ak207-lectura-invitados-aislada.spec.ts",
+        "ak207-limpiar-la-agenda.spec.ts",
+        "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T22:49:44.130Z",
+      "report": "269-batch-018-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T22:27:22.063Z",
+        "duration": 1342019.966,
+        "expected": 31,
+        "skipped": 6,
+        "unexpected": 5,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 19,
+      "files": [
+        "ak207-mantenimiento-sin-duplicar.spec.ts",
+        "ak207-marketing-tarjetas-llevan-a-su-pantalla.spec.ts",
+        "ak207-medicion-no-envia-llaves.spec.ts",
+        "ak207-mi-dia-muestra-el-saldo-real.spec.ts",
+        "ak207-mobile-overflow.spec.ts",
+        "ak207-mural-geometria-visible.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T23:11:51.918Z",
+      "report": "269-batch-019-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T22:52:17.038Z",
+        "duration": 1170606.8420000002,
+        "expected": 13,
+        "skipped": 8,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": [
+        {
+          "message": "\u001b[31mTimed out waiting 1170.591s for the test suite to run\u001b[39m"
+        },
+        {
+          "message": "\u001b[31mTimed out waiting 1170.591s for the teardown for test suite to run\u001b[39m"
+        }
+      ]
+    }
+  ],
+  "exitCode": 1,
+  "currentBatch": 19,
+  "totalBatches": 24,
+  "testPid": 10936,
+  "error": "AssertionError [ERR_ASSERTION]: Native audit exceeded4hours: remaining cases NOT accepted\n    at data:text/javascript;base64,aW1wb3J0IGZzIGZyb20gJ25vZGU6ZnMnOwppbXBvcnQgcGF0aCBmcm9tICdub2RlOnBhdGgnOwppbXBvcnQgb3MgZnJvbSAnbm9kZTpvcyc7CmltcG9ydCBuZXQgZnJvbSAnbm9kZTpuZXQnOwppbXBvcnQgY3J5cHRvIGZyb20gJ25vZGU6Y3J5cHRvJzsKaW1wb3J0IGFzc2VydCBmcm9tICdub2RlOmFzc2VydC9zdHJpY3QnOwppbXBvcnQgeyBzcGF3bixzcGF3blN5bmMgfSBmcm9tICdub2RlOmNoaWxkX3Byb2Nlc3MnOwppbXBvcnQgeyBnemlwU3luYyB9IGZyb20gJ25vZGU6emxpYic7CmltcG9ydCB7IGZpbGVVUkxUb1BhdGggfSBmcm9tICdub2RlOnVybCc7CmNvbnN0IHJvb3Q9IkM6XFxVc2Vyc1xcVXN1YXJpb1xcRG9jdW1lbnRzXFxDb2RleFxcYWstY29kZXg4OFxcYWstYXVkaXRvcmlhMTkyLXBvcnRhbFxcIixkaXI9cGF0aC5qb2luKHJvb3QsJ2RvY3MvZXZpZGVuY2lhcycpOwpjb25zdCBzb3VyY2U9JzcyNWU2MmJhMmY5MDk1Nzg2MjhmYWQ0NzQwMmQxMjVlZDk2MzJjNzAnOwpjb25zdCBydW5JZD1wcm9jZXNzLmVudi5BS19BVURJVF9SVU5fSUR8fCcyMDknO2Fzc2VydC5tYXRjaChydW5JZCwvXlxkKyQvKTsKY29uc3Qgc3BlY0ZpbHRlcj1wcm9jZXNzLmVudi5BS19BVURJVF9TUEVDX0ZJTFRFUj8uc3BsaXQoJywnKS5maWx0ZXIoQm9vbGVhbik7CmNvbnN0IGluY2x1ZGVQb3J0YWw9cHJvY2Vzcy5lbnYuQUtfQVVESVRfU0tJUF9QT1JUQUwhPT0ndHJ1ZSc7CmNvbnN0IGJhdGNoU2l6ZT1OdW1iZXIocHJvY2Vzcy5lbnYuQUtfQVVESVRfQkFUQ0hfU0laRXx8MCk7YXNzZXJ0Lm9rKE51bWJlci5pc0ludGVnZXIoYmF0Y2hTaXplKSYmYmF0Y2hTaXplPj0wJiZiYXRjaFNpemU8PTEyKTsKY29uc3QgYnVpbGQ9SlNPTi5wYXJzZShmcy5yZWFkRmlsZVN5bmMocGF0aC5qb2luKGRpciwnMjY3LWVudG9ybm8uanNvbicpLCd1dGY4JykpOwphc3NlcnQuZXF1YWwoYnVpbGQuc291cmNlLHNvdXJjZSk7YXNzZXJ0LmVxdWFsKGJ1aWxkLmJ1aWxkRXhpdCwwLCdXYWl0IGZvciBmcm96ZW4tc291cmNlIGJ1aWxkJyk7CmNvbnN0IHRhcmdldD1wYXRoLmpvaW4oZGlyLGAke3J1bklkfS1lamVjdWNpb24uanNvbmApO2Fzc2VydC5lcXVhbChmcy5leGlzdHNTeW5jKHRhcmdldCl8fGZzLmV4aXN0c1N5bmModGFyZ2V0KycuZ3onKSxmYWxzZSwnUHJlc2VydmUgcnVuIGluY2x1ZGluZyBwdWJsaXNoZWQgZ3ppcCcpOwpjb25zdCBxYT1wYXRoLnJlc29sdmUoYnVpbGQucWEpO2Fzc2VydC5tYXRjaChxYS5yZXBsYWNlQWxsKCdcXCcsJy8nKSwvXC9UZW1wXC9hay1xYS0yNjctW14vXSskLyk7CmNvbnN0IHNhZmU9T2JqZWN0LmZyb21FbnRyaWVzKFsnUEFUSCcsJ1RFTVAnLCdUTVAnLCdTWVNURU1ST09UJywnV0lORElSJywnUFJPR1JBTURBVEEnLCdQUk9HUkFNRklMRVMnLCdDT01TUEVDJywnUEFUSEVYVCcsJ0xPQ0FMQVBQREFUQSddLmZpbHRlcihrPT5wcm9jZXNzLmVudltrXSE9PXVuZGVmaW5lZCkubWFwKGs9PltrLHByb2Nlc3MuZW52W2tdXSkpOwpjb25zdCBnaXQ9YXJncz0+e2NvbnN0IHI9c3Bhd25TeW5jKCdnaXQnLGFyZ3Mse2N3ZDpxYSxlbnY6c2FmZSxlbmNvZGluZzondXRmOCcsbWF4QnVmZmVyOjQqMTAyNCoqMn0pO2Fzc2VydC5lcXVhbChyLnN0YXR1cywwLHIuc3RkZXJyKTtyZXR1cm4gci5zdGRvdXQudHJpbSgpO307CmFzc2VydC5lcXVhbChnaXQoWydyZXYtcGFyc2UnLCdIRUFEJ10pLHNvdXJjZSk7YXNzZXJ0LmVxdWFsKGdpdChbJ2RpZmYnLCctLW5hbWUtb25seSddKSwnJyk7CmFzc2VydC5lcXVhbChmcy5yZWFkZGlyU3luYyhxYSkuc29tZShuPT4vXlwuZW52KD86XC4oPzpsb2NhbHxwcm9kdWN0aW9ufGRldmVsb3BtZW50fHRlc3QpKD86XC5sb2NhbCk/KT8kLy50ZXN0KG4pKSxmYWxzZSk7CmFzc2VydC5vayhvcy5mcmVlbWVtKCk+PTEwMjQqKjMsJ05vIE5leHQvYnJvd3NlciB1bmRlcjFHaUInKTsKY29uc3QgaW5zaWRlPWZpbGU9Pntjb25zdCBwPXBhdGgucmVzb2x2ZShmaWxlKTthc3NlcnQub2socC5zdGFydHNXaXRoKHFhK3BhdGguc2VwKSwnT3duIFFBIG9ubHknKTtyZXR1cm4gcDt9Owpjb25zdCBqc29uRmlsZXM9KCk9Pntjb25zdCBvdXQ9W107Y29uc3Qgd2Fsaz1mb2xkZXI9PntpZighZnMuZXhpc3RzU3luYyhmb2xkZXIpKXJldHVybjtmb3IoY29uc3QgZW50cnkgb2YgZnMucmVhZGRpclN5bmMoZm9sZGVyLHt3aXRoRmlsZVR5cGVzOnRydWV9KSl7Y29uc3QgZmlsZT1pbnNpZGUocGF0aC5qb2luKGZvbGRlcixlbnRyeS5uYW1lKSk7aWYoZW50cnkuaXNEaXJlY3RvcnkoKSYmIWVudHJ5LmlzU3ltYm9saWNMaW5rKCkpd2FsayhmaWxlKTtlbHNlIGlmKGVudHJ5LmlzRmlsZSgpJiZmaWxlLmVuZHNXaXRoKCcuanNvbicpKW91dC5wdXNoKGZpbGUpO319O2Zvcihjb25zdCBmb2xkZXIgb2YgWydkYXRhJywnc3JjL2RhdGEnXSl3YWxrKHBhdGguam9pbihxYSxmb2xkZXIpKTtyZXR1cm4gb3V0O307CmNvbnN0IHNuYXBzaG90cz1uZXcgTWFwKGpzb25GaWxlcygpLm1hcChmaWxlPT5bZmlsZSxmcy5yZWFkRmlsZVN5bmMoZmlsZSldKSk7CmNvbnN0IHJlc3RvcmVEYXRhPSgpPT57Zm9yKGNvbnN0IGZpbGUgb2YganNvbkZpbGVzKCkpaWYoIXNuYXBzaG90cy5oYXMoZmlsZSkpZnMudW5saW5rU3luYyhpbnNpZGUoZmlsZSkpO2Zvcihjb25zdFtmaWxlLGJ5dGVzXW9mIHNuYXBzaG90cylmcy53cml0ZUZpbGVTeW5jKGluc2lkZShmaWxlKSxieXRlcyk7fTsKY29uc3QgY29waWVkPVtdLG1hbmlmZXN0PVtdOwpjb25zdCBoYXNoPWRhdGE9PmNyeXB0by5jcmVhdGVIYXNoKCdzaGEyNTYnKS51cGRhdGUoZGF0YSkuZGlnZXN0KCdoZXgnKTsKY29uc3QgaG9vaz1gXG5pbXBvcnQgeyB0ZXN0IGFzIF9fYWtBdWRpdDIwNyB9IGZyb20gJ0BwbGF5d3JpZ2h0L3Rlc3QnO1xuX19ha0F1ZGl0MjA3LmJlZm9yZUVhY2goYXN5bmMgKHtjb250ZXh0fSwgdGVzdEluZm8pID0+IHtcbiAgYXdhaXQgY29udGV4dC5yb3V0ZSgnKiovKicsYXN5bmMgcm91dGU9Pntjb25zdCB1cmw9bmV3IFVSTChyb3V0ZS5yZXF1ZXN0KCkudXJsKCkpO2lmKC9eaHR0cHM/OiQvLnRlc3QodXJsLnByb3RvY29sKSYmIVsnMTI3LjAuMC4xJywnbG9jYWxob3N0JywnWzo6MV0nXS5pbmNsdWRlcyh1cmwuaG9zdG5hbWUpKXthd2FpdCB0ZXN0SW5mby5hdHRhY2goJ3FhLWVncmVzcy1ibG9ja2VkJyx7Y29udGVudFR5cGU6J3RleHQvcGxhaW4nLGJvZHk6dXJsLm9yaWdpbit1cmwucGF0aG5hbWV9KTthd2FpdCByb3V0ZS5hYm9ydCgnYmxvY2tlZGJ5Y2xpZW50Jyk7fWVsc2UgYXdhaXQgcm91dGUuY29udGludWUoKTt9KTtcbn0pO1xuYDsKY29uc3QgY29weT0oZnJvbSx0byk9Pntjb25zdCBkZXN0PWluc2lkZSh0byk7YXNzZXJ0LmVxdWFsKGZzLmV4aXN0c1N5bmMoZGVzdCksZmFsc2UsZGVzdCk7ZnMuY29weUZpbGVTeW5jKGZyb20sZGVzdCk7Y29waWVkLnB1c2goZGVzdCk7fTsKY29uc3Qgd2Fsa1Rlc3RzPWZvbGRlcj0+e2Zvcihjb25zdCBlbnRyeSBvZiBmcy5yZWFkZGlyU3luYyhmb2xkZXIse3dpdGhGaWxlVHlwZXM6dHJ1ZX0pKXtjb25zdCBmaWxlPWluc2lkZShwYXRoLmpvaW4oZm9sZGVyLGVudHJ5Lm5hbWUpKTtpZihlbnRyeS5pc0RpcmVjdG9yeSgpKXdhbGtUZXN0cyhmaWxlKTtlbHNlIGlmKGVudHJ5Lm5hbWUuZW5kc1dpdGgoJy5zcGVjLnRzJykmJiFlbnRyeS5uYW1lLnN0YXJ0c1dpdGgoJ2FrMjA3LScpJiYoIXNwZWNGaWx0ZXJ8fHNwZWNGaWx0ZXIuaW5jbHVkZXMoZW50cnkubmFtZSkpKXsKICBjb25zdCByYXc9ZnMucmVhZEZpbGVTeW5jKGZpbGUsJ3V0ZjgnKTthc3NlcnQub2soIXJhdy5pbmNsdWRlcygnX19ha0F1ZGl0MjA3JykpOwogIGNvbnN0IGRlc3Q9aW5zaWRlKHBhdGguam9pbihmb2xkZXIsJ2FrMjA3LScrZW50cnkubmFtZSkpO2Fzc2VydC5lcXVhbChmcy5leGlzdHNTeW5jKGRlc3QpLGZhbHNlKTtmcy53cml0ZUZpbGVTeW5jKGRlc3QsaG9vaytyYXcpO2NvcGllZC5wdXNoKGRlc3QpOwogIG1hbmlmZXN0LnB1c2goe29yaWdpbmFsOnBhdGgucmVsYXRpdmUocWEsZmlsZSkucmVwbGFjZUFsbCgnXFwnLCcvJyksY29weTpwYXRoLnJlbGF0aXZlKHFhLGRlc3QpLnJlcGxhY2VBbGwoJ1xcJywnLycpLG9yaWdpbmFsU2hhMjU2Omhhc2gocmF3KSxpbnN0cnVtZW50ZWRTaGEyNTY6aGFzaChob29rK3Jhdyl9KTsKfX19Owp3YWxrVGVzdHMocGF0aC5qb2luKHFhLCd0ZXN0cy9lMmUnKSk7CmFzc2VydC5lcXVhbChtYW5pZmVzdC5sZW5ndGgsMTQyLCdFdmVyeSBzZWxlY3RlZCBzcGVjIG11c3QgZXhpc3QgaW4gZnJvemVuIHNvdXJjZScpOwppZihpbmNsdWRlUG9ydGFsKXtjb25zdCBuZXdUZXN0PWluc2lkZShwYXRoLmpvaW4ocWEsJ3Rlc3RzL2UyZS9hazIwNy1wb3J0YWwtYWN0aXZvLnNwZWMudHMnKSk7YXNzZXJ0LmVxdWFsKGZzLmV4aXN0c1N5bmMobmV3VGVzdCksZmFsc2UpO2ZzLndyaXRlRmlsZVN5bmMobmV3VGVzdCxob29rK2ZzLnJlYWRGaWxlU3luYyhwYXRoLmpvaW4oZGlyLCcyMDctcG9ydGFsLWFjdGl2by5zcGVjLnRzJyksJ3V0ZjgnKSk7Y29waWVkLnB1c2gobmV3VGVzdCk7fQpjb3B5KHBhdGguam9pbihkaXIsJzIwOC1jb25maWcudHMnKSxwYXRoLmpvaW4ocWEsJzIwOC1jb25maWcudHMnKSk7Y29weShwYXRoLmpvaW4oZGlyLCcyMDgtZWdyZXNzLWd1YXJkLmNqcycpLHBhdGguam9pbihxYSwnMjA4LWVncmVzcy1ndWFyZC5janMnKSk7CmNvbnN0IGVudlJlc3VsdD1zcGF3blN5bmMocHJvY2Vzcy5leGVjUGF0aCxbJ3NjcmlwdHMvZW50b3Juby1kZS1wcnVlYmFzLm1qcyddLHtjd2Q6cWEsZW52OnsuLi5zYWZlLEFLX0VOVE9STk9fU09MT19NT1NUUkFSX0FNQklFTlRFOid0cnVlJ30sZW5jb2Rpbmc6J3V0ZjgnfSk7YXNzZXJ0LmVxdWFsKGVudlJlc3VsdC5zdGF0dXMsMCxlbnZSZXN1bHQuc3RkZXJyKTsKY29uc3QgaG9tZT1pbnNpZGUocGF0aC5qb2luKHFhLCcucWEyMDktaG9tZScpKTtmcy5ta2RpclN5bmMocGF0aC5qb2luKGhvbWUsJ2NvbmZpZycpLHtyZWN1cnNpdmU6dHJ1ZX0pOwpjb25zdCBlbnY9ey4uLnNhZmUsLi4uSlNPTi5wYXJzZShlbnZSZXN1bHQuc3Rkb3V0KS5mb3J6YWRhcyxIT01FOmhvbWUsVVNFUlBST0ZJTEU6aG9tZSxBUFBEQVRBOnBhdGguam9pbihob21lLCdjb25maWcnKSxYREdfQ09ORklHX0hPTUU6cGF0aC5qb2luKGhvbWUsJ2NvbmZpZycpLAogIEFLX0RJU0FCTEVfU1RBTkRBTE9ORTondHJ1ZScsQ09NTUlUX1NIQTpzb3VyY2UsTk9ERV9FTlY6J3Byb2R1Y3Rpb24nLFBMQVlXUklHSFRfQkFTRV9VUkw6J2h0dHA6Ly8xMjcuMC4wLjE6MzMwMCcsQUtfUUFfUkVTVUxUUzpwYXRoLmpvaW4oZGlyLGAke3J1bklkfS1yZXN1bHRhZG9zLmpzb25gKSwKICBOT0RFX09QVElPTlM6YC0tbWF4LW9sZC1zcGFjZS1zaXplPTEwMjQgLS1yZXF1aXJlICIke3BhdGguam9pbihxYSwnMjA4LWVncmVzcy1ndWFyZC5janMnKS5yZXBsYWNlQWxsKCdcXCcsJy8nKX0iYH07CmNvbnN0IHJlY29yZD17c291cmNlLHFhLHN0YXJ0ZWQ6bmV3IERhdGUoKS50b0lTT1N0cmluZygpLHBoYXNlOidwcmVwYXJlZCcsYnVpbGRGaW5pc2hlZDpidWlsZC5maW5pc2hlZCxkZXBlbmRlbmN5TGltaXQ6YnVpbGQuZGVwZW5kZW5jeUxpbWl0LHJlYWxTZXJ2aWNlczpmYWxzZSxhcHBFZGl0ZWQ6ZmFsc2Usc3BlY0ZpbHRlcjpzcGVjRmlsdGVyfHxudWxsLGJhdGNoU2l6ZSxjb3BpZWRUZXN0czptYW5pZmVzdC5sZW5ndGgsbmV3VGVzdFNoYTI1NjppbmNsdWRlUG9ydGFsP2hhc2goZnMucmVhZEZpbGVTeW5jKHBhdGguam9pbihkaXIsJzIwNy1wb3J0YWwtYWN0aXZvLnNwZWMudHMnKSkpOm51bGwsbWFuaWZlc3QsCiAgbGltaXRzOidTZWxlY3RlZCBFMkUgc3BlY3MgKGFsbCBvbmx5IGlmIHNwZWNGaWx0ZXIgaXMgbnVsbCkgb24gb25lIGZyb3plbi1zb3VyY2UgTmV4dCBidWlsZCwgcGx1cyBhY3RpdmUgcG9ydGFsIGNhc2VzLiBUZXN0cyBjb3BpZWQgd2l0aG91dCBjaGFuZ2luZyBhc3NlcnRpb25zLCBhZGRpbmcgb25seSBjb21tb24gbG9jYWwtbmV0d29yayBndWFyZC4gRXhpc3RpbmcgZGVsaWJlcmF0ZSBza2lwcyByZW1haW4gc2tpcHMsIG5vdCBhY2NlcHRhbmNlLiBEZWZhdWx0IGludmVudG9yeSB0cmF2ZXJzYWwgZXhjbHVkZWQgc2VwYXJhdGVseTsgcm91dGUgYXZhaWxhYmlsaXR5IGlzIG5vdCBmdW5jdGlvbiBhY2NlcHRhbmNlLiBFeHRlcm5hbCByZXF1ZXN0cyBibG9ja2VkOyBubyByZWFsIHNlcnZpY2VzIG9yIHplcm8tZXJyb3IgY2VydGlmaWNhdGUuJ307CmNvbnN0IHNhdmU9KCk9PmZzLndyaXRlRmlsZVN5bmModGFyZ2V0LEpTT04uc3RyaW5naWZ5KHJlY29yZCxudWxsLDIpKydcbicpO3NhdmUoKTsKbGV0IHNlcnZlcixjaGlsZDsKY29uc3Qgc2VydmVyRmlsZT1wYXRoLmpvaW4oZGlyLGAke3J1bklkfS1zZXJ2aWRvci5sb2dgKSx0ZXN0RmlsZT1wYXRoLmpvaW4oZGlyLGAke3J1bklkfS1wcnVlYmFzLmxvZ2ApO2NvbnN0IHNlcnZlckxvZz1mcy5jcmVhdGVXcml0ZVN0cmVhbShzZXJ2ZXJGaWxlKSx0ZXN0TG9nPWZzLmNyZWF0ZVdyaXRlU3RyZWFtKHRlc3RGaWxlKTsKdHJ5ewogIGNvbnN0IGxpc3RlbmVyPW5ldC5jcmVhdGVTZXJ2ZXIoKTthd2FpdCBuZXcgUHJvbWlzZSgoeWVzLG5vKT0+e2xpc3RlbmVyLm9uY2UoJ2Vycm9yJyxubyk7bGlzdGVuZXIubGlzdGVuKDMzMDAsJzEyNy4wLjAuMScseWVzKTt9KTthd2FpdCBuZXcgUHJvbWlzZSh5ZXM9Pmxpc3RlbmVyLmNsb3NlKHllcykpOwogIHNlcnZlcj1zcGF3bihwcm9jZXNzLmV4ZWNQYXRoLFsnQzovVXNlcnMvVXN1YXJpby9Eb2N1bWVudHMvQ29kZXgvYWstY29kZXg4OC9hay1yZWFjdDE5LWNhbmRpZGF0by0xMDMvbm9kZV9tb2R1bGVzL25leHQvZGlzdC9iaW4vbmV4dCcsJ3N0YXJ0JywnLS1ob3N0bmFtZScsJzEyNy4wLjAuMScsJy0tcG9ydCcsJzMzMDAnXSx7Y3dkOnFhLGVudixzdGRpbzpbJ2lnbm9yZScsJ3BpcGUnLCdwaXBlJ119KTtyZWNvcmQuc2VydmVyUGlkPXNlcnZlci5waWQ7c2F2ZSgpO3NlcnZlci5zdGRvdXQucGlwZShzZXJ2ZXJMb2cse2VuZDpmYWxzZX0pO3NlcnZlci5zdGRlcnIucGlwZShzZXJ2ZXJMb2cse2VuZDpmYWxzZX0pOwogIGNvbnN0IGRlYWRsaW5lPURhdGUubm93KCkrOTAwMDA7d2hpbGUoIXJlY29yZC5oZWFsdGgpe3RyeXtjb25zdCBoPWF3YWl0KGF3YWl0IGZldGNoKCdodHRwOi8vMTI3LjAuMC4xOjMzMDAvYXBpL2hlYWx0aCcse3NpZ25hbDpBYm9ydFNpZ25hbC50aW1lb3V0KDEwMDAwKX0pKS5qc29uKCk7YXNzZXJ0Lm9rKGgudmVyc2lvbj8uc3RhcnRzV2l0aChzb3VyY2UpKTthc3NlcnQub2soT2JqZWN0LnZhbHVlcyhoLnNlcnZpY2VzKS5ldmVyeSh2PT52PT09ZmFsc2UpKTtyZWNvcmQuaGVhbHRoPWg7fWNhdGNoKGVycm9yKXtpZihEYXRlLm5vdygpPmRlYWRsaW5lKXRocm93IGVycm9yO2F3YWl0IG5ldyBQcm9taXNlKHJlc29sdmU9PnNldFRpbWVvdXQocmVzb2x2ZSwxMDAwKSk7fX0KICBhc3NlcnQub2sob3MuZnJlZW1lbSgpPj01MTIqMTAyNCoqMiwnTm8gYnJvd3NlciB1bmRlcjUxMk1pQicpOwogIHJlY29yZC5waGFzZT0ncnVubmluZyc7c2F2ZSgpO2NvbnNvbGUubG9nKEpTT04uc3RyaW5naWZ5KHtwaGFzZTpyZWNvcmQucGhhc2Usc291cmNlLHNlcnZlclBpZDpzZXJ2ZXIucGlkLGNvcGllZFRlc3RzOm1hbmlmZXN0Lmxlbmd0aH0pKTsKICBjb25zdCBhbGxGaWxlcz1tYW5pZmVzdC5tYXAoaXRlbT0+cGF0aC5iYXNlbmFtZShpdGVtLmNvcHkpKS5maWx0ZXIoZmlsZT0+IWZpbGUuaW5jbHVkZXMoJ3JlY29ycmlkby1kZS1wYW50YWxsYXMnKSk7CiAgaWYoaW5jbHVkZVBvcnRhbClhbGxGaWxlcy5wdXNoKCdhazIwNy1wb3J0YWwtYWN0aXZvLnNwZWMudHMnKTsKICBjb25zdCBncm91cHM9YmF0Y2hTaXplP0FycmF5LmZyb20oe2xlbmd0aDpNYXRoLmNlaWwoYWxsRmlsZXMubGVuZ3RoL2JhdGNoU2l6ZSl9LChfLGluZGV4KT0+YWxsRmlsZXMuc2xpY2UoaW5kZXgqYmF0Y2hTaXplLChpbmRleCsxKSpiYXRjaFNpemUpKTpbW11dOwogIHJlY29yZC5iYXRjaGVzPVtdO3JlY29yZC5leGl0Q29kZT0wO3NhdmUoKTsKICBjb25zdCBvdmVyYWxsRGVhZGxpbmU9RGF0ZS5ub3coKSs0KjYwKjYwKjEwMDA7CiAgZm9yKGxldCBpbmRleD0wO2luZGV4PGdyb3Vwcy5sZW5ndGg7aW5kZXgrKyl7CiAgICBhc3NlcnQub2soRGF0ZS5ub3coKTxvdmVyYWxsRGVhZGxpbmUsJ05hdGl2ZSBhdWRpdCBleGNlZWRlZDRob3VyczogcmVtYWluaW5nIGNhc2VzIE5PVCBhY2NlcHRlZCcpOwogICAgYXNzZXJ0Lm9rKGZzLmV4aXN0c1N5bmMocGF0aC5qb2luKHFhLCcyMDgtY29uZmlnLnRzJykpLCdRQSBjb25maWcgbG9zdDogc3RvcCByYXRoZXIgdGhhbiBmYWxzZWx5IGNvdW50IGJhdGNoZXMnKTsKICAgIGlmKGluZGV4PjApe3Jlc3RvcmVEYXRhKCk7Y29uc3QgZGVhZGxpbmU9RGF0ZS5ub3coKSsxMCo2MCoxMDAwO3doaWxlKG9zLmZyZWVtZW0oKTwxMDI0KiozJiZEYXRlLm5vdygpPGRlYWRsaW5lKWF3YWl0IG5ldyBQcm9taXNlKHJlc29sdmU9PnNldFRpbWVvdXQocmVzb2x2ZSwxNTAwMCkpO2Fzc2VydC5vayhvcy5mcmVlbWVtKCk+PTEwMjQqKjMsJ05vIG5leHQgYnJvd3NlciBiYXRjaCB1bmRlcjFHaUInKTt9CiAgICBjb25zdCBsYWJlbD1iYXRjaFNpemU/YCR7cnVuSWR9LWJhdGNoLSR7U3RyaW5nKGluZGV4KzEpLnBhZFN0YXJ0KDMsJzAnKX1gOnJ1bklkOwogICAgY29uc3QgcnVuRW52PXsuLi5lbnYsQUtfUUFfUkVTVUxUUzpwYXRoLmpvaW4oZGlyLGAke2xhYmVsfS1yZXN1bHRhZG9zLmpzb25gKX07CiAgICByZWNvcmQuY3VycmVudEJhdGNoPWluZGV4KzE7cmVjb3JkLnRvdGFsQmF0Y2hlcz1ncm91cHMubGVuZ3RoO3NhdmUoKTsKICAgIGNoaWxkPXNwYXduKHByb2Nlc3MuZXhlY1BhdGgsWydDOi9Vc2Vycy9Vc3VhcmlvL0RvY3VtZW50cy9Db2RleC9hay1jb2RleDg4L2FrLXJlYWN0MTktY2FuZGlkYXRvLTEwMy9ub2RlX21vZHVsZXMvQHBsYXl3cmlnaHQvdGVzdC9jbGkuanMnLCd0ZXN0JywnLS1jb25maWcnLCcyMDgtY29uZmlnLnRzJywnLS1nbG9iYWwtdGltZW91dCcsU3RyaW5nKE1hdGgubWF4KDYwMDAwLE1hdGgubWluKDQ1KjYwKjEwMDAsb3ZlcmFsbERlYWRsaW5lLURhdGUubm93KCkpKSksJy0tb3V0cHV0JyxwYXRoLmpvaW4oZGlyLGAke2xhYmVsfS1hcnRpZmFjdHNgKSwuLi5ncm91cHNbaW5kZXhdXSx7Y3dkOnFhLGVudjpydW5FbnYsc3RkaW86WydpZ25vcmUnLCdwaXBlJywncGlwZSddfSk7cmVjb3JkLnRlc3RQaWQ9Y2hpbGQucGlkO3NhdmUoKTtjaGlsZC5zdGRvdXQucGlwZSh0ZXN0TG9nLHtlbmQ6ZmFsc2V9KTtjaGlsZC5zdGRlcnIucGlwZSh0ZXN0TG9nLHtlbmQ6ZmFsc2V9KTsKICAgIGNvbnN0IGNvZGU9YXdhaXQgbmV3IFByb21pc2UoKHllcyxubyk9PntjaGlsZC5vbmNlKCdleGl0Jyx5ZXMpO2NoaWxkLm9uY2UoJ2Vycm9yJyxubyk7fSk7aWYoY29kZSE9PTApe3JlY29yZC5leGl0Q29kZT0xO3Byb2Nlc3MuZXhpdENvZGU9MTt9CiAgICBjb25zdCBiYXRjaD17aW5kZXg6aW5kZXgrMSxmaWxlczpncm91cHNbaW5kZXhdLGV4aXRDb2RlOmNvZGUsZmluaXNoZWQ6bmV3IERhdGUoKS50b0lTT1N0cmluZygpLHJlcG9ydDpwYXRoLmJhc2VuYW1lKHJ1bkVudi5BS19RQV9SRVNVTFRTKX07CiAgICBpZihmcy5leGlzdHNTeW5jKHJ1bkVudi5BS19RQV9SRVNVTFRTKSl7Y29uc3QgcmVwb3J0PUpTT04ucGFyc2UoZnMucmVhZEZpbGVTeW5jKHJ1bkVudi5BS19RQV9SRVNVTFRTLCd1dGY4JykpO09iamVjdC5hc3NpZ24oYmF0Y2gse3N0YXRzOnJlcG9ydC5zdGF0cyxlcnJvcnM6cmVwb3J0LmVycm9yc30pO30KICAgIHJlY29yZC5iYXRjaGVzLnB1c2goYmF0Y2gpO3NhdmUoKTtjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7YmF0Y2g6YmF0Y2guaW5kZXgsdG90YWxCYXRjaGVzOmdyb3Vwcy5sZW5ndGgsZXhpdENvZGU6Y29kZSxzdGF0czpiYXRjaC5zdGF0c30pKTsKICB9CiAgaWYoIWJhdGNoU2l6ZSYmZnMuZXhpc3RzU3luYyhlbnYuQUtfUUFfUkVTVUxUUykpe2NvbnN0IHJlcG9ydD1KU09OLnBhcnNlKGZzLnJlYWRGaWxlU3luYyhlbnYuQUtfUUFfUkVTVUxUUywndXRmOCcpKTtyZWNvcmQuc3RhdHM9cmVwb3J0LnN0YXRzO3JlY29yZC5yZXBvcnRFcnJvcnM9cmVwb3J0LmVycm9yczt9CiAgZWxzZSBpZihiYXRjaFNpemUpe3JlY29yZC5zdGF0cz1PYmplY3QuZnJvbUVudHJpZXMoWydleHBlY3RlZCcsJ3NraXBwZWQnLCd1bmV4cGVjdGVkJywnZmxha3knXS5tYXAoa2V5PT5ba2V5LHJlY29yZC5iYXRjaGVzLnJlZHVjZSgoc3VtLGJhdGNoKT0+c3VtKyhiYXRjaC5zdGF0cz8uW2tleV18fDApLDApXSkpO3JlY29yZC5yZXBvcnRFcnJvcnM9cmVjb3JkLmJhdGNoZXMuZmxhdE1hcChiYXRjaD0+YmF0Y2guZXJyb3JzfHxbXSk7ZnMud3JpdGVGaWxlU3luYyhlbnYuQUtfUUFfUkVTVUxUUyxKU09OLnN0cmluZ2lmeSh7Zm9ybWF0OidBS19CQVRDSF9SRVBPUlRfTk9UX1BMQVlXUklHSFRfTkFUSVZFJyxzb3VyY2Usc3RhdHM6cmVjb3JkLnN0YXRzLGJhdGNoZXM6cmVjb3JkLmJhdGNoZXN9LG51bGwsMikrJ1xuJyk7fQp9Y2F0Y2goZXJyb3Ipe3JlY29yZC5lcnJvcj1TdHJpbmcoZXJyb3Iuc3RhY2t8fGVycm9yKTtwcm9jZXNzLmV4aXRDb2RlPTE7fQpmaW5hbGx5ewogIGZvcihjb25zdCBwcm9jZXNzIG9mIFtjaGlsZCxzZXJ2ZXJdKWlmKHByb2Nlc3MmJnByb2Nlc3MuZXhpdENvZGU9PT1udWxsKXtjb25zdCBkb25lPW5ldyBQcm9taXNlKHJlc29sdmU9PnByb2Nlc3Mub25jZSgnZXhpdCcscmVzb2x2ZSkpO3Byb2Nlc3Mua2lsbCgpO2F3YWl0IFByb21pc2UucmFjZShbZG9uZSxuZXcgUHJvbWlzZShyZXNvbHZlPT5zZXRUaW1lb3V0KHJlc29sdmUsNTAwMCkpXSk7fQogIGF3YWl0IG5ldyBQcm9taXNlKHJlc29sdmU9PnRlc3RMb2cuZW5kKHJlc29sdmUpKTthd2FpdCBuZXcgUHJvbWlzZShyZXNvbHZlPT5zZXJ2ZXJMb2cuZW5kKHJlc29sdmUpKTsKICBmb3IoY29uc3QgZmlsZSBvZiBjb3BpZWQpaWYoZnMuZXhpc3RzU3luYyhmaWxlKSlmcy51bmxpbmtTeW5jKGluc2lkZShmaWxlKSk7CiAgcmVzdG9yZURhdGEoKTsKICByZWNvcmQuc25hcHNob3RDb3VudD1zbmFwc2hvdHMuc2l6ZTtyZWNvcmQuc291cmNlRGlmZj1naXQoWydkaWZmJywnLS1uYW1lLW9ubHknXSk7cmVjb3JkLmZpbmlzaGVkPW5ldyBEYXRlKCkudG9JU09TdHJpbmcoKTtyZWNvcmQucGhhc2U9J2ZpbmlzaGVkJztzYXZlKCk7CiAgZm9yKGNvbnN0IGZpbGUgb2YgW3NlcnZlckZpbGUsdGVzdEZpbGVdKWZzLndyaXRlRmlsZVN5bmMoZmlsZSsnLmd6JyxnemlwU3luYyhmcy5yZWFkRmlsZVN5bmMoZmlsZSkpKTsKICBjb25zb2xlLmxvZyhKU09OLnN0cmluZ2lmeSh7Li4ucmVjb3JkLG1hbmlmZXN0OnVuZGVmaW5lZH0pKTtpZihyZWNvcmQuc291cmNlRGlmZilwcm9jZXNzLmV4aXRDb2RlPTE7Cn0K:64:12\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "snapshotCount": 76,
+  "sourceDiff": "",
+  "finished": "2026-10-23T23:12:04.313Z"
+}

@@ -1,4 +1,3 @@
-
 'use server';
 
 import { readData, writeData, createDataItem, deleteDataItem } from '@/lib/data-service';
@@ -139,3 +138,14 @@ export async function deleteGastoGeneral(id: string): Promise<{ success: boolean
   });
 }
 
+
+export async function extractReceiptDataAction(input: { receiptDataUri: string }) {
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) throw new Error(permiso.error);
+  const { hayPresupuestoParaIA } = await import('@/lib/ai/consumo-servidor');
+  if (!(await hayPresupuestoParaIA())) {
+    throw new Error('Presupuesto de IA alcanzado para este período.');
+  }
+  const { extractReceiptData } = await import('@/ai/flows/extract-receipt-data');
+  return extractReceiptData(input);
+}

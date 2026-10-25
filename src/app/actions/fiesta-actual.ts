@@ -1,8 +1,8 @@
+'use server';
 
 /**
  * @fileOverview Central de Acciones de Servidor para la Planificación de Fiestas.
  */
-'use server';
 import { hoyEnUruguay } from '@/lib/utils';
 
 import * as FiestaModule from './fiesta/fiesta.actions';
@@ -93,7 +93,7 @@ export async function getInvitadosFiestaActual(fiestaId: string) { return await 
 export async function addInvitadoFiestaActual(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>, opciones?: { idIntento?: string }) { return await InvitadosModule.addInvitado(fiestaId, nuevoInvitadoData, opciones); }
 export async function updateInvitadoFiestaActual(fiestaId: string, invitadoActualizado: Invitado) { return await InvitadosModule.updateInvitado(fiestaId, invitadoActualizado); }
 export async function handleRsvpSubmissionFiestaActual(fiestaId: string, submission: any) { return await InvitadosModule.handleRsvpSubmission(fiestaId, submission); }
-export async function checkInGuestFiestaActual(fiestaId: string, guestId: string, qr?: { token: string | null; escaneadoEn?: string }) { return await InvitadosModule.checkInGuest(fiestaId, guestId, qr); }
+export async function checkInGuestFiestaActual(fiestaId: string, guestId: string, qr?: { token: string | null }, escaneadoEn?: string) { return await InvitadosModule.checkInGuest(fiestaId, guestId, qr, escaneadoEn); }
 export async function deleteInvitadoFiestaActual(fiestaId: string, invitadoId: string) { return await InvitadosModule.deleteInvitado(fiestaId, invitadoId); }
 export async function registrarQueAbrioLaInvitacion(fiestaId: string, guestId: string, guestAccessToken: string) {
   return await InvitadosModule.registrarQueAbrioLaInvitacion(fiestaId, guestId, guestAccessToken);
@@ -108,7 +108,6 @@ export async function updateProgramaFiestaActual(fiestaId: string, programa: any
 
 // --- PERSONAL Y PAGOS ---
 export async function updatePersonalFiestaActual(fiestaId: string, personal: any[]) { return await PersonalModule.updatePersonal(fiestaId, personal); }
-export async function updatePagosProveedoresFiestaActual(fiestaId: string, pagos: PagoProveedor[]) { return await PagosModule.updatePagosProveedores(fiestaId, pagos); }
 export async function agregarPagoProveedorFiestaActual(fiestaId: string, pago: PagoProveedor) { return await PagosModule.agregarPagoProveedor(fiestaId, pago); }
 
 // --- PORTAL Y PÁGINA WEB ---
@@ -134,7 +133,7 @@ export async function updateGestionCostosFiestaActual(fiestaId: string, costos: 
 export async function updateFotografiaYFilmacionFiestaActual(fiestaId: string, fotografia: FotografiaYFilmacionData) { return await FotografiaModule.updateFotografiaYFilmacion(fiestaId, fotografia); }
 export async function uploadDocumentoFiesta(formData: FormData) { return await DocumentosModule.uploadDocumento(formData); }
 export async function deleteDocumentoFiesta(fiestaId: string, docId: string) { return await DocumentosModule.deleteDocumento(fiestaId, docId); }
-export async function signContractDigitally(fiestaId: string, name: string, acceptedPlanPagos?: boolean) { return await DocumentosModule.signContractDigitally(fiestaId, name, acceptedPlanPagos); }
+export async function signContractDigitally(fiestaId: string, name: string, acceptedPlanPagos?: boolean, huellaVista?: string) { return await DocumentosModule.signContractDigitally(fiestaId, name, acceptedPlanPagos, huellaVista); }
 export async function uploadPhysicalContract(formData: FormData) { return await DocumentosModule.uploadPhysicalContract(formData); }
 export async function getContractSigningSummary(fiestaId: string) { return await DocumentosModule.getContractSigningSummary(fiestaId); }
 
@@ -160,6 +159,11 @@ export async function updateContratoFiestaActual(fiestaId: string, text: string,
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (fiesta?.contratoFirmaInfo?.isSigned) {
       return { success: false, error: 'No se puede modificar el contrato una vez firmado.' };
+    }
+    // Firmado en el portal también: cambiar el texto dejaba la constancia con la huella de un texto
+    // que ya no es el que se muestra (auditoría contable 22/10). El del salón es aparte.
+    if (tipo === 'servicios' && fiesta?.firmaDigitalConstancia) {
+      return { success: false, error: 'El cliente ya firmó este contrato en su portal: para cambiarlo hace falta una adenda.' };
     }
     return await FiestaModule.updateFiestaPartial(fiestaId, {
       ...(tipo === 'servicios' ? { contratoServicioTexto: text } : {}),

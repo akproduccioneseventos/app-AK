@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
-import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
+import { getAsistenteSettings, type AsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
-import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
+import { hoyEnUruguay } from '@/lib/utils';
 import {
   armarCuerpoFicha,
   armarInstruccionesDeVoz,
@@ -14,6 +15,31 @@ import {
 
 const USO_CLIENTE_FILE = 'asistente/voz-cliente-uso.json';
 const TOPE_MINUTOS_CLIENTE_POR_DEFECTO = 5;
+
+async function devolverMinutoCliente(fiestaId: string, hoyStr: string): Promise<void> {
+  try {
+    await mutarDocumentoConTransaccion<Record<string, { fecha: string; minutos: number }>>(
+      USO_CLIENTE_FILE,
+      {},
+      (registro) => {
+        const actual = registro || {};
+        const usoActual = actual[fiestaId];
+        if (!usoActual || usoActual.fecha !== hoyStr) {
+          return actual;
+        }
+        return {
+          ...actual,
+          [fiestaId]: {
+            fecha: hoyStr,
+            minutos: Math.max(0, (usoActual.minutos || 0) - 1),
+          },
+        };
+      }
+    );
+  } catch (err) {
+    console.warn('[VozCliente] Error al devolver minuto:', err);
+  }
+}
 
 export async function POST(request: Request) {
   let body: any = {};
@@ -38,23 +64,40 @@ export async function POST(request: Request) {
   }
 
   // 2. Interruptor y tope en Ajustes
-  const ajustes = await getAsistenteSettings().catch(() => ({}));
-  if ((ajustes as any).vozEnVivoClienteActiva === false) {
+  const ajustes: Partial<AsistenteSettings> = await getAsistenteSettings().catch(() => ({}));
+  if (ajustes.vozEnVivoClienteActiva === false) {
     return NextResponse.json(
       { error: 'La asistencia por voz para clientes está temporalmente desactivada.' },
       { status: 403 }
     );
   }
 
-  const tope = Math.max(1, Number((ajustes as any).vozEnVivoClienteMinutosPorDia) || TOPE_MINUTOS_CLIENTE_POR_DEFECTO);
+  const tope = Math.max(1, Number(ajustes.vozEnVivoClienteMinutosPorDia) || TOPE_MINUTOS_CLIENTE_POR_DEFECTO);
 
-  // 3. Verificación de uso del día (5 min/día por fiesta)
-  const hoyStr = new Date().toISOString().split('T')[0];
-  const registroUso = await readData<Record<string, { fecha: string; minutos: number }>>(USO_CLIENTE_FILE, {});
-  const usoActual = registroUso[fiestaId] || { fecha: hoyStr, minutos: 0 };
-  const minutosUsados = usoActual.fecha === hoyStr ? usoActual.minutos : 0;
+  // 3. Verificación y reserva atómica de minutos del día (5 min/día por fiesta)
+  const hoyStr = hoyEnUruguay();
+  let alcanzadoTope = false;
 
-  if (minutosUsados >= tope) {
+  await mutarDocumentoConTransaccion<Record<string, { fecha: string; minutos: number }>>(
+    USO_CLIENTE_FILE,
+    {},
+    (registro) => {
+      const actual = registro || {};
+      const usoActual = actual[fiestaId] || { fecha: hoyStr, minutos: 0 };
+      const minutos = usoActual.fecha === hoyStr ? usoActual.minutos : 0;
+      if (minutos >= tope) {
+        alcanzadoTope = true;
+        return null;
+      }
+      alcanzadoTope = false;
+      return {
+        ...actual,
+        [fiestaId]: { fecha: hoyStr, minutos: minutos + 1 },
+      };
+    }
+  );
+
+  if (alcanzadoTope) {
     return NextResponse.json(
       { error: `Alcanzaste el tope de ${tope} minutos de voz de hoy para tu fiesta. Podés seguir conversando por el chat escrito.` },
       { status: 429 }
@@ -63,6 +106,7 @@ export async function POST(request: Request) {
 
   // 4. Presupuesto global de IA
   if (!(await hayPresupuestoParaIA().catch(() => false))) {
+    await devolverMinutoCliente(fiestaId, hoyStr);
     return NextResponse.json(
       { error: 'El asistente por voz está momentáneamente ocupado. Podés escribirnos en el chat.' },
       { status: 503 }
@@ -86,14 +130,9 @@ export async function POST(request: Request) {
     'Regla de Oro: Solo respondé sobre los preparativos de SU fiesta. No ejecutes acciones directas; si pide cambios o consultas especiales, decile que el equipo lo coordinará con él.',
   ].join('\n');
 
-  // Registrar consumo y minutos
-  await registrarConsumoIA('voz-cliente').catch(() => {});
-  registroUso[fiestaId] = { fecha: hoyStr, minutos: minutosUsados + 1 };
-  await writeData(USO_CLIENTE_FILE, registroUso).catch(() => {});
-
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
   const version = versionApiEnVivo();
-  const voz = vozValida((ajustes as any).vozSeleccionada);
+  const voz = vozValida(ajustes.vozSeleccionada);
   const instrucciones = armarInstruccionesDeVoz(contextoLimpio);
 
   // Si hay API key real, pide la ficha temporal de Gemini
@@ -107,23 +146,27 @@ export async function POST(request: Request) {
       });
       const data: any = await res.json().catch(() => ({}));
       if (res.ok && data?.name) {
+        // Registrar consumo de IA SOLO si Gemini entregó la ficha de verdad
+        // no pasa nada si falla: la llamada ya tiene ficha válida y no se debe cortar por la métrica
+        await registrarConsumoIA('voz-cliente').catch((err) => {
+          console.warn('[VozCliente] Error registrando consumo IA:', err);
+        });
         return NextResponse.json({
           token: data.name,
           model: modelo,
           voz,
           segundosMaximos: 60,
-          fiestaId,
         });
       }
     } catch {
-      // Fallback
+      // Si falla la generación de la ficha en Gemini, salta a la devolución
     }
   }
 
-  return NextResponse.json({
-    ok: true,
-    mensaje: 'Sesión de voz habilitada para el cliente.',
-    fiestaId,
-    segundosMaximos: 60,
-  });
+  // Si no hay ficha, devolvemos el minuto reservado y retornamos 503 sin token
+  await devolverMinutoCliente(fiestaId, hoyStr);
+  return NextResponse.json(
+    { error: 'La llamada no está disponible ahora. Podés escribirnos en el chat.' },
+    { status: 503 }
+  );
 }

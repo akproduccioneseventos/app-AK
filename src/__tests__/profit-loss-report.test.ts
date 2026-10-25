@@ -5,6 +5,11 @@ jest.mock('@/lib/auth/session-token', () => ({
 jest.mock('@/app/actions/invoices', () => ({ getInvoices: jest.fn() }));
 jest.mock('@/app/actions/presupuestos', () => ({ getPresupuestos: jest.fn() }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getAllFiestas: jest.fn() }));
+// Las cuentas del servidor leen los roles por acá (orden 197): mismo dato que el mock de getRoles.
+jest.mock('@/lib/roles/leer-roles-interno', () => ({
+  leerRolesInterno: () => require('@/app/actions/roles').getRoles(),
+}));
+
 jest.mock('@/app/actions/roles', () => ({ getRoles: jest.fn() }));
 jest.mock('@/app/actions/gastos', () => ({ getGastosGenerales: jest.fn() }));
 

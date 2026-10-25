@@ -32,12 +32,6 @@ export async function middleware(request: NextRequest) {
     return new NextResponse(null, { status: 404 });
   }
 
-  // Orden 192: Unificación de redes sociales en el Centro de Presencia Digital
-  if (pathname === '/empresa/redes-sociales') {
-    const targetUrl = new URL('/empresa/presencia-digital?tab=publicaciones', request.url);
-    return NextResponse.redirect(targetUrl);
-  }
-
   const requestId = crypto.randomUUID().substring(0, 8);
 
   if (isPublicPath(request)) {

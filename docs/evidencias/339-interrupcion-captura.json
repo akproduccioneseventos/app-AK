@@ -1,0 +1,15 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "at": "2026-10-24T07:46:57.309Z",
+  "appEdited": false,
+  "reason": "Own unbounded CDP diagnostic capture stalled after4rows; preserve original, stop ONLY verified own Playwright tree. Parent/server left for original finally cleanup.",
+  "processInfo": {
+    "ProcessId": 2988,
+    "ParentProcessId": 13116,
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/node_modules/@playwright/test/cli.js test --project chromium-desktop --config 208-config.ts --output C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\33801-artifacts"
+  },
+  "rows": 4,
+  "exitCode": 0,
+  "stdout": "CORRECTO: el proceso con PID 11972 (proceso secundario de PID 10820)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 4200 (proceso secundario de PID 10820)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 1940 (proceso secundario de PID 10820)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 3404 (proceso secundario de PID 10820)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 1888 (proceso secundario de PID 10820)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 10820 (proceso secundario de PID 4060)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 4060 (proceso secundario de PID 2988)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 2988 (proceso secundario de PID 13116)\r\nha sido terminado.\r\n",
+  "stderr": ""
+}

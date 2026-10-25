@@ -1,0 +1,14 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "at": "2026-10-24T07:56:49.610Z",
+  "appEdited": false,
+  "reason": "Corrected prior attribution: forensic locator(main).innerText() had no timeout and awaited absent main on div-based Bogue.33802 stalls before screenshot too. Not proof of CDP/app freeze.333 now checks element count and bounds text reads1500ms. Stop ONLY verified own Playwright; parent finally restores data/server.",
+  "processInfo": {
+    "ProcessId": 6696,
+    "ParentProcessId": 10232,
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/node_modules/@playwright/test/cli.js test --project chromium-desktop --config 208-config.ts --output C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\33802-artifacts"
+  },
+  "exitCode": 0,
+  "stdout": "CORRECTO: el proceso con PID 15156 (proceso secundario de PID 13884)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 5812 (proceso secundario de PID 13884)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 13096 (proceso secundario de PID 13884)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 8468 (proceso secundario de PID 13884)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 13884 (proceso secundario de PID 13748)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 13748 (proceso secundario de PID 6696)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 6696 (proceso secundario de PID 10232)\r\nha sido terminado.\r\n",
+  "stderr": ""
+}

@@ -11,6 +11,7 @@ import { createDataItem } from '@/lib/data-service';
 
 jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({
   abrirPuertaDeLaTarea: jest.fn(async () => ({ permitido: true, conClave: true })),
+  respuestaDeLaTarea: (_puerta: unknown, cuerpo: unknown) => cuerpo,
 }));
 jest.mock('@/lib/automatico/tareas-automaticas', () => ({ marcarCorrida: jest.fn() }));
 jest.mock('@/lib/auth/require-session', () => ({

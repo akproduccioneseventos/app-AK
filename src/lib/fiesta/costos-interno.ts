@@ -1,36 +1,48 @@
 import 'server-only';
+
 import type { GestionCostosData } from '@/types/fiesta';
-import { updateFiestaPartial } from '@/app/actions/fiesta/fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
+import { errorEnLosCostos } from '@/lib/fiesta/validar-costos';
 
 /**
- * Actualización interna de costos para sincronizaciones automáticas desde el servidor
- * (menú, decoración, lavandería, personal) sin exponer un endpoint público sin permiso.
+ * GUARDAR LOS COSTOS DESDE UNA CUENTA DEL SERVIDOR (orden 183, 20/10/2026).
+ *
+ * Escribir costos a mano es de GANANCIAS (`updateGestionCostos`). Pero varias cuentas automáticas
+ * —decoración, lavandería, sincronizar todo— los recalculan cuando otra persona guarda algo, y esa
+ * persona puede ser una secretaria o un operador. Esas cuentas guardan por acá: no es una acción de
+ * servidor (`server-only`), así que el navegador no la puede llamar para saltearse el permiso.
+ * Guarda adentro del turno de la fiesta, sobre la versión de ese momento.
  */
-export async function updateGestionCostosInterno(
+export async function guardarCostosInterno(
   fiestaId: string,
-  costos: GestionCostosData
+  costos: GestionCostosData,
 ): Promise<{ success: boolean; updatedData?: GestionCostosData; error?: string }> {
-  if (!fiestaId) return { success: false, error: 'ID de Fiesta no proporcionado.' };
+  const error = errorEnLosCostos(costos);
+  if (error) return { success: false, error };
+  const r = await actualizarFiesta(fiestaId, (actual) => ({ ...actual, gestionCostos: costos }), { soloEquipo: true });
+  return r.success ? { success: true, updatedData: costos } : { success: false, error: r.error || 'No se pudieron guardar los costos.' };
+}
 
-  if (costos?.costosItems && Array.isArray(costos.costosItems)) {
-    for (const item of costos.costosItems) {
-      if (item.montoEstimado !== undefined && item.montoEstimado !== null) {
-        const val = Number(item.montoEstimado);
-        if (!Number.isFinite(val) || val < 0) {
-          return {
-            success: false,
-            error: `El monto estimado de "${item.nombre || 'ítem'}" debe ser un número válido mayor o igual a 0.`,
-          };
-        }
-      }
-    }
-  }
-
-  try {
-    const result = await updateFiestaPartial(fiestaId, { gestionCostos: costos }, { internalSync: true });
-    if (!result.success) throw new Error(result.error || 'No se pudieron guardar los costos.');
-    return { success: true, updatedData: costos };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
+/**
+ * Lo mismo, pero la cuenta se hace sobre los costos de ESE momento, adentro de la escritura. Las
+ * cuentas automáticas (sincronizar todo, lavandería) armaban los costos con una lectura de antes y
+ * guardaban todo: un costo cargado a mano en el medio desaparecía, y las dos pantallas decían
+ * "guardado" (auditoría contable del 22/10/2026).
+ */
+export async function mutarCostosInterno(
+  fiestaId: string,
+  cambiar: (actual: GestionCostosData) => GestionCostosData,
+): Promise<{ success: boolean; updatedData?: GestionCostosData; error?: string }> {
+  let resultado: GestionCostosData | null = null;
+  let error: string | null = null;
+  const r = await actualizarFiesta(fiestaId, (actual) => {
+    error = null;
+    resultado = cambiar(actual.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 });
+    error = errorEnLosCostos(resultado);
+    if (error) return actual;
+    return { ...actual, gestionCostos: resultado };
+  }, { soloEquipo: true });
+  if (error) return { success: false, error };
+  if (!r.success || !resultado) return { success: false, error: r.error || 'No se pudieron guardar los costos.' };
+  return { success: true, updatedData: resultado };
 }

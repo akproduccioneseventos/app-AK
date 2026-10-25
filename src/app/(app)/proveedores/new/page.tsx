@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -29,7 +28,7 @@ export default function NewProveedorPage() {
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
   const [notas, setNotas] = useState('');
-  
+
   const isServicio = tipo === 'Servicio Subcontratado';
 
   const handleSubmit = async (e: FormEvent) => {
@@ -48,10 +47,10 @@ export default function NewProveedorPage() {
     }
 
     setIsSaving(true);
-    
-    const proveedorData: NuevoProveedorFormData = { 
+
+    const proveedorData: NuevoProveedorFormData = {
       tipo,
-      nombre: nombre.trim(), 
+      nombre: nombre.trim(),
       nombreEmpresa: nombreEmpresa.trim(),
       servicioPrincipal: servicioPrincipal.trim(),
       telefono: telefono.trim() || undefined,
@@ -91,7 +90,7 @@ export default function NewProveedorPage() {
             Volver a Proveedores
           </Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Información del Registro</CardTitle>
@@ -112,7 +111,7 @@ export default function NewProveedorPage() {
                     </div>
                 </RadioGroup>
             </div>
-            
+
              <div className="space-y-2">
                 <Label htmlFor="company-name">{isServicio ? 'Nombre del Servicio*' : 'Nombre de la Empresa*'}</Label>
                 <Input id="company-name" value={nombreEmpresa} onChange={(e) => setNombreEmpresa(e.target.value)} placeholder={isServicio ? 'Ej: DJ Master, Fotografía Premium' : 'Ej: Insumos Fiesta S.A.'} required />
@@ -127,7 +126,7 @@ export default function NewProveedorPage() {
               <Label htmlFor="proveedor-servicio">{isServicio ? 'Tipo de Servicio*' : 'Categoría Principal*'}</Label>
               <Input id="proveedor-servicio" value={servicioPrincipal} onChange={(e) => setServicioPrincipal(e.target.value)} placeholder={isServicio ? 'Ej: Fotografía, DJ, Animación' : 'Ej: Catering, Mantelería, Descartables'} required />
             </div>
-            
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                     <Label htmlFor="proveedor-telefono">Teléfono</Label>
@@ -143,7 +142,7 @@ export default function NewProveedorPage() {
               <Label htmlFor="proveedor-notas">Notas Adicionales</Label>
               <Textarea id="proveedor-notas" value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Detalles de contacto, calidad del servicio, etc." rows={3} />
             </div>
-            
+
           </CardContent>
           <CardFooter className="border-t pt-6">
             <Button type="submit" className="w-full sm:w-auto" disabled={isSaving}>

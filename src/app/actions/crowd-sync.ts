@@ -1,6 +1,7 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { requireEventPermission } from '@/lib/auth/event-access';
 import { PERMISOS } from '@/lib/auth/perfiles';
@@ -25,7 +26,7 @@ export async function getCrowdSyncStateAction(fiestaId: string): Promise<{
   state?: CrowdSyncState;
 }> {
   try {
-    const list = await readData<Record<string, CrowdSyncState>>(CROWD_SYNC_FILE, {});
+    const list = await readData<Record<string, CrowdSyncState>>(CROWD_SYNC_FILE, {}).catch(() => ({} as Record<string, CrowdSyncState>));
     const state = list[fiestaId] || {
       fiestaId,
       active: false,
@@ -56,33 +57,43 @@ export async function setCrowdSyncStateAction(params: {
     await requireAppSession();
     await requireEventPermission(params.fiestaId, PERMISOS.NOCHE);
 
-    const list = await readData<Record<string, CrowdSyncState>>(CROWD_SYNC_FILE, {});
-    const prev = list[params.fiestaId] || {
-      fiestaId: params.fiestaId,
-      active: false,
-      mode: 'coldplay_pulsing',
-      title: '¡Sinfonía de Luces en Vivo!',
-      subtitle: 'Sostené tu celular en alto con la pantalla hacia la pista',
-      primaryColor: '#eab308',
-      bpm: 120,
-      startedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    let nextState: CrowdSyncState | undefined;
 
-    const nextState: CrowdSyncState = {
-      ...prev,
-      active: params.active,
-      mode: params.mode || prev.mode,
-      title: params.title || prev.title,
-      subtitle: params.subtitle || prev.subtitle,
-      primaryColor: params.primaryColor || prev.primaryColor,
-      bpm: params.bpm || prev.bpm,
-      updatedAt: new Date().toISOString(),
-      startedAt: params.active ? new Date().toISOString() : prev.startedAt,
-    };
+    await mutarDocumento<Record<string, CrowdSyncState>>(
+      CROWD_SYNC_FILE,
+      {},
+      (list) => {
+        const prev = list[params.fiestaId] || {
+          fiestaId: params.fiestaId,
+          active: false,
+          mode: 'coldplay_pulsing',
+          title: '¡Sinfonía de Luces en Vivo!',
+          subtitle: 'Sostené tu celular en alto con la pantalla hacia la pista',
+          primaryColor: '#eab308',
+          bpm: 120,
+          startedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
 
-    list[params.fiestaId] = nextState;
-    await writeData(CROWD_SYNC_FILE, list);
+        nextState = {
+          ...prev,
+          active: params.active,
+          mode: params.mode || prev.mode,
+          title: params.title || prev.title,
+          subtitle: params.subtitle || prev.subtitle,
+          primaryColor: params.primaryColor || prev.primaryColor,
+          bpm: params.bpm || prev.bpm,
+          updatedAt: new Date().toISOString(),
+          startedAt: params.active ? new Date().toISOString() : prev.startedAt,
+        };
+
+        return {
+          ...list,
+          [params.fiestaId]: nextState,
+        };
+      }
+    );
+
     return { success: true, state: nextState };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al actualizar CrowdSync.' };

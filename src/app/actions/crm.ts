@@ -1,5 +1,5 @@
-
 'use server';
+
 import { createHash } from 'crypto';
 
 import { idDelIntento } from '@/lib/intento-en-servidor';
@@ -19,7 +19,7 @@ import * as logger from '@/lib/logger';
 import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
 import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
-import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+import { PERMISOS, puede, type Permiso } from '@/lib/auth/perfiles';
 import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
 import { canalDelProspecto, sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
@@ -329,7 +329,7 @@ export async function scheduleCrmMeeting(leadId: string, date: string, title?: s
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar leads.' };
+    if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden eliminar leads.' };
 
     // Un prospecto que ya firmó no se borra. Su presupuesto quedaría sin dueño y
     // se pierde de dónde vino esa venta: al buscar el origen de un cobro no
@@ -368,7 +368,7 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
     try {
         const auth = await verifySession();
         if (!auth.success) return { success: false, error: auth.error };
-        if (auth.user?.role !== 'admin') {
+        if (!puede(auth.user, PERMISOS.ADMINISTRACION)) {
             return { success: false, error: 'Acceso restringido a administradores.' };
         }
         const leads = await getCrmLeads();
@@ -463,7 +463,7 @@ export async function registerContractDeposit(params: {
    * caja y no se puede reconstruir después.
    */
   metodoPago: MetodoPago;
-}): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
+}): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string; avisoFactura?: string }> {
   const auth = await sesionConPermiso(PERMISOS.CONTABILIDAD);
   if (!auth.success) throw new Error('No autorizado');
 
@@ -516,6 +516,7 @@ export async function registerContractDeposit(params: {
   }, { preserveStoredTotal: true });
 
   // Sync invoice payments if invoice exists
+  let avisoFactura: string | undefined;
   if (presupuesto.invoiceId) {
     try {
       const invoice = await getInvoiceById(presupuesto.invoiceId);
@@ -537,17 +538,23 @@ export async function registerContractDeposit(params: {
           ...invoice,
           payments: [...(invoice.payments ?? []), invoicePayment],
         };
-        await saveInvoice(updatedInvoice);
+        // Se mira si la factura lo tomó: devuelve el error en vez de tirarlo, y antes la seña quedaba
+        // en el presupuesto y no en la factura sin que nadie se enterara (auditoría contable 22/10).
+        const guardada = await saveInvoice(updatedInvoice);
+        if (!guardada.success) {
+          avisoFactura = `La seña quedó en el presupuesto, pero no en su factura: ${guardada.error || 'la factura no la aceptó'}. Revisala en Facturas.`;
+        }
       }
     } catch (e) {
       logger.warn('[registerContractDeposit] Error syncing invoice payments', e);
+      avisoFactura = 'La seña quedó en el presupuesto, pero no se pudo pasar a su factura. Revisala en Facturas.';
     }
   }
 
-  return { updatedPresupuesto, pagoId };
+  return { updatedPresupuesto, pagoId, ...(avisoFactura ? { avisoFactura } : {}) };
 }
 
-export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string; aviso?: string }> {
   try {
     const auth = await sesionConPermiso(PERMISOS.CONTABILIDAD);
     if (!auth.success) return { success: false, error: auth.error };
@@ -666,6 +673,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
 
     // 4. Register deposit via registerContractDeposit
     let finalPresupuesto = presupuestoWithFormData;
+    let avisoDeLaSena: string | undefined;
     if (formMontoSenia !== undefined && formMontoSenia > 0) {
       // No se adivina cómo entró la plata: antes, si no venía el método, se
       // asentaba "Efectivo" y una transferencia quedaba anotada como plata en
@@ -673,13 +681,14 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       if (!formMetodoPago) {
         throw new Error('Falta indicar cómo entró la seña (efectivo, transferencia, etc.).');
       }
-      const { updatedPresupuesto } = await registerContractDeposit({
+      const { updatedPresupuesto, avisoFactura } = await registerContractDeposit({
         presupuesto: presupuestoWithFormData,
         monto: formMontoSenia,
         referencia: 'Seña registrada al firmar contrato',
         metodoPago: formMetodoPago,
       });
       finalPresupuesto = updatedPresupuesto;
+      avisoDeLaSena = avisoFactura;
     }
 
     // 5. Save the fully updated presupuesto

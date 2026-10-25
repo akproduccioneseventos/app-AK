@@ -11,14 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import {
+import { RefreshCw,
   ArrowLeft, Save, Loader2, Eye,
   Images, Globe, MapPin, Music, Gift, QrCode,
   PartyPopper, Star, Instagram, Heart, Sparkles, Users, MessageCircle, Facebook, Trash2, Mic, Video,
-} from 'lucide-react';
+ } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, GuestPortalSettings, GuestExperienceSettings } from '@/types/fiesta';
-import { getFiestaById, updateGuestPortalSettings, updateGuestExperienceSettings } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, getFiestaParaPantalla, updateGuestPortalSettings, updateGuestExperienceSettings } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultGuestExperienceSettings } from '@/lib/fiesta-defaults';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 
@@ -122,6 +122,7 @@ function GuestModuleContent() {
   const [settings, setSettings] = useState<GuestPortalSettings>(DEFAULT_SETTINGS);
   const [ges, setGes] = useState<GuestExperienceSettings>(defaultGuestExperienceSettings);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   const loadData = useCallback(async () => {
@@ -131,14 +132,23 @@ function GuestModuleContent() {
       return;
     }
     setIsLoading(true);
+    setError(null);
     try {
-      const data = await getFiestaById(fiestaId);
-      if (!data) throw new Error('Evento no encontrado');
+      const { fiesta: data, fallo } = await getFiestaParaPantalla(fiestaId);
+      if (fallo) {
+        setError('No se pudo cargar la fiesta');
+        return;
+      }
+      if (!data) {
+        setFiesta(null);
+        return;
+      }
       setFiesta(data);
       setSettings({ ...DEFAULT_SETTINGS, ...(data.guestPortalSettings || {}) });
       setGes({ ...defaultGuestExperienceSettings, ...(data.guestExperienceSettings || {}) });
     } catch (e: unknown) {
-      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error al cargar', variant: 'destructive' });
+      setError('No se pudo cargar la fiesta');
+      toast({ title: 'Error', description: 'No se pudo cargar la fiesta', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -174,18 +184,38 @@ function GuestModuleContent() {
 
   const enabledCount = FEATURE_CONFIG.filter(f => settings[f.key]).length;
 
-  if (isLoading || !fiesta) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
       </div>
     );
   }
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen space-y-4 text-center">
+        <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => loadData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
+  }
+  if (!fiesta) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen space-y-4 text-center">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
+      </div>
+    );
+  }
 
   const nombreEvento = fiesta.configuracion.nombreEvento || 'El Evento';
   // Validate hex color to prevent CSS injection
-  const accentColor = /^#[0-9A-Fa-f]{3,8}$/.test(settings.customAccentColor || '') 
-    ? settings.customAccentColor! 
+  const accentColor = /^#[0-9A-Fa-f]{3,8}$/.test(settings.customAccentColor || '')
+    ? settings.customAccentColor!
     : '#9333ea';
 
   return (

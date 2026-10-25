@@ -1,0 +1,203 @@
+{
+  "source": "baa034fd25ab77b886e7096105a6114f0336bfdc",
+  "candidate": "b91bdbeff7d3db7489fabdadd599776376c0577a",
+  "hashes": {
+    "src/lib/utils.ts": {
+      "source": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+      "candidate": "3d7d563b562ff095779a89be8e4ad78fed98d52e43137346e804d9ccd891c65f",
+      "equal": true
+    },
+    "src/lib/invitaciones/recordatorio-no-abiertas.ts": {
+      "source": "22b504ab8baf5fc7278473ee5419833bb6cde77ca2258ad0e1a91d9363f3eea0",
+      "candidate": "22b504ab8baf5fc7278473ee5419833bb6cde77ca2258ad0e1a91d9363f3eea0",
+      "equal": true
+    },
+    "src/lib/automatico/puerta-de-las-tareas.ts": {
+      "source": "358875e9072aafb0d0b6940e499588f9bc11e236c098e39c4b6caf257602ff96",
+      "candidate": "358875e9072aafb0d0b6940e499588f9bc11e236c098e39c4b6caf257602ff96",
+      "equal": true
+    },
+    "src/app/api/cron/recordar-invitacion-no-abierta/route.ts": {
+      "source": "49c513e4a5ca75255f81f6a99e7507870fae9b4cf139b073e7959b5b15f0540e",
+      "candidate": "49c513e4a5ca75255f81f6a99e7507870fae9b4cf139b073e7959b5b15f0540e",
+      "equal": true
+    }
+  },
+  "cases": [
+    {
+      "id": "configured-key-denies-anonymous",
+      "pass": true,
+      "observed": {
+        "status": 401,
+        "mails": 0,
+        "marked": []
+      }
+    },
+    {
+      "id": "authorized-key-drives-engine-on-due-day",
+      "pass": true,
+      "observed": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 1,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 1,
+        "marked": [
+          "recordar-invitacion-no-abierta"
+        ]
+      }
+    },
+    {
+      "id": "no-key-public-task-cannot-send-to-a-person",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "recortada": true
+        },
+        "mails": 1,
+        "marked": [
+          "recordar-invitacion-no-abierta"
+        ],
+        "guest": {
+          "id": "qa248-guest",
+          "nombre": "Persona QA248",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa248-guest-token",
+          "rsvp": "Pendiente",
+          "recordatoriosApertura": [
+            "2026-10-01"
+          ]
+        }
+      }
+    },
+    {
+      "id": "rescheduled-event-is-rechecked-in-reservation",
+      "pass": false,
+      "observed": {
+        "result": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 1,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "newDate": "2026-12-01",
+        "mails": 1,
+        "guest": {
+          "id": "qa248-guest",
+          "nombre": "Persona QA248",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa248-guest-token",
+          "rsvp": "Pendiente",
+          "recordatoriosApertura": [
+            "2026-10-01"
+          ]
+        }
+      }
+    },
+    {
+      "id": "definite-delivery-and-fallback-failure-remains-retryable",
+      "pass": false,
+      "observed": {
+        "first": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 1,
+          "omitidos": 0
+        },
+        "second": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 1
+        },
+        "mails": 1,
+        "scheduledAttempts": 1,
+        "guest": {
+          "id": "qa248-guest",
+          "nombre": "Persona QA248",
+          "contacto": "persona@qa.invalid",
+          "guestAccessToken": "qa248-guest-token",
+          "rsvp": "Pendiente",
+          "recordatoriosApertura": [
+            "2026-10-01"
+          ]
+        }
+      }
+    },
+    {
+      "id": "reservation-write-failure-does-not-mark-task-successful",
+      "pass": false,
+      "observed": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 0,
+        "marked": [
+          "recordar-invitacion-no-abierta"
+        ]
+      }
+    },
+    {
+      "id": "opened-between-list-and-reservation-is-not-contacted",
+      "pass": true,
+      "observed": {
+        "result": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 1,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 0
+      }
+    },
+    {
+      "id": "outside-21-and-10-day-window-does-not-send",
+      "pass": true,
+      "observed": {
+        "result": {
+          "corrio": true,
+          "totalFiestas": 1,
+          "totalInvitadosEvaluados": 0,
+          "enviados": 0,
+          "fallados": 0,
+          "omitidos": 0
+        },
+        "mails": 0
+      }
+    }
+  ],
+  "warnings": [
+    "[recordatorio] No se pudo agendar contingencia: QA248_FALLBACK_FAILED"
+  ],
+  "summary": {
+    "total": 8,
+    "pass": 4,
+    "fail": 4
+  },
+  "appEdited": false,
+  "externalNetwork": false,
+  "scope": "Actual engine, cron GET and public gate, actual Uruguay date helpers. Controlled storage/reservation/provider/fallback/clock/rate-limit and run-marker adapters, Request/Response in-process; NO Firestore SDK, signed HTTP server, Gmail/WhatsApp/account or production execution."
+}

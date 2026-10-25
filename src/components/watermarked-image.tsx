@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -20,7 +19,7 @@ export function WatermarkedImage({
   containerClassName,
   ...props
 }: WatermarkedImageProps) {
-  
+
   // For standard print media (which might not render watermarks well on top of images)
   const PrintWatermark = () => {
     if (!watermarkSrc) {
@@ -37,7 +36,7 @@ export function WatermarkedImage({
       </div>
     );
   };
-  
+
   if (!src) {
     return (
       <>

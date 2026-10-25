@@ -1,0 +1,95 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "targets": {
+    "gemini1337": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+    "claudePublic": "fc5e606a4bf8eba0cb93779029440387d06d14af"
+  },
+  "comparisons": [
+    {
+      "file": "src/app/actions/google-workspace.ts",
+      "symbol": "getEmployeeWorkspacePortal",
+      "sourceHash": "0bbe0c3d89c5c7884b1eebc09e4df94a2073833665f43c16dc66f6d7cdcb4de9",
+      "targets": {
+        "gemini1337": {
+          "sha": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+          "identical": false,
+          "hash": "7817b0d7ebb6a1e6ce2698546cc9a09703309e1d5cdd93239b3fde4e20ccf899"
+        },
+        "claudePublic": {
+          "sha": "fc5e606a4bf8eba0cb93779029440387d06d14af",
+          "identical": true,
+          "hash": "0bbe0c3d89c5c7884b1eebc09e4df94a2073833665f43c16dc66f6d7cdcb4de9"
+        }
+      }
+    },
+    {
+      "file": "src/app/actions/empleados.ts",
+      "symbol": "getEmpleados",
+      "sourceHash": "180fdbc0cbe230509c328fd5d4cb4ad2b172f4c80f836549fe936a630e96e78e",
+      "targets": {
+        "gemini1337": {
+          "sha": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+          "identical": true,
+          "hash": "180fdbc0cbe230509c328fd5d4cb4ad2b172f4c80f836549fe936a630e96e78e"
+        },
+        "claudePublic": {
+          "sha": "fc5e606a4bf8eba0cb93779029440387d06d14af",
+          "identical": true,
+          "hash": "180fdbc0cbe230509c328fd5d4cb4ad2b172f4c80f836549fe936a630e96e78e"
+        }
+      }
+    },
+    {
+      "file": "src/app/actions/fiesta/fiesta.actions.ts",
+      "symbol": "getFiestas",
+      "sourceHash": "7f0939e700866d1ed401b305b7ccb1cc1f1d99c74552085153218405f26e49c1",
+      "targets": {
+        "gemini1337": {
+          "sha": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+          "identical": true,
+          "hash": "7f0939e700866d1ed401b305b7ccb1cc1f1d99c74552085153218405f26e49c1"
+        },
+        "claudePublic": {
+          "sha": "fc5e606a4bf8eba0cb93779029440387d06d14af",
+          "identical": true,
+          "hash": "7f0939e700866d1ed401b305b7ccb1cc1f1d99c74552085153218405f26e49c1"
+        }
+      }
+    },
+    {
+      "file": "src/app/actions/fiesta/fiesta.actions.ts",
+      "symbol": "requireEquipo",
+      "sourceHash": "1a2a7e0e205860236053ebbb590f0e4934fd94b97d347425d9a944c7ebfd62c8",
+      "targets": {
+        "gemini1337": {
+          "sha": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+          "identical": false,
+          "hash": "29d437ceb32939986864ac109334262a64a468f3254cdf3ea80214dde0605cba"
+        },
+        "claudePublic": {
+          "sha": "fc5e606a4bf8eba0cb93779029440387d06d14af",
+          "identical": true,
+          "hash": "1a2a7e0e205860236053ebbb590f0e4934fd94b97d347425d9a944c7ebfd62c8"
+        }
+      }
+    },
+    {
+      "file": "src/lib/auth/equipo-de-la-fiesta.ts",
+      "symbol": "usuarioDelEquipo",
+      "sourceHash": "e05a1b1e70871e936047b5f31b07c209d66928716ed160d0e181d29354238294",
+      "targets": {
+        "gemini1337": {
+          "sha": "45a0b1d4783ad58846c2e2d07ad8f318287024bf",
+          "identical": true,
+          "hash": "e05a1b1e70871e936047b5f31b07c209d66928716ed160d0e181d29354238294"
+        },
+        "claudePublic": {
+          "sha": "fc5e606a4bf8eba0cb93779029440387d06d14af",
+          "identical": true,
+          "hash": "e05a1b1e70871e936047b5f31b07c209d66928716ed160d0e181d29354238294"
+        }
+      }
+    }
+  ],
+  "limits": "Function-source comparison only; not transitive equivalence or private unpublished work"
+}

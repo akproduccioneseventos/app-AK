@@ -1,5 +1,7 @@
 'use client';
 
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -35,6 +37,7 @@ import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 import { armarAlbumInteligente, type AlbumDigitalCompleto, type RecuerdoAlbum } from '@/lib/album/armar-album';
@@ -42,10 +45,9 @@ import { bajarRecuerdosParaZip, resumirEntrega } from '@/lib/album/armar-zip-del
 import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
 import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
-import { filtrarPorEstacion } from '@/lib/entertainment/station-config';
 
 type ViewMode = 'libro' | 'cuadricula';
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'touchpix' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
 
 function isVideo(url: string = ''): boolean {
   return url.endsWith('.mp4') || url.endsWith('.webm') || url.includes('video');
@@ -243,6 +245,9 @@ export default function PublicAlbumPage() {
   };
 
   const filteredPosts = useMemo(() => {
+    if (activeTab === 'invitados') {
+      return posts.filter((p) => !p.sourceModule || p.sourceModule === 'muro' || p.sourceModule === 'invitado');
+    }
     return filtrarPorEstacion(posts, activeTab);
   }, [posts, activeTab]);
 
@@ -276,13 +281,7 @@ export default function PublicAlbumPage() {
   }, [lightboxIndex, showNext, showPrev, viewMode, paginaActual, albumDigital.totalPaginas]);
 
   const nombreFiesta = fiesta?.configuracion?.nombreEvento || 'Álbum del Evento';
-  const fechaFiesta = fiesta?.configuracion?.fechaEvento
-    ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString('es-UY', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
-    : '';
+  const fechaFiesta = fiesta?.configuracion?.fechaEvento ? formatearFechaEvento(fiesta.configuracion.fechaEvento) : '';
 
   const paginaItems = paginaActual > 0 ? albumDigital.paginas[paginaActual - 1]?.recuerdos || [] : [];
 
@@ -605,6 +604,7 @@ export default function PublicAlbumPage() {
                 { id: 'todas', label: `Todas (${posts.length})` },
                 { id: 'fotocabina', label: '📸 Fotocabina' },
                 { id: '360', label: '🌐 360°' },
+                { id: 'touchpix', label: '🎬 Touchpix AI' },
                 { id: 'espejo', label: '✨ Espejo' },
                 { id: 'bogue', label: '⚡ Boomerang' },
                 { id: 'buzon', label: '🎙️ Buzón' },

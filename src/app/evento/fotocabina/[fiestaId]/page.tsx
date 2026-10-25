@@ -74,7 +74,7 @@ import {
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
-import { dibujarFiltroDeCara, FILTROS_DISPONIBLES } from '@/lib/entretenimiento/filtros-cara';
+import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara, FILTROS_DISPONIBLES, iniciarNuevoIntentoRuleta } from '@/lib/entretenimiento/filtros-cara';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 
 const FRAMES = [
@@ -115,6 +115,15 @@ export default function FotocabinaPage() {
   const [activeStickers, setActiveStickers] = useState<string[]>([]);
   const [selectedFiltroCara, setSelectedFiltroCara] = useState<string | null>(null);
   const carasDetectadasRef = useRef<any[]>([]);
+
+  useEffect(() => {
+    if (selectedFiltroCara) {
+      if (selectedFiltroCara === 'ruleta_invitado') {
+        iniciarNuevoIntentoRuleta();
+      }
+      void cargarDetectorDeCaras();
+    }
+  }, [selectedFiltroCara]);
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
   const toggleSticker = (s: string) => {
     setActiveStickers((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
@@ -452,12 +461,13 @@ export default function FotocabinaPage() {
             aplicarChromaKey(ctx, canvas.width, canvas.height);
           }
           if (selectedFiltroCara) {
-      dibujarFiltroDeCara(ctx, video, selectedFiltroCara, carasDetectadasRef.current, {
-        nombreAgasajado: fiesta?.nombreAgasajado,
-        tipoCelebracion: fiesta?.tipoCelebracion,
-        primaryColor: fiesta?.primaryColor,
-      });
-    }
+            carasDetectadasRef.current = detectarCarasEnFuente(video, Date.now());
+            dibujarFiltroDeCara(ctx, video, selectedFiltroCara, carasDetectadasRef.current, {
+              nombreAgasajado: fiesta?.nombreAgasajado,
+              tipoCelebracion: fiesta?.tipoCelebracion,
+              primaryColor: fiesta?.primaryColor,
+            });
+          }
     drawFrameOverlay(ctx, canvas.width, canvas.height);
         }
         frames.push(canvas);
@@ -685,6 +695,14 @@ export default function FotocabinaPage() {
     }
     if (fiesta?.station.enableChromaKey) {
       aplicarChromaKey(ctx, canvas.width, canvas.height);
+    }
+    if (selectedFiltroCara) {
+      carasDetectadasRef.current = detectarCarasEnFuente(video, Date.now());
+      dibujarFiltroDeCara(ctx, video, selectedFiltroCara, carasDetectadasRef.current, {
+        nombreAgasajado: fiesta?.nombreAgasajado,
+        tipoCelebracion: fiesta?.tipoCelebracion,
+        primaryColor: fiesta?.primaryColor,
+      });
     }
 
     // El marco va en cada foto; el nombre del evento no, porque en el recuerdo

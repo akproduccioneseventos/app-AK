@@ -1,0 +1,29 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/auth/session-token.ts": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+    "src/lib/auth/session-constants.ts": "94f05f723da76e9ca73d9dbddc0a99074e0567e0188736b7be109c84eb983544",
+    "src/lib/auth/equipo-de-la-fiesta.ts": "47a086a77d0bd8c0561f6b403ccb66f8d115b1a0418e4c5ca94898bca156daed",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/app/actions/fiesta/fiesta.actions.ts": "0a1298508b729a73a16c0e8f63a942419b5f248b058bbcf29181ec8fb947609e"
+  },
+  "cases": [],
+  "transactionCount": 0,
+  "remainingDemoDocuments": 0,
+  "summary": {
+    "pass": 0,
+    "fail": 0
+  },
+  "scope": "Actual save/permission/profile/signature/preservation/update/transaction functions; real SDK to isolated demo emulator",
+  "limits": [
+    "Not HTTP/Next cookies: session adapter verifies the actual synthetic signed token",
+    "Employee fixture reads and owner direct-write use real SDK I/O adapters, not entire employee/readData/writeData modules",
+    "No portal credential in negative profiles; not tests of their dedicated portals",
+    "No production, real data/accounts/providers/hardware or build certification"
+  ],
+  "appEdited": false
+}

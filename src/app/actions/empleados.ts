@@ -1,9 +1,8 @@
-
 'use server';
 
 import { idDelIntento } from '@/lib/intento-en-servidor';
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
-import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
+import { createDataItem, deleteDataItem, mutateDataItem, readData } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
@@ -55,10 +54,14 @@ export async function saveEmpleado(
   opciones?: { idIntento?: string },
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
   // Cambiar la ficha de alguien (cedula, contrato) es del dueño, como borrarla.
-  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
   if (!permiso.ok) return { success: false, error: permiso.error };
 
-  let empleados = await getEmpleados();
+  // La lista se lee entera (sin el recorte de `getEmpleados`): con el recorte, la secretaria leía la
+  // cédula y la fecha de nacimiento vacías y al guardar las borraba. Lo personal lo cambia sólo
+  // quien tiene SUELDOS (21/10/2026).
+  const tieneSueldos = puede(permiso.user, PERMISOS.SUELDOS);
+  let empleados = await readData<Empleado[]>(EMPLEADOS_FILE, []);
   let empleadoId: string;
   let empleadoToSave: Partial<Empleado> = {};
   let contractFile: File | null = null;
@@ -84,10 +87,20 @@ export async function saveEmpleado(
   } else {
     empleadoToSave = { ...empleadoData };
   }
-  
+
   if (!empleadoToSave.nombre?.trim()) {
     return { success: false, error: 'El nombre del empleado es obligatorio.' };
   }
+  if (empleadoToSave.id && !tieneSueldos) {
+    if (contractFile && contractFile.size > 0) {
+      return { success: false, error: 'El contrato de una persona del equipo lo cambia el dueño.' };
+    }
+    delete empleadoToSave.cedula;
+    delete empleadoToSave.fechaNacimiento;
+    delete empleadoToSave.contractFileName;
+  }
+  // Lo que esta pantalla cambia: se aplica sobre la ficha como está al guardar, no sobre la leída antes.
+  const cambiosDelFormulario: Partial<Empleado> = { ...empleadoToSave };
 
   let isNewEmployee = false;
 
@@ -144,7 +157,7 @@ export async function saveEmpleado(
       return { success: false, error: `Error al guardar archivo de contrato: ${fileError.message}` };
     }
   }
-  
+
   const finalIndex = empleados.findIndex(e => e.id === empleadoId);
   if (finalIndex !== -1) empleados[finalIndex] = empleadoToSave as Empleado;
 
@@ -152,12 +165,14 @@ export async function saveEmpleado(
     if (isNewEmployee) {
       await createDataItem(EMPLEADOS_FILE, EMPLEADOS_COLLECTION, empleadoId, empleadoToSave);
     } else {
-      const updated = await updateDataItem(
+      if (uploadedContractUrl) cambiosDelFormulario.contractFileName = uploadedContractUrl;
+      const updated = await mutateDataItem<Empleado>(
         EMPLEADOS_FILE,
         EMPLEADOS_COLLECTION,
         empleadoId,
-        empleadoToSave,
+        (actual) => ({ ...actual, ...cambiosDelFormulario, id: actual.id }),
       );
+      if (updated) empleadoToSave = updated;
       if (!updated) {
         if (uploadedContractUrl) await deleteFromStorage(uploadedContractUrl).catch(() => undefined);
         return { success: false, error: `Empleado con ID ${empleadoId} no encontrado.` };
@@ -173,7 +188,12 @@ export async function saveEmpleado(
       console.warn(`Error deleting replaced contract ${previousContractFileName}:`, fileError.message);
     });
   }
-  return { success: true, id: empleadoId, empleado: empleadoToSave as Empleado };
+  const devuelto = empleadoToSave as Empleado;
+  return {
+    success: true,
+    id: empleadoId,
+    empleado: tieneSueldos || isNewEmployee ? devuelto : { ...devuelto, cedula: '', fechaNacimiento: '', contractFileName: undefined },
+  };
 }
 
 /**

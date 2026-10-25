@@ -3,7 +3,9 @@
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { syncReunionToGoogleWorkspace } from '../google-workspace-extended';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { recortarFiestaPorPerfil } from '@/lib/fiesta/recortar-para-afuera';
 
 /**
  * Cambia la lista de reuniones SOBRE LA FIESTA DE ESE MOMENTO, adentro del turno
@@ -13,7 +15,8 @@ import { requireAppSession } from '@/lib/auth/require-session';
  */
 async function updateFiestaReuniones(
   fiestaId: string,
-  updateFn: (data: FiestaEnPlanificacion) => Reunion[]
+  updateFn: (data: FiestaEnPlanificacion) => Reunion[],
+  user?: any,
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
     const r = await actualizarFiesta(
@@ -24,7 +27,8 @@ async function updateFiestaReuniones(
     if (!r.success) {
       return { success: false, error: r.error || 'No se pudieron guardar las reuniones de la fiesta.' };
     }
-    return { success: true, updatedFiesta: r.updatedFiesta };
+    const updatedFiesta = r.updatedFiesta ? recortarFiestaPorPerfil(r.updatedFiesta, user) : undefined;
+    return { success: true, updatedFiesta };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -37,14 +41,15 @@ function syncReunionInBackground(fiestaId: string, reunion: Reunion, sendEmails 
 }
 
 export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   if (!reunionData.fiestaId) return { success: false, error: 'Fiesta ID es requerido.' };
 
   let newReunion: Reunion | null = null;
   const result = await updateFiestaReuniones(reunionData.fiestaId, data => {
     newReunion = { ...reunionData, id: `reunion_${Date.now()}_${Math.random().toString(36).slice(2, 6)}` };
     return [...(data.reuniones || []), newReunion];
-  });
+  }, permiso.user);
 
   if (result.success && newReunion) {
     const guardada = result.updatedFiesta?.reuniones?.find(r => r.id === (newReunion as Reunion).id) ?? newReunion;
@@ -55,7 +60,8 @@ export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
 }
 
 export async function updateReunion(updatedReunion: Reunion) {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   if (!updatedReunion.fiestaId) return { success: false, error: 'Fiesta ID es requerido.' };
 
   /**
@@ -75,7 +81,7 @@ export async function updateReunion(updatedReunion: Reunion) {
       existia = true;
       return updatedReunion;
     });
-  });
+  }, permiso.user);
 
   if (result.success && !existia) {
     return {
@@ -94,8 +100,10 @@ export async function updateReunion(updatedReunion: Reunion) {
 }
 
 export async function deleteReunion(fiestaId: string, reunionId: string) {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   return updateFiestaReuniones(fiestaId, data =>
-    (data.reuniones || []).filter(r => r.id !== reunionId)
+    (data.reuniones || []).filter(r => r.id !== reunionId),
+    permiso.user
   );
 }

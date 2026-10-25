@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { InvitacionDigitalData } from '@/types/fiesta';
@@ -27,7 +26,7 @@ export const SeccionConfirmacionEditor: React.FC<Props> = ({ data, update }) => 
           onCheckedChange={(checked) => handleFieldChange('visible', checked)}
         />
       </div>
-      
+
       {data.visible && (
         <Card className="bg-muted/40">
           <CardHeader>

@@ -1,0 +1,45 @@
+{
+  "source": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+  "checkedAt": "2026-10-22T01:56:16.670Z",
+  "previous": {
+    "total": 67,
+    "pass": 57,
+    "fail": 10
+  },
+  "extension": [
+    {
+      "file": "200-solicitudes-portal-sdk.json",
+      "sha256": "a8aea3dd2da28f8736baaeae712f6a681d57799c1f44054b239f80b787c4caac",
+      "total": 9,
+      "pass": 6,
+      "fail": 3,
+      "failedIds": [
+        "concurrent-menu-retains-two-distinct-requests-sdk",
+        "concurrent-service-retains-two-distinct-requests-sdk",
+        "concurrent-mixed-retains-two-distinct-requests-sdk"
+      ]
+    },
+    {
+      "file": "201-solicitudes-ui.json",
+      "sha256": "3b25d1fc31da001540353819bf22f0fb0ac4e2c67dbb2d3bf077ad6dc6a1756c",
+      "total": 8,
+      "pass": 6,
+      "fail": 2,
+      "failedIds": [
+        "explicit-zero-adjustment-keeps-guest-estimate-zero",
+        "explicit-zero-adjustment-keeps-extra-at-catalogue-price"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 84,
+    "pass": 69,
+    "fail": 15
+  },
+  "uniqueDefects": 10,
+  "uxFriction": 1,
+  "sdkCleaned": true,
+  "appChanged": false,
+  "entireAppAccepted": false,
+  "limits": "Final count is criteria, not independent bugs.200 three failures share stale request-list overwrite;201 two failures share explicit0 lost. SDK200 real actions/saveFiesta/transaction demo;201 actual UI/actions with store adapters.198 older cut preserved. No real integrations, native current-source build, Hosting or zero-error certificate."
+}

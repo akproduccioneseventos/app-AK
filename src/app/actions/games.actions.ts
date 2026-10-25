@@ -367,10 +367,13 @@ Respondé ÚNICAMENTE un array JSON con 5 objetos con el formato:
       confirmadaPorEquipo: false,
     };
 
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       triviaGame: nuevaTrivia,
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la trivia.' };
+    }
 
     return { success: true, trivia: nuevaTrivia };
   } catch (err: any) {

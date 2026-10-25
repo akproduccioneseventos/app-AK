@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
@@ -80,7 +81,7 @@ export default async function ControlTowerPage() {
             <div>
               <p className="text-xs font-black uppercase tracking-wider text-red-600">Próximo evento</p>
               <h2 className="mt-1 text-xl font-black text-slate-950">{kpis.proximoEvento.nombre}</h2>
-              <p className="text-sm font-medium text-slate-500">{new Date(kpis.proximoEvento.fecha).toLocaleDateString('es-UY')}</p>
+              <p className="text-sm font-medium text-slate-500">{formatearFechaEvento(kpis.proximoEvento.fecha)}</p>
             </div>
             <Button asChild variant="outline" className="rounded-2xl font-bold"><Link href="/multiagente/fiestas">Revisar con agente</Link></Button>
           </CardContent>

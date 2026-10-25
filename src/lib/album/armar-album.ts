@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 /**
  * ARMADOR INTELIGENTE DEL ÁLBUM DEL RECUERDO (Orden 28)
  *
@@ -156,9 +157,7 @@ export function armarAlbumInteligente(params: {
     fiesta?.configuracion?.protagonista1Nombre ||
     fiesta?.configuracion?.nombreAgasajado ||
     (fiesta?.configuracion?.tipoCelebracion ? `Nuestra fiesta de ${fiesta.configuracion.tipoCelebracion}` : 'Los mejores momentos de la noche');
-  const fecha = fiesta?.configuracion?.fechaEvento
-    ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString('es-UY', { dateStyle: 'long' })
-    : new Date().toLocaleDateString('es-UY', { dateStyle: 'long' });
+  const fecha = fiesta?.configuracion?.fechaEvento ? formatearFechaEvento(fiesta.configuracion.fechaEvento) : new Date().toLocaleDateString('es-UY', { dateStyle: 'long' });
 
   const fotoPortada =
     fiesta?.configuracion?.protagonistaFotoUrl ||

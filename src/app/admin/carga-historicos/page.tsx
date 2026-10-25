@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, type FormEvent, useEffect } from 'react';
@@ -12,7 +11,7 @@ import { ArrowLeft, UploadCloud, Loader2, FileArchive, Sparkles, CheckCircle2, F
 import { useToast } from '@/hooks/use-toast';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { processHistoricRecord } from '@/app/actions/historicos';
-import { extractContractData } from '@/ai/flows/extract-contract-data';
+import { extractContractDataAction as extractContractData } from '@/app/actions/historicos';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
@@ -32,7 +31,7 @@ export default function CargaHistoricosPage() {
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        
+
         if (file.size > 20 * 1024 * 1024) {
             toast({ title: "Archivo demasiado grande", description: "El límite es de 20MB.", variant: "destructive" });
             return;
@@ -61,7 +60,7 @@ export default function CargaHistoricosPage() {
                             }
                         }
                         if (data.montoTotal) setMontoTotal(String(data.montoTotal));
-                        
+
                         setAnalysisDone(true);
                         toast({ title: "Documento Analizado", description: "Hemos extraído los datos de las 4 páginas." });
                     }
@@ -141,13 +140,13 @@ export default function CargaHistoricosPage() {
                                 </Label>
                                 <p className="text-xs text-muted-foreground">Límite 20MB</p>
                             </div>
-                            <Input 
-                                id="contractFile" 
-                                type="file" 
-                                accept="application/pdf,image/*" 
-                                onChange={handleFileChange} 
-                                className="hidden" 
-                                required 
+                            <Input
+                                id="contractFile"
+                                type="file"
+                                accept="application/pdf,image/*"
+                                onChange={handleFileChange}
+                                className="hidden"
+                                required
                                 disabled={isSubmitting || isAnalyzing}
                             />
                             <Button type="button" variant="outline" onClick={() => document.getElementById('contractFile')?.click()} disabled={isSubmitting || isAnalyzing}>
@@ -171,15 +170,15 @@ export default function CargaHistoricosPage() {
                             <h3 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                 <FileText className="w-4 h-4" /> Verificar Datos Extraídos
                             </h3>
-                            
+
                             <div className="space-y-2">
                                 <Label htmlFor="clienteNombre">Nombre del Cliente / Empresa*</Label>
-                                <Input 
-                                    id="clienteNombre" 
-                                    value={clienteNombre} 
-                                    onChange={(e) => setClienteNombre(e.target.value)} 
-                                    placeholder="Nombre del cliente..." 
-                                    required 
+                                <Input
+                                    id="clienteNombre"
+                                    value={clienteNombre}
+                                    onChange={(e) => setClienteNombre(e.target.value)}
+                                    placeholder="Nombre del cliente..."
+                                    required
                                     disabled={isSubmitting || isAnalyzing}
                                     className={cn(analysisDone && "border-green-500/50 bg-green-50/10")}
                                 />
@@ -188,9 +187,9 @@ export default function CargaHistoricosPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="eventoFecha">Fecha del Evento*</Label>
-                                    <DatePickerDemo 
-                                        selectedDate={eventoFecha} 
-                                        onDateChange={setEventoFecha} 
+                                    <DatePickerDemo
+                                        selectedDate={eventoFecha}
+                                        onDateChange={setEventoFecha}
                                         className={cn(analysisDone && "border-green-500/50")}
                                     />
                                 </div>
@@ -198,15 +197,15 @@ export default function CargaHistoricosPage() {
                                     <Label htmlFor="montoTotal">Monto Total Final (UYU)*</Label>
                                     <div className="relative">
                                         <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-muted-foreground">$</span>
-                                        <Input 
-                                            id="montoTotal" 
-                                            type="number" 
-                                            value={montoTotal} 
-                                            onChange={(e) => setMontoTotal(e.target.value)} 
-                                            placeholder="0.00" 
-                                            min="0" 
-                                            step="any" 
-                                            required 
+                                        <Input
+                                            id="montoTotal"
+                                            type="number"
+                                            value={montoTotal}
+                                            onChange={(e) => setMontoTotal(e.target.value)}
+                                            placeholder="0.00"
+                                            min="0"
+                                            step="any"
+                                            required
                                             disabled={isSubmitting || isAnalyzing}
                                             className={cn("pl-7", analysisDone && "border-green-500/50 bg-green-50/10")}
                                         />

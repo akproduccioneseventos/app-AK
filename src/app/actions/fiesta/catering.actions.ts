@@ -1,4 +1,3 @@
-
 'use server';
 
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
@@ -24,8 +23,10 @@ export async function updateMenuAsignado(fiestaId: string, menuId?: string) {
 /** Las casillas que son plata: pagarle al proveedor no es de organización. */
 const CAMPOS_DE_PAGO = ['pagado', 'montoPagado'] as const;
 const claveProveedor = (e: Pick<CompraProveedorEstado, 'proveedor' | 'proveedorId'>) => e.proveedorId || e.proveedor;
-const mismoProveedor = (a: CompraProveedorEstado, b: CompraProveedorEstado) =>
-  (Boolean(a.proveedorId) && a.proveedorId === b.proveedorId) || a.proveedor === b.proveedor;
+const mismoProveedor = (a: CompraProveedorEstado, b: CompraProveedorEstado) => {
+  if (a.proveedorId && b.proveedorId) return a.proveedorId === b.proveedorId;
+  return Boolean(a.proveedor && b.proveedor && a.proveedor === b.proveedor);
+};
 const igual = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
 /**
@@ -56,7 +57,7 @@ export async function updateShoppingListStatus(
         // organización; marcar que se le PAGÓ al proveedor es plata, de insumos o contabilidad.
         // El permiso sale de lo que se PIDE cambiar, no de comparar con una lectura que otro
         // puede cambiar un instante después.
-        const actual = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+        const actual = await getFiestaById(fiestaId, LECTURA_COMPLETA); // Con los pagos: el recorte del perfil los saca.
         if (!actual) throw new Error("Fiesta no encontrada");
         const cambios = cambiosPedidos(leidos ?? actual.estadosCompra ?? [], estados);
         if (cambios.length === 0) return { success: true };

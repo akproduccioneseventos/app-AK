@@ -50,6 +50,9 @@ export const PUBLIC_PATH_PREFIXES = [
   '/quinceaneras',
   '/cumpleanos',
   '/experiencia-ak',
+  '/experiencia',
+  '/tecnologia',
+  '/evento/ar',
   // El QR inteligente que se pega en la fiesta. La pantalla dice "Elegi como
   // queres entrar" y el primer boton es "Entrar como invitado": la escanea el
   // invitado con su celular, sin cuenta. Estaba tapada, asi que el que escaneaba
@@ -85,9 +88,13 @@ export const PUBLIC_PATH_PREFIXES = [
   '/invitado',
   '/club-uruguay',
   '/pago',
+  '/api/cron',
 ] as const;
 
 export const PUBLIC_EXACT_PATHS = new Set([
+  '/api/cron-despachador',
+  '/api/despertar',
+  '/api/meta/webhook',
   '/',
   '/api/health',
   // El "instalador" de una estacion suelta. No entrega datos de la fiesta: solo

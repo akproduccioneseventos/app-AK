@@ -91,12 +91,14 @@ describe('El operador, sólo en su fiesta', () => {
   });
 });
 
-describe('La secretaria sigue igual', () => {
-  it('lee y guarda', async () => {
+describe('La secretaria sigue igual, salvo costos y sueldos', () => {
+  it('lee y guarda, pero los costos (GANANCIAS, orden 183) se conservan como estaban', async () => {
     usuario = SECRETARIA;
     expect((await getFiestaById('f1') as any).clientPortalSettings.accessKey).toBe('clave-del-portal');
+    // Orden 183: no le llegan los costos (son de GANANCIAS).
+    expect((await getFiestaById('f1') as any).gestionCostos).toBeUndefined();
     expect((await saveFiesta({ ...copia(FIESTA), gestionCostos: { total: 95000 } } as any)).success).toBe(true);
-    expect(almacen['fiestas/f1.json'].gestionCostos.total).toBe(95000);
+    expect(almacen['fiestas/f1.json'].gestionCostos.total).toBe(90000);
   });
 });
 

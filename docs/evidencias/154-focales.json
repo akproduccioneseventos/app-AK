@@ -1,0 +1,83 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "hashes": {
+    "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page.tsx": "1dff5639d81cb9c42fe6c5c9a2e21f0e10496e779f0b127ed1b0681226c64acd",
+    "src/lib/blog/sin-promesas.ts": "5627f9b9e35625fbf9fd69eb45a108f11bf7854c6b6c7538730181f09c6fa50f",
+    "data/blog-posts.json": "b8a86e74b098c9d74badd6cfde97dbfaf47075fde6cdab4c92b092025d4941ab"
+  },
+  "cases": [
+    {
+      "kind": "share-success",
+      "pass": true,
+      "prematureToast": false,
+      "events": [
+        "shared"
+      ],
+      "toasts": []
+    },
+    {
+      "kind": "canShare-absent-delayed-copy",
+      "pass": true,
+      "prematureToast": false,
+      "events": [
+        "copy-start",
+        "copy-done"
+      ],
+      "toasts": [
+        {
+          "title": "Enlace copiado",
+          "description": "El enlace fue copiado al portapapeles."
+        }
+      ]
+    },
+    {
+      "kind": "clipboard-rejected",
+      "pass": true,
+      "prematureToast": false,
+      "events": [],
+      "toasts": [
+        {
+          "variant": "destructive",
+          "title": "No se pudo copiar",
+          "description": "Copiá este enlace a mano: https://qa.invalid/solo-prueba"
+        }
+      ]
+    },
+    {
+      "kind": "clipboard-absent",
+      "pass": true,
+      "prematureToast": false,
+      "events": [],
+      "toasts": [
+        {
+          "variant": "destructive",
+          "title": "No se pudo copiar",
+          "description": "Copiá este enlace a mano: https://qa.invalid/solo-prueba"
+        }
+      ]
+    },
+    {
+      "kind": "blog-canonical-fixture",
+      "pass": true,
+      "assertions": {
+        "noExacto": true,
+        "noDoble": true,
+        "adults": true,
+        "estimation": true,
+        "responsible": true
+      },
+      "canonicalBlob": "9a2ac6b8cedaef2b903937b9e2ec16fb43a8d653",
+      "originalFixtureProblem": "Missing sparse-checkout file, not a failed content assertion"
+    }
+  ],
+  "summary": {
+    "pass": 5,
+    "fail": 0
+  },
+  "scope": "Actual changed cancellation handler with browser API doubles; actual blog correction and exact canonical Git data with original assertions",
+  "limits": [
+    "No real browser clipboard/share or production blog data",
+    "Focal case retry is not a second complete green Jest run"
+  ],
+  "appEdited": false
+}

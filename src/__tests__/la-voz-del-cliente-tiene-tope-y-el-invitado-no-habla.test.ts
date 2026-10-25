@@ -1,5 +1,6 @@
 /** @jest-environment node */
 import { POST } from '@/app/api/asistente/voz-en-vivo/cliente/route';
+import { hoyEnUruguay } from '@/lib/utils';
 import fs from 'fs';
 import path from 'path';
 
@@ -23,6 +24,7 @@ let mockAjustes: any = {
 };
 
 let mockUsoStore: Record<string, { fecha: string; minutos: number }> = {};
+let mockFetchOk = true;
 
 jest.mock('@/app/actions/fiesta/portal.actions', () => ({
   getFiestaForPortalSession: jest.fn(async (fiestaId: string) => {
@@ -42,10 +44,25 @@ jest.mock('@/lib/ai/consumo-servidor', () => ({
   registrarConsumoIA: jest.fn(async () => {}),
 }));
 
-jest.mock('@/lib/data-service', () => ({
-  readData: jest.fn(async (_file: string, fallback: any) => mockUsoStore || fallback),
-  writeData: jest.fn(async (_file: string, data: any) => {
-    mockUsoStore = data;
+const copiaStore = <T>(x: T): T => JSON.parse(JSON.stringify(x));
+let txQueue = Promise.resolve();
+
+jest.mock('@/lib/generic-json-store', () => ({
+  mutarDocumentoConTransaccion: jest.fn(async (_path: string, _vacio: any, cambiar: (actual: any) => any) => {
+    const prev = txQueue;
+    let release: () => void = () => {};
+    txQueue = new Promise((resolve) => { release = resolve; });
+    await prev;
+    try {
+      const actual = copiaStore(mockUsoStore);
+      const nuevo = await cambiar(actual);
+      if (nuevo !== null && nuevo !== undefined) {
+        mockUsoStore = copiaStore(nuevo);
+      }
+      return nuevo;
+    } finally {
+      release();
+    }
   }),
 }));
 
@@ -62,9 +79,18 @@ jest.mock('@/lib/asistente/voz-en-vivo', () => {
 });
 
 describe('La voz del cliente tiene tope y el invitado no habla', () => {
-  const hoyStr = new Date().toISOString().split('T')[0];
+  const hoyStr = hoyEnUruguay();
 
   beforeEach(() => {
+    process.env.GEMINI_API_KEY = 'clave-gemini-test-valida';
+    mockFetchOk = true;
+    global.fetch = jest.fn(async () => {
+      if (!mockFetchOk) {
+        return { ok: false, json: async () => ({ error: 'Error simulado' }) } as any;
+      }
+      return { ok: true, json: async () => ({ name: 'token-gemini-valido-123' }) } as any;
+    });
+
     mockFiestaSession = {
       id: 'fiesta-a',
       configuracion: {
@@ -84,6 +110,7 @@ describe('La voz del cliente tiene tope y el invitado no habla', () => {
     };
     mockUsoStore = {};
     capturedInstrucciones = '';
+    txQueue = Promise.resolve();
   });
 
   it('con la sesión del portal de la fiesta A no se abre la voz de la fiesta B', async () => {
@@ -151,5 +178,52 @@ describe('La voz del cliente tiene tope y el invitado no habla', () => {
     const filePath = path.resolve(process.cwd(), 'src/components/invitacion/AsistenteDelInvitado.tsx');
     const content = fs.readFileSync(filePath, 'utf-8');
     expect(content).not.toContain('voz-en-vivo');
+  });
+
+  it('dos llamadas a la vez suman los dos minutos sin perderse', async () => {
+    mockUsoStore = {
+      'fiesta-a': { fecha: hoyStr, minutos: 0 },
+    };
+
+    const req1 = new Request('http://localhost/api/asistente/voz-en-vivo/cliente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fiestaId: 'fiesta-a' }),
+    });
+
+    const req2 = new Request('http://localhost/api/asistente/voz-en-vivo/cliente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fiestaId: 'fiesta-a' }),
+    });
+
+    const [res1, res2] = await Promise.all([POST(req1), POST(req2)]);
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    expect(mockUsoStore['fiesta-a'].minutos).toBe(2);
+  });
+
+  it('con fetch de la ficha fallando, la respuesta es 503 sin token, no se llama a registrarConsumoIA y el contador de minutos queda igual que antes', async () => {
+    const { registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+    (registrarConsumoIA as jest.Mock).mockClear();
+
+    mockUsoStore = {
+      'fiesta-a': { fecha: hoyStr, minutos: 2 },
+    };
+    mockFetchOk = false;
+
+    const req = new Request('http://localhost/api/asistente/voz-en-vivo/cliente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fiestaId: 'fiesta-a' }),
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(503);
+    const data = await res.json();
+    expect(data.token).toBeUndefined();
+    expect(data.error).toBe('La llamada no está disponible ahora. Podés escribirnos en el chat.');
+    expect(registrarConsumoIA).not.toHaveBeenCalled();
+    expect(mockUsoStore['fiesta-a'].minutos).toBe(2);
   });
 });

@@ -30,6 +30,26 @@ jest.mock('@/lib/generic-json-store', () => ({
     turnoBase = r.catch(() => undefined);
     return r;
   }),
+  mutarDocumento: jest.fn((file: string, vacio: any, cambiar: (v: any) => any | null) => {
+    const r = turnoBase.then(async () => {
+      const actual = memoriaStore[file] !== undefined ? JSON.parse(JSON.stringify(memoriaStore[file])) : vacio;
+      const nuevo = await cambiar(actual);
+      if (nuevo) memoriaStore[file] = JSON.parse(JSON.stringify(nuevo));
+      return nuevo;
+    });
+    turnoBase = r.catch(() => undefined);
+    return r;
+  }),
+  mutarDocumentoConTransaccion: jest.fn((file: string, vacio: any, cambiar: (v: any) => any | null) => {
+    const r = turnoBase.then(async () => {
+      const actual = memoriaStore[file] !== undefined ? JSON.parse(JSON.stringify(memoriaStore[file])) : vacio;
+      const nuevo = await cambiar(actual);
+      if (nuevo) memoriaStore[file] = JSON.parse(JSON.stringify(nuevo));
+      return nuevo;
+    });
+    turnoBase = r.catch(() => undefined);
+    return r;
+  }),
 }));
 
 const mockSendPushNotificationToAll = jest.fn(async () => ({ success: true, sentCount: 1, failureCount: 0 }));
@@ -66,6 +86,11 @@ jest.mock('@/app/actions/multiagent', () => ({
     success: true,
     mensaje: 'Accion ejecutada.',
   })),
+}));
+
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn(async () => undefined),
+  requirePermiso: jest.fn(async () => ({ ok: true, user: { perfil: 'dueno', role: 'admin' } })),
 }));
 
 jest.mock('@/lib/auth/session-token', () => ({

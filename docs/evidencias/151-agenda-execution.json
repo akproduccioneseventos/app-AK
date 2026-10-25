@@ -1,0 +1,31 @@
+{
+  "source": "2e5363f259461a31bf6b31807872c227855415de",
+  "scope": "agenda",
+  "buildFinished": "2026-10-20T12:43:46.937Z",
+  "started": "2026-10-20T12:50:26.571Z",
+  "realServices": false,
+  "serverPid": 12492,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-20T12:50:30.020Z",
+    "version": "2e5363f259461a31bf6b31807872c227855415de · compilada 2026-10-20T12:31:41.882Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "testSha256": "2e4d15093170c4ef93dbf89cb4acbd73c68534375853d5233ea1c39584fbefd2",
+  "run": {
+    "pid": 7832,
+    "exitCode": 0
+  },
+  "snapshotCount": 76,
+  "sourceDiff": "",
+  "finished": "2026-10-20T12:53:29.637Z"
+}

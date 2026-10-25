@@ -267,8 +267,6 @@ async function publicarSinReclamo(
           pageAccessToken: conn.pageAccessToken,
           caption: targetPost.text,
           imageUrl: targetPost.mediaUrl,
-          videoUrl: targetPost.mediaType === 'video' ? targetPost.mediaUrl : undefined,
-          isReel: targetPost.mediaType === 'video',
         });
 
         if (igResult.success) publishedTo.push('Instagram');

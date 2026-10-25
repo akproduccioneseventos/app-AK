@@ -313,41 +313,29 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
       estado('escuchando', { segundosMaximos });
       return;
     }
-
-    if (mensaje.toolCall) {
-      const functionCalls = mensaje.toolCall.functionCalls || [];
+    const toolCall = mensaje.toolCall || (mensaje.serverContent?.modelTurn?.parts?.find((p: any) => p.functionCall)?.functionCall ? { functionCalls: mensaje.serverContent.modelTurn.parts.filter((p: any) => p.functionCall).map((p: any) => p.functionCall) } : null);
+    if (toolCall) {
+      const calls = toolCall.functionCalls || [];
       const functionResponses: any[] = [];
-      for (const fc of functionCalls) {
+      for (const fc of calls) {
         try {
-          const res = await fetch('/api/asistente/voz-en-vivo/accion', {
+          const r = await fetchFn('/api/asistente/voz-en-vivo/accion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: fc.id,
-              accion: fc.name,
-              argumentos: fc.args,
-            }),
+            body: JSON.stringify({ id: fc.id, accion: fc.name, argumentos: fc.args || {} }),
+            signal: senal,
           });
-          const data = await res.json();
-          functionResponses.push({
-            id: fc.id,
-            name: fc.name,
-            response: data,
-          });
-        } catch (err: any) {
-          functionResponses.push({
-            id: fc.id,
-            name: fc.name,
-            response: { error: err.message || 'Error al ejecutar acción' },
-          });
+          const respuesta = await r.json().catch(() => ({}));
+          functionResponses.push({ id: fc.id, name: fc.name, response: { output: respuesta } });
+          if (respuesta?.mensaje) {
+            opciones.onTexto?.(respuesta.mensaje, 'asistente');
+          }
+        } catch {
+          functionResponses.push({ id: fc.id, name: fc.name, response: { output: { error: 'No se pudo procesar la acción' } } });
         }
       }
-      if (!cerrada && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-          toolResponse: {
-            functionResponses,
-          },
-        }));
+      if (!cerrada && ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({ toolResponse: { functionResponses } }));
       }
       return;
     }

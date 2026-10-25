@@ -1,0 +1,1 @@
+import {defineConfig} from '@playwright/test';import base from './208-config';export default defineConfig({...base,projects:base.projects?.map(p=>({...p,grep:p.name==='chromium-desktop'?/ak207-438|ak207-prospecto-simulador.*llega desde el simulador hasta ver un precio/:/ak207-438.*(?:red|rechazo)|ak207-espejo-moderacion.*con el analisis de imagen caido/}))});

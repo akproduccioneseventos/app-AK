@@ -101,3 +101,13 @@ export const MAPA_MODULO_A_PESTANA: Record<string, PestanaFiesta> = {
 export function obtenerPestanaDeModulo(id: string): PestanaFiesta {
   return MAPA_MODULO_A_PESTANA[id] || 'contrato-y-pagos';
 }
+
+export interface FiestaModuleDef {
+  id: string;
+  pestana: PestanaFiesta;
+}
+
+export const modules: FiestaModuleDef[] = Object.entries(MAPA_MODULO_A_PESTANA).map(([id, pestana]) => ({
+  id,
+  pestana,
+}));

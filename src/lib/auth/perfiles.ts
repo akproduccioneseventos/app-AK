@@ -104,12 +104,15 @@ export function esPerfilValido(valor: unknown): valor is Perfil {
  * lo que hay que cerrar.
  */
 export function perfilDesdeRolViejo(role: string | undefined | null): Perfil {
+  // Cuentas cuyo "rol" ya es un perfil de los internos (orden 197): se respeta.
+  if (role === 'dueno' || role === 'secretaria' || role === 'operador' || role === 'personal') {
+    return role;
+  }
   return role === 'admin' ? 'dueno' : 'secretaria';
 }
 
 export function perfilDe(user: { perfil?: string; role?: string } | undefined | null): Perfil {
   if (esPerfilValido(user?.perfil)) return user.perfil;
-  if (esPerfilValido(user?.role)) return user.role;
   return perfilDesdeRolViejo(user?.role);
 }
 

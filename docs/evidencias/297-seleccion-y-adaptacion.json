@@ -1,0 +1,57 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "changes": [
+    [
+      "const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');",
+      "const root=\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-auditoria267-cierre\\\\\",dir=path.join(root,'docs/evidencias');"
+    ],
+    [
+      "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+      "3e45a4ac6b479f89605163168e31b37dc84f2d0f"
+    ],
+    [
+      "206-entorno.json",
+      "291-entorno.json"
+    ],
+    [
+      "ak-qa-206-",
+      "ak-qa-280-"
+    ],
+    [
+      "const runId=process.env.AK_AUDIT_RUN_ID||'209';",
+      "const runId='297';"
+    ],
+    [
+      ".filter(file=>!file.includes('recorrido-de-pantallas'))",
+      ""
+    ],
+    [
+      "const runEnv={...env,AK_QA_RESULTS:",
+      "const runEnv={...env,AK_RECORRIDO_CARRILES:'1',AK_QA_RESULTS:"
+    ],
+    [
+      "copy(path.join(dir,'208-config.ts'),path.join(qa,'208-config.ts'));",
+      "const configDest=inside(path.join(qa,'208-config.ts'));assert(!fs.existsSync(configDest));\nconst configSource=fs.readFileSync(path.join(dir,'208-config.ts'),'utf8');\nassert(configSource.includes(\"testIgnore:['**/ak207-recorrido-de-pantallas.spec.ts']\"));\nfs.writeFileSync(configDest,configSource.replace(\"testIgnore:['**/ak207-recorrido-de-pantallas.spec.ts']\",'testIgnore:[]'));copied.push(configDest);"
+    ],
+    [
+      "fs.writeFileSync(dest,hook+raw);copied.push(dest);",
+      "let content=hook+raw;if(entry.name==='recorrido-de-pantallas.spec.ts'){assert(content.includes(\"await context.addCookies([\"));content=content.replace(\"await context.addCookies([\",\"await context.route('**/*',async route=>{const u=new URL(route.request().url());if(/^https?:$/.test(u.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(u.hostname))await route.abort('blockedbyclient');else await route.continue();});\\n    await context.addCookies([\");}fs.writeFileSync(dest,content);copied.push(dest);"
+    ],
+    [
+      "instrumentedSha256:hash(hook+raw)",
+      "instrumentedSha256:hash(fs.readFileSync(dest))"
+    ],
+    [
+      "'test','--config','208-config.ts'",
+      "'test','--project','chromium-desktop','--config','208-config.ts'"
+    ],
+    [
+      "walkTests(path.join(qa,'tests/e2e'));",
+      "walkTests(path.join(qa,'tests/e2e'));assert.equal(manifest.length,1);"
+    ]
+  ],
+  "driverSha256": "9be348396b993404c002a5eb8a6dd4f79c3bec30c19b98dc584b9da5b9491529",
+  "originalSha256": "f2a7d9db60d4f50c92e714d857746911b986f4e14465d10abf6f6187c2db9dce",
+  "assertionsChanged": false,
+  "scope": "Original route walk, one desktop project/one lane, original assertions/timeouts. Remove both previous QA exclusions; guard separate browser context too. Native route results do not accept every action or role. Initial301 nested-generator SyntaxError preserved; this checks generated syntax before any QA mutation."
+}

@@ -134,19 +134,17 @@ export default function MiMesaPage() {
           </div>
           <div className="flex flex-col gap-3">
             <Link
-              href={`/evento/hub/${fiestaId}`}
+              href={selected?.id ? `/evento/hub/${fiestaId}?guestId=${encodeURIComponent(selected.id)}` : `/evento/hub/${fiestaId}`}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 px-6 py-3.5 text-sm font-black text-white shadow-lg hover:brightness-110 transition-all"
             >
-              <PartyPopper className="w-4 h-4" /> Entrar a la app de la fiesta
+              <PartyPopper className="w-4 h-4" /> Entrar a la fiesta en vivo
             </Link>
-            {fiesta.modulosContratados?.barraTecnologica !== false && (
-              <Link
-                href={`/evento/barra/${fiestaId}`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-3 text-sm font-bold text-white shadow transition-all"
-              >
-                Ver el menú y la carta de tragos
-              </Link>
-            )}
+            <Link
+              href={`/evento/barra/${fiestaId}`}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 px-6 py-3 text-sm font-bold text-white transition-all"
+            >
+              Ver la carta de barra
+            </Link>
             <button onClick={handleReset} className="text-sm text-white/50 hover:text-white/80 underline transition-colors">
               Buscar otro nombre
             </button>

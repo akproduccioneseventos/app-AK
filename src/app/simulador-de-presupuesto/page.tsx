@@ -1,5 +1,7 @@
-
 'use client';
+
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 
 import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -86,6 +88,7 @@ import {
 } from '@/lib/simulator/package-customization';
 import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
 
 const COMMERCIAL_TIMER_SECONDS = 15 * 60;
 const COMMERCIAL_TIMER_STORAGE_KEY = 'ak-simulator-commercial-timer';
@@ -596,7 +599,7 @@ function SimuladorContent() {
         const precioReal = 36000;
         const precioBasePromo = 16900;
 
-        const eventYear = eventoFecha ? new Date(eventoFecha).getFullYear() : 2026;
+        const eventYear = anioDeLaFechaDelEvento(eventoFecha) ?? 2026;
         const diffYears = Math.max(0, eventYear - 2026);
         const adjustmentPct = DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE || 15;
         const multiplier = 1 + (diffYears * (adjustmentPct / 100));
@@ -2214,7 +2217,7 @@ function SimuladorContent() {
                                     <p className="text-xs text-slate-600 font-semibold">Detectamos que ya habías simulado. Podés continuar con la simulación actual o hacer click en cualquier presupuesto para reabrirlo:</p>
                                     <div className="grid gap-2 max-h-48 overflow-y-auto pr-1">
                                         {existingBudgets.map((b) => {
-                                            const formattedDate = b.eventoFecha ? new Intl.DateTimeFormat('es-UY').format(new Date(b.eventoFecha)) : 'A confirmar';
+                                            const formattedDate = b.eventoFecha ? formatearFechaEvento(b.eventoFecha) : 'A confirmar';
                                             return (
                                                 <div key={b.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-emerald-100 rounded-xl hover:shadow-md transition-all">
                                                     <div className="space-y-0.5 text-left">

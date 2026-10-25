@@ -1,4 +1,10 @@
-# 179 - Gemini: enlace de agenda y legibilidad de costos
+# 186 (antes179) - Gemini: enlace de agenda y legibilidad de costos
+
+**Estado actual:** CERRADOS los dos defectos por151,4PASS PC/Pixel7 sobre
+2e5363f259461a31bf6b31807872c227855415de: enlace598, telefono099 almacenado
+sin cambiar tras recarga, fecha/hora conservadas y titulo de costos visible.
+Consumidores relacionados iguales hasta main894d. Ver154-cierre.md y
+151-agenda-source.spec.ts. El informe siguiente es historico; no reencargar.
 
 ID estable: AK-CODEX-136-WA099-COST. Usar este ID y el nombre COMPLETO del
 archivo, no solo "179": existe otra179 de Gemini sobre portada/IA, distinta.

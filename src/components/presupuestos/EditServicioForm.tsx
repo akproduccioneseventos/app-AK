@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -62,7 +61,7 @@ const EditServicioForm: React.FC<{ onCatalogUpdate: () => Promise<void> }> = ({ 
     useEffect(() => {
         fetchAndSetServicios();
     }, [fetchAndSetServicios]);
-    
+
     const openModal = (item?: ServicioEmpresa) => {
         setCurrentItem(item || initialFormState);
         setIsModalOpen(true);
@@ -75,7 +74,7 @@ const EditServicioForm: React.FC<{ onCatalogUpdate: () => Promise<void> }> = ({ 
     const handleSave = async (e: FormEvent) => {
         e.preventDefault();
         if (!currentItem || !currentItem.nombre) return;
-        
+
         setIsSaving(true);
         try {
             // Pregunta 58: en el alta (sin id) el reintento de una respuesta perdida es el mismo servicio.
@@ -96,7 +95,7 @@ const EditServicioForm: React.FC<{ onCatalogUpdate: () => Promise<void> }> = ({ 
             setIsSaving(false);
         }
     };
-    
+
     const handleDelete = async (id: string) => {
         setIsSaving(true);
         try {
@@ -138,7 +137,7 @@ const EditServicioForm: React.FC<{ onCatalogUpdate: () => Promise<void> }> = ({ 
             <div className="flex justify-between items-center mb-4">
                 <Button onClick={() => openModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Servicio</Button>
             </div>
-            
+
             <ScrollArea className="flex-grow pr-3 -mr-3">
                 {isLoading ? <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin"/></div> :
                 servicios.length > 0 ? (

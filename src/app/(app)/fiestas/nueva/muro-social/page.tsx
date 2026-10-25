@@ -1,11 +1,12 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
+
+/* eslint-disable @next/next/no-img-element */
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, ShieldCheck, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon, Check } from 'lucide-react';
+import { RefreshCw,  ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, ShieldCheck, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon, Check  } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialPosts, clearGallery } from '@/app/actions/social-gallery';
 import { PrepararGrillaDeCara } from '@/components/social-gallery/PrepararGrillaDeCara';
 import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
@@ -213,6 +215,7 @@ function MuroSocialContent() {
   const settingsRef = useRef(settings);
   useEffect(() => { settingsRef.current = settings; }, [settings]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingLed, setIsSavingLed] = useState(false);
   const [isPlayAction, setIsPlayAction] = useState(false);
@@ -303,9 +306,17 @@ function MuroSocialContent() {
       return;
     }
     setIsLoading(true);
+    setError(null);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
-      if (!fiestaData) throw new Error('Fiesta no encontrada.');
+      const { fiesta: fiestaData, fallo } = await getFiestaParaPantalla(fiestaId);
+      if (fallo) {
+        setError('No se pudo cargar la fiesta');
+        return;
+      }
+      if (!fiestaData) {
+        setFiesta(null);
+        return;
+      }
       setFiesta(fiestaData);
       setSettings(withScreenDefaults({
         enabled: true,
@@ -346,7 +357,8 @@ function MuroSocialContent() {
         setApprovedPosts([]);
       }
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      setError('No se pudo cargar la fiesta');
+      toast({ title: 'Error al cargar', description: 'No se pudo cargar la fiesta', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -1097,8 +1109,28 @@ function MuroSocialContent() {
   };
 
 
-  if (isLoading || !fiesta) {
+  if (isLoading) {
     return <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center p-10 space-y-4 text-center">
+        <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => loadData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
+  }
+  if (!fiesta) {
+    return (
+      <div className="flex flex-col justify-center items-center p-10 space-y-4 text-center">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
+      </div>
+    );
   }
 
   return (
@@ -2034,6 +2066,7 @@ function MuroSocialContent() {
               <div className="space-y-1">
                 <Label className="text-xs font-semibold">Estilo visual</Label>
                 <select
+                  aria-label="Estilo visual"
                   className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                   value={settings.audioRhythm?.visualStyle ?? 'neon-bars'}
                   onChange={(e) => updateAudioRhythmSettings({ visualStyle: e.target.value as NonNullable<SocialGallerySettings['audioRhythm']>['visualStyle'] })}

@@ -15,7 +15,7 @@ import type { CrmLead } from '@/types/crm';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
-import { requirePermiso, requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   buildDailySnapshots,
@@ -428,20 +428,24 @@ export async function getNetworkAttributionReport(
 }
 
 
+
 export async function leerBandejaUnicaAction(): Promise<import('@/lib/mensajes/bandeja-unica').MensajeBandeja[]> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return [];
   const { leerBandejaUnica } = await import('@/lib/mensajes/bandeja-unica');
   return await leerBandejaUnica();
 }
 
 export async function getAjustesRespuestasAction() {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const { getAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
   return await getAjustesRespuestasComentarios();
 }
 
 export async function setAjustesRespuestasAction(ajustes: { comentarios?: boolean; mensajesDirectos?: boolean }) {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const { setAjustesRespuestasComentarios } = await import('@/lib/social-media/comments-backfill');
   return await setAjustesRespuestasComentarios(ajustes);
 }

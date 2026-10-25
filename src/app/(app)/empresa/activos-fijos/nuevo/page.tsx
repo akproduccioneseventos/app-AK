@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -48,7 +47,7 @@ function NuevoActivoFijoContent() {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
   };
-  
+
   const handleTramoChange = (index: number, field: keyof TramoDePrecio, value: string) => {
     setFormData(prev => {
         const nuevosTramos = [...(prev.tramosDePrecio || [])];
@@ -109,14 +108,14 @@ function NuevoActivoFijoContent() {
       toast({ title: "Campos Requeridos", description: "Nombre y Categoría son obligatorios.", variant: "destructive" });
       return;
     }
-    
+
     if (!formData.unidad) {
         toast({ title: "Campo Requerido", description: "La unidad es obligatoria.", variant: "destructive" });
         return;
     }
 
     setIsSaving(true);
-    
+
     const dataToSave: Omit<ServicioEmpresa, 'id'> = {
       ...formData,
       nombre: formData.nombre.trim(),
@@ -142,7 +141,7 @@ function NuevoActivoFijoContent() {
       setIsSaving(false);
     }
   };
-  
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -157,7 +156,7 @@ function NuevoActivoFijoContent() {
             Volver
           </Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Detalles del Activo</CardTitle>
@@ -202,14 +201,14 @@ function NuevoActivoFijoContent() {
               </div>
                <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required><SelectTrigger id="item-unidad" className="text-base p-3 h-auto"><SelectValue placeholder="Seleccionar unidad..."/></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u} className="text-base">{u}</SelectItem>))}</SelectContent></Select></div>
             </div>
-             
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2"><Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} placeholder="Ej: 150" min="0" className="text-base p-3" disabled={isSaving}/></div>
                 <div className="space-y-2"><Label htmlFor="item-valor-unitario">Costo Interno (UYU)</Label><Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>
             </div>
 
             <Separator/>
-             
+
              <div className="space-y-3">
                  <Label className="text-base font-medium">Método de Cálculo de Cantidad (para Lista de Carga)</Label>
                  <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} disabled={isSaving}>
@@ -222,7 +221,7 @@ function NuevoActivoFijoContent() {
                     </SelectContent>
                  </Select>
              </div>
-             
+
             {formData.calculationMethod === 'fijo' && (
                 <div className="space-y-2"><Label htmlFor="cantidad-fija">Cantidad a Cargar</Label><Input id="cantidad-fija" type="number" value={formData.cantidad ?? 1} onChange={(e) => handleFormChange('cantidad', e.target.value)} disabled={isSaving} min="1"/><p className="text-xs text-muted-foreground">Cantidad fija a cargar siempre.</p></div>
             )}

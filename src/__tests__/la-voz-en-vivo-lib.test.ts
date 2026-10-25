@@ -64,8 +64,9 @@ describe('instrucciones de la voz', () => {
   it('llevan el contexto del negocio', () => {
     expect(texto).toContain('Fiesta de Ana en 3 días, debe $5000');
   });
-  it('dicen que usa herramientas y que no inventa números', () => {
-    expect(texto).toMatch(/usá la herramienta/);
+  it('dicen que no ejecuta acciones por voz y que no inventa números', () => {
+    expect(texto).toMatch(/Fuera de las herramientas no cambies, cobres, mandes ni borres nada/);
+    expect(texto).toMatch(/lo dejás listo en el chat/);
     expect(texto).toMatch(/Nunca inventes números/);
   });
   it('no prometen garantía, 24/7 ni plazos', () => {

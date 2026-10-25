@@ -484,7 +484,12 @@ const huellaAlEmpezar = huellas.codigo;
 // Se mira AL EMPEZAR si habia cambios sin guardar: la corrida misma escribe datos (avisos, gasto
 // de IA) y mirarlo al final nunca daria limpio. Que el codigo no cambie en el medio ya lo cuida
 // `huellaAlEmpezar`.
-const sucioAlEmpezar = spawnSync('git status --porcelain --untracked-files=no', { shell: true, encoding: 'utf8' }).stdout.trim();
+// Los datos que escribe una corrida (el filtro de la subida, por ejemplo) no son código: no cuentan como
+// "sucio". Pasó el 21/10/2026: la puerta dio verde y no anotó el commit por un aviso de prueba guardado.
+const sucioAlEmpezar = spawnSync(
+  `git status --porcelain --untracked-files=no -- . ${NO_ES_CODIGO_PARA_LA_HUELLA.map((p) => `'${p}'`).join(' ')}`,
+  { shell: true, encoding: 'utf8' },
+).stdout.trim();
 const hayTrabajoSinCommitear = (spawnSync(
   `git status --porcelain -- . ${[...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS].map((p) => `'${p}'`).join(' ')}`,
   { shell: true, encoding: 'utf8' },

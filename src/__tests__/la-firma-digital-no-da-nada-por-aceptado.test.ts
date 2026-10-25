@@ -28,6 +28,19 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   }),
   syncFiestaFromBudget: jest.fn(async () => ({ success: true })),
 }));
+// Desde Codex 240 la firma se decide y se guarda adentro de la escritura de la fiesta.
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (_id: string, cambiar: (f: any) => any) => {
+    const antes = JSON.parse(JSON.stringify(fiestaGuardada));
+    const nueva = await cambiar(JSON.parse(JSON.stringify(fiestaGuardada)));
+    parciales.push(Object.fromEntries(Object.keys(nueva).filter((k) => JSON.stringify(nueva[k]) !== JSON.stringify(antes[k])).map((k) => [k, nueva[k]])));
+    fiestaGuardada = nueva;
+    return { success: true, updatedFiesta: nueva };
+  }),
+}));
+jest.mock('@/lib/auth/session-token', () => ({ generateBudgetToken: jest.fn(async () => 't'), verifySession: jest.fn(async () => ({ success: false })) }));
+const { createHash } = require('crypto');
+const huella = (t: string) => createHash('sha256').update(t).digest('hex');
 
 import * as Documentos from '@/app/actions/fiesta/documentos.actions';
 import * as FiestaActual from '@/app/actions/fiesta-actual';
@@ -53,7 +66,7 @@ describe('La firma digital no da nada por aceptado', () => {
   });
 
   it('firmar deja la constancia aparte, sin marcar el contrato como firmado, sin contratar ni anotar seña', async () => {
-    const r = await signContractDigitally('f1', 'Ana Pérez', false);
+    const r = await signContractDigitally('f1', 'Ana Pérez', false, huella('Texto del contrato'));
     expect(r.success).toBe(true);
     const c = fiestaGuardada.firmaDigitalConstancia;
     expect(c).toMatchObject({ signedBy: 'Ana Pérez', ip: '1.2.3.4', planPagosAceptado: false });
@@ -67,10 +80,10 @@ describe('La firma digital no da nada por aceptado', () => {
 
   it('con plan de pagos, no se firma sin aceptarlo; y no se firma dos veces', async () => {
     fiestaGuardada = fiestaDePrueba({ contratoDatos: { planPagos: { activo: true } } });
-    expect((await signContractDigitally('f1', 'Ana', false)).success).toBe(false);
-    expect((await signContractDigitally('f1', 'Ana', true)).success).toBe(true);
+    expect((await signContractDigitally('f1', 'Ana', false, huella('Texto del contrato'))).success).toBe(false);
+    expect((await signContractDigitally('f1', 'Ana', true, huella('Texto del contrato'))).success).toBe(true);
     const primera = fiestaGuardada.firmaDigitalConstancia.signedAt;
-    expect((await signContractDigitally('f1', 'Otro', true)).success).toBe(true);
+    expect((await signContractDigitally('f1', 'Otro', true, huella('Texto del contrato'))).success).toBe(true);
     expect(fiestaGuardada.firmaDigitalConstancia.signedAt).toBe(primera);
     expect(fiestaGuardada.firmaDigitalConstancia.signedBy).toBe('Ana');
   });
@@ -82,7 +95,7 @@ describe('La firma digital no da nada por aceptado', () => {
   });
 
   it('el cliente ve su constancia en el portal, pero no la IP', async () => {
-    await signContractDigitally('f1', 'Ana Pérez', false);
+    await signContractDigitally('f1', 'Ana Pérez', false, huella('Texto del contrato'));
     const vista: any = mapFiestaToClientPortal({ ...fiestaGuardada, clientPortalSettings: { enabled: true } });
     expect(vista.firmaDigitalConstancia.signedBy).toBe('Ana Pérez');
     expect(vista.firmaDigitalConstancia.ip).toBeUndefined();

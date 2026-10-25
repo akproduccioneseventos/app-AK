@@ -1,3 +1,4 @@
+import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -159,7 +160,7 @@ export function detectarErroresHumanos(
       const pagos = (presupuesto.pagosCliente || [])
         .filter(isConfirmedClientPayment)
         .reduce((sum, p) => sum + (Number(p.monto) || 0), 0);
-      const total = Number(presupuesto.totalConDescuento || presupuesto.costoTotalEstimado || 0);
+      const total = getBudgetCollectibleTotal(presupuesto);
       const saldo = total - pagos;
       if (saldo > 500) {
         alertas.push({
@@ -255,9 +256,17 @@ export function detectarErroresHumanos(
 
     // Alergias registradas sin reflejar
     if (dias >= 0 && dias <= 15) {
-      const hayAlergias = (fiesta.invitados || []).some(
-        (i) => Boolean((i as any).alergias || (i as any).dietaEspecial || (i as any).menuEspecial)
-      );
+      let hayAlergias = false;
+      for (const i of (fiesta.invitados || [])) {
+        try {
+          if (Boolean((i as any).alergiasEspecificas || (i as any).dietaryRestriction || (i as any).isCeliac || (i as any).alergias || (i as any).dietaEspecial || (i as any).menuEspecial)) {
+            hayAlergias = true;
+            break;
+          }
+        } catch {
+          // un invitado roto no interrumpe el análisis
+        }
+      }
       const tieneNotasAlergias = Boolean(
         (fiesta as any).catering?.menuCeliecos ||
         (fiesta as any).catering?.menuVegetarianos ||

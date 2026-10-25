@@ -58,7 +58,10 @@ export async function getAccesosGenerales(): Promise<AccesoPersonal[]> {
 export async function getAccesoById(tokenId: string): Promise<AccesoPersonal | null> {
     if (!tokenId || tokenId.length > 200) return null;
     const accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
-    return accesos.find(a => a.id === tokenId) || null;
+    const acceso = accesos.find(a => a.id === tokenId);
+    if (!acceso) return null;
+    if (accesoVencido(acceso)) return null;
+    return acceso;
 }
 
 export async function deleteAccesoPersonal(tokenId: string): Promise<{ success: boolean; error?: string }> {

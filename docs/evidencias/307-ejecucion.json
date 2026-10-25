@@ -1,0 +1,75 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z",
+  "started": "2026-10-24T02:27:46.455Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-24T01:33:47.333Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "306-home-clic-y-estado.spec.ts"
+  ],
+  "batchSize": 0,
+  "copiedTests": 1,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/306-home-clic-y-estado.spec.ts",
+      "copy": "tests/e2e/ak207-306-home-clic-y-estado.spec.ts",
+      "originalSha256": "6506f70450385d55083bf27221435e03f7897cfdad12433bed6046bfe72da02d",
+      "instrumentedSha256": "6a22bab0efccae667dbff81d025645102f445bf9f899795557adfe4b26c7f4e9"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 2632,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-24T02:27:53.814Z",
+    "version": "3e45a4ac6b479f89605163168e31b37dc84f2d0f · compilada 2026-10-24T01:20:45.087Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [],
+      "exitCode": 0,
+      "finished": "2026-10-24T02:28:50.006Z",
+      "report": "307-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T02:27:55.530Z",
+        "duration": 54436.408,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 0,
+  "currentBatch": 1,
+  "totalBatches": 1,
+  "testPid": 11776,
+  "stats": {
+    "startTime": "2026-10-24T02:27:55.530Z",
+    "duration": 54436.408,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 71,
+  "sourceDiff": "",
+  "finished": "2026-10-24T02:28:51.086Z"
+}

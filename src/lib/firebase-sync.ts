@@ -3,7 +3,7 @@
  * Handles background synchronization of JSON data to Firestore collections.
  * Used by data-service.ts for dual-write capability.
  */
-'use server';
+import 'server-only';
 
 import * as logger from './logger';
 import { COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION, conLosCobrosDeLaBase, facturaConLosPagosDeLaBase } from './budget/los-cobros-no-se-pisan';
@@ -363,7 +363,7 @@ export async function syncToFirestore(
       for (let i = 0; i < aEscribirEnLotes.length; i += batchSize) {
         const batch = db.batch();
         const chunk = aEscribirEnLotes.slice(i, i + batchSize);
-        
+
         for (const item of chunk) {
           const docId = getItemDocId(item);
           if (!docId) continue;
@@ -372,7 +372,7 @@ export async function syncToFirestore(
           if (!opciones.esRestauracion) cleanData = protegerLaPlata(collectionName, cleanData, enLaBaseFueraDeTransaccion.get(docId));
           batch.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
         }
-        
+
         await withRetry(() => batch.commit(), `collection: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
       }
       return;

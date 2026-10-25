@@ -613,6 +613,7 @@ export interface InvitacionDigitalData {
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria' | 'XvModerna' | 'XvClasica' | 'BodaMinimalista' | 'BodaCampo' | 'FiestaNoche' | 'Corporativo';
   musicaFondoUrl?: string;
+  realidadAumentada?: { visible?: boolean; imagenUrl?: string; videoUrl?: string; mindTargetUrl?: string };
   secciones: SeccionInvitacion[];
   cabecera: {
     visible: boolean;
@@ -1870,6 +1871,8 @@ export interface ClientPaymentNotification {
   estado: 'pendiente' | 'aprobado' | 'rechazado';
   timestamp: string;
   approvedAt?: string;
+  /** Cuándo quedó acreditado en el presupuesto. Con esto puesto, ningún intento fallido lo vuelve a pendiente. */
+  cobroConfirmadoAt?: string;
   notas?: string;
 }
 

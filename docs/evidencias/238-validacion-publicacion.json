@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-22T05:58:23.813Z",
+  "scope": "Publication validation only, not whole-app acceptance",
+  "syntax": [
+    {
+      "file": "docs/evidencias/209-ejecutar-bateria.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/235-compactar-evidencias.mjs",
+      "status": 0
+    },
+    {
+      "file": "docs/evidencias/237-voz-meta-candidato.mjs",
+      "status": 0
+    }
+  ],
+  "losslessGzipVerified": 13,
+  "diffCheck": 0,
+  "appDiff": "",
+  "stateLines": 39
+}

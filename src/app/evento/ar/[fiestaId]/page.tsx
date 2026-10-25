@@ -7,10 +7,12 @@ import { Camera, ArrowLeft, AlertCircle, Sparkles, Volume2, VolumeX, RefreshCw }
 import { Button } from '@/components/ui/button';
 import { getPublicSocialEvent } from '@/app/actions/social-gallery';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
+import * as THREE from 'three';
 
 /**
  * Realidad Aumentada de Invitación Impresa con MindAR.
  * El invitado apunta a la invitación física y sobre ella se reproduce el video de la fiesta.
+ * Requiere el archivo compilado `.mind` de la tarjeta.
  */
 export default function EventoRealidadAumentadaPage() {
   const params = useParams();
@@ -29,15 +31,25 @@ export default function EventoRealidadAumentadaPage() {
 
   useEffect(() => {
     let active = true;
-    getPublicSocialEvent(fiestaId).then((data) => {
-      if (!active) return;
-      setFiesta(data);
-      setLoading(false);
-    });
+    getPublicSocialEvent(fiestaId)
+      .then((data) => {
+        if (!active) return;
+        setFiesta(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        // no pasa nada si falla: sin datos se muestra el estado sin realidad aumentada
+        if (!active) return;
+        setLoading(false);
+      });
     return () => {
       active = false;
     };
   }, [fiestaId]);
+
+  // Busca el archivo compilado .mind para la invitación física
+  const tieneMindConfigurado = Boolean(fiesta?.tieneRealidadAumentada || fiesta?.mindTargetUrl || (fiesta as any)?.invitacionMindUrl);
+  const mindTargetUrl = fiesta?.mindTargetUrl || (fiesta as any)?.invitacionMindUrl || `/models/ar/${fiestaId}.mind`;
 
   const startAR = useCallback(async () => {
     try {
@@ -46,31 +58,61 @@ export default function EventoRealidadAumentadaPage() {
         throw new Error('Tu navegador no permite acceso a la cámara. Probá en Chrome o Safari.');
       }
 
-      // Carga dinámica de mind-ar sólo en esta pantalla
+      // Carga dinámica de mind-ar local vendor
       // @ts-ignore
-      const { MindARThree } = await import('mind-ar/dist/mindar-image-three.prod.js').catch(() => {
-        // Fallback dinámico si se ejecuta en SSR o entorno sin canvas WebGL completo
-        return { MindARThree: null };
-      });
+      const mindarModule = await import('@/lib/vendor/mind-ar/mindar-image-three.prod.js').catch(() => null);
+      const MindARThree = mindarModule?.MindARThree;
 
-      if (containerRef.current && MindARThree) {
-        const mindarThree = new MindARThree({
+      if (!MindARThree) {
+        setCameraError('No pudimos inicializar la realidad aumentada. Probá en otro navegador.');
+        return;
+      }
+
+      if (containerRef.current) {
+        const mindarThree: any = new (MindARThree as any)({
           container: containerRef.current,
-          imageTargetSrc: (fiesta as any)?.coverUrl || '/icons/ak-icon.svg',
+          imageTargetSrc: mindTargetUrl,
           filterMinCF: 0.0001,
           filterBeta: 0.001,
         });
         mindArInstanceRef.current = mindarThree;
+
+        // Configuración de anclaje y textura de video montada sobre el plano
+        const anchor: any = mindarThree.addAnchor ? mindarThree.addAnchor(0) : null;
+        if (anchor) {
+          if (videoRef.current) {
+            const texture = new THREE.VideoTexture(videoRef.current);
+            const geometry = new THREE.PlaneGeometry(1, 1);
+            const material = new THREE.MeshBasicMaterial({ map: texture });
+            const plane = new THREE.Mesh(geometry, material);
+            anchor.group?.add?.(plane);
+          }
+
+          anchor.onTargetFound = () => {
+            setArTargetDetected(true);
+            if (videoRef.current) {
+              // no pasa nada si falla: el teléfono puede frenar el arranque solo; el video sigue a un toque.
+              videoRef.current.play().catch(() => {});
+            }
+          };
+          anchor.onTargetLost = () => {
+            setArTargetDetected(false);
+            if (videoRef.current) {
+              videoRef.current.pause();
+            }
+          };
+        }
+
+        // Inicia el tracking de la cámara
         await mindarThree.start();
-        setArTargetDetected(true);
       }
     } catch (err: any) {
       setCameraError(err?.message || 'Para ver el video sobre la invitación, permití el acceso a la cámara tocando el candado de la barra del navegador.');
     }
-  }, [fiesta]);
+  }, [mindTargetUrl]);
 
   useEffect(() => {
-    if (!loading && fiesta) {
+    if (!loading && fiesta && tieneMindConfigurado) {
       startAR();
     }
     return () => {
@@ -82,7 +124,7 @@ export default function EventoRealidadAumentadaPage() {
         }
       }
     };
-  }, [loading, fiesta, startAR]);
+  }, [loading, fiesta, tieneMindConfigurado, startAR]);
 
   if (loading) {
     return (
@@ -93,16 +135,15 @@ export default function EventoRealidadAumentadaPage() {
     );
   }
 
-  // Si la fiesta no tiene realidad aumentada configurada
-  const hasARConfigured = Boolean((fiesta as any)?.coverUrl || fiesta?.configuracion?.nombreEvento);
-  if (!hasARConfigured) {
+  // Sin .mind, el cartel dice claramente lo que pasa (no queda pantalla o cámara negra)
+  if (!tieneMindConfigurado) {
     return (
       <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-6 text-center">
         <div className="max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-4">
           <AlertCircle className="w-12 h-12 text-amber-400 mx-auto" />
-          <h2 className="text-lg font-black">Realidad Aumentada</h2>
+          <h2 className="text-lg font-black">Esta invitación todavía no tiene realidad aumentada</h2>
           <p className="text-xs text-zinc-400 leading-relaxed">
-            Esta fiesta no tiene realidad aumentada preparada todavía. Podés acceder a todas las fotos, barra y música desde el hub.
+            Cuando se termine de diseñar la tarjeta impresa se activa la vista sobre el papel. Podés entrar a todas las fotos, barra y música desde acá:
           </p>
           <Button
             onClick={() => router.push(`/evento/hub/${fiestaId}`)}
@@ -117,6 +158,16 @@ export default function EventoRealidadAumentadaPage() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-white select-none">
+      {/* Video de la fiesta reproducido sobre la tarjeta */}
+      <video
+        ref={videoRef}
+        src={fiesta?.arVideoUrl}
+        playsInline
+        muted={isAudioMuted}
+        loop
+        crossOrigin="anonymous"
+        style={{ display: 'none' }}
+      />
       {/* Contenedor WebGL para MindAR */}
       <div ref={containerRef} className="absolute inset-0 z-0 w-full h-full" />
 

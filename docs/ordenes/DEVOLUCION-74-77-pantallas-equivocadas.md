@@ -58,7 +58,7 @@ frena la publicación de toda la tanda.**
 
 ```comprobar
 archivo: src/components/multiagent/multiagent-widget.tsx
-usa: Salon3DClienteView en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+usa: <SalonDelClienteEn3D en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
 prueba: tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts
 ```
 

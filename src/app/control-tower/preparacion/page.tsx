@@ -1,3 +1,4 @@
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import Link from 'next/link';
 import { AlertCircle, ArrowLeft, CheckCircle2, ClipboardCheck, PartyPopper, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,7 +58,7 @@ export default async function PreparationScoresPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2 text-xl font-black text-slate-950"><PartyPopper className="h-5 w-5 text-red-600" /> {item.nombreEvento}</CardTitle>
-                  <p className="mt-1 text-sm font-medium text-slate-500">{item.fechaEvento ? new Date(item.fechaEvento).toLocaleDateString('es-UY') : 'Sin fecha'}</p>
+                  <p className="mt-1 text-sm font-medium text-slate-500">{item.fechaEvento ? formatearFechaEvento(item.fechaEvento) : 'Sin fecha'}</p>
                 </div>
                 <Badge variant="outline" className={levelStyles[item.score.level]}>{item.score.label}</Badge>
               </div>

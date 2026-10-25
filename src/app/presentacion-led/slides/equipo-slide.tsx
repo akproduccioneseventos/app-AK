@@ -33,12 +33,13 @@ export function EquipoSlide({ tipoFiesta, equipoSettings }: EquipoSlideProps) {
   useEffect(() => {
     if (fotosCargadas.length > 0) return;
     let vigente = true;
+    // no pasa nada si falla: sin fotos la pantalla de presentación igual se muestra con su marco de siempre
     getFotosDePresentacion(tipoFiesta || '', 4)
       .then((fotos) => {
         if (vigente) setFotosDeGaleria(fotos);
       })
-      .catch(() => {
-        // Sin fotos la pantalla igual se muestra, con su marco de siempre.
+      .catch((err) => {
+        console.warn('[EquipoSlide] Error al obtener fotos:', err);
       });
     return () => {
       vigente = false;

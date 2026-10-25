@@ -1,0 +1,200 @@
+{
+  "source": "9d1a07f99b8d6972995ff8c2b9f1a5a1ac4a81de",
+  "checkedAt": "2026-10-22T04:58:58.232Z",
+  "actualSdk": true,
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/security/portal-session.ts": "98ab26eda664e29c27391fecba3d2dff8db404bc491e39eb950cb92f56ab5282",
+    "src/lib/fiesta/recortar-para-afuera.ts": "da9507e78ae57dccf5b51936a46e6a66a98b127b34377895ca9092daf96c2e69",
+    "src/lib/fiesta/get-fiesta-raw.ts": "58b8533078d083330741f1aa17013bc3c537b481974665e9121ab743c9a15bbc",
+    "src/lib/generic-json-store.ts": "e37b827ebcfd29cef82ddca37ab64a8689e9bbb7d3df5fabd6cc8cd679c4a886",
+    "src/app/actions/fiesta/fiesta.actions.ts": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+    "src/lib/fiesta/actualizar-fiesta.ts": "3b61f183dfaf9008a3767be85a27a721789936bed40dfc8e3bba39c3ec3fc34b",
+    "src/app/actions/fiesta/portal.actions.ts": "d3a7a7cde4c170a48ca10f735b19454f9470601fdcbe8136964d3e5a5ee52b83"
+  },
+  "cases": [
+    {
+      "id": "portal-actual-signed-cookie-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "sequential-retry-one-notification-sdk",
+      "pass": true,
+      "observed": {
+        "first": {
+          "success": true,
+          "notificationId": "cpn_b57140ed-1442-4ba2-afc1-b8329d910c7c"
+        },
+        "retry": {
+          "success": true,
+          "notificationId": "cpn_b57140ed-1442-4ba2-afc1-b8329d910c7c"
+        },
+        "notifications": [
+          {
+            "id": "cpn_b57140ed-1442-4ba2-afc1-b8329d910c7c",
+            "monto": 500,
+            "estado": "pendiente",
+            "timestamp": "2026-10-22T04:58:56.610Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "updater-preserves-key-and-private-staff-sdk",
+      "pass": true,
+      "observed": {
+        "accessKeyPreserved": true,
+        "salary": 3000
+      }
+    },
+    {
+      "id": "same-report-concurrent-one-notification-sdk",
+      "pass": true,
+      "observed": {
+        "results": [
+          {
+            "success": true,
+            "notificationId": "cpn_6331f895-b5f3-4c75-8f5b-47ea3d1e0c83"
+          },
+          {
+            "success": true,
+            "notificationId": "cpn_6331f895-b5f3-4c75-8f5b-47ea3d1e0c83"
+          }
+        ],
+        "notifications": [
+          {
+            "id": "cpn_6331f895-b5f3-4c75-8f5b-47ea3d1e0c83",
+            "monto": 500,
+            "estado": "pendiente",
+            "timestamp": "2026-10-22T04:58:57.334Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "different-reports-retain-both-sdk",
+      "pass": true,
+      "observed": {
+        "results": [
+          {
+            "success": true,
+            "notificationId": "cpn_749bf5fd-6633-4ea7-9501-297f64b8d78f"
+          },
+          {
+            "success": true,
+            "notificationId": "cpn_5c2d348b-a115-4ebe-9ab5-7d973f65c8e3"
+          }
+        ],
+        "notifications": [
+          {
+            "id": "cpn_5c2d348b-a115-4ebe-9ab5-7d973f65c8e3",
+            "monto": 300,
+            "estado": "pendiente",
+            "timestamp": "2026-10-22T04:58:57.570Z"
+          },
+          {
+            "id": "cpn_749bf5fd-6633-4ea7-9501-297f64b8d78f",
+            "monto": 250,
+            "estado": "pendiente",
+            "timestamp": "2026-10-22T04:58:57.570Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "upload-failure-warning-before-retry-is-explicit-sdk",
+      "pass": true,
+      "observed": {
+        "failedUpload": {
+          "success": true,
+          "notificationId": "cpn_a227cf03-4576-415a-9986-04e55042e066",
+          "aviso": "El pago quedó informado, pero el comprobante no se pudo subir. Volvé a adjuntarlo con el mismo monto y se agrega a este aviso."
+        },
+        "notifications": [
+          {
+            "id": "cpn_a227cf03-4576-415a-9986-04e55042e066",
+            "monto": 500,
+            "estado": "pendiente",
+            "timestamp": "2026-10-22T04:58:57.792Z"
+          }
+        ]
+      }
+    },
+    {
+      "id": "failed-attachment-retry-not-silently-lost-sdk",
+      "pass": true,
+      "observed": {
+        "failedUpload": {
+          "success": true,
+          "notificationId": "cpn_a227cf03-4576-415a-9986-04e55042e066",
+          "aviso": "El pago quedó informado, pero el comprobante no se pudo subir. Volvé a adjuntarlo con el mismo monto y se agrega a este aviso."
+        },
+        "uploadRetry": {
+          "success": true,
+          "notificationId": "cpn_a227cf03-4576-415a-9986-04e55042e066"
+        },
+        "notifications": [
+          {
+            "id": "cpn_a227cf03-4576-415a-9986-04e55042e066",
+            "monto": 500,
+            "estado": "pendiente",
+            "timestamp": "2026-10-22T04:58:57.792Z",
+            "comprobanteUrl": "payments/qa222-upload/cpn_8cb95e0a-06ab-4245-84ce-af046f1a2493_qa222.png",
+            "comprobanteNombre": "qa222.png"
+          }
+        ],
+        "uploadCalls": 2
+      }
+    },
+    {
+      "id": "invalid-amount-0-no-notification-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Monto inválido"
+      }
+    },
+    {
+      "id": "invalid-amount--1-no-notification-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Monto inválido"
+      }
+    },
+    {
+      "id": "invalid-amount-NaN-no-notification-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Monto inválido"
+      }
+    },
+    {
+      "id": "foreign-event-session-rejected-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Sesión no autorizada."
+      }
+    },
+    {
+      "id": "rotated-key-before-request-rejected-sdk",
+      "pass": true,
+      "observed": {
+        "success": false,
+        "error": "Sesión no autorizada."
+      }
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "pass": 12,
+    "fail": 0
+  },
+  "remainingDocuments": 0,
+  "realServices": false,
+  "appEdited": false,
+  "scope": "Firestore Admin SDK emulator; actual notification action, portal signatures, access guard, actualizarFiesta, generic transaction and secret preservation. Read adapter applies real client redactor. Anonymous-team predicate, Storage and internal mail/notification adapters controlled. No ledger charge, actual bucket upload, HTTP/browser or all-role permission certification."
+}

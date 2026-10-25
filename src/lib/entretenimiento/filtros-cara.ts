@@ -106,8 +106,81 @@ export async function cargarDetectorDeCaras(): Promise<any> {
   return cargandoDetector;
 }
 
-// Control de disparo reactivo (boca abierta / confeti)
+// Control de disparo reactivo (boca abierta / confeti y cambio de filtro por cejas)
 let ultimoDisparoBoca = 0;
+let cejasEstabanLevantadas = false;
+let desplazamientoFiltroPorCejas = 0;
+let ultimoFiltroBaseId = '';
+
+// Estado de intento para la ruleta (semilla estable por intento y reloj de inicio)
+let semillaIntentoRuleta = 7;
+let inicioGiroRuletaMs: number | null = null;
+
+const FILTROS_CICLABLES = [
+  'mis15',
+  'novios',
+  'cumple',
+  'anteojos_fiesta',
+  'gatito',
+  'corazones',
+  'bigote_sombrero',
+  'corona_flores',
+  'lentes_estrella',
+] as const;
+
+/**
+ * Reinicia el intento de la ruleta para que un nuevo participante obtenga
+ * un giro de 3 segundos y una opción distinta sin cambiar en cada frame.
+ */
+export function iniciarNuevoIntentoRuleta(semilla?: number): void {
+  semillaIntentoRuleta =
+    typeof semilla === 'number' && Number.isFinite(semilla)
+      ? Math.abs(Math.floor(semilla))
+      : (semillaIntentoRuleta + 1) % 997;
+  inicioGiroRuletaMs = null;
+}
+
+/**
+ * Ejecuta la detección de caras sobre un elemento de video, imagen o canvas
+ * utilizando el FaceLandmarker cargado en memoria.
+ * Si el detector aún no terminó de cargar o no detecta rostros reales,
+ * devuelve [] sin inventar coordenadas.
+ */
+export function detectarCarasEnFuente(
+  fuente: HTMLVideoElement | HTMLImageElement | HTMLCanvasElement | null | undefined,
+  timestampMs: number = Date.now()
+): CaraDetectada[] {
+  if (!fuente || !detectorCaras) return [];
+  try {
+    const resultado =
+      typeof detectorCaras.detectForVideo === 'function'
+        ? detectorCaras.detectForVideo(fuente, timestampMs)
+        : typeof detectorCaras.detect === 'function'
+          ? detectorCaras.detect(fuente)
+          : null;
+    if (!resultado || !Array.isArray(resultado.faceLandmarks) || resultado.faceLandmarks.length === 0) {
+      return [];
+    }
+    return resultado.faceLandmarks.map((landmarks: Array<{ x: number; y: number; z?: number }>, idx: number) => {
+      const categorias = resultado.faceBlendshapes?.[idx]?.categories;
+      const blendshapes: Record<string, number> = {};
+      if (Array.isArray(categorias)) {
+        for (const cat of categorias) {
+          if (cat && typeof cat.categoryName === 'string' && typeof cat.score === 'number') {
+            blendshapes[cat.categoryName] = cat.score;
+          }
+        }
+      }
+      return {
+        puntos: landmarks.map((p) => ({ x: p.x, y: p.y, z: p.z })),
+        blendshapes,
+      };
+    });
+  } catch {
+    // no pasa nada si falla: sin rostros detectados se preserva el lienzo original
+    return [];
+  }
+}
 
 /**
  * Evalúa si las expresiones faciales disparan efectos reactivos.
@@ -142,11 +215,12 @@ export function evaluarEfectoReactivo(
 
 /**
  * Resuelve la opción seleccionada por la ruleta de Instagram.
- * Gira durante 3000ms y luego queda fija.
+ * Gira durante 3000ms y luego queda fija en una única opción para ese intento.
  */
 export function obtenerOpcionRuleta(
   tiempoMs: number,
-  nombreAgasajado?: string
+  nombreAgasajado?: string,
+  semillaIntento?: number
 ): string {
   const lista = [...OPCIONES_RULETA_INVITADO];
   if (nombreAgasajado && nombreAgasajado.trim()) {
@@ -154,14 +228,23 @@ export function obtenerOpcionRuleta(
   }
 
   const duracionGiro = 3000;
-  if (tiempoMs < duracionGiro) {
-    const indice = Math.floor((tiempoMs / 120) % lista.length);
+  const tiempoRelativo = Math.max(0, tiempoMs);
+  if (tiempoRelativo < duracionGiro) {
+    const indice = Math.floor((tiempoRelativo / 120) % lista.length);
     return lista[indice];
   }
 
-  // Final del giro: resultado estable basado en semilla
-  const semilla = Math.abs(Math.floor(tiempoMs / duracionGiro));
-  return lista[semilla % lista.length];
+  // Final del giro: resultado estable por intento y participante (no cambia con tiempoMs >= 3000)
+  const hashNombre = (nombreAgasajado || '')
+    .trim()
+    .split('')
+    .reduce((acc, ch, idx) => acc + ch.charCodeAt(0) * (idx + 1), 0);
+  const semillaBase =
+    typeof semillaIntento === 'number' && Number.isFinite(semillaIntento)
+      ? Math.abs(Math.floor(semillaIntento))
+      : semillaIntentoRuleta;
+  const indiceFinal = Math.abs(semillaBase + hashNombre) % lista.length;
+  return lista[indiceFinal];
 }
 
 /**
@@ -248,13 +331,39 @@ export function dibujarFiltroDeCara(
     ctx.rotate(angulo);
     ctx.scale(escala, escala);
 
-    // 1. EVALUAR EFECTOS REACTIVOS (jawOpen, guiño)
+    if (filtroId !== ultimoFiltroBaseId) {
+      ultimoFiltroBaseId = filtroId;
+      desplazamientoFiltroPorCejas = 0;
+      cejasEstabanLevantadas = false;
+    }
+
+    // 1. EVALUAR EFECTOS REACTIVOS (jawOpen, guiño y levantamiento de cejas)
     const reactivo = evaluarEfectoReactivo(cara.blendshapes, timestampMs);
     if (reactivo.confetiBoca) {
       dibujarExplosionConfeti(ctx, 0, 70); // Sale desde la boca
     }
+    if (reactivo.destelloOjo) {
+      const ojoIzqGuiño = (cara.blendshapes?.['eyeBlinkLeft'] ?? 0) > 0.5;
+      dibujarDestelloGuino(ctx, ojoIzqGuiño ? -38 : 38, 0, primaryColor);
+    }
+    if (reactivo.cambiarFiltro) {
+      if (!cejasEstabanLevantadas) {
+        desplazamientoFiltroPorCejas = (desplazamientoFiltroPorCejas + 1) % FILTROS_CICLABLES.length;
+        cejasEstabanLevantadas = true;
+      }
+    } else {
+      cejasEstabanLevantadas = false;
+      desplazamientoFiltroPorCejas = 0;
+    }
 
-    switch (filtroId) {
+    let filtroEfectivo = filtroId;
+    if (desplazamientoFiltroPorCejas > 0) {
+      const idxBase = FILTROS_CICLABLES.indexOf(filtroId as (typeof FILTROS_CICLABLES)[number]);
+      const idxInicial = idxBase >= 0 ? idxBase : 0;
+      filtroEfectivo = FILTROS_CICLABLES[(idxInicial + desplazamientoFiltroPorCejas) % FILTROS_CICLABLES.length];
+    }
+
+    switch (filtroEfectivo) {
       case 'mis15': {
         // Corona/Tiara sobre la cabeza
         dibujarCorona(ctx, 0, -85, '#f59e0b', '#fbbf24');
@@ -321,7 +430,11 @@ export function dibujarFiltroDeCara(
       }
 
       case 'ruleta_invitado': {
-        const opcion = obtenerOpcionRuleta(timestampMs % 10000, nombreAgasajado);
+        if (inicioGiroRuletaMs === null || timestampMs < inicioGiroRuletaMs) {
+          inicioGiroRuletaMs = timestampMs;
+        }
+        const tiempoGiro = Math.max(0, timestampMs - inicioGiroRuletaMs);
+        const opcion = obtenerOpcionRuleta(tiempoGiro, nombreAgasajado);
         dibujarRuletaCartel(ctx, 0, -115, opcion, primaryColor);
         filtroAplicado = true;
         break;
@@ -628,6 +741,17 @@ function dibujarRuletaCartel(ctx: CanvasRenderingContext2D, x: number, y: number
   ctx.textBaseline = 'middle';
   ctx.fillText(texto, 0, 0);
 
+  ctx.restore();
+}
+
+function dibujarDestelloGuino(ctx: CanvasRenderingContext2D, x: number, y: number, color: string) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = '#fef08a';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  dibujarEstrella(ctx, 0, -6, 4, 16, 6);
+  ctx.stroke();
   ctx.restore();
 }
 

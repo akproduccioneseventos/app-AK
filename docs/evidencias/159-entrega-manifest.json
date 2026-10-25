@@ -1,0 +1,100 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "files": [
+    {
+      "file": "156-157-portales-y-estaciones.md",
+      "bytes": 3669,
+      "sha256": "1455fe80bba62e48c2fc00fd0856a9672afcb3e4200ab806865e471f5d0ce61a"
+    },
+    {
+      "file": "156-contrastar.mjs",
+      "bytes": 2006,
+      "sha256": "bd7af55064396af80c6480c6074975d4ae54a84accb91f9658411e5ec66bccef"
+    },
+    {
+      "file": "156-contraste.json",
+      "bytes": 3522,
+      "sha256": "ea5ba159106bdd89986240a543fbb2895ab7e2cb8d0c05fc213be8c825fff23b"
+    },
+    {
+      "file": "156-portales-cruzados-final.json",
+      "bytes": 14094,
+      "sha256": "12b7a22872c2fbf7da15868ee0b0ffb992067c918e2149ab55218df10ca8f8ec"
+    },
+    {
+      "file": "156-portales-cruzados-inicial.json",
+      "bytes": 14011,
+      "sha256": "f921863697927b4f382e6026449fb0e62b38cf5f869ee62b8c4b3f1b7189b387"
+    },
+    {
+      "file": "156-portales-cruzados-inicial.mjs",
+      "bytes": 14143,
+      "sha256": "a6f5b78977926f687026bf6f2fe792532255e7689769efd83fe2c82294ef0094"
+    },
+    {
+      "file": "156-portales-cruzados.json",
+      "bytes": 14011,
+      "sha256": "f921863697927b4f382e6026449fb0e62b38cf5f869ee62b8c4b3f1b7189b387"
+    },
+    {
+      "file": "156-portales-cruzados.mjs",
+      "bytes": 14280,
+      "sha256": "21c79feb75f8afd0992e12aa116c50e868d8fff5a7a189f665e1c53d55872545"
+    },
+    {
+      "file": "157-invitados-estaciones.json",
+      "bytes": 7235,
+      "sha256": "a0bdbe32d9e2284199cee2d2f4faf768d15080b9f4273d9cc0cb1d67fd782378"
+    },
+    {
+      "file": "157-invitados-estaciones.mjs",
+      "bytes": 9769,
+      "sha256": "f89de1def0f957393f1b74d59f9b4e642cfef4fc5c266f0d89aa5370916a8481"
+    },
+    {
+      "file": "158-159-tareas-y-fechas.md",
+      "bytes": 1971,
+      "sha256": "8eff0c7d3be740c1279059018dd7029fed37d3c138eb2b58d300fff0bf63596a"
+    },
+    {
+      "file": "158-tareas-respuesta-publica.json",
+      "bytes": 8684,
+      "sha256": "21c0a48c11a7359a2c11f068413457fa986531598301037dcd9204420ed2aba2"
+    },
+    {
+      "file": "158-tareas-respuesta-publica.mjs",
+      "bytes": 6725,
+      "sha256": "7d447df082324c59d078d92fbe32dbb3c0636d3b33d895f2f1bf42a1244f77d3"
+    },
+    {
+      "file": "159-consolidado.json",
+      "bytes": 4062,
+      "sha256": "e789adf0d1712c71d53d29ca3320ce3672f080bd92306da1441e9b749a8285e0"
+    },
+    {
+      "file": "159-consolidar.mjs",
+      "bytes": 1900,
+      "sha256": "a2ce3fb3e8160b6424c54d65ff8b50f72412011d351b4c6001f86ef43639d88c"
+    },
+    {
+      "file": "159-entrega-validacion.json",
+      "bytes": 583,
+      "sha256": "8a632c1941830dee428c40b7206b9ec51d15a0ff2f45b47f34731d621be80513"
+    },
+    {
+      "file": "159-fecha-seguimiento.json",
+      "bytes": 2943,
+      "sha256": "dad89a3dc28c4a4b79112fae3512cd82c520ea1648cdcd8c0c7d431ea8bc4795"
+    },
+    {
+      "file": "159-fecha-seguimiento.mjs",
+      "bytes": 4055,
+      "sha256": "a4a68de378a4677993b88cef53c4a963228df0cdb00a12b4941787af7380c5b2"
+    },
+    {
+      "file": "159-verificar-entrega.mjs",
+      "bytes": 3401,
+      "sha256": "0fb24cdb902eed345232b7b5c83ec6edcdede7b4de6ff23ce24b41ecac4e4237"
+    }
+  ]
+}

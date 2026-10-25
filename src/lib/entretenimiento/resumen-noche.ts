@@ -43,8 +43,6 @@ const NOMBRES_ESTACIONES: Record<string, string> = {
   espejoMagicoFirma: 'Espejo Mágico (Firma)',
   espejoMagicoIA: 'Espejo Mágico IA',
   totems: 'Tótems Interactivos',
-  touchpix: 'Tótem IA (Touchpix)',
-  buzon: 'Buzón de Mensajes',
   capsulaTiempo: 'Cápsula del Tiempo',
 };
 

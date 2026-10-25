@@ -1,0 +1,8 @@
+{
+  "kind": "QA_WRAPPER_SYNTAX_ERROR_BEFORE_EXECUTION",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "failedSource": "388-primer-control-qa.mjs",
+  "observed": "Replacing import.meta.url inside a quoted replacement pattern generated invalid JavaScript. SyntaxError missing ) after argument list before the reminder engine executed.",
+  "appFailure": false,
+  "rerun": "388-retest-recordatorio-entrega.mjs uses the established direct wrapper; 388-recordatorios-motor.json records ten actual passing criteria. The earlier failed wrapper is preserved."
+}

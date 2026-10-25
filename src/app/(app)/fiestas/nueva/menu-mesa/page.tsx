@@ -1,14 +1,13 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, type ChangeEvent, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon, Download } from 'lucide-react';
+import { RefreshCw,  ArrowLeft, Printer as PrinterIcon, Save, Loader2, Edit, Upload, Image as ImageIcon, Download  } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, MenuMesaData } from '@/types/fiesta';
-import { getFiestaById, updateMenuMesa as updateMenuMesaAction } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, getFiestaParaPantalla, updateMenuMesa as updateMenuMesaAction } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,9 +43,17 @@ function MenuDeMesaContent() {
       return;
     }
     setIsLoading(true);
+    setError(null);
     try {
-      const [fiestaData, settings] = await Promise.all([getFiestaById(fiestaId), getInvoiceTemplateSettings()]);
-      if (!fiestaData) throw new Error("Fiesta no encontrada");
+      const [{ fiesta: fiestaData, fallo }, settings] = await Promise.all([getFiestaParaPantalla(fiestaId), getInvoiceTemplateSettings()]);
+      if (fallo) {
+        setError("No se pudo cargar la fiesta");
+        return;
+      }
+      if (!fiestaData) {
+        setFiesta(null);
+        return;
+      }
       setFiesta(fiestaData);
       setLogoUrl(settings.logoUrl ?? null);
 
@@ -54,8 +61,8 @@ function MenuDeMesaContent() {
       lastSavedDataRef.current = mergedData;
       setData(mergedData);
     } catch (e: any) {
-      setError("No se pudo cargar la información del evento.");
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      setError("No se pudo cargar la fiesta");
+      toast({ title: "Error", description: "No se pudo cargar la fiesta", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -158,11 +165,28 @@ function MenuDeMesaContent() {
   };
 
 
-  if (isLoading || !fiesta) {
+  if (isLoading) {
     return <div className="p-8 max-w-4xl mx-auto flex justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>;
   }
   if (error) {
-    return <div className="p-8 max-w-4xl mx-auto text-center">{error}</div>;
+    return (
+      <div className="p-8 max-w-4xl mx-auto flex flex-col items-center justify-center text-center space-y-4">
+        <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button onClick={() => loadData()} variant="outline">
+          <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+        </Button>
+      </div>
+    );
+  }
+  if (!fiesta) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto flex flex-col items-center justify-center text-center space-y-4">
+        <h2 className="text-xl font-bold">Fiesta no encontrada</h2>
+        <p className="text-muted-foreground">La fiesta solicitada no existe o fue eliminada.</p>
+        <Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button>
+      </div>
+    );
   }
 
   return (

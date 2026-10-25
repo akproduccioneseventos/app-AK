@@ -20,45 +20,46 @@ const AJUSTES_RESPUESTAS_FILE = 'marketing-respuestas-comentarios.json';
 
 export interface AjustesRespuestasComentarios {
   activo?: boolean;
-  comentarios: boolean;
-  mensajesDirectos: boolean;
+  comentarios?: boolean;
+  mensajesDirectos?: boolean;
   actualizadoAt?: string;
 }
 
 export async function getAjustesRespuestasComentarios(): Promise<AjustesRespuestasComentarios> {
-  const guardados = await readData<any>(AJUSTES_RESPUESTAS_FILE, {});
-  const comentarios = guardados?.comentarios !== undefined ? Boolean(guardados.comentarios) : (guardados?.activo !== undefined ? Boolean(guardados.activo) : true);
-  const mensajesDirectos = guardados?.mensajesDirectos !== undefined ? Boolean(guardados.mensajesDirectos) : true;
+  const guardados = await readData<AjustesRespuestasComentarios>(AJUSTES_RESPUESTAS_FILE, { activo: false });
+  const comentarios = guardados?.comentarios !== undefined ? guardados.comentarios : (guardados?.activo === true);
+  const mensajesDirectos = guardados?.mensajesDirectos !== undefined ? guardados.mensajesDirectos : true;
   return {
+    ...guardados,
     activo: comentarios,
     comentarios,
     mensajesDirectos,
-    actualizadoAt: guardados?.actualizadoAt,
   };
 }
 
 export async function setAjustesRespuestasComentarios(
-  opciones: { comentarios?: boolean; mensajesDirectos?: boolean } | boolean
+  opciones: boolean | { comentarios?: boolean; mensajesDirectos?: boolean }
 ): Promise<AjustesRespuestasComentarios> {
-  const current = await getAjustesRespuestasComentarios();
-  let nuevos: AjustesRespuestasComentarios;
+  const actuales = await getAjustesRespuestasComentarios();
+  let nuevosValores: Partial<AjustesRespuestasComentarios> = {};
   if (typeof opciones === 'boolean') {
-    nuevos = {
-      activo: opciones,
-      comentarios: opciones,
-      mensajesDirectos: current.mensajesDirectos,
-      actualizadoAt: new Date().toISOString(),
-    };
+    nuevosValores = { activo: opciones, comentarios: opciones };
   } else {
-    nuevos = {
-      activo: opciones.comentarios !== undefined ? opciones.comentarios : current.comentarios,
-      comentarios: opciones.comentarios !== undefined ? opciones.comentarios : current.comentarios,
-      mensajesDirectos: opciones.mensajesDirectos !== undefined ? opciones.mensajesDirectos : current.mensajesDirectos,
-      actualizadoAt: new Date().toISOString(),
-    };
+    nuevosValores = opciones;
   }
-  await writeData(AJUSTES_RESPUESTAS_FILE, nuevos);
-  return nuevos;
+  const comentarios = nuevosValores.comentarios !== undefined ? nuevosValores.comentarios : actuales.comentarios;
+  const mensajesDirectos = nuevosValores.mensajesDirectos !== undefined ? nuevosValores.mensajesDirectos : actuales.mensajesDirectos;
+
+  const ajustes: AjustesRespuestasComentarios = {
+    ...actuales,
+    ...nuevosValores,
+    activo: comentarios,
+    comentarios,
+    mensajesDirectos,
+    actualizadoAt: new Date().toISOString(),
+  };
+  await writeData(AJUSTES_RESPUESTAS_FILE, ajustes);
+  return ajustes;
 }
 
 export function limpiarNumerosDePrecio(texto: string): string {

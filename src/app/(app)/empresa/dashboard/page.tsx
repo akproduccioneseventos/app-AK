@@ -1,5 +1,7 @@
 'use client';
 
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -57,10 +59,10 @@ export default function DashboardPage() {
 
   // Calculate metrics
   const activeEventsCount = fiestas.length;
-  
+
   const totalGuests = fiestas.reduce((acc, f) => acc + (f.invitados?.length || 0), 0);
   const scheduledEventsCount = fiestas.filter((fiesta) => Boolean(fiesta.configuracion?.fechaEvento)).length;
-  
+
   // Pending tasks (vendors not paid fully, etc.)
   let totalPendingTasks = 0;
   fiestas.forEach(f => {
@@ -151,7 +153,7 @@ export default function DashboardPage() {
                   <div>
                     <h3 className="font-bold text-slate-800">{fiesta.configuracion?.nombreEvento || 'Fiesta sin nombre'}</h3>
                     <p className="text-sm text-slate-500">
-                      {fiesta.configuracion?.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString() : 'Sin fecha'} • {fiesta.configuracion?.tipoCelebracion || 'Evento'}
+                      {fiesta.configuracion?.fechaEvento ? formatearFechaEvento(fiesta.configuracion.fechaEvento) : 'Sin fecha'} • {fiesta.configuracion?.tipoCelebracion || 'Evento'}
                     </p>
                   </div>
                   <Button asChild variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity"><Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}>

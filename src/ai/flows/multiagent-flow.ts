@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';

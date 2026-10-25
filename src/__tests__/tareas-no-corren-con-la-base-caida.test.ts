@@ -10,7 +10,7 @@
  */
 const marcarCorrida = jest.fn(async () => undefined);
 jest.mock('@/lib/automatico/tareas-automaticas', () => ({ marcarCorrida: (...a: any[]) => (marcarCorrida as any)(...a) }));
-jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({ abrirPuertaDeLaTarea: jest.fn(async () => ({ permitido: true })) }));
+jest.mock('@/lib/automatico/puerta-de-las-tareas', () => ({ abrirPuertaDeLaTarea: jest.fn(async () => ({ permitido: true })), respuestaDeLaTarea: (_puerta: unknown, cuerpo: unknown) => cuerpo }));
 const leerFiestasCrudas = jest.fn();
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: (...a: any[]) => leerFiestasCrudas(...a) }));
 const readDataConDetalle = jest.fn();
@@ -27,7 +27,7 @@ jest.mock('@/lib/alertas/errores-humanos', () => ({ detectarErroresHumanos: () =
 jest.mock('@/lib/automatico/parte-manana', () => ({ getParteDeLaManana: jest.fn(async () => null) }));
 jest.mock('@/lib/asistente/clima-de-las-fiestas', () => ({ detectarAlertasClimaFiestas: jest.fn(async () => []) }));
 jest.mock('@/lib/asistente/fechas-comerciales', () => ({ obtenerProximasFechasComerciales: () => [] }));
-jest.mock('@/lib/asistente/avisar-al-duenio', () => ({ avisarAlDuenio: jest.fn(), getHoraUruguay: () => 12 }));
+jest.mock('@/lib/asistente/avisar-al-duenio', () => ({ avisarAlDuenio: jest.fn(), getHoraUruguay: () => 12, getAsistenteSettings: jest.fn(async () => ({ avisosProactivosActivos: true })) }));
 const agregar = jest.fn(async () => ({ agregadas: [], ignoradas: 0 }));
 jest.mock('@/lib/asistente/propuestas-service', () => ({
   agregarPropuestasDeduplicadas: (...a: any[]) => (agregar as any)(...a),

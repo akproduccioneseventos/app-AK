@@ -40,41 +40,10 @@ export interface CampaignCommercialRoi {
   recommendation: string;
 }
 
-export interface DigitalPresenceFinding {
-  id: string;
-  titulo: string;
-  detalle: string;
-  metrica?: string;
-  tipo: 'red_lider' | 'formato_exitoso' | 'tipo_evento_demanda' | 'comentarios_positivos';
-}
-
-export interface DigitalPresenceAlert {
-  id: string;
-  titulo: string;
-  detalle: string;
-  accionSugerida: string;
-  severidad: 'alta' | 'media' | 'baja';
-}
-
-export interface DailyPostRecommendation {
-  id: string;
-  titulo: string;
-  redRecomendada: PlatformName | 'Multi';
-  formato: string;
-  porQueFunciona: string;
-  guionVisual: string;
-  textoListo: string;
-  hashtags: string[];
-}
-
 export interface DigitalPresenceReview {
   date: string; // YYYY-MM-DD
   generatedAt: string;
   summary: string;
-  consejoEstrategicoDelDia?: string;
-  loQueFunciona?: DigitalPresenceFinding[];
-  loQueNoFunciona?: DigitalPresenceAlert[];
-  nuevasPublicacionesRecomendadas?: DailyPostRecommendation[];
   topPost: {
     id: string;
     platform: string;

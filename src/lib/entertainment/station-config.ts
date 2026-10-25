@@ -430,7 +430,11 @@ export function filtrarPorEstacion<T extends { sourceModule?: string | null; sou
 
   if (pestana === 'buzon') {
     return posts.filter(
-      (p) => p.sourceModule === 'buzon' || p.sourceModule === 'capsulaTiempo'
+      (p) =>
+        p.sourceModule === 'buzon' ||
+        p.sourceModule === 'capsulaTiempo' ||
+        p.sourceModule === 'capsula_tiempo' ||
+        p.sourceModule === 'audio_guestbook'
     );
   }
 

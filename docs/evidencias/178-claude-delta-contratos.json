@@ -1,0 +1,1044 @@
+{
+  "source": "c3e8f59221dcaca158bd6ec280264b541b4f50d0",
+  "finishedAt": "2026-10-21T15:38:26.107Z",
+  "hashes": {
+    "src/lib/auth/perfiles.ts": "d34abcdb70e822df07f293adf601956ca8be0f0ee22b03f02c25572ccf672cc4",
+    "src/lib/auth/session-token.ts": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+    "src/lib/auth/require-session.ts": "be5bdd5cc814338d026ebcf6ec3bdd8b66336a372866ca022aee4b9e3a9237cc",
+    "src/app/actions/experience-total.ts": "bf51ea4d7877fa74eeaae5bd7895daf53eb4932f0563926bd242c3f5f36d88fd",
+    "src/app/actions/tareas-automaticas.actions.ts": "ca639ae52588e833a178cc537a524b5e8fb025d74aa2262f4ebd54844a35a4b9",
+    "src/app/actions/fiesta/documentos.actions.ts": "8e89e80a552b3f9a1f3085093a2af8620895f905a5a18ed86d0a7a1093682a6d",
+    "src/app/actions/gastos.ts": "e92fcfa55e863a0d366f293577ef25fb310c1c95a8e9590c27b9fe0e6f1704b4",
+    "src/app/actions/google-workspace-extended.ts": "80c7574e871597a9fb0c059ad104f4ca8e6d277d8804c4772908255518ce95a0",
+    "src/lib/fiesta/reponer-la-plata.ts": "97dcc858e11ee28fd1f9901fd98c3aa59a0f267267ab3b1b99bc0972afdca119",
+    "src/app/actions/fiesta/fiesta.actions.ts": "d504bf153602a4445bebc6bb994040ebe08b1a18014b070ee442db3b60a28a54",
+    "src/lib/fechas/formato-fecha-evento.ts": "3aa5a6a0877fcd6ad34326b1e0edc5f8adbe2c945a269ee32b2ac1eba18eacbf",
+    "src/lib/fiesta/personal-por-invitados.ts": "ab57f3e838989c8b8a183e1613320df360028917a100e881c4aaf7735cf08394"
+  },
+  "cases": [
+    {
+      "id": "guard-activateUltimateEventSystem-dueno",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "error": "QA178_STOP_AFTER_PERMISSION"
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-secretaria",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Secretaria / Administración) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-operador",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Operador de fiesta) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-personal",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Personal) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-cliente",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Cliente) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-prospecto",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Prospecto) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-invitado",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Invitado) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-anonymous",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-expired",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-activateUltimateEventSystem-tampered",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-dueno",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "result": {
+          "success": false,
+          "error": "QA178_STOP_AFTER_PERMISSION"
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-secretaria",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Secretaria / Administración) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-operador",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Operador de fiesta) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-personal",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Personal) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-cliente",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Cliente) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-prospecto",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Prospecto) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-invitado",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Invitado) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-anonymous",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-expired",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-ejecutarTareaManual-tampered",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-dueno",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "result": {
+          "success": false,
+          "error": "QA178_STOP_AFTER_PERMISSION"
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-secretaria",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "result": {
+          "success": false,
+          "error": "QA178_STOP_AFTER_PERMISSION"
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-operador",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Operador de fiesta) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-personal",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Personal) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-cliente",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Cliente) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-prospecto",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Prospecto) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-invitado",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Tu perfil (Invitado) no tiene acceso a esta parte."
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-anonymous",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-expired",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-deleteDocumento-tampered",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "result": {
+          "success": false,
+          "error": "Sesión no válida o expirada."
+        }
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-dueno",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "error": "QA178_STOP_AFTER_PERMISSION"
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-secretaria",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "error": "QA178_STOP_AFTER_PERMISSION"
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-operador",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil (Operador de fiesta) no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-personal",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil (Personal) no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-cliente",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil (Cliente) no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-prospecto",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil (Prospecto) no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-invitado",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil (Invitado) no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-anonymous",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Sesión no válida o expirada."
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-expired",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Sesión no válida o expirada."
+      }
+    },
+    {
+      "id": "guard-extractReceiptDataAction-tampered",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Sesión no válida o expirada."
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-dueno",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "error": "QA178_STOP_AFTER_PERMISSION"
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-secretaria",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "error": "QA178_STOP_AFTER_PERMISSION"
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-operador",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "error": "QA178_STOP_AFTER_PERMISSION"
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-personal",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-cliente",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-prospecto",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-invitado",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-anonymous",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-expired",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyGuestsWithCalendarLinks-tampered",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-dueno",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "error": "QA178_STOP_AFTER_PERMISSION"
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-secretaria",
+      "pass": true,
+      "observed": {
+        "allowed": true,
+        "sideEffectBoundaryEntered": 1,
+        "error": "QA178_STOP_AFTER_PERMISSION"
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-operador",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-personal",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-cliente",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-prospecto",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-invitado",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-anonymous",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-expired",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "guard-notifyContractSignedToClient-tampered",
+      "pass": true,
+      "observed": {
+        "allowed": false,
+        "sideEffectBoundaryEntered": 0,
+        "error": "Tu perfil no tiene acceso a esta parte."
+      }
+    },
+    {
+      "id": "payment-same-name-ids-a-b",
+      "pass": true,
+      "observed": {
+        "rows": [
+          {
+            "proveedorId": "a",
+            "proveedor": "Igual",
+            "entregado": true,
+            "pagado": true,
+            "montoPagado": 60.3
+          },
+          {
+            "proveedorId": "b",
+            "proveedor": "Igual",
+            "entregado": true,
+            "pagado": false,
+            "montoPagado": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "payment-same-name-ids-b-a",
+      "pass": true,
+      "observed": {
+        "rows": [
+          {
+            "proveedorId": "b",
+            "proveedor": "Igual",
+            "entregado": true,
+            "pagado": false,
+            "montoPagado": 0
+          },
+          {
+            "proveedorId": "a",
+            "proveedor": "Igual",
+            "entregado": true,
+            "pagado": true,
+            "montoPagado": 60.3
+          }
+        ]
+      }
+    },
+    {
+      "id": "payment-new-id-same-name-does-not-inherit",
+      "pass": true,
+      "observed": {
+        "id": "qa178",
+        "estadosCompra": [
+          {
+            "proveedorId": "c",
+            "proveedor": "Igual"
+          }
+        ],
+        "estado": "Contratado"
+      }
+    },
+    {
+      "id": "payment-two-legacy-records-not-one-copied-twice",
+      "pass": true,
+      "observed": {
+        "id": "qa178",
+        "estadosCompra": [
+          {
+            "proveedor": "Igual",
+            "pagado": true,
+            "montoPagado": 60.3
+          },
+          {
+            "proveedor": "Igual",
+            "pagado": false,
+            "montoPagado": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "payment-partial-operational-no-payment-change",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "payment-partial-new-id-rejects-injected-payment",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "id": "civil-year-UTC-new-year",
+      "pass": true,
+      "observed": {
+        "expected": 2027,
+        "actual": 2027,
+        "legacyUtcDateYear": 2027
+      }
+    },
+    {
+      "id": "civil-year-UTC-iso-time-written-year",
+      "pass": true,
+      "observed": {
+        "expected": 2028,
+        "actual": 2028,
+        "legacyUtcDateYear": 2027
+      }
+    },
+    {
+      "id": "civil-year-UTC-slash",
+      "pass": true,
+      "observed": {
+        "expected": 2027,
+        "actual": 2027,
+        "legacyUtcDateYear": 2027
+      }
+    },
+    {
+      "id": "civil-year-UTC-date-local",
+      "pass": true,
+      "observed": {
+        "expected": 2027,
+        "actual": 2027,
+        "legacyUtcDateYear": 2027
+      }
+    },
+    {
+      "id": "civil-year-UTC-empty",
+      "pass": true,
+      "observed": {
+        "expected": null,
+        "actual": null,
+        "legacyUtcDateYear": 2027
+      }
+    },
+    {
+      "id": "civil-year-UTC-invalid",
+      "pass": true,
+      "observed": {
+        "expected": null,
+        "actual": null,
+        "legacyUtcDateYear": 2027
+      }
+    },
+    {
+      "id": "civil-year-America/Montevideo-new-year",
+      "pass": true,
+      "observed": {
+        "expected": 2027,
+        "actual": 2027,
+        "legacyUtcDateYear": 2026
+      }
+    },
+    {
+      "id": "civil-year-America/Montevideo-iso-time-written-year",
+      "pass": true,
+      "observed": {
+        "expected": 2028,
+        "actual": 2028,
+        "legacyUtcDateYear": 2026
+      }
+    },
+    {
+      "id": "civil-year-America/Montevideo-slash",
+      "pass": true,
+      "observed": {
+        "expected": 2027,
+        "actual": 2027,
+        "legacyUtcDateYear": 2026
+      }
+    },
+    {
+      "id": "civil-year-America/Montevideo-date-local",
+      "pass": true,
+      "observed": {
+        "expected": 2027,
+        "actual": 2027,
+        "legacyUtcDateYear": 2026
+      }
+    },
+    {
+      "id": "civil-year-America/Montevideo-empty",
+      "pass": true,
+      "observed": {
+        "expected": null,
+        "actual": null,
+        "legacyUtcDateYear": 2026
+      }
+    },
+    {
+      "id": "civil-year-America/Montevideo-invalid",
+      "pass": true,
+      "observed": {
+        "expected": null,
+        "actual": null,
+        "legacyUtcDateYear": 2026
+      }
+    },
+    {
+      "id": "sync-staff-budget-25",
+      "pass": true,
+      "observed": {
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2000
+          }
+        ],
+        "cookCount": 0,
+        "roleCounts": {
+          "waiter": 1,
+          "chef": 1,
+          "cook": 0,
+          "utility": 1,
+          "bar-assistant": 0,
+          "bar": 1
+        }
+      }
+    },
+    {
+      "id": "sync-staff-budget-99",
+      "pass": true,
+      "observed": {
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2000
+          }
+        ],
+        "cookCount": 3,
+        "roleCounts": {
+          "waiter": 4,
+          "chef": 1,
+          "cook": 3,
+          "utility": 4,
+          "bar-assistant": 0,
+          "bar": 1
+        }
+      }
+    },
+    {
+      "id": "sync-staff-budget-100",
+      "pass": true,
+      "observed": {
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2800
+          }
+        ],
+        "cookCount": 3,
+        "roleCounts": {
+          "waiter": 4,
+          "chef": 1,
+          "cook": 3,
+          "utility": 4,
+          "bar-assistant": 0,
+          "bar": 1
+        }
+      }
+    },
+    {
+      "id": "sync-staff-budget-140",
+      "pass": true,
+      "observed": {
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2800
+          }
+        ],
+        "cookCount": 5,
+        "roleCounts": {
+          "waiter": 6,
+          "chef": 1,
+          "cook": 5,
+          "utility": 5,
+          "bar-assistant": 0,
+          "bar": 1
+        }
+      }
+    },
+    {
+      "id": "sync-staff-budget-150",
+      "pass": true,
+      "observed": {
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2800
+          }
+        ],
+        "cookCount": 5,
+        "roleCounts": {
+          "waiter": 6,
+          "chef": 1,
+          "cook": 5,
+          "utility": 5,
+          "bar-assistant": 0,
+          "bar": 1
+        }
+      }
+    },
+    {
+      "id": "sync-staff-budget-151",
+      "pass": true,
+      "observed": {
+        "bar": [
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2000
+          },
+          {
+            "empleadoId": "",
+            "rolId": "bar",
+            "eventSalary": 2000
+          }
+        ],
+        "cookCount": 6,
+        "roleCounts": {
+          "waiter": 7,
+          "chef": 1,
+          "cook": 6,
+          "utility": 6,
+          "bar-assistant": 0,
+          "bar": 2
+        }
+      }
+    },
+    {
+      "id": "sync-preserves-existing-manual-staff",
+      "pass": true,
+      "observed": {
+        "staff": [
+          {
+            "empleadoId": "qa178-manual",
+            "rolId": "bar",
+            "eventSalary": 5555
+          }
+        ]
+      }
+    },
+    {
+      "id": "sync-floor-waiters-not-kitchen-role",
+      "pass": false,
+      "observed": {
+        "floor": 0,
+        "kitchenWaiters": 4,
+        "roleCatalog": [
+          {
+            "id": "floor-kitchen",
+            "name": "Mozo de Cocina"
+          },
+          {
+            "id": "floor",
+            "name": "Mozo de Atencion"
+          },
+          {
+            "id": "chef",
+            "name": "Chef"
+          },
+          {
+            "id": "cook",
+            "name": "Ayudante de Cocina"
+          },
+          {
+            "id": "utility",
+            "name": "Utilero"
+          },
+          {
+            "id": "bar-assistant",
+            "name": "Ayudante de Barman"
+          },
+          {
+            "id": "bar",
+            "name": "Barman"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 86,
+    "pass": 85,
+    "fail": 1
+  },
+  "appEdited": false,
+  "realServices": false,
+  "limits": [
+    "Guard cases execute actual signed-token verification and real guards/action bodies, then stop at a controlled first side-effect boundary: not complete allowed business actions or HTTP/cookies",
+    "Payment preservation and partial detection consumers are real; no database/payment transaction or amount changed",
+    "Staff synchronization body and staff rules real through captured save; unrelated menu/itinerary/cost/laundry/storage dependencies controlled, not real persistence/UI",
+    "Year helper real UTC/Uy, not every document/simulator/PDF consumer or complete order206",
+    "No current complete build, no app-wide/zero-error certification"
+  ]
+}

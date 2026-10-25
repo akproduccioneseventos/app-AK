@@ -15,20 +15,69 @@ jest.mock('@/lib/data-service', () => ({
   }),
 }));
 
+jest.mock('@/lib/generic-json-store', () => ({
+  mutateGenericJsonArray: jest.fn(async (file: string, cambiar: (lista: any[]) => any[] | null) => {
+    if (file === 'social-mensajes-directos.json') {
+      const actual = [...mockDmsStore];
+      const nueva = cambiar(actual);
+      if (nueva) mockDmsStore = nueva;
+      return nueva;
+    }
+    return null;
+  }),
+}));
+
 import { POST } from '@/app/api/meta/webhook/route';
 
 describe('El webhook de Meta no acepta firmas falsas', () => {
-  const secret = 'meta_ak_secret';
+  const secret = 'mi_secreto_valido_meta';
 
   beforeEach(() => {
     mockDmsStore = [];
     process.env.META_APP_SECRET = secret;
   });
 
-  function generarFirma(cuerpo: string): string {
-    const hmac = crypto.createHmac('sha256', secret).update(cuerpo).digest('hex');
+  function generarFirma(cuerpo: string, sec = secret): string {
+    const hmac = crypto.createHmac('sha256', sec).update(cuerpo).digest('hex');
     return `sha256=${hmac}`;
   }
+
+  it('sin META_APP_SECRET, una firma hecha con "meta_ak_secret" se rechaza', async () => {
+    delete process.env.META_APP_SECRET;
+    delete process.env.META_CLIENT_SECRET;
+    delete process.env.FACEBOOK_APP_SECRET;
+
+    const bodyStr = JSON.stringify({
+      object: 'instagram',
+      entry: [
+        {
+          id: 'ig_account_1',
+          messaging: [
+            {
+              sender: { id: 'user_1' },
+              recipient: { id: 'page_1' },
+              message: { mid: 'mid_fake', text: 'Intento con clave hardcodeada' },
+            },
+          ],
+        },
+      ],
+    });
+
+    const firmaHardcodeada = generarFirma(bodyStr, 'meta_ak_secret');
+
+    const req = new NextRequest('http://localhost/api/meta/webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hub-signature-256': firmaHardcodeada,
+      },
+      body: bodyStr,
+    });
+
+    const res = await POST(req);
+    expect(res.status).toBe(403);
+    expect(mockDmsStore.length).toBe(0);
+  });
 
   it('con una firma falsa, no se guarda nada y devuelve 403', async () => {
     const bodyStr = JSON.stringify({

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect } from 'react';
@@ -11,7 +10,7 @@ export default function PresupuestosRedirectPage() {
     useEffect(() => {
         router.replace('/presupuestos/nuevo');
     }, [router]);
-    
+
     return (
         <div className="flex items-center justify-center h-screen">
             <Loader2 className="w-16 h-16 animate-spin text-primary" />

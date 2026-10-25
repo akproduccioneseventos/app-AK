@@ -160,6 +160,7 @@ export default function GuestBuzonPage() {
   const [videoDuration, setVideoDuration] = useState<number>(0);
   const [videoProcessingProgress, setVideoProcessingProgress] = useState(0);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
+  const lastProcessedVideoRef = useRef<File | null>(null);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
 
@@ -502,9 +503,8 @@ export default function GuestBuzonPage() {
   };
 
   // UPLOAD FROM GALLERY (VIDEO FALLBACK)
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processSelectedVideoFile = (file: File | undefined | null) => {
+    if (!file || lastProcessedVideoRef.current === file) return;
 
     if (!file.type.startsWith('video/')) {
       toast({
@@ -524,61 +524,49 @@ export default function GuestBuzonPage() {
       return;
     }
 
-    const tempUrl = URL.createObjectURL(file);
-    const videoElement = document.createElement('video');
-    videoElement.src = tempUrl;
-    videoElement.preload = 'metadata';
+    lastProcessedVideoRef.current = file;
 
-    videoElement.onloadedmetadata = async () => {
-      const duration = videoElement.duration;
-      URL.revokeObjectURL(tempUrl);
-
-      if (duration > 16.5 || duration === Infinity) {
-        toast({
-          title: 'Duración excedida o desconocida',
-          description: 'El video no debe durar más de 15 segundos.',
-          variant: 'destructive',
+    setVideoState('processing');
+    setVideoProcessingProgress(0);
+    void (async () => {
+      try {
+        const processed = await renderUploadedVideoWithFrame({
+          file,
+          template: fiesta?.buzonConfig?.videoFrameTemplate,
+          displayText: fiesta?.buzonConfig?.customText || fiesta?.eventName || 'AK PRODUCCIONES',
+          onProgress: setVideoProcessingProgress,
         });
+        if (videoUrl) URL.revokeObjectURL(videoUrl);
+        setVideoFile(processed.file);
+        setVideoUrl(processed.url);
+        setVideoDuration(processed.durationSeconds);
+        setVideoState('review');
+      } catch (error) {
+        lastProcessedVideoRef.current = null;
         setVideoFile(null);
         setVideoUrl(null);
-      } else {
-        setVideoState('processing');
-        setVideoProcessingProgress(0);
-        try {
-          const processed = await renderUploadedVideoWithFrame({
-            file,
-            template: fiesta?.buzonConfig?.videoFrameTemplate,
-            displayText: fiesta?.buzonConfig?.customText || fiesta?.eventName || 'AK PRODUCCIONES',
-            onProgress: setVideoProcessingProgress,
+        setVideoState('idle');
+        if (videoInputRef.current) videoInputRef.current.value = '';
+        const message = error instanceof Error ? error.message : '';
+        if (message.includes('15 segundos')) {
+          toast({
+            title: 'Duración excedida o desconocida',
+            description: 'El video no debe durar más de 15 segundos.',
+            variant: 'destructive',
           });
-          if (videoUrl) URL.revokeObjectURL(videoUrl);
-          setVideoFile(processed.file);
-          setVideoUrl(processed.url);
-          setVideoDuration(processed.durationSeconds);
-          setVideoState('review');
-        } catch (error) {
-          setVideoFile(null);
-          setVideoUrl(null);
-          setVideoState('idle');
-          if (videoInputRef.current) videoInputRef.current.value = '';
+        } else {
           toast({
             title: 'No se pudo preparar el video',
-            description: error instanceof Error
-              ? error.message
-              : 'Intenta grabarlo directamente con la cámara.',
+            description: message || 'Intenta grabarlo directamente con la cámara.',
             variant: 'destructive',
           });
         }
       }
-    };
-    videoElement.onerror = () => {
-      URL.revokeObjectURL(tempUrl);
-      toast({
-        title: 'Video inválido',
-        description: 'No se pudo leer el archivo seleccionado.',
-        variant: 'destructive',
-      });
-    };
+    })();
+  };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    processSelectedVideoFile(e.target.files?.[0]);
   };
 
   // LIVE VHS VIDEO CAPTURE
@@ -870,6 +858,7 @@ export default function GuestBuzonPage() {
   };
 
   const resetVideoUpload = () => {
+    lastProcessedVideoRef.current = null;
     if (videoUrl) URL.revokeObjectURL(videoUrl);
     setVideoFile(null);
     setVideoUrl(null);
@@ -1606,7 +1595,7 @@ export default function GuestBuzonPage() {
                   {videoState === 'review' && videoUrl && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center gap-4 text-center">
                       <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-black border border-border relative shadow-lg">
-                        <video src={videoUrl} controls className="w-full h-full object-contain" />
+                        <video src={videoUrl} controls playsInline preload="auto" className="w-full h-full object-contain" />
                         <VideoFrameOverlay
                           template={fiesta?.buzonConfig?.videoFrameTemplate}
                           customText={fiesta?.buzonConfig?.customText}
@@ -1725,7 +1714,18 @@ export default function GuestBuzonPage() {
               {/* ── MODE: VHS UPLOAD ── */}
               {selectedMode === 'vhs_upload' && (
                 <div className="w-full">
-                  <input type="file" accept="video/*" onChange={handleVideoChange} ref={videoInputRef} className="hidden" />
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoChange}
+                    ref={(el) => {
+                      videoInputRef.current = el;
+                      if (el) {
+                        el.onchange = (ev) => processSelectedVideoFile((ev.target as HTMLInputElement).files?.[0]);
+                      }
+                    }}
+                    className="hidden"
+                  />
                   {videoState === 'processing' ? (
                     <div className="w-full p-8 rounded-xl border border-border bg-card flex flex-col items-center gap-4 text-center shadow-sm">
                       <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -1756,7 +1756,7 @@ export default function GuestBuzonPage() {
                     videoUrl && (
                       <div className="w-full flex flex-col items-center gap-4 text-center">
                         <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-black border border-border relative shadow-lg">
-                          <video src={videoUrl} controls className="w-full h-full object-contain" />
+                          <video src={videoUrl} autoPlay muted loop controls playsInline preload="auto" className="w-full h-full object-contain" />
                         </div>
                         <div className="flex items-center justify-between w-full px-2">
                           <div className="text-left">

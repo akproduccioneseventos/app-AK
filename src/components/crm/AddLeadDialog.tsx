@@ -1,4 +1,3 @@
-
 'use client';
 
 import { obtenerIntento, terminarIntento } from '@/lib/intento-de-guardado';
@@ -170,7 +169,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
               />
             </div>
           </div>
-           
+
           <div className="space-y-1">
             <Label htmlFor="lead-email">Email (Opcional)</Label>
             <Input id="lead-email" type="email" value={formData.email || ''} onChange={(e) => handleInputChange('email', e.target.value)} placeholder="ejemplo@correo.com" disabled={isSaving}/>

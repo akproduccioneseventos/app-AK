@@ -1,0 +1,254 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "135-playwright.config.ts",
+      "135-mobile-contrato-social.spec.ts",
+      "--project=chromium-mobile",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\151-mobile-artifacts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-151-NHxkYi\\135-playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-151-NHxkYi/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria-133-portal-responsive/docs/evidencias/151-mobile-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-151-NHxkYi/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria-133-portal-responsive/docs/evidencias/151-mobile-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-151-NHxkYi/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\151-mobile-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "135-mobile-contrato-social.spec.ts",
+      "file": "135-mobile-contrato-social.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "171 contrato: conserva título, firma y texto del botón PDF dentro del celular",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 57562,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "QA135_CONTRATO_MOBILE_LAYOUT {\"viewportWidth\":390,\"documentWidth\":390,\"titleText\":\"Contrato de Servicio\",\"titleLines\":2,\"signatureName\":{\"left\":209.31504821777344,\"right\":345.2445983886719,\"top\":591.724365234375,\"bottom\":710.3822021484375,\"width\":135.92955017089844,\"height\":118.6578369140625},\"titularLabel\":{\"x\":215.796875,\"y\":761,\"width\":125.40625,\"height\":16,\"top\":761,\"right\":341.203125,\"bottom\":777,\"left\":215.796875},\"button\":{\"x\":73,\"y\":991,\"width\":244,\"height\":64,\"top\":991,\"right\":317,\"bottom\":1055,\"left\":73},\"buttonText\":{\"x\":112.5,\"y\":1004,\"width\":165,\"height\":37,\"top\":1004,\"right\":277.5,\"bottom\":1041,\"left\":112.5}}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T12:46:21.059Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "blocked-external-url",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "blocked-external-url",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "224aafc9eeb6c2c9963b-aaba9d500ee3557dc5e0",
+          "file": "135-mobile-contrato-social.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "172 red social: el dock no tapa el encabezado Evento al abrir en celular",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13624,
+                  "error": {
+                    "message": "Error: El dock no debe cubrir el encabezado Evento\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m2610.1933596357703\u001b[39m",
+                    "stack": "Error: El dock no debe cubrir el encabezado Evento\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m2610.1933596357703\u001b[39m\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-151-NHxkYi\\tests\\e2e\\135-mobile-contrato-social.spec.ts:150:87",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-151-NHxkYi\\tests\\e2e\\135-mobile-contrato-social.spec.ts",
+                      "column": 87,
+                      "line": 150
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 148 |\u001b[39m   \u001b[36mconst\u001b[39m overlapWidth \u001b[33m=\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmax(\u001b[35m0\u001b[39m\u001b[33m,\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmin(header\u001b[33m.\u001b[39mright\u001b[33m,\u001b[39m dock\u001b[33m.\u001b[39mright) \u001b[33m-\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmax(header\u001b[33m.\u001b[39mleft\u001b[33m,\u001b[39m dock\u001b[33m.\u001b[39mleft))\u001b[33m;\u001b[39m\n \u001b[90m 149 |\u001b[39m   \u001b[36mconst\u001b[39m overlapHeight \u001b[33m=\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmax(\u001b[35m0\u001b[39m\u001b[33m,\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmin(header\u001b[33m.\u001b[39mbottom\u001b[33m,\u001b[39m dock\u001b[33m.\u001b[39mbottom) \u001b[33m-\u001b[39m \u001b[33mMath\u001b[39m\u001b[33m.\u001b[39mmax(header\u001b[33m.\u001b[39mtop\u001b[33m,\u001b[39m dock\u001b[33m.\u001b[39mtop))\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 150 |\u001b[39m   expect(overlapWidth \u001b[33m*\u001b[39m overlapHeight\u001b[33m,\u001b[39m \u001b[32m'El dock no debe cubrir el encabezado Evento'\u001b[39m)\u001b[33m.\u001b[39mtoBe(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 151 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 152 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-151-NHxkYi\\tests\\e2e\\135-mobile-contrato-social.spec.ts",
+                        "column": 87,
+                        "line": 150
+                      },
+                      "message": "Error: El dock no debe cubrir el encabezado Evento\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m2610.1933596357703\u001b[39m\n\n  148 |   const overlapWidth = Math.max(0, Math.min(header.right, dock.right) - Math.max(header.left, dock.left));\n  149 |   const overlapHeight = Math.max(0, Math.min(header.bottom, dock.bottom) - Math.max(header.top, dock.top));\n> 150 |   expect(overlapWidth * overlapHeight, 'El dock no debe cubrir el encabezado Evento').toBe(0);\n      |                                                                                       ^\n  151 | });\n  152 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-151-NHxkYi\\tests\\e2e\\135-mobile-contrato-social.spec.ts:150:87"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "QA135_SOCIAL_DOCK_LAYOUT {\"viewportWidth\":390,\"documentWidth\":390,\"header\":{\"left\":64.66311645507812,\"right\":148.84420776367188,\"top\":754.7725219726562,\"bottom\":826.905517578125,\"width\":84.18109130859375,\"height\":72.13299560546875},\"dock\":{\"left\":12,\"right\":114,\"top\":774,\"bottom\":828,\"width\":102,\"height\":54}}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-20T12:47:19.858Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "blocked-external-url",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "blocked-external-url",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "blocked-external-url",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "blocked-external-url",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "blocked-external-url",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZWluc3RhbGxhdGlvbnMuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZGVtby1hay1wcm9kdWNjaW9uZXMvaW5zdGFsbGF0aW9ucw=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\151-mobile-artifacts\\135-mobile-contrato-social-8dba0--Evento-al-abrir-en-celular-chromium-mobile\\test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria-133-portal-responsive\\docs\\evidencias\\151-mobile-artifacts\\135-mobile-contrato-social-8dba0--Evento-al-abrir-en-celular-chromium-mobile\\error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-151-NHxkYi\\tests\\e2e\\135-mobile-contrato-social.spec.ts",
+                    "column": 87,
+                    "line": 150
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "224aafc9eeb6c2c9963b-75fbed4b7a278e0ac402",
+          "file": "135-mobile-contrato-social.spec.ts",
+          "line": 117,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-20T12:46:18.035Z",
+    "duration": 76118.39600000001,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

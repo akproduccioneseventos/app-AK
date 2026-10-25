@@ -83,6 +83,18 @@ guardar la fiesta no le pasa el pago al otro, y la lista de compras muestra cada
   - `src/app/control-tower/preparacion/page.tsx` ~60;
   - `src/app/(app)/empresa/dashboard/page.tsx` ~154;
   - `src/components/decoracion/DecoMuestrario.tsx` ~58.
+- **Ampliacion Codex159, MISMA familia de fecha civil, no nueva orden:**
+  `ejecutarPerseguidorPresupuestos` en `src/lib/agentes/motor-agentes.ts`, ramas
+  de seguimiento5dias yreactivacion14dias, prepara fecha7/8/2027 para el evento
+  guardado2027-08-08 en Uruguay. UTC8/8 controla la sonda.4casos2PASS/2FAIL,
+  funcion identica en main894d y1337/45a0; datos/cola ficticios, no mensajes reales.
+  Ver159-fecha-seguimiento.json. Corregir SOLO formateo civil del borrador, no
+  fecha almacenada,zona global ni reglas/plazos de seguimiento.
+  RETEST162: corregido por Claude en108e17b4387237fc921ea12e8d1eb65b20f62ac9
+  (rama publica, NO main9b7).8PASS: ambas ramas UTC/Uruguay, fecha civil y
+  sufijo humano de21a04hs; motor yformateador reales, datos/cola/log dobles.
+  Ver162-seguimiento-fecha-retest.json/mjs. Cierra SOLO este consumidor,
+  no el resto del bloque3 ni toda193, ni envio real de mensajes.
 - **Prueba:** con la zona `America/Montevideo`, "2027-08-08" se muestra 8/8 en el recibo, el presupuesto
   y el diálogo de reserva, y a las 22:30 la cuota pagada queda con la fecha de hoy.
 
@@ -184,4 +196,6 @@ usa: alergiasEspecificas en src/lib/alertas/errores-humanos.ts
 usa: buildWhatsAppLink en src/app/(app)/pagos-rapidos/page.tsx
 usa: hasOwn en src/data/event-catalogs/index.ts
 usa: operacionId en src/app/actions/playbooks.ts
+prueba: docs/evidencias/159-fecha-seguimiento.mjs
+prueba: docs/evidencias/162-seguimiento-fecha-retest.mjs
 ```

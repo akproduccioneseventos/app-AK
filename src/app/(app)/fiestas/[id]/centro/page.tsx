@@ -14,6 +14,9 @@ import {
   Users,
   ListChecks,
   Clapperboard,
+  Sparkles,
+  Smartphone,
+  Mic,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getGuestPartySize } from '@/lib/fiesta/guest-counts';
@@ -47,7 +50,7 @@ type PageProps = { params: Promise<{ id: string }> };
 type Herramienta = { titulo: string; detalle: string; ruta: string; icono: typeof Camera; aparato: string };
 type Bloque = { titulo: string; bajada: string; herramientas: Herramienta[] };
 
-function construirBloques(fiestaId: string): Bloque[] {
+function construirBloques(fiestaId: string, fiesta?: any): Bloque[] {
   const e = (tool: string) => `/evento/${tool}/${encodeURIComponent(fiestaId)}`;
   return [
     {
@@ -81,6 +84,15 @@ function construirBloques(fiestaId: string): Bloque[] {
         { titulo: 'Espejo mágico', detalle: 'Espejo interactivo', ruta: e('espejo-magico'), icono: ScanFace, aparato: 'Pantalla del espejo' },
         { titulo: 'Plataforma 360', detalle: 'Video giratorio', ruta: e('plataforma-360'), icono: MonitorPlay, aparato: 'Tablet de la 360' },
         { titulo: 'Barra', detalle: 'Pedidos y carta de tragos', ruta: e('barra'), icono: Martini, aparato: 'Tablet de la barra' },
+        ...(fiesta?.bogue || fiesta?.vogueBooth || fiesta?.zonaDigital?.features?.includes?.('bogue') || fiesta?.experience?.bogue
+          ? [{ titulo: 'Vogue Booth', detalle: 'Videos estilo revista y boomerang', ruta: e('bogue'), icono: Sparkles, aparato: 'Tablet de la estación' }]
+          : []),
+        ...(fiesta?.pantallasTotem || fiesta?.totemScreens?.length || fiesta?.zonaDigital?.features?.includes?.('totems') || fiesta?.totem
+          ? [{ titulo: 'Tótem IA', detalle: 'Pantalla interactiva con IA', ruta: `/evento/totem/${encodeURIComponent(fiestaId)}`, icono: Smartphone, aparato: 'Tótem o tablet' }]
+          : []),
+        ...(fiesta?.buzon || fiesta?.showBuzon || fiesta?.buzonConfig || fiesta?.zonaDigital?.features?.includes?.('buzon')
+          ? [{ titulo: 'Buzón de recuerdos', detalle: 'Mensajes y saludos en audio o texto', ruta: e('buzon'), icono: Mic, aparato: 'Tablet del buzón' }]
+          : []),
       ],
     },
   ];
@@ -155,7 +167,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
     .filter((p) => p?.hora && p?.titulo)
     .map((p) => ({ id: p.id, hora: p.hora, titulo: p.titulo }));
 
-  const bloques = construirBloques(params.id);
+  const bloques = construirBloques(params.id, fiesta);
 
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-6 text-white sm:px-6 lg:px-8">

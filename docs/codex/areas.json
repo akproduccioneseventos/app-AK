@@ -109,10 +109,10 @@
       "estado": "con-hallazgos",
       "nota": "Auditoría 71: el guardado general cambiaba campos de plata sin contabilidad (operador y portal). Arreglado el 6/10; falta que Codex la vuelva a mirar.",
       "ultimaRevision": {
-        "fecha": "2026-10-06",
-        "commit": "e52c078",
-        "hallazgos": 2,
-        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+        "fecha": "2026-10-20",
+        "commit": "2852f088",
+        "hallazgos": 1,
+        "reporte": "Auditoría 150 de Codex (PR 1324): guardar devuelve costos y sueldos ajenos → orden 198"
       }
     },
     {
@@ -156,7 +156,8 @@
         "src/app/video-vida",
         "src/app/api/video-vida-photos"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "nota": "Auditorías 186-240 (órdenes 210, 211, 213-claude y 216-claude): la plata del portal, las aprobaciones, los dos intercalados y la firma del contrato (resumen, constancia, firmas a la vez, texto visto) los arregló Claude el 22/10; Codex 254 volvió a mirar la firma del contrato (C1-C4): 11 de 11 bien. Codex 263-264: el aviso de pago reintentado y el texto guardado mientras se firma, arreglados por Claude el 23/10 (órdenes 218 y 219). Lo de pantalla, orden 212 (Gemini). Falta que Codex mire el resto del área."
     },
     {
       "id": "invitado",
@@ -221,12 +222,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-09",
-        "commit": "497ee725",
+        "fecha": "2026-10-20",
+        "commit": "894d0160",
         "hallazgos": 1,
-        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
+        "reporte": "Auditoría 155 de Codex (PR 1340)"
       },
-      "nota": "Auditoría 81: la revisión web decía óptimo sin abrir páginas; arreglado el 9/10. Falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 155 (20/10): foco del visor de la galería pública; orden 199 (con el video de ayuda del simulador)."
     },
     {
       "id": "redes",
@@ -244,7 +245,8 @@
         "src/app/api/social-media-assets",
         "src/app/(app)/empresa/galeria",
         "src/app/(app)/settings/biblioteca-visual-ak",
-        "src/lib/presencia-digital/publicador.ts"
+        "src/lib/presencia-digital/publicador.ts",
+        "src/app/api/meta"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
@@ -309,7 +311,6 @@
         "src/app/api/asistente",
         "src/app/api/multiagent",
         "src/app/api/whatsapp",
-        "src/app/api/meta",
         "src/app/(app)/settings/whatsapp",
         "src/app/(app)/settings/whatsapp-business",
         "src/app/(app)/settings/whatsapp-templates",
@@ -326,7 +327,7 @@
         "hallazgos": 2,
         "reporte": "Auditorías 97-98 de Codex (orden 149, PR 1288)"
       },
-      "nota": "Auditorías 97-98: la primera consulta de cada proceso caía antes de llegar a Gemini y el respaldo mezclaba pendientes de otra fiesta (149). Arreglados el 11/10; falta que Codex la vuelva a mirar."
+      "nota": "Auditorías 180 y barrido 87 (21/10/2026): voz en dos servidores en la orden 208 (Gemini); precio y cita por nombre parcial, arreglados por Claude."
     },
     {
       "id": "personal",
@@ -342,7 +343,7 @@
         "src/app/acceso-personal"
       ],
       "estado": "con-hallazgos",
-      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 178 (21/10/2026): los mozos de salón caían en el rol de cocina; arreglado por Claude (buscarRol). Falta que Codex la vuelva a mirar."
     },
     {
       "id": "automaticos",

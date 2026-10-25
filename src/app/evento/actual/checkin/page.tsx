@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useEffect, useState, use } from 'react';
@@ -55,7 +54,7 @@ function CheckInContent() {
         }
 
         const invitadoOriginal = fiesta.invitados?.find(i => i.id === guestId);
-        
+
         if (invitadoOriginal?.checkedIn) {
              setWasAlreadyCheckedIn(true);
              setInvitado(invitadoOriginal);

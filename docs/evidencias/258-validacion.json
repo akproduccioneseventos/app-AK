@@ -1,0 +1,37 @@
+{
+  "at": "2026-10-22T18:57:02.798Z",
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "contract254": {
+    "total": 11,
+    "pass": 11,
+    "fail": 0
+  },
+  "gate255": {
+    "total": 3,
+    "pass": 3,
+    "fail": 0
+  },
+  "syntax": [
+    {
+      "name": "254-ejecutar.mjs",
+      "exit": 0
+    },
+    {
+      "name": "254-firma-cliente-sdk.mjs",
+      "exit": 0
+    },
+    {
+      "name": "255-recordatorio-puerta.mjs",
+      "exit": 0
+    }
+  ],
+  "cleanup": {
+    "fiestas": 0,
+    "presupuestos": 0
+  },
+  "exitCode": 0,
+  "cleanupStatus": 200,
+  "stateLines": 37,
+  "appDiff": [],
+  "scope": "Only216 C1-C4 and217R1, not all1358/app, not real provider/HTTP/native/legal."
+}

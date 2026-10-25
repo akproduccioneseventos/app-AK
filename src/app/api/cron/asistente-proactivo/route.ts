@@ -1,8 +1,8 @@
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
-import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { NextResponse } from 'next/server';
-import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { ejecutarAgentesAutonomos } from '@/lib/agentes/motor-agentes';
 import { detectarErroresHumanos } from '@/lib/alertas/errores-humanos';
@@ -204,7 +204,7 @@ export async function GET(request: Request) {
 
   // 8. AVISOS PROACTIVOS AL EQUIPO (Push con server-messaging)
   let avisoDuenioRes = null;
-  const ajustes = typeof getAsistenteSettings === 'function' ? await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true })) : { avisosProactivosActivos: true };
+  const ajustes = await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true }));
   const avisosPrendidos = (ajustes as any).avisosProactivosActivos !== false;
 
   // Respetar horario de descanso: nunca entre las 23 y las 8 en Uruguay
@@ -213,23 +213,36 @@ export async function GET(request: Request) {
   if (avisosPrendidos && !esHorarioDescanso && resultadoPersistencia.agregadas.length > 0) {
     try {
       const hoyKey = ahora.toISOString().split('T')[0];
-      const trackingAvisos = await readData<Record<string, { fecha: string; count: number }>>('asistente/avisos-diarios.json', {});
-      const userTracking = trackingAvisos['general'] || { fecha: hoyKey, count: 0 };
-      const countHoy = userTracking.fecha === hoyKey ? userTracking.count : 0;
+      const importantes = resultadoPersistencia.agregadas.filter(p => p.esImportante);
 
-      // Máximo 3 avisos por día
-      if (countHoy < 3) {
-        const importantes = resultadoPersistencia.agregadas.filter(p => p.esImportante);
-        if (importantes.length > 0) {
+      if (importantes.length > 0) {
+        let reservado = false;
+        await mutarDocumentoConTransaccion<Record<string, { fecha: string; count: number }>>(
+          'asistente/avisos-diarios.json',
+          {},
+          (store) => {
+            const actual = store || {};
+            const userTracking = actual['general'] || { fecha: hoyKey, count: 0 };
+            const countHoy = userTracking.fecha === hoyKey ? userTracking.count : 0;
+            if (countHoy >= 3) {
+              reservado = false;
+              return null;
+            }
+            reservado = true;
+            return {
+              ...actual,
+              general: { fecha: hoyKey, count: countHoy + 1 },
+            };
+          }
+        );
+
+        if (reservado) {
           const primerAviso = importantes[0];
           await sendPushNotificationToAll({
             title: `Asistente AK: ${primerAviso.titulo}`,
             body: primerAviso.quePasa || primerAviso.quePropone,
             url: '/mi-dia?hablar=1',
           });
-
-          trackingAvisos['general'] = { fecha: hoyKey, count: countHoy + 1 };
-          await writeData('asistente/avisos-diarios.json', trackingAvisos);
         }
       }
 
@@ -242,7 +255,7 @@ export async function GET(request: Request) {
   // 9. MARCAR CORRIDA
   await marcarCorrida('asistente-proactivo');
 
-  return NextResponse.json({
+  return NextResponse.json(respuestaDeLaTarea(puerta, {
     ok: true,
     ejecutadoEn: ahora.toISOString(),
     propuestasGeneradas: nuevasParaAgregar.length,
@@ -250,5 +263,5 @@ export async function GET(request: Request) {
     propuestasIgnoradasODuplicadas: resultadoPersistencia.ignoradas,
     avisoDuenio: avisoDuenioRes,
     fallos,
-  });
+  }));
 }

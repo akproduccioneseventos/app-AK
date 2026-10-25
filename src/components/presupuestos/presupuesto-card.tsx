@@ -1,5 +1,7 @@
 'use client';
 
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 import type { Presupuesto } from '@/types/presupuesto';
 import { Button } from '@/components/ui/button';
 import {
@@ -125,7 +127,11 @@ export default function PresupuestoCard({
     try {
       const result = await deletePresupuesto(presupuesto.id);
       if (!result.success) throw new Error(result.error);
-      toast({ title: 'Presupuesto eliminado definitivamente', variant: 'destructive' });
+      if (result.aviso) {
+        toast({ title: 'Presupuesto eliminado con advertencia', description: result.aviso, variant: 'default' });
+      } else {
+        toast({ title: 'Presupuesto eliminado definitivamente', variant: 'destructive' });
+      }
       if (onDeleteSuccess) await onDeleteSuccess(presupuesto.id, 'delete');
     } catch (error) {
       toast({

@@ -1,0 +1,125 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-392-candidate-02Lhke",
+  "started": "2026-10-24T19:10:32.208Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-24T19:10:06.378Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "393-barra-contraste.spec.ts",
+    "prospecto-simulador.spec.ts",
+    "408-camara-preview.spec.ts"
+  ],
+  "batchSize": 1,
+  "copiedTests": 3,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/393-barra-contraste.spec.ts",
+      "copy": "tests/e2e/ak207-393-barra-contraste.spec.ts",
+      "originalSha256": "9bdaf59498f2b25006e48dba4e4d9083be26747e01b0838937438d3d6a94fbd1",
+      "instrumentedSha256": "24d4d6641dd8c03eae03504da0ca7f77fa164ab119a080740652f121e3ec321e"
+    },
+    {
+      "original": "tests/e2e/408-camara-preview.spec.ts",
+      "copy": "tests/e2e/ak207-408-camara-preview.spec.ts",
+      "originalSha256": "5a787ad39bb44dd0abbeb00bd3487d949c1a691b8887ae8a99701c3e606baaa4",
+      "instrumentedSha256": "7c61ee2d2a34dc33148d4145b9cdf423714b15bb54e92de80e8b69126021ddba"
+    },
+    {
+      "original": "tests/e2e/prospecto-simulador.spec.ts",
+      "copy": "tests/e2e/ak207-prospecto-simulador.spec.ts",
+      "originalSha256": "e2ee360ce033cfa99d10c8c353e9e26ae32846805d96808895de935d969f3e55",
+      "instrumentedSha256": "415cd5eb344e7a988dcfcc48cc44134436c3de5160ba86f0cb302de33fd5e35f"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 13492,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-24T19:10:37.615Z",
+    "version": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c · compilada 2026-10-24T18:57:23.732Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-393-barra-contraste.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:11:16.594Z",
+      "report": "410-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:10:38.963Z",
+        "duration": 37588.585,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-408-camara-preview.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:12:36.865Z",
+      "report": "410-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:11:18.282Z",
+        "duration": 78528.15,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-prospecto-simulador.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:15:26.313Z",
+      "report": "410-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:12:37.968Z",
+        "duration": 168305.782,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 1,
+  "currentBatch": 3,
+  "totalBatches": 3,
+  "testPid": 8128,
+  "stats": {
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 74,
+  "sourceDiff": "",
+  "finished": "2026-10-24T19:15:28.005Z"
+}

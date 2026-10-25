@@ -1,0 +1,142 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "observedAt": "2026-10-20T17:22:42.978Z",
+  "acceptedBuilds": [
+    {
+      "source": "2e5363f259461a31bf6b31807872c227855415de",
+      "baseline": "7230f9d02b32805952a185f704a0208bd5d643e6",
+      "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-151-NHxkYi",
+      "preparedAt": "2026-10-20T12:31:41.366Z",
+      "phase": "built",
+      "dependencySectionsAndLockEqual": true,
+      "packageScriptsDiffer": true,
+      "realServices": false,
+      "appEdited": false,
+      "buildExit": 0,
+      "buildPid": 9840,
+      "finished": "2026-10-20T12:43:46.937Z",
+      "sourceDiff": ""
+    },
+    {
+      "source": "253838732287c2704d78113d15ace9c025cb82c9",
+      "baseline": "7230f9d02b32805952a185f704a0208bd5d643e6",
+      "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-152-zuH8FG",
+      "preparedAt": "2026-10-20T13:04:11.328Z",
+      "phase": "built",
+      "dependencySectionsAndLockEqual": true,
+      "packageScriptsDiffer": true,
+      "realServices": false,
+      "appEdited": false,
+      "buildExit": 0,
+      "buildPid": 9936,
+      "finished": "2026-10-20T13:18:08.610Z",
+      "sourceDiff": ""
+    }
+  ],
+  "interruptedNotAccepted": {
+    "source": "253838732287c2704d78113d15ace9c025cb82c9",
+    "baseline": "7230f9d02b32805952a185f704a0208bd5d643e6",
+    "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-qa-153-2pbQa2",
+    "preparedAt": "2026-10-20T13:43:05.680Z",
+    "phase": "building",
+    "dependencySectionsAndLockEqual": true,
+    "packageScriptsDiffer": true,
+    "realServices": false,
+    "appEdited": false,
+    "reasonForReplacement": "Previous accepted build disappeared from Windows Temp; not a code change or routine rebuild",
+    "blogBeforeBuild": false
+  },
+  "broadUnits": {
+    "source": "253838732287c2704d78113d15ace9c025cb82c9",
+    "suites": 802,
+    "passedSuites": 801,
+    "tests": 4998,
+    "passed": 4997,
+    "failed": 1,
+    "pending": 0,
+    "failedCause": "ENOENT data/blog-posts.json (skip-worktree S); no failed content assertion",
+    "focalRevalidation": "154-focales.json canonical Git blob and all original content assertions PASS; no second complete green Jest run"
+  },
+  "native": {
+    "source": "2e5363f259461a31bf6b31807872c227855415de",
+    "mobile": {
+      "startTime": "2026-10-20T12:46:18.035Z",
+      "duration": 76118.39600000001,
+      "expected": 1,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "date": {
+      "startTime": "2026-10-20T12:48:18.586Z",
+      "duration": 15111.91,
+      "expected": 2,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "agenda": {
+      "startTime": "2026-10-20T12:50:31.295Z",
+      "duration": 177570.864,
+      "expected": 4,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "scope": "171,172,179,184 only; not all UI"
+  },
+  "supplierActions": {
+    "source": "253838732287c2704d78113d15ace9c025cb82c9",
+    "pass": 6,
+    "fail": 0,
+    "scope": "Actual action bodies and permission model; session, assignment gate, read and transaction are controlled doubles"
+  },
+  "actualSdkSave": {
+    "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+    "pass": 9,
+    "fail": 0,
+    "transactions": 2,
+    "remainingDemoDocuments": 0,
+    "scope": "Actual save/permission/profile/signature/preservation/update/transaction functions; real SDK to isolated demo emulator",
+    "limits": [
+      "Not HTTP/Next cookies: session adapter verifies the actual synthetic signed token",
+      "Employee fixture reads and owner direct-write use real SDK I/O adapters, not entire employee/readData/writeData modules",
+      "No portal credential in negative profiles; not tests of their dedicated portals",
+      "No production, real data/accounts/providers/hardware or build certification"
+    ],
+    "gate": "PASS_CURRENT_SAVE_SDK_FUNCTION_BOUNDARY_ONLY"
+  },
+  "changedSourceVsBroad": [
+    "src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts",
+    "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page.tsx"
+  ],
+  "changedCancellationAndBlog": {
+    "pass": 5,
+    "fail": 0
+  },
+  "otherReturns198": {
+    "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+    "pass": 12,
+    "fail": 0,
+    "scope": "Four actual consumer return paths and actual session/profile permission helpers; deliberately full sensitive fixture from controlled storage",
+    "limits": [
+      "Session/read/update/save and secondary effects are doubles; not another SDK/HTTP test",
+      "Suspension/reactivation helpers and liquidation are controlled fixtures: no acceptance of financial liquidation arithmetic",
+      "No Google email, notification delivery, assistant learning, production data or dedicated portal credentials tested"
+    ]
+  },
+  "stillOpen": [
+    "172 social dock/header overlap 2610.1933596357703 px2 at390x844, reproduced151",
+    "195 pending Gemini entertainment queue in1337 unchanged45a0; not an implementation supplied by Codex",
+    "Exhaustive role/control/state acceptance not established by421-route inventory or these tests"
+  ],
+  "externalNotCertified": [
+    "19 manual source documents owner is locating",
+    "Real OAuth/accounts/models/voice/provider synchronization and hardware",
+    "Every production route/action and data reconciliation"
+  ],
+  "overallAuditClosed": false,
+  "zeroErrorsCertified": false,
+  "appEdited": false,
+  "mergedByCodex": false
+}

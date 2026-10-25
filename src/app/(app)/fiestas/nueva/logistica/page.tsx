@@ -49,10 +49,13 @@ function LogisticaContent() {
 
   const publicUrl = fiestaId ? `${typeof window !== 'undefined' ? window.location.origin : ''}/evento/logistica/${fiestaId}` : '';
 
-  const copyLink = () => {
-    if (publicUrl) {
-      navigator.clipboard.writeText(publicUrl);
+  const copyLink = async () => {
+    if (!publicUrl) return;
+    try {
+      await navigator.clipboard.writeText(publicUrl);
       toast({ title: '✅ Link copiado', description: 'El link de logística fue copiado.' });
+    } catch {
+      toast({ title: 'No se pudo copiar automáticamente', description: publicUrl, variant: 'destructive' });
     }
   };
 

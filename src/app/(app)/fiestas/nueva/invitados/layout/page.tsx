@@ -15,7 +15,6 @@ import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, La
 import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { contarMesas } from '@/lib/mesas/contar-mesas';
 import { generarEscenaAutomatica } from '@/lib/decoracion/generar-layout-automatico';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -664,7 +663,8 @@ function SalonLayoutContent() {
     };
   }, [fiesta?.invitados, guestSearchTerm, tagFilter]);
 
-  if (isLoading || !fiestaId) return <div className="flex items-center justify-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>
+  if (isLoading) return <div className="flex items-center justify-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+  if (!fiestaId || !fiesta) return <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] space-y-4 text-center"><h2 className="text-xl font-bold">Fiesta no encontrada</h2><Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button></div>;
   if (error || !decoracion || !fiesta) return <div className="text-destructive text-center p-4">{error}</div>
 
   const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;

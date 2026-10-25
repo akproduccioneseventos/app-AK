@@ -1,0 +1,283 @@
+{
+  "source": "894d01603e0e03cebc8f90a6ccf869ef86bbe1de",
+  "testSha256": "f89de1def0f957393f1b74d59f9b4e642cfef4fc5c266f0d89aa5370916a8481",
+  "hashes": {
+    "src/lib/auth/entertainment-token.ts": "3d754781ddcaae76fe94a93c8441c76543901b12d95d93c21498dec687e6d4d5",
+    "src/lib/guest-portal-public-data.ts": "7937f4d0e31d8364fd956242483810deb11373b533897b4213a724ca35dbc083",
+    "src/lib/entertainment/station-config.ts": "9d4441119b379d6e72d1daccb6431a9174ee9f2768032071229af5adc1a2e0d0",
+    "src/lib/guest-portal/guest-entertainment.ts": "7f25e199a28e2d41470949af1b3b38ae6bc05b015ab983e54cbe78b8fbfd4864",
+    "src/app/actions/public-guest-portal.ts": "ae0f2cc78057c5dc55b9024faa0aa67f3cd7db09d6c5e7eb1b2aaaf02150f727"
+  },
+  "cases": [
+    {
+      "name": "guest-a-gets-only-own-personal-data",
+      "pass": true,
+      "observed": {
+        "guestId": "qa157-guest-&a",
+        "eventName": "Evento ficticio a",
+        "linkCount": 7
+      }
+    },
+    {
+      "name": "guest-cross-event-same-id-wrong-token-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "guest-cannot-use-own-token-for-other-guest",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "guest-empty-token-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "guest-missing-event-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "guest-before-checkin-no-video-or-signed-call",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "all-seven-enabled-station-links-generated",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-fotocabina-credentials-encoded-without-query-split",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-fotocabina-guest-scope-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-fotocabina-guest-cannot-control",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-fotocabina-other-event-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-fotocabina-other-module-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-plataforma360-credentials-encoded-without-query-split",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-plataforma360-guest-scope-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-plataforma360-guest-cannot-control",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-plataforma360-other-event-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-plataforma360-other-module-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFoto-credentials-encoded-without-query-split",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFoto-guest-scope-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFoto-guest-cannot-control",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFoto-other-event-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFoto-other-module-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFirma-credentials-encoded-without-query-split",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFirma-guest-scope-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFirma-guest-cannot-control",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFirma-other-event-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoFirma-other-module-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoIA-credentials-encoded-without-query-split",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoIA-guest-scope-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoIA-guest-cannot-control",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoIA-other-event-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-espejoMagicoIA-other-module-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-bogue-credentials-encoded-without-query-split",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-bogue-guest-scope-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-bogue-guest-cannot-control",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-bogue-other-event-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-bogue-other-module-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-capsulaTiempo-credentials-encoded-without-query-split",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-capsulaTiempo-guest-scope-accepted",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-capsulaTiempo-guest-cannot-control",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-capsulaTiempo-other-event-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-capsulaTiempo-other-module-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-tampered-token-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "station-expired-token-denied",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "guest-checkedin-gets-only-assigned-video",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "other-checkedin-guest-does-not-get-unassigned-video",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "guest-rotated-identity-revokes-old-token",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "invalid-guest-cannot-obtain-station-links",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "disabled-station-not-offered",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "uncontracted-entertainment-not-offered-but-contracted-buzon-remains",
+      "pass": true,
+      "observed": {}
+    },
+    {
+      "name": "uncontracted-buzon-not-offered",
+      "pass": true,
+      "observed": {}
+    }
+  ],
+  "summary": {
+    "pass": 51,
+    "fail": 0
+  },
+  "scope": "Actual guest portal actions, DTO, station config/paths and HMAC tokens across two events/guests and seven modules",
+  "limits": [
+    "Raw event storage and signed-media URL service are controlled adapters; no HTTP, SDK or real media URL signed",
+    "No capture, printing, physical360, AI model, screen, hardware or actual mobile UI accepted",
+    "No app-session bypass tested: station token scope path is checked without an app session"
+  ],
+  "appEdited": false
+}

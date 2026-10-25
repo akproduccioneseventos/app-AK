@@ -1,0 +1,29 @@
+{
+  "source": "108e17b4387237fc921ea12e8d1eb65b20f62ac9",
+  "buildFinished": "2026-10-21T11:35:49.179Z",
+  "started": "2026-10-21T11:51:58.050Z",
+  "testSha256": "6b674a67bff826e260265a00331a7dbc4ad1236804ddc9f40ebb4758b3da296d",
+  "realServices": false,
+  "serverPid": 13168,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-21T11:52:02.364Z",
+    "version": "108e17b4387237fc921ea12e8d1eb65b20f62ac9 · compilada 2026-10-21T11:22:17.916Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "cacheExpiryWaitMs": 0,
+  "testPid": 1388,
+  "exitCode": 0,
+  "snapshotCount": 76,
+  "sourceDiff": "",
+  "finished": "2026-10-21T11:52:43.718Z"
+}

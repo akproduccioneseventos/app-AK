@@ -17,6 +17,8 @@ test.describe('iPhone ve cómo instalar la app', () => {
 
   test('muestra la guía con Agregar a inicio en Safari de iPhone', async ({ page }) => {
     await page.goto('/portal');
-    await expect(page.getByText('Agregar a inicio')).toBeVisible();
+    const boton = page.getByText('Agregar a inicio');
+    await expect(boton).toBeVisible();
+    await expect(boton).toContainText('Agregar a inicio');
   });
 });
