@@ -780,7 +780,7 @@ export default function GuestBuzonPage() {
   };
 
   const handleStartVideoWithCountdown = () => {
-    if (videoCountdownRef.current !== null || countdown !== null || videoState === 'recording') return;
+    if (videoCountdownRef.current !== null || countdown !== null || vhsRecorderRef.current?.state === 'recording') return;
     let remaining = 3;
     setVideoRecordingError(null);
     setCountdown(remaining);
