@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Save, ClipboardCopy, Gift, Eye, Smartphone, Tablet, Monitor, Download, AlertTriangle, Settings2, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, saveFiesta, updateInvitacionSlug } from '@/app/actions/fiesta/fiesta.actions';
+import { armarWebConIA } from '@/app/actions/fiesta/armar-web-con-ia.actions';
 import type { FiestaEnPlanificacion, InvitacionDigitalData, InvitacionDigitalConfig, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { defaultInvitacionConfig, buildInvitacionConfigFromFiesta } from '@/lib/invitacion-config-defaults';
@@ -79,6 +80,74 @@ function PaginaWebPageContent() {
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+
+  const [isArmandoWeb, setIsArmandoWeb] = useState(false);
+  const [armarWebMensaje, setArmarWebMensaje] = useState<string | null>(null);
+  const [armarWebError, setArmarWebError] = useState<string | null>(null);
+  const [previousInvitacionData, setPreviousInvitacionData] = useState<InvitacionDigitalData | null>(null);
+  const [previousInvitacionConfig, setPreviousInvitacionConfig] = useState<InvitacionDigitalConfig | null>(null);
+  const [confirmRehacerOpen, setConfirmRehacerOpen] = useState(false);
+  const autoArmadoEjecutadoRef = React.useRef(false);
+
+  const invitacionDataRef = React.useRef(invitacionData);
+  const invitacionConfigRef = React.useRef(invitacionConfig);
+  useEffect(() => {
+    invitacionDataRef.current = invitacionData;
+  }, [invitacionData]);
+  useEffect(() => {
+    invitacionConfigRef.current = invitacionConfig;
+  }, [invitacionConfig]);
+
+  const handleArmarConIA = useCallback(async (rehacer = false) => {
+    if (!fiestaId || fiestaId === 'template_preview') return;
+    setIsArmandoWeb(true);
+    setArmarWebMensaje(null);
+    setArmarWebError(null);
+    setPreviousInvitacionData(cloneDeep(invitacionDataRef.current));
+    setPreviousInvitacionConfig(cloneDeep(invitacionConfigRef.current));
+
+    try {
+      const res = await armarWebConIA(fiestaId, { rehacer });
+      if (res.success && res.invitacionDigital) {
+        setInvitacionData(res.invitacionDigital);
+        if (res.invitacionDigital.plantilla) {
+          setInvitacionConfig(prev => ({
+            ...prev,
+            plantillaId: res.invitacionDigital!.plantilla,
+            colorPrincipal: res.invitacionDigital!.cabecera.paletaColores.primary,
+            colorSecundario: res.invitacionDigital!.cabecera.paletaColores.secondary,
+            colorAcento: res.invitacionDigital!.cabecera.paletaColores.accent,
+            nombreHomenajeada: res.invitacionDigital!.cabecera.protagonista1 || prev.nombreHomenajeada,
+          }));
+        }
+        setArmarWebMensaje('Listo: revisá y ajustá lo que quieras');
+        toast({ title: 'Web armada con IA', description: 'Listo: revisá y ajustá lo que quieras' });
+      } else {
+        const errorMensaje = res.error || 'No pudimos armar la web del evento.';
+        setArmarWebError(errorMensaje);
+        toast({ title: 'Error al armar la web', description: errorMensaje, variant: 'destructive' });
+      }
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err, 'No pudimos armar la web del evento.');
+      setArmarWebError(errorMsg);
+      toast({ title: 'Error', description: errorMsg, variant: 'destructive' });
+    } finally {
+      setIsArmandoWeb(false);
+    }
+  }, [fiestaId, toast]);
+
+  const handleDeshacer = useCallback(() => {
+    if (!previousInvitacionData) return;
+    setInvitacionData(previousInvitacionData);
+    if (previousInvitacionConfig) {
+      setInvitacionConfig(previousInvitacionConfig);
+    }
+    setPreviousInvitacionData(null);
+    setPreviousInvitacionConfig(null);
+    setArmarWebMensaje(null);
+    setArmarWebError(null);
+    toast({ title: 'Cambios deshechos', description: 'Volviste a la versión anterior.' });
+  }, [previousInvitacionData, previousInvitacionConfig, toast]);
 
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: { invitacionData, invitacionConfig },
@@ -165,12 +234,25 @@ function PaginaWebPageContent() {
         }
       }
 
+      // Automático: si la fiesta no tiene invitacionDigital o la tiene vacía, al abrir el editor se arma sola una vez
+      const rawDigital = (data as any)?.invitacionDigital;
+      const sinContenido =
+        !rawDigital ||
+        Object.keys(rawDigital).length === 0 ||
+        (!rawDigital.cabecera?.protagonista1 && !rawDigital.bienvenida?.texto?.text);
+
+      if (fiestaId && fiestaId !== 'template_preview' && sinContenido && !autoArmadoEjecutadoRef.current) {
+        autoArmadoEjecutadoRef.current = true;
+        setTimeout(() => {
+          handleArmarConIA(false);
+        }, 300);
+      }
     } catch (e: any) {
       toast({ title: "Error", description: `No se pudieron cargar los datos: ${e.message}`, variant: "destructive"});
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, templateId, toast, router]);
+  }, [fiestaId, templateId, toast, router, handleArmarConIA]);
 
   useEffect(() => {
     loadData();
@@ -491,6 +573,66 @@ function PaginaWebPageContent() {
         </div>
       </header>
 
+      {/* Barra de Inteligencia Artificial para la Web */}
+      {fiestaId && fiestaId !== 'template_preview' && (
+        <div className="flex-shrink-0 bg-white border-b border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-3 shadow-xs z-30">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => handleArmarConIA(false)}
+              disabled={isArmandoWeb}
+              className="rounded-xl font-bold gap-1.5 bg-purple-600 hover:bg-purple-700 text-white shadow-sm h-8"
+            >
+              {isArmandoWeb ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Armando tu web…</span>
+                </>
+              ) : (
+                <>
+                  <Wand2 className="w-3.5 h-3.5" />
+                  <span>Armar con IA</span>
+                </>
+              )}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfirmRehacerOpen(true)}
+              disabled={isArmandoWeb}
+              className="rounded-xl font-medium text-slate-700 border-slate-300 hover:bg-slate-100 h-8"
+            >
+              Rehacer todo
+            </Button>
+
+            {armarWebMensaje && !isArmandoWeb && (
+              <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
+                {armarWebMensaje}
+              </span>
+            )}
+
+            {armarWebError && !isArmandoWeb && (
+              <span className="text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1 rounded-xl">
+                {armarWebError}
+              </span>
+            )}
+          </div>
+
+          {previousInvitacionData && !isArmandoWeb && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDeshacer}
+              className="rounded-xl font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 h-8 gap-1"
+            >
+              Deshacer
+            </Button>
+          )}
+        </div>
+      )}
+
       <main className="flex-grow flex min-h-0 overflow-hidden">
         <div className="hidden md:block w-[320px] lg:w-[400px] flex-shrink-0 border-r bg-white shadow-xl z-40">
           {renderEditorPanel()}
@@ -609,6 +751,37 @@ function PaginaWebPageContent() {
               }}
             >
               Continuar igual
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmRehacerOpen} onOpenChange={setConfirmRehacerOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-purple-700">
+              <Sparkles className="w-5 h-5 shrink-0" /> ¿Rehacer toda la web?
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-600 pt-2">
+              Esto va a regenerar el contenido y diseño de la web desde cero con IA. Los datos bancarios cargados se mantendrán intactos.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
+            <Button
+              variant="outline"
+              className="rounded-xl font-bold"
+              onClick={() => setConfirmRehacerOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              className="rounded-xl font-bold bg-purple-600 hover:bg-purple-700 text-white"
+              onClick={() => {
+                setConfirmRehacerOpen(false);
+                handleArmarConIA(true);
+              }}
+            >
+              Sí, rehacer todo
             </Button>
           </DialogFooter>
         </DialogContent>
