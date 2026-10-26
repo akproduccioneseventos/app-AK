@@ -1314,7 +1314,7 @@ export default function GuestBuzonPage() {
               <div className="inline-flex p-3 rounded-xl bg-primary/10 text-primary border border-primary/20 mb-1">
                 <Sparkles className="w-5 h-5" />
               </div>
-              <h2 className="text-2xl font-black tracking-tight leading-none text-foreground">
+              <h2 className="text-2xl font-black tracking-tight leading-none text-white">
                 Cápsula de los Recuerdos
               </h2>
               <p className="text-xs font-bold text-primary uppercase tracking-widest leading-relaxed">
