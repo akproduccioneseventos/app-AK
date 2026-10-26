@@ -1,0 +1,252 @@
+{
+  "checkedAt": "2026-10-26T19:25:03.450Z",
+  "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+  "headBeforeDocumentation": "09b04eb193bbe47acab522108914740447da40a9",
+  "previous": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "blobs": [
+    {
+      "file": "src/app/(app)/invoices/[id]/page.tsx",
+      "previous": "c6a024843ba64899c0f6bc4015d39b512220615f",
+      "current": "c6a024843ba64899c0f6bc4015d39b512220615f"
+    },
+    {
+      "file": "src/lib/entretenimiento/filtros-cara.ts",
+      "previous": "7075493d0d8680b5b1052535e727ab9bc37e76a5",
+      "current": "7075493d0d8680b5b1052535e727ab9bc37e76a5"
+    },
+    {
+      "file": "src/lib/entretenimiento/marcos-dinamicos.ts",
+      "previous": "2bdc8cd80374291ec17a85673a346aa61cd23695",
+      "current": "2bdc8cd80374291ec17a85673a346aa61cd23695"
+    },
+    {
+      "file": "src/app/evento/barra/[fiestaId]/listo/page.tsx",
+      "previous": "848a81fad877ffa0b03b0600b490901860b1822e",
+      "current": "848a81fad877ffa0b03b0600b490901860b1822e"
+    },
+    {
+      "file": "src/app/ak-internal-experience-polish.css",
+      "previous": "1c4bb4b769ff58c914a2440dc8c90d1dc6caf7d4",
+      "current": "1c4bb4b769ff58c914a2440dc8c90d1dc6caf7d4"
+    },
+    {
+      "file": "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+      "previous": "a99f478fc2f690596d16abd0bba0d395d4f67405",
+      "current": "a99f478fc2f690596d16abd0bba0d395d4f67405"
+    },
+    {
+      "file": "src/app/evento/touchpix/[fiestaId]/page.tsx",
+      "previous": "f8bee7b574b730fecb3e0d9fe2fa9065b6e1578b",
+      "current": "f8bee7b574b730fecb3e0d9fe2fa9065b6e1578b"
+    },
+    {
+      "file": "src/app/evento/bogue/[fiestaId]/page.tsx",
+      "previous": "6aefb4f9098c567602364037117d879b8dcd154f",
+      "current": "6aefb4f9098c567602364037117d879b8dcd154f"
+    },
+    {
+      "file": "src/app/evento/espejo-magico/[fiestaId]/page.tsx",
+      "previous": "707e59ae39b1c1c4d8afbde841a743d339c6cfb6",
+      "current": "707e59ae39b1c1c4d8afbde841a743d339c6cfb6"
+    }
+  ],
+  "focus": [
+    {
+      "file": "los-efectos-reaccionan-a-la-cara.test.ts",
+      "status": "passed",
+      "criteria": [
+        {
+          "title": "Los efectos reaccionan a la cara con jawOpen en 0.8 sale confeti, y con 0.2 no sale",
+          "status": "passed"
+        },
+        {
+          "title": "Los efectos reaccionan a la cara dos bocas abiertas seguidas en menos de 1 segundo disparan un solo efecto",
+          "status": "passed"
+        },
+        {
+          "title": "Los efectos reaccionan a la cara la ruleta termina en una opción de la lista y queda fija después de los 3 segundos",
+          "status": "passed"
+        },
+        {
+          "title": "Los efectos reaccionan a la cara el guiño y las cejas levantadas modifican el dibujo activo del lienzo",
+          "status": "passed"
+        },
+        {
+          "title": "Los efectos reaccionan a la cara el cambio de caras no se ofrece con una sola cara",
+          "status": "passed"
+        },
+        {
+          "title": "Los efectos reaccionan a la cara con el recorte apagado, el efecto de atrás va encima y la imagen no se corta",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "los-filtros-siguen-la-cara.test.ts",
+      "status": "passed",
+      "criteria": [
+        {
+          "title": "Los filtros siguen la cara con la cara a la izquierda, la corona se dibuja a la izquierda; corrida a la derecha, la corona va a la derecha",
+          "status": "passed"
+        },
+        {
+          "title": "Los filtros siguen la cara con la cabeza inclinada 20°, el dibujo sale inclinado",
+          "status": "passed"
+        },
+        {
+          "title": "Los filtros siguen la cara con dos caras, dos coronas",
+          "status": "passed"
+        },
+        {
+          "title": "Los filtros siguen la cara sin caras, el lienzo queda idéntico al original",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "file": "387-factura-error-no-es-ausencia.test.tsx",
+      "status": "passed",
+      "criteria": [
+        {
+          "title": "387 control: factura realmente ausente deja de cargar y lo informa",
+          "status": "passed"
+        },
+        {
+          "title": "387 control: lectura aun pendiente no inventa ausencia",
+          "status": "passed"
+        },
+        {
+          "title": "387 si falla una lectura no afirmar que la factura no existe o fue eliminada",
+          "status": "passed"
+        }
+      ]
+    }
+  ],
+  "canonicalReusedNotRerun": true,
+  "canonical": {
+    "suites": 869,
+    "pass": 5278,
+    "fail": 0,
+    "pending": 0
+  },
+  "dependencies": {
+    "installed": 2061,
+    "matching": 2061,
+    "absentOptional": [
+      "node_modules/@emnapi/core",
+      "node_modules/@emnapi/runtime",
+      "node_modules/@emnapi/wasi-threads",
+      "node_modules/@img/sharp-darwin-arm64",
+      "node_modules/@img/sharp-darwin-x64",
+      "node_modules/@img/sharp-freebsd-wasm32",
+      "node_modules/@img/sharp-libvips-darwin-arm64",
+      "node_modules/@img/sharp-libvips-darwin-x64",
+      "node_modules/@img/sharp-libvips-linux-arm",
+      "node_modules/@img/sharp-libvips-linux-arm64",
+      "node_modules/@img/sharp-libvips-linux-ppc64",
+      "node_modules/@img/sharp-libvips-linux-riscv64",
+      "node_modules/@img/sharp-libvips-linux-s390x",
+      "node_modules/@img/sharp-libvips-linux-x64",
+      "node_modules/@img/sharp-libvips-linuxmusl-arm64",
+      "node_modules/@img/sharp-libvips-linuxmusl-x64",
+      "node_modules/@img/sharp-linux-arm",
+      "node_modules/@img/sharp-linux-arm64",
+      "node_modules/@img/sharp-linux-ppc64",
+      "node_modules/@img/sharp-linux-riscv64",
+      "node_modules/@img/sharp-linux-s390x",
+      "node_modules/@img/sharp-linux-x64",
+      "node_modules/@img/sharp-linuxmusl-arm64",
+      "node_modules/@img/sharp-linuxmusl-x64",
+      "node_modules/@img/sharp-wasm32",
+      "node_modules/@img/sharp-wasm32/node_modules/@emnapi/runtime",
+      "node_modules/@img/sharp-webcontainers-wasm32",
+      "node_modules/@img/sharp-win32-arm64",
+      "node_modules/@img/sharp-win32-ia32",
+      "node_modules/@napi-rs/wasm-runtime",
+      "node_modules/@next/swc-darwin-arm64",
+      "node_modules/@next/swc-darwin-x64",
+      "node_modules/@next/swc-linux-arm64-gnu",
+      "node_modules/@next/swc-linux-arm64-musl",
+      "node_modules/@next/swc-linux-x64-gnu",
+      "node_modules/@next/swc-linux-x64-musl",
+      "node_modules/@next/swc-win32-arm64-msvc",
+      "node_modules/@oxc-parser/binding-android-arm-eabi",
+      "node_modules/@oxc-parser/binding-android-arm64",
+      "node_modules/@oxc-parser/binding-darwin-arm64",
+      "node_modules/@oxc-parser/binding-darwin-x64",
+      "node_modules/@oxc-parser/binding-freebsd-x64",
+      "node_modules/@oxc-parser/binding-linux-arm-gnueabihf",
+      "node_modules/@oxc-parser/binding-linux-arm-musleabihf",
+      "node_modules/@oxc-parser/binding-linux-arm64-gnu",
+      "node_modules/@oxc-parser/binding-linux-arm64-musl",
+      "node_modules/@oxc-parser/binding-linux-ppc64-gnu",
+      "node_modules/@oxc-parser/binding-linux-riscv64-gnu",
+      "node_modules/@oxc-parser/binding-linux-riscv64-musl",
+      "node_modules/@oxc-parser/binding-linux-s390x-gnu",
+      "node_modules/@oxc-parser/binding-linux-x64-gnu",
+      "node_modules/@oxc-parser/binding-linux-x64-musl",
+      "node_modules/@oxc-parser/binding-openharmony-arm64",
+      "node_modules/@oxc-parser/binding-wasm32-wasi",
+      "node_modules/@oxc-parser/binding-wasm32-wasi/node_modules/@napi-rs/wasm-runtime",
+      "node_modules/@oxc-parser/binding-win32-arm64-msvc",
+      "node_modules/@oxc-parser/binding-win32-ia32-msvc",
+      "node_modules/@oxc-resolver/binding-android-arm-eabi",
+      "node_modules/@oxc-resolver/binding-android-arm64",
+      "node_modules/@oxc-resolver/binding-darwin-arm64",
+      "node_modules/@oxc-resolver/binding-darwin-x64",
+      "node_modules/@oxc-resolver/binding-freebsd-x64",
+      "node_modules/@oxc-resolver/binding-linux-arm-gnueabihf",
+      "node_modules/@oxc-resolver/binding-linux-arm-musleabihf",
+      "node_modules/@oxc-resolver/binding-linux-arm64-gnu",
+      "node_modules/@oxc-resolver/binding-linux-arm64-musl",
+      "node_modules/@oxc-resolver/binding-linux-ppc64-gnu",
+      "node_modules/@oxc-resolver/binding-linux-riscv64-gnu",
+      "node_modules/@oxc-resolver/binding-linux-riscv64-musl",
+      "node_modules/@oxc-resolver/binding-linux-s390x-gnu",
+      "node_modules/@oxc-resolver/binding-linux-x64-gnu",
+      "node_modules/@oxc-resolver/binding-linux-x64-musl",
+      "node_modules/@oxc-resolver/binding-openharmony-arm64",
+      "node_modules/@oxc-resolver/binding-wasm32-wasi",
+      "node_modules/@oxc-resolver/binding-wasm32-wasi/node_modules/@emnapi/core",
+      "node_modules/@oxc-resolver/binding-wasm32-wasi/node_modules/@emnapi/runtime",
+      "node_modules/@oxc-resolver/binding-wasm32-wasi/node_modules/@emnapi/wasi-threads",
+      "node_modules/@oxc-resolver/binding-wasm32-wasi/node_modules/@napi-rs/wasm-runtime",
+      "node_modules/@oxc-resolver/binding-win32-arm64-msvc",
+      "node_modules/@tybys/wasm-util",
+      "node_modules/@unrs/resolver-binding-android-arm-eabi",
+      "node_modules/@unrs/resolver-binding-android-arm64",
+      "node_modules/@unrs/resolver-binding-darwin-arm64",
+      "node_modules/@unrs/resolver-binding-darwin-x64",
+      "node_modules/@unrs/resolver-binding-freebsd-x64",
+      "node_modules/@unrs/resolver-binding-linux-arm-gnueabihf",
+      "node_modules/@unrs/resolver-binding-linux-arm-musleabihf",
+      "node_modules/@unrs/resolver-binding-linux-arm64-gnu",
+      "node_modules/@unrs/resolver-binding-linux-arm64-musl",
+      "node_modules/@unrs/resolver-binding-linux-ppc64-gnu",
+      "node_modules/@unrs/resolver-binding-linux-riscv64-gnu",
+      "node_modules/@unrs/resolver-binding-linux-riscv64-musl",
+      "node_modules/@unrs/resolver-binding-linux-s390x-gnu",
+      "node_modules/@unrs/resolver-binding-linux-x64-gnu",
+      "node_modules/@unrs/resolver-binding-linux-x64-musl",
+      "node_modules/@unrs/resolver-binding-wasm32-wasi",
+      "node_modules/@unrs/resolver-binding-win32-arm64-msvc",
+      "node_modules/@unrs/resolver-binding-win32-ia32-msvc",
+      "node_modules/fsevents",
+      "node_modules/playwright/node_modules/fsevents"
+    ],
+    "absentRequired": [],
+    "mismatches": []
+  },
+  "dependencyScope": "Fresh manifest-only install, lifecycle scripts disabled. Compare all installed lock entries; absent optionals kept explicitly, not passed as installed. No vulnerability assessment or full new build.",
+  "historicalReferences": {
+    "commit": "e0ffd23951d87d6a93c63e1c77db4bfa473404d8",
+    "reports": [
+      "597-cierre-final-25octubre.md",
+      "650-cierre-recorridos-enumerados.md",
+      "640-recuento-final.json"
+    ]
+  },
+  "limits": "No new functional execution. Same blobs are source evidence, not universal transitive runtime acceptance. Initial incomplete helper conclusion discarded; owner automation remains deleted.",
+  "appDiff": "",
+  "manifestSha256": "df2d3a12226a92692ceb8396233510a0709063fa414d7ac4feeb3616e81f5d13"
+}

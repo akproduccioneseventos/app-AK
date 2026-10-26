@@ -1,0 +1,42 @@
+{
+  "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+  "started": "2026-10-26T19:17:01.488Z",
+  "phase": "install-pass",
+  "appEdited": false,
+  "realServices": false,
+  "lifecycleScriptsExecuted": false,
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-690-install-T4mZ1f",
+  "packageSha256": "df2d3a12226a92692ceb8396233510a0709063fa414d7ac4feeb3616e81f5d13",
+  "lockSha256": "676953c33d0688a10f9a8144f9aed36bebda826da86c15f352cd24b7dcb75331",
+  "pid": 15148,
+  "exit": 0,
+  "lockUnchanged": true,
+  "versions": {
+    "@types/estree": {
+      "installed": "1.0.9",
+      "locked": "1.0.9"
+    },
+    "typescript": {
+      "installed": "5.9.3",
+      "locked": "5.9.3"
+    },
+    "next": {
+      "installed": "15.5.27",
+      "locked": "15.5.27"
+    },
+    "react": {
+      "installed": "19.2.8",
+      "locked": "19.2.8"
+    },
+    "react-dom": {
+      "installed": "19.2.8",
+      "locked": "19.2.8"
+    },
+    "sharp": {
+      "installed": "0.35.5",
+      "locked": "0.35.5"
+    }
+  },
+  "limits": "Manifest-only clean npm ci with lifecycle scripts DISABLED and fresh isolated npm cache/home. No app execution, native postinstall, Firebase, build, credentials or provider calls. This does not replace source-D4 build/browser acceptance or prove clean full build.",
+  "finished": "2026-10-26T19:20:38.665Z"
+}

@@ -1,0 +1,27 @@
+{
+  "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+  "checkedAt": "2026-10-26T22:34:52.140Z",
+  "sourceDiff": "",
+  "originalDependenciesRestored": true,
+  "ownServicesStarted": 0,
+  "agentClosed": "Averroes",
+  "stateLines": 39,
+  "logs": [
+    {
+      "file": "690-npm-ci.log.gz",
+      "sha256": "8729ff4b43838847ae054dcf12c03379e22b330fcbc658927d938f99aa579a13",
+      "uncompressedSha256": "bed3456451c99d07ce89466ef99d73ae01911b3948d9bd0277d97a28b78e0e9a"
+    },
+    {
+      "file": "692-tipos.log.gz",
+      "sha256": "10b1432b9501c357a7b1b5d56aa7e8a92ee487fc2dc00bf2b98010673e6a7ad5",
+      "uncompressedSha256": "41733d6b03a6fb46f0d2009987879d439779fb9ade957464bfbd362f92fbc2cf"
+    },
+    {
+      "file": "693-tipos.log.gz",
+      "sha256": "be30cb77379873e0d2dc52f892c3366e8022a2a46fecfa0d0e1851a0ae3649e9",
+      "uncompressedSha256": "9c1db28441b357c5aa8edf5bfe71ee31865b4dd5b5b81b6e207f284d9cb9ca91"
+    }
+  ],
+  "limits": "No app changes or new build/browser execution. Clean dependencies kept in isolated temp folder only. Raw OOM logs preserved. Automation remains deleted."
+}

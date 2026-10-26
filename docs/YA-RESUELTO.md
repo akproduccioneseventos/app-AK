@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26/10/2026 -691 conciliacion de cierres y690 instalacion aislada limpia
+
+- AppD4 sin cambios; PR1363/main contrastados sin nueva entrega de app.
+- 214/220/221 NO siguen abiertas por la tabla historica253:597/482 ya tienen
+  cierre por alcance.681 actual conserva6efectos+4integracionfiltros+3factura
+  PASS. Nueve blobs focales978/D4 identicos; no equivalencia de toda la app.
+- 650/640/597 no estan copiados en esta rama:691 enlaza los recibos exactos
+  del commit documental e0ffd239. No tratar ausencia local como trabajo pendiente.
+- Primera lectura del ayudante incompleta DESCARTADA por el director; no se
+  reencargaron arreglos ni se repitieron pruebas. Agente economico cerrado.
+- 690: npmci nuevo/home/cache aislados,2061paquetes,exit0/lockintacto yestree
+  1.0.9 exacto. Scripts de instalacion DESACTIVADOS; no buildlimpio ni auditoria
+  global de vulnerabilidades.694 valida2061/2061versiones,0obligatorios ausentes.
+- Sharp nuevo encode/decode PASS.692/693 TypeScript NO aceptado:exit134 heap
+  agotado1536/2048, no diagnostico de errorapp; no mas reintentos. Junction
+  original restaurada,fuenteQA diff0; conservarraw, no contarlo comoPASS.
+- 680/681/682 siguen vigentes para su fuente ydeps originales; no repetirlos
+  por documentos. No nuevos cambiosapp,merge/deploy ni automatizacion recreada.
+
 ## 26/10/2026 -685 cierre comprobado de correcciones653 y tema del buzon
 
 - Fuente final d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0, rama propia

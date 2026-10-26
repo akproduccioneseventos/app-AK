@@ -1,4 +1,13 @@
-# Recuento unico - 24/10/2026
+# Recuento unico - actualizado 26/10/2026
+
+ACTUAL: leer691-recuento-conciliado-26octubre.md y685-cierre-comprobado.md.
+Las causas214/220/221 de la tabla historica de abajo YA tienen cierre por
+alcance en597/482 yregresiones actuales681. No reemitirlas desde esa tabla.
+690 agrega instalacion limpia con scriptsdesactivados, NO buildlimpio ni
+npm-audit.692 contiene el resultado adicional de tipos. Fuenteapp D4.
+650/640/597 viven en la rama documental1361: enlaces exactos en691.
+El bloque siguiente conserva el corte24/10 como HISTORIA, no como pendientes
+actuales ni como aceptacion de cada control/rol de la app.
 
 Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
 Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.

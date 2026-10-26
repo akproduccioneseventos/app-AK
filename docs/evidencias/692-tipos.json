@@ -1,0 +1,22 @@
+{
+  "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+  "started": "2026-10-26T19:21:32.539Z",
+  "phase": "types-fail",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "install": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-690-install-T4mZ1f",
+  "appEdited": false,
+  "realServices": false,
+  "freeBefore": 2284130304,
+  "sharp": {
+    "pass": true,
+    "width": 4,
+    "height": 4,
+    "bytes": 94
+  },
+  "pid": 9492,
+  "exit": 134,
+  "limits": "Clean dependency tree from690, lifecycle scripts disabled. TypeScript uses existing D4 generated Next types/build680, not a fresh full build with clean dependencies. Native sharp encode/decode verified. No real services or app mutations.",
+  "originalDependenciesRestored": true,
+  "sourceDiff": "",
+  "finished": "2026-10-26T19:23:23.323Z"
+}

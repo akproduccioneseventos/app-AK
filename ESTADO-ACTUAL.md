@@ -21,6 +21,11 @@ No main, no merge ni deploy. Cambios privados NO CONTRASTADOS.
 - Test positivo usa perfil real dueno y conserva rechazo del perfil inventado.
 
 ## Continuidad sin repetir
+Recuento conciliado691:214/220/221 cerradas por alcance, NO tabla historica253.
+690/694 depslimpias2061exactas/lockintacto, scriptsOFF; Sharp encode/decodePASS.
+692/693 tipos extra INCONCLUSOS(heapOOM), no errorapp niPASS;no reintentarigual.
+597/650/640 historicos accesibles por enlacesSHA en691; no ausencia de pruebas.
+Automatizacion eliminada por el dueno: no recreada.
 La orden humana25/10 autorizo corregir directamente con agentes economicos.
 Codex conserva decisiones sensibles; Claude/el dueno revisa yfusiona. No merge automatico.
 683 ejecuta tests/e2e/buzon-titulo-legible.spec.ts (3criterios por2proyectos).
