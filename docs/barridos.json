@@ -475,6 +475,14 @@
       "fecha": "2026-10-24",
       "resultado": "Codex 341 (barra lista). Barrido de la pregunta 52 en toda src/app: la regla main.flex-1 pinta de claro cinco pantallas oscuras fuera del panel (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz y prueba en la orden 223 para Gemini."
     },
+    "orden-228": {
+      "fecha": "2026-10-26",
+      "resultado": "La 1353 sacaba clientPortalSettings al cliente y el PIN quedaba vacío. Barrido de la pregunta 89: los lectores que comparan contra clientPortalSettings (cancelación y cambio de fecha en portal.actions) dependen de recortarFiestaParaAfuera; corregido en la entrega 2b17bebfd."
+    },
+    "orden-232": {
+      "fecha": "2026-10-26",
+      "resultado": "Devolución de la 1353 + Codex 1363: pruebas con perfil inexistente, pantallas tocadas sin prueba y pruebas de navegador en rojo. Barrido: las pantallas tocadas buscadas en tests/e2e; las dos sin prueba van en la orden 232."
+    },
     "orden-227": {
       "fecha": "2026-10-24",
       "resultado": "Codex 387 (factura con lectura fallida dice 'no existe') y 423 (segunda regla de fondo claro). Barrido de la pregunta 50 en las 14 pantallas de la orden 224: 10 dicen 'no encontrada' o giran si falla la lectura; la causa compartida es getFiestaById, que traga el error. Barrido de la 96 ampliada: ak-internal-experience-polish.css tiñe seis pantallas con main propio y puede tapar cinco del panel. Todo en la orden 227."
