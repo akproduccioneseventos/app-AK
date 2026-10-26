@@ -22,9 +22,10 @@ import { VideoFrameOverlay } from '@/components/buzon/VideoFrameOverlay';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { drawBuzonVideoFrame } from '@/lib/buzon/video-frame-canvas';
-import { renderUploadedVideoWithFrame } from '@/lib/buzon/video-frame-processor';
+import { createPlayableVideoUrl, renderUploadedVideoWithFrame } from '@/lib/buzon/video-frame-processor';
 import { normalizeFrameTemplateId } from '@/lib/buzon/video-frame-templates';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { isUsableRecordedVideo, stopRecorderStream } from '@/lib/buzon/recorded-video';
 
 export default function GuestBuzonPage() {
   usePantallaPrendida();
@@ -71,6 +72,8 @@ export default function GuestBuzonPage() {
     'photo_record' | 'photo_upload' | 'vhs_record' | 'vhs_upload' | 'audio_record' | 'audio_retro' | 'audio_upload' | null
   >(null);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const videoCountdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [videoRecordingError, setVideoRecordingError] = useState<string | null>(null);
 
   const handleSelectMode = (mode: typeof selectedMode) => {
     setSelectedMode(mode);
@@ -84,6 +87,10 @@ export default function GuestBuzonPage() {
   };
 
   const releaseActiveMedia = () => {
+    if (videoCountdownRef.current !== null) {
+      clearInterval(videoCountdownRef.current);
+      videoCountdownRef.current = null;
+    }
     if (recordingIntervalRef.current) {
       clearInterval(recordingIntervalRef.current);
       recordingIntervalRef.current = null;
@@ -109,15 +116,6 @@ export default function GuestBuzonPage() {
       if (videoRecorder.state !== 'inactive') videoRecorder.stop();
       videoRecorder.stream.getTracks().forEach((track) => track.stop());
       vhsRecorderRef.current = null;
-    }
-
-    const fallbackRecorder = fallbackRecorderRef.current;
-    if (fallbackRecorder) {
-      fallbackRecorder.ondataavailable = null;
-      fallbackRecorder.onstop = null;
-      if (fallbackRecorder.state !== 'inactive') fallbackRecorder.stop();
-      fallbackRecorder.stream.getTracks().forEach((track) => track.stop());
-      fallbackRecorderRef.current = null;
     }
 
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -162,7 +160,6 @@ export default function GuestBuzonPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const vhsCanvasRef = useRef<HTMLCanvasElement>(null);
   const vhsRecorderRef = useRef<MediaRecorder | null>(null);
-  const fallbackRecorderRef = useRef<MediaRecorder | null>(null);
   const videoRenderFrameRef = useRef<number | null>(null);
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -783,11 +780,14 @@ export default function GuestBuzonPage() {
   };
 
   const handleStartVideoWithCountdown = () => {
+    if (videoCountdownRef.current !== null || countdown !== null || vhsRecorderRef.current?.state === 'recording') return;
     let remaining = 3;
+    setVideoRecordingError(null);
     setCountdown(remaining);
-    const countInterval = setInterval(() => {
+    videoCountdownRef.current = setInterval(() => {
       if (remaining <= 1) {
-        clearInterval(countInterval);
+        if (videoCountdownRef.current !== null) clearInterval(videoCountdownRef.current);
+        videoCountdownRef.current = null;
         setCountdown(null);
         void startLiveVideoRecording();
         return;
@@ -801,6 +801,8 @@ export default function GuestBuzonPage() {
     const canvas = vhsCanvasRef.current;
     if (!canvas || !stream) return;
 
+    let recordingStream: MediaStream | null = null;
+    try {
     if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
       void audioCtxRef.current.resume().catch(() => undefined);
     }
@@ -812,43 +814,12 @@ export default function GuestBuzonPage() {
     setVideoDuration(0);
 
     const canvasStream = canvas.captureStream(20); // 20 FPS
-
-    let fallbackStream: MediaStream | null = null;
-    let fallbackRecorder: MediaRecorder | null = null;
-    const fallbackChunks: Blob[] = [];
-    let fallbackStoppedPromise: Promise<Blob> | null = null;
+    recordingStream = canvasStream;
 
     // Add audio track to canvas stream
     const audioTrack = stream.getAudioTracks()[0];
     if (audioTrack) {
-      fallbackStream = new MediaStream(canvasStream.getVideoTracks().map((t) => t.clone()));
       canvasStream.addTrack(audioTrack);
-
-      const fallbackMime = [
-        'video/webm;codecs=vp9',
-        'video/webm;codecs=vp8',
-        'video/webm',
-        'video/mp4',
-      ].find((candidate) => MediaRecorder.isTypeSupported(candidate)) || '';
-
-      fallbackRecorder = fallbackMime
-        ? new MediaRecorder(fallbackStream, { mimeType: fallbackMime })
-        : new MediaRecorder(fallbackStream);
-      fallbackRecorderRef.current = fallbackRecorder;
-
-      fallbackRecorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) fallbackChunks.push(e.data);
-      };
-
-      fallbackStoppedPromise = new Promise<Blob>((resolve) => {
-        fallbackRecorder!.onstop = () => {
-          const type = fallbackRecorder?.mimeType || fallbackMime || 'video/webm';
-          resolve(new Blob(fallbackChunks, { type }));
-        };
-        fallbackRecorder!.onerror = () => {
-          resolve(new Blob([], { type: 'video/webm' }));
-        };
-      });
     }
 
     const mimeType = [
@@ -869,49 +840,41 @@ export default function GuestBuzonPage() {
     };
 
     recorder.onstop = async () => {
-      let fallbackBlob: Blob | null = null;
-      if (fallbackRecorder && fallbackRecorder.state !== 'inactive') {
-        try {
-          fallbackRecorder.requestData();
-        } catch {}
-        fallbackRecorder.stop();
+      if (vhsRecorderRef.current === recorder && recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+        recordingIntervalRef.current = null;
       }
-      if (fallbackStoppedPromise) {
-        fallbackBlob = await Promise.race([
-          fallbackStoppedPromise,
-          new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob([], { type: 'video/webm' })), 1000)),
-        ]);
-      }
-      if (fallbackStream) {
-        fallbackStream.getTracks().forEach((track) => track.stop());
-      }
-      fallbackRecorderRef.current = null;
-
       const outputType = recorder.mimeType || mimeType || 'video/webm';
-      const primaryBlob = new Blob(chunks, { type: outputType });
-      const blob = (primaryBlob.size > 0)
-        ? primaryBlob
-        : (fallbackBlob && fallbackBlob.size > 0)
-          ? fallbackBlob
-          : primaryBlob;
-
-      const finalType = blob.type || outputType;
-      const extension = finalType.includes('mp4') ? 'mp4' : 'webm';
-      const file = new File(
-        [blob],
-        `capsulavideo-${Date.now()}.${extension}`,
-        { type: finalType },
-      );
-      setVideoFile(file);
-      setVideoUrl(URL.createObjectURL(blob));
-      setVideoState('review');
-      stopCamera();
+      const blob = new Blob(chunks, { type: outputType });
+      try {
+        if (!isUsableRecordedVideo(blob)) throw new Error('El navegador generó un video vacío.');
+        const url = await createPlayableVideoUrl(blob);
+        if (vhsRecorderRef.current !== recorder) {
+          URL.revokeObjectURL(url);
+          return;
+        }
+        const extension = blob.type.includes('mp4') ? 'mp4' : 'webm';
+        setVideoFile(new File([blob], `capsulavideo-${Date.now()}.${extension}`, { type: blob.type }));
+        setVideoUrl(url);
+        setVideoState('review');
+        setVideoRecordingError(null);
+      } catch {
+        if (vhsRecorderRef.current === recorder) {
+          setVideoFile(null);
+          setVideoUrl(null);
+          setVideoRecordingError('No se pudo crear el video con audio. Reintentá la grabación.');
+          setVideoState('idle');
+        }
+      } finally {
+        stopRecorderStream(canvasStream);
+        if (vhsRecorderRef.current === recorder) {
+          vhsRecorderRef.current = null;
+          stopCamera();
+        }
+      }
     };
 
     recorder.start(200);
-    if (fallbackRecorder) {
-      fallbackRecorder.start(200);
-    }
 
     // Timer limit 15s
     let elapsed = 0;
@@ -922,6 +885,19 @@ export default function GuestBuzonPage() {
         stopLiveVideoRecording();
       }
     }, 1000);
+    } catch {
+      const recorder = vhsRecorderRef.current;
+      vhsRecorderRef.current = null;
+      if (recorder) {
+        recorder.onstop = null;
+        recorder.ondataavailable = null;
+        if (recorder.state !== 'inactive') recorder.stop();
+      }
+      stopRecorderStream(recordingStream);
+      stopCamera();
+      setVideoState('idle');
+      setVideoRecordingError('No se pudo iniciar la grabación. Revisá los permisos e intentá nuevamente.');
+    }
   };
 
   const stopLiveVideoRecording = () => {
@@ -934,22 +910,21 @@ export default function GuestBuzonPage() {
         vhsRecorderRef.current.requestData();
       } catch {}
     }
-    if (fallbackRecorderRef.current && fallbackRecorderRef.current.state === 'recording') {
-      try {
-        fallbackRecorderRef.current.requestData();
-      } catch {}
-    }
     if (vhsRecorderRef.current && vhsRecorderRef.current.state !== 'inactive') {
       vhsRecorderRef.current.stop();
     }
   };
 
   const resetVideoUpload = () => {
+    if (videoCountdownRef.current !== null) clearInterval(videoCountdownRef.current);
+    videoCountdownRef.current = null;
+    setCountdown(null);
     lastProcessedVideoRef.current = null;
     if (videoUrl) URL.revokeObjectURL(videoUrl);
     setVideoFile(null);
     setVideoUrl(null);
     setVideoDuration(0);
+    setVideoRecordingError(null);
     setVideoProcessingProgress(0);
     setVideoState('idle');
     stopCamera();
@@ -1603,6 +1578,14 @@ export default function GuestBuzonPage() {
               {/* 🔴 MODE: VHS RECORD 🔴 */}
               {selectedMode === 'vhs_record' && (
                 <div className="w-full">
+                  {videoRecordingError && (
+                    <div role="alert" className="mb-4 w-full rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                      <p>{videoRecordingError}</p>
+                      <button type="button" onClick={handleReRecordVideo} className="mt-2 inline-flex items-center gap-2 font-bold underline">
+                        <RefreshCw className="h-4 w-4" /> Reintentar
+                      </button>
+                    </div>
+                  )}
                   {videoState === 'idle' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center space-y-6 w-full">
                       <div className="relative w-40 h-40 flex items-center justify-center">

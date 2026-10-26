@@ -1332,7 +1332,6 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 225 → pregunta 97
 - Orden 226 → pregunta 52
 - Orden 227 → pregunta 50
-- Orden 228 → propia de Claude
 - Orden 228 → pregunta 89
 - Orden 229 → pregunta 99
 - Orden 230 → pregunta 98

@@ -25,15 +25,26 @@ function selectRecorderMimeType(hasAudioTrack = true): string {
 async function loadVideoMetadata(video: HTMLVideoElement, sourceUrl: string): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     let resolved = false;
+    const timeout = setTimeout(() => {
+      if (resolved) return;
+      resolved = true;
+      reject(new Error('El video seleccionado no termino de cargar. Intenta nuevamente.'));
+    }, 8_000);
     const finish = () => {
       if (!resolved) {
         resolved = true;
+        clearTimeout(timeout);
         resolve();
       }
     };
     video.onloadedmetadata = finish;
     video.onloadeddata = finish;
-    video.onerror = () => reject(new Error('No se pudo leer el video seleccionado.'));
+    video.onerror = () => {
+      if (resolved) return;
+      resolved = true;
+      clearTimeout(timeout);
+      reject(new Error('No se pudo leer el video seleccionado.'));
+    };
     video.src = sourceUrl;
     video.load();
   });
@@ -54,7 +65,7 @@ async function loadVideoMetadata(video: HTMLVideoElement, sourceUrl: string): Pr
   }
 }
 
-async function createPlayableVideoUrl(blob: Blob): Promise<string> {
+export async function createPlayableVideoUrl(blob: Blob): Promise<string> {
   if (blob.size === 0) {
     throw new Error('El navegador generó un video vacío.');
   }
@@ -81,9 +92,12 @@ async function createPlayableVideoUrl(blob: Blob): Promise<string> {
         () => finish(() => reject(new Error('El video procesado no se pudo verificar.'))),
         5_000,
       );
-      probe.onloadedmetadata = () => finish(resolve);
-      probe.onloadeddata = () => finish(resolve);
-      probe.oncanplay = () => finish(resolve);
+      const checkVideo = () => {
+        if (probe.videoWidth > 0 && probe.videoHeight > 0) finish(resolve);
+      };
+      probe.onloadedmetadata = checkVideo;
+      probe.onloadeddata = checkVideo;
+      probe.oncanplay = checkVideo;
       probe.onerror = () => finish(() => reject(new Error('El video procesado no es reproducible.')));
       probe.src = outputUrl;
       probe.load();
@@ -153,29 +167,35 @@ export async function renderUploadedVideoWithFrame(input: {
     const AudioContextCtor =
       window.AudioContext ||
       (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (AudioContextCtor) {
-      try {
-        audioContext = new AudioContextCtor();
-        await Promise.race([
-          audioContext.resume().catch(() => undefined),
-          new Promise((resolve) => setTimeout(resolve, 300)),
-        ]);
-        if (audioContext.state === 'running') {
-          video.muted = false;
-          video.volume = 1;
-          const source = audioContext.createMediaElementSource(video);
-          const destination = audioContext.createMediaStreamDestination();
-          source.connect(destination);
-          const audioTracks = destination.stream.getAudioTracks();
-          if (audioTracks.length > 0) {
-            audioTracks.forEach((track) => outputStream?.addTrack(track));
-            hasAudioTrack = true;
-          }
-        }
-      } catch {
-        video.muted = true;
-      }
+    if (!AudioContextCtor) {
+      throw new Error('Este navegador no permite conservar el audio del video. Prueba con otro navegador.');
     }
+    audioContext = new AudioContextCtor();
+    let resumeTimeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        audioContext.resume(),
+        new Promise<never>((_, reject) => {
+          resumeTimeout = setTimeout(() => reject(new Error('No se pudo activar el audio. Intenta nuevamente.')), 1_500);
+        }),
+      ]);
+    } finally {
+      if (resumeTimeout) clearTimeout(resumeTimeout);
+    }
+    if (audioContext.state !== 'running') {
+      throw new Error('No se pudo activar el audio. Intenta nuevamente.');
+    }
+    video.muted = false;
+    video.volume = 1;
+    const source = audioContext.createMediaElementSource(video);
+    const destination = audioContext.createMediaStreamDestination();
+    source.connect(destination);
+    const audioTracks = destination.stream.getAudioTracks();
+    if (audioTracks.length === 0) {
+      throw new Error('No se pudo conservar el audio del video. Intenta nuevamente.');
+    }
+    audioTracks.forEach((track) => outputStream?.addTrack(track));
+    hasAudioTrack = true;
 
     const mimeType = selectRecorderMimeType(hasAudioTrack);
     const recorder = mimeType
@@ -254,12 +274,7 @@ export async function renderUploadedVideoWithFrame(input: {
     };
 
     renderInterval = setInterval(() => renderFrame(performance.now()), frameInterval);
-    try {
-      await video.play();
-    } catch {
-      video.muted = true;
-      await video.play();
-    }
+    await video.play();
     animationFrame = requestAnimationFrame(renderFrame);
     timeoutId = setTimeout(() => {
       finishRecording();
@@ -291,7 +306,7 @@ export async function renderUploadedVideoWithFrame(input: {
     video.pause();
     outputStream?.getTracks().forEach((track) => track.stop());
     if (audioContext && audioContext.state !== 'closed') {
-      void audioContext.close().catch(() => undefined);
+      await audioContext.close().catch(() => undefined);
     }
     URL.revokeObjectURL(sourceUrl);
   }
