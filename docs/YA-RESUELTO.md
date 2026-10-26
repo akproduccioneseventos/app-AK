@@ -15942,3 +15942,13 @@ Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-n
   asistente. Gastar o tocar una campaña lo decide el dueño.
 - **Control:** `src/__tests__/el-agente-de-publicidad-no-toca-campanias.test.ts`, que frena si un agente
   vuelve a llamar a pausar, ajustar o crear campañas.
+
+## 26/10/2026 — Barridos de las preguntas 100 y 101
+
+- **El enlace "Confirmar asistencia" del editor de la invitación llevaba a la portada:** apuntaba a
+  `/evento/actual` sin la fiesta. Ahora lleva a `/invitacion/<fiesta>`. Control:
+  `src/__tests__/el-enlace-de-confirmar-lleva-a-la-invitacion.test.ts`.
+- **Las descripciones de dos agentes prometían de más:** el cobrador y el creador de contenido. Ahora dicen lo que
+  hacen.
+- **Revisado y se deja así (decisión, no defecto):** el pedido de reseña por WhatsApp al contestar la encuesta sale
+  solo, pero sólo si el dueño prende el interruptor en Ajustes, que viene apagado.

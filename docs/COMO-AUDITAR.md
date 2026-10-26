@@ -1440,3 +1440,16 @@ permisos usa `puede(...)` o `requireAdminSession()`. Sólo el ingreso y la tradu
 Codex 229 (orden 229). La grabación con marco perdía el audio si fallaba WebAudio, y una captura de 0 bytes se
 mostraba como "video listo". Se mira cada `onstop`, `toBlob` o `MediaRecorder`: antes de decir "listo" se mira el
 tamaño y que se pueda reproducir. Si no, se muestra el reintento.
+
+### 100. Algo que corre solo, ¿hace por su cuenta lo que el dueño decidió que hace una persona, o su descripción dice lo contrario de lo que hace?
+
+Propia (26/10/2026). El vigilante de publicidad decía "nunca modifica campañas ni gasta dinero" y pausaba campañas y
+subía el presupuesto un 25% cada 12 horas. Se sigue cada disparador automático (agentes, tareas programadas,
+webhooks, efectos al entrar) hasta lo que termina haciendo: si manda afuera, cobra, cierra, toca permisos o gasta, es
+un hallazgo de plata. Y se compara la descripción que ve el dueño con el código.
+
+### 101. Una redirección, ¿deja una pantalla existente sin forma de abrirse?
+
+Propia (26/10/2026). Una entrega redirigía `/empresa/redes-sociales` a otra pantalla y el planificador de redes que
+vive ahí quedaba inalcanzable; además un botón llevaba a sí mismo. Por cada redirección incondicional se mira si en
+el origen hay una `page.tsx` real.
