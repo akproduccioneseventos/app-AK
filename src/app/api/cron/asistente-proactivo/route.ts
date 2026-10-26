@@ -1,3 +1,4 @@
+import { hoyEnUruguay } from '@/lib/utils';
 import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
@@ -212,7 +213,7 @@ export async function GET(request: Request) {
 
   if (avisosPrendidos && !esHorarioDescanso && resultadoPersistencia.agregadas.length > 0) {
     try {
-      const hoyKey = ahora.toISOString().split('T')[0];
+      const hoyKey = hoyEnUruguay(ahora);
       const importantes = resultadoPersistencia.agregadas.filter(p => p.esImportante);
 
       if (importantes.length > 0) {
@@ -237,10 +238,15 @@ export async function GET(request: Request) {
         );
 
         if (reservado) {
-          const primerAviso = importantes[0];
+          // El aviso llega a TODOS los teléfonos registrados del equipo (sendPushNotificationToAll),
+          // también a quien no tiene permiso de ver plata: por eso NO lleva el detalle (nombres de
+          // clientes ni saldos). El detalle se ve adentro de la app, con su permiso. Codex en la 1364.
           await sendPushNotificationToAll({
-            title: `Asistente AK: ${primerAviso.titulo}`,
-            body: primerAviso.quePasa || primerAviso.quePropone,
+            title: 'Asistente AK',
+            body:
+              importantes.length === 1
+                ? 'Tenés un aviso nuevo del asistente. Abrí la app para verlo.'
+                : `Tenés ${importantes.length} avisos nuevos del asistente. Abrí la app para verlos.`,
             url: '/mi-dia?hablar=1',
           });
         }
