@@ -229,7 +229,7 @@ export async function avisarAlDuenio(
     try {
       const cantidad = importantes.length;
       const texto = cantidad === 1
-        ? `Tenés 1 cosa para mirar: ${importantes[0].titulo}`
+        ? 'Tenés 1 cosa para mirar en Tu Asistente.'
         : `Tenés ${cantidad} cosas para mirar en Tu Asistente.`;
 
       const pushRes = await sendPushNotificationToAll({

@@ -15979,3 +15979,14 @@ Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-n
   hacen.
 - **Revisado y se deja así (decisión, no defecto):** el pedido de reseña por WhatsApp al contestar la encuesta sale
   solo, pero sólo si el dueño prende el interruptor en Ajustes, que viene apagado.
+
+## 26/10/2026 — Los avisos con plata ya no le llegan a quien no ve plata (Codex en la 1364 y pregunta 102)
+
+- **Qué estaba mal (publicado):** cada aviso interno ("Pago de $15.000 registrado para Sofía", "Saldo pendiente…")
+  salía con su texto al teléfono de todo el equipo, personal incluido, y la lista de avisos se mostraba entera a
+  cualquiera con sesión. La entrega 1353 sumaba otro envío igual desde el asistente.
+- **Qué se hizo:** al teléfono va "Tenés un aviso nuevo en AK" cuando el aviso es de plata
+  (`src/lib/notifications/aviso-con-plata.ts`), y la lista (`getNotifications`, que usan también el tablero y la torre
+  de control) oculta esos avisos a quien no tiene permiso de contabilidad.
+- **Control:** `src/__tests__/los-avisos-de-plata-no-llegan-a-quien-no-ve-plata.test.ts` y
+  `src/__tests__/el-aviso-a-todos-los-telefonos-no-lleva-plata.test.ts`.
