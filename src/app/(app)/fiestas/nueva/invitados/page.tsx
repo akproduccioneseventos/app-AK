@@ -111,18 +111,28 @@ function InvitadosEventoContent() {
     if (!propuestaMesas || !fiestaId) return;
     setIsConfirmingMesas(true);
     try {
+      let noGuardadas = 0;
       for (const mesa of propuestaMesas.mesas) {
         for (const invAsignado of mesa.invitados) {
           const invOriginal = invitados.find((i) => i.id === invAsignado.id);
           if (invOriginal) {
-            await updateInvitadoFiestaActual(fiestaId, {
+            const respuesta = await updateInvitadoFiestaActual(fiestaId, {
               ...invOriginal,
               tableNumber: `Mesa ${mesa.numero}`,
             });
+            if (!respuesta?.success) noGuardadas += 1;
           }
         }
       }
       await fetchInvitados();
+      if (noGuardadas > 0) {
+        toast({
+          title: `No se guardaron ${noGuardadas} asignaciones de mesa`,
+          description: 'La propuesta sigue abierta: probá confirmar de nuevo.',
+          variant: 'destructive',
+        });
+        return;
+      }
       toast({ title: '¡Mesas asignadas y guardadas con éxito!' });
       setPropuestaMesas(null);
     } catch {

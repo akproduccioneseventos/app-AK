@@ -33,40 +33,19 @@ export function AsistenteDelCliente({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [llamandoVoz, setLlamandoVoz] = useState(false);
 
-  const handleIniciarLlamadaVoz = async () => {
-    setLlamandoVoz(true);
-    try {
-      const res = await fetch('/api/asistente/voz-en-vivo/cliente', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fiestaId }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'No se pudo iniciar la llamada de voz.');
-      }
-      setMensajes((prev) => [
-        ...prev,
-        {
-          id: `sys-${Date.now()}`,
-          role: 'assistant',
-          text: '🎤 Llamada de voz conectada. ¡Podés hablar libremente sobre tu fiesta!',
-        },
-      ]);
-    } catch (err: any) {
-      setMensajes((prev) => [
-        ...prev,
-        {
-          id: `sys-${Date.now()}`,
-          role: 'assistant',
-          text: `⚠️ ${err.message || 'No se pudo iniciar la voz.'}`,
-        },
-      ]);
-    } finally {
-      setLlamandoVoz(false);
-    }
+  // La llamada de voz del cliente todavia no abre audio en este panel: antes pedia la ficha
+  // al servidor (gastaba los minutos del dia del cliente) y anunciaba "conectada" sin conectar nada.
+  // Mientras no haya audio de verdad, no se pide ficha y se le dice la verdad.
+  const handleIniciarLlamadaVoz = () => {
+    setMensajes((prev) => [
+      ...prev,
+      {
+        id: `sys-${Date.now()}`,
+        role: 'assistant',
+        text: 'La llamada por voz todavía no está disponible; escribime y te contesto.',
+      },
+    ]);
   };
 
   useEffect(() => {
@@ -184,12 +163,11 @@ export function AsistenteDelCliente({
                   variant="ghost"
                   size="sm"
                   onClick={handleIniciarLlamadaVoz}
-                  disabled={llamandoVoz}
                   className="text-xs font-bold text-amber-300 hover:text-amber-200 hover:bg-primary-foreground/20 rounded-full px-2.5 h-8 gap-1"
                   title="Hablar por voz con el asistente"
                 >
                   <PhoneCall className="w-3.5 h-3.5" />
-                  {llamandoVoz ? 'Conectando...' : 'Hablar'}
+                  Hablar
                 </Button>
                 <Button
                   variant="ghost"

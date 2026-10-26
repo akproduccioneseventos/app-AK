@@ -319,10 +319,11 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
       const functionResponses: any[] = [];
       for (const fc of calls) {
         try {
+          const { confirmado: _confirmado, ...argumentosSinConfirmado } = (fc.args || {}) as Record<string, unknown>;
           const r = await fetchFn('/api/asistente/voz-en-vivo/accion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: fc.id, accion: fc.name, argumentos: fc.args || {} }),
+            body: JSON.stringify({ id: fc.id, accion: fc.name, argumentos: argumentosSinConfirmado, confirmado: fc.args?.confirmado === true }),
             signal: senal,
           });
           const respuesta = await r.json().catch(() => ({}));

@@ -8,6 +8,7 @@ export const HERRAMIENTAS_VOZ = [
         parameters: {
           type: 'OBJECT',
           properties: {
+            confirmado: { type: 'BOOLEAN', description: 'Poné true sólo cuando la persona ya te dijo que sí a que hagas esta acción' },
             titulo: { type: 'STRING', description: 'Título o descripción de la tarea' },
             paraQuien: { type: 'STRING', description: 'Nombre o rol a quien se le asigna la tarea' },
           },
@@ -20,6 +21,7 @@ export const HERRAMIENTAS_VOZ = [
         parameters: {
           type: 'OBJECT',
           properties: {
+            confirmado: { type: 'BOOLEAN', description: 'Poné true sólo cuando la persona ya te dijo que sí a que hagas esta acción' },
             recordatorio: { type: 'STRING', description: 'Texto del recordatorio' },
             fechaHora: { type: 'STRING', description: 'Cuándo recordar' },
           },
@@ -32,6 +34,7 @@ export const HERRAMIENTAS_VOZ = [
         parameters: {
           type: 'OBJECT',
           properties: {
+            confirmado: { type: 'BOOLEAN', description: 'Poné true sólo cuando la persona ya te dijo que sí a que hagas esta acción' },
             conQuien: { type: 'STRING', description: 'Con quién es la reunión' },
             fechaHora: { type: 'STRING', description: 'Fecha y hora propuesta' },
             motivo: { type: 'STRING', description: 'Motivo de la reunión' },
@@ -44,7 +47,9 @@ export const HERRAMIENTAS_VOZ = [
         description: 'Consulta los eventos y compromisos de los próximos días.',
         parameters: {
           type: 'OBJECT',
-          properties: {},
+          properties: {
+            confirmado: { type: 'BOOLEAN', description: 'Poné true sólo cuando la persona ya te dijo que sí a que hagas esta acción' },
+          },
         },
       },
       {
@@ -52,7 +57,9 @@ export const HERRAMIENTAS_VOZ = [
         description: 'Consulta los saldos y cobros pendientes (sólo para contabilidad o dueño).',
         parameters: {
           type: 'OBJECT',
-          properties: {},
+          properties: {
+            confirmado: { type: 'BOOLEAN', description: 'Poné true sólo cuando la persona ya te dijo que sí a que hagas esta acción' },
+          },
         },
       },
       {
@@ -61,6 +68,7 @@ export const HERRAMIENTAS_VOZ = [
         parameters: {
           type: 'OBJECT',
           properties: {
+            confirmado: { type: 'BOOLEAN', description: 'Poné true sólo cuando la persona ya te dijo que sí a que hagas esta acción' },
             nombreFiesta: { type: 'STRING', description: 'Nombre del agasajado o del evento' },
           },
           required: ['nombreFiesta'],
@@ -72,6 +80,7 @@ export const HERRAMIENTAS_VOZ = [
         parameters: {
           type: 'OBJECT',
           properties: {
+            confirmado: { type: 'BOOLEAN', description: 'Poné true sólo cuando la persona ya te dijo que sí a que hagas esta acción' },
             destinatario: { type: 'STRING', description: 'Nombre o teléfono del destinatario' },
             mensaje: { type: 'STRING', description: 'Texto sugerido del mensaje' },
           },
@@ -84,6 +93,7 @@ export const HERRAMIENTAS_VOZ = [
         parameters: {
           type: 'OBJECT',
           properties: {
+            confirmado: { type: 'BOOLEAN', description: 'Poné true sólo cuando la persona ya te dijo que sí a que hagas esta acción' },
             destinatario: { type: 'STRING', description: 'Correo del destinatario' },
             asunto: { type: 'STRING', description: 'Asunto del mail' },
             cuerpo: { type: 'STRING', description: 'Contenido del mail' },

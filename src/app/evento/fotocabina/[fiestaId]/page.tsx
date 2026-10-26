@@ -74,7 +74,7 @@ import {
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
-import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara, FILTROS_DISPONIBLES, iniciarNuevoIntentoRuleta } from '@/lib/entretenimiento/filtros-cara';
+import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara, reflejarCarasEnHorizontal, FILTROS_DISPONIBLES, iniciarNuevoIntentoRuleta } from '@/lib/entretenimiento/filtros-cara';
 import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 
 const FRAMES = [
@@ -462,7 +462,7 @@ export default function FotocabinaPage() {
           }
           if (selectedFiltroCara) {
             carasDetectadasRef.current = detectarCarasEnFuente(video, Date.now());
-            dibujarFiltroDeCara(ctx, video, selectedFiltroCara, carasDetectadasRef.current, {
+            dibujarFiltroDeCara(ctx, video, selectedFiltroCara, facingMode === 'user' ? reflejarCarasEnHorizontal(carasDetectadasRef.current, canvas.width) : carasDetectadasRef.current, {
               nombreAgasajado: fiesta?.nombreAgasajado,
               tipoCelebracion: fiesta?.tipoCelebracion,
               primaryColor: fiesta?.primaryColor,
@@ -698,7 +698,7 @@ export default function FotocabinaPage() {
     }
     if (selectedFiltroCara) {
       carasDetectadasRef.current = detectarCarasEnFuente(video, Date.now());
-      dibujarFiltroDeCara(ctx, video, selectedFiltroCara, carasDetectadasRef.current, {
+      dibujarFiltroDeCara(ctx, video, selectedFiltroCara, facingMode === 'user' ? reflejarCarasEnHorizontal(carasDetectadasRef.current, canvas.width) : carasDetectadasRef.current, {
         nombreAgasajado: fiesta?.nombreAgasajado,
         tipoCelebracion: fiesta?.tipoCelebracion,
         primaryColor: fiesta?.primaryColor,

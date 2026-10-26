@@ -258,6 +258,33 @@ export function puedeHacerFaceSwap(cantidadCaras: number): boolean {
  * Dibuja un filtro facial sobre el canvas siguiendo hasta 6 caras.
  * Si no hay caras, no dibuja nada y preserva el lienzo exactamente igual.
  */
+/**
+ * Con la camara frontal la foto se dibuja espejada pero la deteccion de caras se
+ * hizo sobre el video sin espejar: la corona caia del lado contrario. Esto refleja
+ * los puntos en horizontal y cambia de lado los dos ojos de referencia (33 y 263)
+ * para que "ojo izquierdo" siga quedando a la izquierda y el accesorio no gire 180 grados.
+ */
+export function reflejarCarasEnHorizontal(caras: CaraDetectada[], ancho: number): CaraDetectada[] {
+  const reflejarX = (x: number) => (x <= 1 ? 1 - x : ancho - x);
+  return caras.map((cara) => {
+    const puntos = cara.puntos.map((p) => ({ ...p, x: reflejarX(p.x) }));
+    if (puntos[33] && puntos[263]) {
+      const tmp = puntos[33];
+      puntos[33] = puntos[263];
+      puntos[263] = tmp;
+    }
+    let blendshapes = cara.blendshapes;
+    if (blendshapes) {
+      blendshapes = { ...blendshapes };
+      const i = blendshapes['eyeBlinkLeft'];
+      const d = blendshapes['eyeBlinkRight'];
+      if (i !== undefined) blendshapes['eyeBlinkRight'] = i; else delete blendshapes['eyeBlinkRight'];
+      if (d !== undefined) blendshapes['eyeBlinkLeft'] = d; else delete blendshapes['eyeBlinkLeft'];
+    }
+    return { ...cara, puntos, blendshapes };
+  });
+}
+
 export function dibujarFiltroDeCara(
   ctx: CanvasRenderingContext2D,
   videoOImagen: HTMLVideoElement | HTMLImageElement | HTMLCanvasElement,
