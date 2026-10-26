@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26/10/2026 - Once controles de permisos más dejaron de mirar el rol viejo (orden 233)
+
+- Borrado de la base, consumo de IA, blog con IA, automatización de marketing, la ficha de otro usuario y la carga
+  operativa comparaban `role === 'admin'`. Ahora usan `esAdministrador` (perfil válido con permiso de administración) o
+  `puede(...)`. Sólo el ingreso con la clave maestra sigue leyendo el rol.
+
+```comprobar
+usa: esAdministrador en src/app/api/admin/clean-db/route.ts
+prueba: src/__tests__/el-rol-admin-no-pasa-por-encima-del-perfil.test.ts
+```
+
 ## 26/10/2026 - El rol viejo `admin` ya no pasa por encima del perfil (orden 230)
 
 - `requireAdminSession` aceptaba `role: 'admin'` aunque el dueño le hubiera puesto otro perfil a esa cuenta, y un perfil

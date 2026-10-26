@@ -1,6 +1,7 @@
 'use server';
 
 import { verifySession } from '@/lib/auth/session-token';
+import { esAdministrador } from '@/lib/auth/perfiles';
 import type { ResumenDeGasto } from '@/lib/ai/consumo';
 
 /**
@@ -23,7 +24,7 @@ const SIN_ACCESO: ResumenDeGasto = {
 
 export async function getGastoDeIA(): Promise<ResumenDeGasto> {
   const session = await verifySession();
-  if (!session.success || session.user?.role !== 'admin') return SIN_ACCESO;
+  if (!session.success || !esAdministrador(session.user)) return SIN_ACCESO;
 
   const { getResumenDeGasto } = await import('@/lib/ai/consumo-servidor');
   return getResumenDeGasto();
@@ -33,7 +34,7 @@ export async function setTopeDeIA(
   topeUYU: number,
 ): Promise<{ success: boolean; resumen?: ResumenDeGasto; error?: string }> {
   const session = await verifySession();
-  if (!session.success || session.user?.role !== 'admin') {
+  if (!session.success || !esAdministrador(session.user)) {
     return { success: false, error: 'Solo un administrador puede cambiar el tope.' };
   }
 

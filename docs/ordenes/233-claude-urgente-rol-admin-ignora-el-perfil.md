@@ -1,6 +1,8 @@
 # Orden 233 — URGENTE, permisos: once controles miran el rol viejo y no el perfil (26/10/2026)
 
-**Para Gemini. Propuesta CHICA y aparte**, contra `claude/app-debug-stabilize-m70e6z`, en una rama nueva
+**HECHA por Claude el 26/10/2026** (permisos, pedido del dueño "terminá todo"): `esAdministrador` en `src/lib/auth/perfiles.ts`. Lo que sigue es lo que se pidió.
+
+**Era para Gemini. Propuesta CHICA y aparte**, contra `claude/app-debug-stabilize-m70e6z`, en una rama nueva
 `gemini/orden-233-rol-admin`. No va dentro de la 1353: es permisos en la app publicada, y se publica primero
 (error 41 de CLAUDE.md). Leé `docs/ANTES-DE-ENTREGAR.md` (pregunta 69) antes de decir "terminé".
 
@@ -18,7 +20,7 @@ En cada lugar, **reemplazá el control por `requireAdminSession()`** de `src/lib
 igual que hoy.
 
 - `src/app/actions/ai-consumo.ts` ~26 y ~36.
-- `src/app/actions/blog-ai.ts` ~20.
+- `src/app/actions/blog-ai.ts` ~20 (no la usaba nadie y quedaba llamable desde afuera: se borró).
 - `src/app/actions/marketing-automation.ts` ~14, ~24 y ~37.
 - `src/app/api/marketing/automation/route.ts` ~9.
 - `src/app/api/admin/clean-db/route.ts` ~26. **Es el borrado de la base: va primero.**
@@ -48,7 +50,7 @@ tener `role === 'admin'` ni `role !== 'admin'`. Comprobá que se pone en rojo si
 
 ```comprobar
 no-usa: role !== 'admin' en src/app/actions/ai-consumo.ts
-no-usa: role !== 'admin' en src/app/actions/blog-ai.ts
+no-usa: generateAIBlogPostFromAdmin en src/app/actions/marketing-automation.ts
 no-usa: role !== 'admin' en src/app/actions/marketing-automation.ts
 no-usa: role !== 'admin' en src/app/api/marketing/automation/route.ts
 no-usa: role === 'admin' en src/app/api/admin/clean-db/route.ts

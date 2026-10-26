@@ -31,7 +31,7 @@ Codex sólo audita.
 - Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
 
 ## Errores de plata y permisos abiertos en la app publicada
-- 26/10: el rol viejo `admin` pasa por encima del perfil (orden 230 en la 1353, y orden 233 para once lugares más, entre ellos el borrado de la base).
+- 26/10: el rol viejo `admin` pasaba por encima del perfil: arreglado en la rama de Claude (órdenes 230 y 233), falta publicar.
 - 26/10: el PIN de operaciones del cliente viaja a las pantallas públicas de la fiesta; arreglado en la 1353 (`recortar-para-afuera`), falta publicar.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
