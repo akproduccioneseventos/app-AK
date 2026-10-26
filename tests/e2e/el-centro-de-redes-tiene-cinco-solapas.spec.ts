@@ -32,6 +32,6 @@ test.describe('El centro de redes tiene cinco solapas', () => {
     await page.goto('/empresa/redes-sociales');
 
     await expect(page).toHaveURL(/\/empresa\/redes-sociales/);
-    await expect(page.getByRole('heading', { name: 'Planificador de Contenido' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Planificador de Contenido' }).last()).toBeVisible();
   });
 });
