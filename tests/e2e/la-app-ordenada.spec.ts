@@ -47,6 +47,8 @@ test.describe('La app ordenada (Orden 182)', () => {
     // Tocar 'La noche'
     await page.getByRole('tab', { name: 'La noche' }).click();
     await expect(page).toHaveURL(/pestana=noche/);
+    // Por defecto la ficha muestra sólo las herramientas principales; el check-in está en "todas".
+    await page.getByRole('button', { name: 'Ver todas las herramientas' }).click();
     await expect(page.getByText('QR / Check-in')).toBeVisible({ timeout: 10_000 });
   });
 
@@ -61,6 +63,8 @@ test.describe('La app ordenada (Orden 182)', () => {
 
     await page.getByRole('tab', { name: 'La noche' }).click();
     await expect(page).toHaveURL(/pestana=noche/);
+    // Por defecto la ficha muestra sólo las herramientas principales; el check-in está en "todas".
+    await page.getByRole('button', { name: 'Ver todas las herramientas' }).click();
     await expect(page.getByText('QR / Check-in')).toBeVisible({ timeout: 10_000 });
   });
 
