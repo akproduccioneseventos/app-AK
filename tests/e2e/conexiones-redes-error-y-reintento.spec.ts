@@ -6,7 +6,6 @@ import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
  *
  * Las pantallas que prueba este archivo son:
  * /settings/sincronizaciones
- * /empresa/redes-sociales
  *
  * La falla se fuerza cortando las Server Actions (POST con cabecera `next-action`) con
  * `page.route`; nada llega a proveedores reales. Después se levanta el corte y se toca
@@ -52,20 +51,8 @@ test('conexiones: lectura caída avisa, no muestra 0 conectadas y Reintentar rec
   await expect(page.getByText('Sincronización en curso')).toHaveCount(0);
 });
 
-test('redes: lectura caída deja aviso persistente, sin "No hay publicaciones", y Reintentar relee', async ({ page, context, baseURL }) => {
-  test.setTimeout(120_000);
-  await ponerSesionDelEquipo(context, baseURL);
-  const corte = await cortarAcciones(page);
-  await page.goto('/empresa/redes-sociales');
-
-  await expect(page.getByText('No pudimos leer las publicaciones').first()).toBeVisible({ timeout: 30_000 });
-  // Pasa el tiempo del toast: el aviso sigue y la lista no se disfraza de vacía.
-  await page.waitForTimeout(6_000);
-  await expect(page.getByText('No pudimos leer las publicaciones').first()).toBeVisible();
-  await expect(page.getByText(/No hay publicaciones/)).toHaveCount(0);
-  await expect(page.getByText('Todos (0)')).toHaveCount(0);
-
-  corte.restaurar();
-  await page.getByRole('button', { name: 'Reintentar' }).click();
-  await expect(page.getByText('No pudimos leer las publicaciones')).toHaveCount(0, { timeout: 30_000 });
-});
+// La segunda mitad (redes: lectura caída) se sacó el 26/10/2026: /empresa/redes-sociales ahora
+// redirige (next.config.js) al Centro de Presencia Digital, que lee las publicaciones en el servidor
+// y no por acciones cortables desde el navegador. El aviso y el "Reintentar" del planificador viejo
+// siguen cubiertos en Jest (redes-sociales-error-de-lectura-con-reintento.test.tsx) y el redirect
+// en el-centro-de-redes-tiene-cinco-solapas.spec.ts.
