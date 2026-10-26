@@ -74,9 +74,16 @@ describe('los agentes automáticos son de la administración', () => {
   });
 
   it('el administrador sí', async () => {
-    verifySession.mockResolvedValue({ success: true, user: { userId: 'a1', role: 'admin', perfil: 'administrador' } });
+    verifySession.mockResolvedValue({ success: true, user: { userId: 'a1', role: 'admin', perfil: 'dueno' } });
     const a = await import('@/app/actions/agentes-autonomos');
     expect((await a.toggleAgente('vigilante_fiestas' as any, false)).success).toBe(true);
     expect(motor.guardarConfiguracionAgentes).toHaveBeenCalledWith([{ id: 'vigilante_fiestas', activo: false }]);
+  });
+
+  it('un nombre de perfil inventado no obtiene administracion por conservar role admin', async () => {
+    verifySession.mockResolvedValue({ success: true, user: { userId: 'a1', role: 'admin', perfil: 'administrador' } });
+    const a = await import('@/app/actions/agentes-autonomos');
+    expect((await a.toggleAgente('vigilante_fiestas' as any, false)).success).toBe(false);
+    expect(motor.guardarConfiguracionAgentes).not.toHaveBeenCalled();
   });
 });
