@@ -323,6 +323,7 @@ const ESSENTIAL_MODULE_IDS = [
   'portalCliente',
   'planPagos',
   'enVivo',
+  'checkin',
   'tareas',
   'documentos',
 ];
@@ -341,8 +342,13 @@ function PlannerDashboardContent() {
   const [activeMode, setActiveMode] = useState<QuickMode>(null);
   const [showAllModules, setShowAllModules] = useState(false);
   const [showInternalModules, setShowInternalModules] = useState(false);
-  const [pestanaActiva, setPestanaActiva] = useState<PestanaFiesta>('contrato-y-pagos');
-  const handleCambiarPestana = (val: string) => setPestanaActiva(val as PestanaFiesta);
+  const [pestanaActiva, setPestanaActiva] = useState<PestanaFiesta>(() => (searchParams.get('pestana') as PestanaFiesta) || 'contrato-y-pagos');
+  const handleCambiarPestana = (val: string) => {
+    setPestanaActiva(val as PestanaFiesta);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('pestana', val);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
 
   useEffect(() => {
     if (!fiestaId) { router.replace('/eventos'); return; }

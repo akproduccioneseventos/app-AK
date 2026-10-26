@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { crearFiestaDeEstaNoche, borrarFiesta } from './helpers/fiesta-de-prueba';
+import { crearFiestaDeEstaNoche, borrarFiesta, guardarFiesta } from './helpers/fiesta-de-prueba';
 
 /**
  * Orden 194 / Bloque 4: Los enlaces del invitado llevan quién es
@@ -22,7 +22,9 @@ test.describe('Los enlaces del invitado llevan quién es (Orden 194)', () => {
 
   test('el enlace de confirmar asistencia desde la invitación lleva guestId', async ({ page }) => {
     const guest = fiesta.invitados[0];
-    await page.goto(`/invitacion/${fiesta.id}/invitado/${guest.id}`);
+    guest.rsvp = 'Pendiente';
+    guardarFiesta(fiesta);
+    await page.goto(`/invitacion/${fiesta.id}/invitado/${guest.id}?token=${guest.guestAccessToken}`);
 
     // El botón / enlace de confirmar (RSVP) debe contener guestId
     const enlaceRsvp = page.locator(`a[href*="/rsvp"][href*="guestId=${guest.id}"]`).first();

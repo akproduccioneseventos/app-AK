@@ -19,6 +19,7 @@ import { presentacionComercialMercadoPago, calculateMercadoPagoCuotas } from '@/
 import { buildPresupuestoNarrative } from '@/lib/budget/budget-narrative';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { anioDeLaFechaDelEvento } from '@/lib/fechas/formato-fecha-evento';
+import { getCateringSortScore, getCateringDisplayName } from '@/lib/simulator/pricing';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -465,27 +466,8 @@ export default function BudgetDocument({
               <tbody>
                 {Object.entries(itemsAgrupados).map(([categoria, items], catIdx) => {
                   const sortedItems = (() => {
-                    if (categoria.toLowerCase().includes('catering')) {
-                      return [...items].sort((a, b) => {
-                        const getScore = (x: typeof a) => {
-                          const name = (x.nombreServicio || '').toLowerCase();
-                          const subcat = (x.subcategoria || '').toLowerCase();
-                          if (name.includes('vajilla') || name.includes('manteler') || name.includes('mobiliario') || name.includes('moviliario')) {
-                            return 1;
-                          }
-                          if (name.includes('entrada') || subcat.includes('entrada')) {
-                            return 2;
-                          }
-                          if (name.includes('principal') || name.includes('plato') || subcat.includes('principal')) {
-                            return 3;
-                          }
-                          if (name.includes('niño') || name.includes('nino') || name.includes('adolescente') || name.includes('infantil')) {
-                            return 4;
-                          }
-                          return 5;
-                        };
-                        return getScore(a) - getScore(b);
-                      });
+                    if (categoria.toLowerCase().includes('catering') || categoria.toLowerCase().includes('gastronom')) {
+                      return [...items].sort((a, b) => getCateringSortScore(a) - getCateringSortScore(b));
                     }
                     return items;
                   })();
@@ -501,23 +483,7 @@ export default function BudgetDocument({
                         </td>
                       </tr>
                       {sortedItems.map((item, itemIdx) => {
-                        const displayName = (() => {
-                          const name = item.nombreServicio;
-                          if (categoria.toLowerCase().includes('catering')) {
-                            const lowerName = name.toLowerCase();
-                            const subcat = (item.subcategoria || '').toLowerCase();
-                            if ((lowerName.includes('entrada') || subcat.includes('entrada')) && !lowerName.startsWith('entrada')) {
-                              return `entradas: ${name}`;
-                            }
-                            if ((lowerName.includes('principal') || lowerName.includes('plato') || subcat.includes('principal')) && !lowerName.includes('plato principal')) {
-                              return `plato principal: ${name}`;
-                            }
-                            if ((lowerName.includes('niño') || lowerName.includes('nino') || lowerName.includes('adolescente') || lowerName.includes('infantil')) && !lowerName.includes('niño')) {
-                              return `menu niño y adolescente: ${name}`;
-                            }
-                          }
-                          return name;
-                        })();
+                        const displayName = getCateringDisplayName(item, categoria);
 
                         return (
                           <tr

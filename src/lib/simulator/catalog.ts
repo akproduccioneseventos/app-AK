@@ -1,6 +1,8 @@
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 
+export const BUFFET_PRICE_SURCHARGE = 200;
+
 export function getMenuItemSellingPrice(item: MenuItem): number {
   const explicitPrice = Number(item.suggestedSellingPrice);
   if (Number.isFinite(explicitPrice) && explicitPrice > 0) return Math.round(explicitPrice);
@@ -14,7 +16,14 @@ export function menuItemToSimulatorService(
   item: MenuItem,
   options: { imageUrl?: string; featured?: boolean } = {},
 ): ServicioEmpresa {
-  const sellingPrice = getMenuItemSellingPrice(item);
+  let sellingPrice = getMenuItemSellingPrice(item);
+  if (
+    item.id &&
+    item.id.endsWith(SUFIJO_VARIANTE_BUFET) &&
+    (!item.suggestedSellingPrice || item.suggestedSellingPrice <= 0)
+  ) {
+    sellingPrice += BUFFET_PRICE_SURCHARGE;
+  }
   return {
     id: item.id,
     nombre: item.name,
@@ -32,16 +41,26 @@ export function menuItemToSimulatorService(
 }
 
 /**
- * Las cuatro variantes "CON MESA BUFET" no se guardan: salen de su plato con guarnicion, con
- * el mismo precio y receta. Antes se armaban solo al MOSTRAR los menus y el servidor, al
- * guardar el presupuesto, no las conocia: el simulador las ofrecia y despues las rechazaba
- * (Codex, auditoria 78). Ahora las dos puntas usan esta funcion.
+ * Las cuatro variantes con mesa buffet salen de su plato base con guarnición,
+ * costando exactamente 200 pesos uruguayos más que la versión base con guarnición.
  */
-const PLATOS_CON_VARIANTE_BUFET = [
-  'ASADO COMPLETO C/ GUARNICIÓN',
-  'POLLO ARROLLADO C/ GUARNICIÓN',
-  'CORDERO ASADO C/ GUARNICIÓN',
-  'CERDO ARROLLADO C/ GUARNICIÓN',
+export const CONFIG_VARIANTES_BUFET = [
+  {
+    baseName: 'ASADO COMPLETO C/ GUARNICIÓN',
+    cleanBuffetName: 'Asado completo con mesa buffet',
+  },
+  {
+    baseName: 'POLLO ARROLLADO C/ GUARNICIÓN',
+    cleanBuffetName: 'Pollo arrollado con mesa buffet',
+  },
+  {
+    baseName: 'CORDERO ASADO C/ GUARNICIÓN',
+    cleanBuffetName: 'Cordero asado con mesa buffet',
+  },
+  {
+    baseName: 'CERDO ARROLLADO C/ GUARNICIÓN',
+    cleanBuffetName: 'Cerdo arrollado con mesa buffet',
+  },
 ];
 
 export const SUFIJO_VARIANTE_BUFET = '_virtual_buffet';
@@ -51,13 +70,28 @@ export function agregarVariantesBufet(menus: FullMenu[]): FullMenu[] {
     if (menu.id !== 'menu_principales_maestro') return menu;
     const items = menu.items || [];
     const variantes: MenuItem[] = [];
-    for (const nombre of PLATOS_CON_VARIANTE_BUFET) {
-      const base = items.find((item) => item.name === nombre);
+    const norm = (s: string) =>
+      s.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+
+    for (const config of CONFIG_VARIANTES_BUFET) {
+      const targetNorm = norm(config.baseName);
+      const base = items.find((item) => norm(item.name) === targetNorm);
       if (!base) continue;
-      const nombreBufet = nombre.replace('C/ GUARNICIÓN', 'CON MESA BUFET');
+
       const id = `${base.id}${SUFIJO_VARIANTE_BUFET}`;
-      if (items.some((item) => item.name === nombreBufet || item.id === id)) continue;
-      variantes.push({ ...base, id, name: nombreBufet });
+      const nombreBufet = config.cleanBuffetName;
+
+      if (items.some((item) => item.id === id || norm(item.name) === norm(nombreBufet))) continue;
+
+      const baseSellingPrice = getMenuItemSellingPrice(base);
+      const buffetSellingPrice = baseSellingPrice + BUFFET_PRICE_SURCHARGE;
+
+      variantes.push({
+        ...base,
+        id,
+        name: nombreBufet,
+        suggestedSellingPrice: buffetSellingPrice,
+      });
     }
     return variantes.length ? { ...menu, items: [...items, ...variantes] } : menu;
   });

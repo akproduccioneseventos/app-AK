@@ -75,6 +75,7 @@ import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
+import { PwaInstallButton } from '@/components/pwa-install-button';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -477,6 +478,9 @@ function ClientPortalContent() {
             >
               Cotizar mi fiesta
             </Link>
+          </div>
+          <div className="mt-6 text-left">
+            <PwaInstallButton />
           </div>
         </div>
       </main>
@@ -1063,6 +1067,10 @@ function ClientPortalContent() {
                 </PortalSection>
               );
             })}
+          </div>
+
+          <div className="pt-2">
+            <PwaInstallButton />
           </div>
         </div>
       </div>

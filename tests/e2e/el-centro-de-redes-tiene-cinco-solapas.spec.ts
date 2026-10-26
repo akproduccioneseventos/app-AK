@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
  * Orden 192 - Centro de Presencia Digital y Redes
@@ -7,6 +8,9 @@ import { expect, test } from '@playwright/test';
  */
 
 test.describe('El centro de redes tiene cinco solapas', () => {
+  test.beforeEach(async ({ context, baseURL }) => {
+    await ponerSesionDelEquipo(context, baseURL);
+  });
   test('se ven Hoy, Mensajes, Publicaciones, Resultados y Conexiones', async ({ page }) => {
     await page.goto('/empresa/presencia-digital');
 

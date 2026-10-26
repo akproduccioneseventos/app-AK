@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { crearFiestaDeEstaNoche, borrarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
  * Orden 191 - Filtros de cara en la Fotocabina:
@@ -8,6 +9,17 @@ import { expect, test } from '@playwright/test';
  */
 
 test.describe('La fotocabina ofrece filtros divertidos', () => {
+  test.beforeAll(async () => {
+    crearFiestaDeEstaNoche({ id: 'demo-fiesta' });
+  });
+
+  test.afterAll(async () => {
+    borrarFiesta('demo-fiesta');
+  });
+
+  test.beforeEach(async ({ context, baseURL }) => {
+    await ponerSesionDelEquipo(context, baseURL);
+  });
   test('la fila Filtros aparece en la fotocabina y permite activar el filtro', async ({ page }) => {
     // Interceptar la configuración del evento para simular estación con filtros activos
     await page.route('**/api/**', async (route) => {
@@ -17,10 +29,9 @@ test.describe('La fotocabina ofrece filtros divertidos', () => {
     await page.goto('/evento/fotocabina/demo-fiesta');
 
     // Abre opciones si estuvieran colapsadas
-    const botonOpciones = page.locator('button:has-text("Personalizar"), button:has-text("Efectos"), button:has-text("Filtros")').first();
-    if (await botonOpciones.isVisible()) {
-      await botonOpciones.click();
-    }
+    const botonOpciones = page.locator('button:has-text("Personalizar mi foto"), button:has-text("Personalizar")').first();
+    await botonOpciones.waitFor({ state: 'visible', timeout: 20_000 });
+    await botonOpciones.click();
 
     // 1. La fila "Filtros" aparece
     const filaFiltros = page.locator('[data-testid="selector-filtros"], div:has(> p:text-is("Filtros"))').first();
