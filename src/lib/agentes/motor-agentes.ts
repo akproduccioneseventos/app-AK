@@ -9,8 +9,6 @@ import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { detectarErroresHumanos, type DescarteAlerta } from '@/lib/alertas/errores-humanos';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
-import { pausarCampana, ajustarPresupuestoCampana } from '@/lib/marketing/meta-ads-acciones';
-import type { CampanaConPresupuesto } from '@/lib/marketing/tope-de-gasto-publicidad';
 import {
   AGENTES_DEFAULT_CONFIG,
   type AgenteId,
@@ -388,41 +386,19 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
       hallazgos.push('No hay campañas de Meta con datos en los últimos 30 días.');
       acciones.push('Sin acciones requeridas.');
     } else {
-      const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
-        nombre: c.name,
-        presupuestoDiarioUYU: Math.max(0, Math.round(c.spend / 30)) || 500,
-        activa: true,
-      }));
-
       for (const camp of summary.campaigns) {
-        // 1. Alerta: Quemando plata sin consultas -> Pausar automáticamente
+        // El agente MIRA y PROPONE; no pausa ni sube presupuestos solo. Decisión del dueño
+        // (YA-RESUELTO, orden 12: "sin gastar ni modificar campañas solo"). Quedó roto hasta el
+        // 26/10/2026: pausaba y subía 25% cada 12 horas. Lo frena el-agente-de-publicidad-no-toca-campanias.
+        // 1. Alerta: quemando plata sin consultas -> propone pausar
         if (camp.spend >= 1500 && camp.leadsCount === 0) {
           hallazgos.push(`[ALERTA GASTO] La campaña "${camp.name}" gastó ${summary.adCurrency} ${camp.spend.toFixed(0)} sin generar consultas.`);
-          const res = await pausarCampana(camp.id, camp.name, 'Gastó más de $1500 sin generar consultas.');
-          if (res.success) {
-            acciones.push(`Se pausó automáticamente la campaña "${camp.name}" (gastó ${summary.adCurrency} ${camp.spend.toFixed(0)} sin consultas).`);
-          } else {
-            acciones.push(`Intento de pausar "${camp.name}" falló: ${res.error}`);
-          }
+          acciones.push(`Propuesta para tu OK: pausar la campaña "${camp.name}". No se tocó nada.`);
         }
-        // 2. Éxito: Campaña rentable lista para escalar -> Escalar presupuesto con tope
+        // 2. Éxito: campaña rentable -> propone escalar
         else if (camp.leadsCount >= 2 && camp.conversionsCount >= 1 && camp.cpl > 0 && camp.cpl <= (summary.averageCpl || 1000)) {
           hallazgos.push(`[ÉXITO COMERCIAL] La campaña "${camp.name}" rinde bien: consultas a ${summary.adCurrency} ${camp.cpl.toFixed(0)} y ${camp.conversionsCount} fiestas confirmadas.`);
-          const presActual = Math.max(0, Math.round(camp.spend / 30)) || 500;
-          const nuevoPres = Math.round(presActual * 1.25);
-          const res = await ajustarPresupuestoCampana({
-            campaignId: camp.id,
-            campaignName: camp.name,
-            presupuestoDiarioActualUYU: presActual,
-            nuevoPresupuestoDiarioUYU: nuevoPres,
-            campanas: campanasConPresupuesto,
-            motivo: `Escalamiento automático por rendimiento: ${camp.conversionsCount} conversiones a CPL $${camp.cpl.toFixed(0)}.`,
-          });
-          if (res.success) {
-            acciones.push(`Se escaló el presupuesto de "${camp.name}" de $${presActual} a $${nuevoPres}/día.`);
-          } else {
-            acciones.push(`No se pudo escalar "${camp.name}": ${res.motivoRechazo}`);
-          }
+          acciones.push(`Propuesta para tu OK: subir el presupuesto de "${camp.name}". No se tocó nada.`);
         }
         // 3. Aviso: Campaña sin impresiones
         else if (camp.impressions === 0 && camp.spend > 0) {

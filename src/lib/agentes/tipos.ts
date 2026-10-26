@@ -72,7 +72,7 @@ export const AGENTES_DEFAULT_CONFIG: ConfiguracionAgente[] = [
     id: 'vigilante_publicidad',
     nombre: 'Vigilante de Publicidad & Meta Ads',
     rol: 'Supervisión de Anuncios y Rendimiento de Campañas',
-    descripcion: 'Monitorea diariamente el gasto en Meta Ads y alerta si un anuncio está quemando plata sin traer consultas, si una campaña funciona muy bien para escalar, o si se agotó el presupuesto. Nunca modifica campañas ni gasta dinero.',
+    descripcion: 'Monitorea diariamente el gasto en Meta Ads y alerta si un anuncio está quemando plata sin traer consultas, si una campaña funciona muy bien para escalar, o si se agotó el presupuesto. Propone pausar o escalar para tu OK: nunca modifica campañas ni gasta dinero solo.',
     activo: true,
     intervaloMinutos: 720,
   },

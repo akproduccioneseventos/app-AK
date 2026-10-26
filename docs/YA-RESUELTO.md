@@ -15932,3 +15932,13 @@ En una lectura GET de solo lectura de `https://akproducciones.uy/public/blog/com
 Esto no prueba incumplimiento legal ni que el calculo de stock sea matematicamente incorrecto. Es un riesgo editorial/de confianza, registrado en orden 175 para revision por Gemini. La pagina se leyo via HTML publico; no se probo visualmente, no se enviaron formularios ni se contacto a AK.
 
 Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-nacional-drogas/comunicacion/publicaciones/eventos-cuidados), [Junta Nacional de Drogas, alcohol y riesgos](https://www.gub.uy/junta-nacional-drogas/comunicacion/comunicados/alcohol-conocer-sus-efectos-tambien-es-forma-prevenir), [OMS, Alcohol](https://www.who.int/en/news-room/fact-sheets/detail/alcohol).
+
+## 26/10/2026 — El vigilante de publicidad ya no toca campañas solo
+
+- **Qué estaba mal:** el agente "Vigilante de Publicidad" decía "nunca modifica campañas ni gasta dinero", y
+  pausaba campañas y **subía el presupuesto un 25% cada 12 horas**, solo, contra la decisión del dueño
+  ("sin gastar ni modificar campañas solo").
+- **Qué se hizo:** ahora sólo mira y deja la propuesta ("Propuesta para tu OK: pausar / subir") en el
+  asistente. Gastar o tocar una campaña lo decide el dueño.
+- **Control:** `src/__tests__/el-agente-de-publicidad-no-toca-campanias.test.ts`, que frena si un agente
+  vuelve a llamar a pausar, ajustar o crear campañas.
