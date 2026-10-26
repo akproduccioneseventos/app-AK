@@ -1,6 +1,7 @@
 'use server';
 
 import { verifySession } from '@/lib/auth/session-token';
+import { esAdministrador } from '@/lib/auth/perfiles';
 import type { MarketingAutomationResult } from '@/lib/marketing-automation';
 
 /**
@@ -11,7 +12,7 @@ import type { MarketingAutomationResult } from '@/lib/marketing-automation';
  */
 export async function getRecontactoAutomaticoActivo(): Promise<boolean> {
   const session = await verifySession();
-  if (!session.success || session.user?.role !== 'admin') return false;
+  if (!session.success || !esAdministrador(session.user)) return false;
 
   const { getAjustesDeRecontacto } = await import('@/lib/marketing/recontacto-automatico');
   return (await getAjustesDeRecontacto()).activo;
@@ -21,7 +22,7 @@ export async function setRecontactoAutomaticoActivo(
   activo: boolean,
 ): Promise<{ success: boolean; activo: boolean; error?: string }> {
   const session = await verifySession();
-  if (!session.success || session.user?.role !== 'admin') {
+  if (!session.success || !esAdministrador(session.user)) {
     return { success: false, activo: false, error: 'Solo un administrador puede cambiar esto.' };
   }
 
@@ -34,7 +35,7 @@ export async function runMarketingAutomationFromAdmin(
   options?: { force?: boolean }
 ): Promise<MarketingAutomationResult> {
   const session = await verifySession();
-  if (!session.success || session.user?.role !== 'admin') {
+  if (!session.success || !esAdministrador(session.user)) {
     return {
       success: false,
       skipped: false,

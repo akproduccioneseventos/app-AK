@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession } from '@/lib/auth/session-token';
+import { esAdministrador } from '@/lib/auth/perfiles';
 import { cleanMojibakeValue } from '@/lib/text/mojibake';
 
 const COLLECTIONS_TO_CLEAN = [
@@ -23,7 +24,7 @@ async function isAuthorized(request: Request, secret: string | null) {
   }
 
   const session = await verifySession();
-  return session.success && session.user?.role === 'admin';
+  return session.success && esAdministrador(session.user);
 }
 
 export async function GET(request: Request) {

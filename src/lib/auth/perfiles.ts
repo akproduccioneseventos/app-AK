@@ -134,3 +134,14 @@ export function puede(
   if (!user) return false;
   return PERMISOS_POR_PERFIL[perfilDe(user)].includes(permiso);
 }
+
+/**
+ * ¿Esta cuenta es administración (el dueño)? Decide el perfil, no el rol viejo: una cuenta con
+ * `role: 'admin'` a la que el dueño le puso perfil de secretaria ya no es administración, y un
+ * perfil que no existe no cae al rol (orden 233).
+ */
+export function esAdministrador(user: { perfil?: string; role?: string } | undefined | null): boolean {
+  if (!user) return false;
+  if (user.perfil !== undefined && !esPerfilValido(user.perfil)) return false;
+  return puede(user, PERMISOS.ADMINISTRACION);
+}

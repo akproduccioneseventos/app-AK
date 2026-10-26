@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 
 import { verifySession } from '@/lib/auth/session-token';
+import { esAdministrador } from '@/lib/auth/perfiles';
 
 export const runtime = 'nodejs';
 
 export async function POST() {
   const session = await verifySession();
-  if (!session.success || session.user?.role !== 'admin') {
+  if (!session.success || !esAdministrador(session.user)) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 
