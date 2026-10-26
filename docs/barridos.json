@@ -396,6 +396,14 @@
     "96": {
       "fecha": "2026-10-24",
       "resultado": "barrida en src/app y los .css globales: la única regla general que pinta fondo es main.flex-1 en ak-global-premium.css; tiñe cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz en la orden 223 para Gemini."
+    },
+    "100": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida en agentes, tareas programadas, webhooks y efectos al entrar: además del vigilante de publicidad (arreglado), sólo sale solo el pedido de reseña por WhatsApp al contestar la encuesta, con interruptor apagado de fábrica que prende el dueño en Ajustes (queda así). Dos descripciones de agentes que prometían de más (cobrador, creador de contenido) corregidas."
+    },
+    "101": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida en next.config.js, middleware y page.tsx que redirigen: las pantallas redirigidas son atajos sin contenido propio. Un hallazgo: el enlace de confirmar asistencia del editor de la invitación llevaba a la portada; arreglado. La redirección de /empresa/redes-sociales de la entrega 1353 se sacó."
     }
   },
   "hallazgos": {

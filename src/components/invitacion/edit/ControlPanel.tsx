@@ -275,8 +275,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
                             <div className="space-y-2">
                                 <Label className="text-sm font-medium">Enlace RSVP (Confirmar Asistencia)</Label>
                                 <div className="flex items-center space-x-2">
-                                    <Input value={getFullLink('/evento/actual', 'confirmacion')} readOnly />
-                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/evento/actual', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
+                                    <Input value={getFullLink('/invitacion/[fiestaId]', 'confirmacion')} readOnly />
+                                    <Button size="icon" variant="outline" onClick={() => handleCopyToClipboard(getFullLink('/invitacion/[fiestaId]', 'confirmacion'))}><ClipboardCopy className="h-4 w-4" /></Button>
                                 </div>
                             </div>
                              <div className="space-y-2 mt-4">
