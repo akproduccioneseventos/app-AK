@@ -234,11 +234,6 @@ const nextConfig = {
         destination: '/contabilidad/crm',
         permanent: false,
       },
-      {
-        source: '/empresa/redes-sociales',
-        destination: '/empresa/presencia-digital?tab=publicaciones',
-        permanent: false,
-      },
     ];
   },
   async rewrites() {

@@ -4,7 +4,8 @@ import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 /**
  * Orden 192 - Centro de Presencia Digital y Redes
  * - Cinco solapas visibles en este orden: Hoy, Mensajes, Publicaciones, Resultados y Conexiones.
- * - /empresa/redes-sociales redirige / lleva a Publicaciones.
+ * - /empresa/redes-sociales NO redirige: ahí vive el planificador (calendario, historial, borradores
+ *   desde fotos). Decisión del 26/10/2026; redirigirla dejaba el planificador sin entrada.
  */
 
 test.describe('El centro de redes tiene cinco solapas', () => {
@@ -26,11 +27,11 @@ test.describe('El centro de redes tiene cinco solapas', () => {
     await expect(tabConexiones).toBeVisible();
   });
 
-  test('/empresa/redes-sociales lleva a Publicaciones', async ({ page, context, baseURL }) => {
+  test('/empresa/redes-sociales abre el planificador', async ({ page, context, baseURL }) => {
     await ponerSesionDelEquipo(context, baseURL);
-    // Al navegar a la ruta de redes-sociales, debe redirigir a presencia-digital con tab=publicaciones
     await page.goto('/empresa/redes-sociales');
 
-    await expect(page).toHaveURL(/presencia-digital\?tab=publicaciones/);
+    await expect(page).toHaveURL(/\/empresa\/redes-sociales/);
+    await expect(page.getByRole('heading', { name: 'Planificador de Contenido' })).toBeVisible();
   });
 });
