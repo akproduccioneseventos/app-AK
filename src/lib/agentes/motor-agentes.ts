@@ -534,7 +534,7 @@ export async function consultarAsistenteAK(params: {
   const esContable = textoPregunta.includes('contab') || textoPregunta.includes('cobro') || textoPregunta.includes('debe') || textoPregunta.includes('saldo');
 
   if (esContable) {
-    const puedeVerConta = puede(usuario, PERMISOS.CONTABILIDAD) || usuario.role === 'admin' || usuario.role === 'dueno';
+    const puedeVerConta = puede(usuario, PERMISOS.CONTABILIDAD);
     if (!puedeVerConta) {
       return {
         success: true,
@@ -595,7 +595,7 @@ export async function ejecutarAccionDeAgenteConReglas(params: {
 
   // Regla 2: Lo que toca plata o fechas espera el OK del dueño aunque el interruptor diga "solo"
   const tocaPlataOFechas = /plata|monto|cobro|precio|fecha|reunion/i.test(accion);
-  const esDuenio = usuario.role === 'admin' || usuario.role === 'dueno' || puede(usuario, PERMISOS.ADMINISTRACION);
+  const esDuenio = puede(usuario, PERMISOS.ADMINISTRACION);
 
   if (tocaPlataOFechas && !esDuenio) {
     return {

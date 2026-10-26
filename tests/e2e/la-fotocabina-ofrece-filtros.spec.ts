@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { crearFiestaDeEstaNoche, borrarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, crearPermisoDeEstacion, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+import { enchufarCamaraFalsa } from './helpers/camara-falsa';
+
+const fiesta = crearFiestaDeEstaNoche({ id: `e2e_filtros_191_${Date.now()}` });
+test.beforeAll(() => guardarFiesta(fiesta));
+test.afterAll(() => borrarFiesta(fiesta.id));
 
 /**
  * Orden 191 - Filtros de cara en la Fotocabina:
@@ -9,29 +14,20 @@ import { crearFiestaDeEstaNoche, borrarFiesta, ponerSesionDelEquipo } from './he
  */
 
 test.describe('La fotocabina ofrece filtros divertidos', () => {
-  test.beforeAll(async () => {
-    crearFiestaDeEstaNoche({ id: 'demo-fiesta' });
-  });
-
-  test.afterAll(async () => {
-    borrarFiesta('demo-fiesta');
-  });
-
-  test.beforeEach(async ({ context, baseURL }) => {
-    await ponerSesionDelEquipo(context, baseURL);
-  });
-  test('la fila Filtros aparece en la fotocabina y permite activar el filtro', async ({ page }) => {
+  test('la fila Filtros aparece en la fotocabina y permite activar el filtro', async ({ page, context }, testInfo) => {
+    test.setTimeout(90_000);
+    await ponerSesionDelEquipo(context, testInfo.project.use.baseURL as string);
+    await enchufarCamaraFalsa(page);
     // Interceptar la configuración del evento para simular estación con filtros activos
     await page.route('**/api/**', async (route) => {
       route.continue();
     });
 
-    await page.goto('/evento/fotocabina/demo-fiesta');
+    const permiso = crearPermisoDeEstacion(fiesta.id, 'fotocabina');
+    await page.goto(`/evento/fotocabina/${fiesta.id}?access=${permiso}`, { waitUntil: 'domcontentloaded' });
 
-    // Abre opciones si estuvieran colapsadas
-    const botonOpciones = page.locator('button:has-text("Personalizar mi foto"), button:has-text("Personalizar")').first();
-    await botonOpciones.waitFor({ state: 'visible', timeout: 20_000 });
-    await botonOpciones.click();
+    // Las opciones arrancan plegadas: se abren con el botón de personalizar.
+    await page.getByTestId('boton-personalizar-foto').click({ timeout: 30_000 });
 
     // 1. La fila "Filtros" aparece
     const filaFiltros = page.locator('[data-testid="selector-filtros"], div:has(> p:text-is("Filtros"))').first();
