@@ -27,6 +27,9 @@ import { normalizeFrameTemplateId } from '@/lib/buzon/video-frame-templates';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 import { isUsableRecordedVideo, stopRecorderStream } from '@/lib/buzon/recorded-video';
 
+// This kiosk stays dark even when the surrounding site uses its light theme.
+const BUZON_THEME = 'dark [--primary:0_72%_45%] [&_.text-primary]:text-red-400 [&_.text-destructive]:text-red-400';
+
 export default function GuestBuzonPage() {
   usePantallaPrendida();
   const params = useParams();
@@ -1213,7 +1216,7 @@ export default function GuestBuzonPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground gap-3">
+      <div className={cn(BUZON_THEME, 'flex flex-col items-center justify-center min-h-screen bg-background text-foreground gap-3')}>
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
         <p className="text-sm text-muted-foreground">Cargando Buzón de Recuerdos...</p>
       </div>
@@ -1222,7 +1225,7 @@ export default function GuestBuzonPage() {
 
   if (!fiesta) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-6 text-center">
+      <div className={cn(BUZON_THEME, 'flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-6 text-center')}>
         <AlertCircle className="w-12 h-12 text-destructive mb-4" />
         <h1 className="text-xl font-bold">Buzón no disponible</h1>
         <p className="mt-2 max-w-xs text-sm text-muted-foreground">
@@ -1240,7 +1243,7 @@ export default function GuestBuzonPage() {
   const customAccent = fiesta.station.accentColor || '#6366f1';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col justify-between select-none">
+    <div className={cn(BUZON_THEME, 'min-h-screen bg-zinc-950 text-white flex flex-col justify-between select-none')}>
 
       {/* HEADER */}
       <header className="px-4 py-4 flex items-center justify-between border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md sticky top-0 z-30">
