@@ -960,6 +960,7 @@ export default function GaleriaPage() {
                         videoRef.current = el;
                         if (el && streamRef.current && el.srcObject !== streamRef.current) {
                           el.srcObject = streamRef.current;
+                          // no pasa nada si falla: el navegador puede bloquear la reproducción automática y la vista previa igual se ve.
                           el.play().catch(() => {});
                         }
                       }}

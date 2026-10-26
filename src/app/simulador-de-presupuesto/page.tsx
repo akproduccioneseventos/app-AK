@@ -2369,7 +2369,7 @@ function SimuladorContent() {
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
-                                                    <span className={cn("text-xs sm:text-sm font-bold tracking-tight line-clamp-2", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
+                                                    <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
                                                 </div>
                                             </label>
@@ -2405,7 +2405,7 @@ function SimuladorContent() {
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
-                                                    <span className={cn("text-xs sm:text-sm font-bold tracking-tight line-clamp-2", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
+                                                    <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
                                                 </div>
                                             </label>
@@ -2442,7 +2442,7 @@ function SimuladorContent() {
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
                                                     <div className="flex flex-col flex-grow min-w-0">
-                                                        <span className={cn("text-xs sm:text-sm font-bold tracking-tight line-clamp-2", isRecommended ? "text-amber-900 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
+                                                        <span className={cn("text-xs sm:text-sm font-bold tracking-tight", isRecommended ? "text-amber-900 font-black" : "text-slate-700")}>{toSentenceCase(s.nombre)}</span>
                                                         <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
                                                     </div>
                                                 </label>
@@ -3100,7 +3100,7 @@ function SimuladorContent() {
                                 return (
                                     <div key={service.id} className="p-3.5 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent flex items-center justify-between text-xs">
                                         <div className="min-w-0 flex-1 pr-2">
-                                            <span className="font-black text-white block text-xs truncate">{service.nombre}</span>
+                                            <span className="font-black text-white block text-xs break-words">{service.nombre}</span>
                                             <span className="text-[10px] text-amber-300 font-bold">+{formatCurrency(calculated.total)}</span>
                                         </div>
                                         <Badge className="bg-amber-400 text-slate-950 font-black text-[9px] uppercase shrink-0">Incluido en {tierMissingData.nextPackageName}</Badge>
