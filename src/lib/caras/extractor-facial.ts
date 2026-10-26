@@ -15,10 +15,10 @@ export async function asegurarModelosFaciales(): Promise<boolean> {
         const faceapi = await import(/* webpackMode: "eager" */ '@vladmandic/face-api');
         const tf = faceapi.tf as any;
         if (typeof tf?.ready === 'function') {
-          // no pasa nada si falla: si el motor no se prepara a tiempo, se sigue con el que haya.
           await Promise.race([
             tf.ready(),
             new Promise<void>((_, reject) => setTimeout(() => reject(new Error('tf.ready timeout')), 2500)),
+          // no pasa nada si falla: si el motor no se prepara a tiempo, se sigue con el que haya.
           ]).catch(() => {});
         }
         const ruta = '/models/caras';
