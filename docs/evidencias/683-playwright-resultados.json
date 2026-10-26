@@ -1,0 +1,303 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\playwright\\cli.js",
+      "test",
+      "--config",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-658-final-NJUXsp\\.qa683-playwright.config.cjs"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-658-final-NJUXsp\\.qa683-playwright.config.cjs",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "pc",
+        "name": "pc",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "buzon-titulo-legible.spec.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "pixel7",
+        "name": "pixel7",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "buzon-titulo-legible.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\683-playwright-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "buzon-titulo-legible.spec.ts",
+      "file": "buzon-titulo-legible.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "el titulo de la capsula tiene contraste sobre su fondo real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "pc",
+              "projectName": "pc",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1766,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T18:35:41.630Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aa8a7cf0d22e1fed1f5-9148668cdc809506e689",
+          "file": "buzon-titulo-legible.spec.ts",
+          "line": 39,
+          "column": 5
+        },
+        {
+          "title": "el formulario, lo escrito y sus botones son legibles al preparar una foto",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "pc",
+              "projectName": "pc",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2496,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T18:35:44.474Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aa8a7cf0d22e1fed1f5-1ec4af2789732befd4b5",
+          "file": "buzon-titulo-legible.spec.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "un buzon no disponible sigue mostrando un error legible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "pc",
+              "projectName": "pc",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 825,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T18:35:46.997Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aa8a7cf0d22e1fed1f5-6ab24bab720515cbeb91",
+          "file": "buzon-titulo-legible.spec.ts",
+          "line": 63,
+          "column": 5
+        },
+        {
+          "title": "el titulo de la capsula tiene contraste sobre su fondo real",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "pixel7",
+              "projectName": "pixel7",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1253,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T18:35:49.286Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aa8a7cf0d22e1fed1f5-a7be9620551b30791dc8",
+          "file": "buzon-titulo-legible.spec.ts",
+          "line": 39,
+          "column": 5
+        },
+        {
+          "title": "el formulario, lo escrito y sus botones son legibles al preparar una foto",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "pixel7",
+              "projectName": "pixel7",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2830,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T18:35:51.317Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aa8a7cf0d22e1fed1f5-640f1d2d0366f7b60863",
+          "file": "buzon-titulo-legible.spec.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "un buzon no disponible sigue mostrando un error legible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "pixel7",
+              "projectName": "pixel7",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 625,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T18:35:54.164Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5aa8a7cf0d22e1fed1f5-3028b5c321a3978106a6",
+          "file": "buzon-titulo-legible.spec.ts",
+          "line": 63,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-26T18:35:39.769Z",
+    "duration": 15194.442,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

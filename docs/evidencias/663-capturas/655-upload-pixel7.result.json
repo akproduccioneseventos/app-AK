@@ -1,0 +1,9 @@
+{
+  "name": "655-upload-pixel7",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "pass": false,
+  "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Subir Video/ })\u001b[22m\n\n    at captureCase (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\655-native-cases.mjs:73:63)\n    at async runCaptureCases (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\655-native-cases.mjs:100:44)\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/663-nativos.mjs:31:16"
+}

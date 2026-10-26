@@ -1,0 +1,8 @@
+{
+  "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+  "before": "80bc98fa97bf0374bd5b868a56f69a10f2e6417ad550a6f922ec8083dd7f5923",
+  "after": "4419679c8efc077e1c7cbf5bf906c29aeb4a3ff9a017b16045a3163dcdb6425c",
+  "removed": 2,
+  "reason": "Delete dead diagnostic DOM-injection branches; final browser evidence uses production classes only",
+  "prototype": false
+}

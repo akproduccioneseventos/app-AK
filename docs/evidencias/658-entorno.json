@@ -1,0 +1,27 @@
+{
+  "source": "a3ecd008976aa4a7879490d6701928ba9f56f7fc",
+  "started": "2026-10-25T16:09:55.108Z",
+  "phase": "validation-not-accepted",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "probes": [
+    {
+      "at": "2026-10-25T16:09:55.747Z",
+      "free": 4038057984,
+      "busy": []
+    }
+  ],
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "dependencyLimit": {
+    "installedEstree": "1.0.8",
+    "lockedEstree": "1.0.9",
+    "cleanNpmCi": false
+  },
+  "pid": 2292,
+  "acentosExit": 0,
+  "buildExit": 1,
+  "error": "AssertionError [ERR_ASSERTION]: Frozen source build\n\n1 !== 0\n\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/658-verificacion-congelada.mjs:27:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "sourceDiff": "",
+  "finished": "2026-10-25T16:52:44.949Z"
+}

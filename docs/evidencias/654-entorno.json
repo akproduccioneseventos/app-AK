@@ -1,0 +1,79 @@
+{
+  "source": "a83acf76a627053da6e6ab913aba70e0f89535b2",
+  "started": "2026-10-25T15:51:35.785Z",
+  "phase": "validation-not-accepted",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "probes": [
+    {
+      "at": "2026-10-25T15:51:40.206Z",
+      "free": 1512579072,
+      "busy": [
+        {
+          "ProcessId": 7684,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" \"C:\\Program Files\\nodejs/node_modules/npm/bin/npm-cli.js\" run graphify:update"
+        },
+        {
+          "ProcessId": 2964,
+          "CommandLine": "uv  tool run --from graphifyy graphify extract . --code-only "
+        },
+        {
+          "ProcessId": 15940,
+          "CommandLine": "\"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\graphify.exe\" extract . --code-only"
+        },
+        {
+          "ProcessId": 11892,
+          "CommandLine": "\"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\python.exe\" \"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\graphify.exe\" extract . --code-only"
+        },
+        {
+          "ProcessId": 7416,
+          "CommandLine": "\"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\python.exe\" \"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\graphify.exe\" extract . --code-only"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T15:55:26.999Z",
+      "free": 3250565120,
+      "busy": [
+        {
+          "ProcessId": 7684,
+          "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" \"C:\\Program Files\\nodejs/node_modules/npm/bin/npm-cli.js\" run graphify:update"
+        },
+        {
+          "ProcessId": 11980,
+          "CommandLine": "uv  tool run --from graphifyy graphify cluster-only ."
+        },
+        {
+          "ProcessId": 13944,
+          "CommandLine": "\"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\graphify.exe\" cluster-only ."
+        },
+        {
+          "ProcessId": 7916,
+          "CommandLine": "\"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\python.exe\" \"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\graphify.exe\" cluster-only ."
+        },
+        {
+          "ProcessId": 14716,
+          "CommandLine": "\"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\python.exe\" \"C:\\Users\\Usuario\\AppData\\Roaming\\uv\\tools\\graphifyy\\Scripts\\graphify.exe\" cluster-only ."
+        }
+      ]
+    },
+    {
+      "at": "2026-10-25T15:56:29.072Z",
+      "free": 3353714688,
+      "busy": []
+    }
+  ],
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-654-final-Bd6qUN",
+  "dependencyLimit": {
+    "installedEstree": "1.0.8",
+    "lockedEstree": "1.0.9",
+    "cleanNpmCi": false
+  },
+  "pid": 8392,
+  "acentosExit": 0,
+  "buildExit": 4294967295,
+  "error": "AssertionError [ERR_ASSERTION]: Frozen source build\n\n4294967295 !== 0\n\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/654-verificacion-congelada.mjs:27:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "sourceDiff": "",
+  "finished": "2026-10-25T16:05:30.828Z"
+}

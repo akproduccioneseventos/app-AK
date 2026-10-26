@@ -1,0 +1,85 @@
+{
+  "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+  "started": "2026-10-26T18:05:41.540Z",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "canonicalAccepted": false,
+  "diagnosticOnly": true,
+  "prototypeDomClass": false,
+  "provider": "local JSON; screenshot diagnosis; prototype is NOT code acceptance",
+  "cases": [
+    {
+      "name": "tokens-review-pc",
+      "pass": false,
+      "started": "2026-10-26T18:05:45.735Z",
+      "error": "AssertionError [ERR_ASSERTION]: Token contrast [{\"label\":\"mode-title\",\"color\":\"rgb(3, 7, 17)\",\"bg\":[9,9,11],\"ratio\":1.0126301121881036},{\"label\":\"name-label\",\"color\":\"rgb(3, 7, 17)\",\"bg\":[9,9,11],\"ratio\":1.0126301121881036},{\"label\":\"footer\",\"color\":\"rgb(107, 114, 128)\",\"bg\":[255,255,255],\"ratio\":4.834490081424352}]\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/677-tema-diagnostico.mjs:35:1086\n    at async run (file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/677-tema-diagnostico.mjs:14:114)\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/677-tema-diagnostico.mjs:35:2",
+      "finished": "2026-10-26T18:05:57.766Z"
+    },
+    {
+      "name": "tokens-unavailable-pc",
+      "pass": true,
+      "started": "2026-10-26T18:05:57.767Z",
+      "observed": {
+        "label": "unavailable",
+        "color": "rgb(3, 7, 17)",
+        "bg": [
+          252,
+          252,
+          252
+        ],
+        "ratio": 19.637125752826584
+      },
+      "prototype": false,
+      "finished": "2026-10-26T18:05:58.492Z"
+    },
+    {
+      "name": "tokens-review-pixel7",
+      "pass": false,
+      "started": "2026-10-26T18:05:58.493Z",
+      "error": "AssertionError [ERR_ASSERTION]: Token contrast [{\"label\":\"mode-title\",\"color\":\"rgb(3, 7, 17)\",\"bg\":[9,9,11],\"ratio\":1.0126301121881036},{\"label\":\"name-label\",\"color\":\"rgb(3, 7, 17)\",\"bg\":[9,9,11],\"ratio\":1.0126301121881036},{\"label\":\"footer\",\"color\":\"rgb(107, 114, 128)\",\"bg\":[255,255,255],\"ratio\":4.834490081424352}]\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/677-tema-diagnostico.mjs:35:1086\n    at async run (file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/677-tema-diagnostico.mjs:14:114)\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/677-tema-diagnostico.mjs:35:2",
+      "finished": "2026-10-26T18:06:00.086Z"
+    },
+    {
+      "name": "tokens-unavailable-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:06:00.087Z",
+      "observed": {
+        "label": "unavailable",
+        "color": "rgb(3, 7, 17)",
+        "bg": [
+          252,
+          252,
+          252
+        ],
+        "ratio": 19.637125752826584
+      },
+      "prototype": false,
+      "finished": "2026-10-26T18:06:00.907Z"
+    }
+  ],
+  "ownerPid": 11820,
+  "phase": "native-failures",
+  "imageFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-658-final-NJUXsp\\public\\qa655-photo.png",
+  "pid": 14444,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-26T18:05:45.255Z",
+    "version": "cce8299c18237d9dd432120751d39d4154b7e58b · compilada 2026-10-26T17:36:45.082Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "diff": "",
+  "finished": "2026-10-26T18:06:01.929Z",
+  "counts": {
+    "total": 4,
+    "pass": 2,
+    "fail": 2
+  }
+}

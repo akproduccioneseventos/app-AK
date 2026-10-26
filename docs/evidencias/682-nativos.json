@@ -1,0 +1,498 @@
+{
+  "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+  "started": "2026-10-26T18:34:22.402Z",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "canonicalAccepted": true,
+  "canonicalExit": 0,
+  "provider": "local JSON fixtures; browser codecs real; synthetic canvas/tone; no hardware",
+  "cases": [
+    {
+      "name": "671-upload-pc",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\682-capturas\\671-upload-pc.webm",
+        "bytes": 87506,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/22dd33f7-5f2c-4c62-b97a-283abfe5aabf",
+        "width": 640,
+        "height": 480,
+        "duration": 1.803,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 25920,
+        "rms": 0.125428020817517
+      }
+    },
+    {
+      "name": "671-record-pixel7",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\682-capturas\\671-record-pixel7.webm",
+        "bytes": 343867,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/bd8c1aaf-ba07-43be-b142-25a0045c1813",
+        "width": 640,
+        "height": 480,
+        "duration": null,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 36480,
+        "rms": 0.9997518093752559
+      }
+    },
+    {
+      "name": "671-upload-pixel7",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\682-capturas\\671-upload-pixel7.webm",
+        "bytes": 85158,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/003e95c3-ed51-4645-89fa-4c61d95791a8",
+        "width": 640,
+        "height": 480,
+        "duration": 1.608,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 25920,
+        "rms": 0.125428020817517
+      }
+    },
+    {
+      "name": "671-record-pc",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\682-capturas\\671-record-pc.webm",
+        "bytes": 319876,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/640a5011-40de-49b2-802c-a8941fda1325",
+        "width": 640,
+        "height": 480,
+        "duration": 2.047,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 33600,
+        "rms": 1.000100800470085
+      }
+    },
+    {
+      "name": "contrast-pc",
+      "pass": true,
+      "started": "2026-10-26T18:35:09.205Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        2,
+        6,
+        23
+      ],
+      "ratio": 20.172843484025293,
+      "box": {
+        "x": 304,
+        "y": 560,
+        "width": 672,
+        "height": 36
+      },
+      "finished": "2026-10-26T18:35:11.082Z"
+    },
+    {
+      "name": "empty-recorder-pc",
+      "pass": true,
+      "started": "2026-10-26T18:35:11.082Z",
+      "recoverable": true,
+      "falseSuccess": false,
+      "recorder": "controlled empty double",
+      "finished": "2026-10-26T18:35:16.690Z"
+    },
+    {
+      "name": "selfie-terminal-pc",
+      "pass": true,
+      "started": "2026-10-26T18:35:16.691Z",
+      "elapsed": 1747,
+      "imageRequests": [],
+      "synthetic": "uniform white canvas; no face/model quality certification",
+      "finished": "2026-10-26T18:35:19.991Z"
+    },
+    {
+      "name": "contrast-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:35:19.994Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        2,
+        6,
+        23
+      ],
+      "ratio": 20.172843484025293,
+      "box": {
+        "x": 16,
+        "y": 695.5,
+        "width": 358,
+        "height": 64
+      },
+      "finished": "2026-10-26T18:35:21.210Z"
+    },
+    {
+      "name": "empty-recorder-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:35:21.213Z",
+      "recoverable": true,
+      "falseSuccess": false,
+      "recorder": "controlled empty double",
+      "finished": "2026-10-26T18:35:26.939Z"
+    },
+    {
+      "name": "selfie-terminal-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:35:26.941Z",
+      "elapsed": 1070,
+      "imageRequests": [],
+      "synthetic": "uniform white canvas; no face/model quality certification",
+      "finished": "2026-10-26T18:35:28.808Z"
+    },
+    {
+      "name": "buzon-title-pc",
+      "pass": true,
+      "started": "2026-10-26T18:35:28.810Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        9,
+        9,
+        11
+      ],
+      "ratio": 19.895357656776593,
+      "box": {
+        "x": 432,
+        "y": 163,
+        "width": 416,
+        "height": 24
+      },
+      "finished": "2026-10-26T18:35:30.043Z"
+    },
+    {
+      "name": "buzon-title-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:35:30.050Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        9,
+        9,
+        11
+      ],
+      "ratio": 19.895357656776593,
+      "box": {
+        "x": 16,
+        "y": 159,
+        "width": 358,
+        "height": 24
+      },
+      "finished": "2026-10-26T18:35:31.166Z"
+    },
+    {
+      "name": "tokens-review-pc",
+      "pass": true,
+      "started": "2026-10-26T18:35:31.167Z",
+      "observed": [
+        {
+          "label": "mode-title",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            9,
+            9,
+            11
+          ],
+          "ratio": 19.038149290475243
+        },
+        {
+          "label": "name-label",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            9,
+            9,
+            11
+          ],
+          "ratio": 19.038149290475243
+        },
+        {
+          "label": "input-text",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            13,
+            15,
+            19
+          ],
+          "ratio": 18.354357940704652
+        },
+        {
+          "label": "retry",
+          "color": "rgb(248, 113, 113)",
+          "bg": [
+            21,
+            11,
+            12
+          ],
+          "ratio": 6.996634536178052
+        },
+        {
+          "label": "submit",
+          "color": "rgb(255, 255, 255)",
+          "bg": [
+            197,
+            32,
+            32
+          ],
+          "ratio": 5.830863338036048
+        },
+        {
+          "label": "footer",
+          "color": "rgb(156, 163, 175)",
+          "bg": [
+            3,
+            7,
+            17
+          ],
+          "ratio": 7.935367601441164
+        }
+      ],
+      "prototype": false,
+      "finished": "2026-10-26T18:35:33.962Z"
+    },
+    {
+      "name": "tokens-unavailable-pc",
+      "pass": true,
+      "started": "2026-10-26T18:35:33.963Z",
+      "observed": {
+        "label": "unavailable",
+        "color": "rgb(249, 250, 251)",
+        "bg": [
+          3,
+          7,
+          17
+        ],
+        "ratio": 19.27860325186781
+      },
+      "prototype": false,
+      "finished": "2026-10-26T18:35:34.703Z"
+    },
+    {
+      "name": "tokens-review-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:35:34.705Z",
+      "observed": [
+        {
+          "label": "mode-title",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            9,
+            9,
+            11
+          ],
+          "ratio": 19.038149290475243
+        },
+        {
+          "label": "name-label",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            9,
+            9,
+            11
+          ],
+          "ratio": 19.038149290475243
+        },
+        {
+          "label": "input-text",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            13,
+            15,
+            19
+          ],
+          "ratio": 18.354357940704652
+        },
+        {
+          "label": "retry",
+          "color": "rgb(248, 113, 113)",
+          "bg": [
+            21,
+            11,
+            12
+          ],
+          "ratio": 6.996634536178052
+        },
+        {
+          "label": "submit",
+          "color": "rgb(255, 255, 255)",
+          "bg": [
+            197,
+            32,
+            32
+          ],
+          "ratio": 5.830863338036048
+        },
+        {
+          "label": "footer",
+          "color": "rgb(156, 163, 175)",
+          "bg": [
+            3,
+            7,
+            17
+          ],
+          "ratio": 7.935367601441164
+        }
+      ],
+      "prototype": false,
+      "finished": "2026-10-26T18:35:36.774Z"
+    },
+    {
+      "name": "tokens-unavailable-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:35:36.775Z",
+      "observed": {
+        "label": "unavailable",
+        "color": "rgb(249, 250, 251)",
+        "bg": [
+          3,
+          7,
+          17
+        ],
+        "ratio": 19.27860325186781
+      },
+      "prototype": false,
+      "finished": "2026-10-26T18:35:37.441Z"
+    },
+    {
+      "name": "official-buzon-pc: el titulo de la capsula tiene contraste sobre su fondo real",
+      "pass": true,
+      "status": "passed",
+      "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+      "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+    },
+    {
+      "name": "official-buzon-pc: el formulario, lo escrito y sus botones son legibles al preparar una foto",
+      "pass": true,
+      "status": "passed",
+      "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+      "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+    },
+    {
+      "name": "official-buzon-pc: un buzon no disponible sigue mostrando un error legible",
+      "pass": true,
+      "status": "passed",
+      "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+      "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+    },
+    {
+      "name": "official-buzon-pixel7: el titulo de la capsula tiene contraste sobre su fondo real",
+      "pass": true,
+      "status": "passed",
+      "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+      "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+    },
+    {
+      "name": "official-buzon-pixel7: el formulario, lo escrito y sus botones son legibles al preparar una foto",
+      "pass": true,
+      "status": "passed",
+      "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+      "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+    },
+    {
+      "name": "official-buzon-pixel7: un buzon no disponible sigue mostrando un error legible",
+      "pass": true,
+      "status": "passed",
+      "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+      "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+    }
+  ],
+  "ownerPid": 8620,
+  "phase": "passed",
+  "imageFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-658-final-NJUXsp\\public\\qa655-photo.png",
+  "pid": 10488,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-26T18:34:28.224Z",
+    "version": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0 · compilada 2026-10-26T18:16:09.185Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "officialTitle": {
+    "exit": 0,
+    "tests": [
+      {
+        "name": "official-buzon-pc: el titulo de la capsula tiene contraste sobre su fondo real",
+        "pass": true,
+        "status": "passed",
+        "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+        "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+      },
+      {
+        "name": "official-buzon-pc: el formulario, lo escrito y sus botones son legibles al preparar una foto",
+        "pass": true,
+        "status": "passed",
+        "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+        "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+      },
+      {
+        "name": "official-buzon-pc: un buzon no disponible sigue mostrando un error legible",
+        "pass": true,
+        "status": "passed",
+        "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+        "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+      },
+      {
+        "name": "official-buzon-pixel7: el titulo de la capsula tiene contraste sobre su fondo real",
+        "pass": true,
+        "status": "passed",
+        "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+        "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+      },
+      {
+        "name": "official-buzon-pixel7: el formulario, lo escrito y sus botones son legibles al preparar una foto",
+        "pass": true,
+        "status": "passed",
+        "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+        "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+      },
+      {
+        "name": "official-buzon-pixel7: un buzon no disponible sigue mostrando un error legible",
+        "pass": true,
+        "status": "passed",
+        "source": "d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0",
+        "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+      }
+    ],
+    "network": "all external browser HTTP(S) redirected to closed local proxy9; QUIC disabled; Node egress guard; isolated JSON fixtures"
+  },
+  "diff": "",
+  "finished": "2026-10-26T18:35:56.169Z",
+  "counts": {
+    "total": 22,
+    "pass": 22,
+    "fail": 0
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "source": "a3ecd008976aa4a7879490d6701928ba9f56f7fc",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "mode": "failed",
+  "started": "2026-10-26T16:13:28.660Z",
+  "phase": "failed",
+  "environment": {
+    "localJson": "unset",
+    "localWrites": "unset",
+    "providerKeys": "absent",
+    "network": "external blocked; demo emulator endpoint only"
+  },
+  "buildReceipt": "660 buildExit0; canonical660 not accepted",
+  "suitesRequested": 26,
+  "pid": 11392,
+  "exit": 1,
+  "counts": {
+    "suites": 26,
+    "total": 156,
+    "pass": 155,
+    "fail": 1,
+    "pending": 0
+  },
+  "diff": "",
+  "finished": "2026-10-26T16:14:35.351Z"
+}

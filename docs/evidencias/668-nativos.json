@@ -1,0 +1,94 @@
+{
+  "source": "a3ecd008976aa4a7879490d6701928ba9f56f7fc",
+  "started": "2026-10-26T17:07:39.319Z",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "canonicalAccepted": false,
+  "canonicalPriorExit": 1,
+  "provider": "local JSON fixtures; browser codecs real; synthetic canvas/tone; no hardware",
+  "cases": [
+    {
+      "name": "655-upload-pc",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\668-capturas\\655-upload-pc.webm",
+        "bytes": 89387,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/0ad9d407-3e1e-4890-b02f-e12cda94a68a",
+        "width": 640,
+        "height": 480,
+        "duration": 1.766,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 25920,
+        "rms": 0.125428020817517
+      }
+    },
+    {
+      "name": "655-upload-pixel7",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\668-capturas\\655-upload-pixel7.webm",
+        "bytes": 88245,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/bd255e27-55db-4e4c-bb82-05f4cff2d501",
+        "width": 640,
+        "height": 480,
+        "duration": 1.6,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 24960,
+        "rms": 0.12596470892916364
+      }
+    },
+    {
+      "name": "buzon-title-pc",
+      "pass": false,
+      "started": "2026-10-26T17:08:12.294Z",
+      "error": "AssertionError [ERR_ASSERTION]: Visible title contrast {\"color\":\"rgb(3, 7, 17)\",\"bg\":[9,9,11],\"ratio\":1.0126301121881036,\"box\":{\"x\":432,\"y\":163,\"width\":416,\"height\":24}}\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/668-subida-y-titulo.mjs:36:865\n    at async run (file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/668-subida-y-titulo.mjs:14:114)\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/668-subida-y-titulo.mjs:34:96",
+      "finished": "2026-10-26T17:08:13.666Z"
+    },
+    {
+      "name": "buzon-title-pixel7",
+      "pass": false,
+      "started": "2026-10-26T17:08:13.666Z",
+      "error": "AssertionError [ERR_ASSERTION]: Visible title contrast {\"color\":\"rgb(3, 7, 17)\",\"bg\":[9,9,11],\"ratio\":1.0126301121881036,\"box\":{\"x\":16,\"y\":159,\"width\":358,\"height\":24}}\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/668-subida-y-titulo.mjs:36:865\n    at async run (file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/668-subida-y-titulo.mjs:14:114)\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/668-subida-y-titulo.mjs:34:96",
+      "finished": "2026-10-26T17:08:14.813Z"
+    }
+  ],
+  "ownerPid": 13264,
+  "phase": "native-failures",
+  "imageFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-658-final-NJUXsp\\public\\qa655-photo.png",
+  "pid": 9800,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-26T17:07:45.655Z",
+    "version": "a3ecd008976aa4a7879490d6701928ba9f56f7fc · compilada 2026-10-25T16:59:59.463Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "diff": "",
+  "finished": "2026-10-26T17:08:15.920Z",
+  "counts": {
+    "total": 4,
+    "pass": 2,
+    "fail": 2
+  }
+}

@@ -1,0 +1,16 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+const dir=new URL('./',import.meta.url),source='cce8299c18237d9dd432120751d39d4154b7e58b';
+const read=n=>fs.readFileSync(new URL(n,dir),'utf8'),write=(n,c)=>{const p=new URL(n,dir);assert(!fs.existsSync(p));fs.writeFileSync(p,c);};
+let build=read('660-verificacion-congelada.mjs').replaceAll('660','669').replaceAll('a3ecd008976aa4a7879490d6701928ba9f56f7fc',source);
+build=build.replace('658 same source, corrected public JSON fixture','660 cache reused; NEW source requires new build');
+const start=build.indexOf(" env={...env,NODE_ENV:'test'};"),end=build.indexOf("record.phase='validated';",start);assert(start>0&&end>start);
+build=build.slice(0,start)+" record.phase='built';\n"+build.slice(end+"record.phase='validated';".length);write('669-build-final.mjs',build);
+let canonical=read('665-jest-aislado.mjs');
+const guard="assert.equal(spawnSync('git',['diff','--name-only','a3ecd008976aa4a7879490d6701928ba9f56f7fc',source],{cwd:qa,encoding:'utf8'}).stdout.trim(),'src/__tests__/portal-entregas-y-agentes-86.test.ts');";assert(canonical.includes(guard));canonical=canonical.replace(guard,'');
+canonical=canonical.replaceAll('acc1cb968f06f705d11457c8fed0e2f01464d712',source).replaceAll('a3ecd008976aa4a7879490d6701928ba9f56f7fc',source).replaceAll("'665-'","'670-'").replaceAll('.qa665-home','.qa670-home').replace('660-entorno.json','669-entorno.json').replace('only portal-entregas-y-agentes-86.test.ts changed; verified below','exact frozen source; no runtime equivalence substitution').replace('660 buildExit0; canonical660 not accepted','669 buildExit0; exact source match');write('670-jest-final.mjs',canonical);
+const cases=read('655-native-cases.mjs').replace('name: /Subir Video/','name: /Subir Video/i').replaceAll('655-upload','671-upload').replaceAll('655-record','671-record');write('671-native-cases.mjs',cases);
+let native=read('663-nativos.mjs');const original=native.match(/\b[a-f0-9]{40}\b/g);native=native.replaceAll('663','672');assert.deepEqual(native.match(/\b[a-f0-9]{40}\b/g),original);
+native=native.replaceAll('a3ecd008976aa4a7879490d6701928ba9f56f7fc',source).replace('660-entorno.json','669-entorno.json').replace("from'./655-native-cases.mjs'","from'./671-native-cases.mjs'");
+const canonicalMarker="const qa=build.qa";assert(native.includes(canonicalMarker));native=native.replace(canonicalMarker,"const canonical=JSON.parse(fs.readFileSync(path.join(dir,'670-canonical.json'),'utf8'));assert.equal(canonical.source,source);assert.equal(canonical.phase,'passed');\n"+canonicalMarker).replace("canonicalAccepted:build.phase==='validated',canonicalPriorExit:build.jestExit","canonicalAccepted:true,canonicalExit:canonical.exit");
+const title=read('668-subida-y-titulo.mjs'),tStart=title.indexOf(" for(const[label,viewport]of["),tEnd=title.indexOf(" record.phase=record.cases.every",tStart);assert(tStart>0&&tEnd>tStart);
+native=native.replace(" record.phase=record.cases.every",title.slice(tStart,tEnd).replaceAll('668-title','672-title')+" record.phase=record.cases.every");write('672-nativos-final.mjs',native);

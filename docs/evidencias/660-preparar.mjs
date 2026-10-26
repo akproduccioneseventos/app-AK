@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const folder=new URL('./',import.meta.url);
+let code=fs.readFileSync(new URL('658-verificacion-congelada.mjs',folder),'utf8');
+const hashes=code.match(/\b[a-f0-9]{40}\b/g);
+code=code.replaceAll('658','660');
+assert.deepEqual(code.match(/\b[a-f0-9]{40}\b/g),hashes);
+const old="qa=fs.mkdtempSync('C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-660-final-');record.qa=qa;save();git(['-c','core.sparseCheckout=false','worktree','add','--detach',qa,source]);";
+assert(code.includes(old));
+code=code.replace(old,"qa='C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp';record.qa=qa;record.cacheFrom='658 same source, corrected public JSON fixture';save();assert.equal(git(['rev-parse','HEAD'],qa),source);assert.equal(git(['diff','--name-only'],qa),'');");
+code=code.replace("fs.symlinkSync(deps,path.join(qa,'node_modules'),'junction');","assert(fs.existsSync(path.join(qa,'node_modules')));");
+const catalog="'employee-roles.json']);";assert(code.includes(catalog));
+code=code.replace(catalog,"'employee-roles.json','galeria-publica.json','catalogo-fotos.json','testimonials.json']);");
+const target=new URL('660-verificacion-congelada.mjs',folder);assert(!fs.existsSync(target));fs.writeFileSync(target,code);

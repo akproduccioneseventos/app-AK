@@ -1,0 +1,29 @@
+{
+  "source": "a3ecd008976aa4a7879490d6701928ba9f56f7fc",
+  "started": "2026-10-25T16:57:59.259Z",
+  "phase": "validation-not-accepted",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "probes": [
+    {
+      "at": "2026-10-25T16:58:06.244Z",
+      "free": 1422200832,
+      "busy": []
+    }
+  ],
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "cacheFrom": "658 same source, corrected public JSON fixture",
+  "dependencyLimit": {
+    "installedEstree": "1.0.8",
+    "lockedEstree": "1.0.9",
+    "cleanNpmCi": false
+  },
+  "pid": 9980,
+  "acentosExit": 0,
+  "buildExit": 0,
+  "jestExit": 1,
+  "error": "AssertionError [ERR_ASSERTION]: Canonical suite\n\n1 !== 0\n\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/660-verificacion-congelada.mjs:29:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+  "sourceDiff": "",
+  "finished": "2026-10-25T17:31:47.365Z"
+}

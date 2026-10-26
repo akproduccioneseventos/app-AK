@@ -1,0 +1,15 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+const dir=new URL('./',import.meta.url),old='cce8299c18237d9dd432120751d39d4154b7e58b',source='d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0';
+const read=n=>fs.readFileSync(new URL(n,dir),'utf8'),write=(n,c)=>{const p=new URL(n,dir);assert(!fs.existsSync(p));fs.writeFileSync(p,c);};
+const rename=(c,pairs)=>{const hashes=c.match(/\b[a-f0-9]{40}\b/g);for(const[a,b]of pairs)c=c.replaceAll(a,b);assert.deepEqual(c.match(/\b[a-f0-9]{40}\b/g),hashes);return c.replaceAll(old,source);};
+write('680-build-cierre.mjs',rename(read('669-build-final.mjs'),[['669','680']]));
+write('681-jest-cierre.mjs',rename(read('670-jest-final.mjs'),[['670','681'],['669','680']]));
+let official=rename(read('676-oficial-playwright.mjs'),[['676','683']]).replace('tests.length!==2','tests.length!==6').replace("name:'official-buzon-title-'+test.projectName","name:'official-buzon-'+test.projectName+': '+spec.title");write('683-oficial-playwright.mjs',official);
+let native=rename(read('672-nativos-final.mjs'),[['672','682'],['669','680'],['670','681'],['676','683']]);
+const prototype=read('679-tema-prototipo.mjs'),pStart=prototype.indexOf(' const prototype=true;'),pEnd=prototype.indexOf(' record.phase=record.cases.every',pStart);assert(pStart>0&&pEnd>pStart);
+const actual=prototype.slice(pStart,pEnd).replace('const prototype=true;','const prototype=false;').replaceAll('679-review','682-review').replaceAll('679-unavailable','682-unavailable');
+native=native.replace(' await browser.close();browser=null;',actual+'\n await browser.close();browser=null;');write('682-nativos-cierre.mjs',native);
+write('684-secuencia-cierre.mjs',rename(read('673-secuencia-final.mjs'),[['673','684'],['669','680'],['670','681'],['672','682']] ).replace('669-build-final','680-build-cierre').replace('680-build-final','680-build-cierre').replace('681-jest-final','681-jest-cierre').replace('682-nativos-final','682-nativos-cierre'));
+let report=rename(read('675-informe-comprobado.mjs'),[['675','685'],['669','680'],['670','681'],['672','682'],['673','684'],['676','683']]).replace('native.counts.total,14','native.counts.total,22').replace('catorce comprobaciones','veintidos comprobaciones').replace('en PC\n+  y Pixel7','en PC y Pixel7');
+report=report.replace('5. Titulo del buzon legible: antes668 midio1.0126:1 en ambas vistas; ahora682 PASS.','5. Tema oscuro local coherente: titulos, campos, texto escrito, reintento, envio y\n+   pie con contraste; carga y error tambien conservan tokens compatibles.677\n+   confirmo el fallo de formulario;678/679 fueron SOLO prototipos DOM.682 y683\n+   ejecutan el codigo real sin esos cambios de diagnostico (prototype=false).');write('685-informe-comprobado.mjs',report);
+let pack=rename(read('674-manifestar-entrega.mjs'),[['674','686'],['673','684']]);pack=pack.replace('67[0-6]','6[78]\\d').replace("['663-capturas','668-capturas','672-capturas']","['663-capturas','668-capturas','672-capturas','677-capturas','678-capturas','679-capturas','682-capturas']");write('686-manifestar-entrega.mjs',pack);

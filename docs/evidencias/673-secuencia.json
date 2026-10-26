@@ -1,0 +1,25 @@
+{
+  "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+  "started": "2026-10-26T17:11:45.801Z",
+  "ownerPid": 4912,
+  "phase": "finished-review-results",
+  "appEdits": false,
+  "buildExit": 0,
+  "childPid": 11736,
+  "canonicalExit": 0,
+  "canonicalCounts": {
+    "suites": 869,
+    "total": 5278,
+    "pass": 5278,
+    "fail": 0,
+    "pending": 0
+  },
+  "nativeExit": 0,
+  "nativePhase": "passed",
+  "nativeCounts": {
+    "total": 14,
+    "pass": 14,
+    "fail": 0
+  },
+  "finished": "2026-10-26T17:59:11.200Z"
+}

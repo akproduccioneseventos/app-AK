@@ -1,0 +1,8 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+const dir=new URL('./',import.meta.url);let c=fs.readFileSync(new URL('678-tema-diagnostico.mjs',dir),'utf8').replaceAll('678','679');
+const normal="if(prototype)await page.locator('div.min-h-screen.bg-zinc-950').evaluate(el=>el.classList.add('dark'));";assert(c.includes(normal));
+c=c.replace(normal,"if(prototype)await page.locator('div.min-h-screen.bg-zinc-950').evaluate(el=>{el.classList.add('dark');el.style.setProperty('--primary','0 72% 45%');el.setAttribute('data-qa-buzon-theme','true');const css=document.createElement('style');css.textContent='[data-qa-buzon-theme] .text-primary, [data-qa-buzon-theme] .text-destructive {color:#f87171}';document.head.appendChild(css);});");
+c=c.replace('async function measure(page,locator,label){','async function measure(page,locator,label,inside=false){').replace('Math.floor(box.y+box.height/2)+Math.max(0,Math.floor(box.x-3))','Math.floor(inside?box.y+8:box.y+box.height/2)+Math.max(0,Math.floor(inside?box.x+8:box.x-3))');
+const marker="observed.push(await measure(page,page.getByText('Experiencia por AK Producciones'";assert(c.includes(marker));
+c=c.replace(marker,"const input=page.getByLabel(/Tu nombre y apellido/i);await input.fill('Invitado ficticio');observed.push(await measure(page,input,'input-text',true));observed.push(await measure(page,page.getByRole('button',{name:/Elegir otra/i}),'retry',true));observed.push(await measure(page,page.getByRole('button',{name:/Enviar Recuerdo/i}),'submit',true));"+marker);
+const out=new URL('679-tema-prototipo.mjs',dir);assert(!fs.existsSync(out));fs.writeFileSync(out,c);

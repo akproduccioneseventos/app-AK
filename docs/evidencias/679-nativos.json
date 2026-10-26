@@ -1,0 +1,209 @@
+{
+  "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+  "started": "2026-10-26T18:11:46.154Z",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "canonicalAccepted": false,
+  "diagnosticOnly": true,
+  "prototypeDomClass": true,
+  "provider": "local JSON; screenshot diagnosis; prototype is NOT code acceptance",
+  "cases": [
+    {
+      "name": "tokens-review-pc",
+      "pass": true,
+      "started": "2026-10-26T18:11:50.138Z",
+      "observed": [
+        {
+          "label": "mode-title",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            9,
+            9,
+            11
+          ],
+          "ratio": 19.038149290475243
+        },
+        {
+          "label": "name-label",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            9,
+            9,
+            11
+          ],
+          "ratio": 19.038149290475243
+        },
+        {
+          "label": "input-text",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            13,
+            15,
+            19
+          ],
+          "ratio": 18.354357940704652
+        },
+        {
+          "label": "retry",
+          "color": "rgb(248, 113, 113)",
+          "bg": [
+            21,
+            11,
+            12
+          ],
+          "ratio": 6.996634536178052
+        },
+        {
+          "label": "submit",
+          "color": "rgb(255, 255, 255)",
+          "bg": [
+            197,
+            32,
+            32
+          ],
+          "ratio": 5.830863338036048
+        },
+        {
+          "label": "footer",
+          "color": "rgb(156, 163, 175)",
+          "bg": [
+            3,
+            7,
+            17
+          ],
+          "ratio": 7.935367601441164
+        }
+      ],
+      "prototype": true,
+      "finished": "2026-10-26T18:12:03.095Z"
+    },
+    {
+      "name": "tokens-unavailable-pc",
+      "pass": true,
+      "started": "2026-10-26T18:12:03.096Z",
+      "observed": {
+        "label": "unavailable",
+        "color": "rgb(249, 250, 251)",
+        "bg": [
+          3,
+          7,
+          17
+        ],
+        "ratio": 19.27860325186781
+      },
+      "prototype": true,
+      "finished": "2026-10-26T18:12:03.993Z"
+    },
+    {
+      "name": "tokens-review-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:12:04.016Z",
+      "observed": [
+        {
+          "label": "mode-title",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            9,
+            9,
+            11
+          ],
+          "ratio": 19.038149290475243
+        },
+        {
+          "label": "name-label",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            9,
+            9,
+            11
+          ],
+          "ratio": 19.038149290475243
+        },
+        {
+          "label": "input-text",
+          "color": "rgb(249, 250, 251)",
+          "bg": [
+            13,
+            15,
+            19
+          ],
+          "ratio": 18.354357940704652
+        },
+        {
+          "label": "retry",
+          "color": "rgb(248, 113, 113)",
+          "bg": [
+            21,
+            11,
+            12
+          ],
+          "ratio": 6.996634536178052
+        },
+        {
+          "label": "submit",
+          "color": "rgb(255, 255, 255)",
+          "bg": [
+            197,
+            32,
+            32
+          ],
+          "ratio": 5.830863338036048
+        },
+        {
+          "label": "footer",
+          "color": "rgb(156, 163, 175)",
+          "bg": [
+            3,
+            7,
+            17
+          ],
+          "ratio": 7.935367601441164
+        }
+      ],
+      "prototype": true,
+      "finished": "2026-10-26T18:12:06.318Z"
+    },
+    {
+      "name": "tokens-unavailable-pixel7",
+      "pass": true,
+      "started": "2026-10-26T18:12:06.319Z",
+      "observed": {
+        "label": "unavailable",
+        "color": "rgb(249, 250, 251)",
+        "bg": [
+          3,
+          7,
+          17
+        ],
+        "ratio": 19.27860325186781
+      },
+      "prototype": true,
+      "finished": "2026-10-26T18:12:07.033Z"
+    }
+  ],
+  "ownerPid": 17328,
+  "phase": "passed",
+  "imageFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-658-final-NJUXsp\\public\\qa655-photo.png",
+  "pid": 14256,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-26T18:11:49.544Z",
+    "version": "cce8299c18237d9dd432120751d39d4154b7e58b · compilada 2026-10-26T17:36:45.082Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "diff": "",
+  "finished": "2026-10-26T18:12:08.397Z",
+  "counts": {
+    "total": 4,
+    "pass": 4,
+    "fail": 0
+  }
+}

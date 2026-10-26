@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26/10/2026 -685 cierre comprobado de correcciones653 y tema del buzon
+
+- Fuente final d4c69f2b2395ad3abcaee4fb166bcefbdc1457e0, rama propia
+  codex/653-correcciones-20261025, PR1363 complementaria de1362(base2b17).
+  No main, no merge/deploy. Privados NO CONTRASTADOS.
+- Build680 PASS con tipos/lint/acentos. Canonica681:869suites5278PASS,
+  cero fallos/omitidas. Navegador682:22PASS, incluidas6pruebas oficiales683
+  del archivo buzon-titulo-legible.spec.ts SIN modificar en PC/Pixel7.
+  Todos sobre D4, fuenteQA restaurada/diff0. No usar Cce/a3 para certificarD4.
+- Invalidperfil+roleadmin denegado tambien en requirePermiso; legacy sinperfil
+  se conserva. Audio importado conserva el tono; captura vacia no se ofrece
+  como lista; cuenta unica yreintento reabren camara. Codec real de navegador,
+  tono/camara sinteticos yRMSdecodificado; no hardware/proveedor real.
+- 677 confirmo textos de formulario negros sobre oscuro (1.0126:1).
+  BUZON_THEME ahora fija tokens oscuros SOLO en sus3estados; texto ingresado,
+  labels, reintento, envio, pie yerror se comprobaron con contraste raster.
+  678/679 fueron prototiposDOM, NO aceptacion;682 no contiene sus inyecciones.
+- 675 fue cierre HISTORICO Cce de14criterios; queda sustituido por685 paraD4.
+  650/253 y258filas anteriores conservan SHA/alcance: no borrarrawFAIL/SKIP
+  ni contarlos como bugs actuales o como controles nunca revisados.
+- IntentosQA fallidos/cancelados654/656/657/658/660/664/663 se conservan y
+  explican, no son fallos extra de app. Cero cuentas/cargos/mensajes reales,
+  sin detener otrasIA. Cuatro agentes economicos cerrados. No nuevos deps.
+- No repetir680/681/682 si no cambia fuente de app. Nuevos docs no invalidan
+  resultados. Fuente de dependencias reutilizada; no npm-ci limpio. No es
+  certificado de0errores/todoscontroles/todosroles ni verificacion deHosting.
+
 ## 25/10/2026 -653 correccion directa autorizada, entrega2b17bebf contrastada
 
 - Pedido actual del dueño autoriza reparar con agentes economicos; excepcion
@@ -24,8 +51,8 @@
 - AgentesParfit/Rawls acotados terminaron yse cerraron. Director corrigio
   arnesaudio del primerborrador(faketimers colgaban ymetadata0 redefinia una
   propiedad fija); fallosQA conservados, no bugsapp. Focales35PASS trasarreglo.
-  Source/build/nativos actuales quedan pendientes hasta recibos nuevos; no
-  reutilizar build574 ni593 para dar estos cambios por aceptados.
+  Cerrado por recibos680/681/682 sobre fuenteD4; ver685. No reutilizar574/593
+  ni los recibos intermedios de otra fuente para certificar cambios nuevos.
 
 ## 23/10/2026 - El candado de la plata ve los ayudantes que guardan plata (pregunta 95)
 

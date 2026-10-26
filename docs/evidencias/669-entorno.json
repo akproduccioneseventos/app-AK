@@ -1,0 +1,27 @@
+{
+  "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+  "started": "2026-10-26T17:11:35.665Z",
+  "phase": "built",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "probes": [
+    {
+      "at": "2026-10-26T17:11:37.481Z",
+      "free": 1763557376,
+      "busy": []
+    }
+  ],
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "cacheFrom": "660 cache reused; NEW source requires new build",
+  "dependencyLimit": {
+    "installedEstree": "1.0.8",
+    "lockedEstree": "1.0.9",
+    "cleanNpmCi": false
+  },
+  "pid": 7576,
+  "acentosExit": 0,
+  "buildExit": 0,
+  "sourceDiff": "",
+  "finished": "2026-10-26T17:46:26.474Z"
+}

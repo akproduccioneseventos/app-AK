@@ -1,0 +1,270 @@
+{
+  "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+  "started": "2026-10-26T17:57:43.201Z",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "canonicalAccepted": true,
+  "canonicalExit": 0,
+  "provider": "local JSON fixtures; browser codecs real; synthetic canvas/tone; no hardware",
+  "cases": [
+    {
+      "name": "671-upload-pc",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\672-capturas\\671-upload-pc.webm",
+        "bytes": 89028,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/fc6c7529-07b4-43f6-9815-966e4e24a420",
+        "width": 640,
+        "height": 480,
+        "duration": 1.853,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 25920,
+        "rms": 0.125428020817517
+      }
+    },
+    {
+      "name": "671-record-pixel7",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\672-capturas\\671-record-pixel7.webm",
+        "bytes": 412854,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/414c8c2e-0d2e-4b52-9d7e-372eac44be43",
+        "width": 640,
+        "height": 480,
+        "duration": null,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 41280,
+        "rms": 1.0006613130415702
+      }
+    },
+    {
+      "name": "671-upload-pixel7",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\672-capturas\\671-upload-pixel7.webm",
+        "bytes": 88246,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/3159cbb2-df41-40e5-afce-f14e9cd6ddfc",
+        "width": 640,
+        "height": 480,
+        "duration": 1.601,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 24960,
+        "rms": 0.12596470892916364
+      }
+    },
+    {
+      "name": "671-record-pc",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\672-capturas\\671-record-pc.webm",
+        "bytes": 323847,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/f974a8b3-c55a-4496-93c0-a78b94ec3b99",
+        "width": 640,
+        "height": 480,
+        "duration": null,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 40320,
+        "rms": 0.9998864919973656
+      }
+    },
+    {
+      "name": "contrast-pc",
+      "pass": true,
+      "started": "2026-10-26T17:58:28.964Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        2,
+        6,
+        23
+      ],
+      "ratio": 20.172843484025293,
+      "box": {
+        "x": 304,
+        "y": 560,
+        "width": 672,
+        "height": 36
+      },
+      "finished": "2026-10-26T17:58:31.511Z"
+    },
+    {
+      "name": "empty-recorder-pc",
+      "pass": true,
+      "started": "2026-10-26T17:58:31.512Z",
+      "recoverable": true,
+      "falseSuccess": false,
+      "recorder": "controlled empty double",
+      "finished": "2026-10-26T17:58:36.639Z"
+    },
+    {
+      "name": "selfie-terminal-pc",
+      "pass": true,
+      "started": "2026-10-26T17:58:36.640Z",
+      "elapsed": 1733,
+      "imageRequests": [],
+      "synthetic": "uniform white canvas; no face/model quality certification",
+      "finished": "2026-10-26T17:58:39.871Z"
+    },
+    {
+      "name": "contrast-pixel7",
+      "pass": true,
+      "started": "2026-10-26T17:58:39.873Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        2,
+        6,
+        23
+      ],
+      "ratio": 20.172843484025293,
+      "box": {
+        "x": 16,
+        "y": 695.5,
+        "width": 358,
+        "height": 64
+      },
+      "finished": "2026-10-26T17:58:41.055Z"
+    },
+    {
+      "name": "empty-recorder-pixel7",
+      "pass": true,
+      "started": "2026-10-26T17:58:41.056Z",
+      "recoverable": true,
+      "falseSuccess": false,
+      "recorder": "controlled empty double",
+      "finished": "2026-10-26T17:58:46.046Z"
+    },
+    {
+      "name": "selfie-terminal-pixel7",
+      "pass": true,
+      "started": "2026-10-26T17:58:46.047Z",
+      "elapsed": 1028,
+      "imageRequests": [],
+      "synthetic": "uniform white canvas; no face/model quality certification",
+      "finished": "2026-10-26T17:58:48.054Z"
+    },
+    {
+      "name": "buzon-title-pc",
+      "pass": true,
+      "started": "2026-10-26T17:58:48.060Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        9,
+        9,
+        11
+      ],
+      "ratio": 19.895357656776593,
+      "box": {
+        "x": 432,
+        "y": 163,
+        "width": 416,
+        "height": 24
+      },
+      "finished": "2026-10-26T17:58:49.251Z"
+    },
+    {
+      "name": "buzon-title-pixel7",
+      "pass": true,
+      "started": "2026-10-26T17:58:49.252Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        9,
+        9,
+        11
+      ],
+      "ratio": 19.895357656776593,
+      "box": {
+        "x": 16,
+        "y": 159,
+        "width": 358,
+        "height": 24
+      },
+      "finished": "2026-10-26T17:58:50.337Z"
+    },
+    {
+      "name": "official-buzon-title-pc",
+      "pass": true,
+      "status": "passed",
+      "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+      "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+    },
+    {
+      "name": "official-buzon-title-pixel7",
+      "pass": true,
+      "status": "passed",
+      "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+      "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+    }
+  ],
+  "ownerPid": 11736,
+  "phase": "passed",
+  "imageFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-658-final-NJUXsp\\public\\qa655-photo.png",
+  "pid": 15232,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-26T17:57:48.710Z",
+    "version": "cce8299c18237d9dd432120751d39d4154b7e58b · compilada 2026-10-26T17:36:45.082Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "officialTitle": {
+    "exit": 0,
+    "tests": [
+      {
+        "name": "official-buzon-title-pc",
+        "pass": true,
+        "status": "passed",
+        "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+        "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+      },
+      {
+        "name": "official-buzon-title-pixel7",
+        "pass": true,
+        "status": "passed",
+        "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+        "origin": "tests/e2e/buzon-titulo-legible.spec.ts UNMODIFIED"
+      }
+    ],
+    "network": "all external browser HTTP(S) redirected to closed local proxy9; QUIC disabled; Node egress guard; isolated JSON fixtures"
+  },
+  "diff": "",
+  "finished": "2026-10-26T17:59:01.729Z",
+  "counts": {
+    "total": 14,
+    "pass": 14,
+    "fail": 0
+  }
+}

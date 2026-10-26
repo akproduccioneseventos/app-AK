@@ -1,0 +1,18 @@
+{
+  "name": "671-record-pc",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "pass": true,
+  "export": {
+    "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\672-capturas\\671-record-pc.webm",
+    "bytes": 323847,
+    "mimeType": null,
+    "src": "blob:http://127.0.0.1:3300/f974a8b3-c55a-4496-93c0-a78b94ec3b99",
+    "width": 640,
+    "height": 480,
+    "duration": null,
+    "audioTracks": null
+  }
+}

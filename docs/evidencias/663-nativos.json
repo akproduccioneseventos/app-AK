@@ -1,0 +1,172 @@
+{
+  "source": "a3ecd008976aa4a7879490d6701928ba9f56f7fc",
+  "started": "2026-10-26T17:02:51.093Z",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "canonicalAccepted": false,
+  "canonicalPriorExit": 1,
+  "provider": "local JSON fixtures; browser codecs real; synthetic canvas/tone; no hardware",
+  "cases": [
+    {
+      "name": "655-upload-pc",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "pass": false,
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Subir Video/ })\u001b[22m\n\n    at captureCase (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\655-native-cases.mjs:73:63)\n    at async runCaptureCases (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\655-native-cases.mjs:100:44)\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/663-nativos.mjs:31:16"
+    },
+    {
+      "name": "655-record-pixel7",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\663-capturas\\655-record-pixel7.webm",
+        "bytes": 337999,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/7bd845e6-b083-40ee-8f5c-bad70b44cc05",
+        "width": 640,
+        "height": 480,
+        "duration": null,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 39360,
+        "rms": 1.000637886639964
+      }
+    },
+    {
+      "name": "655-upload-pixel7",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pass": false,
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Subir Video/ })\u001b[22m\n\n    at captureCase (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\655-native-cases.mjs:73:63)\n    at async runCaptureCases (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\655-native-cases.mjs:100:44)\n    at async file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/663-nativos.mjs:31:16"
+    },
+    {
+      "name": "655-record-pc",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "pass": true,
+      "export": {
+        "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\663-capturas\\655-record-pc.webm",
+        "bytes": 401637,
+        "mimeType": null,
+        "src": "blob:http://127.0.0.1:3300/5623bf1d-2af7-4937-b284-94b10f56d581",
+        "width": 640,
+        "height": 480,
+        "duration": null,
+        "audioTracks": null
+      },
+      "audio": {
+        "samples": 40320,
+        "rms": 1.0004686252655388
+      }
+    },
+    {
+      "name": "contrast-pc",
+      "pass": true,
+      "started": "2026-10-26T17:04:32.208Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        2,
+        6,
+        23
+      ],
+      "ratio": 20.172843484025293,
+      "box": {
+        "x": 304,
+        "y": 560,
+        "width": 672,
+        "height": 36
+      },
+      "finished": "2026-10-26T17:04:33.931Z"
+    },
+    {
+      "name": "empty-recorder-pc",
+      "pass": true,
+      "started": "2026-10-26T17:04:33.932Z",
+      "recoverable": true,
+      "falseSuccess": false,
+      "recorder": "controlled empty double",
+      "finished": "2026-10-26T17:04:39.420Z"
+    },
+    {
+      "name": "selfie-terminal-pc",
+      "pass": true,
+      "started": "2026-10-26T17:04:39.595Z",
+      "elapsed": 1854,
+      "imageRequests": [],
+      "synthetic": "uniform white canvas; no face/model quality certification",
+      "finished": "2026-10-26T17:04:42.601Z"
+    },
+    {
+      "name": "contrast-pixel7",
+      "pass": true,
+      "started": "2026-10-26T17:04:42.603Z",
+      "color": "rgb(255, 255, 255)",
+      "bg": [
+        2,
+        6,
+        23
+      ],
+      "ratio": 20.172843484025293,
+      "box": {
+        "x": 16,
+        "y": 695.5,
+        "width": 358,
+        "height": 64
+      },
+      "finished": "2026-10-26T17:04:44.575Z"
+    },
+    {
+      "name": "empty-recorder-pixel7",
+      "pass": true,
+      "started": "2026-10-26T17:04:44.576Z",
+      "recoverable": true,
+      "falseSuccess": false,
+      "recorder": "controlled empty double",
+      "finished": "2026-10-26T17:04:49.602Z"
+    },
+    {
+      "name": "selfie-terminal-pixel7",
+      "pass": true,
+      "started": "2026-10-26T17:04:49.603Z",
+      "elapsed": 1047,
+      "imageRequests": [],
+      "synthetic": "uniform white canvas; no face/model quality certification",
+      "finished": "2026-10-26T17:04:51.420Z"
+    }
+  ],
+  "ownerPid": 2932,
+  "phase": "native-failures",
+  "imageFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-658-final-NJUXsp\\public\\qa655-photo.png",
+  "pid": 15240,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-26T17:02:56.389Z",
+    "version": "a3ecd008976aa4a7879490d6701928ba9f56f7fc · compilada 2026-10-25T16:59:59.463Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "diff": "",
+  "finished": "2026-10-26T17:04:53.524Z",
+  "counts": {
+    "total": 10,
+    "pass": 8,
+    "fail": 2
+  }
+}

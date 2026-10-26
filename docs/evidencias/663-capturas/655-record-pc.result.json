@@ -1,0 +1,18 @@
+{
+  "name": "655-record-pc",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "pass": true,
+  "export": {
+    "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\663-capturas\\655-record-pc.webm",
+    "bytes": 401637,
+    "mimeType": null,
+    "src": "blob:http://127.0.0.1:3300/5623bf1d-2af7-4937-b284-94b10f56d581",
+    "width": 640,
+    "height": 480,
+    "duration": null,
+    "audioTracks": null
+  }
+}

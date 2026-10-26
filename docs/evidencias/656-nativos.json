@@ -1,0 +1,18 @@
+{
+  "source": "a3ecd008976aa4a7879490d6701928ba9f56f7fc",
+  "started": "2026-10-26T16:11:38.854Z",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "canonicalAccepted": false,
+  "canonicalPriorExit": 1,
+  "provider": "local JSON fixtures; browser codecs real; synthetic canvas/tone; no hardware",
+  "cases": [],
+  "error": "AssertionError [ERR_ASSERTION]: Insufficient browser memory\n    at file:///C:/Users/Usuario/Documents/Codex/ak-codex88/ak-reparacion653-20261025/docs/evidencias/656-nativos.mjs:17:2\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)",
+  "phase": "native-not-completed",
+  "diff": "data/blog-posts.json\ndata/crm-leads.json\ndata/customers.json\ndata/feedback.json\ndata/invoices/e2e-dynamic-invoice.json\ndata/marketing-checklist.json\ndata/notification-preferences.json\ndata/notifications.json\ndata/presupuestos.json\ndata/presupuestos/e2e-dynamic-presupuesto.json\ndata/repaso-matutino-cache.json\nsrc/data/accesos-personal.json\nsrc/data/activos-fijos.json\nsrc/data/ai-assistant-settings.json\nsrc/data/armado-rapido-config.json\nsrc/data/bebidas-template.json\nsrc/data/budget-display-settings.json\nsrc/data/carga-operativa-master-template.json\nsrc/data/carga-operativa-templates.json\nsrc/data/catalogo-fotos.json\nsrc/data/company-info.json\nsrc/data/copilot-config.json\nsrc/data/crm-leads.json\nsrc/data/crm-stages.json\nsrc/data/customers.json\nsrc/data/empleados.json\nsrc/data/feature-flags.json\nsrc/data/feedback.json\nsrc/data/fiestas-historicas.json\nsrc/data/galeria-publica.json\nsrc/data/gastos-generales.json\nsrc/data/historial-fiestas.json\nsrc/data/insumos.json\nsrc/data/invitacion-digital-templates.json\nsrc/data/invoice-template-settings.json\nsrc/data/itinerary-templates.json\nsrc/data/marketing-checklist.json\nsrc/data/meeting-checklist-template.json\nsrc/data/menus-catering.json\nsrc/data/notification-preferences.json\nsrc/data/notifications.json\nsrc/data/parte-manana-cache.json\nsrc/data/personal-recibos.json\nsrc/data/playbooks.json\nsrc/data/presupuestos.json\nsrc/data/proveedores.json\nsrc/data/repaso-matutino-cache.json\nsrc/data/reposteria-template.json\nsrc/data/roles.json\nsrc/data/salon-layout-templates.json\nsrc/data/servicios-empresa.json\nsrc/data/social-chat/fiesta_1759360164471.json\nsrc/data/social-chat/fiesta_1761518911463_a2c0rmc.json\nsrc/data/social-gallery/metadata.json\nsrc/data/social-history-recovered/2019.json\nsrc/data/social-history-recovered/2020.json\nsrc/data/social-history-recovered/2021.json\nsrc/data/social-history-recovered/2022.json\nsrc/data/social-history-recovered/2023.json\nsrc/data/social-history-recovered/2024.json\nsrc/data/social-history-recovered/2025.json\nsrc/data/social-history-recovered/2026.json\nsrc/data/social-history-recovered/audit-recent-2024-2026.json\nsrc/data/social-history-recovered/coverage.json\nsrc/data/social-history-recovered/undated.json\nsrc/data/social-posts.json\nsrc/data/task-templates.json\nsrc/data/testimonials.json\nsrc/data/whatsapp-config.json\nsrc/data/whatsapp-conversations.json\nsrc/data/whatsapp-settings.json",
+  "finished": "2026-10-26T16:11:39.269Z",
+  "counts": {
+    "total": 0,
+    "pass": 0,
+    "fail": 0
+  }
+}

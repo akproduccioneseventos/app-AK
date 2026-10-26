@@ -1,0 +1,31 @@
+{
+  "source": "acc1cb968f06f705d11457c8fed0e2f01464d712",
+  "runtimeSource": "a3ecd008976aa4a7879490d6701928ba9f56f7fc",
+  "runtimeEquivalence": "only portal-entregas-y-agentes-86.test.ts changed; verified below",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "mode": "probe",
+  "started": "2026-10-26T16:28:48.913Z",
+  "phase": "passed",
+  "environment": {
+    "localJson": "unset",
+    "localWrites": "unset",
+    "providerKeys": "absent",
+    "emulator": "unset (no emulator process launched)",
+    "projects": "unset",
+    "network": "323 socket guard blocks every external socket; per-suite mocks retained",
+    "workers": "one recycled at512MB, original canonical protocol491"
+  },
+  "buildReceipt": "660 buildExit0; canonical660 not accepted",
+  "suitesRequested": 7,
+  "pid": 10392,
+  "exit": 0,
+  "counts": {
+    "suites": 7,
+    "total": 47,
+    "pass": 47,
+    "fail": 0,
+    "pending": 0
+  },
+  "diff": "",
+  "finished": "2026-10-26T16:29:43.775Z"
+}

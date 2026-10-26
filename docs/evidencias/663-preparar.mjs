@@ -1,0 +1,2 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+const folder=new URL('./',import.meta.url);let c=fs.readFileSync(new URL('656-nativos.mjs',folder),'utf8');const hashes=c.match(/\b[a-f0-9]{40}\b/g);c=c.replaceAll('656','663');assert.deepEqual(c.match(/\b[a-f0-9]{40}\b/g),hashes);const target=new URL('663-nativos.mjs',folder);assert(!fs.existsSync(target));fs.writeFileSync(target,c);

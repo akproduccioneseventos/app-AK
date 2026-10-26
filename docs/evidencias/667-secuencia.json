@@ -1,0 +1,23 @@
+{
+  "started": "2026-10-26T16:56:56.885Z",
+  "ownerPid": 16212,
+  "phase": "finished-review-results",
+  "appEdits": false,
+  "canonicalExit": 0,
+  "canonicalCounts": {
+    "suites": 869,
+    "total": 5278,
+    "pass": 5278,
+    "fail": 0,
+    "pending": 0
+  },
+  "childPid": 2932,
+  "nativeExit": 0,
+  "nativePhase": "native-failures",
+  "nativeCounts": {
+    "total": 10,
+    "pass": 8,
+    "fail": 2
+  },
+  "finished": "2026-10-26T17:05:01.853Z"
+}

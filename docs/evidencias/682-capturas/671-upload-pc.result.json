@@ -1,0 +1,18 @@
+{
+  "name": "671-upload-pc",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "pass": true,
+  "export": {
+    "blobPath": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-reparacion653-20261025\\docs\\evidencias\\682-capturas\\671-upload-pc.webm",
+    "bytes": 87506,
+    "mimeType": null,
+    "src": "blob:http://127.0.0.1:3300/22dd33f7-5f2c-4c62-b97a-283abfe5aabf",
+    "width": 640,
+    "height": 480,
+    "duration": 1.803,
+    "audioTracks": null
+  }
+}

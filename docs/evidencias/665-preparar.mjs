@@ -1,0 +1,10 @@
+import fs from'node:fs';import assert from'node:assert/strict';
+const dir=new URL('./',import.meta.url);let c=fs.readFileSync(new URL('664-jest-aislado.mjs',dir),'utf8');
+c=c.replaceAll("'664-'","'665-'").replaceAll('.qa664-home','.qa665-home');
+const envStart=c.indexOf('const env='),envEnd=c.indexOf('\nconst record=',envStart);assert(envStart>=0&&envEnd>envStart);
+c=c.slice(0,envStart)+`const env={...safe,NODE_ENV:'test',CI:'true',HOME:home,USERPROFILE:home,APPDATA:home,XDG_CONFIG_HOME:home,GOOGLE_APPLICATION_CREDENTIALS:'',NODE_OPTIONS:'--max-old-space-size=1536 --require "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/323-egress-unit-canonico.cjs"'};`+c.slice(envEnd);
+c=c.replace("['failed','canonical']","['probe','canonical']").replace("mode==='failed'?JSON.parse(fs.readFileSync(path.join(dir,'660-jest-resultados.json'),'utf8')).testResults.filter(t=>t.status!=='passed').map(t=>t.name):[]",`mode==='probe'?['la-invitacion-no-abierta-se-recuerda-sola.test.ts','la-llegada-con-ubicacion-mide-bien.test.ts','la-voz-de-gemini-tts.test.ts','frontera-general-de-fiestas.test.ts','concurrencia-tareas-automaticas.test.ts','agentes-autonomos.test.ts','portal-entregas-y-agentes-86.test.ts'].map(n=>path.join(qa,'src/__tests__',n)):[]`);
+c=c.replace("'--max-old-space-size=1024',",'').replace("'--runInBand','--no-cache'","'--maxWorkers=1','--workerIdleMemoryLimit=512MB','--no-cache'");
+c=c.replace("network:'external blocked; demo emulator endpoint only'","emulator:'unset (no emulator process launched)',projects:'unset',network:'323 socket guard blocks every external socket; per-suite mocks retained',workers:'one recycled at512MB, original canonical protocol491'");
+assert(!c.includes('FIRESTORE_EMULATOR_HOST:'));assert(!c.includes('--runInBand'));assert(c.includes('--workerIdleMemoryLimit=512MB'));
+const out=new URL('665-jest-aislado.mjs',dir);assert(!fs.existsSync(out));fs.writeFileSync(out,c);

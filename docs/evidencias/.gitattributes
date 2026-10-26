@@ -1,0 +1,6 @@
+# Preserve exact bytes of this audit batch and its SHA256 evidence manifests.
+65[3-9]-* -text
+66[0-9]-* -text
+67[0-9]-* -text
+68[0-9]-* -text
+6[5-8][0-9]-capturas/** -text

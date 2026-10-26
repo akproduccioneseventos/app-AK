@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');
+const label=process.argv[2],tests=process.argv.slice(3);assert.match(label,/^[a-z0-9-]+$/);assert(tests.length);
+const output=path.join(dir,'653-'+label+'.json');assert(!fs.existsSync(output));
+const safe=Object.fromEntries(['PATH','TEMP','TMP','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','LOCALAPPDATA'].filter(k=>process.env[k]!==undefined).map(k=>[k,process.env[k]]));
+const home=path.join(root,'.qa653-home');fs.mkdirSync(home,{recursive:true});
+const env={...safe,NODE_ENV:'test',CI:'true',HOME:home,USERPROFILE:home,APPDATA:home,GOOGLE_APPLICATION_CREDENTIALS:'',GCLOUD_PROJECT:'demo-ak-producciones',GOOGLE_CLOUD_PROJECT:'demo-ak-producciones',AK_USE_LOCAL_JSON_ONLY:'true',AK_SESSION_SECRET:'qa653-fictitious-session-secret-not-real-account-key'};
+const r=spawnSync(process.execPath,[path.join(root,'node_modules/jest/bin/jest.js'),'--runInBand','--no-cache','--json','--outputFile',output,'--runTestsByPath',...tests],{cwd:root,env,encoding:'utf8',windowsHide:true,maxBuffer:8*1024*1024});
+fs.writeFileSync(path.join(dir,'653-'+label+'.log'),(r.stdout||'')+(r.stderr||''));
+console.log(JSON.stringify({label,status:r.status,error:r.error?.message,output}));process.exitCode=r.status??2;

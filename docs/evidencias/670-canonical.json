@@ -1,0 +1,31 @@
+{
+  "source": "cce8299c18237d9dd432120751d39d4154b7e58b",
+  "runtimeSource": "cce8299c18237d9dd432120751d39d4154b7e58b",
+  "runtimeEquivalence": "exact frozen source; no runtime equivalence substitution",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-658-final-NJUXsp",
+  "mode": "canonical",
+  "started": "2026-10-26T17:46:32.218Z",
+  "phase": "passed",
+  "environment": {
+    "localJson": "unset",
+    "localWrites": "unset",
+    "providerKeys": "absent",
+    "emulator": "unset (no emulator process launched)",
+    "projects": "unset",
+    "network": "323 socket guard blocks every external socket; per-suite mocks retained",
+    "workers": "one recycled at512MB, original canonical protocol491"
+  },
+  "buildReceipt": "669 buildExit0; exact source match",
+  "suitesRequested": "canonical",
+  "pid": 13436,
+  "exit": 0,
+  "counts": {
+    "suites": 869,
+    "total": 5278,
+    "pass": 5278,
+    "fail": 0,
+    "pending": 0
+  },
+  "diff": "",
+  "finished": "2026-10-26T17:57:41.469Z"
+}
