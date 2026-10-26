@@ -1,0 +1,258 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "568-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\568-batch-008-artifacts",
+      "ak207-la-web-de-venta-no-se-rompe.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\568-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 6000000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/568-batch-008-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/568-batch-008-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\568-batch-008-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "file": "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "las pantallas de venta se abren solas sin romperse por dentro",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 247539,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "message": "Error: browserContext._wrapApiCall: Tracing is already stopping"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-la-web-de-venta-no-se-rompe.spec.ts",
+                        "column": 5,
+                        "line": 98
+                      },
+                      "message": "Error: browserContext.close: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1228\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1 --use-angle=swiftshader --enable-unsafe-swiftshader --user-data-dir=C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-567-sdk-hxWhcS\\tmp\\playwright_chromiumdev_profile-erAxvL --remote-debugging-pipe --no-startup-window\n<launched> pid=13600\n[pid=13600][err] [1025/041634.093:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=13600][err] [1025/041642.819:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=13600][err] [1025/041859.590:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.593:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.594:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.595:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.596:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.598:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.600:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.602:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.604:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.606:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.608:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.610:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.611:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.613:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.615:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041859.617:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/041925.714:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=13600][err] [1025/041932.434:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=13600] <gracefully close start>\n[pid=13600][err] [1025/042043.885:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/042043.885:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/042043.885:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/042043.901:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/042043.901:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/042043.901:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n[pid=13600][err] [1025/042043.901:ERROR:gpu\\command_buffer\\service\\shared_image\\shared_image_manager.cc:253] SharedImageManager::ProduceSkia: Trying to Produce a Skia representation from a non-existent mailbox.\n\n   96 |     if (errores.length > 0) rotas.push(`${ruta}: ${errores[0].slice(0, 120)}`);\n   97 |\n>  98 |     await context.close();\n      |     ^\n   99 |   }\n  100 |\n  101 |   expect(rotas.join('\\n'), rotas.join('\\n')).toBe('');\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-la-web-de-venta-no-se-rompe.spec.ts:98:5"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "[BROWSER CONSOLE /blog] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /blog] info: Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /blog] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[PAGE TEXT /blog] Length: 2938, Preview: AK PRODUCCIONES\nINICIO\nBLOG\nSIMULADOR\n¡CONSULTANOS!\nBLOG AK PRODUCCIONES\nConsejo\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing] info: Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[PAGE TEXT /landing] Length: 11326, Preview: AK Producciones\nINICIO\nSERVICIOS\nGALERÍA HD\nSIMULADOR\nBLOG\nPREGUNTAS FRECUENTES\n\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /presentacion] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[PAGE TEXT /presentacion] Length: 425, Preview: Portada\n\n🏛️ Salón Club Uruguay\nDemo Comercial\nMODO PANTALLA GIGANTE\nAK Producci\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /public/blog] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /public/blog] info: Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /public/blog] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[PAGE TEXT /public/blog] Length: 2938, Preview: AK PRODUCCIONES\nINICIO\nBLOG\nSIMULADOR\n¡CONSULTANOS!\nBLOG AK PRODUCCIONES\nConsejo\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing/xv-anos] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing/xv-anos] info: Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing/xv-anos] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[PAGE TEXT /landing/xv-anos] Length: 3875, Preview: AK Producciones\nINICIO\nSERVICIOS\nGALERÍA HD\nSIMULADOR\nBLOG\nPREGUNTAS FRECUENTES\n\n"
+                    }
+                  ],
+                  "stderr": [
+                    {
+                      "text": "(node:2180) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T07:16:32.418Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa566-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\568-batch-008-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\568-batch-008-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\test-failed-3.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\568-batch-008-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\test-failed-4.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\568-batch-008-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\568-batch-008-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "89c54b14b054937b08c0-ba0f6adc39249c9c907c",
+          "file": "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+          "line": 65,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T07:16:30.000Z",
+    "duration": 263019.692,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

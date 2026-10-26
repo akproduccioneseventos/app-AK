@@ -31,9 +31,13 @@ Codex sólo audita.
 - Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
 
 ## Errores de plata y permisos abiertos en la app publicada
-- Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
+- 26/10: el rol viejo `admin` pasa por encima del perfil (orden 230 en la 1353, y orden 233 para once lugares más, entre ellos el borrado de la base).
+- 26/10: el PIN de operaciones del cliente viaja a las pantallas públicas de la fiesta; arreglado en la 1353 (`recortar-para-afuera`), falta publicar.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1361 (`e0ffd2395`): juntado. Órdenes 229-231 en la rama; preguntas 98 y 99; orden 233 urgente (rol viejo `admin`).
+- Gemini 1353 (`2b17bebfd`) + Codex 1363 (`a3ecd0089`): plata y permisos bien (orden 228 cumplida; además tapa que el PIN del cliente viajaba a pantallas públicas). Devuelta con la orden 232: una prueba con perfil inexistente, dos pantallas sin prueba, un componente sin usar y 14 pruebas de navegador en rojo.
+- Codex 1361 (`e0ffd2395`, cierre 650): escribió las órdenes 229-231; 230 y 228 ya entraron en la entrega de Gemini.
 - Gemini 1353 (`ff4750107`): trae la orden 214 y las formas que mienten, pero no trajo la rama de Claude ni hizo la orden 228 (el PIN del cliente sigue vacío). Sigue devuelta.
 - Gemini 1353 (`d2f49f09f`, órdenes 226-227): devuelta con la orden 228 — sacaba `clientPortalSettings` al cliente (PIN vacío cancelaba la fiesta), acción nueva sin sesión, prueba vieja de la 224 y tres de navegador en rojo.
 - Codex 1361 (`fcad4e36e`, 362-443): juntado. Sobre la 917: 225 y 217 cerradas; siguen el fondo claro (otra regla) y la factura que dice "no existe" si falla la lectura → orden 227 (barrido: 10 pantallas). 214 sin cambios.

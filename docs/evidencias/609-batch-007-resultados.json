@@ -1,0 +1,179 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "609-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-007-artifacts",
+      "ak207-las-estaciones-respetan-los-ajustes.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\609-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 2700000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-007-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-007-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-007-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 600000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 46916,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:2672) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T12:56:25.592Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                    },
+                    {
+                      "name": "qa608-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    },
+                    {
+                      "name": "qa604-observations",
+                      "contentType": "application/json",
+                      "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODM/YWNjZXNzPWV5SjJaWEp6YVc5dUlqb2laVzUwTFhZeUlpd2labWxsYzNSaFNXUWlPaUpsTW1WZllXcDFjM1JsYzE4eE56a3lPVE15T1RnMU5UZ3pJaXdpYlc5a2RXeGxTV1FpT2lKaWIyZDFaU0lzSW5OamIzQmxJam9pWjNWbGMzUWlMQ0psZUhCcGNtVnpRWFFpT2pFM09USTVPVGMzT0RjNE5Ea3NJbTV2Ym1ObElqb2lNV1UyTVRnM016QXRNV0V6TkMwME1UYzJMV0V6WkdZdE1XWTVORFV4WmpZeFlqWXpJbjAuOThnYXNxNnhrN0g4R1dpMDR1YzViMnhDNzVQZ1F5T2xnUWZuTGNWenR0ayIsImV2ZW50cyI6W3sia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJtdWx0aXBhcnQvZm9ybS1kYXRhOyBib3VuZGFyeT0tLS0tV2ViS2l0Rm9ybUJvdW5kYXJ5N1RhSWhCdFBvNEFCWGpmYSJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoibXVsdGlwYXJ0L2Zvcm0tZGF0YTsgYm91bmRhcnk9LS0tLVdlYktpdEZvcm1Cb3VuZGFyeU9KdGt1aFBsbVZqVGpxaFUifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9ib2d1ZS9lMmVfYWp1c3Rlc18xNzkyOTMyOTg1NTgzIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2JvZ3VlL2UyZV9hanVzdGVzXzE3OTI5MzI5ODU1ODMiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vYm9ndWUvZTJlX2FqdXN0ZXNfMTc5MjkzMjk4NTU4MyIsInN0YXR1cyI6MjAwfV0sImJvZHkiOiJWT0dVRSBCT09NRVJBTkdcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuwqFUdSByZWN1ZXJkbyBxdWVkw7MgbGlzdG8hXG5JbXByaW1pciBSZWN1ZXJkb1xuUXVpZXJvIGVsIEdJRiBhbmltYWRvXG5MT09QIExJU1RPXG5NQVJDQS1ERS1QUlVFQkEtWFlaXG5cblRFWFRPLURFTC1RUi1YWVpcblxuR3JhYmFyIG90cmEgdmV6XG5BSyBQcm9kdWNjaW9uZXNcbkVzY3JpYmlub3MgcG9yIFdoYXRzQXBwIiwibWVkaWEiOnsicmVjb3JkZXJzIjpbeyJtaW1lIjoidmlkZW8vd2VibTtjb2RlY3M9dnA5IiwidHJhY2tzIjpbeyJraW5kIjoidmlkZW8iLCJzdGF0ZSI6ImxpdmUifV0sImV2ZW50cyI6W3sibmFtZSI6InN0YXJ0In0seyJuYW1lIjoiZGF0YWF2YWlsYWJsZSIsImJ5dGVzIjoxNjI5OH0seyJuYW1lIjoic3RvcCJ9XX1dLCJ2aWRlb3MiOlt7InJlYWR5Ijo0LCJ3aWR0aCI6NzIwLCJoZWlnaHQiOjEyODAsInBhdXNlZCI6ZmFsc2UsInNyYyI6ImJsb2IifV19fQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a7966f971fee9df7579a-71e92c48548e00c330a7",
+          "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+          "line": 151,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T12:56:23.376Z",
+    "duration": 51540.384999999995,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

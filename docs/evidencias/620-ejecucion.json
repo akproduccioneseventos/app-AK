@@ -1,0 +1,100 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d",
+  "started": "2026-10-25T13:01:14.933Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-25T07:51:09.994Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+    "entertainment-stations.spec.ts"
+  ],
+  "batchSize": 1,
+  "copiedTests": 2,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "copy": "tests/e2e/ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "originalSha256": "16eb2ef970db5781eee4b39e56a20cc1b5cb695dc2aa136d6c059ccaec5325fe",
+      "instrumentedSha256": "0d0e33e1e3d6c0e99168fb8952978b4730e154dd514941ba141ff34d1cf42166"
+    },
+    {
+      "original": "tests/e2e/entertainment-stations.spec.ts",
+      "copy": "tests/e2e/ak207-entertainment-stations.spec.ts",
+      "originalSha256": "e94e90cd868c2adeef6e6fe0c24b686c639ff7fb315ae7486ad484a9aa26aca2",
+      "instrumentedSha256": "57dbe24536576880687897a6eb4f15f6c66a368e4b0a905ca8e8ce21257f1420"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 5272,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-25T13:01:30.524Z",
+    "version": "f8f7cf34e8778de784b20e2654058fd722b2a2ec · compilada 2026-10-25T07:39:46.852Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 10
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T13:05:40.987Z",
+      "report": "620-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T13:01:31.571Z",
+        "duration": 249356.955,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-entertainment-stations.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T13:07:21.769Z",
+      "report": "620-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T13:05:42.543Z",
+        "duration": 99129.348,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 1,
+  "currentBatch": 2,
+  "totalBatches": 2,
+  "testPid": 15592,
+  "stats": {
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 93,
+  "sourceDiff": "",
+  "finished": "2026-10-25T13:07:23.807Z"
+}

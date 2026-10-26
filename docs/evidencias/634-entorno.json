@@ -1,0 +1,28 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-634-sdk-J4siLj",
+  "temp": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-634-sdk-J4siLj\\tmp",
+  "started": "2026-10-25T13:16:59.825Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "freeBytesAtStart": 4371992576,
+  "firestorePid": 10072,
+  "storagePid": 12604,
+  "runnerPid": 8820,
+  "nativeExit": 1,
+  "cleanupStatus": 200,
+  "stoppedOwnPids": [
+    {
+      "pid": 12604,
+      "exit": 0
+    },
+    {
+      "pid": 10072,
+      "exit": 0
+    }
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-25T13:17:53.210Z"
+}

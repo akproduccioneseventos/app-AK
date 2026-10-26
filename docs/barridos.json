@@ -381,6 +381,14 @@
       "fecha": "2026-10-23",
       "resultado": "barrida por el candado de la plata en todas las acciones del servidor: en la rama de Claude, ninguna acción llama a un ayudante de plata sin pedir permiso; en la entrega 1353 de Gemini frena updateGestionCostosInterno (devuelta en la orden 220)."
     },
+    "98": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida en src/app y src/lib sobre la 1353+Codex: once controles de permiso comparan role con 'admin' (ai-consumo, blog-ai, marketing-automation x3, api/marketing/automation, api/admin/clean-db, auth.ts 741, carga-operativa, motor-agentes x2). Orden 233 urgente para Gemini. Quedan afuera el ingreso (auth.ts 455-486) y perfiles.ts."
+    },
+    "99": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida por Codex en la 1353 (orden 229): video con marco sin audio y captura vacía presentada como lista; arreglado en la propuesta 1363 (recorded-video.ts, video-frame-processor.ts) con sus pruebas. Pendiente que Gemini lo junte en la 1353 (orden 232)."
+    },
     "97": {
       "fecha": "2026-10-24",
       "resultado": "barrida en src (sin pruebas) en la rama de Claude y en la entrega 1353: la única función que clasifica un error leyendo números de estado en el texto es esRechazoConocido del recordatorio a invitados. Orden 225 para Gemini. Las demás expresiones sobre mensajes son de intención del asistente, no de errores."
@@ -474,6 +482,30 @@
     "orden-223": {
       "fecha": "2026-10-24",
       "resultado": "Codex 341 (barra lista). Barrido de la pregunta 52 en toda src/app: la regla main.flex-1 pinta de claro cinco pantallas oscuras fuera del panel (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz y prueba en la orden 223 para Gemini."
+    },
+    "orden-228": {
+      "fecha": "2026-10-26",
+      "resultado": "La 1353 sacaba clientPortalSettings al cliente y el PIN quedaba vacío. Barrido de la pregunta 89: los lectores que comparan contra clientPortalSettings (cancelación y cambio de fecha en portal.actions) dependen de recortarFiestaParaAfuera; corregido en la entrega 2b17bebfd."
+    },
+    "orden-229": {
+      "fecha": "2026-10-26",
+      "resultado": "Codex 620 (captura vacía y audio perdido). Barrido de la pregunta 99: buzón y video con marco; arreglos en la propuesta 1363."
+    },
+    "orden-230": {
+      "fecha": "2026-10-26",
+      "resultado": "Codex 499/506 (perfil explícito ignorado). Barrido de la pregunta 98: once lugares más con role === 'admin'; orden 233."
+    },
+    "orden-231": {
+      "fecha": "2026-10-26",
+      "resultado": "Codex 231 (contraste del selector del simulador). Barrido de la pregunta 96 ya hecho para la orden 227; Gemini lo arregló en 2b17bebfd."
+    },
+    "orden-233": {
+      "fecha": "2026-10-26",
+      "resultado": "Barrido de la pregunta 98 sobre la rama de Claude y la 1353: los once lugares listados en la orden 233."
+    },
+    "orden-232": {
+      "fecha": "2026-10-26",
+      "resultado": "Devolución de la 1353 + Codex 1363: pruebas con perfil inexistente, pantallas tocadas sin prueba y pruebas de navegador en rojo. Barrido: las pantallas tocadas buscadas en tests/e2e; las dos sin prueba van en la orden 232."
     },
     "orden-227": {
       "fecha": "2026-10-24",

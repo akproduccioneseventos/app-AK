@@ -1,0 +1,58 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "created": "2026-10-25T06:48:07.251Z",
+  "sourceReceipt": "520-batch-002-resultados.json",
+  "sha256": "ba465f8b85ac9421e43ee2b2579984b38a6ea3455cb694814582815a8e5a5dd7",
+  "rows": [
+    {
+      "project": "chromium-desktop",
+      "view": "screen",
+      "parts": [
+        8,
+        8,
+        2027
+      ],
+      "observedText": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+      "pass": true,
+      "originalTestStatus": "failed"
+    },
+    {
+      "project": "chromium-desktop",
+      "view": "printed",
+      "parts": [
+        8,
+        8,
+        2027
+      ],
+      "observedText": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+      "pass": true,
+      "originalTestStatus": "failed"
+    },
+    {
+      "project": "chromium-mobile",
+      "view": "screen",
+      "parts": [
+        8,
+        8,
+        2027
+      ],
+      "observedText": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+      "pass": true,
+      "originalTestStatus": "passed"
+    },
+    {
+      "project": "chromium-mobile",
+      "view": "printed",
+      "parts": [
+        8,
+        8,
+        2027
+      ],
+      "observedText": "HOJA DE COCINA\n\nFecha cocina QA143\n\n8/8/2027 · 160 adultos y 0 chicos — 160 personas · 121 confirmaron",
+      "pass": true,
+      "originalTestStatus": "passed"
+    }
+  ],
+  "gate": "PASS_DATE_TEXT_ONLY",
+  "limits": "Checks already-observed DOM/print-media date data, no new browser execution. Original PC test remains FAIL due5s screenshot stability timeout; it is NOT rewritten to PASS. No PDF/layout/entire catering acceptance."
+}

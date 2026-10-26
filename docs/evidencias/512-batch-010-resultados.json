@@ -1,0 +1,370 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "512-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts",
+      "ak207-81-cola-aislamiento-y-reintento.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\512-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 14400000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-010-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-010-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+      "file": "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 81 — Cola de subida, aislamiento y reintentos",
+          "file": "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+          "line": 85,
+          "column": 6,
+          "specs": [
+            {
+              "title": "las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 177574,
+                      "error": {
+                        "message": "Error: QA495 fixture bridge: ",
+                        "stack": "Error: QA495 fixture bridge: \n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at leerFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:106:67)\n    at _test.expect.poll.timeout (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-cola-aislamiento-y-reintento.spec.ts:150:38)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-cola-aislamiento-y-reintento.spec.ts:149:5",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                          "column": 524,
+                          "line": 2
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\fiesta-de-prueba.ts:2\n\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {spawnSync \u001b[36mas\u001b[39m __qa495Spawn} \u001b[36mfrom\u001b[39m \u001b[32m'node:child_process'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mfunction\u001b[39m __qa495(op\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mid\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mvalue\u001b[33m?\u001b[39m\u001b[33m:\u001b[39munknown){\u001b[36mif\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mFIRESTORE_EMULATOR_HOST\u001b[39m\u001b[33m!==\u001b[39m\u001b[32m'127.0.0.1:8085'\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 emulator only'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m r\u001b[33m=\u001b[39m__qa495Spawn(process\u001b[33m.\u001b[39mexecPath\u001b[33m,\u001b[39m[process\u001b[33m.\u001b[39mcwd()\u001b[33m+\u001b[39m\u001b[32m'/.qa495-fiesta-bridge.cjs'\u001b[39m\u001b[33m,\u001b[39mop\u001b[33m,\u001b[39mid]\u001b[33m,\u001b[39m{cwd\u001b[33m:\u001b[39mprocess\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39menv\u001b[33m:\u001b[39m{\u001b[33m...\u001b[39mprocess\u001b[33m.\u001b[39menv\u001b[33m,\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m:\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m||\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m.\u001b[39mreplace(\u001b[35m/--max-old-space-size=\\d+/g\u001b[39m\u001b[33m,\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m+\u001b[39m\u001b[32m' --max-old-space-size=256'\u001b[39m}\u001b[33m,\u001b[39minput\u001b[33m:\u001b[39mvalue\u001b[33m===\u001b[39mundefined\u001b[33m?\u001b[39mundefined\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(value)\u001b[33m,\u001b[39mencoding\u001b[33m:\u001b[39m\u001b[32m'utf8'\u001b[39m\u001b[33m,\u001b[39mtimeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m\u001b[33m,\u001b[39mmaxBuffer\u001b[33m:\u001b[39m\u001b[35m16\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(r\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m0\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 fixture bridge: '\u001b[39m\u001b[33m+\u001b[39mr\u001b[33m.\u001b[39mstderr)\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(r\u001b[33m.\u001b[39mstdout\u001b[33m||\u001b[39m\u001b[32m'null'\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m   |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m \u001b[36mimport\u001b[39m crypto \u001b[36mfrom\u001b[39m \u001b[32m'node:crypto'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mimport\u001b[39m fs \u001b[36mfrom\u001b[39m \u001b[32m'node:fs'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m \u001b[36mimport\u001b[39m path \u001b[36mfrom\u001b[39m \u001b[32m'node:path'\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                            "column": 524,
+                            "line": 2
+                          },
+                          "message": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at leerFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:106:67)\n    at _test.expect.poll.timeout (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-cola-aislamiento-y-reintento.spec.ts:150:38)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-cola-aislamiento-y-reintento.spec.ts:149:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:5184) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T02:32:37.938Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 524,
+                        "line": 2
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c012610b40c5c281f9b5-a41c70fab74877220073",
+              "file": "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+              "line": 86,
+              "column": 7
+            },
+            {
+              "title": "las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 208308,
+                      "error": {
+                        "message": "Error: QA495 fixture bridge: ",
+                        "stack": "Error: QA495 fixture bridge: \n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at leerFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:106:67)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-cola-aislamiento-y-reintento.spec.ts:155:30",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                          "column": 524,
+                          "line": 2
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\fiesta-de-prueba.ts:2\n\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {spawnSync \u001b[36mas\u001b[39m __qa495Spawn} \u001b[36mfrom\u001b[39m \u001b[32m'node:child_process'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mfunction\u001b[39m __qa495(op\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mid\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mvalue\u001b[33m?\u001b[39m\u001b[33m:\u001b[39munknown){\u001b[36mif\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mFIRESTORE_EMULATOR_HOST\u001b[39m\u001b[33m!==\u001b[39m\u001b[32m'127.0.0.1:8085'\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 emulator only'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m r\u001b[33m=\u001b[39m__qa495Spawn(process\u001b[33m.\u001b[39mexecPath\u001b[33m,\u001b[39m[process\u001b[33m.\u001b[39mcwd()\u001b[33m+\u001b[39m\u001b[32m'/.qa495-fiesta-bridge.cjs'\u001b[39m\u001b[33m,\u001b[39mop\u001b[33m,\u001b[39mid]\u001b[33m,\u001b[39m{cwd\u001b[33m:\u001b[39mprocess\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39menv\u001b[33m:\u001b[39m{\u001b[33m...\u001b[39mprocess\u001b[33m.\u001b[39menv\u001b[33m,\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m:\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m||\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m.\u001b[39mreplace(\u001b[35m/--max-old-space-size=\\d+/g\u001b[39m\u001b[33m,\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m+\u001b[39m\u001b[32m' --max-old-space-size=256'\u001b[39m}\u001b[33m,\u001b[39minput\u001b[33m:\u001b[39mvalue\u001b[33m===\u001b[39mundefined\u001b[33m?\u001b[39mundefined\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(value)\u001b[33m,\u001b[39mencoding\u001b[33m:\u001b[39m\u001b[32m'utf8'\u001b[39m\u001b[33m,\u001b[39mtimeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m\u001b[33m,\u001b[39mmaxBuffer\u001b[33m:\u001b[39m\u001b[35m16\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(r\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m0\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 fixture bridge: '\u001b[39m\u001b[33m+\u001b[39mr\u001b[33m.\u001b[39mstderr)\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(r\u001b[33m.\u001b[39mstdout\u001b[33m||\u001b[39m\u001b[32m'null'\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m   |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m \u001b[36mimport\u001b[39m crypto \u001b[36mfrom\u001b[39m \u001b[32m'node:crypto'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mimport\u001b[39m fs \u001b[36mfrom\u001b[39m \u001b[32m'node:fs'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m \u001b[36mimport\u001b[39m path \u001b[36mfrom\u001b[39m \u001b[32m'node:path'\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                            "column": 524,
+                            "line": 2
+                          },
+                          "message": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at leerFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:106:67)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-cola-aislamiento-y-reintento.spec.ts:155:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:9416) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T02:35:51.182Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\test-failed-1.png"
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 524,
+                        "line": 2
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c012610b40c5c281f9b5-a6e924129c55bb834cb5",
+              "file": "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+              "line": 86,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T02:32:30.161Z",
+    "duration": 420445.061,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

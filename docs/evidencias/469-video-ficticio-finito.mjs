@@ -1,0 +1,8 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import crypto from 'node:crypto';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
+const dir=fileURLToPath(new URL('./',import.meta.url)),target=path.join(dir,'469-video-ficticio.mp4');assert(!fs.existsSync(target));
+const executable='C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools/codex-media/imageio_ffmpeg/binaries/ffmpeg-win-x86_64-v7.1.exe';
+const args=['-hide_banner','-loglevel','error','-f','lavfi','-i','color=c=0x1e3a5f:s=320x240:r=20','-f','lavfi','-i','anullsrc=r=48000:cl=mono','-t','1.5','-c:v','libx264','-pix_fmt','yuv420p','-c:a','aac','-movflags','+faststart','-shortest',target];
+const r=spawnSync(executable,args,{encoding:'utf8',timeout:30000});assert.equal(r.status,0,r.stderr);const bytes=fs.readFileSync(target);assert(bytes.length>0);
+const probe=spawnSync(executable,['-hide_banner','-i',target],{encoding:'utf8',timeout:10000});assert(probe.stderr.includes('Duration: 00:00:01.50'));
+fs.writeFileSync(path.join(dir,'469-video-ficticio.json'),JSON.stringify({source:'Synthetic QA fixture, not app/real people',tool:'imageio-ffmpeg0.6.0 isolated outside repository dependencies; bundledffmpeg7.1',executable,args,bytes:bytes.length,sha256:crypto.createHash('sha256').update(bytes).digest('hex'),metadata:probe.stderr,scope:'Finite duration1.5s H264/AAC MP4, solid blue and synthetic silent audio. No green pixels: floral green assertion still depends on application overlay.'},null,2)+'\n');
+console.log(JSON.stringify({bytes:bytes.length,finiteDuration:1.5}));

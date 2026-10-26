@@ -1,0 +1,16 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "created": "2026-10-25T06:19:35.575Z",
+  "reason": "Storage CLI crashed on shared global TEMP/firebase/storage/blobs ENOENT at06:05:16UTC; native child remained alive after supervisor killed emulator. Do NOT accept recovery542 as a stable run.",
+  "ownedStopped": [
+    {
+      "ProcessId": 11136,
+      "ParentProcessId": 10152,
+      "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\"  --max-old-space-size=512 \"C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\539-recorridos-sdk.mjs\""
+    }
+  ],
+  "foreignProcessesStopped": false,
+  "originalsRestored": 79,
+  "sourceDiff": "",
+  "scope": "Only owned orphan539 tree and own QA fixtures restored. Raw542 preserved, not rewritten to finished/PASS. Next attempt must isolate TEMP/TMP, hub/logging and storage blobs."
+}

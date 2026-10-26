@@ -1,0 +1,282 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "stats": {
+    "expected": 15,
+    "skipped": 0,
+    "unexpected": 16,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:01:05.427Z",
+      "report": "568-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T06:58:19.585Z",
+        "duration": 165812.597,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:04:13.161Z",
+      "report": "568-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:01:06.440Z",
+        "duration": 186686.076,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-barra-listo-contraste.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T07:05:37.411Z",
+      "report": "568-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:04:14.281Z",
+        "duration": 83090.09,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-carga-rapido.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:06:25.995Z",
+      "report": "568-batch-004-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:05:38.450Z",
+        "duration": 47515.003,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 5,
+      "files": [
+        "ak207-el-totem-de-bienvenida.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:13:01.659Z",
+      "report": "568-batch-005-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:06:26.996Z",
+        "duration": 394599.68399999995,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 6,
+      "files": [
+        "ak207-entertainment-stations.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:14:35.656Z",
+      "report": "568-batch-006-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:13:03.124Z",
+        "duration": 92491.466,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 7,
+      "files": [
+        "ak207-la-grilla-de-caras.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:16:29.016Z",
+      "report": "568-batch-007-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:14:36.706Z",
+        "duration": 112264.939,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 8,
+      "files": [
+        "ak207-la-web-de-venta-no-se-rompe.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:20:53.072Z",
+      "report": "568-batch-008-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:16:30.000Z",
+        "duration": 263019.692,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 9,
+      "files": [
+        "ak207-las-estaciones-respetan-los-ajustes.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:25:05.556Z",
+      "report": "568-batch-009-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:20:54.669Z",
+        "duration": 250845.676,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 10,
+      "files": [
+        "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T07:25:39.542Z",
+      "report": "568-batch-010-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:25:07.225Z",
+        "duration": 32284.172000000002,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 11,
+      "files": [
+        "ak207-las-pantallas-no-quedan-cargando.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T07:26:30.794Z",
+      "report": "568-batch-011-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:25:40.767Z",
+        "duration": 49998.858,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 12,
+      "files": [
+        "ak207-mobile-overflow.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T07:32:15.028Z",
+      "report": "568-batch-012-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:26:31.782Z",
+        "duration": 343207.625,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 13,
+      "files": [
+        "ak207-muro-subir-foto.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:34:29.847Z",
+      "report": "568-batch-013-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:32:16.032Z",
+        "duration": 133784.675,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 14,
+      "files": [
+        "ak207-noche-de-fiesta.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T07:37:51.267Z",
+      "report": "568-batch-014-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:34:30.848Z",
+        "duration": 200384.377,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 15,
+      "files": [
+        "ak207-orden-86-pantallas.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T07:39:02.715Z",
+      "report": "568-batch-015-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:37:52.311Z",
+        "duration": 70368.657,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

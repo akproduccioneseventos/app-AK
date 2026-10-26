@@ -1,0 +1,28 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-552-sdk-TIHehZ",
+  "temp": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-552-sdk-TIHehZ\\tmp",
+  "started": "2026-10-25T06:21:46.250Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "freeBytesAtStart": 3761823744,
+  "firestorePid": 10964,
+  "storagePid": 2076,
+  "runnerPid": 10860,
+  "nativeExit": 1,
+  "cleanupStatus": 200,
+  "stoppedOwnPids": [
+    {
+      "pid": 2076,
+      "exit": 0
+    },
+    {
+      "pid": 10964,
+      "exit": 0
+    }
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-25T06:40:37.650Z"
+}

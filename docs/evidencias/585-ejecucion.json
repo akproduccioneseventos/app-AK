@@ -1,0 +1,102 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d",
+  "started": "2026-10-25T07:51:34.113Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-25T07:51:09.994Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "entertainment-stations.spec.ts",
+    "la-grilla-de-caras.spec.ts"
+  ],
+  "batchSize": 1,
+  "copiedTests": 2,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/entertainment-stations.spec.ts",
+      "copy": "tests/e2e/ak207-entertainment-stations.spec.ts",
+      "originalSha256": "3b53c31acae97b827d5e6cbefbb4afe5ea3e6bc0393753f15aa26e14b1adc0f9",
+      "preparedSha256": "10e0fff716f6319279855bbd04e62a91c302098720fe89437afcc9af3adbf0f3",
+      "instrumentedSha256": "f5fe4aa4bb72000be97aa8c86543705a8f2558f38cc7df1eea23a5a19b484fe8"
+    },
+    {
+      "original": "tests/e2e/la-grilla-de-caras.spec.ts",
+      "copy": "tests/e2e/ak207-la-grilla-de-caras.spec.ts",
+      "originalSha256": "2c295f7be7fec95f0b711d3f3b67c27386ef68e4d8ab83dad3f8c069281dee31",
+      "preparedSha256": "08afd82bdeae9e74469c8907c7e2d4d9f3f73091505bc88f98c545188f2fa3d4",
+      "instrumentedSha256": "5fc70c921ac46a0f1c6e46180fe6aab86db9f92feb35a3527a9e2c9de6d9d782"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 5552,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-25T07:51:51.360Z",
+    "version": "f8f7cf34e8778de784b20e2654058fd722b2a2ec · compilada 2026-10-25T07:39:46.852Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 11
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-entertainment-stations.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:53:45.976Z",
+      "report": "585-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:51:52.412Z",
+        "duration": 113516.454,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-la-grilla-de-caras.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T07:55:14.640Z",
+      "report": "585-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T07:53:47.145Z",
+        "duration": 87462.374,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 1,
+  "currentBatch": 2,
+  "totalBatches": 2,
+  "testPid": 2708,
+  "stats": {
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 87,
+  "sourceDiff": "",
+  "finished": "2026-10-25T07:55:17.317Z"
+}

@@ -51,6 +51,10 @@ export async function requirePermiso(
   const session = await verifySession();
   if (!session.success) return { ok: false, error: session.error || 'Sesion no autorizada.' };
 
+  if (session.user?.perfil !== undefined && !esPerfilValido(session.user.perfil)) {
+    return { ok: false, error: 'Tu perfil no es válido. Solicita al administrador que revise tu acceso.' };
+  }
+
   if (!puede(session.user, permiso)) {
     const perfil = NOMBRE_DEL_PERFIL[perfilDe(session.user)];
     return { ok: false, error: `Tu perfil (${perfil}) no tiene acceso a esta parte.` };

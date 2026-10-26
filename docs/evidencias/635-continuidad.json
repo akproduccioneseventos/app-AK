@@ -1,0 +1,12 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "phase": "finished",
+  "started": "2026-10-25T13:22:33.565Z",
+  "appEdited": false,
+  "realServices": false,
+  "nodeServerHeapMiB": 512,
+  "storageHeapMiB": 256,
+  "firestoreHeapMiB": 384,
+  "free": 4054282240,
+  "finished": "2026-10-25T13:22:50.805Z"
+}

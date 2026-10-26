@@ -1,0 +1,1147 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "created": "2026-10-25T05:52:39.800Z",
+  "cutoffUTC": "2026-10-25T05:05:21.000Z",
+  "beforeCutoff": {
+    "rows": 204,
+    "pass": 128,
+    "skipped": 39,
+    "nonPass": 37
+  },
+  "afterCutoff": {
+    "rows": 54,
+    "files": [
+      "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "ak207-portal-fecha-y-botones.spec.ts",
+      "ak207-prospecto-simulador.spec.ts",
+      "ak207-public-smoke.spec.ts",
+      "ak207-simulator-budget-journey.spec.ts",
+      "ak207-video-vida-error-lectura.spec.ts"
+    ],
+    "classification": "INCONCLUSIVE_EMULATOR_OOM_NOT_APP_DEFECTS_OR_ACCEPTANCE"
+  },
+  "failures": [
+    {
+      "file": "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+      "title": "ak207-81-cola-aislamiento-y-reintento.spec.ts > Orden 81 — Cola de subida, aislamiento y reintentos > las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 86,
+      "duration": 177574,
+      "error": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at leerFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:106:67)\n    at _test.expect.poll.timeout (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-cola-aislamiento-y-reintento.spec.ts:15",
+      "errorClass": "QA_BRIDGE_UNCONFIRMED",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-81-cola-aislamiento-y-reintento.spec.ts",
+      "title": "ak207-81-cola-aislamiento-y-reintento.spec.ts > Orden 81 — Cola de subida, aislamiento y reintentos > las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 86,
+      "duration": 208308,
+      "error": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at leerFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:106:67)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-cola-aislamiento-y-reintento.spec.ts:155:30",
+      "errorClass": "QA_BRIDGE_UNCONFIRMED",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-010-artifacts\\ak207-81-cola-aislamiento--3c969-n-a-su-destino-sin-cruzarse-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-81-roles-y-pedidos-sin-duplicados.spec.ts",
+      "title": "ak207-81-roles-y-pedidos-sin-duplicados.spec.ts > Orden 81 — Barra tecnológica: doble toque sin duplicados y pantalla de barman > dos toques rápidos de pedir generan un solo pedido en la barra y al barman",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 89,
+      "duration": 76843,
+      "error": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 1\nReceived: 0\n\nCall Log:\n- Timeout 30000ms exceeded while waiting on the predicate\n\n  131 |         (p: any) => p.guestName === invitado.nombre || p.guestId === invitado.id,\n  132 |       ).length;\n> 133 |     }, { timeout: 30_000 }).toBe(1);\n      |                             ^\n  134 |\n  135 |     // 8. Abrir la pantalla del barman con sesión del equipo y verificar que aparece una sola vez\n  136 |     await ponerSesionDelEquipo(context, baseURL);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-roles-y-pedidos-sin-duplicados.spec.ts:133:29",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-011-artifacts\\ak207-81-roles-y-pedidos-s-e676b-ido-en-la-barra-y-al-barman-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-011-artifacts\\ak207-81-roles-y-pedidos-s-e676b-ido-en-la-barra-y-al-barman-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-011-artifacts\\ak207-81-roles-y-pedidos-s-e676b-ido-en-la-barra-y-al-barman-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-011-artifacts\\ak207-81-roles-y-pedidos-s-e676b-ido-en-la-barra-y-al-barman-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-81-roles-y-pedidos-sin-duplicados.spec.ts",
+      "title": "ak207-81-roles-y-pedidos-sin-duplicados.spec.ts > Orden 81 — Barra tecnológica: doble toque sin duplicados y pantalla de barman > dos toques rápidos de pedir generan un solo pedido en la barra y al barman",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 89,
+      "duration": 60220,
+      "error": "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 1\nReceived: 0\n\nCall Log:\n- Timeout 30000ms exceeded while waiting on the predicate\n\n  131 |         (p: any) => p.guestName === invitado.nombre || p.guestId === invitado.id,\n  132 |       ).length;\n> 133 |     }, { timeout: 30_000 }).toBe(1);\n      |                             ^\n  134 |\n  135 |     // 8. Abrir la pantalla del barman con sesión del equipo y verificar que aparece una sola vez\n  136 |     await ponerSesionDelEquipo(context, baseURL);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-81-roles-y-pedidos-sin-duplicados.spec.ts:133:29",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-011-artifacts\\ak207-81-roles-y-pedidos-s-e676b-ido-en-la-barra-y-al-barman-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-011-artifacts\\ak207-81-roles-y-pedidos-s-e676b-ido-en-la-barra-y-al-barman-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-011-artifacts\\ak207-81-roles-y-pedidos-s-e676b-ido-en-la-barra-y-al-barman-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-011-artifacts\\ak207-81-roles-y-pedidos-s-e676b-ido-en-la-barra-y-al-barman-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts > Orden 89 — Bloque 2: La barra no ofrece lo agotado > trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 107,
+      "duration": 162019,
+      "error": "Test timeout of 90000ms exceeded.",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-012-artifacts\\ak207-89-la-barra-no-ofrec-fdebd-l-final-y-nunca-es-sugerido-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-012-artifacts\\ak207-89-la-barra-no-ofrec-fdebd-l-final-y-nunca-es-sugerido-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-012-artifacts\\ak207-89-la-barra-no-ofrec-fdebd-l-final-y-nunca-es-sugerido-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-012-artifacts\\ak207-89-la-barra-no-ofrec-fdebd-l-final-y-nunca-es-sugerido-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 99,
+      "duration": 46975,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 25000ms\n  - waiting for getByRole('button', { name: /publicar en el muro/i })\n\n\n  123 |     // Esperar a que pase la captura y aparezca la vista previa con el botón para publicar\n  124 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 125 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  126 |     await btnPublicar.click();\n  127 |\n  128 |     // Debe mostrar que quedó guardada en el equipo\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:125:31",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 137,
+      "duration": 43951,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 25000ms\n  - waiting for getByRole('button', { name: /publicar en el muro/i })\n\n\n  163 |\n  164 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 165 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  166 |     await btnPublicar.click();\n  167 |\n  168 |     // Debe informar el error de rechazo\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:165:31",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 99,
+      "duration": 37739,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 25000ms\n  - waiting for getByRole('button', { name: /publicar en el muro/i })\n\n\n  123 |     // Esperar a que pase la captura y aparezca la vista previa con el botón para publicar\n  124 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 125 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  126 |     await btnPublicar.click();\n  127 |\n  128 |     // Debe mostrar que quedó guardada en el equipo\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:125:31",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 137,
+      "duration": 38392,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 25000ms\n  - waiting for getByRole('button', { name: /publicar en el muro/i })\n\n\n  163 |\n  164 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 165 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  166 |     await btnPublicar.click();\n  167 |\n  168 |     // Debe informar el error de rechazo\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:165:31",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-013-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-barra-listo-contraste.spec.ts",
+      "title": "ak207-barra-listo-contraste.spec.ts > Contraste por píxeles rasterizados (Orden 227) > pantalla /evento/barra/fiesta-demo/listo mantiene contraste legible mayor a 4.5:1",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 68,
+      "duration": 175903,
+      "error": "Test timeout of 90000ms exceeded.",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-0edfa-raste-legible-mayor-a-4-5-1-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-0edfa-raste-legible-mayor-a-4-5-1-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-0edfa-raste-legible-mayor-a-4-5-1-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-barra-listo-contraste.spec.ts",
+      "title": "ak207-barra-listo-contraste.spec.ts > Contraste por píxeles rasterizados (Orden 227) > pantalla /evento/en-vivo/fiesta-demo mantiene contraste legible mayor a 4.5:1",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 68,
+      "duration": 119114,
+      "error": "Tearing down \"context\" exceeded the test timeout of 90000ms.",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-70d89-raste-legible-mayor-a-4-5-1-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-70d89-raste-legible-mayor-a-4-5-1-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-70d89-raste-legible-mayor-a-4-5-1-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-barra-listo-contraste.spec.ts",
+      "title": "ak207-barra-listo-contraste.spec.ts > Contraste por píxeles rasterizados (Orden 227) > pantalla /evento/en-vivo/fiesta-demo mantiene contraste legible mayor a 4.5:1",
+      "project": "chromium-mobile",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 68,
+      "duration": 123251,
+      "error": "Tearing down \"context\" exceeded the test timeout of 90000ms.",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-70d89-raste-legible-mayor-a-4-5-1-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-70d89-raste-legible-mayor-a-4-5-1-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-014-artifacts\\ak207-barra-listo-contrast-70d89-raste-legible-mayor-a-4-5-1-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts > Orden 37 — Que cargue rápido (límite 2500 ms) > / responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 52,
+      "duration": 20031,
+      "error": "Error: / debe cargar dentro de 2500 ms\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= 2500\nReceived:    2773\n\n  70 |       // En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\n  71 |       const limite = process.env.NODE_ENV === 'production' ? LIMITE_CARGA_MS : 10_000;\n> 72 |       expect(tiempoCarga, `${ruta} debe cargar dentro de ${limite} ms`).toBeLessThanOrEqual(limite);\n     |                                                                         ^\n  73 |     });\n  74 |   }\n  75 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts:72:73",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-da28f-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-da28f-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-da28f-entro-del-límite-de-2500-ms-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts > Orden 37 — Que cargue rápido (límite 2500 ms) > /quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 52,
+      "duration": 27996,
+      "error": "Error: /quinceaneras debe cargar dentro de 2500 ms\n\nexpect(received).toBeLessThanOrEqual(expected)\n\nExpected: <= 2500\nReceived:    2623\n\n  70 |       // En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\n  71 |       const limite = process.env.NODE_ENV === 'production' ? LIMITE_CARGA_MS : 10_000;\n> 72 |       expect(tiempoCarga, `${ruta} debe cargar dentro de ${limite} ms`).toBeLessThanOrEqual(limite);\n     |                                                                         ^\n  73 |     });\n  74 |   }\n  75 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts:72:73",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-e3c44-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-e3c44-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-e3c44-entro-del-límite-de-2500-ms-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 63,
+      "duration": 110311,
+      "error": "Test timeout of 90000ms exceeded while running \"beforeEach\" hook.\n\n  1 | import {test as __akAudit207} from '@playwright/test';\n> 2 | __akAudit207.beforeEach(async({context},info)=>{\n    |              ^\n  3 |  await context.route('**/*',async r=>{const u=new URL(r.request().url());if(/^https?:$/.test(u.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(u.hostname)){await info.attach('qa-egress-blocked',{contentType:'text/plain',body:u.origin+u.pathname});await r.abort('blockedbyclient');}else await r.continue();});\n  4 |  await context.route('https://firebaseinstallations.googleapis.com/**',async r=>{const u=new URL(r.request().url());const body=u.pathname.endsWith('authTokens:generate')?{token:'qa368-fis-only',expiresIn:'604800s'}:{fid:'c'+'a'.repeat(21),refreshToken:'qa368-fis-refresh-only',authToken:{token:'qa368-fis-only',expiresIn:'604800s'}};await r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});});\n  5 |  await info.attach('qa-fis-mode',{contentType:'text/plain',body:'LOCAL DOUBLE only; no Firebase provider acceptance'});\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:2:14\nError: browser.newContext: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1228\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupd",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Con un QR de otra fiesta o token malo muestra cartel de error y no saluda",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 78,
+      "duration": 63616,
+      "error": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33",
+      "errorClass": "QA_BRIDGE_UNCONFIRMED",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Vuelve sola a la pantalla de espera",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 99,
+      "duration": 55236,
+      "error": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33",
+      "errorClass": "QA_BRIDGE_UNCONFIRMED",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-651a7-ola-a-la-pantalla-de-espera-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-651a7-ola-a-la-pantalla-de-espera-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-651a7-ola-a-la-pantalla-de-espera-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+      "project": "chromium-mobile",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 63,
+      "duration": 99246,
+      "error": "Test timeout of 90000ms exceeded while running \"beforeEach\" hook.\n\n  1 | import {test as __akAudit207} from '@playwright/test';\n> 2 | __akAudit207.beforeEach(async({context},info)=>{\n    |              ^\n  3 |  await context.route('**/*',async r=>{const u=new URL(r.request().url());if(/^https?:$/.test(u.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(u.hostname)){await info.attach('qa-egress-blocked',{contentType:'text/plain',body:u.origin+u.pathname});await r.abort('blockedbyclient');}else await r.continue();});\n  4 |  await context.route('https://firebaseinstallations.googleapis.com/**',async r=>{const u=new URL(r.request().url());const body=u.pathname.endsWith('authTokens:generate')?{token:'qa368-fis-only',expiresIn:'604800s'}:{fid:'c'+'a'.repeat(21),refreshToken:'qa368-fis-refresh-only',authToken:{token:'qa368-fis-only',expiresIn:'604800s'}};await r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});});\n  5 |  await info.attach('qa-fis-mode',{contentType:'text/plain',body:'LOCAL DOUBLE only; no Firebase provider acceptance'});\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:2:14",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Con un QR de otra fiesta o token malo muestra cartel de error y no saluda",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 78,
+      "duration": 70317,
+      "error": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33",
+      "errorClass": "QA_BRIDGE_UNCONFIRMED",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts > time capsule exposes every media mode and records the configured frame",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 143,
+      "duration": 99603,
+      "error": "Test timeout of 90000ms exceeded.\nError: locator.click: Test timeout of 90000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: /Detener Grabación/i })\n    - locator resolved to <button class=\"w-full py-3.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-transform active:scale-95\">…</button>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n  - element was detached from the DOM, retrying\n\n\n  196 |   await expect(stopButton).toBeVisible();\n  197 |   await page.waitForTimeout(1_000);\n> 198 |   await stopButton.click();\n      |                    ^\n  199 |   // La etiqueta se llama \"Video Grabado\", no \"Video Analogico\". Se verifico en\n  200 |   // `src/app/evento/buzon/[fiestaId]/page.tsx`: el paso de revision existe y\n  201 |   // funciona, solo cambio el texto. La prueba habia quedado con el nombre viejo.\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-entertainment-stations.spec.ts:198:20",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-020-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-020-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-020-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-020-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la grilla muestra caritas sin nombres y permite descargar las fotos de una persona",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 205,
+      "duration": 8251,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: /Ver todas las fotos de la fiesta/i })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: /Ver todas las fotos de la fiesta/i }) resolved to 2 elements:\n    1) <button class=\"px-3 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-zinc-300 transition\">Ver todas las fotos de la fiesta</button> aka getByRole('button', { name: 'Ver todas las fotos de la' }).first()\n    2) <button class=\"inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-zinc-950 font-bold text-sm shadow-xl hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95\">Ver todas las fotos de la fiesta</button> aka getByRole('button', { name: 'Ver todas las fotos de la' }).nth(1)\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 45000ms\n  - waiting for getByRole('button', { name: /Ver todas las fotos de la fiesta/i })\n\n\n  228 |     // Siempre a la vista: \"Ver todas las fotos de la fiesta\"\n  229 |     const botonVerTodas = page.getByRole('button', { name: /Ver todas las fotos de la fiesta/i });\n> 230 |     await expect(botonVerTodas).toBeVisible();\n      |                                 ^\n  231 |     await botonVerTodas.click();\n  232 |\n  233 |     // Vuelve a la galería completa\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:230:33",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-67eee-ar-las-fotos-de-una-persona-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-67eee-ar-las-fotos-de-una-persona-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-67eee-ar-las-fotos-de-una-persona-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-67eee-ar-las-fotos-de-una-persona-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 269,
+      "duration": 38821,
+      "error": "Error: muestra la pantalla de resultados, armada en el propio teléfono\n\nexpect(received).toBeGreaterThan(expected)\n\nExpected: > 0\nReceived:   0\n\n  312 |       if (await titulos.nth(i).isVisible()) visibles += 1;\n  313 |     }\n> 314 |     expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);\n      |                                                                                         ^\n  315 |   });\n  316 | });\n  317 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:314:89",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la grilla muestra caritas sin nombres y permite descargar las fotos de una persona",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 205,
+      "duration": 9395,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: /Ver todas las fotos de la fiesta/i })\nExpected: visible\nError: strict mode violation: getByRole('button', { name: /Ver todas las fotos de la fiesta/i }) resolved to 2 elements:\n    1) <button class=\"px-3 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-zinc-300 transition\">Ver todas las fotos de la fiesta</button> aka getByRole('button', { name: 'Ver todas las fotos de la' }).first()\n    2) <button class=\"inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-zinc-950 font-bold text-sm shadow-xl hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95\">Ver todas las fotos de la fiesta</button> aka getByRole('button', { name: 'Ver todas las fotos de la' }).nth(1)\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 45000ms\n  - waiting for getByRole('button', { name: /Ver todas las fotos de la fiesta/i })\n\n\n  228 |     // Siempre a la vista: \"Ver todas las fotos de la fiesta\"\n  229 |     const botonVerTodas = page.getByRole('button', { name: /Ver todas las fotos de la fiesta/i });\n> 230 |     await expect(botonVerTodas).toBeVisible();\n      |                                 ^\n  231 |     await botonVerTodas.click();\n  232 |\n  233 |     // Vuelve a la galería completa\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:230:33",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-67eee-ar-las-fotos-de-una-persona-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-67eee-ar-las-fotos-de-una-persona-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-67eee-ar-las-fotos-de-una-persona-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-67eee-ar-las-fotos-de-una-persona-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 269,
+      "duration": 36569,
+      "error": "Error: muestra la pantalla de resultados, armada en el propio teléfono\n\nexpect(received).toBeGreaterThan(expected)\n\nExpected: > 0\nReceived:   0\n\n  312 |       if (await titulos.nth(i).isVisible()) visibles += 1;\n  313 |     }\n> 314 |     expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);\n      |                                                                                         ^\n  315 |   });\n  316 | });\n  317 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:314:89",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-023-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts > las pantallas de venta se abren solas sin romperse por dentro",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 65,
+      "duration": 249506,
+      "error": "Test timeout of 240000ms exceeded.\nError: browserContext._wrapApiCall: Tracing is already stopping",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-026-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-026-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts > cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 153,
+      "duration": 381678,
+      "error": "Error: Bogue: no llego a la pantalla de compartir en 90 segundos\n\nexpect(received).toBe(expected) // Object.is equality\n\nExpected: \"\"\nReceived: \"Bogue: no llego a la pantalla de compartir en 90 segundos\"\n\n  191 |   }\n  192 |\n> 193 |   expect(noLoRespetan.join('\\n'), noLoRespetan.join('\\n')).toBe('');\n      |                                                            ^\n  194 | });\n  195 |\n  196 | test('el buzón respeta la cuenta regresiva que puso el equipo', async ({ page }, testInfo) => {\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts:193:60",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-028-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-028-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-028-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-028-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "title": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts > Las pantallas del invitado no quedan colgadas > /invitacion/<id>/rsvp no queda colgada si la respuesta del servidor se corta",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 103,
+      "duration": 123509,
+      "error": "Test timeout of 90000ms exceeded.\nError: expect(locator).toBeVisible() failed\n\nLocator: getByText(/Error|No se pudo enviar la confirmación/i).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 10000ms\n  - waiting for getByText(/Error|No se pudo enviar la confirmación/i).first()\n\n\n  136 |\n  137 |     // Aparece el aviso de error\n> 138 |     await expect(page.getByText(/Error|No se pudo enviar la confirmación/i).first()).toBeVisible({ timeout: 10_000 });\n      |                                                                                      ^\n  139 |\n  140 |     // 5. Lo que escribió el invitado sigue en los campos: no se perdió\n  141 |     await expect(page.locator('#nombre')).toHaveValue(nombre);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts:138:86",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-029-artifacts\\ak207-las-pantallas-del-in-0c443-uesta-del-servidor-se-corta-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-029-artifacts\\ak207-las-pantallas-del-in-0c443-uesta-del-servidor-se-corta-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-029-artifacts\\ak207-las-pantallas-del-in-0c443-uesta-del-servidor-se-corta-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-029-artifacts\\ak207-las-pantallas-del-in-0c443-uesta-del-servidor-se-corta-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-las-pantallas-no-quedan-cargando.spec.ts",
+      "title": "ak207-las-pantallas-no-quedan-cargando.spec.ts > Las pantallas no quedan cargando (Orden 226) > settings contratos clausulas carga y no queda cargando",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 64,
+      "duration": 46743,
+      "error": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('heading', { name: /cláusulas del contrato/i })\nExpected pattern: /cláusulas del contrato/i\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 15000ms\n  - waiting for getByRole('heading', { name: /cláusulas del contrato/i })\n\n\n  65 |     await page.goto('/settings/contratos/clausulas', { waitUntil: 'domcontentloaded' });\n  66 |     const heading = page.getByRole('heading', { name: /cláusulas del contrato/i });\n> 67 |     await expect(heading).toContainText(/cláusulas del contrato/i, { timeout: 15000 });\n     |                           ^\n  68 |     await expect(page.locator('.animate-spin')).toHaveCount(0);\n  69 |   });\n  70 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-las-pantallas-no-quedan-cargando.spec.ts:67:27",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-030-artifacts\\ak207-las-pantallas-no-que-4f8e0-s-carga-y-no-queda-cargando-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-030-artifacts\\ak207-las-pantallas-no-que-4f8e0-s-carga-y-no-queda-cargando-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-030-artifacts\\ak207-las-pantallas-no-que-4f8e0-s-carga-y-no-queda-cargando-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-las-pantallas-no-quedan-cargando.spec.ts",
+      "title": "ak207-las-pantallas-no-quedan-cargando.spec.ts > Las pantallas no quedan cargando (Orden 226) > settings whatsapp carga y no queda cargando",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 78,
+      "duration": 121045,
+      "error": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('heading', { name: /integración whatsapp/i })\nExpected pattern: /integración whatsapp/i\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 15000ms\n  - waiting for getByRole('heading', { name: /integración whatsapp/i })\n\n\n  79 |     await page.goto('/settings/whatsapp', { waitUntil: 'domcontentloaded' });\n  80 |     const heading = page.getByRole('heading', { name: /integración whatsapp/i });\n> 81 |     await expect(heading).toContainText(/integración whatsapp/i, { timeout: 15000 });\n     |                           ^\n  82 |     await expect(page.locator('.animate-spin')).toHaveCount(0);\n  83 |   });\n  84 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-las-pantallas-no-quedan-cargando.spec.ts:81:27\nTearing down \"context\" exceeded the test timeout of 90000ms.\nError: browserContext._wrapApiCall: Tracing is already stopping\nError: End of central directory record signature not found. Either not a zip file, or file is truncated.",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-030-artifacts\\ak207-las-pantallas-no-que-38440-p-carga-y-no-queda-cargando-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        }
+      ]
+    },
+    {
+      "file": "ak207-las-pantallas-no-quedan-cargando.spec.ts",
+      "title": "ak207-las-pantallas-no-quedan-cargando.spec.ts > Las pantallas no quedan cargando (Orden 226) > modulo-invitado con fiesta inexistente muestra Fiesta no encontrada y no queda cargando",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 57,
+      "duration": 130688,
+      "error": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('heading', { name: /fiesta no encontrada/i })\nExpected pattern: /fiesta no encontrada/i\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 15000ms\n  - waiting for getByRole('heading', { name: /fiesta no encontrada/i })\n\n\n  58 |     await page.goto('/fiestas/nueva/modulo-invitado?fiestaId=fiesta-que-no-existe', { waitUntil: 'domcontentloaded' });\n  59 |     const heading = page.getByRole('heading', { name: /fiesta no encontrada/i });\n> 60 |     await expect(heading).toContainText(/fiesta no encontrada/i, { timeout: 15000 });\n     |                           ^\n  61 |     await expect(page.locator('.animate-spin')).toHaveCount(0);\n  62 |   });\n  63 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-las-pantallas-no-quedan-cargando.spec.ts:60:27\nTearing down \"context\" exceeded the test timeout of 90000ms.\nError: browserContext.close: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1228\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,P",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-030-artifacts\\ak207-las-pantallas-no-que-43c93-ontrada-y-no-queda-cargando-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-030-artifacts\\ak207-las-pantallas-no-que-43c93-ontrada-y-no-queda-cargando-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-030-artifacts\\ak207-las-pantallas-no-que-43c93-ontrada-y-no-queda-cargando-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts > huella de maquetación > las pantallas de referencia mantienen su geometría",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 153,
+      "duration": 122464,
+      "error": "Error: La maquetación cambió:\n  /admin · colores: era 2034977308, ahora 1190975077\n  /customers · colores: era 2034977308, ahora 1190975077\n  /presupuestos/nuevo · h1W: era 212, ahora 216\n  /presupuestos/nuevo · colores: era 2034977308, ahora 1190975077\n  /fiestas/nueva/portal-cliente · colores: era 2034977308, ahora 1190975077\n  /contabilidad/comercial-360 · colores: era 2034977308, ahora 1190975077\n\nexpect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 8\n\n- Array []\n+ Array [\n+   \"/admin · colores: era 2034977308, ahora 1190975077\",\n+   \"/customers · colores: era 2034977308, ahora 1190975077\",\n+   \"/presupuestos/nuevo · h1W: era 212, ahora 216\",\n+   \"/presupuestos/nuevo · colores: era 2034977308, ahora 1190975077\",\n+   \"/fiestas/nueva/portal-cliente · colores: era 2034977308, ahora 1190975077\",\n+   \"/contabilidad/comercial-360 · colores: era 2034977308, ahora 1190975077\",\n+ ]\n\n  253 |\n  254 |     expect(absolutos, `Pantallas con defectos propios:\\n  ${absolutos.join('\\n  ')}`).toEqual([]);\n> 255 |     expect(desvios, `La maquetación cambió:\\n  ${desvios.join('\\n  ')}`).toEqual([]);\n      |                                                                          ^\n  256 |   });\n  257 | });\n  258 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-layout-baseline.spec.ts:255:74",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-031-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-031-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-031-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts > huella de maquetación > las pantallas de referencia mantienen su geometría",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 153,
+      "duration": 77075,
+      "error": "Error: La maquetación cambió:\n  /admin · h1W: era 101, ahora 98\n  /admin · colores: era 1566381053, ahora 90644102\n  /customers · colores: era 1566381053, ahora 90644102\n  /presupuestos/nuevo · colores: era 1566381053, ahora 90644102\n  /fiestas/nueva/portal-cliente · colores: era 1566381053, ahora 90644102\n  /contabilidad/comercial-360 · colores: era 1566381053, ahora 90644102\n\nexpect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 8\n\n- Array []\n+ Array [\n+   \"/admin · h1W: era 101, ahora 98\",\n+   \"/admin · colores: era 1566381053, ahora 90644102\",\n+   \"/customers · colores: era 1566381053, ahora 90644102\",\n+   \"/presupuestos/nuevo · colores: era 1566381053, ahora 90644102\",\n+   \"/fiestas/nueva/portal-cliente · colores: era 1566381053, ahora 90644102\",\n+   \"/contabilidad/comercial-360 · colores: era 1566381053, ahora 90644102\",\n+ ]\n\n  253 |\n  254 |     expect(absolutos, `Pantallas con defectos propios:\\n  ${absolutos.join('\\n  ')}`).toEqual([]);\n> 255 |     expect(desvios, `La maquetación cambió:\\n  ${desvios.join('\\n  ')}`).toEqual([]);\n      |                                                                          ^\n  256 |   });\n  257 | });\n  258 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-layout-baseline.spec.ts:255:74",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-031-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-031-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-031-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-mobile-overflow.spec.ts",
+      "title": "ak207-mobile-overflow.spec.ts > sin desborde horizontal en celular > rutas internas del staff",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "expected": "passed",
+      "line": 80,
+      "duration": 385664,
+      "error": "Test timeout of 300000ms exceeded.",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-035-artifacts\\ak207-mobile-overflow-sin--1d2ef-ar-rutas-internas-del-staff-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-035-artifacts\\ak207-mobile-overflow-sin--1d2ef-ar-rutas-internas-del-staff-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-035-artifacts\\ak207-mobile-overflow-sin--1d2ef-ar-rutas-internas-del-staff-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-muro-subir-foto.spec.ts",
+      "title": "ak207-muro-subir-foto.spec.ts > el invitado sube una foto al muro > encuentra cómo compartir y, si falla, se entera",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 70,
+      "duration": 66105,
+      "error": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\n  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\n\n\n  113 |       respuesta,\n  114 |       'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no',\n> 115 |     ).toBeVisible({ timeout: 45_000 });\n      |       ^\n  116 |\n  117 |     expect(erroresJs, `El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`).toEqual([]);\n  118 |   });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-muro-subir-foto.spec.ts:115:7",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-036-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-036-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-036-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-036-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-muro-subir-foto.spec.ts",
+      "title": "ak207-muro-subir-foto.spec.ts > el invitado sube una foto al muro > encuentra cómo compartir y, si falla, se entera",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "expected": "passed",
+      "line": 70,
+      "duration": 70065,
+      "error": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\nexpect(locator).toBeVisible() failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\n  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\n\n\n  113 |       respuesta,\n  114 |       'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no',\n> 115 |     ).toBeVisible({ timeout: 45_000 });\n      |       ^\n  116 |\n  117 |     expect(erroresJs, `El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`).toEqual([]);\n  118 |   });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-muro-subir-foto.spec.ts:115:7",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-036-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-036-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-036-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-036-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts > noche de fiesta > las pantallas del invitado funcionan con una fiesta real",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 223,
+      "duration": 386487,
+      "error": "Error: Pantallas del invitado con problemas:\n  /feedback/e2e_noche_1792903367763 → tardó 22 segundos en mostrar algo\n\nexpect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 6\n\n- Array []\n+ Array [\n+   Object {\n+     \"problema\": \"tardó 22 segundos en mostrar algo\",\n+     \"ruta\": \"/feedback/e2e_noche_1792903367763\",\n+   },\n+ ]\n\n  227 |       problemas,\n  228 |       `Pantallas del invitado con problemas:\\n  ${problemas.map((p) => `${p.ruta} → ${p.problema}`).join('\\n  ')}`,\n> 229 |     ).toEqual([]);\n      |       ^\n  230 |   });\n  231 |\n  232 |   test('las pantallas del equipo funcionan con una fiesta real', async ({ context, baseURL }) => {\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-noche-de-fiesta.spec.ts:229:7",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-037-artifacts\\ak207-noche-de-fiesta-noch-698a9-ncionan-con-una-fiesta-real-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-037-artifacts\\ak207-noche-de-fiesta-noch-698a9-ncionan-con-una-fiesta-real-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-037-artifacts\\ak207-noche-de-fiesta-noch-698a9-ncionan-con-una-fiesta-real-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-037-artifacts\\ak207-noche-de-fiesta-noch-698a9-ncionan-con-una-fiesta-real-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    },
+    {
+      "file": "ak207-orden-86-pantallas.spec.ts",
+      "title": "ak207-orden-86-pantallas.spec.ts > Orden 86: las pantallas nuevas hacen lo que dicen > el mail del contador se guarda y sigue ahí al recargar",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "expected": "passed",
+      "line": 140,
+      "duration": 75692,
+      "error": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('Información Guardada').first()\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 20000ms\n  - waiting for getByText('Información Guardada').first()\n\n\n  149 |     await page.getByRole('button', { name: /Guardar Información/ }).click();\n  150 |     // Se espera el aviso de guardado: el botón sigue habilitado un instante después del toque.\n> 151 |     await expect(page.getByText('Información Guardada').first()).toBeVisible({ timeout: 20_000 });\n      |                                                                  ^\n  152 |     await page.reload({ waitUntil: 'domcontentloaded' });\n  153 |     await expect(page.locator('#email-contador')).toHaveValue(mail, { timeout: 30_000 });\n  154 |   });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-orden-86-pantallas.spec.ts:151:66",
+      "errorClass": "REQUIRES_TRIAGE_NOT_AUTOMATIC_APP_BUG",
+      "attachments": [
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-038-artifacts\\ak207-orden-86-pantallas-O-eada1-rda-y-sigue-ahí-al-recargar-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-038-artifacts\\ak207-orden-86-pantallas-O-eada1-rda-y-sigue-ahí-al-recargar-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "error-context",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-038-artifacts\\ak207-orden-86-pantallas-O-eada1-rda-y-sigue-ahí-al-recargar-chromium-desktop\\error-context.md",
+          "contentType": "text/markdown"
+        },
+        {
+          "name": "trace",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-038-artifacts\\ak207-orden-86-pantallas-O-eada1-rda-y-sigue-ahí-al-recargar-chromium-desktop\\trace.zip",
+          "contentType": "application/zip"
+        }
+      ]
+    }
+  ],
+  "scope": "Triage input only, not accepted independent bugs. Bridge errors/latency/stale persistence oracles require source and UI evidence. Subsequent recovery preserves originals."
+}

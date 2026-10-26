@@ -1,0 +1,206 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "cases": [
+    {
+      "file": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts > Orden 89 — Bloque 2: La barra no ofrece lo agotado > trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "project": "chromium-desktop",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-mobile",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-mobile",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-barra-listo-contraste.spec.ts",
+      "title": "ak207-barra-listo-contraste.spec.ts > Contraste por píxeles rasterizados (Orden 227) > pantalla /evento/barra/fiesta-demo/listo mantiene contraste legible mayor a 4.5:1",
+      "project": "chromium-desktop",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-barra-listo-contraste.spec.ts",
+      "title": "ak207-barra-listo-contraste.spec.ts > Contraste por píxeles rasterizados (Orden 227) > pantalla /evento/en-vivo/fiesta-demo mantiene contraste legible mayor a 4.5:1",
+      "project": "chromium-desktop",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-barra-listo-contraste.spec.ts",
+      "title": "ak207-barra-listo-contraste.spec.ts > Contraste por píxeles rasterizados (Orden 227) > pantalla /evento/en-vivo/fiesta-demo mantiene contraste legible mayor a 4.5:1",
+      "project": "chromium-mobile",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts > Orden 37 — Que cargue rápido (límite 2500 ms) > / responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts > Orden 37 — Que cargue rápido (límite 2500 ms) > /quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+      "project": "chromium-desktop",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Con un QR de otra fiesta o token malo muestra cartel de error y no saluda",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Vuelve sola a la pantalla de espera",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+      "project": "chromium-mobile",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts > El tótem de bienvenida interactivo > Con un QR de otra fiesta o token malo muestra cartel de error y no saluda",
+      "project": "chromium-mobile",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts > time capsule exposes every media mode and records the configured frame",
+      "project": "chromium-desktop",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la grilla muestra caritas sin nombres y permite descargar las fotos de una persona",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la grilla muestra caritas sin nombres y permite descargar las fotos de una persona",
+      "project": "chromium-mobile",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-mobile",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts > las pantallas de venta se abren solas sin romperse por dentro",
+      "project": "chromium-desktop",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts > cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "title": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts > Las pantallas del invitado no quedan colgadas > /invitacion/<id>/rsvp no queda colgada si la respuesta del servidor se corta",
+      "project": "chromium-desktop",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-las-pantallas-no-quedan-cargando.spec.ts",
+      "title": "ak207-las-pantallas-no-quedan-cargando.spec.ts > Las pantallas no quedan cargando (Orden 226) > settings contratos clausulas carga y no queda cargando",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-las-pantallas-no-quedan-cargando.spec.ts",
+      "title": "ak207-las-pantallas-no-quedan-cargando.spec.ts > Las pantallas no quedan cargando (Orden 226) > settings whatsapp carga y no queda cargando",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-las-pantallas-no-quedan-cargando.spec.ts",
+      "title": "ak207-las-pantallas-no-quedan-cargando.spec.ts > Las pantallas no quedan cargando (Orden 226) > modulo-invitado con fiesta inexistente muestra Fiesta no encontrada y no queda cargando",
+      "project": "chromium-mobile",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-mobile-overflow.spec.ts",
+      "title": "ak207-mobile-overflow.spec.ts > sin desborde horizontal en celular > rutas internas del staff",
+      "project": "chromium-desktop",
+      "previousStatus": "timedOut"
+    },
+    {
+      "file": "ak207-muro-subir-foto.spec.ts",
+      "title": "ak207-muro-subir-foto.spec.ts > el invitado sube una foto al muro > encuentra cómo compartir y, si falla, se entera",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-muro-subir-foto.spec.ts",
+      "title": "ak207-muro-subir-foto.spec.ts > el invitado sube una foto al muro > encuentra cómo compartir y, si falla, se entera",
+      "project": "chromium-mobile",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts > noche de fiesta > las pantallas del invitado funcionan con una fiesta real",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    },
+    {
+      "file": "ak207-orden-86-pantallas.spec.ts",
+      "title": "ak207-orden-86-pantallas.spec.ts > Orden 86: las pantallas nuevas hacen lo que dicen > el mail del contador se guarda y sigue ahí al recargar",
+      "project": "chromium-desktop",
+      "previousStatus": "failed"
+    }
+  ],
+  "excluded": [
+    {
+      "file": "81-cola-aislamiento-y-reintento.spec.ts",
+      "reason": "Both SDK/REST recovery554 cases PASS, do not replay."
+    },
+    {
+      "file": "81-roles-y-pedidos-sin-duplicados.spec.ts",
+      "reason": "Legacy fiesta.orders oracle; actual canonical collection bar_drink_orders; no app loss inferred."
+    },
+    {
+      "file": "layout-baseline.spec.ts",
+      "reason": "Known baseline geometry/color drift, no new visual defect proved and no baseline reset."
+    }
+  ],
+  "scope": "Only31 previously nonpassing case/project pairs before OOM. Assertions unchanged; no successful counterpart replay. Fresh isolated emulators and REST fixture bridge."
+}

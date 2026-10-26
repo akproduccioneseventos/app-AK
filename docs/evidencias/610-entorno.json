@@ -1,0 +1,29 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-610-sdk-fjdinU",
+  "temp": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-610-sdk-fjdinU\\tmp",
+  "started": "2026-10-25T12:36:45.667Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "freeBytesAtStart": 2969255936,
+  "firestorePid": 13536,
+  "storagePid": 13056,
+  "runnerPid": 15780,
+  "nativeExit": 1,
+  "restoredAfterAbort": 87,
+  "cleanupStatus": 200,
+  "stoppedOwnPids": [
+    {
+      "pid": 13056,
+      "exit": 0
+    },
+    {
+      "pid": 13536,
+      "exit": 0
+    }
+  ],
+  "sourceDiff": "",
+  "finished": "2026-10-25T12:36:56.966Z"
+}

@@ -1,0 +1,73 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "created": "2026-10-25T02:10:37.098Z",
+  "scope": "Real session issuer/verifier/HMAC, profile policy and requireAdminSession; only next/headers cookie transport is doubled. No HTTP/user DB mutation or real accounts. Conflicting legacy-role/explicit-profile must be assessed against legitimate issuer/consumers before ordering.",
+  "cases": [
+    {
+      "perfil": "dueno",
+      "legacyRole": "admin",
+      "validRealSignature": true,
+      "expectedAdminByExplicitProfile": true,
+      "actualAdmin": true,
+      "pass": true
+    },
+    {
+      "perfil": "secretaria",
+      "legacyRole": "admin",
+      "validRealSignature": true,
+      "expectedAdminByExplicitProfile": false,
+      "actualAdmin": true,
+      "pass": false
+    },
+    {
+      "perfil": "operador",
+      "legacyRole": "admin",
+      "validRealSignature": true,
+      "expectedAdminByExplicitProfile": false,
+      "actualAdmin": true,
+      "pass": false
+    },
+    {
+      "perfil": "personal",
+      "legacyRole": "admin",
+      "validRealSignature": true,
+      "expectedAdminByExplicitProfile": false,
+      "actualAdmin": true,
+      "pass": false
+    },
+    {
+      "perfil": "cliente",
+      "legacyRole": "admin",
+      "validRealSignature": true,
+      "expectedAdminByExplicitProfile": false,
+      "actualAdmin": true,
+      "pass": false
+    },
+    {
+      "perfil": "prospecto",
+      "legacyRole": "admin",
+      "validRealSignature": true,
+      "expectedAdminByExplicitProfile": false,
+      "actualAdmin": true,
+      "pass": false
+    },
+    {
+      "perfil": "invitado",
+      "legacyRole": "admin",
+      "validRealSignature": true,
+      "expectedAdminByExplicitProfile": false,
+      "actualAdmin": true,
+      "pass": false
+    },
+    {
+      "control": "anonymous",
+      "pass": true
+    },
+    {
+      "control": "invalid-signature",
+      "pass": true
+    }
+  ],
+  "pass": 3,
+  "fail": 6
+}

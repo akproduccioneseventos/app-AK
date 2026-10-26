@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-25T08:11:53.274Z",
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "previous": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "sourceState": [
+    {
+      "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q",
+      "head": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+      "trackedDiff": ""
+    },
+    {
+      "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d",
+      "head": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+      "trackedDiff": ""
+    }
+  ],
+  "activeOwnProcesses": [],
+  "canonicalFinished": "2026-10-25T08:06:40.369Z",
+  "canonical": {
+    "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+    "exit": 0,
+    "suites": 865,
+    "total": 5253,
+    "pass": 5253,
+    "fail": 0,
+    "pending": 0,
+    "scope": "Canonical existing full suite on NEW frozenf8f7 source, original configuration/assertions, no custom370 adapter"
+  },
+  "nativeCleanup": 200,
+  "audioBrowserClosed": true,
+  "appEdited": false,
+  "realServices": false,
+  "foreignProcessesStopped": false,
+  "limits": "Process query limited to owned QA paths/job patterns; does not assert all other user services are stopped or validate production. No manual owner test attributed to Codex."
+}

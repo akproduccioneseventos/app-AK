@@ -1,0 +1,183 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "609-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-003-artifacts",
+      "ak207-el-totem-de-bienvenida.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\609-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 2700000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-003-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-003-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-003-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-el-totem-de-bienvenida.spec.ts",
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "El tótem de bienvenida interactivo",
+          "file": "ak207-el-totem-de-bienvenida.spec.ts",
+          "line": 53,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Vuelve sola a la pantalla de espera",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 47614,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:2316) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T12:46:13.898Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTk3NDE0OTc2NzQtNjExNDgxODYzNTUy"
+                        },
+                        {
+                          "name": "qa608-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "qa604-observations",
+                          "contentType": "application/json",
+                          "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL2JpZW52ZW5pZGEvZTJlX25vY2hlXzE3OTI5MzIzNzg4NzkiLCJldmVudHMiOlt7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9iaWVudmVuaWRhL2UyZV9ub2NoZV8xNzkyOTMyMzc4ODc5IiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2JpZW52ZW5pZGEvZTJlX25vY2hlXzE3OTI5MzIzNzg4NzkiLCJzdGF0dXMiOjIwMH1dLCJib2R5IjoiVMOTVEVNIERFIEJJRU5WRU5JREFcbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG7CoUJpZW52ZW5pZG9zISBBY2VyY8OhIGVsIFFSIGRlIHR1IGludml0YWNpw7NuXG5VQklDw4EgRUwgUVIgRlJFTlRFIEEgTEEgQ8OBTUFSQVxuXG5Fc3RhIHBhbnRhbGxhIG5lY2VzaXRhIGxhIGPDoW1hcmEuIFRvY8OhIGFjw6EgcGFyYSBkYXJsZSBwZXJtaXNvXG5cblJFSU5URU5UQVIgQ8OBTUFSQVxuTGVlclxuXG5UdXMgZGF0b3MgcXVlZGFuIHPDs2xvIHBhcmEgZXN0YSBmaWVzdGEgKExleSAxOC4zMzEpLiBQcml2YWNpZGFkIiwibWVkaWEiOnsicmVjb3JkZXJzIjpbXSwidmlkZW9zIjpbXX19"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-1e51c839165bfe449841",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 108,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T12:46:11.156Z",
+    "duration": 90169.973,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
