@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26/10/2026 -696 balance general: cierres previos y entregas NUEVAS separados
+
+- 14areas SI tienen auditoria concreta por alcance, NO cadaaccion/cadarol ni
+  14areas completamente aceptadas.696 tiene tabla, cierres,fuentes ypendientes.
+- PR1364/99d0900d conserva los4blobs focalesD4 de permisos/buzon/videos, pero
+  cambia44archivos src/tests/scripts: precios/PDF,permisos233 yotrosconsumidores.
+  NO trasladar5278/22 deD4 como aprobacion global de1364.
+- PR1365/3bedbeec trae234/235 NUEVAS,59archivos contra ancestro de main:
+  webIA yautomatismos. Sus24tests/build son REPORTADOS porGemini,no porCodex.
+- PendienteCodex concreto:delta1364,nueva1365 ycombinacion congelada cuando
+  exista. No reemitir214/220/221 ni abrirotraauditoria de14areas desdecero.
+- Ramas divergentes:diffdirecto99d/3bed NO prueba quePR1365 borre arreglos;
+  mirar su diff contra merge-base. Cambiosprivadosposteriores NO CONTRASTADOS.
+- Main3e45 sigueigual; arreglos enPRabierta NO equivalen a webpublicada.
+  Esta tarea solo concilio evidencias/diffs, no nuevoQA ni cambioapp/merge.
+
 ## 26/10/2026 -691 conciliacion de cierres y690 instalacion aislada limpia
 
 - AppD4 sin cambios; PR1363/main contrastados sin nueva entrega de app.

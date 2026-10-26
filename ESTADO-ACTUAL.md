@@ -21,19 +21,17 @@ No main, no merge ni deploy. Cambios privados NO CONTRASTADOS.
 - Test positivo usa perfil real dueno y conserva rechazo del perfil inventado.
 
 ## Continuidad sin repetir
-Recuento conciliado691:214/220/221 cerradas por alcance, NO tabla historica253.
-690/694 depslimpias2061exactas/lockintacto, scriptsOFF; Sharp encode/decodePASS.
+Balance696:14areas auditadas por alcance, NO cadaaccion/cadarol aceptados.
+PR1364/99d0900d conserva4blobsD4; cambia precios/PDF/permisos233 ymas.
+PR1365/3bedbeec agrega234/235: webIA/automatismos; aun sinQA propioCodex.
+FaltaCodex: DELTA1364, nueva1365 yfuente conjunta congelada cuando exista.
+No trasladar5278/22D4 a entregas nuevas; no compilar por un recuento documental.
+691 conserva214/220/221 cerradas;597/650/640 historicos enlazados porSHA.
+690/694 depslimpias2061exactas/lockintacto,scriptsOFF;Sharp encode/decodePASS.
 692/693 tipos extra INCONCLUSOS(heapOOM), no errorapp niPASS;no reintentarigual.
-597/650/640 historicos accesibles por enlacesSHA en691; no ausencia de pruebas.
-Automatizacion eliminada por el dueno: no recreada.
-La orden humana25/10 autorizo corregir directamente con agentes economicos.
-Codex conserva decisiones sensibles; Claude/el dueno revisa yfusiona. No merge automatico.
-683 ejecuta tests/e2e/buzon-titulo-legible.spec.ts (3criterios por2proyectos).
-677 demuestra el fallo;678/679 son SOLO diagnosticos DOM;682 no los inyecta.
-675 es historico Cce, NO cierre finalD4. Consultar YA-RESUELTO antes de reabrir.
-650/253 ylibro640 previos conservan alcance/SHA;421rutas no son cada boton aprobado.
-No repetir680/681/682 por docs o misma app. Revalidar solo delta entregado.
+Build680depsoriginales estree1.0.8;690instala1.0.9, NO nuevo buildlimpio.
+Codex SOLO audita esta revision; Claude/Gemini programan yClaude/dueno fusiona.
+No repetir680/681/682 sin cambios;675historico no sustituye685D4.
 No certificar0errores/todosroles/Hosting/OAuth/modelo/voz/proveedores reales.
-No listar el trabajo manual del dueno como deudaCodex.
-Fuente de deps reutilizada estree1.0.8 vslock1.0.9; no npm-ci limpio.
+Manualdueno no deudaCodex. Automatizacion eliminada, no recreada.
 Estado anterior intacto en docs/evidencias/675-estado-anterior.md.gz.
