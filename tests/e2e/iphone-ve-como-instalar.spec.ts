@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
  * Orden 189 - Bloque 2: La app instalable en iPhone
@@ -15,8 +16,10 @@ test.describe('iPhone ve cómo instalar la app', () => {
     isMobile: true,
   });
 
-  test('muestra la guía con Agregar a inicio en Safari de iPhone', async ({ page }) => {
-    await page.goto('/portal');
+  test('muestra la guía con Agregar a inicio en Safari de iPhone', async ({ page, context, baseURL }) => {
+    // El botón vive en /settings/instalar-app (pantalla del equipo), no en /portal.
+    await ponerSesionDelEquipo(context, baseURL);
+    await page.goto('/settings/instalar-app');
     const boton = page.getByText('Agregar a inicio');
     await expect(boton).toBeVisible();
     await expect(boton).toContainText('Agregar a inicio');

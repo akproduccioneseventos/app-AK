@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
  * Orden 182: La app ordenada.
@@ -23,11 +23,16 @@ const CUATRO_PUERTAS_MARKETING = [
   { titulo: 'Web pública y portada', destino: '/empresa/marketing' },
 ];
 
+const fiesta = crearFiestaDeEstaNoche({ id: `e2e_ordenada_182_${Date.now()}` });
+
 test.describe('La app ordenada (Orden 182)', () => {
+  test.beforeAll(() => guardarFiesta(fiesta));
+  test.afterAll(() => borrarFiesta(fiesta.id));
+
   test('en escritorio, la ficha de fiesta muestra 5 pestañas y recuerda ?pestana=noche', async ({ page, context, baseURL }) => {
     await ponerSesionDelEquipo(context, baseURL);
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/fiestas/nueva');
+    await page.goto(`/fiestas/nueva?fiestaId=${fiesta.id}`);
 
     for (const pestana of PESTANAS) {
       await expect(page.getByRole('tab', { name: pestana })).toBeVisible({ timeout: 15_000 });
@@ -42,7 +47,7 @@ test.describe('La app ordenada (Orden 182)', () => {
   test('en celular, la ficha de fiesta muestra pestañas navegables y QR / Check-in en La noche', async ({ page, context, baseURL }) => {
     await ponerSesionDelEquipo(context, baseURL);
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto('/fiestas/nueva');
+    await page.goto(`/fiestas/nueva?fiestaId=${fiesta.id}`);
 
     for (const pestana of PESTANAS) {
       await expect(page.getByRole('tab', { name: pestana })).toBeAttached();

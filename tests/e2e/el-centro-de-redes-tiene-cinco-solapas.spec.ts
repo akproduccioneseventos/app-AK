@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
  * Orden 192 - Centro de Presencia Digital y Redes
@@ -7,7 +8,8 @@ import { expect, test } from '@playwright/test';
  */
 
 test.describe('El centro de redes tiene cinco solapas', () => {
-  test('se ven Hoy, Mensajes, Publicaciones, Resultados y Conexiones', async ({ page }) => {
+  test('se ven Hoy, Mensajes, Publicaciones, Resultados y Conexiones', async ({ page, context, baseURL }) => {
+    await ponerSesionDelEquipo(context, baseURL);
     await page.goto('/empresa/presencia-digital');
 
     // Verificar las 5 solapas principales
@@ -24,7 +26,8 @@ test.describe('El centro de redes tiene cinco solapas', () => {
     await expect(tabConexiones).toBeVisible();
   });
 
-  test('/empresa/redes-sociales lleva a Publicaciones', async ({ page }) => {
+  test('/empresa/redes-sociales lleva a Publicaciones', async ({ page, context, baseURL }) => {
+    await ponerSesionDelEquipo(context, baseURL);
     // Al navegar a la ruta de redes-sociales, debe redirigir a presencia-digital con tab=publicaciones
     await page.goto('/empresa/redes-sociales');
 
