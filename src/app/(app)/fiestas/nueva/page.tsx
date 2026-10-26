@@ -323,7 +323,6 @@ const ESSENTIAL_MODULE_IDS = [
   'portalCliente',
   'planPagos',
   'enVivo',
-  'checkin',
   'tareas',
   'documentos',
 ];
@@ -342,7 +341,10 @@ function PlannerDashboardContent() {
   const [activeMode, setActiveMode] = useState<QuickMode>(null);
   const [showAllModules, setShowAllModules] = useState(false);
   const [showInternalModules, setShowInternalModules] = useState(false);
-  const [pestanaActiva, setPestanaActiva] = useState<PestanaFiesta>(() => (searchParams.get('pestana') as PestanaFiesta) || 'contrato-y-pagos');
+  const pestanaPedida = searchParams.get('pestana');
+  const [pestanaActiva, setPestanaActiva] = useState<PestanaFiesta>(
+    PESTANAS_FIESTA.some(p => p.id === pestanaPedida) ? (pestanaPedida as PestanaFiesta) : 'contrato-y-pagos'
+  );
   const handleCambiarPestana = (val: string) => {
     setPestanaActiva(val as PestanaFiesta);
     const params = new URLSearchParams(searchParams.toString());

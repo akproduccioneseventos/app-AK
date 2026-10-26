@@ -8,10 +8,8 @@ import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
  */
 
 test.describe('El centro de redes tiene cinco solapas', () => {
-  test.beforeEach(async ({ context, baseURL }) => {
+  test('se ven Hoy, Mensajes, Publicaciones, Resultados y Conexiones', async ({ page, context, baseURL }) => {
     await ponerSesionDelEquipo(context, baseURL);
-  });
-  test('se ven Hoy, Mensajes, Publicaciones, Resultados y Conexiones', async ({ page }) => {
     await page.goto('/empresa/presencia-digital');
 
     // Verificar las 5 solapas principales
@@ -28,7 +26,8 @@ test.describe('El centro de redes tiene cinco solapas', () => {
     await expect(tabConexiones).toBeVisible();
   });
 
-  test('/empresa/redes-sociales lleva a Publicaciones', async ({ page }) => {
+  test('/empresa/redes-sociales lleva a Publicaciones', async ({ page, context, baseURL }) => {
+    await ponerSesionDelEquipo(context, baseURL);
     // Al navegar a la ruta de redes-sociales, debe redirigir a presencia-digital con tab=publicaciones
     await page.goto('/empresa/redes-sociales');
 

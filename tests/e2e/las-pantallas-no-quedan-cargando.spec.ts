@@ -50,4 +50,17 @@ test.describe('Las pantallas no quedan cargando (Orden 226)', () => {
     await expect(heading).toContainText(/integración whatsapp/i, { timeout: 15000 });
     await expect(page.locator('.animate-spin')).toHaveCount(0);
   });
+
+  test('logistica con fiesta inexistente vuelve a eventos y no queda cargando', async ({ page }) => {
+    await page.goto('/fiestas/nueva/logistica?fiestaId=fiesta-que-no-existe', { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(/\/eventos/, { timeout: 15000 });
+    await expect(page.locator('.animate-spin')).toHaveCount(0);
+  });
+
+  test('reuniones imprimir con fiesta inexistente muestra el error y no queda cargando', async ({ page }) => {
+    await page.goto('/fiestas/nueva/reuniones/imprimir?fiestaId=fiesta-que-no-existe', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: /error al cargar/i })).toHaveText(/error al cargar/i, { timeout: 15000 });
+    await expect(page.getByText(/evento no encontrado en el sistema/i)).toContainText(/evento no encontrado/i);
+    await expect(page.locator('.animate-spin')).toHaveCount(0);
+  });
 });
