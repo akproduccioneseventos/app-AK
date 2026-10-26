@@ -1,0 +1,32 @@
+{
+  "created": "2026-10-25T00:23:42.462Z",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "notNewExecution": true,
+  "scope": "Passive Playwright traces; optional captured blob bytes independently decoded by FFmpeg. No app rewrite/retest or real data.",
+  "records": [
+    {
+      "title": "time capsule bakes the configured frame into an uploaded gallery video",
+      "trace": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\472-batch-001-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\trace.zip",
+      "console": [
+        {
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+          "type": "error"
+        }
+      ],
+      "lastDOM": "[[71,9]]",
+      "blobs": []
+    },
+    {
+      "title": "la selfie no sale del teléfono ni se manda a la red",
+      "trace": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\472-batch-002-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\trace.zip",
+      "console": [
+        {
+          "text": "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+          "type": "error"
+        }
+      ],
+      "lastDOM": "[[13,14]]",
+      "blobs": []
+    }
+  ]
+}

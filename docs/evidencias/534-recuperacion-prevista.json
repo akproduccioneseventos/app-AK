@@ -1,0 +1,14 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "files": [
+    "pantallas-tocadas-tanda-12-10.spec.ts",
+    "prospecto-simulador.spec.ts",
+    "public-smoke.spec.ts",
+    "simulator-budget-journey.spec.ts",
+    "video-vida-error-lectura.spec.ts",
+    "portal-fecha-y-botones.spec.ts",
+    "81-cola-aislamiento-y-reintento.spec.ts"
+  ],
+  "cutoffUTC": "2026-10-25T05:05:21.000Z",
+  "scope": "Only emulator-OOM affected specs plus original fixture-reader interruption. App uses actual Firebase Admin SDK; fixture bridge switches to REST of same demo emulator to avoid per-poll gRPC clients. Original assertions preserved. No prior PASS replay without identified effect."
+}

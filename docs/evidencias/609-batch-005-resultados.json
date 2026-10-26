@@ -1,0 +1,391 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "609-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-005-artifacts",
+      "ak207-la-grilla-de-caras.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\609-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 2700000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-005-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-005-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-005-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-la-grilla-de-caras.spec.ts",
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 36: La grilla de caras",
+          "file": "ak207-la-grilla-de-caras.spec.ts",
+          "line": 198,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la grilla muestra caritas sin nombres y permite descargar las fotos de una persona",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9135,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:15940) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T12:49:39.859Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa608-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "qa604-observations",
+                          "contentType": "application/json",
+                          "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjU3OTg0NiIsImV2ZW50cyI6W3sia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjU3OTg0NiIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI1Nzk4NDYiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNTc5ODQ2IiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjU3OTg0NiIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI1Nzk4NDYiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNTc5ODQ2Iiwic3RhdHVzIjoyMDB9XSwiYm9keSI6IkdBTEVSw41BIE9GSUNJQUxcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuVG9kYXNcbvCfk7ggRm90b2NhYmluYVxu8J+MkCAzNjDCsFxu4pyoIEVzcGVqb1xu8J+TsSBJbnZpdGFkb3NcbkVOQ09OVFLDgSBUVVMgRk9UT1NcblxuVG9jw6EgdHUgY2FyYSBwYXJhIHZlciB0dXMgZm90b3MgbyB1c8OhIGVsIGF0YWpvIGRlIGxhIHNlbGZpZVxuXG5FbmNvbnRyYW1lIGEgbcOtXG7CoVRvZGF2w61hIG5vIGhheSBmb3RvcyBwdWJsaWNhZGFzIVxuXG5Tw6kgZWwgcHJpbWVybyBlbiBjb21wYXJ0aXIgdW4gbW9tZW50byBpbm9sdmlkYWJsZSBjb24gdG9kb3MgbG9zIGludml0YWRvcy5cblxuU3Viw60gdHUgcHJpbWVyYSBmb3RvXG5cbkJ1c2PDoSBsYSBmb3RvY2FiaW5hIGNlcmNhIGRlIGxhIGVudHJhZGEgcGFyYSBzYWNhcnRlIGZvdG9zIGltcHJlc2FzXG5cbsK/VGUgdG9jYSBmZXN0ZWphciBlbCBhw7FvIHF1ZSB2aWVuZT8gTWlyw6EgY3XDoW50byBzYWxlIHR1IGZpZXN0YVxu4oaSIiwibWVkaWEiOnsicmVjb3JkZXJzIjpbXSwidmlkZW9zIjpbXX19"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89c9dd5371bf82206c92-6537d346d966cc22463e",
+              "file": "ak207-la-grilla-de-caras.spec.ts",
+              "line": 214,
+              "column": 7
+            },
+            {
+              "title": "la selfie no sale del teléfono ni se manda a la red",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 88497,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 75000ms exceeded while waiting on the predicate",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 75000ms exceeded while waiting on the predicate\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:307:251",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts",
+                          "column": 251,
+                          "line": 307
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 305 |\u001b[39m\n \u001b[90m 306 |\u001b[39m     \u001b[90m// Wait for the real terminal state only AFTER accepting the selfie.\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 307 |\u001b[39m     \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(()\u001b[33m=>\u001b[39mpage\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[35m/Resultados de tu búsqueda|No encontramos fotos tuyas todavía/i\u001b[39m})\u001b[33m.\u001b[39mevaluateAll(nodes\u001b[33m=>\u001b[39mnodes\u001b[33m.\u001b[39mfilter(n\u001b[33m=>\u001b[39m{\u001b[36mconst\u001b[39m r\u001b[33m=\u001b[39mn\u001b[33m.\u001b[39mgetBoundingClientRect()\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m r\u001b[33m.\u001b[39mwidth\u001b[33m>\u001b[39m\u001b[35m0\u001b[39m\u001b[33m&&\u001b[39mr\u001b[33m.\u001b[39mheight\u001b[33m>\u001b[39m\u001b[35m0\u001b[39m\u001b[33m;\u001b[39m})\u001b[33m.\u001b[39mlength)\u001b[33m,\u001b[39m{timeout\u001b[33m:\u001b[39m\u001b[35m75000\u001b[39m})\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                                                                                                                                                                                                           \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 308 |\u001b[39m\n \u001b[90m 309 |\u001b[39m     \u001b[90m// LA REGLA MÁS IMPORTANTE: Que no se dispare ninguna llamada al servidor con la imagen\u001b[39m\n \u001b[90m 310 |\u001b[39m     expect(llamadasConImagenes\u001b[33m,\u001b[39m \u001b[32m'la selfie no se envió a ningún servidor externo ni local'\u001b[39m)\u001b[33m.\u001b[39mtoHaveLength(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts",
+                            "column": 251,
+                            "line": 307
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 75000ms exceeded while waiting on the predicate\n\n  305 |\n  306 |     // Wait for the real terminal state only AFTER accepting the selfie.\n> 307 |     await expect.poll(()=>page.getByRole(\"heading\",{name:/Resultados de tu búsqueda|No encontramos fotos tuyas todavía/i}).evaluateAll(nodes=>nodes.filter(n=>{const r=n.getBoundingClientRect();return r.width>0&&r.height>0;}).length),{timeout:75000}).toBeGreaterThan(0);\n      |                                                                                                                                                                                                                                                           ^\n  308 |\n  309 |     // LA REGLA MÁS IMPORTANTE: Que no se dispare ninguna llamada al servidor con la imagen\n  310 |     expect(llamadasConImagenes, 'la selfie no se envió a ningún servidor externo ni local').toHaveLength(0);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:307:251"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-25T12:49:55.859Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa608-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "qa604-observations",
+                          "contentType": "application/json",
+                          "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjU3OTg0NiIsImV2ZW50cyI6W3sia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjU3OTg0NiIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI1Nzk4NDYiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNTc5ODQ2IiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjU3OTg0NiIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI1Nzk4NDYiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNTc5ODQ2Iiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjU3OTg0NiIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI1Nzk4NDYiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNTc5ODQ2IiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjU3OTg0NiIsInN0YXR1cyI6MjAwfV0sImJvZHkiOiJHQUxFUsONQSBPRklDSUFMXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cblJlc3VsdGFkb3MgZGUgdHUgYsO6c3F1ZWRhXG5cbkZvdG9zIGVuY29udHJhZGFzIGNvbiBlbCByZWNvbm9jaW1pZW50byBsb2NhbCBkZSB0dSB0ZWzDqWZvbm9cblxuVmVyIHRvZGFzIGxhcyBmb3RvcyBkZSBsYSBmaWVzdGFcbk5vIGVuY29udHJhbW9zIGZvdG9zIHR1eWFzIHRvZGF2w61hXG5cblB1ZWRlIHNlciBxdWUgdG9kYXbDrWEgc2UgZXN0w6luIGNhcmdhbmRvIGxhcyBmb3RvcyBkZSBsYSBmaWVzdGEgbyBxdWUgbm8gaGF5YXMgc2FsaWRvIGVuIG5pbmd1bmEgYcO6bi5cblxuUHJvYmFyIGRlIG51ZXZvXG5WZXIgdG9kYXMgbGFzIGZvdG9zIGRlIGxhIGZpZXN0YVxuwr9UZSB0b2NhIGZlc3RlamFyIGVsIGHDsW8gcXVlIHZpZW5lPyBNaXLDoSBjdcOhbnRvIHNhbGUgdHUgZmllc3RhXG7ihpIiLCJtZWRpYSI6eyJyZWNvcmRlcnMiOltdLCJ2aWRlb3MiOltdfX0="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-005-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-005-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-005-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-005-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts",
+                        "column": 251,
+                        "line": 307
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "89c9dd5371bf82206c92-08f97129257737687328",
+              "file": "ak207-la-grilla-de-caras.spec.ts",
+              "line": 278,
+              "column": 7
+            },
+            {
+              "title": "la grilla muestra caritas sin nombres y permite descargar las fotos de una persona",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8003,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:15664) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T12:51:29.042Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa608-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "qa604-observations",
+                          "contentType": "application/json",
+                          "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjY4OTAzMiIsImV2ZW50cyI6W3sia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjY4OTAzMiIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI2ODkwMzIiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNjg5MDMyIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjY4OTAzMiIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI2ODkwMzIiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNjg5MDMyIiwic3RhdHVzIjoyMDB9XSwiYm9keSI6IkdBTEVSw41BIE9GSUNJQUxcblxuRmllc3RhIGRlIGVzdGEgbm9jaGVcblxuVG9kYXNcbvCfk7ggRm90b2NhYmluYVxu8J+MkCAzNjDCsFxu4pyoIEVzcGVqb1xu8J+TsSBJbnZpdGFkb3NcbkVOQ09OVFLDgSBUVVMgRk9UT1NcblxuVG9jw6EgdHUgY2FyYSBwYXJhIHZlciB0dXMgZm90b3MgbyB1c8OhIGVsIGF0YWpvIGRlIGxhIHNlbGZpZVxuXG5FbmNvbnRyYW1lIGEgbcOtXG7CoVRvZGF2w61hIG5vIGhheSBmb3RvcyBwdWJsaWNhZGFzIVxuXG5Tw6kgZWwgcHJpbWVybyBlbiBjb21wYXJ0aXIgdW4gbW9tZW50byBpbm9sdmlkYWJsZSBjb24gdG9kb3MgbG9zIGludml0YWRvcy5cblxuU3Viw60gdHUgcHJpbWVyYSBmb3RvXG5cbkJ1c2PDoSBsYSBmb3RvY2FiaW5hIGNlcmNhIGRlIGxhIGVudHJhZGEgcGFyYSBzYWNhcnRlIGZvdG9zIGltcHJlc2FzXG5cbsK/VGUgdG9jYSBmZXN0ZWphciBlbCBhw7FvIHF1ZSB2aWVuZT8gTWlyw6EgY3XDoW50byBzYWxlIHR1IGZpZXN0YVxu4oaSIiwibWVkaWEiOnsicmVjb3JkZXJzIjpbXSwidmlkZW9zIjpbXX19"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89c9dd5371bf82206c92-db60fde37f4912e3bdc7",
+              "file": "ak207-la-grilla-de-caras.spec.ts",
+              "line": 214,
+              "column": 7
+            },
+            {
+              "title": "la selfie no sale del teléfono ni se manda a la red",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 46909,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-25T12:51:40.788Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa608-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "qa604-observations",
+                          "contentType": "application/json",
+                          "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjY4OTAzMiIsImV2ZW50cyI6W3sia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjY4OTAzMiIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI2ODkwMzIiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNjg5MDMyIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjY4OTAzMiIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI2ODkwMzIiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNjg5MDMyIiwic3RhdHVzIjoyMDB9LHsia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjY4OTAzMiIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9nYWxlcmlhL2UyZV9jYXJhc19wcmVwXzE3OTI5MzI2ODkwMzIiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vZ2FsZXJpYS9lMmVfY2FyYXNfcHJlcF8xNzkyOTMyNjg5MDMyIiwibWV0aG9kIjoiUE9TVCIsImNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjtjaGFyc2V0PVVURi04In0seyJraW5kIjoicmVzcG9uc2UiLCJ1cmwiOiIvZXZlbnRvL2dhbGVyaWEvZTJlX2NhcmFzX3ByZXBfMTc5MjkzMjY4OTAzMiIsInN0YXR1cyI6MjAwfV0sImJvZHkiOiJHQUxFUsONQSBPRklDSUFMXG5cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5cblJlc3VsdGFkb3MgZGUgdHUgYsO6c3F1ZWRhXG5cbkZvdG9zIGVuY29udHJhZGFzIGNvbiBlbCByZWNvbm9jaW1pZW50byBsb2NhbCBkZSB0dSB0ZWzDqWZvbm9cblxuVmVyIHRvZGFzIGxhcyBmb3RvcyBkZSBsYSBmaWVzdGFcbk5vIGVuY29udHJhbW9zIGZvdG9zIHR1eWFzIHRvZGF2w61hXG5cblB1ZWRlIHNlciBxdWUgdG9kYXbDrWEgc2UgZXN0w6luIGNhcmdhbmRvIGxhcyBmb3RvcyBkZSBsYSBmaWVzdGEgbyBxdWUgbm8gaGF5YXMgc2FsaWRvIGVuIG5pbmd1bmEgYcO6bi5cblxuUHJvYmFyIGRlIG51ZXZvXG5WZXIgdG9kYXMgbGFzIGZvdG9zIGRlIGxhIGZpZXN0YVxuwr9UZSB0b2NhIGZlc3RlamFyIGVsIGHDsW8gcXVlIHZpZW5lPyBNaXLDoSBjdcOhbnRvIHNhbGUgdHUgZmllc3RhXG7ihpIiLCJtZWRpYSI6eyJyZWNvcmRlcnMiOltdLCJ2aWRlb3MiOltdfX0="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "89c9dd5371bf82206c92-1ccce09d4a4ac6b24f8c",
+              "file": "ak207-la-grilla-de-caras.spec.ts",
+              "line": 278,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T12:49:38.056Z",
+    "duration": 172321.391,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

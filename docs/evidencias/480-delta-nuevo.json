@@ -1,0 +1,26 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "previous": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q",
+  "started": "2026-10-25T00:27:05.340Z",
+  "scope": "Five exact changed official Jest suites. No build/native proof of978; runtime917 never reused for new code. No appedit/real services.",
+  "phase": "finished",
+  "tests": [
+    "src/__tests__/387-factura-error-no-es-ausencia.test.tsx",
+    "src/__tests__/el-pin-del-cliente-sigue-pidiendose.test.ts",
+    "src/__tests__/factura-ausente-no-queda-cargando.test.tsx",
+    "src/__tests__/los-efectos-reaccionan-a-la-cara.test.ts",
+    "src/__tests__/una-falla-de-lectura-no-dice-que-no-existe.test.tsx"
+  ],
+  "exitCode": 1,
+  "stats": {
+    "suites": 5,
+    "total": 19,
+    "pass": 8,
+    "fail": 11,
+    "pending": 0
+  },
+  "relevantUnchanged": true,
+  "sourceDiff": "",
+  "finished": "2026-10-25T00:27:52.033Z"
+}

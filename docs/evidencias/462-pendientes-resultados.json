@@ -1,0 +1,431 @@
+{
+  "created": "2026-10-24T20:56:33.904Z",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "build": "406 runtime copy427",
+  "counts": {
+    "passed": 12,
+    "failed": 5,
+    "timedOut": 1
+  },
+  "cases": [
+    {
+      "scope": "geometry-and-stock",
+      "report": "455-batch-001-resultados.json",
+      "file": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "title": "trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": []
+    },
+    {
+      "scope": "geometry-and-stock",
+      "report": "455-batch-002-resultados.json",
+      "file": "ak207-layout-baseline.spec.ts",
+      "title": "las pantallas de referencia mantienen su geometría",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: La maquetación cambió:\n  /admin · colores: era 2034977308, ahora 1190975077\n  /presupuestos/nuevo · h1W: era 212, ahora 216\n  /presupuestos/nuevo · colores: era 2034977308, ahora 1190975077\n\nexpect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 5\n\n- Array []\n+ Array [\n+   \"/admin · colores: era 2034977308, ahora 1190975077\",\n+   \"/presupuestos/nuevo · h1W: era 212, ahora 216\",\n+   \"/presupuestos/nuevo · colores: era 2034977308, ahora 1190975077\",\n+ ]\n\n  228 |\n  229 |     expect(absolutos, `Pantallas con defectos propios:\\n  ${absolutos.join('\\n  ')}`).toEqual([]);\n> 230 |     expect(desvios, `La maquetación cambió:\\n  ${desvios.join('\\n  ')}`).toEqual([]);\n      |                                                                          ^\n  231 |   });\n  232 | });\n  233 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-layout-baseline.spec.ts:230:74"
+      ],
+      "jsonAttachments": []
+    },
+    {
+      "scope": "geometry-and-stock",
+      "report": "455-batch-002-resultados.json",
+      "file": "ak207-layout-baseline.spec.ts",
+      "title": "las pantallas de referencia mantienen su geometría",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "errors": [
+        "Error: La maquetación cambió:\n  /admin · h1W: era 101, ahora 98\n  /admin · colores: era 1566381053, ahora 90644102\n  /presupuestos/nuevo · colores: era 1566381053, ahora 90644102\n\nexpect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 5\n\n- Array []\n+ Array [\n+   \"/admin · h1W: era 101, ahora 98\",\n+   \"/admin · colores: era 1566381053, ahora 90644102\",\n+   \"/presupuestos/nuevo · colores: era 1566381053, ahora 90644102\",\n+ ]\n\n  228 |\n  229 |     expect(absolutos, `Pantallas con defectos propios:\\n  ${absolutos.join('\\n  ')}`).toEqual([]);\n> 230 |     expect(desvios, `La maquetación cambió:\\n  ${desvios.join('\\n  ')}`).toEqual([]);\n      |                                                                          ^\n  231 |   });\n  232 | });\n  233 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-layout-baseline.spec.ts:230:74"
+      ],
+      "jsonAttachments": []
+    },
+    {
+      "scope": "geometry-and-stock",
+      "report": "455-batch-003-resultados.json",
+      "file": "ak207-mobile-overflow.spec.ts",
+      "title": "rutas internas del staff",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": []
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /blog",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/blog",
+            "url": "http://127.0.0.1:3300/public/blog",
+            "duration": 7852,
+            "text": "AK PRODUCCIONES\nINICIO\nBLOG\nSIMULADOR\n¡CONSULTANOS!\nBLOG AK PRODUCCIONES\nConsejos claros para decidir mejor tu evento.\n\nGuías para elegir salón, menú, presupuesto, tiempos y servicios antes de contratar.\n\nSIMULAR PRESUPUESTO\nPEDIR ASESORAMIENTO\n\nARTÍCULO DESTACADO\n\nCómo empezar a organizar una fiesta sin estrés\n\nEl orden correcto para pasar de una idea suelta a una fiesta posible, con fecha, invitados, prioridades y presupuesto claro.\n\nORGANIZACIÓN\n5 MIN\n\nGUÍAS PRÁCTICAS\n\nContenido para decidir mejor\n\nCada artículo responde dudas frecuentes y ayuda a tomar decisiones inteligentes antes de tu evento.\n\nORGANIZACIÓN\n5 MIN\nCómo empezar a organizar una fiesta sin estrés\n\nEl orden correcto para pasar de una idea suelta a una fiesta posible, con fecha, invitados, prioridades y presupuesto claro.\n\nLEER ARTÍCULO\n2026-06-01\nPRESUPUESTO\n6 MIN\nQué debe incluir un presupuesto de fiesta bien hecho\n\nLos puntos que tienen que estar claros para comparar propuestas sin caer en precios incompletos o sorpresas de último momento.\n\nLEER ARTÍCULO\n2026-06-01\nCATERING\n5 MIN\nCómo elegir el menú para un evento sin equivocarte\n\nUna guía simple para elegir comida abundante, ordenada y acorde al tipo de fiesta,",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /landing",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/landing",
+            "url": "http://127.0.0.1:3300/",
+            "duration": 9828,
+            "text": "AK Producciones\nINICIO\nSERVICIOS\nGALERÍA HD\nSIMULADOR\nBLOG\nPREGUNTAS FRECUENTES\nCLUB URUGUAY\nSIMULAR MI PRESUPUESTO\n\nAK PRODUCCIONES EVENTOS · SALTO, URUGUAY\n\nOrganizá tu fiesta completa en Salto con AK Producciones\n\nSalón, comida, discoteca, decoración, fotografía, filmación, barra y coordinación en un solo lugar.\n\nComida gourmet y barra\nAmbientación y mobiliario\nDiscoteca, pantallas y luces\nTIPO DE EVENTO\n15 Años\nBodas\nSociales\nEmpresariales\nMES Y AÑO ESTIMADO\nINVITADOS APROX.\nConsultar disponibilidad de fecha\nSimular mi presupuesto\nConsultar disponibilidad por WhatsApp\n\nProducción integral AK\n\nUna sola conversación. Todos los servicios que tu fiesta necesita.\n\nReunimos catering, barra, ambientación, mobiliario, discoteca, tecnología y coordinación. Cada propuesta se adapta a tu fecha, estilo e invitados.\n\nBodas\n\nCeremonia, cena y fiesta coordinadas por un mismo equipo.\n\nVer propuesta\nFiestas de 15\n\nUna noche personal, con pista, recuerdos y energía para celebrar.\n\nVer propuesta\nCumpleaños y sociales\n\nGastronomía, barra y música pensadas según cada grupo.\n\nVer propuesta\nEventos empresariales\n\nRecepciones y encuentros con puesta técnica y operativa.\n\nVer propuesta\n✨ EL VALOR DE LA",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /presentacion",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/presentacion",
+            "url": "http://127.0.0.1:3300/presentacion-led",
+            "duration": 8683,
+            "text": "Portada\n\n🏛️ Salón Club Uruguay\nDemo Comercial\nMODO PANTALLA GIGANTE\nAK Producciones\n\nTu evento soñado, hecho realidad\n\nSalón, comida, música, fotos y coordinación con un solo equipo.\n\nEmpezar propuesta\nPensado para vender en vivo, sin aspecto de catalogo interno\n\nAK PRODUCCIONES\n\nEXPERIENCIA VISUAL EXCLUSIVA\n\nEXPERIENCIA AK\n\nEvento completo, claro y listo para decidir\n\nAnterior\nSiguiente\n← → Navegar · F Pantalla completa",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /public/blog",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/public/blog",
+            "url": "http://127.0.0.1:3300/public/blog",
+            "duration": 8203,
+            "text": "AK PRODUCCIONES\nINICIO\nBLOG\nSIMULADOR\n¡CONSULTANOS!\nBLOG AK PRODUCCIONES\nConsejos claros para decidir mejor tu evento.\n\nGuías para elegir salón, menú, presupuesto, tiempos y servicios antes de contratar.\n\nSIMULAR PRESUPUESTO\nPEDIR ASESORAMIENTO\n\nARTÍCULO DESTACADO\n\nCómo empezar a organizar una fiesta sin estrés\n\nEl orden correcto para pasar de una idea suelta a una fiesta posible, con fecha, invitados, prioridades y presupuesto claro.\n\nORGANIZACIÓN\n5 MIN\n\nGUÍAS PRÁCTICAS\n\nContenido para decidir mejor\n\nCada artículo responde dudas frecuentes y ayuda a tomar decisiones inteligentes antes de tu evento.\n\nORGANIZACIÓN\n5 MIN\nCómo empezar a organizar una fiesta sin estrés\n\nEl orden correcto para pasar de una idea suelta a una fiesta posible, con fecha, invitados, prioridades y presupuesto claro.\n\nLEER ARTÍCULO\n2026-06-01\nPRESUPUESTO\n6 MIN\nQué debe incluir un presupuesto de fiesta bien hecho\n\nLos puntos que tienen que estar claros para comparar propuestas sin caer en precios incompletos o sorpresas de último momento.\n\nLEER ARTÍCULO\n2026-06-01\nCATERING\n5 MIN\nCómo elegir el menú para un evento sin equivocarte\n\nUna guía simple para elegir comida abundante, ordenada y acorde al tipo de fiesta,",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /landing/xv-anos",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/landing/xv-anos",
+            "url": "http://127.0.0.1:3300/quinceaneras",
+            "duration": 11393,
+            "text": "AK Producciones\nINICIO\nSERVICIOS\nGALERÍA HD\nSIMULADOR\nBLOG\nPREGUNTAS FRECUENTES\nCLUB URUGUAY\nSIMULAR MI PRESUPUESTO\n\nAK PRODUCCIONES EVENTOS · SALTO, URUGUAY\n\nFiesta de 15 Años\n\nLa noche de tus 15 pensada para que te diviertas al máximo junto a tus amigos y familia.\n\nComida gourmet y barra\nAmbientación y mobiliario\nDiscoteca, pantallas y luces\nTIPO DE EVENTO\n15 Años\nBodas\nSociales\nEmpresariales\nMES Y AÑO ESTIMADO\nINVITADOS APROX.\nConsultar disponibilidad de fecha\nDescubrir mi fiesta ideal\nHablar con un productor por WhatsApp\nPresupuesto Transparente & Sin Compromiso\nReserva Tentativa de Fecha\n\nPRODUCCIÓN INTEGRAL\n\nUna propuesta hecha para tu evento\n\nArmamos cada servicio alrededor de la fecha, las personas invitadas y el estilo que querés lograr.\n\nBarra de tragos sin alcohol\n\nCócteles de autor frutales, milkshakes y presentaciones divertidas para tus invitados.\n\nEspejo Mágico & Fotocabina IA\n\nFotos divertidas impresas en el acto con accesorios y filtros mágicos de IA.\n\nMuro Social 4K & Discoteca\n\nSubida de fotos en tiempo real desde el celular a la pantalla gigante del salón.\n\nCatering Adolescente & Gala\n\nFinger food, hamburguesitas de autor, pizza party y menúes especiales.\n\nDecor",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /public",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/public",
+            "url": "http://127.0.0.1:3300/",
+            "duration": 12716,
+            "text": "AK Producciones\nINICIO\nSERVICIOS\nGALERÍA HD\nSIMULADOR\nBLOG\nPREGUNTAS FRECUENTES\nCLUB URUGUAY\nSIMULAR MI PRESUPUESTO\n\nAK PRODUCCIONES EVENTOS · SALTO, URUGUAY\n\nOrganizá tu fiesta completa en Salto con AK Producciones\n\nSalón, comida, discoteca, decoración, fotografía, filmación, barra y coordinación en un solo lugar.\n\nComida gourmet y barra\nAmbientación y mobiliario\nDiscoteca, pantallas y luces\nTIPO DE EVENTO\n15 Años\nBodas\nSociales\nEmpresariales\nMES Y AÑO ESTIMADO\nINVITADOS APROX.\nConsultar disponibilidad de fecha\nSimular mi presupuesto\nConsultar disponibilidad por WhatsApp\n\nProducción integral AK\n\nUna sola conversación. Todos los servicios que tu fiesta necesita.\n\nReunimos catering, barra, ambientación, mobiliario, discoteca, tecnología y coordinación. Cada propuesta se adapta a tu fecha, estilo e invitados.\n\nBodas\n\nCeremonia, cena y fiesta coordinadas por un mismo equipo.\n\nVer propuesta\nFiestas de 15\n\nUna noche personal, con pista, recuerdos y energía para celebrar.\n\nVer propuesta\nCumpleaños y sociales\n\nGastronomía, barra y música pensadas según cada grupo.\n\nVer propuesta\nEventos empresariales\n\nRecepciones y encuentros con puesta técnica y operativa.\n\nVer propuesta\n✨ EL VALOR DE LA",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /portal-cliente",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/portal-cliente",
+            "url": "http://127.0.0.1:3300/portal",
+            "duration": 6098,
+            "text": "Portal de Planificación del Cliente\n\nEste espacio es exclusivo para los anfitriones de eventos organizados por AK Producciones. Desde acá podés seguir cada detalle de tu evento: confirmar tu menú, organizar la música, chequear el cronograma del día, ver la lista de tareas y revisar el estado de pagos y contratos.\n\nPara ingresar a tu fiesta, abrí el enlace personalizado que te envió tu coordinador o comunicate directamente con nuestro equipo para recibir tu acceso directo y resolver cualquier consulta.\n\nIr a la página principal\nCotizar mi fiesta",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /catalogo/bodas",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/catalogo/bodas",
+            "url": "http://127.0.0.1:3300/catalogo/bodas",
+            "duration": 7991,
+            "text": "💍\nBodas\n·\nPortada\n1/9\nPortada\nPresentación\nPor qué elegirnos\nEl proceso\nServicios\nRegalos incluidos\nTestimonios\nFormas de pago\nResumen\n💍\nBodas\nTu boda perfecta, hecha realidad\n\nOrganizamos cada detalle para que el día más importante de tu vida sea exactamente como lo soñaste. Décor, catering, música, fotografía — todo en un solo lugar.\n\n¡Cotizar mi boda!\nAnterior\nSiguiente",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 venta aislada /configuracion/backup-final",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa447-ruta-aislada",
+          "data": {
+            "route": "/configuracion/backup-final",
+            "url": "http://localhost:3300/login?redirect=%2Fsettings%2Fbackup-final",
+            "duration": 7982,
+            "text": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+            "errors": [],
+            "consoleErrors": [],
+            "scope": "Same nine routes and HTTP/body/React assertions as original long walk, separate fixture context per route; nonasserted networkidle limited5s instead15. Not every control acceptance."
+          }
+        },
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-001-resultados.json",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "title": "447 quinceaneras tres cargas aisladas criterio2500ms",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "errors": [
+        "Test timeout of 180000ms exceeded.",
+        "Error: browserContext._wrapApiCall: Tracing is already stopping"
+      ],
+      "jsonAttachments": [
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-002-resultados.json",
+      "file": "ak207-entertainment-stations.spec.ts",
+      "title": "time capsule exposes every media mode and records the configured frame",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: expect(received).toBeGreaterThan(expected)\n\nExpected: > 0\nReceived:   0\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n\n  205 |     const source = (element as HTMLVideoElement).src;\n  206 |     return (await (await fetch(source)).blob()).size;\n> 207 |   })).toBeGreaterThan(0);\n      |       ^\n  208 |\n  209 |   await page.getByRole('button', { name: /Grabar de nuevo/i }).click();\n  210 |   await expect(page.getByRole('button', { name: /Comenzar a Grabar/i })).toBeVisible();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts:207:7"
+      ],
+      "jsonAttachments": [
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-002-resultados.json",
+      "file": "ak207-entertainment-stations.spec.ts",
+      "title": "time capsule bakes the configured frame into an uploaded gallery video",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('Video Cargado')\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 45000ms\n  - waiting for getByText('Video Cargado')\n\n\n  264 | const extension = outputType.includes('mp4') ? 'mp4' : 'webm';;return{type:outputType,name:`gallery-test.${extension}`,bytes:Array.from(new Uint8Array(await new Blob(chunks,{type:outputType}).arrayBuffer()))};}); await input.setInputFiles({name:qa451Video.name,mimeType:qa451Video.type,buffer:Buffer.from(qa451Video.bytes)});;\n  265 |\n> 266 |   await expect(page.getByText('Video Cargado')).toBeVisible();\n      |                                                 ^\n  267 |   const reviewVideo = page.locator('video[src^=\"blob:\"]').first();\n  268 |   await expect(reviewVideo).toBeVisible();\n  269 |   await expect.poll(async () => reviewVideo.evaluate(async (element) => {\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts:266:49"
+      ],
+      "jsonAttachments": [
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-003-resultados.json",
+      "file": "ak207-la-grilla-de-caras.spec.ts",
+      "title": "la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: muestra la pantalla de resultados, armada en el propio teléfono\n\nexpect(received).toBeGreaterThan(expected)\n\nExpected: > 0\nReceived:   0\n\n  311 |       if (await titulos.nth(i).isVisible()) visibles += 1;\n  312 |     }\n> 313 |     expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);\n      |                                                                                         ^\n  314 |   });\n  315 | });\n  316 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:313:89"
+      ],
+      "jsonAttachments": [
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "media-and-sales",
+      "report": "457-batch-004-resultados.json",
+      "file": "ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "title": "cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "jsonAttachments": [
+        {
+          "name": "qa451-sdk-persistence",
+          "data": {
+            "budgets": [],
+            "leads": []
+          }
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "sdk": 200,
+    "trackedDiff": "",
+    "ownedRunning": []
+  },
+  "interpretation": "All18 selected concrete cases executed, not all app controls/roles. Original assertions retained where originals reused; split sales walk uses same nine route checks. Baseline mismatch is not automatically bad UX; no reference reset. Original earlier failures remain preserved. Provider/hardware/production not certified."
+}

@@ -1,0 +1,24 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "phase": "finished",
+  "started": "2026-10-25T13:15:24.642Z",
+  "appEdited": false,
+  "foreignProcessesStopped": false,
+  "realServices": false,
+  "preflights": [
+    {
+      "at": "2026-10-25T13:15:26.887Z",
+      "free": 1772290048,
+      "foreignBuilds": {
+        "ProcessId": 13820,
+        "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\GitHub\\app-AK\\node_modules\\next\\dist\\bin\\next build"
+      }
+    },
+    {
+      "at": "2026-10-25T13:16:59.805Z",
+      "free": 4373983232,
+      "foreignBuilds": []
+    }
+  ],
+  "finished": "2026-10-25T13:17:53.217Z"
+}

@@ -1,0 +1,751 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "512-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts",
+      "ak207-el-totem-de-bienvenida.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\512-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 14400000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-019-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-019-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-el-totem-de-bienvenida.spec.ts",
+      "file": "ak207-el-totem-de-bienvenida.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "El tótem de bienvenida interactivo",
+          "file": "ak207-el-totem-de-bienvenida.spec.ts",
+          "line": 44,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Sin QR muestra la pantalla de espera con Acercá el QR",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 35133,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:8168) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:18:54.602Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTk3NDE0OTc2NzQtNjExNDgxODYzNTUy"
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-a8fb76cbb2bd8570e8d5",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 57,
+              "column": 7
+            },
+            {
+              "title": "Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 110311,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:2:14",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts",
+                          "column": 14,
+                          "line": 2
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {test \u001b[36mas\u001b[39m __akAudit207} \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m __akAudit207\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m({context}\u001b[33m,\u001b[39minfo)\u001b[33m=>\u001b[39m{\n \u001b[90m   |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m  \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mroute(\u001b[32m'**/*'\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m r\u001b[33m=>\u001b[39m{\u001b[36mconst\u001b[39m u\u001b[33m=\u001b[39m\u001b[36mnew\u001b[39m \u001b[33mURL\u001b[39m(r\u001b[33m.\u001b[39mrequest()\u001b[33m.\u001b[39murl())\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(\u001b[35m/^https?:$/\u001b[39m\u001b[33m.\u001b[39mtest(u\u001b[33m.\u001b[39mprotocol)\u001b[33m&&\u001b[39m\u001b[33m!\u001b[39m[\u001b[32m'127.0.0.1'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'localhost'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'[::1]'\u001b[39m]\u001b[33m.\u001b[39mincludes(u\u001b[33m.\u001b[39mhostname)){\u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'qa-egress-blocked'\u001b[39m\u001b[33m,\u001b[39m{contentType\u001b[33m:\u001b[39m\u001b[32m'text/plain'\u001b[39m\u001b[33m,\u001b[39mbody\u001b[33m:\u001b[39mu\u001b[33m.\u001b[39morigin\u001b[33m+\u001b[39mu\u001b[33m.\u001b[39mpathname})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m r\u001b[33m.\u001b[39mabort(\u001b[32m'blockedbyclient'\u001b[39m)\u001b[33m;\u001b[39m}\u001b[36melse\u001b[39m \u001b[36mawait\u001b[39m r\u001b[33m.\u001b[39m\u001b[36mcontinue\u001b[39m()\u001b[33m;\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m  \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mroute(\u001b[32m'https://firebaseinstallations.googleapis.com/**'\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m r\u001b[33m=>\u001b[39m{\u001b[36mconst\u001b[39m u\u001b[33m=\u001b[39m\u001b[36mnew\u001b[39m \u001b[33mURL\u001b[39m(r\u001b[33m.\u001b[39mrequest()\u001b[33m.\u001b[39murl())\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m body\u001b[33m=\u001b[39mu\u001b[33m.\u001b[39mpathname\u001b[33m.\u001b[39mendsWith(\u001b[32m'authTokens:generate'\u001b[39m)\u001b[33m?\u001b[39m{token\u001b[33m:\u001b[39m\u001b[32m'qa368-fis-only'\u001b[39m\u001b[33m,\u001b[39mexpiresIn\u001b[33m:\u001b[39m\u001b[32m'604800s'\u001b[39m}\u001b[33m:\u001b[39m{fid\u001b[33m:\u001b[39m\u001b[32m'c'\u001b[39m\u001b[33m+\u001b[39m\u001b[32m'a'\u001b[39m\u001b[33m.\u001b[39mrepeat(\u001b[35m21\u001b[39m)\u001b[33m,\u001b[39mrefreshToken\u001b[33m:\u001b[39m\u001b[32m'qa368-fis-refresh-only'\u001b[39m\u001b[33m,\u001b[39mauthToken\u001b[33m:\u001b[39m{token\u001b[33m:\u001b[39m\u001b[32m'qa368-fis-only'\u001b[39m\u001b[33m,\u001b[39mexpiresIn\u001b[33m:\u001b[39m\u001b[32m'604800s'\u001b[39m}}\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m r\u001b[33m.\u001b[39mfulfill({status\u001b[33m:\u001b[39m\u001b[35m200\u001b[39m\u001b[33m,\u001b[39mcontentType\u001b[33m:\u001b[39m\u001b[32m'application/json'\u001b[39m\u001b[33m,\u001b[39mbody\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(body)})\u001b[33m;\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m  \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'qa-fis-mode'\u001b[39m\u001b[33m,\u001b[39m{contentType\u001b[33m:\u001b[39m\u001b[32m'text/plain'\u001b[39m\u001b[33m,\u001b[39mbody\u001b[33m:\u001b[39m\u001b[32m'LOCAL DOUBLE only; no Firebase provider acceptance'\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts",
+                            "column": 14,
+                            "line": 2
+                          },
+                          "message": "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  1 | import {test as __akAudit207} from '@playwright/test';\n> 2 | __akAudit207.beforeEach(async({context},info)=>{\n    |              ^\n  3 |  await context.route('**/*',async r=>{const u=new URL(r.request().url());if(/^https?:$/.test(u.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(u.hostname)){await info.attach('qa-egress-blocked',{contentType:'text/plain',body:u.origin+u.pathname});await r.abort('blockedbyclient');}else await r.continue();});\n  4 |  await context.route('https://firebaseinstallations.googleapis.com/**',async r=>{const u=new URL(r.request().url());const body=u.pathname.endsWith('authTokens:generate')?{token:'qa368-fis-only',expiresIn:'604800s'}:{fid:'c'+'a'.repeat(21),refreshToken:'qa368-fis-refresh-only',authToken:{token:'qa368-fis-only',expiresIn:'604800s'}};await r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});});\n  5 |  await info.attach('qa-fis-mode',{contentType:'text/plain',body:'LOCAL DOUBLE only; no Firebase provider acceptance'});\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:2:14"
+                        },
+                        {
+                          "message": "Error: browser.newContext: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1228\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1 --use-angle=swiftshader --enable-unsafe-swiftshader --user-data-dir=C:\\Users\\Usuario\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-8VS6Qj --remote-debugging-pipe --no-startup-window\n<launched> pid=11856\n[pid=11856] <gracefully close start>\n[pid=11856] <kill>\n[pid=11856] <will force kill>\n[pid=11856] taskkill stdout: CORRECTO: el proceso con PID 6628 (proceso secundario de PID 11856)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 12580 (proceso secundario de PID 11856)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 11856 (proceso secundario de PID 8168)\r\nha sido terminado.\r\n"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:19:30.498Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts",
+                        "column": 14,
+                        "line": 2
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-36435f618e0ca26fec6d",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 63,
+              "column": 7
+            },
+            {
+              "title": "Con un QR de otra fiesta o token malo muestra cartel de error y no saluda",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 63616,
+                      "error": {
+                        "message": "Error: QA495 fixture bridge: ",
+                        "stack": "Error: QA495 fixture bridge: \n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                          "column": 524,
+                          "line": 2
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\fiesta-de-prueba.ts:2\n\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {spawnSync \u001b[36mas\u001b[39m __qa495Spawn} \u001b[36mfrom\u001b[39m \u001b[32m'node:child_process'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mfunction\u001b[39m __qa495(op\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mid\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mvalue\u001b[33m?\u001b[39m\u001b[33m:\u001b[39munknown){\u001b[36mif\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mFIRESTORE_EMULATOR_HOST\u001b[39m\u001b[33m!==\u001b[39m\u001b[32m'127.0.0.1:8085'\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 emulator only'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m r\u001b[33m=\u001b[39m__qa495Spawn(process\u001b[33m.\u001b[39mexecPath\u001b[33m,\u001b[39m[process\u001b[33m.\u001b[39mcwd()\u001b[33m+\u001b[39m\u001b[32m'/.qa495-fiesta-bridge.cjs'\u001b[39m\u001b[33m,\u001b[39mop\u001b[33m,\u001b[39mid]\u001b[33m,\u001b[39m{cwd\u001b[33m:\u001b[39mprocess\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39menv\u001b[33m:\u001b[39m{\u001b[33m...\u001b[39mprocess\u001b[33m.\u001b[39menv\u001b[33m,\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m:\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m||\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m.\u001b[39mreplace(\u001b[35m/--max-old-space-size=\\d+/g\u001b[39m\u001b[33m,\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m+\u001b[39m\u001b[32m' --max-old-space-size=256'\u001b[39m}\u001b[33m,\u001b[39minput\u001b[33m:\u001b[39mvalue\u001b[33m===\u001b[39mundefined\u001b[33m?\u001b[39mundefined\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(value)\u001b[33m,\u001b[39mencoding\u001b[33m:\u001b[39m\u001b[32m'utf8'\u001b[39m\u001b[33m,\u001b[39mtimeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m\u001b[33m,\u001b[39mmaxBuffer\u001b[33m:\u001b[39m\u001b[35m16\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(r\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m0\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 fixture bridge: '\u001b[39m\u001b[33m+\u001b[39mr\u001b[33m.\u001b[39mstderr)\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(r\u001b[33m.\u001b[39mstdout\u001b[33m||\u001b[39m\u001b[32m'null'\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m   |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m \u001b[36mimport\u001b[39m crypto \u001b[36mfrom\u001b[39m \u001b[32m'node:crypto'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mimport\u001b[39m fs \u001b[36mfrom\u001b[39m \u001b[32m'node:fs'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m \u001b[36mimport\u001b[39m path \u001b[36mfrom\u001b[39m \u001b[32m'node:path'\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                            "column": 524,
+                            "line": 2
+                          },
+                          "message": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:7504) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:21:59.563Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTk3NDE0OTc2NzQtNjExNDgxODYzNTUy"
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 524,
+                        "line": 2
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-eff65460c81ad533bdd5",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 78,
+              "column": 7
+            },
+            {
+              "title": "Vuelve sola a la pantalla de espera",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 55236,
+                      "error": {
+                        "message": "Error: QA495 fixture bridge: ",
+                        "stack": "Error: QA495 fixture bridge: \n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                          "column": 524,
+                          "line": 2
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\fiesta-de-prueba.ts:2\n\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {spawnSync \u001b[36mas\u001b[39m __qa495Spawn} \u001b[36mfrom\u001b[39m \u001b[32m'node:child_process'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mfunction\u001b[39m __qa495(op\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mid\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mvalue\u001b[33m?\u001b[39m\u001b[33m:\u001b[39munknown){\u001b[36mif\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mFIRESTORE_EMULATOR_HOST\u001b[39m\u001b[33m!==\u001b[39m\u001b[32m'127.0.0.1:8085'\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 emulator only'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m r\u001b[33m=\u001b[39m__qa495Spawn(process\u001b[33m.\u001b[39mexecPath\u001b[33m,\u001b[39m[process\u001b[33m.\u001b[39mcwd()\u001b[33m+\u001b[39m\u001b[32m'/.qa495-fiesta-bridge.cjs'\u001b[39m\u001b[33m,\u001b[39mop\u001b[33m,\u001b[39mid]\u001b[33m,\u001b[39m{cwd\u001b[33m:\u001b[39mprocess\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39menv\u001b[33m:\u001b[39m{\u001b[33m...\u001b[39mprocess\u001b[33m.\u001b[39menv\u001b[33m,\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m:\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m||\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m.\u001b[39mreplace(\u001b[35m/--max-old-space-size=\\d+/g\u001b[39m\u001b[33m,\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m+\u001b[39m\u001b[32m' --max-old-space-size=256'\u001b[39m}\u001b[33m,\u001b[39minput\u001b[33m:\u001b[39mvalue\u001b[33m===\u001b[39mundefined\u001b[33m?\u001b[39mundefined\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(value)\u001b[33m,\u001b[39mencoding\u001b[33m:\u001b[39m\u001b[32m'utf8'\u001b[39m\u001b[33m,\u001b[39mtimeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m\u001b[33m,\u001b[39mmaxBuffer\u001b[33m:\u001b[39m\u001b[35m16\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(r\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m0\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 fixture bridge: '\u001b[39m\u001b[33m+\u001b[39mr\u001b[33m.\u001b[39mstderr)\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(r\u001b[33m.\u001b[39mstdout\u001b[33m||\u001b[39m\u001b[32m'null'\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m   |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m \u001b[36mimport\u001b[39m crypto \u001b[36mfrom\u001b[39m \u001b[32m'node:crypto'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mimport\u001b[39m fs \u001b[36mfrom\u001b[39m \u001b[32m'node:fs'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m \u001b[36mimport\u001b[39m path \u001b[36mfrom\u001b[39m \u001b[32m'node:path'\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                            "column": 524,
+                            "line": 2
+                          },
+                          "message": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:15144) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:23:40.418Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTk3NDE0OTc2NzQtNjExNDgxODYzNTUy"
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-651a7-ola-a-la-pantalla-de-espera-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-651a7-ola-a-la-pantalla-de-espera-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-651a7-ola-a-la-pantalla-de-espera-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 524,
+                        "line": 2
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-1e51c839165bfe449841",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 99,
+              "column": 7
+            },
+            {
+              "title": "Sin QR muestra la pantalla de espera con Acercá el QR",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 27902,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:14448) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:25:11.119Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTk3NDE0OTc2NzQtNjExNDgxODYzNTUy"
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-5b3912d965c712645853",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 57,
+              "column": 7
+            },
+            {
+              "title": "Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 99246,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:2:14",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts",
+                          "column": 14,
+                          "line": 2
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {test \u001b[36mas\u001b[39m __akAudit207} \u001b[36mfrom\u001b[39m \u001b[32m'@playwright/test'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m __akAudit207\u001b[33m.\u001b[39mbeforeEach(\u001b[36masync\u001b[39m({context}\u001b[33m,\u001b[39minfo)\u001b[33m=>\u001b[39m{\n \u001b[90m   |\u001b[39m              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m  \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mroute(\u001b[32m'**/*'\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m r\u001b[33m=>\u001b[39m{\u001b[36mconst\u001b[39m u\u001b[33m=\u001b[39m\u001b[36mnew\u001b[39m \u001b[33mURL\u001b[39m(r\u001b[33m.\u001b[39mrequest()\u001b[33m.\u001b[39murl())\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(\u001b[35m/^https?:$/\u001b[39m\u001b[33m.\u001b[39mtest(u\u001b[33m.\u001b[39mprotocol)\u001b[33m&&\u001b[39m\u001b[33m!\u001b[39m[\u001b[32m'127.0.0.1'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'localhost'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'[::1]'\u001b[39m]\u001b[33m.\u001b[39mincludes(u\u001b[33m.\u001b[39mhostname)){\u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'qa-egress-blocked'\u001b[39m\u001b[33m,\u001b[39m{contentType\u001b[33m:\u001b[39m\u001b[32m'text/plain'\u001b[39m\u001b[33m,\u001b[39mbody\u001b[33m:\u001b[39mu\u001b[33m.\u001b[39morigin\u001b[33m+\u001b[39mu\u001b[33m.\u001b[39mpathname})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m r\u001b[33m.\u001b[39mabort(\u001b[32m'blockedbyclient'\u001b[39m)\u001b[33m;\u001b[39m}\u001b[36melse\u001b[39m \u001b[36mawait\u001b[39m r\u001b[33m.\u001b[39m\u001b[36mcontinue\u001b[39m()\u001b[33m;\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m  \u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mroute(\u001b[32m'https://firebaseinstallations.googleapis.com/**'\u001b[39m\u001b[33m,\u001b[39m\u001b[36masync\u001b[39m r\u001b[33m=>\u001b[39m{\u001b[36mconst\u001b[39m u\u001b[33m=\u001b[39m\u001b[36mnew\u001b[39m \u001b[33mURL\u001b[39m(r\u001b[33m.\u001b[39mrequest()\u001b[33m.\u001b[39murl())\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m body\u001b[33m=\u001b[39mu\u001b[33m.\u001b[39mpathname\u001b[33m.\u001b[39mendsWith(\u001b[32m'authTokens:generate'\u001b[39m)\u001b[33m?\u001b[39m{token\u001b[33m:\u001b[39m\u001b[32m'qa368-fis-only'\u001b[39m\u001b[33m,\u001b[39mexpiresIn\u001b[33m:\u001b[39m\u001b[32m'604800s'\u001b[39m}\u001b[33m:\u001b[39m{fid\u001b[33m:\u001b[39m\u001b[32m'c'\u001b[39m\u001b[33m+\u001b[39m\u001b[32m'a'\u001b[39m\u001b[33m.\u001b[39mrepeat(\u001b[35m21\u001b[39m)\u001b[33m,\u001b[39mrefreshToken\u001b[33m:\u001b[39m\u001b[32m'qa368-fis-refresh-only'\u001b[39m\u001b[33m,\u001b[39mauthToken\u001b[33m:\u001b[39m{token\u001b[33m:\u001b[39m\u001b[32m'qa368-fis-only'\u001b[39m\u001b[33m,\u001b[39mexpiresIn\u001b[33m:\u001b[39m\u001b[32m'604800s'\u001b[39m}}\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m r\u001b[33m.\u001b[39mfulfill({status\u001b[33m:\u001b[39m\u001b[35m200\u001b[39m\u001b[33m,\u001b[39mcontentType\u001b[33m:\u001b[39m\u001b[32m'application/json'\u001b[39m\u001b[33m,\u001b[39mbody\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(body)})\u001b[33m;\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m  \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'qa-fis-mode'\u001b[39m\u001b[33m,\u001b[39m{contentType\u001b[33m:\u001b[39m\u001b[32m'text/plain'\u001b[39m\u001b[33m,\u001b[39mbody\u001b[33m:\u001b[39m\u001b[32m'LOCAL DOUBLE only; no Firebase provider acceptance'\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts",
+                            "column": 14,
+                            "line": 2
+                          },
+                          "message": "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  1 | import {test as __akAudit207} from '@playwright/test';\n> 2 | __akAudit207.beforeEach(async({context},info)=>{\n    |              ^\n  3 |  await context.route('**/*',async r=>{const u=new URL(r.request().url());if(/^https?:$/.test(u.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(u.hostname)){await info.attach('qa-egress-blocked',{contentType:'text/plain',body:u.origin+u.pathname});await r.abort('blockedbyclient');}else await r.continue();});\n  4 |  await context.route('https://firebaseinstallations.googleapis.com/**',async r=>{const u=new URL(r.request().url());const body=u.pathname.endsWith('authTokens:generate')?{token:'qa368-fis-only',expiresIn:'604800s'}:{fid:'c'+'a'.repeat(21),refreshToken:'qa368-fis-refresh-only',authToken:{token:'qa368-fis-only',expiresIn:'604800s'}};await r.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});});\n  5 |  await info.attach('qa-fis-mode',{contentType:'text/plain',body:'LOCAL DOUBLE only; no Firebase provider acceptance'});\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:2:14"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:25:39.679Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-0ce29-número-de-mesa-del-invitado-chromium-mobile\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts",
+                        "column": 14,
+                        "line": 2
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-413652673fdae55fceaa",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 63,
+              "column": 7
+            },
+            {
+              "title": "Con un QR de otra fiesta o token malo muestra cartel de error y no saluda",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 70317,
+                      "error": {
+                        "message": "Error: QA495 fixture bridge: ",
+                        "stack": "Error: QA495 fixture bridge: \n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                          "column": 524,
+                          "line": 2
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mhelpers\\fiesta-de-prueba.ts:2\n\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {spawnSync \u001b[36mas\u001b[39m __qa495Spawn} \u001b[36mfrom\u001b[39m \u001b[32m'node:child_process'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mfunction\u001b[39m __qa495(op\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mid\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mvalue\u001b[33m?\u001b[39m\u001b[33m:\u001b[39munknown){\u001b[36mif\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mFIRESTORE_EMULATOR_HOST\u001b[39m\u001b[33m!==\u001b[39m\u001b[32m'127.0.0.1:8085'\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 emulator only'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m r\u001b[33m=\u001b[39m__qa495Spawn(process\u001b[33m.\u001b[39mexecPath\u001b[33m,\u001b[39m[process\u001b[33m.\u001b[39mcwd()\u001b[33m+\u001b[39m\u001b[32m'/.qa495-fiesta-bridge.cjs'\u001b[39m\u001b[33m,\u001b[39mop\u001b[33m,\u001b[39mid]\u001b[33m,\u001b[39m{cwd\u001b[33m:\u001b[39mprocess\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39menv\u001b[33m:\u001b[39m{\u001b[33m...\u001b[39mprocess\u001b[33m.\u001b[39menv\u001b[33m,\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m:\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m||\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m.\u001b[39mreplace(\u001b[35m/--max-old-space-size=\\d+/g\u001b[39m\u001b[33m,\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m+\u001b[39m\u001b[32m' --max-old-space-size=256'\u001b[39m}\u001b[33m,\u001b[39minput\u001b[33m:\u001b[39mvalue\u001b[33m===\u001b[39mundefined\u001b[33m?\u001b[39mundefined\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(value)\u001b[33m,\u001b[39mencoding\u001b[33m:\u001b[39m\u001b[32m'utf8'\u001b[39m\u001b[33m,\u001b[39mtimeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m\u001b[33m,\u001b[39mmaxBuffer\u001b[33m:\u001b[39m\u001b[35m16\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(r\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m0\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 fixture bridge: '\u001b[39m\u001b[33m+\u001b[39mr\u001b[33m.\u001b[39mstderr)\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(r\u001b[33m.\u001b[39mstdout\u001b[33m||\u001b[39m\u001b[32m'null'\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m   |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m \u001b[36mimport\u001b[39m crypto \u001b[36mfrom\u001b[39m \u001b[32m'node:crypto'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mimport\u001b[39m fs \u001b[36mfrom\u001b[39m \u001b[32m'node:fs'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m \u001b[36mimport\u001b[39m path \u001b[36mfrom\u001b[39m \u001b[32m'node:path'\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                            "column": 524,
+                            "line": 2
+                          },
+                          "message": "Error: QA495 fixture bridge: \n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:524)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:54:33"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:7384) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:27:21.205Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTk3NDE0OTc2NzQtNjExNDgxODYzNTUy"
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-019-artifacts\\ak207-el-totem-de-bienveni-22ab7-cartel-de-error-y-no-saluda-chromium-mobile\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 524,
+                        "line": 2
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-18b8c68dc92ccdf6b17d",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 78,
+              "column": 7
+            },
+            {
+              "title": "Vuelve sola a la pantalla de espera",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 47253,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:1952) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:29:11.711Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTk3NDE0OTc2NzQtNjExNDgxODYzNTUy"
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b151a2040bd6f7cfb4fa-5f70a011bd6b3609e30e",
+              "file": "ak207-el-totem-de-bienvenida.spec.ts",
+              "line": 99,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T03:18:53.099Z",
+    "duration": 701694.99,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

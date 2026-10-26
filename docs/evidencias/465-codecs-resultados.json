@@ -1,0 +1,73 @@
+{
+  "started": "2026-10-24T20:56:07.300Z",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "scope": "Independent browser/canvas/MediaRecorder platform control. No app page, real camera, SDK or provider; same software rendering arguments as208.",
+  "freeBytes": 2718240768,
+  "results": [
+    {
+      "mime": "video/mp4",
+      "animated": false,
+      "supported": true,
+      "actualMime": "video/mp4;codecs=vp9",
+      "frames": 0,
+      "chunks": 3,
+      "bytes": 1144,
+      "errors": []
+    },
+    {
+      "mime": "video/webm;codecs=vp9",
+      "animated": false,
+      "supported": true,
+      "actualMime": "video/webm;codecs=vp9",
+      "frames": 0,
+      "chunks": 1,
+      "bytes": 529,
+      "errors": []
+    },
+    {
+      "mime": "video/webm",
+      "animated": false,
+      "supported": true,
+      "actualMime": "video/webm;codecs=vp8",
+      "frames": 0,
+      "chunks": 1,
+      "bytes": 1261,
+      "errors": []
+    },
+    {
+      "mime": "video/mp4",
+      "animated": true,
+      "supported": true,
+      "actualMime": "video/mp4;codecs=vp9",
+      "frames": 30,
+      "chunks": 4,
+      "bytes": 87628,
+      "errors": []
+    },
+    {
+      "mime": "video/webm;codecs=vp9",
+      "animated": true,
+      "supported": true,
+      "actualMime": "video/webm;codecs=vp9",
+      "frames": 28,
+      "chunks": 10,
+      "bytes": 2993,
+      "errors": []
+    },
+    {
+      "mime": "video/webm",
+      "animated": true,
+      "supported": true,
+      "actualMime": "video/webm;codecs=vp8",
+      "frames": 30,
+      "chunks": 11,
+      "bytes": 6475,
+      "errors": []
+    }
+  ],
+  "browserVersion": "149.0.7827.55",
+  "executable": "C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium-1228\\chrome-win64\\chrome.exe",
+  "phase": "finished",
+  "browserClosed": true,
+  "finished": "2026-10-24T20:56:17.985Z"
+}

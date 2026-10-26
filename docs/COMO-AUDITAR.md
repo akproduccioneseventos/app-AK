@@ -1427,3 +1427,16 @@ se clasifica la falla.
 Se buscan en `src` las expresiones que leen números de estado en el texto de un error
 (`.test(msg)`, `.includes('403')`…). Si el error trae `status`, manda el número; el texto sólo cuenta cuando no
 hay número, y con números enteros (`\b403\b`).
+
+### 98. ¿Un control de permisos mira el rol viejo (`role === 'admin'`) en vez del perfil?
+
+Codex 230 (órdenes 230 y 233). `requireAdminSession` aceptaba `role: 'admin'` aunque la cuenta tuviera perfil de
+secretaria: cambiarle el perfil a alguien no le sacaba lo del dueño. La misma comparación seguía en once lugares, entre
+ellos el borrado de la base. Se busca `role === 'admin'` y `role !== 'admin'` en `src/app` y `src/lib`: todo control de
+permisos usa `puede(...)` o `requireAdminSession()`. Sólo el ingreso y la traducción de cuentas viejas leen el rol.
+
+### 99. Un video, foto o audio que salió vacío, ¿se presenta como terminado?
+
+Codex 229 (orden 229). La grabación con marco perdía el audio si fallaba WebAudio, y una captura de 0 bytes se
+mostraba como "video listo". Se mira cada `onstop`, `toBlob` o `MediaRecorder`: antes de decir "listo" se mira el
+tamaño y que se pueda reproducir. Si no, se muestra el reintento.

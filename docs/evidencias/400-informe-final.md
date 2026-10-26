@@ -1,6 +1,64 @@
 # Informe final de auditoria AK
 
-Fecha de corte:24/10/2026. Este es el dictamen consolidado de la revision,
+## Cierre650 de los recorridos enumerados -25/10/2026
+
+Informe650 ylibro640 completan las comprobaciones enumeradas despues de597.
+609 cierra fotocabina4,totem1,grilla2,selfiemovil1,ventas9rutas1,Bogue1 PASS.
+614 cierra espejoJSONlocal1PASS.620 cierra stock0/20sugerencias1PASS.
+647Muro PCymovil2PASS:foto valida,1posteo/ID,pending/Momentoenviado,
+recarga sin duplicar ypendiente no visible aanonimo. No proveedorGoogle real.
+600 clasifica EXACTAMENTE37omisiones; el unicoPC condicionado aJSON ya paso,
+36variantesmoviles conservanrawSKIP, no36funciones ausentes.
+640:258claves originales,211PASS11FAIL36SKIP;2viajesMuronuevos apartePASS.
+Los11FAIL no son11bugs:650 separa oraculos/fixture/captura auxiliar/baselines.
+NO aprobar globalmente:230guardia,231contraste,229audio yCAPTURA VACIA620
+son incidencias comprobadas; selfiePC609 sigue criterio noaceptado de229,
+conresultados enadjunto posterior ysin causa/fuga inventada. Home10064ms es
+medicion LOCAL con carga compartida, no Hosting. NOappedit/merge porCodex.
+Se ejecutaron los recorridos enumerados, no es un certificado de cada boton
+de toda app en cada rol.652 verifica servicios cerrados/cleanup200/diff0.
+
+## Corte597 anterior - limites y contexto conservados
+
+**NO APROBAR la candidata como libre de errores.** Informe final completo:
+`597-cierre-final-25octubre.md`. Libro de casos sin sumar repeticiones:
+`596-recuento-resultados.json`, generado por596-conciliar-casos-unicos.mjs.
+
+- FinalPR1353:f8f7cf34e8778de784b20e2654058fd722b2a2ec; main3e45a4ac.
+  Verificados remotos25/10 al cierre; cambios privados NO CONTRASTADOS.
+- 574build finalPASS con tipos/lint, fuente0diff.593canonico finalPASS:
+  865suites/5253pruebas/0FAIL/0pending,exit0,fuente0diff. No limpieza npmci:
+  dependencias reutilizadas y estree instalado1.0.8 vs lock1.0.9 declarados.
+- Fuente978 anterior SI tuvo486build y490canonico5253PASS, no sigue pendiente.
+  512/520/554/568 concilian258casos/proyectos:199PASS19FAIL3timeout37SKIP.
+  No258funciones ni22bugs;594 clasifica limites/errores de prueba.
+- 513cierra50fronterasHTTP de descargas con7perfiles y sesiones negativas.
+  NO cierra guardia administrativa230, que usa otra politica.
+- Tres defectos confirmados:230P1 perfil explicito restringido ignorado por
+  guardia admin;229P2 procesador nuevo elimina audio del video importado;
+  231P2 titulo publico del simulador blanco sobre fondo claro en movil.
+  Ordenes reales, sin appedit/merge porCodex ni suponer que responsables las
+  leyeron. Antes de programar contrastar fuente privada del responsable.
+- 585f8f7:1PASS marco de video importado,2criteriosNOaceptados por no llegar
+  a revision de grabacion/resultado selfie. No afirmar filtracion ni codecs
+  rotos por timeout.589 prueba audio previoSI/nuevoNO con procesador real.
+- 221factura cierra variante por482ReactDOM11PASS;214 ocho efectos/PINPASS
+  en480; cambios posteriores de medios se retestean separadamente. No usar
+  los cinco defectos917 de abajo como encargos actuales en978/f8f7.
+- 594rectifica dos afirmaciones del ayudante: fotocabina SIclicaba publicar
+  manual y velocidad corria NODE_ENVproduction LOCAL. No cierres falsos.
+- Registros de OOM512/TEMP540/542 huerfana/577preflight conservados. No son
+  bugs de app;552/554/568/584 cerraron sus procesos/datos y fuente0diff.
+
+La cobertura documentada abarca las14areas indicadas en253, pero NO equivale
+a todaslasacciones/todoslosroles aceptados.37SKIP y22resultados noPASS no se
+promueven aPASS. Trabajo manualdeldueno no es una deudaCodex ni evidencia suya.
+No se certifican servicios/modelo/voz/Hosting/hardware reales por QA local.
+Este es un dictamen de NO aprobacion, no un certificado de ceroerrores.
+
+## Historico conservado24/10, NO dictamen vigente por si solo
+
+Fecha de corte historico:24/10/2026. Este es el dictamen consolidado de la revision,
 no una promesa de una revision futura ni un certificado de cero errores.
 El historial unico sigue en253-recuento-unico-auditoria.md; este informe lo
 resume y resuelve las contradicciones de los recuentos anteriores.
@@ -8,6 +66,21 @@ resume y resuelve las contradicciones de los recuentos anteriores.
 ## Dictamen
 
 **NO APROBADA una declaracion de que toda la app funciona sin errores.**
+
+ACTUALIZACION483:se terminaron las ejecuciones pendientes455/457/472/477.
+El cuadro de483 conserva resultados por objetivo, sin renovar el inventario:
+barra20ciclos,overflow390,Bogue,grabacion completa y nueve rutasPASS;
+importacion/marco yselfie/resultadosFAIL, velocidad local10519/612/3599ms.
+Dos baselines siguenFAIL por referencias, no defectos visuales demostrados.
+No quedan servicios propios corriendo. No confundir concluir una ejecucion
+con aceptar una funcion ni afirmar cada boton/rol de toda la app probado.
+
+Llego nueva entrega978af7d65a60bd287f3ee3cc05037a29566074f4. Las cinco
+causas que mas abajo se describen son de917:en978 hay correcciones presentes,
+no reencargarlas.480/482 agrega19criterios focales positivos por alcance,
+NO build/nativos nuevos ni bateria completa978. La variante de factura221
+queda cerrada porReactDOM482.229 entrega SOLO dos criterios de medios
+no aceptados para contraste con esa tanda, sin asumir causa ni programar.
 
 Hay correcciones comprobadas, una bateria unitaria completa verde y cobertura
 real de navegador. Tambien quedan defectos reproducidos y pruebas nativas
@@ -127,9 +200,10 @@ causalidad demostrada del modelo ni un falloBogue/CDP confirmado.
 No se cambia retrospectivamente el resultado de3e; los cierres adicionales
 quedan ligados a917/425/442. No son17correcciones inventadas.
 
-## Que queda sin aceptacion nativa, sin inventar errores
+## Estado previo de aceptacion nativa, actualizado por483
 
-De los objetivos principales, siguen sin demostracion suficiente: capsula
+Este parrafo conserva el estado ANTERIOR a455-477;483 lo sustituye por
+objetivo y fuente, sin borrar recibos. Antes seguian sin demostracion: capsula
 (2variantes), recorrido largo comercial, marcaBogue, grilla facial,20ciclos
 de sugerencias, overflow tras navegar a costos y dos baselines geometricos.
 La carga fria excedio2500ms en esta maquina; no se aislo costo del entorno.
@@ -191,5 +265,6 @@ Informe, fuentes de las sondas, recibos y manifiesto se entregan juntos en
 PR1361, sin cambios de app ni fusion.399 describe exactamente lo publicado y
 lo que queda solo como artefacto local; el recibo de entrega verifica Git.
 Hay un dictamen final negativo y trazable, NO un certificado ficticio.
-El siguiente trabajo de programacion utiliza las mismas ordenes214,220/223 y221/224;
+Las ordenes214,220/223 y221/224 YA tienen cambios en978:ver483/480/482,
+no reencargarlas desde917.229 contiene los dos criterios de medios para contraste;
 una entrega nueva se contrasta por delta, sin repetir esta auditoria completa.

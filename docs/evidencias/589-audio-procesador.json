@@ -1,0 +1,139 @@
+{
+  "current": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "previous": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "started": "2026-10-25T07:24:59.004Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "cases": [
+    {
+      "label": "before",
+      "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+      "sourceHashes": {
+        "src/lib/buzon/video-frame-processor.ts": "8bb0bad68fae787b3a41037adc62891ce50a58fd6eda522a1d5ac3f9547ec633",
+        "src/lib/buzon/video-frame-canvas.ts": "5d2e684047ded286fb6d15a8c8b062a35547206931df41ec20eb6a8d035e5f47",
+        "src/lib/buzon/video-frame-templates.ts": "7a77c1fb03e37f475e02a700d1ca04480f8da5adbfb7538b56d67774c6606212"
+      },
+      "output": {
+        "name": "capsula-video-1792914934750.mp4",
+        "type": "video/mp4;codecs=vp9,opus",
+        "size": 18460,
+        "duration": 1.5,
+        "progress": [
+          0,
+          0,
+          1,
+          42,
+          45,
+          49,
+          53,
+          56,
+          59,
+          64,
+          67,
+          71,
+          74,
+          77,
+          81,
+          84,
+          87,
+          91,
+          94,
+          97,
+          99,
+          100
+        ],
+        "file": "589-before-result.mp4",
+        "sha256": "b5d89d33a6725984ce656416ad59394dbae83c2065acb6c8d395ba31ae265306",
+        "video": {
+          "exit": 0,
+          "signal": null,
+          "error": "[null @ 000002466d0749c0] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 10 >= 10\r\n[null @ 000002466d0749c0] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 14 >= 14\r\n[null @ 000002466d0749c0] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 16 >= 16\r\n[null @ 000002466d0749c0] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 17 >= 17\r\n"
+        },
+        "audio": {
+          "exit": 0,
+          "signal": null,
+          "error": ""
+        }
+      },
+      "verdict": "OUTPUT_HAS_AUDIO"
+    },
+    {
+      "label": "after",
+      "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+      "sourceHashes": {
+        "src/lib/buzon/video-frame-processor.ts": "98c15ee3c3d32a1ee537f7792f11c7920b0407adbd59bfc12e47051ea06335b0",
+        "src/lib/buzon/video-frame-canvas.ts": "5d2e684047ded286fb6d15a8c8b062a35547206931df41ec20eb6a8d035e5f47",
+        "src/lib/buzon/video-frame-templates.ts": "7a77c1fb03e37f475e02a700d1ca04480f8da5adbfb7538b56d67774c6606212"
+      },
+      "output": {
+        "name": "capsula-video-1792914937546.webm",
+        "type": "video/webm;codecs=vp9",
+        "size": 26493,
+        "duration": 1.5,
+        "progress": [
+          0,
+          1,
+          6,
+          9,
+          12,
+          17,
+          20,
+          23,
+          27,
+          30,
+          33,
+          37,
+          40,
+          44,
+          48,
+          51,
+          56,
+          59,
+          62,
+          66,
+          69,
+          72,
+          77,
+          80,
+          83,
+          88,
+          91,
+          95,
+          100
+        ],
+        "file": "589-after-result.webm",
+        "sha256": "f3c48428f0eb2e37707a92155baac3d186328ba2e733128807d577c3243c31c7",
+        "video": {
+          "exit": 0,
+          "signal": null,
+          "error": ""
+        },
+        "audio": {
+          "exit": 4294967274,
+          "signal": null,
+          "error": "Stream map '' matches no streams.\r\nTo ignore this, add a trailing '?' to the map.\r\nFailed to set value '0:a:0' for option 'map': Invalid argument\r\nError parsing options for output file -.\r\nError opening output files: Invalid argument\r\n"
+        }
+      },
+      "verdict": "OUTPUT_HAS_NO_DECODABLE_AUDIO"
+    }
+  ],
+  "input": {
+    "file": "469-video-ficticio.mp4",
+    "bytes": 4112,
+    "sha256": "6066c34f5531baffdf239f0cf88bfcaf18b2fc9a10e7667599f6db518c7a7b5a",
+    "video": {
+      "exit": 0,
+      "signal": null,
+      "error": ""
+    },
+    "audio": {
+      "exit": 0,
+      "signal": null,
+      "error": ""
+    }
+  },
+  "scope": "Exact real TypeScript processor/canvas/templates transpiled with type erasure in Chromium; valid H264/AAC synthetic input, real canvas/MediaRecorder, no mocked recorder or real camera. Not Next/UI/Storage/hardware acceptance.",
+  "browserClosed": true,
+  "finished": "2026-10-25T07:55:38.042Z"
+}

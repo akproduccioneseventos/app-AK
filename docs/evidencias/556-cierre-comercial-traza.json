@@ -1,0 +1,76 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "created": "2026-10-25T06:48:26.628Z",
+  "trace": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\554-batch-004-artifacts\\ak207-prospecto-simulador--c77c1-mulador-hasta-ver-un-precio-chromium-desktop\\trace.zip",
+  "observed": {
+    "errors": [
+      {
+        "error": "Error: El prospecto llegó al final pero no tiene cómo cerrar\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first()\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El prospecto llegó al final pero no tiene cómo cerrar with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first()\u001b[22m\n",
+        "callId": "expect@336"
+      },
+      {
+        "error": "Expect failed",
+        "callId": "call@600"
+      }
+    ],
+    "clicks": [
+      {
+        "selector": "internal:role=button[name=/Comenzar mi presupuesto|Cotizar/i] >> nth=0",
+        "time": 5672.954,
+        "api": null
+      },
+      {
+        "selector": "internal:role=button[name=/Cotizar mi fiesta/i] >> nth=0",
+        "time": 6515.855,
+        "api": null
+      },
+      {
+        "selector": "internal:text=\"Mas de 4 horas\"i >> nth=0",
+        "time": 7641.508,
+        "api": null
+      },
+      {
+        "selector": "internal:text=\"Tengo salón o locación propia\"i >> nth=0",
+        "time": 10157.135,
+        "api": null
+      },
+      {
+        "selector": "internal:role=button[name=/fecha|Elegí|Seleccion/i] >> nth=0",
+        "time": 10757.298,
+        "api": null
+      },
+      {
+        "selector": "internal:role=button[name=/next month|mes siguiente/i] >> nth=0",
+        "time": 12041.735,
+        "api": null
+      },
+      {
+        "selector": "internal:role=grid >> internal:role=button[disabled=false][name=/\\b15\\b/] >> nth=0",
+        "time": 12383.928,
+        "api": null
+      },
+      {
+        "selector": "internal:role=button[name=\"Continuar\"i] >> nth=0",
+        "time": 13154.849,
+        "api": null
+      },
+      {
+        "selector": "internal:role=button[name=\"Continuar\"i] >> nth=0",
+        "time": 17169.434,
+        "api": null
+      },
+      {
+        "selector": "internal:role=button[name=\"Continuar\"i] >> nth=0",
+        "time": 23582.866,
+        "api": null
+      },
+      {
+        "selector": "internal:role=button[name=/Mantener mi selección actual/i] >> nth=0",
+        "time": 34285.104,
+        "api": null
+      }
+    ]
+  },
+  "summaryClicks": [],
+  "scope": "Actual recorded browser click trace, no app execution/change. No inferred navigation success from DOM existence."
+}

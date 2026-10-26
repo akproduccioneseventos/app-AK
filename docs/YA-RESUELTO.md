@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26/10/2026 - El rol viejo `admin` ya no pasa por encima del perfil (orden 230)
+
+- `requireAdminSession` aceptaba `role: 'admin'` aunque el dueño le hubiera puesto otro perfil a esa cuenta, y un perfil
+  inexistente caía en el rol viejo. Ahora decide `puede(..., ADMINISTRACION)` y un perfil inválido se rechaza, también en
+  `requirePermiso` (arreglo de Codex en la 1363, traído tal cual). Los otros once lugares van en la orden 233.
+
+```comprobar
+usa: esPerfilValido en src/lib/auth/require-session.ts
+prueba: src/__tests__/admin-session-respeta-perfil-explicito.test.ts
+```
+
 ## 23/10/2026 - El candado de la plata ve los ayudantes que guardan plata (pregunta 95)
 
 - La entrega 1353 de Gemini volvió a exportar `updateGestionCostosInterno`: una acción pública que reescribe
@@ -10,6 +21,105 @@
 usa: mutarCostosInterno en src/__tests__/el-candado-de-la-plata.test.ts
 prueba: src/__tests__/el-candado-de-la-plata.test.ts
 ```
+
+## 25/10/2026 - Continuacion650: recorridos enumerados ejecutados, no reabrir lista
+
+- Sobre f8f7/build574:609 fotocabina4PASS (red/rechazoPCymovil),totem1PASS,
+  grilla2PASS,selfiemovil1PASS,ventas9rutas1PASS,Bogue1PASS. No appedit.
+- 620 stock0/orden/20sugerencias/cancelacionesPASS; tiempo global240s conserva
+  aserciones.614 espejoJSONlocalPASS:posteo unico,pending oculto yrecarga.
+- 647 muro2PASS PCymovil con foto640x480 valida:AdminSDKdemo prueba1posteo,
+  mismIDtrasrecarga,statuspending/Momentoenviado,anonimo no ve caption.
+  No proveedorGoogle real. Los dos casosviejos fallaban conPNG1px/regex que
+  noaceptabaMomentoenviado. No inventar bugStorage ni cambiar copy para test.
+- 622 RESTanonimo obtuvo403: NOprueba que no habia posteos.647 SIusoAdminSDK.
+- 600 clasifica37SKIP:36guardasmoviles y1PCmodoJSON, unicoPC cerrado614.
+  No37funciones ausentes ni deuda humana.640 actualiza258claves originales
+  a211PASS11FAIL36SKIP, conSHAporfila,2viajes Murovalidos apartePASS.
+  Originalesnoreescritos. No11bugs ni258funciones/todosroles aceptados.
+- 620 captura viva convideoANIMADO+audio produce0bytes yUIVideoGrabado/listo:
+  extension229, no firma dehardware ni causaencoder inventada. SelfiePC609
+  llega tarde/discrepante aresultados:75sasercionFAIL, adjunto finalSIresultados.
+  No fuga ni nuevacausa; movilSIpass, no repetirgrilla ni movil para resolverPC.
+- Home61410064ms local contra2500:failmedicion no rendimientodeHosting;
+  hubo buildajeno durante tanda.650 conserva el limite, no reintentos enbucle.
+- AdaptacionesQA604/616:camara conframes/audio,selector ambiguo.first(),
+  espera selfiesolo trasconsentir,tiempo20ciclos yguardia encontextosnuevos.
+  El campo limits heredado de losdrivers no detalla estasadaptaciones.
+- ErroresQA preservados:603/606 y636/638 renombrado numerico alteraba
+  cadenaSHAde comparacion;guardia rechazo antesdetest.608importobservaciones
+  faltante corregido,originalgz.629/634RAMrechazada antesdelbrowser.
+  645 protege TODOSlosSHA40 al renombrar; nodetenerbuild/procesos ajenos.
+  649 final2PASS,cleanup200/sourceDiff0;652 confirma servicios/puertos cerrados.
+- Registrarantesdeaprobar:230guardia,231contraste,229audio/capturavacia y
+  criterioPC aun requierenresponsables. No convertirlos en pendientes sin
+  auditar ni afirmar app0errores. Manualdeldueno no es deudaCodex.
+
+## 25/10/2026 - Cierre597, canonica finalf8f7 y defectos contrastados
+
+- Informe400/597 yrecuento253 actualizados;596 reconcilia258casos/proyectos
+  nativos978 sin sumar intentos:199PASS19FAIL3timeout37SKIP. No22bugs,
+  no258funciones aceptadas.594 clasifica fallos/errores propios y limites.
+- 486build978 y490canonico865suites5253PASS. NuevaPR1353f8f7cf34e8778de784b20e2654058fd722b2a2ec
+  SOLO cambia cuatrofuentes de medios;574buildPASS tipos/lint;593canonico
+ 865suites5253PASS0FAIL0pending exit0/fuente0diff. No repetir por documentos.
+- 585 marco importado229 ahoraPASS:conservarlo. Otrosdoscriterios nativos
+  no alcanzan revision de captura/resultado selfie y siguen NOaceptados,
+  sin causa interna ni filtracion demostradas.525fallos978 ya son historicos.
+- 589 demuestra NUEVA regresion del MISMO procesador229:inputH264/AAC tiene
+  audio, salida978decodifica audio, salidaf8f7solo video/no pista0:a:0.
+  Chromium/Recorder/canvas/modulos reales yFFmpeg; no microfono/proveedor.
+  Gemini conserva marco eimagen yrestaura audio ORIGINAL; no pista muda.
+- 230ClaudeP1 actual:requireAdminSession ignora perfil explicito restringido
+  si rol viejoadmin;4993PASS6FAIL y5062PASS6FAIL con firmador/guardia/cuerpo
+  real resetAllFiestasHistoricas yBDcontrolada. No datos reales borrados,
+  noHTTPreal ni afirmar cuentas vivas con esos campos. Productor de sesiones
+  SI permite los campos independientes. Una causa, no seis encargos.
+- 51350fronterasHTTPPASS con7perfiles/anonimo/alterada/vencida. NO cierra230:
+  es otra politica.231GeminiP2 titulo simulador blanco sobre claro en546.
+  Guardia ysimulador siguen iguales978/f8f7. Privados NO CONTRASTADOS.
+- Factura221 ya cerrada482ReactDOM11PASS;480ochoefectos/PINPASS. No reabrir
+  cinco defectos917 como actuales ni aceptar modelo entero por esos cierres.
+- ErroresQA conservados:491fixture notifications alterada,500bytes/restaura
+  SOLOQA;512JavaOOM05:05:21UTC invalida cola como prueba de fallosapp;
+  540TEMPStoragecompartidoENOENT,542huerfana cerrada548/restaura79JSON;
+  552TEMPaislado/supervisorpropio,55456casos45PASS1oraculoviejo10SKIP,
+  56831casos15PASS16noPASS,cleanup200/sourceDiff0. Nunca parar ajenos.
+- 556 traza demuestra prospecto no clicabaVerResumen: no bug deCTA.557
+  cuatroobservaciones fecha8/8/2027DOM/printcorrectas; capturaPCrawFAIL
+  sigueFAIL, noPDFvisual certificado. Dosgrillafail son strictlocator.
+- Borrador594 barato errado: atribuia autoPublish:false comoexpectativa
+  automatica y modo desarrollo en velocidad. Director leyo originales y
+  rectifico: publicar manual SIclick previsto;productionLOCAL3560>2500.
+  Son inferenciasQA descartadas, no cambios de app ni cierres positivos.
+- 577pathQAincorrecto fue RECHAZADOantesdeJest;593 ejecuta fuente correcta.
+  Todoslosrecibos se conservan; no appedit/merge porCodex ni0errores.
+  Manualdeldueno no es pendienteCodex.399 documenta artefactos locales
+  no publicados, no anunciar trazas grandes como entregadas.
+
+## 24/10/2026 - Cierre483 de pendientes y entrega nueva978
+
+- 455 SOLOpendientes917:barra20sugerencias/cancelacionesPASS,overflow390PASS.
+  HuellasPC/movilFAIL por referencia+4/-3px yhashcolor, absolutos pasan;
+  no resetear baseline a ciegas ni afirmar superposicion por ese resultado.
+- 457 CIERRA nueve rutas de venta por HTTP/cuerpo/erroresReact, no botones;
+  Bogue comparte marcaPASS.472 CIERRA grabacion/video/marco/pistas con camara
+  yaudio sinteticos.457blob0 anterior se conserva, no causa de hardware probada.
+- Importado469finito1.5s H264/AAC4112bytes llega aVideoCargado en472 pero
+  marco0pixelesFAIL/capturanegra. Selfie esperaCORRECTA60s quedaAnalizando;
+  478captura lo muestra.229 pide diagnosticar con978 antes de arreglar, no
+  afirmar filtracion ni codec culpable. 451cambio otro4000ms fue errorQA,
+  rectificado470 sin borrar fallo.465/468 diez codecsdanbytes>0.
+- 477 velocidad:3HTTP200/titulos,10519/612/3599ms; umbral localFAIL, no
+  produccion.480/482CIERRE y483 tabla unica sustituyen pendientes genericos.
+- PR1353 avanzo978af7d65a60bd287f3ee3cc05037a29566074f4. Tiene arreglos
+  de214/220/221: NOreencargar cinco causas de917 como actuales.480 ocho
+  efectos/PINPASS. OnceReactFAIL fueron NODE_ENVproduction impuesto porQA;
+  482modooficialtest repite SOLOtres suites11PASS. No oncebugs ni canonica
+  completa978. Cierra variante221 porReactDOM; detector/CSSsin native978.
+- Todos los jobs de esta tanda terminados,cleanup200/diffQA0, herramientas
+  imageio-ffmpeg fuera de dependencias de app; sin appedit/merge. Informe400,
+  recuento253 y483 conservan limites, no cadaaccion/rol ni0errores.
 
 ## 24/10/2026 - Cierre406-443: build y controlesSDK, tres ordenes aun abiertas
 

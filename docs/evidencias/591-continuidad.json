@@ -1,0 +1,20 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "started": "2026-10-25T07:56:09.370Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "reason": "577 preflight correctly rejected old QA978 path before Jest; no f8f7 full suite ran there. Preserve original rejection. This is the sole actual final-source canonical run.",
+  "canonical": {
+    "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+    "exit": 0,
+    "suites": 865,
+    "total": 5253,
+    "pass": 5253,
+    "fail": 0,
+    "pending": 0,
+    "scope": "Canonical existing full suite on NEW frozenf8f7 source, original configuration/assertions, no custom370 adapter"
+  },
+  "sourceDiff": "",
+  "finished": "2026-10-25T08:06:40.369Z"
+}

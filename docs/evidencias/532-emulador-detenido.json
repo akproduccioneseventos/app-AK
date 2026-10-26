@@ -1,0 +1,14 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "observed": "2026-10-25T05:27:44.784Z",
+  "pid": 15440,
+  "ownershipVerified": {
+    "ProcessId": 15440,
+    "ParentProcessId": 8820,
+    "CommandLine": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-tools\\java21\\jdk-21.0.12.1+1\\bin\\java.exe -Xmx256m -jar C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-tools\\firebase-emulators\\cloud-firestore-emulator-v1.22.0.jar --host 127.0.0.1 --port 8085 --project_id demo-ak-producciones --single_project_mode true --single_project_mode_error true --rules C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-510-sdk-wJ9WuZ\\firestore.rules"
+  },
+  "reason": "Owned demo emulator already threw Java heap OutOfMemoryError. No app failure inferred; memory invalidates affected cases. Remaining original cases stay preserved and targeted recovery includes any not executed.",
+  "appEdited": false,
+  "foreignProcessStopped": false,
+  "scope": "Only Firestore emulator510 stopped; neither application server nor caller/foreign build killed. Original parent cleanup may report connection refused because this in-memory demo process was explicitly stopped."
+}

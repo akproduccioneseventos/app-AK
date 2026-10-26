@@ -232,3 +232,6 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     `cargando || !dato` gira para siempre.
 68. **¿Clasificás un error por su código?** Si trae `status`, decidí por el número. Un 503 con "403" en
     el texto no es un rechazo: no se sabe si salió, y liberarlo manda el mensaje dos veces.
+69. **¿Tu control de permisos mira `role`?** Usá `puede(...)` o `requireAdminSession()`. El rol viejo no sabe del
+    perfil que le puso el dueño.
+70. **¿Grabaste o capturaste algo?** Antes de decir "listo", mirá que no esté vacío y que se reproduzca.

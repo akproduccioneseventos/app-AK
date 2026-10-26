@@ -1,0 +1,84 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "stats": {
+    "expected": 10,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-447-venta-por-ruta.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T20:51:17.048Z",
+      "report": "457-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:45:32.445Z",
+        "duration": 344531.501,
+        "expected": 9,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-entertainment-stations.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T20:53:43.432Z",
+      "report": "457-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:51:19.309Z",
+        "duration": 144056.716,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-la-grilla-de-caras.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T20:54:37.052Z",
+      "report": "457-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:53:50.003Z",
+        "duration": 47012.906,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-las-estaciones-respetan-los-ajustes.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:55:32.080Z",
+      "report": "457-batch-004-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:54:39.225Z",
+        "duration": 52820.307,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

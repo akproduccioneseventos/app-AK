@@ -1,0 +1,44 @@
+{
+  "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+  "previous": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "started": "2026-10-25T07:14:07.291Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "changed": [
+    "src/app/evento/buzon/[fiestaId]/page.tsx",
+    "src/app/evento/galeria/[fiestaId]/page.tsx",
+    "src/lib/buzon/video-frame-processor.ts",
+    "src/lib/caras/extractor-facial.ts"
+  ],
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d",
+  "native": {
+    "source": "f8f7cf34e8778de784b20e2654058fd722b2a2ec",
+    "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-584-sdk-l7NXCd",
+    "temp": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-584-sdk-l7NXCd\\tmp",
+    "started": "2026-10-25T07:51:13.465Z",
+    "phase": "finished",
+    "appEdited": false,
+    "realServices": false,
+    "foreignProcessesStopped": false,
+    "freeBytesAtStart": 4769591296,
+    "firestorePid": 8304,
+    "storagePid": 13720,
+    "runnerPid": 5352,
+    "nativeExit": 1,
+    "cleanupStatus": 200,
+    "stoppedOwnPids": [
+      {
+        "pid": 13720,
+        "exit": 0
+      },
+      {
+        "pid": 8304,
+        "exit": 0
+      }
+    ],
+    "sourceDiff": "",
+    "finished": "2026-10-25T07:55:21.287Z"
+  },
+  "finished": "2026-10-25T07:55:21.288Z"
+}

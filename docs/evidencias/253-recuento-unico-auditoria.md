@@ -1,11 +1,54 @@
-# Recuento unico - 24/10/2026
+# Recuento unico - cierre25/10/2026
+
+## Corte650 vigente - recorridos enumerados ejecutados
+
+640 actualiza258claves porultimo recibo:211PASS11FAIL36SKIP y2MuronuevosPASS.
+609:foto4,totem1,grilla2,selfiemovil1,ventas1,Bogue1PASS;620stock20PASS;
+614espejoJSON1PASS;647muro2PASS conIDunico/recarga/pendingoculto aanonimo.
+600 clasifica37omisiones; unicoPCJSON cerrado614,36mobileguardasnoejecutadas.
+No volver a listar estos recorridos como nunca probados. Rawfallos conservados.
+229 se amplia con620:grabacion video+audio real sinteticos produce0bytes y
+se anunciaVideoGrabado. SelfiePC609 no alcanza asercion75s aunqueadjunto
+finalcontieneresultados; no filtracion/causa inventadas. Home10064ms LOCAL.
+Muroviejo1px/regex nocubriaMomentoenviado: no bugStorage probado;622REST403
+no era lecturaAdmin.647 SIusaAdminSDKdemo yprueba posteo.650 concluye.
+No appedit/merge, no0errores/todosroles/cadaboton.652higiene/cleanup/diff0.
+
+## Corte597 anterior - conservar cierres y alcances
+
+Informe final597 y400; libro596 contiene258claves caso/proyecto, intentos
+originales y reemplazos SIN sumar diferentes ejecuciones como funciones.
+Main3e45a4ac6b479f89605163168e31b37dc84f2d0f; PR1353 final seleccionada
+f8f7cf34e8778de784b20e2654058fd722b2a2ec; privados NO CONTRASTADOS.
+978build486/canonica490:865suites5253PASS. f8f7build574/canonica593:
+865suites5253PASS0FAIL0pending,exit0/fuente0diff; tipos/lintPASS porbuild.
+No repetir estas baterias por documentos ni aceptar todo por verde unitario.
+258nativos978 conciliados:199PASS19FAIL3timeout37SKIP; DOSvisuales aparte.
+585deltaf8f7:1PASS(marco importado),2FAIL(criterios vivo/selfie no alcanzados).
+589audioentradaSI/978SI/f8f7NO; defectoP2 reproducido, MISMA229 actualizada.
+230P1:6perfiles con antiguo roladmin saltan guardia;4993PASS6FAIL,
+5062PASS6FAIL consumidorreal/BDdoble.51350HTTPPASS es otrafrontera.
+231P2 titulo del selector de simuladores blanco sobre fondo claro546.
+TRESdefectos confirmados actuales, no22bugs ni solo3errores posibles.
+221variante cerrada48211ReactDOMPASS;214ochoefectos/PINPASS480; no repetir
+cinco causas917 por leer tablas historicas. Detector/calidad no globalmente
+certificados. 594 clasifica noPASS sin inventar causa ni PASS.
+Los fallos propios OOM512/TEMP540/542/577 quedan conservados y explicados.
+552/554/568/584 limpiaron datos/procesos/fuente; no procesos ajenos parados.
+NOdeclarar14areas enteras/cada control/todosroles/0errores acreditados.
+Manualdeldueno NOpendienteCodex.597cierra la tanda con NOaprobacion y limites.
+
+## Contexto historico24/10 - leer cierres anteriores con su SHA
 
 Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
 Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.
-CandidatoGemini1353 congelado917a98e32c63fe2f832f5cdc16db87f4fc722b6c.
+Candidato1353 nuevo978af7d65a60bd287f3ee3cc05037a29566074f4; native/build917historicos.
 386 ejecuta bateria canonica:862suites5243PASS0FAIL0pending, sin adaptador370.
 406 build917PASS tipos/lint;442 termina8nativosSDKPASS,443 verifica limpieza.
-Cinco causas vigentes en TRESordenes214/220/221; no todas las areas aceptadas.
+Cinco causas en917 tenian TRESordenes214/220/221.978 trae correcciones:
+480efectos/PIN8PASS,482ReactDOM11PASS (480Reactprod fue errorQA).
+Factura221 cerrada por ese alcance; CSS/detector presentes sin nativo978.
+483CIERRA ejecuciones pendientes, no acepta susFAIL;229 doscriterios medios.
 400-informe-final.md es el dictamen final consolidado, NO aprobacion global.
 3f/349/359 son historicos preservados;364/376/386 resuelven su diagnostico.
 390 comprobo HEAD privado igual917/tracked limpio a17:21UTC24/10;
@@ -74,6 +117,20 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 
 ## 4. Cierre ejecutado y limites de aceptacion
 
+- Actualizacion483 sobre917:455barra20PASS/overflow390PASS/huellas2FAIL;
+  457nueve rutasPASS/BoguePASS, otras variantes fallidas conservadas.
+  472grabacion completaPASS; importacion finita llega a revision pero marco0
+  pixelesFAIL; selfie sigueAnalizando60sFAIL.477HTTP200/titulos y tiempos
+  10519/612/3599ms, falla umbral local. No produccion ni nuevos bugs por conteo.
+  22ejecuciones contando variantes:13PASS8FAIL1timeout, no22funciones.
+  465/468 diez controles de codecs no vacios, sin hardware real.469video
+  sintetico1.5s herramientaFFmpeg SOLO fuera de dependencias de app.
+- NuevoHEAD978 contrastado por480:cinco suites, ocho efectos/PINPASS; once
+  ReactFAIL porNUESTRO NODE_ENVproduction.482 repite SOLOtres suites en modo
+  test:11PASS. No oncebugs, no build/nativos978, no5243PASS nuevos de978.
+  Hay correcciones de214/220/221 presentes; no reencargarlas desde917.
+  Directos de buzon/galeria/caras iguales, lector/permisos transitive cambia:
+  229 pide contraste de los dos criterios negativos antes de programar.
 - La bateria269 y su continuacion274 terminaron. Conciliacion277 con el formato
   REAL de Playwright:1144casos unicos,542ejecutados,496PASS/46FAIL o timeout,
   600SKIP declarados (516capturas optativas) y2FIXME. No1144PASS ni46bugs.

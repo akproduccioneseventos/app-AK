@@ -1,0 +1,210 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "609-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-004-artifacts",
+      "ak207-entertainment-stations.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\609-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 2700000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-004-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-004-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-004-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-entertainment-stations.spec.ts",
+      "file": "ak207-entertainment-stations.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "time capsule exposes every media mode and records the configured frame",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 98690,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-entertainment-stations.spec.ts",
+                        "column": 20,
+                        "line": 207
+                      },
+                      "message": "Error: locator.click: Test timeout of 90000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Detener Grabación/i })\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"w-full py-3.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-transform active:scale-95\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n\n  205 |   await expect(stopButton).toBeVisible();\n  206 |   await page.waitForTimeout(1_000);\n> 207 |   await stopButton.click();\n      |                    ^\n  208 |   // La etiqueta se llama \"Video Grabado\", no \"Video Analogico\". Se verifico en\n  209 |   // `src/app/evento/buzon/[fiestaId]/page.tsx`: el paso de revision existe y\n  210 |   // funciona, solo cambio el texto. La prueba habia quedado con el nombre viejo.\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-entertainment-stations.spec.ts:207:20"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:7752) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T12:47:45.609Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-004-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "qa608-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    },
+                    {
+                      "name": "qa604-observations",
+                      "contentType": "application/json",
+                      "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL2J1em9uL2UyZS1lbnRlcnRhaW5tZW50LWZpZXN0YSIsImV2ZW50cyI6W3sia2luZCI6InJlcXVlc3QiLCJ1cmwiOiIvZXZlbnRvL2J1em9uL2UyZS1lbnRlcnRhaW5tZW50LWZpZXN0YSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9idXpvbi9lMmUtZW50ZXJ0YWlubWVudC1maWVzdGEiLCJzdGF0dXMiOjIwMH1dLCJib2R5IjoiRVZFTlRPIEVOVFJFVEVOSU1JRU5UTyBFMkVcblxuRVZFTlRPIEVOVFJFVEVOSU1JRU5UTyBFMkVcblxuVk9MVkVSIEFMIE1FTsOaXG5HUkFCQVIgVklERU9cblxuR1JBQkEgQ09OIFRVIEPDgU1BUkEgRlJPTlRBTFxuXG5WSURFTyBHUkFCQURPXG5cbkR1cmFjacOzbjogMTUgc2VndW5kb3NcblxuR1JBQkFSIERFIE5VRVZPXG5UVSBOT01CUkUgWSBBUEVMTElET1xuXG5Dw6Fwc3VsYSBkZWwgVGllbXBvXG5cbkd1YXJkYXIgZXN0ZSBzYWx1ZG8gcGFyYSBhYnJpciBlbiBlbCBmdXR1cm9cblxuRU5WSUFSIFJFQ1VFUkRPXG5cblR1cyBkYXRvcyBxdWVkYW4gc8OzbG8gcGFyYSBlc3RhIGZpZXN0YSAoTGV5IDE4LjMzMSkuIFByaXZhY2lkYWRcblxuRVhQRVJJRU5DSUEgUE9SIEFLIFBST0RVQ0NJT05FUyIsIm1lZGlhIjp7InJlY29yZGVycyI6W3sibWltZSI6InZpZGVvL3dlYm07Y29kZWNzPXZwOSxvcHVzIiwidHJhY2tzIjpbeyJraW5kIjoidmlkZW8iLCJzdGF0ZSI6ImxpdmUifV0sImV2ZW50cyI6W3sibmFtZSI6InN0YXJ0In0seyJuYW1lIjoiZGF0YWF2YWlsYWJsZSIsImJ5dGVzIjowfSx7Im5hbWUiOiJzdG9wIn1dfV0sInZpZGVvcyI6W3sicmVhZHkiOjAsIndpZHRoIjowLCJoZWlnaHQiOjAsInBhdXNlZCI6dHJ1ZSwic3JjIjoiYmxvYiJ9XX19"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-004-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-004-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-004-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-004-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "20f5d321b72c5daa756a-97355cf161092fab99ee",
+          "file": "ak207-entertainment-stations.spec.ts",
+          "line": 152,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T12:47:43.136Z",
+    "duration": 113574.537,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

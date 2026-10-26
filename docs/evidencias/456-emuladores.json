@@ -1,0 +1,14 @@
+{
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-456-sdk-iIzBJr",
+  "started": "2026-10-24T20:44:49.806Z",
+  "freeBytesAtStart": 2617090048,
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "appEdited": false,
+  "realServices": false,
+  "firestorePid": 2016,
+  "storageCliPid": 8996,
+  "phase": "finished",
+  "exitCode": 1,
+  "cleanupStatus": 200,
+  "finished": "2026-10-24T20:55:39.956Z"
+}
