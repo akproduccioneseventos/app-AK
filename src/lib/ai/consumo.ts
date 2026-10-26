@@ -25,7 +25,11 @@ export type FuncionConCosto =
   | 'encargado-general'
   | 'nota-del-blog'
   | 'multiagente'
-  | 'armar-web-evento';
+  | 'armar-web-evento'
+  | 'lectura-recibo'
+  | 'resumen-feedback'
+  | 'sugerir-paleta'
+  | 'extraccion-prospecto-whatsapp';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -53,6 +57,10 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'nota-del-blog': 5,
   multiagente: 1,
   'armar-web-evento': 2,
+  'lectura-recibo': 1,
+  'resumen-feedback': 1,
+  'sugerir-paleta': 1,
+  'extraccion-prospecto-whatsapp': 1,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
@@ -157,3 +165,4 @@ export function resumirGasto(consumo: ConsumoDelMes, topeUYU: number): ResumenDe
     mensaje: `Vas por $${gastado} de $${tope} este mes (${porcentaje}%).`,
   };
 }
+

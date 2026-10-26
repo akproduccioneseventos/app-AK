@@ -1,5 +1,8 @@
 'use client';
 
+import { calculateReadinessScore } from '@/lib/readiness-score';
+import { generarTareasSegunServiciosYReadiness } from '@/lib/fiesta/tareas-sistema';
+
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
 
@@ -65,6 +68,7 @@ function TareasEventoContent() {
 
   const [fiestaEventDate, setFiestaEventDate] = useState<string | undefined>(undefined);
   const [tareas, setTareas] = useState<Tarea[]>([]);
+  const [fiestaActualData, setFiestaActualData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -99,6 +103,7 @@ function TareasEventoContent() {
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setTareas(fiestaData.tareas || []);
       setFiestaEventDate(fiestaData.configuracion.fechaEvento);
+      setFiestaActualData(fiestaData);
 
       // Trigger background reminder check
       checkAndCreateTaskReminders().catch(e => console.warn("Reminder check failed", e));
@@ -208,87 +213,49 @@ function TareasEventoContent() {
     }
 
     setIsSyncing(true);
-    const eventDate = parseEventDate(fiestaEventDate) || new Date(fiestaEventDate);
+    try {
+      const fiestaParaEvaluar = fiestaActualData || {
+        id: fiestaId,
+        configuracion: { fechaEvento: fiestaEventDate },
+        tareas,
+      };
 
-    let mondayForCatering = startOfWeek(eventDate, { weekStartsOn: 1 });
-    if (eventDate.getDay() === 1 || eventDate.getDay() === 2) {
-        mondayForCatering = subDays(mondayForCatering, 7);
+      // Cálculo de preparación para sincronizar tareas faltantes
+      const readiness = calculateReadinessScore(fiestaParaEvaluar);
+      const systemTasks = await generarTareasSegunServiciosYReadiness({
+        fiesta: fiestaParaEvaluar,
+        ahora: new Date(),
+      });
+
+      const currentTasks = [...tareas];
+      let addedCount = 0;
+
+      systemTasks.forEach(sysTask => {
+          if (!currentTasks.some(t => t.id === sysTask.id || t.texto === sysTask.texto)) {
+              currentTasks.push(sysTask);
+              addedCount++;
+          }
+      });
+
+      if (addedCount > 0) {
+          setTareas(currentTasks);
+          const nuevasDelSistema = currentTasks.slice(tareas.length);
+          await handleSaveChanges(() => addTareasToFiestaActual(fiestaId, nuevasDelSistema));
+          toast({
+              title: "Tareas sincronizadas",
+              description: `Se agregaron ${addedCount} tareas según servicios contratados y estado de preparación (Readiness score: ${(readiness as any).score ?? readiness.porcentajeReadiness}%).`
+          });
+      } else {
+          toast({
+              title: "Todo al día",
+              description: "Las tareas del sistema ya están al día con los servicios contratados."
+          });
+      }
+    } catch (e: any) {
+      toast({ title: "Error al sincronizar tareas", description: e.message, variant: "destructive" });
+    } finally {
+      setIsSyncing(false);
     }
-
-    const systemTasks: Omit<Tarea, 'id'>[] = [
-        {
-            texto: "Comprar insumos de catering y bebidas",
-            descripcion: "Ir al mercado/proveedores para comprar todo lo necesario para el menú.",
-            completada: false,
-            fechaLimite: mondayForCatering.toISOString(),
-            asignadaA: 'Organizador',
-            esPredeterminada: true
-        },
-        {
-            texto: "Enviar recordatorio y confirmar personal",
-            descripcion: "Avisar por WhatsApp a mozos, barmen y auxiliares.",
-            completada: false,
-            fechaLimite: subDays(eventDate, 3).toISOString(),
-            asignadaA: 'Organizador',
-            esPredeterminada: true
-        },
-        {
-            texto: "Carga de fotos para Video de Vida",
-            descripcion: "Solicitar al cliente que complete la subida de fotos en su portal.",
-            completada: false,
-            fechaLimite: subDays(eventDate, 15).toISOString(),
-            asignadaA: 'Cliente',
-            esPredeterminada: true
-        },
-        {
-            texto: "Reunión final de coordinación",
-            descripcion: "Repasar itinerario y detalles de último momento con el cliente.",
-            completada: false,
-            fechaLimite: subDays(eventDate, 7).toISOString(),
-            asignadaA: 'Organizador',
-            esPredeterminada: true
-        },
-        {
-            texto: "Revisión de lista de carga y camión",
-            descripcion: "Controlar que todo el mobiliario y equipos estén listos.",
-            completada: false,
-            fechaLimite: subDays(eventDate, 1).toISOString(),
-            asignadaA: 'Organizador',
-            esPredeterminada: true
-        },
-        {
-            texto: "Check-in final del salón y montaje",
-            descripcion: "Llegada al salón para supervisar el armado inicial.",
-            completada: false,
-            fechaLimite: eventDate.toISOString(),
-            asignadaA: 'Organizador',
-            esPredeterminada: true
-        }
-    ];
-
-    const currentTasks = [...tareas];
-    let addedCount = 0;
-
-    systemTasks.forEach(sysTask => {
-        if (!currentTasks.some(t => t.texto === sysTask.texto)) {
-            currentTasks.push({
-                ...sysTask,
-                id: `sys_task_${Date.now()}_${Math.random().toString(36).substring(7)}`
-            } as Tarea);
-            addedCount++;
-        }
-    });
-
-    if (addedCount > 0) {
-        setTareas(currentTasks);
-        const nuevasDelSistema = currentTasks.slice(tareas.length);
-        await handleSaveChanges(() => addTareasToFiestaActual(fiestaId, nuevasDelSistema));
-        toast({ title: "Sincronización Exitosa", description: `Se han añadido ${addedCount} tareas operativas basadas en la fecha del evento.` });
-    } else {
-        toast({ title: "Al día", description: "Las tareas automáticas ya están en tu lista." });
-    }
-
-    setIsSyncing(false);
   };
 
   const handleAddTask = async (e: FormEvent) => {
@@ -576,3 +543,4 @@ export default function TareasClientPage() {
         </Suspense>
     );
 }
+

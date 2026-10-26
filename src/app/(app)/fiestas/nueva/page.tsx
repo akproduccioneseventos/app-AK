@@ -1,5 +1,7 @@
 'use client';
 
+import { getConversacionesAsistenteCliente } from '@/app/actions/asistente-virtual';
+
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
@@ -369,6 +371,8 @@ function PlannerDashboardContent() {
   }, [tab, fiestaId, router]);
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [consultasCliente, setConsultasCliente] = useState<any[]>([]);
+  const [resumenConsultas, setResumenConsultas] = useState<string>('');
   const [modulosContratados, setModulosContratados] = useState<ModulosContratados>(defaultModulosContratados);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -386,6 +390,22 @@ function PlannerDashboardContent() {
         if (!fiestaData) throw new Error("No se encontró el evento.");
         setFiesta(fiestaData);
         setModulosContratados({ ...defaultModulosContratados, ...(fiestaData.modulosContratados || {}) });
+
+        // Bloque 14 (Orden 235): Consultas del asistente virtual del cliente para equipo con permiso
+        try {
+          const convs = await getConversacionesAsistenteCliente(fiestaId);
+          setConsultasCliente(convs || []);
+          if (convs && convs.length > 0) {
+            const preguntas = convs.flatMap((c: any) =>
+              (c.messages || []).filter((m: any) => m.role === 'user' || m.from === 'client').map((m: any) => m.content || m.text)
+            ).filter(Boolean);
+            if (preguntas.length > 0) {
+              setResumenConsultas(`El cliente consultó ${preguntas.length} vez/veces. Temas: ${preguntas.slice(-3).join(' · ')}`);
+            }
+          }
+        } catch {
+          setConsultasCliente([]);
+        }
       } catch (err: any) { setError(err.message); } finally { setIsLoading(false); }
     };
     loadFiesta();
@@ -667,6 +687,42 @@ function PlannerDashboardContent() {
         </div>
         <KpiCard title="Fecha" value={parseEventDate(fiesta.configuracion.fechaEvento!)?.toLocaleDateString('es-ES', {month: 'short', day: 'numeric'}) || 'Sin fecha'} icon={Calendar} />
       </div>
+
+      {/* Bloque 14: Lo que preguntó el cliente */}
+      {consultasCliente.length > 0 && (
+        <Card className="rounded-2xl border-indigo-200 bg-gradient-to-r from-indigo-50/70 to-slate-50 p-5 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-black text-indigo-950 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-indigo-600" />
+              Lo que preguntó el cliente
+            </h3>
+            <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-300 font-bold">
+              {consultasCliente.length} conversación(es)
+            </Badge>
+          </div>
+
+          {resumenConsultas && (
+            <div className="p-3 bg-white rounded-xl border border-indigo-100 text-xs text-indigo-900 font-medium">
+              <strong>Resumen de IA: </strong>{resumenConsultas}
+            </div>
+          )}
+
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+            {consultasCliente.slice(-3).map((c: any, i: number) => {
+              const lastMsg = c.messages?.[c.messages.length - 1];
+              return (
+                <div key={i} className="p-2.5 bg-white/80 rounded-xl border border-slate-200 text-xs">
+                  <div className="flex justify-between text-slate-500 text-[10px] mb-1">
+                    <span className="font-bold">{c.clientName || 'Cliente'}</span>
+                    <span>{c.updatedAt ? new Date(c.updatedAt).toLocaleDateString('es-UY') : ''}</span>
+                  </div>
+                  <p className="text-slate-800">{lastMsg?.content || lastMsg?.text || 'Consulta del cliente en el portal'}</p>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
 
       {prepScore && (
         <motion.section
@@ -1276,3 +1332,4 @@ export default function PlannerDashboardPage() {
         </Suspense>
     );
 }
+

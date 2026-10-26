@@ -628,6 +628,27 @@ plantilla por evento; AK ya tiene la fiesta cargada con su invitacion y su arte.
 
 ---
 
+## La IA hace sola lo que antes se hacía a mano (26 de octubre de 2026 — Orden 235)
+
+La inteligencia artificial asume tareas repetitivas respetando las reglas inviolables: **nada sale sin supervisión humana (todo borrador pendiente)**, no toca cobranzas ni facturación, respeta el tope de consumo diario y nunca sobreescribe datos cargados por el equipo o el cliente.
+
+1. **Seguimiento comercial personalizado**: genera borradores de mensajes de WhatsApp adaptados a cada cliente y servicio consultado (`generateAiCommercialFollowup`).
+2. **Enriquecimiento automático de prospectos en WhatsApp**: extrae tipo de fiesta, fecha, cantidad de invitados, salón y resumen directamente de la charla.
+3. **Lectura de recibos con Gemini Multimodal**: procesa comprobantes en imagen y completa proveedor, fecha, monto y categoría (`extractReceiptDataFlow`).
+4. **Borradores de redes sociales con fotos reales**: crea publicaciones semanales para Instagram tomando fotos reales de las fiestas de la galería (`generateSocialPostFlow`).
+5. **Generador de tareas del sistema**: define checklists operativos basados en los servicios contratados y el nivel de preparación (`readiness`) de la fiesta.
+6. **Guardado y visualización de notas para el DJ**: almacena el brief musical y lo muestra en la ficha y PDF del DJ.
+7. **Resumen mensual de encuestas y testimonios**: resume las devoluciones de los clientes y sugiere testimonios listos para aprobar.
+8. **Agenda inteligente de reuniones**: detecta datos pendientes (menú, invitados, música, cuotas) y los antepone al checklist de la reunión.
+9. **Material post-evento en bandeja de salida**: genera mensajes de agradecimiento y pedido de reseña a los 1 a 3 días de la fiesta, dejándolos como borrador en `scheduled-messages.json`.
+10. **Autocompletado de logística con datos del salón**: carga estacionamiento, accesibilidad y dirección sin pisar datos ya ingresados.
+11. **Alerta de menú vs alergias**: detecta incompatibilidades entre platos e invitados y emite alerta en pantalla con aviso a cocina.
+12. **Sugerencia de paleta de colores con IA**: propone paletas armoniosas para la ambientación según la temática y salón.
+13. **Asignación visual de mesas**: distribuye invitados confirmados y muestra la distribución en pantalla modal interactiva.
+14. **Consultas del cliente visibles en la fiesta**: muestra en el panel del evento qué estuvo preguntando el cliente a la asistente virtual.
+
+---
+
 ## LO QUE LA APP DICE TENER, COMPROBADO SOLO
 
 **Pedido del dueño, 1 de septiembre de 2026:** *"una auditoría que revise que todo lo que tiene
@@ -662,3 +683,4 @@ de publicar la foto de alguien, que el cambio de cara use **inteligencia artific
 que exista la **hoja de cocina**, el botón de **limpiar la agenda**, el **afiche del QR**, la
 **puerta de las estaciones** y que **cada estación se instale sola**. Más las cuatro pruebas que
 lo miran en pantalla.
+

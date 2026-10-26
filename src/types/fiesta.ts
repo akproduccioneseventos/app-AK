@@ -1017,6 +1017,11 @@ export interface ScreenModeSettings {
   playlist: ScreenPlaylistItem[];
 }
 
+export interface BriefDj {
+  texto: string;
+  generadoEn: string;
+}
+
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
@@ -1024,6 +1029,7 @@ export interface MusicaFiesta {
   playlistFiesta?: string;
   listaNoReproducir?: string;
   sugerenciasInvitados?: string;
+  briefDj?: BriefDj | string;
 }
 
 export interface Trago {
@@ -2005,5 +2011,6 @@ export interface AjustesEstacionEntretenimiento {
   marcosHabilitados?: string[];
   [key: string]: unknown;
 }
+
 
 

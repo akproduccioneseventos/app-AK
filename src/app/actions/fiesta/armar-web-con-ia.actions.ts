@@ -9,7 +9,7 @@ const DEFAULT_WELCOME_TEXT = defaultInvitacionDigitalData.bienvenida.texto.text;
 const DEFAULT_STORY_TEXT = defaultInvitacionDigitalData.historia.texto.text;
 const DEFAULT_GIFTS_TEXT = defaultInvitacionDigitalData.regalos.texto.text;
 
-export function mezclarInvitacionConExistente(
+function mezclarInvitacionConExistente(
   iaData: InvitacionDigitalData,
   existente?: InvitacionDigitalData,
   rehacer = false,
@@ -291,3 +291,4 @@ export async function armarWebConIA(
     return { success: false, error: errorMsg };
   }
 }
+

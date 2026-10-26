@@ -198,11 +198,13 @@ recibos y la de cada cosa que ahora es automática.
 usa: generateAiCommercialFollowup en src/lib/agentes/motor-agentes.ts
 usa: guestCount en src/app/actions/whatsapp.ts
 usa: media url en src/ai/flows/extract-receipt-data.ts
+# Bloque 4
 usa: autoGenerarBorradoresSemanales en src/app/api/cron/asistente-proactivo/route.ts
 usa: readiness en src/app/(app)/fiestas/nueva/tareas/client.tsx
 usa: briefDj en src/app/(app)/fiestas/nueva/musica/page.tsx
 usa: generateTestimonialFlow en src/app/(app)/settings/feedback/page.tsx
 usa: analyzeEventPlan en src/app/(app)/fiestas/nueva/reuniones/page.tsx
+# Bloque 9
 usa: generateAiPostEventMaterial en src/lib/agentes/motor-agentes.ts
 usa: estacionamiento en src/app/(app)/fiestas/nueva/logistica/page.tsx
 usa: menu en src/app/(app)/fiestas/nueva/alergias/page.tsx
@@ -212,3 +214,4 @@ usa: getConversacionesAsistenteCliente en src/app/(app)/fiestas/nueva/page.tsx
 prueba: src/__tests__/la-ia-trabaja-sola-235.test.ts
 prueba: tests/e2e/la-ia-trabaja-sola.spec.ts
 ```
+

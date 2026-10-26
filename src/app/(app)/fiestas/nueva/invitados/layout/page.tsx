@@ -310,6 +310,8 @@ function SalonLayoutContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [salonSuggestion, setSalonSuggestion] = useState<Salon | null>(null);
   const [isAssigning, setIsAssigning] = useState(false);
+  const [resumenAsignaciones, setResumenAsignaciones] = useState<{ nombre: string; mesa: string }[]>([]);
+  const [isModalAsignacionesOpen, setIsModalAsignacionesOpen] = useState(false);
   const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null);
 
   const loadData = useCallback(async (showLoading = true) => {
@@ -626,12 +628,29 @@ function SalonLayoutContent() {
     try {
       const result = await autoAssignTables(fiesta.invitados || [], decoracion.salonElements || []);
       if (result.success) {
-        toast({ title: "IA: Asignación Completada", description: "Revisa la consola para ver el detalle de asignaciones." });
-        console.log("IA Assigner Logs:", result.logs);
-        // Refresh fiesta data locally so UI updates
+        const anteriores = fiesta.invitados || [];
+        const asignacionesNuevas: { nombre: string; mesa: string }[] = [];
+        for (const u of result.updatedInvitados) {
+          const antes = anteriores.find(a => a.id === u.id);
+          if (u.tableNumber && (!antes || antes.tableNumber !== u.tableNumber)) {
+            asignacionesNuevas.push({ nombre: u.nombre, mesa: u.tableNumber });
+          }
+        }
+
+        setResumenAsignaciones(asignacionesNuevas);
+        setIsModalAsignacionesOpen(true);
+
+        const detalleTexto = asignacionesNuevas.length > 0
+          ? `${asignacionesNuevas.length} invitados ubicados en mesas.`
+          : 'Distribución de mesas optimizada.';
+
+        toast({
+          title: "IA: Asignación Completada",
+          description: detalleTexto,
+        });
+
         const updatedFiesta = { ...fiesta, invitados: result.updatedInvitados };
         setFiesta(updatedFiesta);
-        // In a real app we would call a bulk update action here
       } else {
         toast({ title: "Error IA", description: result.logs[0], variant: "destructive" });
       }
@@ -1151,6 +1170,38 @@ function SalonLayoutContent() {
             </Button>
         </div>
       </div>
+
+      {/* Modal con detalle de asignaciones en pantalla (Bloque 13) */}
+      <Dialog open={isModalAsignacionesOpen} onOpenChange={setIsModalAsignacionesOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-600" />
+              Invitados Asignados a Mesas
+            </DialogTitle>
+            <DialogDescription>
+              Detalle de invitados ubicados automáticamente según grupo y afinidad.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-60 overflow-y-auto space-y-2 py-2">
+            {resumenAsignaciones.length > 0 ? (
+              resumenAsignaciones.map((asig, idx) => (
+                <div key={idx} className="flex justify-between items-center text-sm p-2 bg-slate-50 rounded-lg border">
+                  <span className="font-medium text-slate-800">{asig.nombre}</span>
+                  <Badge variant="outline" className="bg-indigo-50 text-indigo-700 font-bold border-indigo-200">
+                    {asig.mesa}
+                  </Badge>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">Todos los invitados ya contaban con mesa asignada.</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsModalAsignacionesOpen(false)}>Entendido</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1205,3 +1256,4 @@ export default function SalonLayoutPage() {
         </SalonErrorBoundary>
     );
 }
+

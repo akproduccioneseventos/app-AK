@@ -74,6 +74,12 @@ function MusicaContent() {
           ...fiestaData.musica,
           cancionesTortaBrindis: fiestaData.musica.cancionesTortaBrindis || [],
         });
+        if (fiestaData.musica.briefDj) {
+          const txt = typeof fiestaData.musica.briefDj === 'string'
+            ? fiestaData.musica.briefDj
+            : fiestaData.musica.briefDj.texto;
+          setDjBrief(txt);
+        }
       }
     } catch (err: any) {
       setError("No se pudo cargar la configuración de música.");
@@ -144,8 +150,13 @@ function MusicaContent() {
         musicaData.cancionesTortaBrindis
       );
       if (res.success && res.data) {
+        const briefObj = { texto: res.data, generadoEn: new Date().toISOString() };
         setDjBrief(res.data);
-        toast({ title: 'Briefing Generado', description: 'El reporte del DJ Assistant está listo.' });
+        setMusicaData(prev => ({ ...prev, briefDj: briefObj }));
+        if (fiestaId) {
+          await updateMusicaFiestaActual(fiestaId, { ...musicaData, briefDj: briefObj });
+        }
+        toast({ title: 'Briefing Generado', description: 'El reporte del DJ Assistant está guardado en la fiesta.' });
       } else {
         throw new Error(res.error || 'Error al generar briefing');
       }
@@ -447,3 +458,4 @@ export default function MusicaFiestaPage() {
         </Suspense>
     );
 }
+

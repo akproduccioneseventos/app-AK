@@ -1,70 +1,64 @@
 import 'server-only';
+import { ai, ejecutarPromptConFallback, geminiModel } from '@/ai/genkit';
+import { z } from 'genkit';
+import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 
-export interface ExtractReceiptDataInput {
-  receiptDataUri: string;
-}
+export const ExtractReceiptInputSchema = z.object({
+  receiptDataUri: z.string().describe('El ticket, factura o recibo como data URI (imagen base64 o url).'),
+});
+export type ExtractReceiptDataInput = z.infer<typeof ExtractReceiptInputSchema>;
 
-export interface ExtractReceiptDataOutput {
-  vendor: string;
-  date: string;
-  amount: number;
-  confidence: 'alta' | 'media' | 'baja';
-  notes: string;
-}
+export const ExtractReceiptOutputSchema = z.object({
+  vendor: z.string().describe('Nombre del comercio o proveedor.'),
+  date: z.string().describe('Fecha del comprobante en formato ISO YYYY-MM-DD.'),
+  amount: z.number().describe('Monto total final en números.'),
+  category: z.string().describe('Categoría del gasto (ej: Insumos, Bebidas, Transporte, Mantenimiento, Equipos, etc.).'),
+  confidence: z.enum(['alta', 'media', 'baja']).describe('Nivel de confianza en los datos leídos.'),
+  notes: z.string().describe('Notas o detalle relevante del comprobante.'),
+});
+export type ExtractReceiptDataOutput = z.infer<typeof ExtractReceiptOutputSchema>;
 
-function decodePossibleText(dataUri: string) {
-  const [, payload = ''] = dataUri.split(',');
-  if (!payload) return '';
+const extractReceiptPrompt = ai.definePrompt({
+  name: 'extractReceiptPrompt',
+  model: geminiModel,
+  input: { schema: ExtractReceiptInputSchema },
+  output: { schema: ExtractReceiptOutputSchema },
+  prompt: `Sos un asistente contable de AK Producciones (Salto, Uruguay).
+Tu tarea es extraer con precisión los datos de un ticket, factura o recibo adjunto en la imagen.
+
+1. PROVEEDOR (vendor): Identifica el comercio, razón social o nombre de fantasía emisor del ticket.
+2. FECHA (date): Fecha de emisión en formato YYYY-MM-DD. Si solo ves día y mes, asume el año corriente.
+3. MONTO TOTAL (amount): Extrae el importe final numérico (Total, Importe Total, etc.). Si está en pesos uruguayos ($ / UYU), extrae el valor numérico limpio.
+4. CATEGORÍA (category): Clasifícalo entre: 'Insumos', 'Bebidas', 'Equipamiento', 'Transporte', 'Servicios', 'Otros'.
+5. CONFIANZA (confidence): 'alta' si el texto y el total son claros y legibles; 'media' si falta algún dato menor; 'baja' si está borroso o incompleto.
+6. NOTAS (notes): Breve resumen de los ítems principales o aclaraciones.
+
+Imagen del comprobante: {{media url=receiptDataUri}}`,
+});
+
+export async function extractReceiptData(input: ExtractReceiptDataInput): Promise<ExtractReceiptDataOutput> {
   try {
-    return Buffer.from(payload, dataUri.includes(';base64') ? 'base64' : 'utf8').toString('utf8');
-  } catch {
-    return '';
+    const { output } = await ejecutarPromptConFallback(extractReceiptPrompt, input);
+    if (!output) throw new Error('No se obtuvo respuesta estructurada.');
+    await registrarConsumoIA('lectura-recibo').catch(() => {});
+    return {
+      vendor: output.vendor || 'Proveedor sin identificar',
+      date: output.date || new Date().toISOString().slice(0, 10),
+      amount: typeof output.amount === 'number' ? output.amount : 0,
+      category: output.category || 'Insumos',
+      confidence: output.confidence || 'media',
+      notes: output.notes || 'Datos extraídos con Gemini.',
+    };
+  } catch (error) {
+    console.warn('[extractReceiptData] Error con Gemini, retornando valores base:', error);
+    return {
+      vendor: 'Proveedor sin identificar',
+      date: new Date().toISOString().slice(0, 10),
+      amount: 0,
+      category: 'Insumos',
+      confidence: 'baja',
+      notes: 'No se pudo leer el comprobante automáticamente. Por favor completá los datos manualmente.',
+    };
   }
 }
 
-function parseAmount(text: string) {
-  const amountLine = text
-    .split(/\r?\n/)
-    .find((line) => /(total|importe|monto|saldo)/i.test(line));
-  const source = amountLine || text.replace(/\d{1,2}[/-]\d{1,2}[/-]\d{2,4}/g, '');
-  const matches = [...source.matchAll(/\$?\s*([0-9]{1,3}(?:[.,][0-9]{3})*(?:[.,][0-9]{2})|[0-9]+(?:[.,][0-9]{2})?)/gi)];
-  const values = matches
-    .map((match) => Number(match[1].replace(/\./g, '').replace(',', '.')))
-    .filter((value) => Number.isFinite(value) && value > 0);
-  return values.length ? Math.max(...values) : 0;
-}
-
-function parseDate(text: string) {
-  const dateMatch = text.match(/(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/);
-  if (!dateMatch) return new Date().toISOString().slice(0, 10);
-  const [, day, month, yearRaw] = dateMatch;
-  const year = yearRaw.length === 2 ? `20${yearRaw}` : yearRaw;
-  return `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-}
-
-function parseVendor(text: string) {
-  const firstMeaningfulLine = text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .find((line) => line.length >= 3 && !/ticket|recibo|factura/i.test(line));
-  return firstMeaningfulLine || 'Proveedor sin identificar';
-}
-
-export async function extractReceiptData(input: ExtractReceiptDataInput): Promise<ExtractReceiptDataOutput> {
-  const text = decodePossibleText(input.receiptDataUri);
-  const amount = parseAmount(text);
-  const vendor = parseVendor(text);
-  const date = parseDate(text);
-  const confidence = text && amount > 0 ? 'media' : 'baja';
-
-  return {
-    vendor,
-    date,
-    amount,
-    confidence,
-    notes:
-      confidence === 'media'
-        ? 'Extraccion automatica basica realizada. Revisar antes de guardar.'
-        : 'No se pudo leer texto confiable del comprobante. Completar o corregir manualmente.',
-  };
-}

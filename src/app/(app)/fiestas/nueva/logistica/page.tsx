@@ -1,5 +1,7 @@
 'use client';
 
+import { getSalones } from '@/app/actions/salones';
+
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -38,11 +40,41 @@ function LogisticaContent() {
   useEffect(() => {
     if (!fiestaId) { router.replace('/eventos'); return; }
     setIsLoading(true);
-    getFiestaById(fiestaId)
-      .then(fiesta => {
+    Promise.all([getFiestaById(fiestaId), getSalones().catch(() => [])])
+      .then(([fiesta, salones]) => {
         if (!fiesta) { router.replace('/eventos'); return; }
-        setConfig(fiesta.configuracion ?? {});
-        setNombreEvento(fiesta.configuracion?.nombreEvento ?? '');
+        const currentConfig = fiesta.configuracion ?? {};
+        const salon = salones.find(
+          s => s.id === (currentConfig as any).lugarId ||
+               (currentConfig.nombreLugar && s.nombre?.toLowerCase() === currentConfig.nombreLugar?.toLowerCase())
+        );
+
+        const newConfig = { ...currentConfig };
+
+        // Bloque 10 (Orden 235): SÓLO campos vacíos se completan con los datos del salón
+        if (salon) {
+          if (!newConfig.direccionLugar && salon.direccion) {
+            newConfig.direccionLugar = salon.direccion;
+          }
+          if (!newConfig.googleMapsUrl && salon.googleMapsUrl) {
+            newConfig.googleMapsUrl = salon.googleMapsUrl;
+          }
+          if (!newConfig.infoEstacionamiento && salon.estacionamiento) {
+            newConfig.infoEstacionamiento = salon.estacionamiento;
+          }
+          if (!newConfig.rutaAccesibilidad && salon.accesibilidad) {
+            newConfig.rutaAccesibilidad = salon.accesibilidad;
+          }
+          if (!newConfig.instruccionesLlegada && salon.direccion) {
+            newConfig.instruccionesLlegada = `Ubicación en ${salon.direccion}. Entrada principal señalizada para invitados.`;
+          }
+          if (!newConfig.protocoloLluvia) {
+            newConfig.protocoloLluvia = 'En caso de lluvia o mal clima, el evento se desarrolla en las instalaciones interiores principales.';
+          }
+        }
+
+        setConfig(newConfig);
+        setNombreEvento(newConfig.nombreEvento ?? '');
       })
       .finally(() => setIsLoading(false));
   }, [fiestaId, router]);
@@ -266,3 +298,4 @@ export default function LogisticaPage() {
     </Suspense>
   );
 }
+

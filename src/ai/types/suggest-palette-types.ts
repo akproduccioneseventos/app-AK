@@ -5,6 +5,8 @@ export const SuggestPaletteInputSchema = z.object({
   mood: z.string().optional(),
   baseColor: z.string().optional(),
   season: z.string().optional(),
+  style: z.string().optional(),
+  referencePhotos: z.array(z.string()).optional(),
 });
 export type SuggestPaletteInput = z.infer<typeof SuggestPaletteInputSchema>;
 
@@ -20,3 +22,4 @@ export const SuggestPaletteOutputSchema = z.object({
   rationale: z.string(),
 });
 export type SuggestPaletteOutput = z.infer<typeof SuggestPaletteOutputSchema>;
+

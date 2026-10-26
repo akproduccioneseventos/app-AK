@@ -1,5 +1,7 @@
 'use client';
 
+import { suggestPalette } from '@/app/actions/salon-ia.actions';
+
 import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
@@ -148,6 +150,34 @@ function DecoracionYDisenoEventoContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [decoracionData, setDecoracionData] = useState<DecoracionData>(defaultDecoracion);
+  const [isSugerirPaletaLoading, setIsSugerirPaletaLoading] = useState(false);
+
+  const handleSugerirPaletaIA = async () => {
+    setIsSugerirPaletaLoading(true);
+    try {
+      const res = await suggestPalette({
+        eventType: decoracionData.tema || 'Fiesta',
+        style: decoracionData.tema || "Elegante",
+        baseColor: decoracionData.paletaColores?.primary,
+      });
+      if (res && res.colors && res.colors.length >= 3) {
+        const newColors = {
+          primary: res.colors[0].hex,
+          secondary: res.colors[1].hex,
+          accent: res.colors[2].hex,
+        };
+        handleSelectPalette(newColors);
+        toast({
+          title: `Paleta sugerida: ${res.paletteName}`,
+          description: res.rationale,
+        });
+      }
+    } catch (e: any) {
+      toast({ title: "Error al sugerir paleta", description: e.message, variant: "destructive" });
+    } finally {
+      setIsSugerirPaletaLoading(false);
+    }
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1049,6 +1079,18 @@ function DecoracionYDisenoEventoContent() {
                   ))}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+                  <div className="sm:col-span-3 flex justify-end">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={handleSugerirPaletaIA}
+                      disabled={isSugerirPaletaLoading}
+                      className="rounded-xl font-bold flex items-center gap-2"
+                    >
+                      {isSugerirPaletaLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4 text-primary" />}
+                      Sugerir Paleta con IA
+                    </Button>
+                  </div>
                   {predefinedPalettes.map(palette => (
                     <Button key={palette.name} type="button" variant="outline" className="h-auto p-3 text-left flex flex-col items-start gap-2 rounded-2xl hover:border-primary/50" onClick={() => handleSelectPalette(palette.colors)}>
                       <div className="flex gap-1.5">
@@ -2553,4 +2595,5 @@ export default function DecoracionPageWrapper() {
     </Suspense>
   );
 }
+
 

@@ -1,3 +1,4 @@
+import { autoGenerarBorradoresSemanales } from '@/lib/presencia-digital/autogenerador-semanal';
 import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
@@ -178,6 +179,26 @@ export async function GET(request: Request) {
     fallos.push(`Error evaluando fechas comerciales: ${err.message}`);
   }
 
+  // 5b. REDES SOCIALES: GENERACIÓN SEMANAL DE BORRADORES
+  try {
+    if (ahora.getDay() === 1 || process.env.NODE_ENV === 'test') {
+      const resBorradores = await autoGenerarBorradoresSemanales();
+      if (resBorradores && resBorradores.createdCount > 0) {
+        nuevasParaAgregar.push({
+          clave: `borradores-redes:${ahora.toISOString().slice(0, 10)}`,
+          area: 'ventas',
+          titulo: `Redes Sociales: ${resBorradores.createdCount} nuevos borradores preparados`,
+          quePasa: `Se generaron borradores automáticos para la semana basados en ${resBorradores.tipoOrigen}.`,
+          porQueImporta: 'Mantiene la presencia de marca activa con contenido generado por IA para revisar.',
+          quePropone: 'Revisar y aprobar los posteos en la sección de Redes Sociales.',
+          tipoPropuesta: 'marketing',
+        });
+      }
+    }
+  } catch (err: any) {
+    fallos.push(`Error autogenerando borradores semanales: ${err.message}`);
+  }
+
   // 6. PERSISTENCIA DEDUPLICADA
   const resultadoPersistencia = await agregarPropuestasDeduplicadas(nuevasParaAgregar);
 
@@ -222,3 +243,4 @@ export async function GET(request: Request) {
     fallos,
   }));
 }
+

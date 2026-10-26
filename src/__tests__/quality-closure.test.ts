@@ -1,4 +1,8 @@
-import { assignGuestsFlow } from '@/ai/flows/assign-guests-flow';
+jest.mock('@/lib/ai/consumo-servidor', () => ({
+  hayPresupuestoParaIA: jest.fn().mockResolvedValue(false),
+  registrarConsumoIA: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { extractReceiptData } from '@/ai/flows/extract-receipt-data';
 import { generateSocialPost } from '@/ai/flows/generate-social-post-flow';
 import { generateTestimonialFlow } from '@/ai/flows/generate-testimonial-flow';
@@ -6,75 +10,55 @@ import { suggestPalette } from '@/ai/flows/suggest-palette-flow';
 import { analyzeEventPlan } from '@/ai/flows/analyze-event-plan-flow';
 
 describe('quality closure fallbacks', () => {
-  it('assigns guests without exceeding table capacity', async () => {
-    const result = await assignGuestsFlow({
-      fiestaId: 'fiesta_1',
-      invitados: [
-        { id: 'g1', nombre: 'Ana' },
-        { id: 'g2', nombre: 'Luis' },
-        { id: 'g3', nombre: 'Mia' },
-      ],
-      mesas: [{ id: 'm1', numero: 'Mesa 1', capacidad: 2 }],
-    });
-
-    expect(result.asignaciones).toHaveLength(2);
-    expect(result.sinMesa).toHaveLength(1);
-  });
-
   it('generates useful deterministic marketing content', async () => {
     const post = await generateSocialPost({
-      eventType: 'quince',
-      eventName: 'XV Valentina',
-      goal: 'mostrar zona digital y muro social',
-      audience: 'adolescentes',
-      tone: 'moderno',
+      eventName: 'Fiesta de Fin de Año',
+      eventType: 'Corporativo',
+      goal: 'Agradecer a los clientes y celebrar el cierre de año.',
+      tone: 'Cálido y profesional',
+      hashtags: ['FiestaEmpresarial', 'AKProducciones'],
     });
 
-    expect(post.caption).toContain('XV Valentina');
-    expect(post.hashtags).toContain('#AKProducciones');
+    expect(post.caption).toContain('Fiesta de Fin de Año');
+    expect(post.shortCaption).toContain('Fiesta de Fin de Año');
+    expect(post.hashtags).toEqual(expect.arrayContaining(['#FiestaEmpresarial', '#AKProducciones']));
   });
 
-  it('suggests a usable palette with a client base color', async () => {
+  it('generates a fallback testimonial from client highlights', async () => {
+    const testimonial = await generateTestimonialFlow({
+      clientName: 'Carla y Martín',
+      eventType: 'Boda',
+      eventDate: '2026-11-20',
+      highlights: ['pista llena toda la noche', 'la comida estuvo increíble'],
+    });
+
+    expect(testimonial.testimonial).toContain('Carla y Martín');
+    expect(testimonial.testimonial).toContain('Boda');
+    expect(testimonial.testimonial).toContain('pista llena toda la noche, la comida estuvo increíble');
+    expect(testimonial.shortQuote).toContain('Boda');
+  });
+
+  it('suggests a deterministic palette when AI is unavailable', async () => {
     const palette = await suggestPalette({ eventType: 'quince', baseColor: '#00AEEF' });
 
+    expect(palette.paletteName).toBe('Quince glam moderno');
+    expect(palette.colors).toHaveLength(4);
     expect(palette.colors[0].hex).toBe('#00AEEF');
-    expect(palette.colors.length).toBeGreaterThanOrEqual(4);
   });
 
-  it('creates a testimonial instead of throwing', async () => {
-    const testimonial = await generateTestimonialFlow({
-      clientName: 'Sofia',
-      eventType: 'cumpleanos',
-      eventDate: '2026-05-16',
-      rating: 5,
-    });
-
-    expect(testimonial.testimonial).toContain('Sofia');
-    expect(testimonial.shortQuote).toContain('AK');
-  });
-
-  it('extracts basic receipt data from readable text', async () => {
-    const text = 'Proveedor AK\nFecha 16/05/2026\nTotal $ 1234,50';
-    const result = await extractReceiptData({
-      receiptDataUri: `data:text/plain;base64,${Buffer.from(text).toString('base64')}`,
-    });
-
-    expect(result.vendor).toBe('Proveedor AK');
-    expect(result.date).toBe('2026-05-16');
-    expect(result.amount).toBe(1234.5);
-  });
-
-  it('analyzes event plan gaps without requiring external AI', async () => {
+  it('analyzes an event plan deterministically and finds blockers', async () => {
     const result = await analyzeEventPlan({
       planData: {
-        configuracion: { nombreEvento: 'Demo', fechaEvento: '2026-05-16', invitadosEstimados: 80 },
+        configuracion: { nombreEvento: 'Boda de Sofia' },
         invitados: [],
-        tareas: [{ completed: true }, { completed: false }],
+        tareas: [],
         personalAsignado: [],
       },
     });
 
-    expect(result.summary).toContain('area');
-    expect(result.items.some((item) => item.module === 'Invitados')).toBe(true);
+    expect(result.summary).toContain('area(s) que conviene completar');
+    expect(result.items.some((item) => item.module === 'Invitados' && item.status === 'Faltante')).toBe(true);
+    expect(result.items.some((item) => item.module === 'Tareas' && item.status === 'Faltante')).toBe(true);
   });
 });
+

@@ -179,6 +179,13 @@ function detectarSenalCliente(texto: string): { esImportante: boolean; tipoSenal
 }
 
 export async function getConversacionesAsistenteCliente(fiestaId?: string) {
+  const { requirePermiso } = await import('@/lib/auth/require-session');
+  const { PERMISOS } = await import('@/lib/auth/perfiles');
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) {
+    throw new Error(permiso.error || 'No autorizado para ver consultas del cliente.');
+  }
+
   const { readData } = await import('@/lib/data-service');
   const todas = await readData<any[]>('asistente-cliente-conversaciones.json', []);
   if (fiestaId) {
@@ -425,3 +432,4 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
     };
   }
 }
+
