@@ -1,0 +1,66 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "stats": {
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-133-invitado-con-red-local.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T05:51:32.262Z",
+      "report": "520-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:46:52.109Z",
+        "duration": 280125.075,
+        "expected": 10,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-143-cocina-fecha-local.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:51:56.384Z",
+      "report": "520-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:51:33.264Z",
+        "duration": 23090.336,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-521-visual-portadas.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T05:53:29.021Z",
+      "report": "520-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:51:57.355Z",
+        "duration": 91503.393,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

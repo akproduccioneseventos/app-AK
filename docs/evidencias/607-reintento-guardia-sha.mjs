@@ -1,0 +1,10 @@
+import fs from'node:fs';import path from'node:path';import assert from'node:assert/strict';import{fileURLToPath,pathToFileURL}from'node:url';
+const dir=fileURLToPath(new URL('./',import.meta.url));
+const old=".replaceAll('566','608').replaceAll('568','609').replaceAll('978af7d65a60bd287f3ee3cc05037a29566074f4','f8f7cf34e8778de784b20e2654058fd722b2a2ec')";
+const fixed=".replaceAll('978af7d65a60bd287f3ee3cc05037a29566074f4','f8f7cf34e8778de784b20e2654058fd722b2a2ec').replaceAll('566','608').replaceAll('568','609')";
+let preparer=fs.readFileSync(path.join(dir,'603-preparar-pendientes.mjs'),'utf8').replaceAll('603','608').replaceAll('605','609').replaceAll('602','607');
+assert(preparer.includes(old));preparer=preparer.replace(old,fixed);
+const p=path.join(dir,'608-preparar-pendientes.mjs');assert(!fs.existsSync(p));fs.writeFileSync(p,preparer);
+let supervisor=fs.readFileSync(path.join(dir,'584-supervisor-aislado.mjs'),'utf8').replaceAll('584','610').replaceAll('583','608').replaceAll('585','609').replaceAll('608-medios-generado.mjs','608-preparar-pendientes.mjs');
+const s=path.join(dir,'610-supervisor-generado.mjs');assert(!fs.existsSync(s));fs.writeFileSync(s,supervisor);
+await import(pathToFileURL(s).href);

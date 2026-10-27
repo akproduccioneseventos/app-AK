@@ -225,3 +225,17 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     sólo si no hay marca de "terminado", y que el que termina la deje donde vos la mirás.
 65. **¿Agregaste un control que frena una escritura?** Ponelo adentro de esa misma escritura. Si leés
     antes y escribís después con `updateDataPartial` o `writeData`, el control no frena nada.
+66. **¿Tu acción del servidor llama a un ayudante que guarda plata?** Entonces pide el permiso ella. Un
+    ayudante "interno" no se exporta desde un archivo con `'use server'`.
+67. **¿Tocaste una regla de estilo general o pusiste texto claro?** Mirá el fondo que queda de verdad en
+    cada pantalla que la recibe. Y si la pantalla espera un dato, que diga "no encontrado" cuando no llega:
+    `cargando || !dato` gira para siempre.
+68. **¿Clasificás un error por su código?** Si trae `status`, decidí por el número. Un 503 con "403" en
+    el texto no es un rechazo: no se sabe si salió, y liberarlo manda el mensaje dos veces.
+69. **¿Tu control de permisos mira `role`?** Usá `puede(...)` o `requireAdminSession()`. El rol viejo no sabe del
+    perfil que le puso el dueño.
+70. **¿Grabaste o capturaste algo?** Antes de decir "listo", mirá que no esté vacío y que se reproduzca.
+71. **¿Algo tuyo corre solo?** Seguilo hasta lo que hace. Si manda afuera, cobra, cierra, toca permisos o gasta,
+    va como propuesta para el OK del dueño. Y que su descripción diga lo que hace de verdad.
+72. **¿Agregaste una redirección?** Fijate que en el origen no haya una pantalla viva: si la hay, queda sin entrada.
+73. **¿Mandás un aviso a varios?** Si llega a todo el equipo, que no lleve importes ni deudas de un cliente.

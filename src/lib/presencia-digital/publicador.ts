@@ -444,7 +444,7 @@ async function publicarSinReclamo(
         retryCount: failedRetryCount,
         lastError: errorMsg,
         lastAttemptAt: new Date().toISOString(),
-        status: willMarkFailed ? 'Falló' : targetPost.status,
+        status: willMarkFailed ? 'Falló' : 'Con error',
         updatedAt: new Date().toISOString(),
       };
 

@@ -1,0 +1,128 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez",
+  "started": "2026-10-24T20:31:16.292Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-24T19:10:06.378Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "layout-baseline.spec.ts",
+    "mobile-overflow.spec.ts",
+    "89-la-barra-no-ofrece-lo-agotado.spec.ts"
+  ],
+  "batchSize": 1,
+  "copiedTests": 3,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "copy": "tests/e2e/ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "originalSha256": "422620b2e86ad11c49665296ebac994aefdf6859a1b377d6c8b00a1fd7380a9b",
+      "preparedSha256": "86d0cf5b26660d40428e0f98d2a33894317fcb3c1fd98ae129aa504d0663f5d8",
+      "instrumentedSha256": "36f86c5836a302afcf58b5a75e78080d0c335884d414951e65a6909f7454ace4"
+    },
+    {
+      "original": "tests/e2e/layout-baseline.spec.ts",
+      "copy": "tests/e2e/ak207-layout-baseline.spec.ts",
+      "originalSha256": "ccc8359c4ce965c511d368f620977a1b22ef6eb29f5cd6044e92aeb5299022fa",
+      "preparedSha256": "ec1a565662f229611ffc2ee8707503924a005795df30cebf89edd672ffde753d",
+      "instrumentedSha256": "113a929c56be96674805ec7b3b1f8efdb24fcadccf3cf517d872f76196d9e545"
+    },
+    {
+      "original": "tests/e2e/mobile-overflow.spec.ts",
+      "copy": "tests/e2e/ak207-mobile-overflow.spec.ts",
+      "originalSha256": "d70653f5767a26f832638a6ff96cdea9e6901fb3bbeab4c95d6501a9af525336",
+      "preparedSha256": "7d831c1cc6446d4e0f35970fc5f8e36f63a8f3408df9bd2b3b7fe2f99c7a6695",
+      "instrumentedSha256": "5290ddf308210f0aa45c47e4127733e704974847034a59c185731803132419c7"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 15072,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-24T20:31:19.535Z",
+    "version": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c · compilada 2026-10-24T18:57:23.732Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:36:19.299Z",
+      "report": "455-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:31:20.725Z",
+        "duration": 298544.965,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-layout-baseline.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T20:38:15.421Z",
+      "report": "455-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:36:20.528Z",
+        "duration": 114860.59999999999,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-mobile-overflow.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:44:36.052Z",
+      "report": "455-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:38:16.502Z",
+        "duration": 379505.56100000005,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 1,
+  "currentBatch": 3,
+  "totalBatches": 3,
+  "testPid": 2740,
+  "stats": {
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 60,
+  "sourceDiff": "",
+  "finished": "2026-10-24T20:44:37.466Z"
+}

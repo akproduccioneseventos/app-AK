@@ -1,4 +1,5 @@
 import type { jsPDF } from "jspdf";
+import { toSentenceCase } from "@/lib/utils/text";
 import type {
   SimulatorDetailedService,
   SimulatorPriceStats,
@@ -301,7 +302,7 @@ export async function createSimulatorBudgetPdf(
     y += 7;
 
     category.items.forEach((item) => {
-      const lines = pdf.splitTextToSize(item.nombre, 95) as string[];
+      const lines = pdf.splitTextToSize(toSentenceCase(item.nombre), 95) as string[];
       const rowHeight = Math.max(10, lines.length * 4 + 4);
       if (y + rowHeight > bottomLimit) addContinuationPage();
 

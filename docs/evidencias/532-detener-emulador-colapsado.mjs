@@ -1,0 +1,11 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
+const dir=fileURLToPath(new URL('./',import.meta.url)),s=JSON.parse(fs.readFileSync(path.join(dir,'510-emuladores.json'),'utf8'));
+assert.equal(s.source,'978af7d65a60bd287f3ee3cc05037a29566074f4');assert(!s.finished);
+assert(fs.readFileSync(path.join(dir,'510-firestore.log'),'utf8').includes('OutOfMemoryError'));
+const pid=Number(s.firestorePid);assert(Number.isSafeInteger(pid)&&pid>0);
+const query=spawnSync('powershell.exe',['-NoProfile','-Command',`Get-CimInstance Win32_Process -Filter 'ProcessId=${pid}' | Select-Object ProcessId,ParentProcessId,CommandLine | ConvertTo-Json -Compress`],{encoding:'utf8',timeout:60000});assert.equal(query.status,0,query.stderr);
+const actual=JSON.parse(query.stdout.trim());assert.equal(actual.ProcessId,pid);
+const command=actual.CommandLine.replaceAll('\\','/');assert(command.includes('/.qa-510-sdk-')&&command.includes(s.qa.replaceAll('\\','/')+'/firestore.rules')&&command.includes('--project_id demo-ak-producciones')&&command.includes('cloud-firestore-emulator-v1.22.0.jar'));
+const stopped=spawnSync('powershell.exe',['-NoProfile','-Command',`Stop-Process -Id ${pid} -Force -ErrorAction Stop`],{encoding:'utf8',timeout:30000});assert.equal(stopped.status,0,stopped.stderr);
+const result={source:s.source,observed:new Date().toISOString(),pid,ownershipVerified:actual,reason:'Owned demo emulator already threw Java heap OutOfMemoryError. No app failure inferred; memory invalidates affected cases. Remaining original cases stay preserved and targeted recovery includes any not executed.',appEdited:false,foreignProcessStopped:false,scope:'Only Firestore emulator510 stopped; neither application server nor caller/foreign build killed. Original parent cleanup may report connection refused because this in-memory demo process was explicitly stopped.'};
+fs.writeFileSync(path.join(dir,'532-emulador-detenido.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({pid,stopped:true,foreignProcessStopped:false}));

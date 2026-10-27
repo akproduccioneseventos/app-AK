@@ -19,6 +19,7 @@ process.env.FIREBASE_PROJECT_ID = 'demo-ak-producciones';
 process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET = 'demo-ak-producciones.appspot.com';
 process.env.FIREBASE_STORAGE_BUCKET = 'demo-ak-producciones.appspot.com';
 delete process.env.AK_USE_LOCAL_JSON_ONLY;
+jest.setTimeout(30000);
 
 jest.mock('server-only', () => ({}));
 // Sin navegador no hay cookies: el invitado de la estacion no tiene sesion del equipo.

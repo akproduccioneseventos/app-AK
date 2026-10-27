@@ -663,7 +663,8 @@ function SalonLayoutContent() {
     };
   }, [fiesta?.invitados, guestSearchTerm, tagFilter]);
 
-  if (isLoading || !fiestaId) return <div className="flex items-center justify-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>
+  if (isLoading) return <div className="flex items-center justify-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+  if (!fiestaId || !fiesta) return <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] space-y-4 text-center"><h2 className="text-xl font-bold">Fiesta no encontrada</h2><Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button></div>;
   if (error || !decoracion || !fiesta) return <div className="text-destructive text-center p-4">{error}</div>
 
   const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;

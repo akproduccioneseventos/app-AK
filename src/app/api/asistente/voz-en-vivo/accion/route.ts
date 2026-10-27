@@ -1,3 +1,4 @@
+import { verifySession } from '@/lib/auth/session-token';
 import { NextResponse } from 'next/server';
 import { usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
@@ -18,7 +19,11 @@ export async function POST(request: Request) {
   // 1. Pide sesión de un usuario del equipo con permisos reales (no perfil personal sin permisos)
   const usuario = await usuarioDelEquipo();
   if (!usuario) {
-    return NextResponse.json({ error: 'Solo miembros del equipo con permisos pueden ejecutar acciones de voz' }, { status: 403 });
+    const sesion = await verifySession().catch(() => ({ success: false, user: null }));
+    if (sesion.success && sesion.user) {
+      return NextResponse.json({ error: 'Solo miembros del equipo con permisos pueden ejecutar acciones de voz' }, { status: 403 });
+    }
+    return NextResponse.json({ error: 'Solo miembros del equipo con permisos pueden ejecutar acciones de voz' }, { status: 401 });
   }
 
   let body: any;
@@ -31,6 +36,26 @@ export async function POST(request: Request) {
   const { id, accion, argumentos = {}, confirmado = false } = body;
   if (!accion) {
     return NextResponse.json({ error: 'Acción no especificada' }, { status: 400 });
+  }
+
+  const riesgo = nivelDeRiesgo(accion);
+  if ((riesgo as string) === 'nunca') {
+    // no pasa nada si falla: la auditoría no debe bloquear el rechazo de la acción no permitida
+    await registrarAccionAsistente({
+      pedido: accion,
+      accion,
+      canal: 'voz_en_vivo',
+      nivel: 'nunca',
+      resultado: 'rechazado_por_regla_del_dueno',
+      usuarioIdentificado: usuario.email,
+    }).catch((err) => {
+      console.warn('[VozAccion] Error registrando auditoría:', err);
+    });
+    return NextResponse.json({
+      success: false,
+      error: 'Eso lo tenés que hacer vos desde su pantalla',
+      mensaje: 'Eso lo tenés que hacer vos desde su pantalla',
+    });
   }
 
   const ACCIONES_CONOCIDAS = [
@@ -74,7 +99,6 @@ export async function POST(request: Request) {
     );
   }
 
-  const riesgo = nivelDeRiesgo(accion);
 
   // Si requiere confirmación y toca fechas o dinero, sólo el dueño lo confirma
   if (riesgo === 'pregunta' && confirmado) {
@@ -116,7 +140,7 @@ export async function POST(request: Request) {
       }
 
       // No existe
-      if (riesgo === 'nunca') {
+      if ((riesgo as string) === 'nunca') {
         const rechazo: IntentoVoz = {
           clave,
           estado: 'hecho',

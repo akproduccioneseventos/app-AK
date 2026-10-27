@@ -1,0 +1,382 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "qa": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz",
+  "started": "2026-10-23T23:12:08.533Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-23T19:11:26.022Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "la-vidriera-de-la-tecnologia.spec.ts",
+    "mobile-overflow.spec.ts",
+    "mural-geometria-visible.spec.ts",
+    "muro-subir-foto.spec.ts",
+    "noche-de-fiesta.spec.ts",
+    "orden-86-pantallas.spec.ts",
+    "pantallas-con-iconos-react19.spec.ts",
+    "pantallas-tocadas-tanda-12-10.spec.ts",
+    "planner-missing-portals.spec.ts",
+    "portal-fecha-y-botones.spec.ts",
+    "presupuesto-publico-sin-sesion.spec.ts",
+    "prospecto-simulador.spec.ts",
+    "public-experience-matrix.spec.ts",
+    "public-smoke.spec.ts",
+    "qr-archivo-rotaciones.spec.ts",
+    "qr-descargado-lector-real.spec.ts",
+    "recorrido-de-pantallas.spec.ts",
+    "salon-3d-ayuda-recorrido.spec.ts",
+    "salon-3d-cliente.spec.ts",
+    "salon-3d-real.spec.ts",
+    "salon-3d-se-dibuja.spec.ts",
+    "senal-mala.spec.ts",
+    "simulador-contacto-oficial.spec.ts",
+    "simulator-budget-journey.spec.ts",
+    "sofia-composer.spec.ts",
+    "tarjetas-whatsapp.spec.ts",
+    "touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+    "trabajos-completos.spec.ts",
+    "viaje-invitado.spec.ts",
+    "video-vida-error-lectura.spec.ts",
+    "voz-en-vivo-reintento-y-cancelacion.spec.ts"
+  ],
+  "batchSize": 6,
+  "copiedTests": 31,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/la-vidriera-de-la-tecnologia.spec.ts",
+      "copy": "tests/e2e/ak207-la-vidriera-de-la-tecnologia.spec.ts",
+      "originalSha256": "c84186e13dc63eadd40a071d22bd0d9c1602a0a18f2d8d59dc04dfbce50d0953",
+      "instrumentedSha256": "0a7d5acbc59111a42b81d5ba68f8d453dd1eefcd7a7b4856541c21e5f8eff4c1"
+    },
+    {
+      "original": "tests/e2e/mobile-overflow.spec.ts",
+      "copy": "tests/e2e/ak207-mobile-overflow.spec.ts",
+      "originalSha256": "d70653f5767a26f832638a6ff96cdea9e6901fb3bbeab4c95d6501a9af525336",
+      "instrumentedSha256": "b3d8d8b8bf34f0ca53dc0a3cd1b38240093ad68b80209bcd2f7b97d1161b3c0d"
+    },
+    {
+      "original": "tests/e2e/mural-geometria-visible.spec.ts",
+      "copy": "tests/e2e/ak207-mural-geometria-visible.spec.ts",
+      "originalSha256": "e811906b70a37cc41ddeaa6b9ac13909c58073d577f69b73a7909a963fe397da",
+      "instrumentedSha256": "acedb3de36ec1a4f3c8d8df06ee818c903a11255a9e8996a71b9ccf1f5dad5e1"
+    },
+    {
+      "original": "tests/e2e/muro-subir-foto.spec.ts",
+      "copy": "tests/e2e/ak207-muro-subir-foto.spec.ts",
+      "originalSha256": "fb6a331ba7700825d4413304c7bda52949bbbadcfbb485fe1b61d82587c6325c",
+      "instrumentedSha256": "8b281c2816e7e7f33ac404dc6deeb1dde70a434ccda0414ea6bf81e1f5178037"
+    },
+    {
+      "original": "tests/e2e/noche-de-fiesta.spec.ts",
+      "copy": "tests/e2e/ak207-noche-de-fiesta.spec.ts",
+      "originalSha256": "63e79b830dda052e98488019a2af6e72286e67cd42318d2f4cd3e0e83ce2fa2b",
+      "instrumentedSha256": "091734b1a7ac369c6dd09d8fc1f8cc096b19c4c9214c76d8ab4560c3368da3ad"
+    },
+    {
+      "original": "tests/e2e/orden-86-pantallas.spec.ts",
+      "copy": "tests/e2e/ak207-orden-86-pantallas.spec.ts",
+      "originalSha256": "66558d1ba6e6769ee979780c4e1aaf386d071e92f1c433d990c65b8f838c9f4a",
+      "instrumentedSha256": "2535c90c5495946cb5cca75e5643337aff6ef43d58081fedb9b116c4b9f6c503"
+    },
+    {
+      "original": "tests/e2e/pantallas-con-iconos-react19.spec.ts",
+      "copy": "tests/e2e/ak207-pantallas-con-iconos-react19.spec.ts",
+      "originalSha256": "08d1940cc98dbce2d1ff3da23eac0adc63be3dd38104df6514814c8b17bc752a",
+      "instrumentedSha256": "e9e240c3229c8d905c872b01346427b42d2c6a95637a5ae87819311f9c07cdb7"
+    },
+    {
+      "original": "tests/e2e/pantallas-tocadas-tanda-12-10.spec.ts",
+      "copy": "tests/e2e/ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "originalSha256": "70ca64b246912daf64964ebd73716d7bcfbf865a817610adb1b31d10160d43e1",
+      "instrumentedSha256": "501b91a403087d75b8f75aa26fe47040da96a627ffed54ffb163c03009ac41fa"
+    },
+    {
+      "original": "tests/e2e/planner-missing-portals.spec.ts",
+      "copy": "tests/e2e/ak207-planner-missing-portals.spec.ts",
+      "originalSha256": "617f97d65d653305b7acb94ede1103321893fa7a8984aca216f00d84260cd480",
+      "instrumentedSha256": "bcfc9499c8c38e90f2652a6e340b2a4d67e6e49fd6e52a0cce0b53c53c056477"
+    },
+    {
+      "original": "tests/e2e/portal-fecha-y-botones.spec.ts",
+      "copy": "tests/e2e/ak207-portal-fecha-y-botones.spec.ts",
+      "originalSha256": "1d893fd00f91c91d2c90b6d23879f01a44227fdc12871f3897536dea542d24ed",
+      "instrumentedSha256": "f8eeaf99d796efd7726456e3fa2a17a288b3eda12be7aa18de14843077edcc95"
+    },
+    {
+      "original": "tests/e2e/presupuesto-publico-sin-sesion.spec.ts",
+      "copy": "tests/e2e/ak207-presupuesto-publico-sin-sesion.spec.ts",
+      "originalSha256": "5468041aeebd316b05e1e996c74720e0ad72d2cd1c1d3369660f4e9102d1ca75",
+      "instrumentedSha256": "0528cf534f188cc5c95dd07ac6d00bf21890e479f56838c3221f674d6cce159d"
+    },
+    {
+      "original": "tests/e2e/prospecto-simulador.spec.ts",
+      "copy": "tests/e2e/ak207-prospecto-simulador.spec.ts",
+      "originalSha256": "e2ee360ce033cfa99d10c8c353e9e26ae32846805d96808895de935d969f3e55",
+      "instrumentedSha256": "eb9fc17afaf08b4515e0e38bb81980797cf9ed7060ef9a17f9b72862f96187c2"
+    },
+    {
+      "original": "tests/e2e/public-experience-matrix.spec.ts",
+      "copy": "tests/e2e/ak207-public-experience-matrix.spec.ts",
+      "originalSha256": "7be66d3fbe8a078193de0aff199243a5fb7c2b29d5bd48160ac441ed981369fc",
+      "instrumentedSha256": "ec36e95f8329f4552d6d68919b49fc29171662f11a0007d46e8c05d246083c19"
+    },
+    {
+      "original": "tests/e2e/public-smoke.spec.ts",
+      "copy": "tests/e2e/ak207-public-smoke.spec.ts",
+      "originalSha256": "8d595cfa1c8f5e70f476a079cbeb035de15a693d8dd0bdb7d2ba1781a0e6ad87",
+      "instrumentedSha256": "3a82b0c78412a1bd86f029fd54ca0fb01d1cd53a46964e7b353ba2d3f749de12"
+    },
+    {
+      "original": "tests/e2e/qr-archivo-rotaciones.spec.ts",
+      "copy": "tests/e2e/ak207-qr-archivo-rotaciones.spec.ts",
+      "originalSha256": "9d1c5e8afc2cd5e661f856dd7100b49a10e877d151aab8af6a885f737a112e82",
+      "instrumentedSha256": "73be8978684ad2321fc75f2c4d0c49381ca6dcf7da764f37825c4a6b1e3fb85f"
+    },
+    {
+      "original": "tests/e2e/qr-descargado-lector-real.spec.ts",
+      "copy": "tests/e2e/ak207-qr-descargado-lector-real.spec.ts",
+      "originalSha256": "002c97abd4014249e3fa37e14b025777b92a6e43a16a0873f3d2a5b513e8c590",
+      "instrumentedSha256": "8288a38000c23e029151bf37b6e0fc69cad0e5c32afb064a4a59575ba15dbd07"
+    },
+    {
+      "original": "tests/e2e/recorrido-de-pantallas.spec.ts",
+      "copy": "tests/e2e/ak207-recorrido-de-pantallas.spec.ts",
+      "originalSha256": "59c109a6ce97a5629f0712c7c6f940b361465815c7fafe702d03a897647de18f",
+      "instrumentedSha256": "8089f094335d12acc01ec03abb4a0283408ea5162d02713e5b4b14db2f4c65ca"
+    },
+    {
+      "original": "tests/e2e/salon-3d-ayuda-recorrido.spec.ts",
+      "copy": "tests/e2e/ak207-salon-3d-ayuda-recorrido.spec.ts",
+      "originalSha256": "884e0b9d9e38ba9a128aabb3c505dfbc5d3fb0269c38297936d0c2b3ec003321",
+      "instrumentedSha256": "e9559b309f602a4a9597917b06b816633fafff02a3e7cd5365d5d2dc8d61d78b"
+    },
+    {
+      "original": "tests/e2e/salon-3d-cliente.spec.ts",
+      "copy": "tests/e2e/ak207-salon-3d-cliente.spec.ts",
+      "originalSha256": "cc9f4a30fe3a534ab5aa84ba2799f0bd1b84feb598d26fe1f90e026f6023afe8",
+      "instrumentedSha256": "6a3aaa7e7cc4aad6e5af05a63de20d5612c8f67ce18abf6a81f325f28e82445e"
+    },
+    {
+      "original": "tests/e2e/salon-3d-real.spec.ts",
+      "copy": "tests/e2e/ak207-salon-3d-real.spec.ts",
+      "originalSha256": "c87e6a02fe7e61dbe0ea3f8b45e5fdfa49b980912c673e5f7429001eacc4eebe",
+      "instrumentedSha256": "485a7345cfdb6fc23f9f0c6a2b4a60d1b92b620d54fc72045221120c94b67133"
+    },
+    {
+      "original": "tests/e2e/salon-3d-se-dibuja.spec.ts",
+      "copy": "tests/e2e/ak207-salon-3d-se-dibuja.spec.ts",
+      "originalSha256": "6aee52c6d15f80d14ef9e9f0bbf7c4fa12af522d682d40184bb273bcabcc9812",
+      "instrumentedSha256": "1975c84e869ee265adc61a852351583192d3a7988aac7a6f20954876a7dc5833"
+    },
+    {
+      "original": "tests/e2e/senal-mala.spec.ts",
+      "copy": "tests/e2e/ak207-senal-mala.spec.ts",
+      "originalSha256": "174df0df6a0c3fd53293cfa17f0c741fd87d255ec0db4d4453abb4f1228dd9bf",
+      "instrumentedSha256": "efae4c2306b8f67cebf5bdd7e6f67f6cf169ac23ebe64b8252fb183263704ce3"
+    },
+    {
+      "original": "tests/e2e/simulador-contacto-oficial.spec.ts",
+      "copy": "tests/e2e/ak207-simulador-contacto-oficial.spec.ts",
+      "originalSha256": "ae3984e3b855f325d72bdf89b9fae6d9bfc023d24c5a7aa1cb3b8336b83cbc5b",
+      "instrumentedSha256": "b131e60088dc416e9ab6563391479adc88d2cd9b0cafb65945c7fa577384b09c"
+    },
+    {
+      "original": "tests/e2e/simulator-budget-journey.spec.ts",
+      "copy": "tests/e2e/ak207-simulator-budget-journey.spec.ts",
+      "originalSha256": "7dfb06926283c1c9a2509f59c595056f159672557059cd8a1ac53be2d4c14981",
+      "instrumentedSha256": "f5e35b01e3e5026070fea9fdd92ec1f1d65300ce6fba849edf8f8054216f2743"
+    },
+    {
+      "original": "tests/e2e/sofia-composer.spec.ts",
+      "copy": "tests/e2e/ak207-sofia-composer.spec.ts",
+      "originalSha256": "f288ae11f45a98ec35f94cfec2c7091b266fd8d1c450b447b4e79bbb170c2008",
+      "instrumentedSha256": "dc559a61444626b001b2800a7fbffbcd2433d5e3f6afcefb02472d86a9f2136e"
+    },
+    {
+      "original": "tests/e2e/tarjetas-whatsapp.spec.ts",
+      "copy": "tests/e2e/ak207-tarjetas-whatsapp.spec.ts",
+      "originalSha256": "7c9f34628de6e282594d4be4891a426757c21525da66a6b462987aa0e77e29ff",
+      "instrumentedSha256": "6a17d66f01f7e497939bb7632f5879693936674d9631cfeb333ec63586c67692"
+    },
+    {
+      "original": "tests/e2e/touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+      "copy": "tests/e2e/ak207-touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+      "originalSha256": "c22e821f07bd10ef101f44c9569d035fddc06b8323cc8c38cddf06a33d472823",
+      "instrumentedSha256": "5013c38ad3286b7f443a8c00fb9080f1824dc382026aab184ccd5cfff522490b"
+    },
+    {
+      "original": "tests/e2e/trabajos-completos.spec.ts",
+      "copy": "tests/e2e/ak207-trabajos-completos.spec.ts",
+      "originalSha256": "6f775437d7db217424a7ca6c99d5349bcf59e0ea30ac360919a2793c5f94fbf1",
+      "instrumentedSha256": "13305bf0f143b5dd5824dfeae0fee8d8d5fd26511e386dbb9311b45bf7cd75bb"
+    },
+    {
+      "original": "tests/e2e/viaje-invitado.spec.ts",
+      "copy": "tests/e2e/ak207-viaje-invitado.spec.ts",
+      "originalSha256": "1f56de13bab8a98a77c0198190ab68cbddc9fcf5fd1f7d4ef6e9889860d59f9e",
+      "instrumentedSha256": "b39c324a10d7ab742f662e1ebd9ec374a610f1f7721c5135ff553f6cb305e106"
+    },
+    {
+      "original": "tests/e2e/video-vida-error-lectura.spec.ts",
+      "copy": "tests/e2e/ak207-video-vida-error-lectura.spec.ts",
+      "originalSha256": "9322084503ee05c515be448b234d4ed06c4bebbe85309ffe31941ccb5c70f67b",
+      "instrumentedSha256": "0b25679788294727c7d53b913dcf29ee61955778d4c36096f51010d405f0d657"
+    },
+    {
+      "original": "tests/e2e/voz-en-vivo-reintento-y-cancelacion.spec.ts",
+      "copy": "tests/e2e/ak207-voz-en-vivo-reintento-y-cancelacion.spec.ts",
+      "originalSha256": "6cf427a2c2684e7aaf9e7f3074b60880020cfb23a658f6dccce6ac67a4e12cdb",
+      "instrumentedSha256": "8a8ce91dfe56c5be7aade29094f4a93e3b353d7cb0e46601b421b315051ae2e2"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 13384,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-23T23:12:17.360Z",
+    "version": "725e62ba2f909578628fad47402d125ed9632c70 · compilada 2026-10-23T18:42:38.071Z",
+    "services": {
+      "firebase": false,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-la-vidriera-de-la-tecnologia.spec.ts",
+        "ak207-mobile-overflow.spec.ts",
+        "ak207-mural-geometria-visible.spec.ts",
+        "ak207-muro-subir-foto.spec.ts",
+        "ak207-noche-de-fiesta.spec.ts",
+        "ak207-orden-86-pantallas.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T23:51:35.082Z",
+      "report": "274-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T23:12:19.945Z",
+        "duration": 2355139.719,
+        "expected": 24,
+        "skipped": 2,
+        "unexpected": 6,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-pantallas-con-iconos-react19.spec.ts",
+        "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+        "ak207-planner-missing-portals.spec.ts",
+        "ak207-portal-fecha-y-botones.spec.ts",
+        "ak207-presupuesto-publico-sin-sesion.spec.ts",
+        "ak207-prospecto-simulador.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-23T23:59:36.794Z",
+      "report": "274-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T23:51:37.709Z",
+        "duration": 479074.19,
+        "expected": 28,
+        "skipped": 15,
+        "unexpected": 5,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-public-experience-matrix.spec.ts",
+        "ak207-public-smoke.spec.ts",
+        "ak207-qr-archivo-rotaciones.spec.ts",
+        "ak207-qr-descargado-lector-real.spec.ts",
+        "ak207-salon-3d-ayuda-recorrido.spec.ts",
+        "ak207-salon-3d-cliente.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T00:22:50.264Z",
+      "report": "274-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-23T23:59:37.810Z",
+        "duration": 1392461.2019999998,
+        "expected": 37,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-salon-3d-real.spec.ts",
+        "ak207-salon-3d-se-dibuja.spec.ts",
+        "ak207-senal-mala.spec.ts",
+        "ak207-simulador-contacto-oficial.spec.ts",
+        "ak207-simulator-budget-journey.spec.ts",
+        "ak207-sofia-composer.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T00:41:14.077Z",
+      "report": "274-batch-004-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T00:22:51.293Z",
+        "duration": 1102777.7740000002,
+        "expected": 13,
+        "skipped": 2,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 5,
+      "files": [
+        "ak207-tarjetas-whatsapp.spec.ts",
+        "ak207-touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+        "ak207-trabajos-completos.spec.ts",
+        "ak207-viaje-invitado.spec.ts",
+        "ak207-video-vida-error-lectura.spec.ts",
+        "ak207-voz-en-vivo-reintento-y-cancelacion.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T00:50:02.004Z",
+      "report": "274-batch-005-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T00:41:15.503Z",
+        "duration": 526478.667,
+        "expected": 37,
+        "skipped": 7,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 1,
+  "currentBatch": 5,
+  "totalBatches": 5,
+  "testPid": 14280,
+  "stats": {
+    "expected": 139,
+    "skipped": 26,
+    "unexpected": 13,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 76,
+  "sourceDiff": "",
+  "finished": "2026-10-24T00:50:03.421Z"
+}

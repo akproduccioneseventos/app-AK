@@ -13,6 +13,10 @@ export interface ConfiguracionAgente {
   descripcion: string;
   activo: boolean;
   intervaloMinutos: number;
+  apodo?: string;
+  avatar?: string;
+  objetivos?: string[];
+  accionesSolo?: string[];
   ultimaEjecucion?: string;
   estadoUltimaEjecucion?: 'exito' | 'sin_novedades' | 'alerta';
 }
@@ -30,6 +34,8 @@ export interface RegistroEjecucionAgente {
 export const AGENTES_DEFAULT_CONFIG: ConfiguracionAgente[] = [
   {
     id: 'vigilante_fiestas',
+    apodo: 'Organizador',
+    objetivos: ['Revisar checklists y pendientes de cada fiesta'],
     nombre: 'Vigilante de Fiestas',
     rol: 'Supervisor de Eventos y Checklist Humano',
     descripcion: 'Revisa cada fiesta activa y alerta sobre contratos sin firmar, señas impagas, servicios faltantes, menú sin elegir o conflictos de salón y personal.',
@@ -38,6 +44,8 @@ export const AGENTES_DEFAULT_CONFIG: ConfiguracionAgente[] = [
   },
   {
     id: 'perseguidor_presupuestos',
+    apodo: 'Comercial',
+    objetivos: ['Seguimiento cercano de presupuestos enviados'],
     nombre: 'Perseguidor de Presupuestos',
     rol: 'Seguimiento Comercial y Reactivación',
     descripcion: 'Detecta presupuestos enviados sin respuesta a los 5 días y prepara mensaje de seguimiento en la bandeja; a los 14 días prepara mensaje de reactivación. Nunca envía solo.',
@@ -46,22 +54,28 @@ export const AGENTES_DEFAULT_CONFIG: ConfiguracionAgente[] = [
   },
   {
     id: 'cobrador',
+    apodo: 'Contador',
+    objetivos: ['que cada fiesta tenga todo cobrado 10 días antes'],
     nombre: 'Agente Cobrador',
     rol: 'Gestión de Cobranzas y Recordatorios de Saldo',
-    descripcion: 'Monitorea cuotas por vencer en los próximos 3 días y saldos de fiestas pasadas; prepara los recordatorios en la bandeja con los datos exactos.',
+    descripcion: 'Mira las fiestas de los próximos 5 días con saldo pendiente y prepara el recordatorio en la bandeja; lo manda una persona.',
     activo: true,
     intervaloMinutos: 60,
   },
   {
     id: 'generador_contenido',
+    apodo: 'Marketing',
+    objetivos: ['Publicaciones diarias y recuerdos de eventos'],
     nombre: 'Creador de Contenido',
     rol: 'Marketing y Borradores de Redes',
-    descripcion: 'Al finalizar un evento, prepara borradores de posteo con las fotos aprobadas del muro. Si detecta días sin publicar, deja contenido preparado.',
+    descripcion: 'Al finalizar un evento deja un borrador de texto para redes, para aprobar antes de publicar.',
     activo: true,
     intervaloMinutos: 180,
   },
   {
     id: 'vigilante_noche',
+    apodo: 'Organizador de Noche',
+    objetivos: ['Monitoreo en vivo de estaciones y barra'],
     nombre: 'Operador de la Noche',
     rol: 'Monitoreo de Estaciones en Vivo',
     descripcion: 'Durante eventos en vivo, verifica que las estaciones de fotos y el muro interactivo estén transmitiendo sin fallas ni colas offline trabadas.',
@@ -70,9 +84,11 @@ export const AGENTES_DEFAULT_CONFIG: ConfiguracionAgente[] = [
   },
   {
     id: 'vigilante_publicidad',
+    apodo: 'Marketing Digital',
+    objetivos: ['Monitoreo de campañas y consultas'],
     nombre: 'Vigilante de Publicidad & Meta Ads',
     rol: 'Supervisión de Anuncios y Rendimiento de Campañas',
-    descripcion: 'Monitorea diariamente el gasto en Meta Ads y alerta si un anuncio está quemando plata sin traer consultas, si una campaña funciona muy bien para escalar, o si se agotó el presupuesto. Nunca modifica campañas ni gasta dinero.',
+    descripcion: 'Monitorea diariamente el gasto en Meta Ads y alerta si un anuncio está quemando plata sin traer consultas, si una campaña funciona muy bien para escalar, o si se agotó el presupuesto. Propone pausar o escalar para tu OK: nunca modifica campañas ni gasta dinero solo.',
     activo: true,
     intervaloMinutos: 720,
   },

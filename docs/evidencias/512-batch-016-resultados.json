@@ -1,0 +1,688 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "512-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts",
+      "ak207-carga-rapido.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\512-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 14400000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-016-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-016-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-carga-rapido.spec.ts",
+      "file": "ak207-carga-rapido.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 37 — Que cargue rápido (límite 2500 ms)",
+          "file": "ak207-carga-rapido.spec.ts",
+          "line": 50,
+          "column": 6,
+          "specs": [
+            {
+              "title": "/ responde y completa carga inicial dentro del límite de 2500 ms",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 20031,
+                      "error": {
+                        "message": "Error: / debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m2773\u001b[39m",
+                        "stack": "Error: / debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m2773\u001b[39m\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts:72:73",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                          "column": 73,
+                          "line": 72
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 70 |\u001b[39m       \u001b[90m// En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\u001b[39m\n \u001b[90m 71 |\u001b[39m       \u001b[36mconst\u001b[39m limite \u001b[33m=\u001b[39m process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_ENV\u001b[39m \u001b[33m===\u001b[39m \u001b[32m'production'\u001b[39m \u001b[33m?\u001b[39m \u001b[33mLIMITE_CARGA_MS\u001b[39m \u001b[33m:\u001b[39m \u001b[35m10\u001b[39m_000\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 72 |\u001b[39m       expect(tiempoCarga\u001b[33m,\u001b[39m \u001b[32m`${ruta} debe cargar dentro de ${limite} ms`\u001b[39m)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(limite)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 73 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 74 |\u001b[39m   }\n \u001b[90m 75 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                            "column": 73,
+                            "line": 72
+                          },
+                          "message": "Error: / debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m2773\u001b[39m\n\n  70 |       // En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\n  71 |       const limite = process.env.NODE_ENV === 'production' ? LIMITE_CARGA_MS : 10_000;\n> 72 |       expect(tiempoCarga, `${ruta} debe cargar dentro de ${limite} ms`).toBeLessThanOrEqual(limite);\n     |                                                                         ^\n  73 |     });\n  74 |   }\n  75 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts:72:73"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:9272) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:15:18.684Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-da28f-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-da28f-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-da28f-entro-del-límite-de-2500-ms-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                        "column": 73,
+                        "line": 72
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "18948dad316675f35294-ec34381915d310869bb2",
+              "file": "ak207-carga-rapido.spec.ts",
+              "line": 52,
+              "column": 9
+            },
+            {
+              "title": "/bodas responde y completa carga inicial dentro del límite de 2500 ms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6799,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:12580) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:15:50.416Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "18948dad316675f35294-8d35fb4072e372125213",
+              "file": "ak207-carga-rapido.spec.ts",
+              "line": 52,
+              "column": 9
+            },
+            {
+              "title": "/quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 27996,
+                      "error": {
+                        "message": "Error: /quinceaneras debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m2623\u001b[39m",
+                        "stack": "Error: /quinceaneras debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m2623\u001b[39m\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts:72:73",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                          "column": 73,
+                          "line": 72
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 70 |\u001b[39m       \u001b[90m// En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\u001b[39m\n \u001b[90m 71 |\u001b[39m       \u001b[36mconst\u001b[39m limite \u001b[33m=\u001b[39m process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_ENV\u001b[39m \u001b[33m===\u001b[39m \u001b[32m'production'\u001b[39m \u001b[33m?\u001b[39m \u001b[33mLIMITE_CARGA_MS\u001b[39m \u001b[33m:\u001b[39m \u001b[35m10\u001b[39m_000\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 72 |\u001b[39m       expect(tiempoCarga\u001b[33m,\u001b[39m \u001b[32m`${ruta} debe cargar dentro de ${limite} ms`\u001b[39m)\u001b[33m.\u001b[39mtoBeLessThanOrEqual(limite)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 73 |\u001b[39m     })\u001b[33m;\u001b[39m\n \u001b[90m 74 |\u001b[39m   }\n \u001b[90m 75 |\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                            "column": 73,
+                            "line": 72
+                          },
+                          "message": "Error: /quinceaneras debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m2623\u001b[39m\n\n  70 |       // En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\n  71 |       const limite = process.env.NODE_ENV === 'production' ? LIMITE_CARGA_MS : 10_000;\n> 72 |       expect(tiempoCarga, `${ruta} debe cargar dentro de ${limite} ms`).toBeLessThanOrEqual(limite);\n     |                                                                         ^\n  73 |     });\n  74 |   }\n  75 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts:72:73"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:15:57.482Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-e3c44-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-e3c44-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-016-artifacts\\ak207-carga-rapido-Orden-3-e3c44-entro-del-límite-de-2500-ms-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                        "column": 73,
+                        "line": 72
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "18948dad316675f35294-efbded01bac8be18f22f",
+              "file": "ak207-carga-rapido.spec.ts",
+              "line": 52,
+              "column": 9
+            },
+            {
+              "title": "/cumpleanos responde y completa carga inicial dentro del límite de 2500 ms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6090,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:11308) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:16:33.533Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "18948dad316675f35294-fdf5500ab53ef05cf448",
+              "file": "ak207-carga-rapido.spec.ts",
+              "line": 52,
+              "column": 9
+            },
+            {
+              "title": "/ responde y completa carga inicial dentro del límite de 2500 ms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                        "line": 54,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1977,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:10372) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:16:53.744Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Alcanza con un navegador.",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                            "line": 54,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "18948dad316675f35294-a82fbe68424334740d6d",
+              "file": "ak207-carga-rapido.spec.ts",
+              "line": 52,
+              "column": 9
+            },
+            {
+              "title": "/bodas responde y completa carga inicial dentro del límite de 2500 ms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                        "line": 54,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 821,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:16:55.947Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Alcanza con un navegador.",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                            "line": 54,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "18948dad316675f35294-b65a63c9c4c925e9b7f5",
+              "file": "ak207-carga-rapido.spec.ts",
+              "line": 52,
+              "column": 9
+            },
+            {
+              "title": "/quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                        "line": 54,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 949,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:16:56.806Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Alcanza con un navegador.",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                            "line": 54,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "18948dad316675f35294-4919ec124f8268e75fac",
+              "file": "ak207-carga-rapido.spec.ts",
+              "line": 52,
+              "column": 9
+            },
+            {
+              "title": "/cumpleanos responde y completa carga inicial dentro del límite de 2500 ms",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                        "line": 54,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 558,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-25T03:16:57.775Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Alcanza con un navegador.",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-carga-rapido.spec.ts",
+                            "line": 54,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa509-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "18948dad316675f35294-f721e8a01624b4c8b63e",
+              "file": "ak207-carga-rapido.spec.ts",
+              "line": 52,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T03:15:16.838Z",
+    "duration": 101693.442,
+    "expected": 2,
+    "skipped": 4,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

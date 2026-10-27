@@ -68,7 +68,8 @@ Plata, cobros, permisos y quién ve qué: si algo de esto lo necesita, lo listá
 usa: filtrarPorEstacion( en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: filtrarPorEstacion( en src/app/evento/album/[fiestaId]/page.tsx
 usa: getMisPermisos( en src/components/main-nav.tsx
-usa: generateBudgetAndLeadFromSimulator( en src/lib/asistente/por-whatsapp.ts
+no-usa: generateBudgetAndLeadFromSimulator en src/lib/asistente/por-whatsapp.ts
+usa: linkSimulador en src/lib/asistente/por-whatsapp.ts
 prueba: src/__tests__/una-orden-no-se-cumple-con-un-comentario.test.ts
 # Bloque 4: las mesas ya salen de la escena automática
 usa: generarEscenaAutomatica( en src/app/(app)/fiestas/nueva/invitados/layout/page.tsx

@@ -10,7 +10,7 @@ import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import crypto from 'crypto';
 import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
-import { esPerfilValido, perfilDesdeRolViejo, puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
+import { esAdministrador, esPerfilValido, perfilDesdeRolViejo, puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
@@ -738,7 +738,7 @@ export async function updateSecurityQuestions(
   // administrador puede cambiar las de cualquiera.
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error ?? 'Sesion no autorizada.' };
-  if (auth.user?.role !== 'admin' && auth.user?.userId !== userId) {
+  if (!esAdministrador(auth.user) && auth.user?.userId !== userId) {
     return { success: false, error: 'Solo podes cambiar tus propias preguntas de seguridad.' };
   }
 

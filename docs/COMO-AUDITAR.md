@@ -563,6 +563,8 @@ fiesta.** Si falta una, el total miente y nadie lo ve, porque el número se mues
 
 ### 19. Si la pantalla se abre con datos en la dirección, ¿sobreviven a un rebote por el ingreso? Y si falta el dato, ¿lo dice o se queda cargando?
 
+**Ampliada el 24/10 (Codex 345, orden 224):** el barrido viejo miró el rebote y no la condición del cargando. Se busca `isLoading || !` (y `loading || !`) antes del `return` de la ruedita en `src/app`: si la lectura terminó sin dato, esa condición gira para siempre. La rama "no encontrado" va antes que la ruedita.
+
 Son dos mitades del mismo agujero, y las dos pasaron el mismo día:
 
 - El portero mandaba al ingreso guardando sólo la ruta y tiraba el `?fiestaId=...`. Al volver,
@@ -1388,3 +1390,73 @@ Se mira cada `if (...) return` que frena por firma, factura, cobro o estado cerr
 escritura: si es `updateDataPartial`, `writeData` o `saveFiesta`, el control tiene que repetirse adentro de
 `actualizarFiesta`, `mutateDataItem` o la transacción. Vale primero para los controles agregados en la
 misma tanda.
+
+### 95. Una acción del servidor que llama a un ayudante que guarda plata, ¿pide permiso ella?
+
+Revisión de la entrega 1353 de Gemini (23/10). `updateGestionCostosInterno` era una acción pública que sólo
+llamaba a `guardarCostosInterno`, importado de otro archivo. El candado de la plata miraba los nombres de los
+archivos y campos de plata adentro de la acción, no las llamadas a los ayudantes que los escriben, y no la vio.
+
+Ahora el candado también cuenta como plata llamar a `guardarCostosInterno`, `mutarCostosInterno`,
+`mutarPresupuesto`, `addPagoToPresupuesto`, `registerBookingDeposit` o `saveInvoice`. Cuando aparece un
+ayudante nuevo que guarda plata, se suma a esa lista en `src/__tests__/el-candado-de-la-plata.test.ts`.
+
+### 96. Una regla de estilo general, ¿le cambia el COLOR DE FONDO a una pantalla que se pensó oscura?
+
+Codex 341 (orden 223). La regla `main.flex-1 { background:#f8fafc }` de `ak-global-premium.css` pintaba casi
+blanco el fondo de cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología), y su texto
+claro quedaba ilegible. La pregunta 52 miraba lugar y tamaño, no color.
+
+Por cada regla de alcance general (`main`, `body`, `> *`, clases de marca) que pone `background` o `color`, se
+buscan las pantallas que la reciben y escriben texto claro (`text-white`, `text-slate-100`…). La prueba mide
+el color calculado del fondo (`getComputedStyle`), no la clase escrita.
+
+**Ampliada el 24/10 (Codex 423, orden 227):** el barrido miró un solo archivo de estilos y la prueba miró
+`background-color`. Quedaba `main.flex-1 > div:first-child` en `ak-internal-experience-polish.css` con un
+degradado (`background-image`) casi blanco, y la prueba dio verde con el texto ilegible. Se buscan **todos**
+los `.css` que importa `src/app/layout.tsx`, también los selectores de hijo (`main.flex-1 > ...`), y cada
+`<main ... flex-1>` fuera del panel. La prueba compara píxeles de una captura, no estilos calculados.
+
+### 97. Si hay un código de estado numérico, ¿se decide por el número o por el texto del error?
+
+Codex 350 (orden 225). `esRechazoConocido` del recordatorio a invitados miraba el número y, si no era 4xx,
+buscaba "403" en el texto. Un 503 con un rastreo que decía `qa403` se tomaba como rechazo: se liberaba la
+reserva y el invitado recibía el recordatorio dos veces. La pregunta 93 miraba la marca de terminado, no cómo
+se clasifica la falla.
+
+Se buscan en `src` las expresiones que leen números de estado en el texto de un error
+(`.test(msg)`, `.includes('403')`…). Si el error trae `status`, manda el número; el texto sólo cuenta cuando no
+hay número, y con números enteros (`\b403\b`).
+
+### 98. ¿Un control de permisos mira el rol viejo (`role === 'admin'`) en vez del perfil?
+
+Codex 230 (órdenes 230 y 233). `requireAdminSession` aceptaba `role: 'admin'` aunque la cuenta tuviera perfil de
+secretaria: cambiarle el perfil a alguien no le sacaba lo del dueño. La misma comparación seguía en once lugares, entre
+ellos el borrado de la base. Se busca `role === 'admin'` y `role !== 'admin'` en `src/app` y `src/lib`: todo control de
+permisos usa `puede(...)` o `requireAdminSession()`. Sólo el ingreso y la traducción de cuentas viejas leen el rol.
+
+### 99. Un video, foto o audio que salió vacío, ¿se presenta como terminado?
+
+Codex 229 (orden 229). La grabación con marco perdía el audio si fallaba WebAudio, y una captura de 0 bytes se
+mostraba como "video listo". Se mira cada `onstop`, `toBlob` o `MediaRecorder`: antes de decir "listo" se mira el
+tamaño y que se pueda reproducir. Si no, se muestra el reintento.
+
+### 100. Algo que corre solo, ¿hace por su cuenta lo que el dueño decidió que hace una persona, o su descripción dice lo contrario de lo que hace?
+
+Propia (26/10/2026). El vigilante de publicidad decía "nunca modifica campañas ni gasta dinero" y pausaba campañas y
+subía el presupuesto un 25% cada 12 horas. Se sigue cada disparador automático (agentes, tareas programadas,
+webhooks, efectos al entrar) hasta lo que termina haciendo: si manda afuera, cobra, cierra, toca permisos o gasta, es
+un hallazgo de plata. Y se compara la descripción que ve el dueño con el código.
+
+### 101. Una redirección, ¿deja una pantalla existente sin forma de abrirse?
+
+Propia (26/10/2026). Una entrega redirigía `/empresa/redes-sociales` a otra pantalla y el planificador de redes que
+vive ahí quedaba inalcanzable; además un botón llevaba a sí mismo. Por cada redirección incondicional se mira si en
+el origen hay una `page.tsx` real.
+
+### 102. Un aviso que llega a varias personas, ¿lleva plata o deudas de un cliente?
+
+Codex en la 1364 (26/10/2026). El asistente mandaba al teléfono de todo el equipo el nombre del cliente y su saldo, y
+el barrido mostró que **todo** aviso interno salía así ("Pago de $15.000 registrado para…"), y que la lista de avisos se
+mostraba entera a cualquiera con sesión. Se mira cada envío a muchos (aviso al teléfono, lista de avisos, grupo): si
+puede llegar a alguien sin permiso de plata, el texto no lleva importes ni deudas, y la lista filtra por permiso.

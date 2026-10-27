@@ -33,12 +33,13 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
 
   useEffect(() => {
     let vigente = true;
+    // no pasa nada si falla: si no se pueden leer los testimonios quedan los de ejemplo y la presentación no se corta
     getTestimonials()
       .then((aprobados) => {
         if (vigente) setTestimonios(testimoniosParaMostrar(aprobados, sharedTestimonials));
       })
-      .catch(() => {
-        // Si no se pueden leer, quedan los de ejemplo: la presentación no se corta.
+      .catch((err) => {
+        console.warn('[TestimoniosSlide] Error al obtener testimonios:', err);
       });
     return () => {
       vigente = false;

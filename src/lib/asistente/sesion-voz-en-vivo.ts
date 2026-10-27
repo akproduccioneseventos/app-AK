@@ -313,6 +313,33 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
       estado('escuchando', { segundosMaximos });
       return;
     }
+    const toolCall = mensaje.toolCall || (mensaje.serverContent?.modelTurn?.parts?.find((p: any) => p.functionCall)?.functionCall ? { functionCalls: mensaje.serverContent.modelTurn.parts.filter((p: any) => p.functionCall).map((p: any) => p.functionCall) } : null);
+    if (toolCall) {
+      const calls = toolCall.functionCalls || [];
+      const functionResponses: any[] = [];
+      for (const fc of calls) {
+        try {
+          const { confirmado: _confirmado, ...argumentosSinConfirmado } = (fc.args || {}) as Record<string, unknown>;
+          const r = await fetchFn('/api/asistente/voz-en-vivo/accion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: fc.id, accion: fc.name, argumentos: argumentosSinConfirmado, confirmado: fc.args?.confirmado === true }),
+            signal: senal,
+          });
+          const respuesta = await r.json().catch(() => ({}));
+          functionResponses.push({ id: fc.id, name: fc.name, response: { output: respuesta } });
+          if (respuesta?.mensaje) {
+            opciones.onTexto?.(respuesta.mensaje, 'asistente');
+          }
+        } catch {
+          functionResponses.push({ id: fc.id, name: fc.name, response: { output: { error: 'No se pudo procesar la acción' } } });
+        }
+      }
+      if (!cerrada && ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({ toolResponse: { functionResponses } }));
+      }
+      return;
+    }
     const contenido = mensaje.serverContent;
     if (!contenido) return;
     if (contenido.interrupted) {

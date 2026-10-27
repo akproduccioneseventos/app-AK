@@ -1,0 +1,128 @@
+{
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez",
+  "started": "2026-10-24T20:10:31.778Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-24T19:10:06.378Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "438-fotocabina-sdk.spec.ts",
+    "prospecto-simulador.spec.ts",
+    "espejo-moderacion-caida-y-reintento.spec.ts"
+  ],
+  "batchSize": 1,
+  "copiedTests": 3,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/438-fotocabina-sdk.spec.ts",
+      "copy": "tests/e2e/ak207-438-fotocabina-sdk.spec.ts",
+      "originalSha256": "fe6d4cd6fa49b970421ae0ae0267d8a18e59fc6360063ae9c57432c87ce4b8d9",
+      "preparedSha256": "fe6d4cd6fa49b970421ae0ae0267d8a18e59fc6360063ae9c57432c87ce4b8d9",
+      "instrumentedSha256": "63c27a8e1254372e251f772c8c3675686e35978994f130f4ed19f126836fe5e3"
+    },
+    {
+      "original": "tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts",
+      "copy": "tests/e2e/ak207-espejo-moderacion-caida-y-reintento.spec.ts",
+      "originalSha256": "fbaf3ecaad5934c196c45765eb1459cc4db20b56604df1b8553166d1ae37a5b9",
+      "preparedSha256": "9e66d767f824e6ff04adbc4ebbde8e3f6d4d3badddecb942de9af282a2058af7",
+      "instrumentedSha256": "2576a8e0a3ef1d51e7e68f44a7ecfa20a6d34bfadbad2d2f6b56ff18559d219c"
+    },
+    {
+      "original": "tests/e2e/prospecto-simulador.spec.ts",
+      "copy": "tests/e2e/ak207-prospecto-simulador.spec.ts",
+      "originalSha256": "e2ee360ce033cfa99d10c8c353e9e26ae32846805d96808895de935d969f3e55",
+      "preparedSha256": "4f65b0d3ac0c1434b6d7efdda1e53985ae73885e4ea2b04066b03eeaaf1eb8db",
+      "instrumentedSha256": "a8883ba50afe3df1af2d2da49cf5f479ce9f6d739933199f1246d65277703a3a"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 12680,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-24T20:10:49.760Z",
+    "version": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c · compilada 2026-10-24T18:57:23.732Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 12
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-438-fotocabina-sdk.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:13:11.725Z",
+      "report": "442-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:10:50.796Z",
+        "duration": 140892.812,
+        "expected": 6,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-espejo-moderacion-caida-y-reintento.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:13:28.620Z",
+      "report": "442-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:13:12.717Z",
+        "duration": 15880.545,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-prospecto-simulador.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:17:38.440Z",
+      "report": "442-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:13:29.625Z",
+        "duration": 248766.726,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 0,
+  "currentBatch": 3,
+  "totalBatches": 3,
+  "testPid": 2644,
+  "stats": {
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "reportErrors": [],
+  "snapshotCount": 60,
+  "sourceDiff": "",
+  "finished": "2026-10-24T20:17:39.273Z"
+}

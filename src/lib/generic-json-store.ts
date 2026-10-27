@@ -62,6 +62,19 @@ export async function mutateGenericJsonArray<T>(
 ): Promise<T[] | null> {
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeTopLevelJsonFile(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
+
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
+    const { readData, writeData } = await import('./data-service');
+    const mutex = getFileMutex(normalizedPath);
+    return mutex.runExclusive(async () => {
+      const actual = await readData<T[]>(normalizedPath, []);
+      const nueva = cambiar(Array.isArray(actual) ? (actual as T[]) : []);
+      if (!nueva) return null;
+      await writeData(normalizedPath, nueva);
+      return nueva;
+    });
+  }
+
   const db = await getDbAdmin();
   const ref = db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath));
   let resultado: T[] | null = null;

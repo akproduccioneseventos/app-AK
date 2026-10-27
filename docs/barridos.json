@@ -376,6 +376,38 @@
     "94": {
       "fecha": "2026-10-23",
       "resultado": "barrido con ayudante en src/app/actions. Confirmados y arreglados por Claude: el plan de pagos se podía cambiar con el contrato firmado (en papel o en el portal) y el texto con firma en papel entraba igual; ahora los dos se miran adentro de la escritura (noPisaLoFirmado). Descartados: subir el contrato en papel con la fiesta leída antes (una prueba con un cambio en el medio pasa también con el código viejo: el guardado ya repone lo de los demás) y cambiar precios después de la constancia del portal (la constancia no es el contrato: manda el papel, decisión del dueño)."
+    },
+    "95": {
+      "fecha": "2026-10-23",
+      "resultado": "barrida por el candado de la plata en todas las acciones del servidor: en la rama de Claude, ninguna acción llama a un ayudante de plata sin pedir permiso; en la entrega 1353 de Gemini frena updateGestionCostosInterno (devuelta en la orden 220)."
+    },
+    "98": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida en src/app y src/lib sobre la 1353+Codex: once controles de permiso comparan role con 'admin' (ai-consumo, blog-ai, marketing-automation x3, api/marketing/automation, api/admin/clean-db, auth.ts 741, carga-operativa, motor-agentes x2). Orden 233 urgente para Gemini. Quedan afuera el ingreso (auth.ts 455-486) y perfiles.ts."
+    },
+    "99": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida por Codex en la 1353 (orden 229): video con marco sin audio y captura vacía presentada como lista; arreglado en la propuesta 1363 (recorded-video.ts, video-frame-processor.ts) con sus pruebas. Pendiente que Gemini lo junte en la 1353 (orden 232)."
+    },
+    "97": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src (sin pruebas) en la rama de Claude y en la entrega 1353: la única función que clasifica un error leyendo números de estado en el texto es esRechazoConocido del recordatorio a invitados. Orden 225 para Gemini. Las demás expresiones sobre mensajes son de intención del asistente, no de errores."
+    },
+    "96": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src/app y los .css globales: la única regla general que pinta fondo es main.flex-1 en ak-global-premium.css; tiñe cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz en la orden 223 para Gemini."
+    },
+    "100": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida en agentes, tareas programadas, webhooks y efectos al entrar: además del vigilante de publicidad (arreglado), sólo sale solo el pedido de reseña por WhatsApp al contestar la encuesta, con interruptor apagado de fábrica que prende el dueño en Ajustes (queda así). Dos descripciones de agentes que prometían de más (cobrador, creador de contenido) corregidas."
+    },
+    "101": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida en next.config.js, middleware y page.tsx que redirigen: las pantallas redirigidas son atajos sin contenido propio. Un hallazgo: el enlace de confirmar asistencia del editor de la invitación llevaba a la portada; arreglado. La redirección de /empresa/redes-sociales de la entrega 1353 se sacó."
+    },
+    "102": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida en createNotification, sendPushNotificationToAll, avisarAlDuenio, getNotifications, tablero y torre de control: todo aviso salía con su texto a todos los teléfonos y la lista se mostraba entera. Arreglado de raíz: al teléfono va texto genérico si es de plata (textoParaElTelefono) y getNotifications oculta los de plata sin permiso de contabilidad."
     }
   },
   "hallazgos": {
@@ -446,6 +478,62 @@
     "orden-219": {
       "fecha": "2026-10-23",
       "resultado": "pregunta 94 nueva y barrida (ver arriba). El texto del contrato y el plan de pagos con firma, arreglados por Claude."
+    },
+    "orden-220": {
+      "fecha": "2026-10-23",
+      "resultado": "pregunta 95 nueva y barrida con el candado reforzado; la acción pública de costos y los guardados de lista entera de lo nuevo van a Gemini en la orden 220."
+    },
+    "orden-221": {
+      "fecha": "2026-10-23",
+      "resultado": "devolución de la entrega 1353 (tercera vuelta): guardados que quedaron con un import sin usar, voz del cliente con token inventado, y seña y saldo visibles al personal. No es una forma nueva: son la pregunta 3 (simula datos) y la 95/183 sin terminar."
+    },
+    "orden-222": {
+      "fecha": "2026-10-24",
+      "resultado": "devolución de la 1353 (cuarta vuelta): no compilaba, el bot de WhatsApp armaba presupuestos sin precios, cinco formas que mienten y una prueba que miraba cualquier div. No es forma nueva: pregunta 3 (inventa importes) y las de la puerta."
+    },
+    "orden-223": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 341 (barra lista). Barrido de la pregunta 52 en toda src/app: la regla main.flex-1 pinta de claro cinco pantallas oscuras fuera del panel (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz y prueba en la orden 223 para Gemini."
+    },
+    "orden-228": {
+      "fecha": "2026-10-26",
+      "resultado": "La 1353 sacaba clientPortalSettings al cliente y el PIN quedaba vacío. Barrido de la pregunta 89: los lectores que comparan contra clientPortalSettings (cancelación y cambio de fecha en portal.actions) dependen de recortarFiestaParaAfuera; corregido en la entrega 2b17bebfd."
+    },
+    "orden-229": {
+      "fecha": "2026-10-26",
+      "resultado": "Codex 620 (captura vacía y audio perdido). Barrido de la pregunta 99: buzón y video con marco; arreglos en la propuesta 1363."
+    },
+    "orden-230": {
+      "fecha": "2026-10-26",
+      "resultado": "Codex 499/506 (perfil explícito ignorado). Barrido de la pregunta 98: once lugares más con role === 'admin'; orden 233."
+    },
+    "orden-231": {
+      "fecha": "2026-10-26",
+      "resultado": "Codex 231 (contraste del selector del simulador). Barrido de la pregunta 96 ya hecho para la orden 227; Gemini lo arregló en 2b17bebfd."
+    },
+    "orden-233": {
+      "fecha": "2026-10-26",
+      "resultado": "Barrido de la pregunta 98 sobre la rama de Claude y la 1353: los once lugares listados en la orden 233."
+    },
+    "orden-232": {
+      "fecha": "2026-10-26",
+      "resultado": "Devolución de la 1353 + Codex 1363: pruebas con perfil inexistente, pantallas tocadas sin prueba y pruebas de navegador en rojo. Barrido: las pantallas tocadas buscadas en tests/e2e; las dos sin prueba van en la orden 232."
+    },
+    "orden-227": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 387 (factura con lectura fallida dice 'no existe') y 423 (segunda regla de fondo claro). Barrido de la pregunta 50 en las 14 pantallas de la orden 224: 10 dicen 'no encontrada' o giran si falla la lectura; la causa compartida es getFiestaById, que traga el error. Barrido de la 96 ampliada: ak-internal-experience-polish.css tiñe seis pantallas con main propio y puede tapar cinco del panel. Todo en la orden 227."
+    },
+    "orden-226": {
+      "fecha": "2026-10-24",
+      "resultado": "Devolución de la 1353: cinco pantallas tocadas sin prueba. Barrido: las 14 pantallas de la orden 224 buscadas en tests/e2e; las cinco sin prueba van en la orden 226."
+    },
+    "orden-225": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 350 (503 tomado por rechazo) y 353 (prueba del asistente sin mutarDocumento). Barrido de la pregunta 97: un solo caso, esRechazoConocido. Orden 225 para Gemini, con los once vencimientos de tiempo de Codex 349."
+    },
+    "orden-224": {
+      "fecha": "2026-10-24",
+      "resultado": "Codex 345 (factura ausente). Barrido de la pregunta 19 en src/app: 14 pantallas con 'cargando o no hay dato' que giran para siempre si la lectura no trae nada o falla. Todas en la orden 224 para Gemini. Descartadas las estaciones, que ya muestran 'Experiencia no disponible'."
     }
   }
 }

@@ -298,6 +298,9 @@ export async function launchGame(
   await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    if (game.type === 'trivia' && fiesta.triviaGame && !fiesta.triviaGame.confirmadaPorEquipo) {
+      return { success: false, error: 'La trivia debe estar confirmada por el equipo antes de jugar.' };
+    }
     // Una trivia lleva SU respuesta correcta (la elige el operador al lanzar) y nace sin revelar:
     // ese dato no sale hacia los celulares hasta que se revela (ver `ocultarRespuestaCorrecta`).
     if (game.type === 'trivia' && !(game.options || []).some((o) => o.id === game.correctOptionId)) {

@@ -1,0 +1,47 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {createRequire} from 'node:module';import {fileURLToPath} from 'node:url';
+const dir=fileURLToPath(new URL('./',import.meta.url)),build=JSON.parse(fs.readFileSync(path.join(dir,'486-entorno.json'),'utf8')),source='978af7d65a60bd287f3ee3cc05037a29566074f4';assert.equal(build.source,source);assert.equal(build.phase,'built');
+const ts=createRequire(path.join(build.qa,'package.json'))('typescript');
+const old=JSON.parse(fs.readFileSync(path.join(dir,'318-conciliacion-cierre.json'),'utf8'));
+const files=[...new Set(old.cases.map(c=>c.attempts.at(-1).sourceFile))];
+for(const f of['barra-listo-contraste.spec.ts','la-realidad-aumentada-carga-mindar.spec.ts','las-pantallas-no-quedan-cargando.spec.ts','81-roles-y-pedidos-sin-duplicados.spec.ts','49-contabilidad-cobros-conciliados.spec.ts','49-contabilidad-permisos-y-errores.spec.ts','contrato-constancia-mantiene-papel.spec.ts','portal-fecha-y-botones.spec.ts','catering-maestro-simulador-fotos.spec.ts'])if(!files.includes(f))files.push(f);
+for(const f of files)assert(fs.existsSync(path.join(build.qa,'tests/e2e',f))||fs.existsSync(path.join(dir,f)),'Missing case source '+f);
+let code=fs.readFileSync(path.join(dir,'424-recorridos-sdk.mjs'),'utf8').replaceAll('424','493').replaceAll('425','496').replaceAll('427-entorno.json','486-entorno.json').replaceAll('.qa-427-source-','.qa-480-delta-').replaceAll('917a98e32c63fe2f832f5cdc16db87f4fc722b6c',source);
+const lines=code.split('\n'),config=lines.findIndex(l=>l.startsWith("fs.writeFileSync(path.join(dir,'493-config.ts'),"));assert(config>=0);
+lines[config]="fs.writeFileSync(path.join(dir,'493-config.ts'),\"import {defineConfig} from '@playwright/test';import base from './208-config';export default defineConfig({...base,globalTimeout:4*60*60*1000,projects:base.projects?.map(p=>({...p,grep:/ak207-/}))});\\n\");";code=lines.join('\n');
+const filter=code.indexOf('process.env.AK_AUDIT_SPEC_FILTER='),end=code.indexOf(';',filter);assert(filter>0);code=code.slice(0,filter)+'process.env.AK_AUDIT_SPEC_FILTER='+JSON.stringify(files.join(','))+code.slice(end);
+const countRule=".replace('assert.equal(list.length,27','assert.equal(list.length,9')";assert(code.includes(countRule));
+code=code.replace(countRule,".replace('assert.equal(list.length,27','assert.ok(list.length>=200&&list.length<=500')");
+code=code.replace(".replace('expected:27','expected:9')",".replace('expected:27','expected:null')");
+// Preserve missing historical controls as copied QA sources, not invented app files.
+const addStart=code.indexOf("const addition=path.join(build.qa,'tests/e2e/423-barra-pixeles.spec.ts');"),addEnd=code.indexOf('\nconst dataBefore=',addStart);assert(addStart>0&&addEnd>addStart);
+code=code.slice(0,addStart)+"const additions=[];for(const name of "+JSON.stringify(files)+"){const p=path.join(build.qa,'tests/e2e',name);if(!fs.existsSync(p)){fs.copyFileSync(path.join(dir,name),p);additions.push(p);}}\n"+code.slice(addEnd);
+code=code.replace('if(fs.existsSync(addition))fs.unlinkSync(addition);','for(const p of additions)if(fs.existsSync(p))fs.unlinkSync(p);');
+// Arrange isolated data only: public catalogues stay; all private JSON is empty.
+const snapshot="const snapshots=new Map(jsonFiles().map(file=>[file,fs.readFileSync(file)]));";assert(code.includes(snapshot));
+const allowed=['servicios-empresa.json','menus-catering.json','insumos.json','budget-display-settings.json','armado-rapido-config.json','invoice-template-settings.json','crm-stages.json','blog-posts.json','employee-roles.json'];
+const privacyBlock=`\nfor(const p of jsonFiles()){const name=path.basename(p);if(${JSON.stringify(allowed)}.includes(name))continue;const rel=path.relative(qa,p).replaceAll('\\\\','/');if(/^(?:src\\/)?data\\/fiestas\\//.test(rel)){fs.unlinkSync(inside(p));continue;}const parsed=JSON.parse(fs.readFileSync(p,'utf8'));fs.writeFileSync(p,JSON.stringify(Array.isArray(parsed)?[]:{})+'\\n');}\n`;
+const privacyInjection='code=code.replace('+JSON.stringify(snapshot)+','+JSON.stringify(snapshot+privacyBlock)+');\n';
+code=code.replace('process.env.AK_AUDIT_SPEC_FILTER=',privacyInjection+'process.env.AK_AUDIT_SPEC_FILTER=');
+const catalogMarker='const hook=`';assert(code.includes(catalogMarker));
+code=code.replace(catalogMarker,"for(const file of new Set([...Object.keys(collections),...Object.keys(configs)]))if(!payload.some(p=>p.file===file))payload.push({file,data:configs[file]?{}:[],collection:collections[file]||null,config:configs[file]||null});\n"+catalogMarker);
+const dataLoop=' for(const item of __catalogue493){';assert(code.includes(dataLoop));
+code=code.replace(dataLoop,` for(const descriptor of __catalogue493){
+  const item={...descriptor};const paths=['data','src/data'].map(folder=>path493.join(process.cwd(),folder,item.file)).filter(p=>fs493.existsSync(p)).sort((a,b)=>fs493.statSync(b).mtimeMs-fs493.statSync(a).mtimeMs);if(paths.length)item.data=JSON.parse(fs493.readFileSync(paths[0],'utf8'));
+`);
+code=code.replace('/^e2e_.*\\\\.json$/','/^.*\\\\.json$/');
+const commitMarker=' if(count)await batch.commit();';assert(code.includes(commitMarker));
+code=code.replace(commitMarker,` const meta=path493.join(process.cwd(),'data/social-gallery/metadata.json');if(fs493.existsSync(meta))for(const row of JSON.parse(fs493.readFileSync(meta,'utf8')))await set(__db493.collection('social_gallery_posts').doc(row.id),row);
+ if(count)await batch.commit();`);
+const helper=path.join(build.qa,'tests/e2e/helpers/fiesta-de-prueba.ts'),helperBytes=fs.readFileSync(helper),tree=ts.createSourceFile('helper.ts',helperBytes.toString('utf8'),ts.ScriptTarget.Latest,true,ts.ScriptKind.TS),edits=[];
+for(const n of tree.statements)if(ts.isFunctionDeclaration(n)&&n.name&&n.body){const name=n.name.text;if(name==='leerFiesta')edits.push({start:n.body.getStart(tree),end:n.body.end,text:'{ return __qa495("get",fiestaId); }'});if(name==='guardarFiesta'||name==='borrarFiesta')edits.push({start:n.body.end-1,end:n.body.end-1,text:name==='guardarFiesta'?'\n__qa495("set",fiesta.id,fiesta);\n':'\n__qa495("delete",fiestaId);\n'});}assert.equal(edits.length,3);
+let patched=helperBytes.toString('utf8');for(const e of edits.sort((a,b)=>b.start-a.start))patched=patched.slice(0,e.start)+e.text+patched.slice(e.end);
+patched="import {spawnSync as __qa495Spawn} from 'node:child_process';\nfunction __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa495-fiesta-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n"+patched;
+const patchCode='const helper493=path.join(qa,"tests/e2e/helpers/fiesta-de-prueba.ts"),originalHelper493=fs.readFileSync(helper493);const bridge493=path.join(qa,".qa495-fiesta-bridge.cjs");assert(!fs.existsSync(bridge493));fs.copyFileSync(path.join(dir,"495-fiesta-bridge.cjs"),bridge493);fs.writeFileSync(helper493,'+JSON.stringify(patched)+');\n';
+const injected="code=code.replace(\"walkTests(path.join(qa,'tests/e2e'));\","+JSON.stringify(patchCode)+"+\"walkTests(path.join(qa,'tests/e2e'));\").replace(\"record.sourceDiff=git(['diff','--name-only']);\",\"fs.writeFileSync(helper493,originalHelper493);if(fs.existsSync(bridge493))fs.unlinkSync(bridge493);record.sourceDiff=git(['diff','--name-only']);\");\n";
+code=code.replace('process.env.AK_AUDIT_SPEC_FILTER=',injected+'process.env.AK_AUDIT_SPEC_FILTER=');
+code=code.replace('const dataBefore=new Map();','const helperOuter493=path.join(build.qa,"tests/e2e/helpers/fiesta-de-prueba.ts"),helperOuterBytes493=fs.readFileSync(helperOuter493);const dataBefore=new Map();');
+code=code.replace('finally{\n for(const p of files())','finally{\n fs.writeFileSync(helperOuter493,helperOuterBytes493);const bridge=path.join(build.qa,".qa495-fiesta-bridge.cjs");if(fs.existsSync(bridge))fs.unlinkSync(bridge);for(const n of fs.readdirSync(path.join(build.qa,"tests/e2e")))if(n.startsWith("ak207-")&&n.endsWith(".spec.ts"))fs.unlinkSync(path.join(build.qa,"tests/e2e",n));\n for(const p of files())');
+fs.writeFileSync(path.join(dir,'493-matriz-prevista.json'),JSON.stringify({source,files,scope:'All functional spec files in318 plus nine new/delta specs; existing assertions unchanged. SDK bridge changes ONLY QA fixture helpers so persistence assertions read emulator, not stale JSON. Private data cleared/restored. No blanket every-control/role acceptance.'},null,2)+'\n');
+const child=path.join(dir,'493-recorridos-sdk.mjs');assert(!fs.existsSync(child));fs.writeFileSync(child,code);
+const parent=path.join(dir,'492-sdk-emuladores.mjs');assert(!fs.existsSync(parent));fs.writeFileSync(parent,fs.readFileSync(path.join(dir,'430-emuladores-generado.mjs'),'utf8').replaceAll('430','492').replaceAll('424','493').replaceAll('917a98e32c63fe2f832f5cdc16db87f4fc722b6c',source).replace('35*60*1000','245*60*1000'));
+console.log(JSON.stringify({source,files:files.length,child,parent}));

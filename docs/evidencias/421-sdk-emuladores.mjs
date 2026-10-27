@@ -1,0 +1,27 @@
+import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import net from 'node:net';import assert from 'node:assert/strict';import {spawn,spawnSync} from 'node:child_process';import {gzipSync} from 'node:zlib';import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias'),target=path.join(dir,'421-emuladores.json');assert(!fs.existsSync(target));
+const previous=JSON.parse(fs.readFileSync(path.join(dir,'413-continuidad.json'),'utf8'));assert(previous.finished,'Never overlap previous native runs');
+assert(os.freemem()>=2*1024**3,'SDK+Storage+Next+browser require2GiB');
+const tools='C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-tools',deps='C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/node_modules';
+const qa=fs.mkdtempSync('C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-421-sdk-');
+for(const port of[3300,8085,9195]){const server=net.createServer();await new Promise((ok,no)=>{server.once('error',no);server.listen(port,'127.0.0.1',ok);});await new Promise(ok=>server.close(ok));}
+const rules=spawnSync('git',['show','917a98e32c63fe2f832f5cdc16db87f4fc722b6c:firestore.rules'],{cwd:root,encoding:'utf8'});assert.equal(rules.status,0);fs.writeFileSync(path.join(qa,'firestore.rules'),rules.stdout);
+fs.writeFileSync(path.join(qa,'storage.rules'),"rules_version = '2'; service firebase.storage {match /b/{bucket}/o {match /{allPaths=**} {allow read,write:if false;}}}\n");
+fs.writeFileSync(path.join(qa,'firebase.json'),JSON.stringify({storage:{rules:'storage.rules'},emulators:{storage:{host:'127.0.0.1',port:9195},ui:{enabled:false},singleProjectMode:true}}));
+const safe=Object.fromEntries(['PATH','TEMP','TMP','SYSTEMROOT','WINDIR','PROGRAMDATA','PROGRAMFILES','COMSPEC','PATHEXT','LOCALAPPDATA'].filter(k=>process.env[k]!==undefined).map(k=>[k,process.env[k]]));
+const home=path.join(qa,'home');fs.mkdirSync(path.join(home,'config'),{recursive:true});
+const env={...safe,PATH:path.join(tools,'java21/jdk-21.0.12.1+1/bin')+path.delimiter+safe.PATH,HOME:home,USERPROFILE:home,APPDATA:path.join(home,'config'),XDG_CONFIG_HOME:path.join(home,'config'),JAVA_HOME:path.join(tools,'java21/jdk-21.0.12.1+1'),JAVA_TOOL_OPTIONS:'-Xmx256m',NODE_OPTIONS:'--max-old-space-size=512',FIREBASE_EMULATORS_PATH:path.join(tools,'firebase-emulators'),FIREBASE_CLI_DISABLE_UPDATE_CHECK:'true',CI:'true',GCLOUD_PROJECT:'demo-ak-producciones',GOOGLE_CLOUD_PROJECT:'demo-ak-producciones',GOOGLE_APPLICATION_CREDENTIALS:'',FIRESTORE_EMULATOR_HOST:'127.0.0.1:8085',FIREBASE_STORAGE_EMULATOR_HOST:'127.0.0.1:9195',STORAGE_EMULATOR_HOST:'http://127.0.0.1:9195'};
+const record={qa,started:new Date().toISOString(),freeBytesAtStart:os.freemem(),source:'917a98e32c63fe2f832f5cdc16db87f4fc722b6c',appEdited:false,realServices:false};
+const logs=['421-firestore.log','421-storage-cli.log'].map(name=>({file:path.join(dir,name),stream:fs.createWriteStream(path.join(dir,name))}));let firestore,storage,timer;
+const save=()=>fs.writeFileSync(target,JSON.stringify(record,null,2)+'\n');save();
+try{
+ firestore=spawn(path.join(env.JAVA_HOME,'bin/java.exe'),['-Xmx256m','-jar',path.join(tools,'firebase-emulators/cloud-firestore-emulator-v1.22.0.jar'),'--host','127.0.0.1','--port','8085','--project_id','demo-ak-producciones','--single_project_mode','true','--single_project_mode_error','true','--rules',path.join(qa,'firestore.rules')],{cwd:qa,env,stdio:['ignore','pipe','pipe']});record.firestorePid=firestore.pid;firestore.stdout.pipe(logs[0].stream,{end:false});firestore.stderr.pipe(logs[0].stream,{end:false});save();
+ const deadline=Date.now()+90000;while(true){try{await fetch('http://127.0.0.1:8085/',{signal:AbortSignal.timeout(1000)});break;}catch(error){if(Date.now()>deadline)throw error;await new Promise(ok=>setTimeout(ok,500));}}
+ const command='"'+process.execPath+'" --max-old-space-size=512 "'+path.join(dir,'420-recorridos-sdk.mjs')+'"';
+ storage=spawn(process.execPath,[path.join(deps,'firebase-tools/lib/bin/firebase.js'),'--non-interactive','--project','demo-ak-producciones','--config',path.join(qa,'firebase.json'),'emulators:exec','--only','storage',command],{cwd:qa,env,stdio:['ignore','pipe','pipe']});record.storageCliPid=storage.pid;record.phase='running';save();storage.stdout.pipe(logs[1].stream,{end:false});storage.stderr.pipe(logs[1].stream,{end:false});
+ timer=setTimeout(()=>{record.timedOut=true;storage.kill('SIGINT');},35*60*1000);
+ record.exitCode=await new Promise((ok,no)=>{storage.once('exit',ok);storage.once('error',no);});if(record.exitCode!==0)process.exitCode=1;
+}catch(error){record.error=String(error.stack||error);process.exitCode=1;}
+finally{clearTimeout(timer);try{record.cleanupStatus=(await fetch('http://127.0.0.1:8085/emulator/v1/projects/demo-ak-producciones/databases/(default)/documents',{method:'DELETE',signal:AbortSignal.timeout(10000)})).status;}catch(error){record.cleanupError=String(error);}
+ for(const child of[storage,firestore])if(child&&child.exitCode===null){const done=new Promise(ok=>child.once('exit',ok));child.kill();await Promise.race([done,new Promise(ok=>setTimeout(ok,5000))]);}
+ for(const log of logs){await new Promise(ok=>log.stream.end(ok));fs.writeFileSync(log.file+'.gz',gzipSync(fs.readFileSync(log.file)));}record.finished=new Date().toISOString();record.phase='finished';save();console.log(JSON.stringify(record));}

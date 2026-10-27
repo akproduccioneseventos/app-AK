@@ -1,0 +1,14 @@
+import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import assert from 'node:assert/strict';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias'),recordFile=path.join(dir,'427-entorno.json');assert(!fs.existsSync(recordFile));
+const build=JSON.parse(fs.readFileSync(path.join(dir,'406-entorno.json'),'utf8'));assert.equal(build.phase,'built');
+const old=JSON.parse(fs.readFileSync(path.join(dir,'421-emuladores.json'),'utf8'));assert(old.finished,'Previous emulator run must be closed');
+const qa=fs.mkdtempSync('C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-');
+const git=args=>{const r=spawnSync('git',args,{cwd:root,encoding:'utf8'});assert.equal(r.status,0,r.stderr);return r.stdout.trim();};git(['worktree','add','--detach',qa,build.source]);
+fs.symlinkSync('C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/node_modules',path.join(qa,'node_modules'),'junction');
+const original=path.resolve(build.qa,'.next'),dest=path.resolve(qa,'.next');
+assert(original.startsWith(path.resolve(build.qa)+path.sep)&&dest.startsWith(path.resolve(qa)+path.sep));
+fs.cpSync(original,dest,{recursive:true,filter:p=>!p.startsWith(path.join(original,'cache'))});
+const hashes=[];const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+const walk=folder=>{for(const e of fs.readdirSync(folder,{withFileTypes:true})){const file=path.join(folder,e.name),relative=path.relative(original,file);if(relative==='cache'||relative.startsWith('cache'+path.sep))continue;if(e.isDirectory())walk(file);else if(e.isFile()){const before=sha(fs.readFileSync(file)),after=sha(fs.readFileSync(path.join(dest,relative)));assert.equal(after,before,relative);hashes.push({file:relative.replaceAll('\\','/'),sha256:before});}}};walk(original);
+for(const name of fs.readdirSync(path.join(build.qa,'public')))if(/^(sw\.js|workbox-.*\.js|worker-.*\.js)$/.test(name))fs.copyFileSync(path.join(build.qa,'public',name),path.join(qa,'public',name));
+fs.writeFileSync(recordFile,JSON.stringify({...build,qa,artifactCopiedFrom:build.qa,originalBuildReceipt:'406-entorno.json',copyVerifiedAt:new Date().toISOString(),notAnotherBuild:true,runtimeFiles:hashes.length,hashes,excluded:'Next build cache only; all runtime bytes verified. Failed421 owned QA data quarantined, not reused or certified clean.',previousFailedQa:build.qa},null,2)+'\n');console.log(JSON.stringify({qa,runtimeFiles:hashes.length,source:build.source,notAnotherBuild:true}));

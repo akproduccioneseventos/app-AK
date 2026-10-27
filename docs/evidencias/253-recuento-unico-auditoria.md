@@ -1,6 +1,58 @@
-# Recuento unico - 23/10/2026
+# Recuento unico - cierre25/10/2026
 
-Main observado725e62ba2f909578628fad47402d125ed9632c70. CandidatoGemini1353b91.
+## Corte650 vigente - recorridos enumerados ejecutados
+
+640 actualiza258claves porultimo recibo:211PASS11FAIL36SKIP y2MuronuevosPASS.
+609:foto4,totem1,grilla2,selfiemovil1,ventas1,Bogue1PASS;620stock20PASS;
+614espejoJSON1PASS;647muro2PASS conIDunico/recarga/pendingoculto aanonimo.
+600 clasifica37omisiones; unicoPCJSON cerrado614,36mobileguardasnoejecutadas.
+No volver a listar estos recorridos como nunca probados. Rawfallos conservados.
+229 se amplia con620:grabacion video+audio real sinteticos produce0bytes y
+se anunciaVideoGrabado. SelfiePC609 no alcanza asercion75s aunqueadjunto
+finalcontieneresultados; no filtracion/causa inventadas. Home10064ms LOCAL.
+Muroviejo1px/regex nocubriaMomentoenviado: no bugStorage probado;622REST403
+no era lecturaAdmin.647 SIusaAdminSDKdemo yprueba posteo.650 concluye.
+No appedit/merge, no0errores/todosroles/cadaboton.652higiene/cleanup/diff0.
+
+## Corte597 anterior - conservar cierres y alcances
+
+Informe final597 y400; libro596 contiene258claves caso/proyecto, intentos
+originales y reemplazos SIN sumar diferentes ejecuciones como funciones.
+Main3e45a4ac6b479f89605163168e31b37dc84f2d0f; PR1353 final seleccionada
+f8f7cf34e8778de784b20e2654058fd722b2a2ec; privados NO CONTRASTADOS.
+978build486/canonica490:865suites5253PASS. f8f7build574/canonica593:
+865suites5253PASS0FAIL0pending,exit0/fuente0diff; tipos/lintPASS porbuild.
+No repetir estas baterias por documentos ni aceptar todo por verde unitario.
+258nativos978 conciliados:199PASS19FAIL3timeout37SKIP; DOSvisuales aparte.
+585deltaf8f7:1PASS(marco importado),2FAIL(criterios vivo/selfie no alcanzados).
+589audioentradaSI/978SI/f8f7NO; defectoP2 reproducido, MISMA229 actualizada.
+230P1:6perfiles con antiguo roladmin saltan guardia;4993PASS6FAIL,
+5062PASS6FAIL consumidorreal/BDdoble.51350HTTPPASS es otrafrontera.
+231P2 titulo del selector de simuladores blanco sobre fondo claro546.
+TRESdefectos confirmados actuales, no22bugs ni solo3errores posibles.
+221variante cerrada48211ReactDOMPASS;214ochoefectos/PINPASS480; no repetir
+cinco causas917 por leer tablas historicas. Detector/calidad no globalmente
+certificados. 594 clasifica noPASS sin inventar causa ni PASS.
+Los fallos propios OOM512/TEMP540/542/577 quedan conservados y explicados.
+552/554/568/584 limpiaron datos/procesos/fuente; no procesos ajenos parados.
+NOdeclarar14areas enteras/cada control/todosroles/0errores acreditados.
+Manualdeldueno NOpendienteCodex.597cierra la tanda con NOaprobacion y limites.
+
+## Contexto historico24/10 - leer cierres anteriores con su SHA
+
+Main observado3e45a4ac6b479f89605163168e31b37dc84f2d0f (PR1360 integrada).
+Baseline nativo269/274:725e62ba2f909578628fad47402d125ed9632c70.
+Candidato1353 nuevo978af7d65a60bd287f3ee3cc05037a29566074f4; native/build917historicos.
+386 ejecuta bateria canonica:862suites5243PASS0FAIL0pending, sin adaptador370.
+406 build917PASS tipos/lint;442 termina8nativosSDKPASS,443 verifica limpieza.
+Cinco causas en917 tenian TRESordenes214/220/221.978 trae correcciones:
+480efectos/PIN8PASS,482ReactDOM11PASS (480Reactprod fue errorQA).
+Factura221 cerrada por ese alcance; CSS/detector presentes sin nativo978.
+483CIERRA ejecuciones pendientes, no acepta susFAIL;229 doscriterios medios.
+400-informe-final.md es el dictamen final consolidado, NO aprobacion global.
+3f/349/359 son historicos preservados;364/376/386 resuelven su diagnostico.
+390 comprobo HEAD privado igual917/tracked limpio a17:21UTC24/10;
+cambios privados posteriores no publicados NO CONTRASTADOS.
 EntregaClaude1357 integrada;254/255 retestean C1-C4 y217R1, ver256-cierre.
 Indice consolidado de165/169/198/202/220 y recibos216-264. No prueba nueva por indice.
 1358 auditada focalmente260-264:14criterios11PASS3FAIL, DOS causas nuevas;
@@ -53,29 +105,104 @@ automatica de todos los consumidores actuales. Manualdeldueno no es pendienteCod
 | Pendiente concreto | Responsable/estado contrastado |
 | --- | --- |
 |4causas contrato: resumen, constancia alterable, firma concurrente, texto no visto|CERRADAS por254SDK11PASS en725, no todaelarea contrato ni todoslosguardados|
-|Aprobacion fallida tardia vuelve a pendiente un aviso que el reintento ya acredito|218/Claude;263SDK1PASS1FAIL y2602PASS1FAIL, UNA causa NOcorregida en725|
-|Guardado iniciado antes de firma escribe despues otro texto y deja constancia vieja|219/Claude;264SDK1PASS1FAIL, NOcorregido en725; no reabre216C4|
+|Aprobacion fallida tardia vuelve a pendiente un aviso que el reintento ya acredito|218 CERRADA por285:2PASS AdminSDKdemo en3e; intercalado y control positivo, no toda contabilidad|
+|Guardado iniciado antes de firma escribe despues otro texto y deja constancia vieja|219 CERRADA por286:2PASS AdminSDKdemo en3e; gancho adaptado a actualizarFiesta; no reabre216C4|
 |Recordatorio sinclave puede llamar remitente|CERRADA por2553PASS en725; no proveedor/HTTPreal|
-|Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|217R2/R3/R4 Gemini; Claude los agrega a215bloque6; sin delta nuevo verificado|
-|Boton Informar pago sin formulario y enlace de album perdido|212/Gemini;227/229 confirman en1353b91; no corregido en fuente contrastada|
-|Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|214/Gemini;233 confirma en1353b91; no corregido en fuente contrastada|
-|Devolucion general1353: compilacion, pruebas y controles enumerados porClaude|215/Gemini; no aprobada. No contar38pruebas fallidas como38bugs|
+|Fecha reprogramada ignorada; falloenvio+respaldo consume dia; reservafallida marcaexito|CERRADAS por388 en917:10PASS, incluidos los ocho criterios originales y DOSvariantes503; trace incidental403 ya no genera reintento ciego|
+|Boton Informar pago sin formulario y enlace de album perdido|357 cierra212A7/A8 en3f:4PASS pagina/DTO/ReactDOM/modal/album/borrador/cierre sin enviar; no toda212, no pagos reales|
+|Filtros: consumidores carasvacias, reactivos sin efecto, ruleta reinicia|356 retestea3f:12criterios9PASS3FAIL.415 extiende MISMA causa carasvacias: refFotocabina no alimentada. TRES causas214 en917, no cuarta ni otra orden|
+|Devolucion general1353: compilacion, pruebas y controles enumerados porClaude|386 en917:862suites5243PASS oficial;406buildPASS tipos/lint. No acepta filtros, factura387 ni contraste423.392 fue preflight anterior sin iniciarbuild|
+|Pantalla de tragos listos: titulo claro sobre main casi blanco|220/Gemini o223Claude PARCIAL:quita main.flex-1 pero ak-internal-experience-polish.css conserva fondo hijo.423/425 PC/movilFAIL1.390/1.376:1.393falsePASS ignoraba gradiente; misma orden, no repetir selector corregido|
+|Factura ausente sigue cargando tras terminar las lecturas|221/Claude224:NULL CERRADO por387PASS en917; pendientePASS. MISMA orden conserva UNA varianteFAIL: lectura de plantilla rechazada termina afirmando factura inexistente. No error de importes demostrado|
 
-## 4. Cobertura pendiente de demostrar (NO lista de nuevos defectos)
+## 4. Cierre ejecutado y limites de aceptacion
 
-- Completar los recorridos en navegador que quedaron cancelados/no ejecutados,
-  sobre una fuente actual congelada.215solo52casos:49PASS/1SKIP/2inconclusos.
-- Completar la matriz accion/estado/rol:421rutas/7roles/6401AST inventarian,
-  pero no prueban que cada control de las14areas se haya ejecutado.
-- Cubrir estados UI/offline/transiciones no acreditados de invitado y estaciones;
-  no convertir las areas enteras en "nunca auditadas" ni atribuirles fallos sin prueba.
+- Actualizacion483 sobre917:455barra20PASS/overflow390PASS/huellas2FAIL;
+  457nueve rutasPASS/BoguePASS, otras variantes fallidas conservadas.
+  472grabacion completaPASS; importacion finita llega a revision pero marco0
+  pixelesFAIL; selfie sigueAnalizando60sFAIL.477HTTP200/titulos y tiempos
+  10519/612/3599ms, falla umbral local. No produccion ni nuevos bugs por conteo.
+  22ejecuciones contando variantes:13PASS8FAIL1timeout, no22funciones.
+  465/468 diez controles de codecs no vacios, sin hardware real.469video
+  sintetico1.5s herramientaFFmpeg SOLO fuera de dependencias de app.
+- NuevoHEAD978 contrastado por480:cinco suites, ocho efectos/PINPASS; once
+  ReactFAIL porNUESTRO NODE_ENVproduction.482 repite SOLOtres suites en modo
+  test:11PASS. No oncebugs, no build/nativos978, no5243PASS nuevos de978.
+  Hay correcciones de214/220/221 presentes; no reencargarlas desde917.
+  Directos de buzon/galeria/caras iguales, lector/permisos transitive cambia:
+  229 pide contraste de los dos criterios negativos antes de programar.
+- La bateria269 y su continuacion274 terminaron. Conciliacion277 con el formato
+  REAL de Playwright:1144casos unicos,542ejecutados,496PASS/46FAIL o timeout,
+  600SKIP declarados (516capturas optativas) y2FIXME. No1144PASS ni46bugs.
+  El contador273 preliminar era incorrecto;277 lo sustituye conservando originales.
+  Reensayo318 sobre3e tenia149PASS/27FAIL o timeout/34SKIP.374 reejecuta
+  SOLO esos27:10PASS/17FAIL.390 concilia210unicos/176ejecutados,
+  159PASS/17FAIL o timeout/34SKIP. No17bugs ni suma de intentos como funciones.
+  381 prueba5ciclos sugerir/cancelar;382 fecha realDOM pantalla/print2PASS,
+  sin promover tests fallidos aPASS.317/319 clasifican errores de SDK/initScript;
+  todos los fallos iniciales, cancelaciones y descartes quedan conservados.
+- 321 completo la bateria existente:834suites/5136PASS/0FAIL/0pending,
+  configuracion oficial Jest y red externa bloqueada.314 no era canonica:
+  72fallos por forzadas globales de navegador, no72regresiones de app.
+- 332/334 completaron374/374paginas en3e,0sin visitar:359PASO,
+  1FALLO de aperturaPlaylist y14NO_PROBADA.67entradas internas se corrigieron
+  porque el propio inventario omitiafiestaId.50handlers adicionales hacen
+  424entradas actuales;421era inventario historico, no421paginas aprobadas.
+- 344 completo15diagnosticos de excepciones sin alterar sus etiquetas:
+  diez estaciones SI muestran estado/cola/denegacion de camara, dos lectores
+  VideoVida muestran error y reintento.304 cubre lectores conSDKdemo.
+  Factura y VideoVidaadministrativo no acreditaron cuerpo util en ese recorrido;
+  345 aisla causalmente el caso de factura null, que ahora es la orden221.
+  Playlist mostroAlgo salio mal en QA con red negada; logsEGRESS_BLOCKED no
+  bastan para afirmar causa unica ni defecto publicado dePlaylist.
+- 343 corrige la atribucion inicial de339: el diagnostico esperaba unmain
+  inexistente sin timeout. No fue prueba de queBogue niCDP congelaran la app.
+  344 comprueba presencia y acota lecturas; originales preservados/sourceDiff0.
+- Apertura por un actor de equipo no completa accion/estado/rol de las14areas.
+  Los controles especificos conservan sus recibos y fuentes; unNO_PROBADA,
+  unSKIP o un error del arnes nunca se convierte en funcion aprobada.
 - Motores automaticos restantes: respuestas de11rutas NOprueban ejecucion completa
   de11motores;247/249/250 agregan escenarios, no cierran todo el conjunto.
 - Verificar resultados de conexiones externas con evidencia del proveedor;
   dobles locales NOcertifican sincronizacion/modelo/voz/entrega de mensajes reales.
+- 342 detecta nuevaPR1353SHA3f,131entradas src/tests distintas frente a3e.
+  347 compila SU fuente;349 ejecuta su bateria completa,13FAIL no borrados.
+  350/356/357 cierran o mantienen los criterios concretos indicados arriba.
+  352/355 album en fase financiera eran erroresQA,357faseorganizacion4PASS.
+  358 preserva bloqueo de repeticion de siete suites:RAM<2GiB yTemp347ausente.
+  359 cierra las EJECUCIONES de la tanda, no acepta toda1353/14areas/cadaaccion.
+- 363/364 DEMUESTRAN sparse checkout omitia blogJSON original; al materializar
+  su blobGit pasa el test.364 siete suites33casos21PASS12FAIL; no ocultarlos.
+  376 diagnostico focal de cinco suites+controles:26PASS, adaptador deIOmock
+  NO canonico.917 corrige contrato/mock y386 bateria oficial5243PASS sin370.
+  385 registro cambioQA notifications,391 acredita restauracion exacta/sourceDiff0.
+- 400 contiene dictamen final y clasificacion de17no aprobados, no17encargos.
+  383/384 rectificados:selector Publicar vigente, SHA3e existe, ni modelo ni
+  Bogue/CDP tienen causa demostrada por esos adjuntos. No falsos positivos.
+
+- 405 clasifica34SKIP originales:todos guardias desktop-only, no34funciones
+  ausentes.412 variantes moviles adicionales27PASS6FAIL1SKIP, sin retirar
+  aserciones. No transformar losSKIP de3e ni sumar variantes como funciones.
+- 406 compilo917 (exit0,tipos/lint) sin editar fuente;427 copia runtime3897
+  archivos conSHA256 a fuenteGit fresca917. No nueva compilacion ni SHAmixta.
+- 425SDKdemo:1PASS7FAIL1SKIP. Touchpix respuesta tardiaA/B SI pasa; los dos
+  fallos423 son MISMA220. Fotocabina ysimulador se aislan con controles442.
+- 442SDKdemo actual:8PASS0FAIL0SKIP. Preview1/3fotos, respaldo local/error
+  rechazado enPC/movil, Visioncaida sin duplicados y simulador con presupuesto1
+  yprospecto1 persistentes.443 verifica data restaurada/sourceDiff0/cleanup200
+  y todos susPIDcerrados. No modelo/proveedor/hardware ni autoentrega futura.
+  Tresfotos conserva respuestas de transicion invalida:previewPASS no acepta
+  sincronizacion. Rechazo es respuesta cliente controlada tras subida local.
+- 437 DESCARTA CTA/guardado roto inferido del test de simulador: nunca clico
+  VerResumen.439 espera visibilidad antes declick; mismas asercionesPASS442.
+- 393/410contrastePASS INVALIDADO por423:ignoraba background-image. Captura416
+  y raster423 detectan el selector hijo. No confundir lecturaCSS con apariencia.
+- 421 preflight9vs8 abandono antes de restaurar SUcopiaQA392:CUARENTENA, no
+  restauracion exacta.426 carrera de copia,433argsPowerShell:erroresQA, noapp.
+  427 fuente nueva limpia protege snapshots y443 acredita restauracion actual.
 
 No hay base para decir "solo faltan Xbotones" ni "audite toda la app".
 Los renglones de3 son trabajo conocido de correccion/retest, NO partes sin auditar.
-Los de4 son limites concretos de evidencia, no cuatro areas nuevas descubiertas.
+Los de4 son limites concretos de evidencia, no nuevas areas descubiertas.
 Este indice sustituye listas generales contradictorias; actualizar solo con
 nuevo recibo/fuente, sin sumar otra vez las reejecuciones ni borrar cierres validos.

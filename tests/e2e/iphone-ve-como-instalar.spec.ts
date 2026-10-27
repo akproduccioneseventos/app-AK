@@ -1,0 +1,27 @@
+import { expect, test } from '@playwright/test';
+import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
+
+/**
+ * Orden 189 - Bloque 2: La app instalable en iPhone
+ * En Safari de iPhone, la PWA no tiene beforeinstallprompt.
+ * El botón debe mostrar la guía con el texto 'Agregar a inicio'.
+ */
+
+test.describe('iPhone ve cómo instalar la app', () => {
+  test.use({
+    userAgent:
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1',
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true,
+  });
+
+  test('muestra la guía con Agregar a inicio en Safari de iPhone', async ({ page, context, baseURL }) => {
+    // El botón vive en /settings/instalar-app (pantalla del equipo), no en /portal.
+    await ponerSesionDelEquipo(context, baseURL);
+    await page.goto('/settings/instalar-app');
+    const boton = page.getByText('Agregar a inicio');
+    await expect(boton).toBeVisible();
+    await expect(boton).toContainText('Agregar a inicio');
+  });
+});

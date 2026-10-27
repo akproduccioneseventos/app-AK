@@ -1,0 +1,800 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "cases": [
+    {
+      "id": "360128e30ca4",
+      "file": "133-invitado-con-red-local.spec.ts",
+      "title": "ak207-133-invitado-con-red-local.spec.ts › viaje del invitado › el cliente entra a su portal con su clave y ve a su invitado",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 120000ms exceeded.\u001b[39m",
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Configuración guardada 🎉').first()\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Configuración guardada 🎉').first()\u001b[22m\n\n\n  291 |     // El aviso aparece dos veces a proposito: el cartel visible y el texto que\n  292 |     // anuncia el lector de pantalla. Alcanza con encontrar uno.\n> 293 |     await expect(page.getByText('Configuración guardada 🎉').first()).toBeVisible({ timeout: 30_000 });\n      |                                                                       ^\n  294 |   });\n  295 | });\n  296 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-133-invitado-con-red-local.spec.ts:293:71"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "e247ad57176c",
+      "file": "143-cocina-fecha-local.spec.ts",
+      "title": "ak207-143-cocina-fecha-local.spec.ts › fecha civil del evento se conserva en hoja de cocina y modo impresion",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "capture-timeout",
+      "errors": [
+        "TimeoutError: locator.screenshot: Timeout 4551.552000000025ms exceeded.\nCall log:\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\n\n  36 |     fixtureDate: fiesta.configuracion.fechaEvento, expectedCivilDate: [8, 8, 2027], screen, printed, timezone,\n  37 |   })) });\n> 38 |   await info.attach('cabecera.jpeg', { contentType: 'image/jpeg', body: await header.screenshot({ type: 'jpeg', quality: 65, timeout: 5000 }) });\n     |                                                                                      ^\n  39 |   const civilParts = (text: string) => text.match(/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/)?.slice(1).map(Number);\n  40 |   expect(civilParts(screen)).toEqual([8, 8, 2027]);\n  41 |   expect(civilParts(printed)).toEqual([8, 8, 2027]);\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-143-cocina-fecha-local.spec.ts:38:86"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "c9a6373b37ec",
+      "file": "45-recorridos-pendientes.spec.ts",
+      "title": "ak207-45-recorridos-pendientes.spec.ts › Orden 45 - Recorridos humanos pendientes › 5. Recorrido Marketing y Redes: panel de redes sociales operativo con getSocialPosts",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "teardown-timeout",
+      "errors": [
+        "\u001b[31mTearing down \"context\" exceeded the test timeout of 90000ms.\u001b[39m"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "2a3a1c4d50c3",
+      "file": "48-fotocabina-recuerdo-seguro.spec.ts",
+      "title": "ak207-48-fotocabina-recuerdo-seguro.spec.ts › Orden 48: la fotocabina levanta y deja sacar la foto › ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "teardown-timeout",
+      "errors": [
+        "\u001b[31mTearing down \"context\" exceeded the test timeout of 90000ms.\u001b[39m",
+        "\u001b[31mFixture \"trace recording\" timeout of 90000ms exceeded during teardown.\u001b[39m",
+        "Error: browserContext.close: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1228\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1 --use-angle=swiftshader --enable-unsafe-swiftshader --user-data-dir=C:\\Users\\Usuario\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-0yckwl --remote-debugging-pipe --no-startup-window\n<launched> pid=6304\n[pid=6304][err] [1023/163731.700:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=6304][err] [1023/163823.214:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=6304][err] [1023/163840.469:INFO:CONSOLE:1] \"Uncaught Error: Minified React error #418; visit https://react.dev/errors/418?args[]=HTML&args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\", source: http://127.0.0.1:3300/_next/static/chunks/5beccdab-3015d9a08673d4e2.js (1)\n[pid=6304][err] [1023/163840.649:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=6304][err] [1023/163847.900:INFO:CONSOLE:15] \"[2026-10-23T19:38:47.898Z]  @firebase/firestore: Firestore (11.10.0): WebChannelConnection RPC 'Listen' stream 0x8d3acd93 transport errored. Name: undefined Message: undefined\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=6304][err] [1023/163847.902:INFO:CONSOLE:15] \"[2026-10-23T19:38:47.902Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\n[pid=6304][err] This typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=6304][err] [1023/163847.946:INFO:CONSOLE:0] \"TypeError: Failed to fetch\", source:  (0)\n[pid=6304][err] [1023/163850.231:INFO:CONSOLE:15] \"[2026-10-23T19:38:50.231Z]  Performance: Could not fetch config, will use default configs\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=6304][err] [1023/163850.254:INFO:CONSOLE:1] \"Uncaught (in promise) TypeError: Failed to fetch\", source: http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js (1)\n[pid=6304] <gracefully close start>"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "a6e2c7b56301",
+      "file": "48-touchpix-entrega-sin-reinicio.spec.ts",
+      "title": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts › Orden 48: Touchpix levanta entero › ENT-03: sesion segura - subida lenta de A no pisa la sesion de B al llegar tarde",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "teardown-timeout",
+      "errors": [
+        "\u001b[31mTearing down \"context\" exceeded the test timeout of 90000ms.\u001b[39m",
+        "\u001b[31mFixture \"trace recording\" timeout of 90000ms exceeded during teardown.\u001b[39m"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "198d88394588",
+      "file": "81-cola-aislamiento-y-reintento.spec.ts",
+      "title": "ak207-81-cola-aislamiento-y-reintento.spec.ts › Orden 81 — Cola de subida, aislamiento y reintentos › las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse",
+      "project": "chromium-mobile",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "teardown-timeout",
+      "errors": [
+        "\u001b[31mTearing down \"context\" exceeded the test timeout of 180000ms.\u001b[39m"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "d516b0c18422",
+      "file": "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts › Orden 89 — Bloque 2: La barra no ofrece lo agotado › trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "46f70d428f56",
+      "file": "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts › Orden 89 — Bloque 2: La barra no ofrece lo agotado › trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "project": "chromium-mobile",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+        "Error: locator.click: Test timeout of 90000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('dialog').getByRole('button', { name: /cancelar/i })\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold ring-offset-background transition-all duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background text-foreground shadow-sm hover:border-primary/40 hover:…>Cancelar</button>\u001b[22m\n\n\n  126 |       // Cerrar el diálogo para el siguiente intento\n  127 |       const btnCancelar = modalDialog.getByRole('button', { name: /cancelar/i });\n> 128 |       await btnCancelar.click();\n      |                         ^\n  129 |       await expect(modalDialog).toBeHidden({ timeout: 5_000 });\n  130 |     }\n  131 |   });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts:128:25"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "eb7496305d0d",
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /publicar en el muro/i })\u001b[22m\n\n\n   97 |     // Esperar a que pase la captura y aparezca la vista previa con el botón para publicar\n   98 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n>  99 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  100 |     await btnPublicar.click();\n  101 |\n  102 |     // Debe mostrar que quedó guardada en el equipo\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:99:31"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "f2e64a1e46ed",
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /publicar en el muro/i })\u001b[22m\n\n\n  137 |\n  138 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 139 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  140 |     await btnPublicar.click();\n  141 |\n  142 |     // Debe informar el error de rechazo\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:139:31"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "bcd5371f64a0",
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Plataforma 360 con corte de red: dice guardado en el equipo y NUNCA subido ni galería",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/video guardado en este equipo|quedó guardado/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/video guardado en este equipo|quedó guardado/i).first()\u001b[22m\n\n\n  174 |     // Debe mostrar que quedó guardado en el equipo\n  175 |     const avisoEquipo = page.getByText(/video guardado en este equipo|quedó guardado/i).first();\n> 176 |     await expect(avisoEquipo).toBeVisible({ timeout: 45_000 });\n      |                               ^\n  177 |\n  178 |     // Y NUNCA debe decir subido ni en la galería\n  179 |     const textoPagina = (await page.locator('body').innerText()).toLowerCase();\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:176:31"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "19c0c16fc27a",
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Plataforma 360 con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/contenido inapropiado|no se pudo publicar/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/contenido inapropiado|no se pudo publicar/i).first()\u001b[22m\n\n\n  209 |     // Debe mostrar el rechazo\n  210 |     const avisoError = page.getByText(/contenido inapropiado|no se pudo publicar/i).first();\n> 211 |     await expect(avisoError).toBeVisible({ timeout: 45_000 });\n      |                              ^\n  212 |\n  213 |     // Y NO debe decir que se sube sola ni que quedó guardado en esta pantalla\n  214 |     const textoPagina = (await page.locator('body').innerText()).toLowerCase();\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:211:30"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "b74ba4575887",
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-mobile",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /publicar en el muro/i })\u001b[22m\n\n\n   97 |     // Esperar a que pase la captura y aparezca la vista previa con el botón para publicar\n   98 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n>  99 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  100 |     await btnPublicar.click();\n  101 |\n  102 |     // Debe mostrar que quedó guardada en el equipo\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:99:31"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "03f36661ab01",
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts › Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura › Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-mobile",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /publicar en el muro/i })\u001b[22m\n\n\n  137 |\n  138 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 139 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  140 |     await btnPublicar.click();\n  141 |\n  142 |     // Debe informar el error de rechazo\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:139:31"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "81775730977c",
+      "file": "calendarios-react19.spec.ts",
+      "title": "ak207-calendarios-react19.spec.ts › redes: calendario visible y navegacion mensual",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "8082159178fe",
+      "file": "carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › / responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: / debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m4671\u001b[39m\n\n  44 |       // En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\n  45 |       const limite = process.env.NODE_ENV === 'production' ? LIMITE_CARGA_MS : 10_000;\n> 46 |       expect(tiempoCarga, `${ruta} debe cargar dentro de ${limite} ms`).toBeLessThanOrEqual(limite);\n     |                                                                         ^\n  47 |     });\n  48 |   }\n  49 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-carga-rapido.spec.ts:46:73"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "ec0d767322a0",
+      "file": "carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts › Orden 37 — Que cargue rápido (límite 2500 ms) › /quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: /quinceaneras debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m3038\u001b[39m\n\n  44 |       // En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\n  45 |       const limite = process.env.NODE_ENV === 'production' ? LIMITE_CARGA_MS : 10_000;\n> 46 |       expect(tiempoCarga, `${ruta} debe cargar dentro de ${limite} ms`).toBeLessThanOrEqual(limite);\n     |                                                                         ^\n  47 |     });\n  48 |   }\n  49 | });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-carga-rapido.spec.ts:46:73"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "9c692279e069",
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Con un QR bueno muestra ¡Hola, {nombre}! y el número de mesa del invitado",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "715ced695380",
+      "file": "el-totem-de-bienvenida.spec.ts",
+      "title": "ak207-el-totem-de-bienvenida.spec.ts › El tótem de bienvenida interactivo › Vuelve sola a la pantalla de espera",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('text=Este QR es de otra fiesta')\nExpected: visible\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for locator('text=Este QR es de otra fiesta')\u001b[22m\n\n\n  80 |     await page.click('button:has-text(\"Leer\")');\n  81 |\n> 82 |     await expect(page.locator('text=Este QR es de otra fiesta')).toBeVisible();\n     |                                                                  ^\n  83 |\n  84 |     // El error vuelve a la espera a los 4 segundos\n  85 |     await expect(page.locator('text=¡Bienvenidos! Acercá el QR de tu invitación')).toBeVisible({ timeout: 10000 });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-el-totem-de-bienvenida.spec.ts:82:66"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "790990e5f6c7",
+      "file": "entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts › time capsule exposes every media mode and records the configured frame",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "capture-timeout",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+        "Error: locator.click: Test timeout of 90000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Detener Grabación/i })\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"w-full py-3.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-transform active:scale-95\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n\n  170 |   await expect(stopButton).toBeVisible();\n  171 |   await page.waitForTimeout(1_000);\n> 172 |   await stopButton.click();\n      |                    ^\n  173 |   // La etiqueta se llama \"Video Grabado\", no \"Video Analogico\". Se verifico en\n  174 |   // `src/app/evento/buzon/[fiestaId]/page.tsx`: el paso de revision existe y\n  175 |   // funciona, solo cambio el texto. La prueba habia quedado con el nombre viejo.\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-entertainment-stations.spec.ts:172:20"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "eef8a507675a",
+      "file": "entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts › time capsule bakes the configured frame into an uploaded gallery video",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Video Cargado')\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Video Cargado')\u001b[22m\n\n\n  247 |   });\n  248 |\n> 249 |   await expect(page.getByText('Video Cargado')).toBeVisible();\n      |                                                 ^\n  250 |   const reviewVideo = page.locator('video[src^=\"blob:\"]').first();\n  251 |   await expect(reviewVideo).toBeVisible();\n  252 |   await expect.poll(async () => reviewVideo.evaluate(async (element) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-entertainment-stations.spec.ts:249:49"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "2033e1479da5",
+      "file": "internal-dynamic-route-inventory.spec.ts",
+      "title": "ak207-internal-dynamic-route-inventory.spec.ts › representative dynamic screens hydrate without browser errors",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: /empleados/emp_1759833938625_518g1/historial: Failed to fetch\n/empresa/activos-fijos/lc_psitio/editar: Failed to fetch\n/proveedores/prov_calsal/edit: Failed to fetch | Failed to fetch\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/empleados/emp_1759833938625_518g1/historial: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/activos-fijos/lc_psitio/editar: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/proveedores/prov_calsal/edit: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  290 |   }\n  291 |\n> 292 |   expect(failures, failures.join('\\n')).toEqual([]);\n      |                                         ^\n  293 | });\n  294 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts:292:41"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "b1e8d054c140",
+      "file": "la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts › Orden 36: La grilla de caras › la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: muestra la pantalla de resultados, armada en el propio teléfono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  286 |       if (await titulos.nth(i).isVisible()) visibles += 1;\n  287 |     }\n> 288 |     expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);\n      |                                                                                         ^\n  289 |   });\n  290 | });\n  291 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:288:89"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "cdc0e8757c2f",
+      "file": "la-hoja-de-cocina.spec.ts",
+      "title": "ak207-la-hoja-de-cocina.spec.ts › la hoja de cocina se abre, se puede imprimir y avisa si falta cargar algo",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: la hoja no se rompe por dentro\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Failed to fetch\"\u001b[39m\n\n  73 |   // 4. Nada de basura tecnica delante de quien la usa.\n  74 |   expect(texto, 'no muestra texto tecnico').not.toMatch(/undefined|\\[object Object\\]|NaN|is not a valid/i);\n> 75 |   expect(erroresJs.join('\\n'), 'la hoja no se rompe por dentro').toBe('');\n     |                                                                  ^\n  76 | });\n  77 |\n  78 | test('desde la comida se llega a la hoja de cocina en un toque', async ({ context, page }, testInfo) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-la-hoja-de-cocina.spec.ts:75:66"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "0f99f3a3dae0",
+      "file": "la-web-de-venta-no-se-rompe.spec.ts",
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts › las pantallas de venta se abren solas sin romperse por dentro",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m",
+        "Error: browserContext.close: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1228\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1 --use-angle=swiftshader --enable-unsafe-swiftshader --user-data-dir=C:\\Users\\Usuario\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-sYHZ61 --remote-debugging-pipe --no-startup-window\n<launched> pid=10764\n[pid=10764][err] [1023/190102.080:INFO:CONSOLE:0] \"TypeError: Failed to fetch\", source:  (0)\n[pid=10764][err] [1023/190102.727:INFO:CONSOLE:15] \"[2026-10-23T22:01:02.664Z]  @firebase/firestore: Firestore (11.10.0): WebChannelConnection RPC 'Listen' stream 0x36769937 transport errored. Name: undefined Message: undefined\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=10764][err] [1023/190102.731:INFO:CONSOLE:15] \"[2026-10-23T22:01:02.731Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\n[pid=10764][err] This typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=10764][err] [1023/190102.777:INFO:CONSOLE:15] \"[2026-10-23T22:01:02.777Z]  Performance: Could not fetch config, will use default configs\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=10764][err] [1023/190102.805:INFO:CONSOLE:1] \"Uncaught (in promise) TypeError: Failed to fetch\", source: http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js (1)\n[pid=10764][err] [1023/190118.138:INFO:CONSOLE:15] \"[2026-10-23T22:01:18.138Z]  @firebase/firestore: Firestore (11.10.0): WebChannelConnection RPC 'Listen' stream 0x4abbf133 transport errored. Name: undefined Message: undefined\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=10764][err] [1023/190118.139:INFO:CONSOLE:15] \"[2026-10-23T22:01:18.139Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\n[pid=10764][err] This typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=10764][err] [1023/190124.396:INFO:CONSOLE:0] \"TypeError: Failed to fetch\", source:  (0)\n[pid=10764][err] [1023/190215.665:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=10764][err] [1023/190239.651:INFO:CONSOLE:15] \"[2026-10-23T22:02:39.650Z]  @firebase/firestore: Firestore (11.10.0): WebChannelConnection RPC 'Listen' stream 0x64157d2f transport errored. Name: undefined Message: undefined\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=10764][err] [1023/190239.654:INFO:CONSOLE:15] \"[2026-10-23T22:02:39.654Z]  @firebase/firestore: Firestore (11.10.0): Could not reach Cloud Firestore backend. Connection failed 1 times. Most recent error: FirebaseError: [code=unavailable]: The operation could not be completed\n[pid=10764][err] This typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend.\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=10764][err] [1023/190240.735:INFO:CONSOLE:0] \"TypeError: Failed to fetch\", source:  (0)\n[pid=10764][err] [1023/190243.781:INFO:CONSOLE:15] \"[2026-10-23T22:02:43.781Z]  Performance: Could not fetch config, will use default configs\", source: http://127.0.0.1:3300/_next/static/chunks/81095-c972c22e61b84e5e.js (15)\n[pid=10764][err] [1023/190243.788:INFO:CONSOLE:1] \"Uncaught (in promise) TypeError: Failed to fetch\", source: http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js (1)\n[pid=10764][err] [1023/190308.742:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=10764][err] [1023/190321.631:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=10764][err] [1023/190633.434:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=10764][err] [1023/190645.632:INFO:CONSOLE:0] \"The resource https://www.googletagmanager.com/gtag/js?id=G-KBNKPZ02N9 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.\", source: http://127.0.0.1:3300/quinceaneras (0)\n[pid=10764][err] [1023/190648.328:INFO:CONSOLE:6] \"Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\", source:  (6)\n[pid=10764] <gracefully close start>\n\n  70 |     if (errores.length > 0) rotas.push(`${ruta}: ${errores[0].slice(0, 120)}`);\n  71 |\n> 72 |     await context.close();\n     |     ^\n  73 |   }\n  74 |\n  75 |   expect(rotas.join('\\n'), rotas.join('\\n')).toBe('');\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-la-web-de-venta-no-se-rompe.spec.ts:72:5"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "54ad31fb7e23",
+      "file": "la-web-publica-se-ve.spec.ts",
+      "title": "ak207-la-web-publica-se-ve.spec.ts › La web pública se ve — Prueba de visibilidad real y SEO › Las páginas públicas tienen título y descripción válidos, y no redirigen a login",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "4778c23556cb",
+      "file": "las-estaciones-respetan-los-ajustes.spec.ts",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts › cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: Plataforma 360: no llego a la pantalla de compartir en 90 segundos\nBogue: no llego a la pantalla de compartir en 90 segundos\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Plataforma 360: no llego a la pantalla de compartir en 90 segundos\u001b[39m\n\u001b[31mBogue: no llego a la pantalla de compartir en 90 segundos\"\u001b[39m\n\n  165 |   }\n  166 |\n> 167 |   expect(noLoRespetan.join('\\n'), noLoRespetan.join('\\n')).toBe('');\n      |                                                            ^\n  168 | });\n  169 |\n  170 | test('el buzón respeta la cuenta regresiva que puso el equipo', async ({ page }, testInfo) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts:167:60"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "e959a231ea64",
+      "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "title": "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts › Las pantallas del invitado no quedan colgadas › /feedback/<id> no queda colgada si la respuesta del servidor se corta",
+      "project": "chromium-mobile",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('No se pudieron enviar tus comentarios').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('No se pudieron enviar tus comentarios').first()\u001b[22m\n\n\n  66 |\n  67 |     // Aparece el aviso de que no se pudo enviar\n> 68 |     await expect(page.getByText('No se pudieron enviar tus comentarios').first()).toBeVisible({ timeout: 10_000 });\n     |                                                                                   ^\n  69 |\n  70 |     // 5. Lo que escribió el invitado sigue en los campos: no se perdió\n  71 |     await expect(page.locator('#client-name')).toHaveValue(nombre);\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts:68:83"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "7f109d5a75e6",
+      "file": "layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts › huella de maquetación › las pantallas de referencia mantienen su geometría",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: La maquetación cambió:\n  /presupuestos/nuevo · h1W: era 212, ahora 216\n  / · h1Y: era 152, ahora 169\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/presupuestos/nuevo · h1W: era 212, ahora 216\",\u001b[39m\n\u001b[31m+   \"/ · h1Y: era 152, ahora 169\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  227 |\n  228 |     expect(absolutos, `Pantallas con defectos propios:\\n  ${absolutos.join('\\n  ')}`).toEqual([]);\n> 229 |     expect(desvios, `La maquetación cambió:\\n  ${desvios.join('\\n  ')}`).toEqual([]);\n      |                                                                          ^\n  230 |   });\n  231 | });\n  232 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-layout-baseline.spec.ts:229:74"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "12b23695a01d",
+      "file": "layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts › huella de maquetación › las pantallas de referencia mantienen su geometría",
+      "project": "chromium-mobile",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: La maquetación cambió:\n  /admin · h1W: era 101, ahora 98\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/admin · h1W: era 101, ahora 98\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  227 |\n  228 |     expect(absolutos, `Pantallas con defectos propios:\\n  ${absolutos.join('\\n  ')}`).toEqual([]);\n> 229 |     expect(desvios, `La maquetación cambió:\\n  ${desvios.join('\\n  ')}`).toEqual([]);\n      |                                                                          ^\n  230 |   });\n  231 | });\n  232 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-layout-baseline.spec.ts:229:74"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "f3579c13a263",
+      "file": "lectura-invitados-aislada.spec.ts",
+      "title": "ak207-lectura-invitados-aislada.spec.ts › cookie de sesion con firma falsa: pasa el portero pero el servidor no entrega la lista",
+      "project": "chromium-mobile",
+      "run": "269",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  1 |\n  2 | import { test as __akAudit207 } from '@playwright/test';\n> 3 | __akAudit207.beforeEach(async ({context}, testInfo) => {\n    |              ^\n  4 |   await context.route('**/*',async route=>{const url=new URL(route.request().url());if(/^https?:$/.test(url.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(url.hostname)){await testInfo.attach('qa-egress-blocked',{contentType:'text/plain',body:url.origin+url.pathname});await route.abort('blockedbyclient');}else await route.continue();});\n  5 | });\n  6 | import { test, expect } from '@playwright/test';\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-lectura-invitados-aislada.spec.ts:3:14"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "13bd560fc8b4",
+      "file": "limpiar-la-agenda.spec.ts",
+      "title": "ak207-limpiar-la-agenda.spec.ts › la pantalla de sincronizaciones ofrece limpiar la agenda y contesta al tocarla",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: la pantalla no se rompe por dentro\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Failed to fetch\"\u001b[39m\n\n  58 |   const texto = ((await page.locator('body').innerText().catch(() => '')) || '').replace(/\\s+/g, ' ');\n  59 |   expect(texto, 'no muestra texto tecnico').not.toMatch(/undefined|\\[object Object\\]|is not a valid/i);\n> 60 |   expect(erroresJs.join('\\n'), 'la pantalla no se rompe por dentro').toBe('');\n     |                                                                      ^\n  61 | });\n  62 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-limpiar-la-agenda.spec.ts:60:70"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "e0032e296654",
+      "file": "los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "title": "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts › Orden 79 - los enlaces llegan a donde dicen › 1.c: Los 5 reportes e impresos vuelven a la fiesta cuando tienen fiestaId y no a un listado muerto",
+      "project": "chromium-desktop",
+      "run": "269",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: En /fiestas/nueva/gestion-costos-rentabilidad/reporte?fiestaId=e2e_enlaces_1792795075931 debe existir retorno a la fiesta\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('a[href*=\"e2e_enlaces_1792795075931\"]').first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - En /fiestas/nueva/gestion-costos-rentabilidad/reporte?fiestaId=e2e_enlaces_1792795075931 debe existir retorno a la fiesta with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('a[href*=\"e2e_enlaces_1792795075931\"]').first()\u001b[22m\n\n\n  88 |       // Debe existir enlace de retorno conservando fiestaId\n  89 |       const linkRetorno = page.locator(`a[href*=\"${fiestaId}\"]`);\n> 90 |       await expect(linkRetorno.first(), `En ${url} debe existir retorno a la fiesta`).toBeVisible({ timeout: 15_000 });\n     |                                                                                       ^\n  91 |     }\n  92 |   });\n  93 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-los-enlaces-llegan-a-donde-dicen.spec.ts:90:87"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "ed751e912f88",
+      "file": "mobile-overflow.spec.ts",
+      "title": "ak207-mobile-overflow.spec.ts › sin desborde horizontal en celular › rutas internas del staff",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
+        "Error: page.goto: net::ERR_ABORTED; maybe frame was detached?\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/fiestas/nueva/invitados/layout\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  63 |\n  64 |     for (const ruta of RUTAS_INTERNAS) {\n> 65 |       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });\n     |                                   ^\n  66 |       expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);\n  67 |       expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);\n  68 |       // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-mobile-overflow.spec.ts:65:35"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "609658a5e28b",
+      "file": "mobile-overflow.spec.ts",
+      "title": "ak207-mobile-overflow.spec.ts › sin desborde horizontal en celular › rutas internas del staff",
+      "project": "chromium-mobile",
+      "run": "274",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
+        "Error: page.goto: net::ERR_ABORTED; maybe frame was detached?\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/fiestas/nueva/invitados/layout\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  63 |\n  64 |     for (const ruta of RUTAS_INTERNAS) {\n> 65 |       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });\n     |                                   ^\n  66 |       expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);\n  67 |       expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);\n  68 |       // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-mobile-overflow.spec.ts:65:35"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "f1216b541021",
+      "file": "muro-subir-foto.spec.ts",
+      "title": "ak207-muro-subir-foto.spec.ts › el invitado sube una foto al muro › encuentra cómo compartir y, si falla, se entera",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: El invitado no encuentra cómo subir una foto\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Qué querés compartir/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado no encuentra cómo subir una foto with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Qué querés compartir/i).first()\u001b[22m\n\n\n  66 |     // El botón para compartir tiene que estar a la vista, sin buscarlo.\n  67 |     const compartir = page.getByText(/Qué querés compartir/i).first();\n> 68 |     await expect(compartir, 'El invitado no encuentra cómo subir una foto').toBeVisible({ timeout: 45_000 });\n     |                                                                             ^\n  69 |     await compartir.click();\n  70 |     await page.waitForTimeout(1500);\n  71 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-muro-subir-foto.spec.ts:68:77"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "b98c31486614",
+      "file": "noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › las pantallas del equipo funcionan con una fiesta real",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: Pantallas del equipo con problemas:\n  /fiestas/e2e_noche_1792797858879/centro → falla de JavaScript: Failed to fetch\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"problema\": \"falla de JavaScript: Failed to fetch\",\u001b[39m\n\u001b[31m+     \"ruta\": \"/fiestas/e2e_noche_1792797858879/centro\",\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  218 |       problemas,\n  219 |       `Pantallas del equipo con problemas:\\n  ${problemas.map((p) => `${p.ruta} → ${p.problema}`).join('\\n  ')}`,\n> 220 |     ).toEqual([]);\n      |       ^\n  221 |   });\n  222 |\n  223 |   test('el control de entrada marca el ingreso de un invitado', async ({ page, context, baseURL }) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-noche-de-fiesta.spec.ts:220:7"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "a92a891df685",
+      "file": "noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts › noche de fiesta › las pantallas del equipo funcionan con una fiesta real",
+      "project": "chromium-mobile",
+      "run": "274",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: Pantallas del equipo con problemas:\n  /fiestas/e2e_noche_1792799016212/centro → falla de JavaScript: Failed to fetch\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"problema\": \"falla de JavaScript: Failed to fetch\",\u001b[39m\n\u001b[31m+     \"ruta\": \"/fiestas/e2e_noche_1792799016212/centro\",\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  218 |       problemas,\n  219 |       `Pantallas del equipo con problemas:\\n  ${problemas.map((p) => `${p.ruta} → ${p.problema}`).join('\\n  ')}`,\n> 220 |     ).toEqual([]);\n      |       ^\n  221 |   });\n  222 |\n  223 |   test('el control de entrada marca el ingreso de un invitado', async ({ page, context, baseURL }) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-noche-de-fiesta.spec.ts:220:7"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "bdf2305d71b6",
+      "file": "orden-86-pantallas.spec.ts",
+      "title": "ak207-orden-86-pantallas.spec.ts › Orden 86: las pantallas nuevas hacen lo que dicen › bandeja de salida: un mensaje con mail ofrece el mail, y sin Google lleva a conectarlo",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  1 |\n  2 | import { test as __akAudit207 } from '@playwright/test';\n> 3 | __akAudit207.beforeEach(async ({context}, testInfo) => {\n    |              ^\n  4 |   await context.route('**/*',async route=>{const url=new URL(route.request().url());if(/^https?:$/.test(url.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(url.hostname)){await testInfo.attach('qa-egress-blocked',{contentType:'text/plain',body:url.origin+url.pathname});await route.abort('blockedbyclient');}else await route.continue();});\n  5 | });\n  6 | import { test, expect } from '@playwright/test';\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-orden-86-pantallas.spec.ts:3:14",
+        "Error: browser.newContext: Protocol error (Browser.setDownloadBehavior): Failed to find browser context for id 4C36015FF8773142B3A47C893BDC781E"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "e295ff9b7fa8",
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › decoracion/pdf: cada zona contratada muestra su icono y su nombre",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": true,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: la pantalla no se rompe por dentro\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Failed to fetch\"\u001b[39m\n\n  91 |   const texto = ((await page.locator('body').innerText()) || '').replace(/\\s+/g, ' ');\n  92 |   expect(texto).not.toMatch(/undefined|\\[object Object\\]|NaN/);\n> 93 |   expect(erroresJs.join('\\n'), 'la pantalla no se rompe por dentro').toBe('');\n     |                                                                      ^\n  94 | });\n  95 |\n  96 | test('experiencia-mundial: los seis bloques del recorrido muestran icono, titulo y estado', async ({ context, page }, testInfo) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-pantallas-con-iconos-react19.spec.ts:93:70"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "f337fb521a45",
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › experiencia-mundial: los seis bloques del recorrido muestran icono, titulo y estado",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: la pantalla no se rompe por dentro\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Failed to fetch\"\u001b[39m\n\n  127 |\n  128 |   expect(cuerpo).not.toMatch(/undefined|\\[object Object\\]|NaN/);\n> 129 |   expect(erroresJs.join('\\n'), 'la pantalla no se rompe por dentro').toBe('');\n      |                                                                      ^\n  130 | });\n  131 |\n  132 | test('zona-digital: las doce funciones muestran su icono, su nombre y su interruptor', async ({ context, page }, testInfo) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-pantallas-con-iconos-react19.spec.ts:129:70"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "94e715adb02b",
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts › zona-digital: las doce funciones muestran su icono, su nombre y su interruptor",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "assertion-or-code-unclassified",
+      "errors": [
+        "Error: la pantalla no se rompe por dentro\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Failed to fetch\"\u001b[39m\n\n  168 |   expect(texto).toContain('requiere equipo');\n  169 |   expect(texto).not.toMatch(/undefined|\\[object Object\\]|NaN/);\n> 170 |   expect(erroresJs.join('\\n'), 'la pantalla no se rompe por dentro').toBe('');\n      |                                                                      ^\n  171 | });\n  172 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-pantallas-con-iconos-react19.spec.ts:170:70"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "800720f7726c",
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts › /fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": true,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Failed to fetch\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  89 |   await expect(page.getByText(NOMBRE_B).first()).toBeVisible({ timeout: 30_000 });\n  90 |   await expect(page.getByText(NOMBRE_A)).toHaveCount(0);\n> 91 |   expect(erroresJs).toEqual([]);\n     |                     ^\n  92 | });\n  93 |\n  94 | test('/incidentes: después de guardar una incidencia, \"Nueva incidencia\" abre con el título vacío', async ({ page }) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:91:21"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "fcda152aee9a",
+      "file": "prospecto-simulador.spec.ts",
+      "title": "ak207-prospecto-simulador.spec.ts › recorrido del prospecto › llega desde el simulador hasta ver un precio",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "failed",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "Error: El prospecto llegó al final pero no tiene cómo cerrar\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first()\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El prospecto llegó al final pero no tiene cómo cerrar with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first()\u001b[22m\n\n\n  113 |     // Y tiene que poder cerrar: o generar el presupuesto o escribirle a AK.\n  114 |     const cierre = page.getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first();\n> 115 |     await expect(cierre, 'El prospecto llegó al final pero no tiene cómo cerrar').toBeVisible({ timeout: 20_000 });\n      |                                                                                   ^\n  116 |\n  117 |     expect(erroresJs, `El simulador tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`).toEqual([]);\n  118 |   });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-prospecto-simulador.spec.ts:115:83"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "2c4f8deb08d3",
+      "file": "public-smoke.spec.ts",
+      "title": "ak207-public-smoke.spec.ts › manual budget simulator remains publicly reachable",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  1 |\n  2 | import { test as __akAudit207 } from '@playwright/test';\n> 3 | __akAudit207.beforeEach(async ({context}, testInfo) => {\n    |              ^\n  4 |   await context.route('**/*',async route=>{const url=new URL(route.request().url());if(/^https?:$/.test(url.protocol)&&!['127.0.0.1','localhost','[::1]'].includes(url.hostname)){await testInfo.attach('qa-egress-blocked',{contentType:'text/plain',body:url.origin+url.pathname});await route.abort('blockedbyclient');}else await route.continue();});\n  5 | });\n  6 | import { expect, test } from '@playwright/test';\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-267-diB8tz\\tests\\e2e\\ak207-public-smoke.spec.ts:3:14",
+        "Error: browser.newContext: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1228\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1 --use-angle=swiftshader --enable-unsafe-swiftshader --user-data-dir=C:\\Users\\Usuario\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-UCUsM9 --remote-debugging-pipe --no-startup-window\n<launched> pid=8472\n[pid=8472][err] [1023/210117.905:INFO:CONSOLE:1] \"Advertencia en verificación de Google Auth: Component auth has not been registered yet\", source: http://127.0.0.1:3300/_next/static/chunks/app/login/page-2921e1a31d7bd8db.js (1)\n[pid=8472] <gracefully close start>\n[pid=8472] <kill>\n[pid=8472] <will force kill>\n[pid=8472] taskkill stdout: CORRECTO: el proceso con PID 3900 (proceso secundario de PID 8472)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 12172 (proceso secundario de PID 8472)\r\nha sido terminado.\r\nCORRECTO: el proceso con PID 8472 (proceso secundario de PID 11788)\r\nha sido terminado.\r\n"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    },
+    {
+      "id": "101bb866ef54",
+      "file": "simulator-budget-journey.spec.ts",
+      "title": "ak207-simulator-budget-journey.spec.ts › prospect completes the simulator and downloads a formal future-year PDF",
+      "project": "chromium-desktop",
+      "run": "274",
+      "status": "timedOut",
+      "reportedOutcome": "unexpected",
+      "expectedStatus": "passed",
+      "sensitive": false,
+      "triageOnly": "timeout-unclassified",
+      "errors": [
+        "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+      ],
+      "source": "725e62ba2f909578628fad47402d125ed9632c70",
+      "appDefectConfirmed": false
+    }
+  ],
+  "scope": "46 latest unexpected raw cases for manual triage, NOT46appbugs. Financial/auth final decisions principal; never hide earlier results."
+}

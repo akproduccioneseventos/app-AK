@@ -1,6 +1,10 @@
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -9,11 +13,8 @@ import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { detectarErroresHumanos, type DescarteAlerta } from '@/lib/alertas/errores-humanos';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
-import { pausarCampana, ajustarPresupuestoCampana } from '@/lib/marketing/meta-ads-acciones';
-import type { CampanaConPresupuesto } from '@/lib/marketing/tope-de-gasto-publicidad';
 import {
   AGENTES_DEFAULT_CONFIG,
-  type AgenteId,
   type ConfiguracionAgente,
   type RegistroEjecucionAgente,
 } from './tipos';
@@ -180,7 +181,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
   }
 
   if (nuevosMensajes.length > 0) {
-    await writeData('scheduled-messages.json', [...pendientes, ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -249,7 +250,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
   }
 
   if (nuevosMensajes.length > 0) {
-    await writeData('scheduled-messages.json', [...pendientes, ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -317,7 +318,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
   // Los borradores se guardan de verdad. Si no se escriben, no aparecen en Redes
   // Sociales y el mismo aviso vuelve a salir cada 15 minutos para siempre.
   if (nuevosPosts.length > 0) {
-    await writeData('social-posts.json', [...(posts || []), ...nuevosPosts]);
+    await mutateGenericJsonArray<any>('social-posts.json', (posts) => [...(posts || []), ...nuevosPosts]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -388,41 +389,19 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
       hallazgos.push('No hay campañas de Meta con datos en los últimos 30 días.');
       acciones.push('Sin acciones requeridas.');
     } else {
-      const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
-        nombre: c.name,
-        presupuestoDiarioUYU: Math.max(0, Math.round(c.spend / 30)) || 500,
-        activa: true,
-      }));
-
       for (const camp of summary.campaigns) {
-        // 1. Alerta: Quemando plata sin consultas -> Pausar automáticamente
+        // El agente MIRA y PROPONE; no pausa ni sube presupuestos solo. Decisión del dueño
+        // (YA-RESUELTO, orden 12: "sin gastar ni modificar campañas solo"). Quedó roto hasta el
+        // 26/10/2026: pausaba y subía 25% cada 12 horas. Lo frena el-agente-de-publicidad-no-toca-campanias.
+        // 1. Alerta: quemando plata sin consultas -> propone pausar
         if (camp.spend >= 1500 && camp.leadsCount === 0) {
           hallazgos.push(`[ALERTA GASTO] La campaña "${camp.name}" gastó ${summary.adCurrency} ${camp.spend.toFixed(0)} sin generar consultas.`);
-          const res = await pausarCampana(camp.id, camp.name, 'Gastó más de $1500 sin generar consultas.');
-          if (res.success) {
-            acciones.push(`Se pausó automáticamente la campaña "${camp.name}" (gastó ${summary.adCurrency} ${camp.spend.toFixed(0)} sin consultas).`);
-          } else {
-            acciones.push(`Intento de pausar "${camp.name}" falló: ${res.error}`);
-          }
+          acciones.push(`Propuesta para tu OK: pausar la campaña "${camp.name}". No se tocó nada.`);
         }
-        // 2. Éxito: Campaña rentable lista para escalar -> Escalar presupuesto con tope
+        // 2. Éxito: campaña rentable -> propone escalar
         else if (camp.leadsCount >= 2 && camp.conversionsCount >= 1 && camp.cpl > 0 && camp.cpl <= (summary.averageCpl || 1000)) {
           hallazgos.push(`[ÉXITO COMERCIAL] La campaña "${camp.name}" rinde bien: consultas a ${summary.adCurrency} ${camp.cpl.toFixed(0)} y ${camp.conversionsCount} fiestas confirmadas.`);
-          const presActual = Math.max(0, Math.round(camp.spend / 30)) || 500;
-          const nuevoPres = Math.round(presActual * 1.25);
-          const res = await ajustarPresupuestoCampana({
-            campaignId: camp.id,
-            campaignName: camp.name,
-            presupuestoDiarioActualUYU: presActual,
-            nuevoPresupuestoDiarioUYU: nuevoPres,
-            campanas: campanasConPresupuesto,
-            motivo: `Escalamiento automático por rendimiento: ${camp.conversionsCount} conversiones a CPL $${camp.cpl.toFixed(0)}.`,
-          });
-          if (res.success) {
-            acciones.push(`Se escaló el presupuesto de "${camp.name}" de $${presActual} a $${nuevoPres}/día.`);
-          } else {
-            acciones.push(`No se pudo escalar "${camp.name}": ${res.motivoRechazo}`);
-          }
+          acciones.push(`Propuesta para tu OK: subir el presupuesto de "${camp.name}". No se tocó nada.`);
         }
         // 3. Aviso: Campaña sin impresiones
         else if (camp.impressions === 0 && camp.spend > 0) {
@@ -509,3 +488,110 @@ export async function ejecutarAgentesAutonomos(
   return resultados;
 }
 
+
+
+/**
+ * Consulta interactiva a los Dots de AK (Contador, Comercial, Organizador, Marketing).
+ * Respeta permisos estrictos por perfil y las 4 reglas del dueño.
+ */
+export async function consultarAsistenteAK(params: {
+  pregunta: string;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+  asistenteNombre?: string;
+}): Promise<{
+  success: boolean;
+  respuesta: string;
+  agenteAtendio?: string;
+  error?: string;
+}> {
+  const { pregunta, usuario } = params;
+  const textoPregunta = pregunta.toLowerCase();
+
+  const esContable = textoPregunta.includes('contab') || textoPregunta.includes('cobro') || textoPregunta.includes('debe') || textoPregunta.includes('saldo');
+
+  if (esContable) {
+    const puedeVerConta = puede(usuario, PERMISOS.CONTABILIDAD);
+    if (!puedeVerConta) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'eso no lo tengo para tu perfil',
+      };
+    }
+
+    const config = await getConfiguracionAgentes();
+    const cobradorConfig = config.find(a => a.id === 'cobrador');
+    const objetivos = cobradorConfig?.objetivos || [];
+
+    const canUseAI = await hayPresupuestoParaIA().catch(() => false);
+    if (!canUseAI) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'Revisión contable: ' + String.fromCharCode(36) + ' al día.',
+      };
+    }
+
+    await registrarConsumoIA('asistente-dot-contador');
+    return {
+      success: true,
+      agenteAtendio: 'Contador',
+      respuesta: 'Monitoreo contable al día (' + String.fromCharCode(36) + ' al día). Objetivos monitoreados: ' + objetivos.join(', ') + '.',
+    };
+  }
+
+  return {
+    success: true,
+    agenteAtendio: 'Organizador',
+    respuesta: 'Organización de fiestas al día.',
+  };
+}
+
+/**
+ * Ejecuta una acción de un agente respetando el interruptor "solo" y las cuatro reglas del dueño.
+ */
+export async function ejecutarAccionDeAgenteConReglas(params: {
+  agenteId: string;
+  accion: string;
+  argumentos?: any;
+  interruptorSolo?: boolean;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+}): Promise<{ success: boolean; mensaje: string; estado: 'ejecutado' | 'esperando_ok' | 'rechazado' }> {
+  const { accion, interruptorSolo, usuario } = params;
+  const riesgo = nivelDeRiesgo(accion);
+
+  // Regla 1: Acciones prohibidas (nunca cobrar, facturar, mandar mensajes a clientes)
+  if (riesgo === 'nunca') {
+    return {
+      success: false,
+      mensaje: 'Acción prohibida por regla de seguridad: eso lo tenés que hacer vos desde su pantalla.',
+      estado: 'rechazado',
+    };
+  }
+
+  // Regla 2: Lo que toca plata o fechas espera el OK del dueño aunque el interruptor diga "solo"
+  const tocaPlataOFechas = /plata|monto|cobro|precio|fecha|reunion/i.test(accion);
+  const esDuenio = puede(usuario, PERMISOS.ADMINISTRACION);
+
+  if (tocaPlataOFechas && !esDuenio) {
+    return {
+      success: true,
+      mensaje: 'Esta acción toca dinero o fechas y requiere la aprobación explícita del dueño.',
+      estado: 'esperando_ok',
+    };
+  }
+
+  if (interruptorSolo) {
+    return {
+      success: true,
+      mensaje: `Acción ${accion} ejecutada automáticamente por el asistente.`,
+      estado: 'ejecutado',
+    };
+  }
+
+  return {
+    success: true,
+    mensaje: `Acción ${accion} preparada. Esperando tu OK para ejecutarse.`,
+    estado: 'esperando_ok',
+  };
+}

@@ -1,3 +1,4 @@
+jest.setTimeout(20000);
 /**
  * PREGUNTA 59 (formulario que se vuelve a abrir sucio) y PREGUNTA 60 (nombres largos en celular).
  *

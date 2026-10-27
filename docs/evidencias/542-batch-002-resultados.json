@@ -1,0 +1,896 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "542-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts",
+      "ak207-pantallas-tocadas-tanda-12-10.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\542-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 14400000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/542-batch-002-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/542-batch-002-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "/fiestas/nueva/centro-total?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1,
+                  "error": {
+                    "message": "Error: QA495 fixture bridge: TypeError: fetch failed\n",
+                    "stack": "Error: QA495 fixture bridge: TypeError: fetch failed\n\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:529)\n    at guardarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:103:1)\n    at crearFiestaDeEstaNoche (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:196:3)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:73:37",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                      "column": 529,
+                      "line": 2
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers\\fiesta-de-prueba.ts:2\n\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {spawnSync \u001b[36mas\u001b[39m __qa495Spawn} \u001b[36mfrom\u001b[39m \u001b[32m'node:child_process'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mfunction\u001b[39m __qa495(op\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mid\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mvalue\u001b[33m?\u001b[39m\u001b[33m:\u001b[39munknown){\u001b[36mif\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mFIRESTORE_EMULATOR_HOST\u001b[39m\u001b[33m!==\u001b[39m\u001b[32m'127.0.0.1:8085'\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 emulator only'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m r\u001b[33m=\u001b[39m__qa495Spawn(process\u001b[33m.\u001b[39mexecPath\u001b[33m,\u001b[39m[process\u001b[33m.\u001b[39mcwd()\u001b[33m+\u001b[39m\u001b[32m'/.qa528-fiesta-rest-bridge.cjs'\u001b[39m\u001b[33m,\u001b[39mop\u001b[33m,\u001b[39mid]\u001b[33m,\u001b[39m{cwd\u001b[33m:\u001b[39mprocess\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39menv\u001b[33m:\u001b[39m{\u001b[33m...\u001b[39mprocess\u001b[33m.\u001b[39menv\u001b[33m,\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m:\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m||\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m.\u001b[39mreplace(\u001b[35m/--max-old-space-size=\\d+/g\u001b[39m\u001b[33m,\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m+\u001b[39m\u001b[32m' --max-old-space-size=256'\u001b[39m}\u001b[33m,\u001b[39minput\u001b[33m:\u001b[39mvalue\u001b[33m===\u001b[39mundefined\u001b[33m?\u001b[39mundefined\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(value)\u001b[33m,\u001b[39mencoding\u001b[33m:\u001b[39m\u001b[32m'utf8'\u001b[39m\u001b[33m,\u001b[39mtimeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m\u001b[33m,\u001b[39mmaxBuffer\u001b[33m:\u001b[39m\u001b[35m16\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(r\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m0\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 fixture bridge: '\u001b[39m\u001b[33m+\u001b[39mr\u001b[33m.\u001b[39mstderr)\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(r\u001b[33m.\u001b[39mstdout\u001b[33m||\u001b[39m\u001b[32m'null'\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m   |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m \u001b[36mimport\u001b[39m crypto \u001b[36mfrom\u001b[39m \u001b[32m'node:crypto'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mimport\u001b[39m fs \u001b[36mfrom\u001b[39m \u001b[32m'node:fs'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m \u001b[36mimport\u001b[39m path \u001b[36mfrom\u001b[39m \u001b[32m'node:path'\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 529,
+                        "line": 2
+                      },
+                      "message": "Error: QA495 fixture bridge: TypeError: fetch failed\n\n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa528-fiesta-rest-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:529)\n    at guardarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:103:1)\n    at crearFiestaDeEstaNoche (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:196:3)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:73:37"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 529,
+                        "line": 2
+                      },
+                      "message": "Error: QA495 fixture bridge: TypeError: fetch failed\n\n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa528-fiesta-rest-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:529)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:83:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:48.970Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts\\ak207-pantallas-tocadas-ta-0db33-ro-de-la-fiesta-B-no-a-la-A-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts\\ak207-pantallas-tocadas-ta-0db33-ro-de-la-fiesta-B-no-a-la-A-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts\\ak207-pantallas-tocadas-ta-0db33-ro-de-la-fiesta-B-no-a-la-A-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts\\ak207-pantallas-tocadas-ta-0db33-ro-de-la-fiesta-B-no-a-la-A-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                    "column": 529,
+                    "line": 2
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-a24e37b76f47c756ad2b",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/centro?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.284Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-75bbe6f85dcaa65ca41e",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/mission-control?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-92ce04239c2aa89c6a99",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-f2def5135ed9ae8243f3",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "/incidentes: después de guardar una incidencia, \"Nueva incidencia\" abre con el título vacío",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-86ac1306be8b390ee0fa",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 120,
+          "column": 5
+        },
+        {
+          "title": "/control-tower/automatizaciones muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-3c60efef283bd6079e9b",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-fb8dd0f4d0ebf2cd7d80",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/post-fiesta muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-8c2349900331087cdfee",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/preparacion muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.285Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-0eec871982396e6f0b6a",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial con la lectura caída avisa y NO dice \"Todo tranquilo\"",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:50.286Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-6a29196b356788410da5",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 179,
+          "column": 5
+        },
+        {
+          "title": "/fiestas/nueva/centro-total?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1,
+                  "error": {
+                    "message": "Error: QA495 fixture bridge: TypeError: fetch failed\n",
+                    "stack": "Error: QA495 fixture bridge: TypeError: fetch failed\n\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:529)\n    at guardarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:103:1)\n    at crearFiestaDeEstaNoche (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:196:3)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:73:37",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                      "column": 529,
+                      "line": 2
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mhelpers\\fiesta-de-prueba.ts:2\n\n\u001b[0m \u001b[90m 1 |\u001b[39m \u001b[36mimport\u001b[39m {spawnSync \u001b[36mas\u001b[39m __qa495Spawn} \u001b[36mfrom\u001b[39m \u001b[32m'node:child_process'\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 2 |\u001b[39m \u001b[36mfunction\u001b[39m __qa495(op\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mid\u001b[33m:\u001b[39mstring\u001b[33m,\u001b[39mvalue\u001b[33m?\u001b[39m\u001b[33m:\u001b[39munknown){\u001b[36mif\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mFIRESTORE_EMULATOR_HOST\u001b[39m\u001b[33m!==\u001b[39m\u001b[32m'127.0.0.1:8085'\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 emulator only'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m r\u001b[33m=\u001b[39m__qa495Spawn(process\u001b[33m.\u001b[39mexecPath\u001b[33m,\u001b[39m[process\u001b[33m.\u001b[39mcwd()\u001b[33m+\u001b[39m\u001b[32m'/.qa528-fiesta-rest-bridge.cjs'\u001b[39m\u001b[33m,\u001b[39mop\u001b[33m,\u001b[39mid]\u001b[33m,\u001b[39m{cwd\u001b[33m:\u001b[39mprocess\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39menv\u001b[33m:\u001b[39m{\u001b[33m...\u001b[39mprocess\u001b[33m.\u001b[39menv\u001b[33m,\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m:\u001b[39m(process\u001b[33m.\u001b[39menv\u001b[33m.\u001b[39m\u001b[33mNODE_OPTIONS\u001b[39m\u001b[33m||\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m.\u001b[39mreplace(\u001b[35m/--max-old-space-size=\\d+/g\u001b[39m\u001b[33m,\u001b[39m\u001b[32m''\u001b[39m)\u001b[33m+\u001b[39m\u001b[32m' --max-old-space-size=256'\u001b[39m}\u001b[33m,\u001b[39minput\u001b[33m:\u001b[39mvalue\u001b[33m===\u001b[39mundefined\u001b[33m?\u001b[39mundefined\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(value)\u001b[33m,\u001b[39mencoding\u001b[33m:\u001b[39m\u001b[32m'utf8'\u001b[39m\u001b[33m,\u001b[39mtimeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m\u001b[33m,\u001b[39mmaxBuffer\u001b[33m:\u001b[39m\u001b[35m16\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m\u001b[33m*\u001b[39m\u001b[35m1024\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(r\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m0\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA495 fixture bridge: '\u001b[39m\u001b[33m+\u001b[39mr\u001b[33m.\u001b[39mstderr)\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(r\u001b[33m.\u001b[39mstdout\u001b[33m||\u001b[39m\u001b[32m'null'\u001b[39m)\u001b[33m;\u001b[39m}\n \u001b[90m   |\u001b[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 3 |\u001b[39m \u001b[36mimport\u001b[39m crypto \u001b[36mfrom\u001b[39m \u001b[32m'node:crypto'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 4 |\u001b[39m \u001b[36mimport\u001b[39m fs \u001b[36mfrom\u001b[39m \u001b[32m'node:fs'\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 5 |\u001b[39m \u001b[36mimport\u001b[39m path \u001b[36mfrom\u001b[39m \u001b[32m'node:path'\u001b[39m\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 529,
+                        "line": 2
+                      },
+                      "message": "Error: QA495 fixture bridge: TypeError: fetch failed\n\n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa528-fiesta-rest-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:529)\n    at guardarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:103:1)\n    at crearFiestaDeEstaNoche (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:196:3)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:73:37"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                        "column": 529,
+                        "line": 2
+                      },
+                      "message": "Error: QA495 fixture bridge: TypeError: fetch failed\n\n\n   at helpers\\fiesta-de-prueba.ts:2\n\n  1 | import {spawnSync as __qa495Spawn} from 'node:child_process';\n> 2 | function __qa495(op:string,id:string,value?:unknown){if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085')throw new Error('QA495 emulator only');const r=__qa495Spawn(process.execPath,[process.cwd()+'/.qa528-fiesta-rest-bridge.cjs',op,id],{cwd:process.cwd(),env:{...process.env,NODE_OPTIONS:(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size=\\d+/g,'')+' --max-old-space-size=256'},input:value===undefined?undefined:JSON.stringify(value),encoding:'utf8',timeout:30000,maxBuffer:16*1024*1024});if(r.status!==0)throw new Error('QA495 fixture bridge: '+r.stderr);return JSON.parse(r.stdout||'null');}\n    |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  3 | import crypto from 'node:crypto';\n  4 | import fs from 'node:fs';\n  5 | import path from 'node:path';\n    at __qa495 (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:2:529)\n    at borrarFiesta (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts:113:1)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:83:15"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:52.170Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts\\ak207-pantallas-tocadas-ta-0db33-ro-de-la-fiesta-B-no-a-la-A-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts\\ak207-pantallas-tocadas-ta-0db33-ro-de-la-fiesta-B-no-a-la-A-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts\\ak207-pantallas-tocadas-ta-0db33-ro-de-la-fiesta-B-no-a-la-A-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\542-batch-002-artifacts\\ak207-pantallas-tocadas-ta-0db33-ro-de-la-fiesta-B-no-a-la-A-chromium-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\helpers\\fiesta-de-prueba.ts",
+                    "column": 529,
+                    "line": 2
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-62636fe2e95b70742d4b",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/centro?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.224Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-5f124cbc096f031935c9",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/mission-control?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.224Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-6ad8d64f5848e1e5a443",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.224Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-450835f195771cdfae5d",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "/incidentes: después de guardar una incidencia, \"Nueva incidencia\" abre con el título vacío",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.224Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-b09c42d05777440017d8",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 120,
+          "column": 5
+        },
+        {
+          "title": "/control-tower/automatizaciones muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.224Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-f495c7a9bc165735250c",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.224Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-3d6b9b1f50306a68ed51",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/post-fiesta muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.224Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-d116c480e090486f5572",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/preparacion muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.225Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-c6a4bd125a468d2ea457",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial con la lectura caída avisa y NO dice \"Todo tranquilo\"",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T06:06:53.225Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-f24e5a58d59a9116127e",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 179,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T06:06:46.415Z",
+    "duration": 6863.146,
+    "expected": 0,
+    "skipped": 18,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

@@ -39,6 +39,8 @@ import { addClientMusicSuggestion, initializePortalSession, submitClientMenuChan
 import { defaultFaq } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -90,7 +92,7 @@ type CatalogService = {
 };
 
 type Notice = {
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'warning';
   text: string;
 };
 
@@ -204,6 +206,7 @@ function IconBlock({ icon: Icon, color }: { icon: DisplayIcon; color: string }) 
   );
 }
 
+
 function QuickButton({ href, icon: Icon, label, helper, color, external = false }: { href: string; icon: DisplayIcon; label: string; helper: string; color: string; external?: boolean }) {
   return (
     <a href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} className="ak-public-action group flex min-h-[88px] items-center gap-3 p-3">
@@ -243,6 +246,8 @@ function PortalEmptyState({ title, description }: { title: string; description: 
 function NoticeBox({ notice }: { notice: Notice }) {
   const className = notice.type === 'success'
     ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+    : notice.type === 'warning'
+    ? 'border-amber-200 bg-amber-50 text-amber-800'
     : 'border-rose-200 bg-rose-50 text-rose-800';
 
   return <p className={`rounded-lg border p-3 text-sm font-medium ${className}`}>{notice.text}</p>;
@@ -592,10 +597,14 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       : { title: 'Todo encaminado', text: 'La información disponible del evento está ordenada.', action: 'contable', label: 'Ver resumen financiero' };
   })();
 
+  const [seccionesAbiertas, setSeccionesAbiertas] = useState<string[]>(
+    access.canSeeOrganization ? ["organizacion", "contable"] : ["contable"]
+  );
+
   const goToPortalSection = (section: 'contable' | 'organizacion' | 'invitados') => {
+    setSeccionesAbiertas((prev) => (prev.includes(section) ? prev : [...prev, section]));
     const element = document.getElementById(`portal-${section}`);
     element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    element?.querySelector<HTMLButtonElement>('button')?.click();
   };
 
   const serviceCards = [
@@ -908,7 +917,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     try {
       const result = await submitClientPayment(fiesta.id, amount, paymentFileBase64, paymentFile?.name || paymentNote || undefined);
       if (result.success) {
-        setPaymentNotice({ type: 'success', text: 'Pago informado. AK lo revisará y lo marcará como confirmado.' });
+        if ((result as any).aviso) {
+          setPaymentNotice({ type: 'warning', text: (result as any).aviso });
+        } else {
+          setPaymentNotice({ type: 'success', text: 'Pago informado. AK lo revisará y lo marcará como confirmado.' });
+        }
         setPaymentAmount('');
         setPaymentNote('');
         setPaymentFile(null);
@@ -1200,13 +1213,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           {/* Tarjeta Pagos */}
           <div
             className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
-            onClick={() => {
-              const el = document.getElementById('portal-contable');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-                el.querySelector('button')?.click();
-              }
-            }}
+            onClick={() => goToPortalSection('contable')}
           >
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
             <div className="flex items-center gap-4 mb-5">
@@ -1232,13 +1239,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           {/* Tarjeta Menú */}
           <div
             className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
-            onClick={() => {
-              const el = document.getElementById('portal-organizacion');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-                el.querySelector('button')?.click();
-              }
-            }}
+            onClick={() => goToPortalSection('organizacion')}
           >
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
             <div className="flex items-center gap-4 mb-5">
@@ -1291,7 +1292,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
         </div>
 
-        <Accordion type="multiple" defaultValue={access.canSeeOrganization ? ["organizacion", "contable"] : ["contable"]} className="space-y-4">
+        <Accordion type="multiple" value={seccionesAbiertas} onValueChange={setSeccionesAbiertas} className="space-y-4">
           {access.canSeeOrganization && <AccordionItem value="organizacion" id="portal-organizacion" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline">
               <span className="flex items-center gap-3"><IconBlock icon={ClipboardList} color={eventColor} /> Organización del evento</span>
@@ -1383,6 +1384,57 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                         <a href={`/evento/social/${fiesta.id}`} target="_blank" rel="noopener noreferrer"><ImageIcon className="h-4 w-4" /> Abrir mural social</a>
                       </Button>
                     ) : <PortalEmptyState title="El mural social todavía no está activo" description="AK lo habilitará cuando el servicio esté listo para tu evento." />}
+                  </div>
+                </div>
+
+                {/* Tarjeta Tus fotos y videos */}
+                <div className="rounded-lg border p-4 bg-white shadow-sm space-y-3">
+                  <div className="flex items-center gap-3">
+                    <IconBlock icon={Camera} color={eventColor} />
+                    <div>
+                      <p className="font-black text-slate-900">Tus fotos y videos</p>
+                      <InfoBadge tone="info">Entrega de material</InfoBadge>
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-slate-100">
+                    {(fiesta?.fotografiaYFilmacion?.servicios || []).map((servicio: any) => (
+                      <div key={servicio.id || servicio.nombre} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="space-y-1">
+                          <p className="font-semibold text-slate-900">{servicio.nombre}</p>
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                            <span className="font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                              {servicio.estado}
+                            </span>
+                            {servicio.fechaEntregaEstimada && (
+                              <span>
+                                Entrega estimada: {formatearFechaEvento(servicio.fechaEntregaEstimada)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {servicio.linkEntrega && (
+                          <Button variant="outline" size="sm" asChild>
+                            <a
+                              href={servicio.linkEntrega}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Ver entrega
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    {(!fiesta?.fotografiaYFilmacion?.servicios || fiesta.fotografiaYFilmacion.servicios.length === 0) && (
+                      <PortalEmptyState
+                        title="Todavía no hay entregas de fotos o videos cargadas"
+                        description="AK publicará los enlaces cuando el material esté listo."
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -2203,6 +2255,74 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
         </div>
       )}
+
+            {/* Dialog Informar pago */}
+      <Dialog open={paymentModalOpen} onOpenChange={setPaymentModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Informar un pago</DialogTitle>
+            <DialogDescription>
+              Avisanos cuando hagas una transferencia o depósito. AK lo confirmará en tu cuenta.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {paymentNotice && <NoticeBox notice={paymentNotice} />}
+
+            <div className="space-y-2">
+              <label htmlFor="modal-payment-amount" className="text-sm font-medium">Monto transferido ($)</label>
+              <Input
+                id="modal-payment-amount"
+                type="number"
+                placeholder="Ej. 500"
+                value={paymentAmount}
+                onChange={(e) => setPaymentAmount(e.target.value)}
+                disabled={paymentLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="modal-payment-note" className="text-sm font-medium">Nota o referencia (opcional)</label>
+              <Input
+                id="modal-payment-note"
+                type="text"
+                placeholder="Ej. Transferencia BROU / Recibo"
+                value={paymentNote}
+                onChange={(e) => setPaymentNote(e.target.value)}
+                disabled={paymentLoading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Comprobante (opcional)</label>
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={(e) => handlePaymentFile(e.target.files?.[0])}
+                disabled={paymentLoading}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setPaymentModalOpen(false)}
+              disabled={paymentLoading}
+            >
+              Cerrar
+            </Button>
+            <Button
+              onClick={submitPayment}
+              disabled={paymentLoading}
+              style={{ background: eventColor }}
+            >
+              {paymentLoading ? 'Enviando...' : 'Enviar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <PublicFooter />
     </div>

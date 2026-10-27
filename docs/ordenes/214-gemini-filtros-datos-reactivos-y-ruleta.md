@@ -1,5 +1,16 @@
 # AK-CODEX-233 - Delta pendiente de191 en candidato1353
 
+## Retest Codex356 - 24/10, candidata1353 SHA3f946018
+
+12criterios9PASS/3FAIL y AST de los cuatro consumidores, ejecutados de nuevo
+sobre3f9460185143ef034dcd713e975d2a0af5e20f1a; no resultado heredado de b91.
+Persisten las MISMAS TRES causas descritas abajo: caras[] en tres estaciones,
+guino/cejas sin efecto activo (dosFAIL, una causa) y ruleta no estable.
+FotocabinaSI pasa carasDetectadasRef.current; no deshacer ese enlace.
+Los dos modulos helpers tienen blobs identicos b91/3f, contraste adicional348.
+No camara/modelo/pixeles/captura certificados. Actualizacion de esta misma
+orden, NO una orden nueva ni reencargo de marcos que ya pasan. Ver359.
+
 Responsable Gemini; no nueva decision de producto. Mantener lo aprobado en191.
 Fuente probada:1353 b91bdbeff7d3db7489fabdadd599776376c0577a. No afirmar defecto
 publicado en Hosting: esta es la TANDA pendiente. Privados posteriores NO CONTRASTADOS.
@@ -58,6 +69,24 @@ quedan certificados por esos nueve controles.
 230 inicial no encontro consumidores y no resolvio TypeScript. La revision
 principal RECTIFICO ambas cosas: SI hay llamadas, y TS se cargo desde el
 artefacto local existente. No usar ese primer informe para eliminar funciones.
+
+## Ampliacion415 de la MISMA causa carasvacias, no cuarta causa nueva
+
+Fuente917a98e32c63fe2f832f5cdc16db87f4fc722b6c publica1353.
+FotocabinaSI pasa carasDetectadasRef.current, pero eso NO acredita deteccion:
+el AST tiene SOLO dos referencias al identificador, inicializacion useRef([])
+y lectura como cuarto argumento de dibujarFiltroDeCara; ninguna escritura
+ni alias que alimente el arreglo. El helper REAL ejecutado devuelvefalse y
+no dibuja cuando recibeese[]. El guard es correcto; falta alimentar el consumidor.
+415-fotocabina-ref-vacia.json:dos controlesPASS y criterio de alimentacionFAIL.
+No camara/modelo/personas reales ni prueba nativa de calidad facial.
+
+La aceptacion pedida desde233 sigue siendo de CONSUMIDOR con fuente de caras,
+no solo biblioteca. Incluye por tanto Fotocabina junto a los otros tres:
+no basta cambiar[] por una ref tambien vacia ni instalar un modelo sin usarlo.
+Conservar la cara ausente sin dibujo, permisos y procesamiento local ya definidos.
+No son cuatro errores adicionales ni se reabre una causa corregida por otraSHA.
+Contrastar cambios privados posteriores antes de programar; no se conocen.
 
 ```comprobar
 archivo: src/lib/entretenimiento/filtros-cara.ts

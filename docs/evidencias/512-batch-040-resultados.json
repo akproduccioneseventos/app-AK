@@ -1,0 +1,1430 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "512-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts",
+      "ak207-pantallas-tocadas-tanda-12-10.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\512-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 14400000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-040-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/512-batch-040-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-480-delta-Apsy7q/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "/fiestas/nueva/centro-total?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7623,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:1468) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:03:13.531Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-a24e37b76f47c756ad2b",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/centro?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9909,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:03:30.737Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-75bbe6f85dcaa65ca41e",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/mission-control?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10936,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:03:40.696Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-92ce04239c2aa89c6a99",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12612,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:03:51.678Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-f2def5135ed9ae8243f3",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "/incidentes: después de guardar una incidencia, \"Nueva incidencia\" abre con el título vacío",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 22930,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:04:04.320Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-86ac1306be8b390ee0fa",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 120,
+          "column": 5
+        },
+        {
+          "title": "/control-tower/automatizaciones muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13729,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:04:27.282Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-3c60efef283bd6079e9b",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3296,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:04:41.044Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-fb8dd0f4d0ebf2cd7d80",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/post-fiesta muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2826,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:04:44.372Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-8c2349900331087cdfee",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/preparacion muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4050,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:04:47.233Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-0eec871982396e6f0b6a",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial con la lectura caída avisa y NO dice \"Todo tranquilo\"",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5454,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:04:51.324Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-6a29196b356788410da5",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 179,
+          "column": 5
+        },
+        {
+          "title": "/fiestas/nueva/centro-total?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 1113,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:9872) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:00.281Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-62636fe2e95b70742d4b",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/centro?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 1978,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:05.418Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-5f124cbc096f031935c9",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/mission-control?fiestaId=B lleva al Centro de la fiesta B, no a la A",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 1087,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:07.447Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-6ad8d64f5848e1e5a443",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 100,
+          "column": 7
+        },
+        {
+          "title": "/fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 722,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:08.559Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-450835f195771cdfae5d",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "/incidentes: después de guardar una incidencia, \"Nueva incidencia\" abre con el título vacío",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 923,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:09.307Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-b09c42d05777440017d8",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 120,
+          "column": 5
+        },
+        {
+          "title": "/control-tower/automatizaciones muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 898,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:10.250Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-f495c7a9bc165735250c",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 2591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:11.169Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-3d6b9b1f50306a68ed51",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/post-fiesta muestra su contenido real y sin errores de página",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 8143,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:13.785Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-d116c480e090486f5572",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/preparacion muestra su contenido real y sin errores de página",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4978,
+                  "error": {
+                    "message": "Error: 2 UNKNOWN: Application error processing RPC",
+                    "stack": "Error: 2 UNKNOWN: Application error processing RPC\n    at callErrorFromStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\call.ts:84:17)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:360:55)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:466:34)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:424:48)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\resolving-call.ts:206:24\n    at ServiceClientImpl.makeUnaryRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:325:42)\n    at ServiceClientImpl.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\make-client.ts:189:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\v1\\firestore_client.js:242:33\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\timeout.ts:54:13\n    at repeat (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\retries.ts:110:19)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\retries.ts:157:7\n    at OngoingCallPromise.call (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\call.ts:81:23)\n    at NormalApiCaller.call (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\normalApiCaller.ts:43:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\createApiCall.ts:157:26\n    at _firestore._traceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\write-batch.js:438:27)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:110:30\n    at NoopContextManager.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\context\\NoopContextManager.ts:20:15)\n    at ContextAPI.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\api\\context.ts:68:42)\n    at NoopTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\NoopTracer.ts:87:27)\n    at ProxyTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\ProxyTracer.ts:51:20)\n    at EnabledTraceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:102:28)\n    at WriteBatch.commit (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\write-batch.js:436:43)\n    at set (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:18:80)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:22:9",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                      "column": 80,
+                      "line": 18
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 16 |\u001b[39m  \u001b[36mconst\u001b[39m cleared\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m fetch(\u001b[32m'http://127.0.0.1:8085/emulator/v1/projects/demo-ak-producciones/databases/(default)/documents'\u001b[39m\u001b[33m,\u001b[39m{method\u001b[33m:\u001b[39m\u001b[32m'DELETE'\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(cleared\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m200\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA509 clear failed'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m  \u001b[36mlet\u001b[39m batch\u001b[33m=\u001b[39m__db509\u001b[33m.\u001b[39mbatch()\u001b[33m,\u001b[39mcount\u001b[33m=\u001b[39m\u001b[35m0\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m  \u001b[36mconst\u001b[39m \u001b[36mset\u001b[39m\u001b[33m=\u001b[39m\u001b[36masync\u001b[39m(ref\u001b[33m,\u001b[39mdata)\u001b[33m=>\u001b[39m{batch\u001b[33m.\u001b[39m\u001b[36mset\u001b[39m(ref\u001b[33m,\u001b[39mdata)\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(\u001b[33m++\u001b[39mcount\u001b[33m===\u001b[39m\u001b[35m350\u001b[39m){\u001b[36mawait\u001b[39m batch\u001b[33m.\u001b[39mcommit()\u001b[33m;\u001b[39mbatch\u001b[33m=\u001b[39m__db509\u001b[33m.\u001b[39mbatch()\u001b[33m;\u001b[39mcount\u001b[33m=\u001b[39m\u001b[35m0\u001b[39m\u001b[33m;\u001b[39m}}\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m  \u001b[36mfor\u001b[39m(\u001b[36mconst\u001b[39m descriptor \u001b[36mof\u001b[39m __catalogue509){\n \u001b[90m 20 |\u001b[39m   \u001b[36mconst\u001b[39m item\u001b[33m=\u001b[39m{\u001b[33m...\u001b[39mdescriptor}\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m paths\u001b[33m=\u001b[39m[\u001b[32m'data'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'src/data'\u001b[39m]\u001b[33m.\u001b[39mmap(folder\u001b[33m=>\u001b[39mpath509\u001b[33m.\u001b[39mjoin(process\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39mfolder\u001b[33m,\u001b[39mitem\u001b[33m.\u001b[39mfile))\u001b[33m.\u001b[39mfilter(p\u001b[33m=>\u001b[39mfs509\u001b[33m.\u001b[39mexistsSync(p))\u001b[33m.\u001b[39msort((a\u001b[33m,\u001b[39mb)\u001b[33m=>\u001b[39mfs509\u001b[33m.\u001b[39mstatSync(b)\u001b[33m.\u001b[39mmtimeMs\u001b[33m-\u001b[39mfs509\u001b[33m.\u001b[39mstatSync(a)\u001b[33m.\u001b[39mmtimeMs)\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(paths\u001b[33m.\u001b[39mlength)item\u001b[33m.\u001b[39mdata\u001b[33m=\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(fs509\u001b[33m.\u001b[39mreadFileSync(paths[\u001b[35m0\u001b[39m]\u001b[33m,\u001b[39m\u001b[32m'utf8'\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m 21 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "column": 80,
+                        "line": 18
+                      },
+                      "message": "Error: 2 UNKNOWN: Application error processing RPC\n\n  16 |  const cleared=await fetch('http://127.0.0.1:8085/emulator/v1/projects/demo-ak-producciones/databases/(default)/documents',{method:'DELETE'});if(cleared.status!==200)throw new Error('QA509 clear failed');\n  17 |  let batch=__db509.batch(),count=0;\n> 18 |  const set=async(ref,data)=>{batch.set(ref,data);if(++count===350){await batch.commit();batch=__db509.batch();count=0;}};\n     |                                                                                ^\n  19 |  for(const descriptor of __catalogue509){\n  20 |   const item={...descriptor};const paths=['data','src/data'].map(folder=>path509.join(process.cwd(),folder,item.file)).filter(p=>fs509.existsSync(p)).sort((a,b)=>fs509.statSync(b).mtimeMs-fs509.statSync(a).mtimeMs);if(paths.length)item.data=JSON.parse(fs509.readFileSync(paths[0],'utf8'));\n  21 |\n    at callErrorFromStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\call.ts:84:17)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:360:55)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:466:34)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:424:48)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\resolving-call.ts:206:24\n    at ServiceClientImpl.makeUnaryRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:325:42)\n    at ServiceClientImpl.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\make-client.ts:189:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\v1\\firestore_client.js:242:33\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\timeout.ts:54:13\n    at repeat (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\retries.ts:110:19)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\retries.ts:157:7\n    at OngoingCallPromise.call (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\call.ts:81:23)\n    at NormalApiCaller.call (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\normalApiCaller.ts:43:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\createApiCall.ts:157:26\n    at _firestore._traceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\write-batch.js:438:27)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:110:30\n    at NoopContextManager.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\context\\NoopContextManager.ts:20:15)\n    at ContextAPI.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\api\\context.ts:68:42)\n    at NoopTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\NoopTracer.ts:87:27)\n    at ProxyTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\ProxyTracer.ts:51:20)\n    at EnabledTraceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:102:28)\n    at WriteBatch.commit (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\write-batch.js:436:43)\n    at set (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:18:80)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:22:9"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:21.962Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts\\ak207-pantallas-tocadas-ta-8889b-eal-y-sin-errores-de-página-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts\\ak207-pantallas-tocadas-ta-8889b-eal-y-sin-errores-de-página-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts\\ak207-pantallas-tocadas-ta-8889b-eal-y-sin-errores-de-página-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts\\ak207-pantallas-tocadas-ta-8889b-eal-y-sin-errores-de-página-chromium-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "column": 80,
+                    "line": 18
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-c6a4bd125a468d2ea457",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 150,
+          "column": 7
+        },
+        {
+          "title": "/control-tower/comercial con la lectura caída avisa y NO dice \"Todo tranquilo\"",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Se prueba desde la computadora.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "line": 95,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2485,
+                  "error": {
+                    "message": "Error: 2 UNKNOWN: Application error processing RPC",
+                    "stack": "Error: 2 UNKNOWN: Application error processing RPC\n    at callErrorFromStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\call.ts:84:17)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:360:55)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:466:34)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:424:48)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\resolving-call.ts:206:24\n    at ServiceClientImpl.makeUnaryRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:325:42)\n    at ServiceClientImpl.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\make-client.ts:189:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\v1\\firestore_client.js:242:33\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\timeout.ts:54:13\n    at repeat (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\retries.ts:110:19)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\retries.ts:157:7\n    at OngoingCallPromise.call (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\call.ts:81:23)\n    at NormalApiCaller.call (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\normalApiCaller.ts:43:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\createApiCall.ts:157:26\n    at _firestore._traceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\write-batch.js:438:27)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:110:30\n    at NoopContextManager.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\context\\NoopContextManager.ts:20:15)\n    at ContextAPI.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\api\\context.ts:68:42)\n    at NoopTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\NoopTracer.ts:87:27)\n    at ProxyTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\ProxyTracer.ts:51:20)\n    at EnabledTraceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:102:28)\n    at WriteBatch.commit (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\write-batch.js:436:43)\n    at set (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:18:80)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:22:9",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                      "column": 80,
+                      "line": 18
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 16 |\u001b[39m  \u001b[36mconst\u001b[39m cleared\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m fetch(\u001b[32m'http://127.0.0.1:8085/emulator/v1/projects/demo-ak-producciones/databases/(default)/documents'\u001b[39m\u001b[33m,\u001b[39m{method\u001b[33m:\u001b[39m\u001b[32m'DELETE'\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(cleared\u001b[33m.\u001b[39mstatus\u001b[33m!==\u001b[39m\u001b[35m200\u001b[39m)\u001b[36mthrow\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mError\u001b[39m(\u001b[32m'QA509 clear failed'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 17 |\u001b[39m  \u001b[36mlet\u001b[39m batch\u001b[33m=\u001b[39m__db509\u001b[33m.\u001b[39mbatch()\u001b[33m,\u001b[39mcount\u001b[33m=\u001b[39m\u001b[35m0\u001b[39m\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 18 |\u001b[39m  \u001b[36mconst\u001b[39m \u001b[36mset\u001b[39m\u001b[33m=\u001b[39m\u001b[36masync\u001b[39m(ref\u001b[33m,\u001b[39mdata)\u001b[33m=>\u001b[39m{batch\u001b[33m.\u001b[39m\u001b[36mset\u001b[39m(ref\u001b[33m,\u001b[39mdata)\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(\u001b[33m++\u001b[39mcount\u001b[33m===\u001b[39m\u001b[35m350\u001b[39m){\u001b[36mawait\u001b[39m batch\u001b[33m.\u001b[39mcommit()\u001b[33m;\u001b[39mbatch\u001b[33m=\u001b[39m__db509\u001b[33m.\u001b[39mbatch()\u001b[33m;\u001b[39mcount\u001b[33m=\u001b[39m\u001b[35m0\u001b[39m\u001b[33m;\u001b[39m}}\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 19 |\u001b[39m  \u001b[36mfor\u001b[39m(\u001b[36mconst\u001b[39m descriptor \u001b[36mof\u001b[39m __catalogue509){\n \u001b[90m 20 |\u001b[39m   \u001b[36mconst\u001b[39m item\u001b[33m=\u001b[39m{\u001b[33m...\u001b[39mdescriptor}\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m paths\u001b[33m=\u001b[39m[\u001b[32m'data'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'src/data'\u001b[39m]\u001b[33m.\u001b[39mmap(folder\u001b[33m=>\u001b[39mpath509\u001b[33m.\u001b[39mjoin(process\u001b[33m.\u001b[39mcwd()\u001b[33m,\u001b[39mfolder\u001b[33m,\u001b[39mitem\u001b[33m.\u001b[39mfile))\u001b[33m.\u001b[39mfilter(p\u001b[33m=>\u001b[39mfs509\u001b[33m.\u001b[39mexistsSync(p))\u001b[33m.\u001b[39msort((a\u001b[33m,\u001b[39mb)\u001b[33m=>\u001b[39mfs509\u001b[33m.\u001b[39mstatSync(b)\u001b[33m.\u001b[39mmtimeMs\u001b[33m-\u001b[39mfs509\u001b[33m.\u001b[39mstatSync(a)\u001b[33m.\u001b[39mmtimeMs)\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(paths\u001b[33m.\u001b[39mlength)item\u001b[33m.\u001b[39mdata\u001b[33m=\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(fs509\u001b[33m.\u001b[39mreadFileSync(paths[\u001b[35m0\u001b[39m]\u001b[33m,\u001b[39m\u001b[32m'utf8'\u001b[39m))\u001b[33m;\u001b[39m\n \u001b[90m 21 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "column": 80,
+                        "line": 18
+                      },
+                      "message": "Error: 2 UNKNOWN: Application error processing RPC\n\n  16 |  const cleared=await fetch('http://127.0.0.1:8085/emulator/v1/projects/demo-ak-producciones/databases/(default)/documents',{method:'DELETE'});if(cleared.status!==200)throw new Error('QA509 clear failed');\n  17 |  let batch=__db509.batch(),count=0;\n> 18 |  const set=async(ref,data)=>{batch.set(ref,data);if(++count===350){await batch.commit();batch=__db509.batch();count=0;}};\n     |                                                                                ^\n  19 |  for(const descriptor of __catalogue509){\n  20 |   const item={...descriptor};const paths=['data','src/data'].map(folder=>path509.join(process.cwd(),folder,item.file)).filter(p=>fs509.existsSync(p)).sort((a,b)=>fs509.statSync(b).mtimeMs-fs509.statSync(a).mtimeMs);if(paths.length)item.data=JSON.parse(fs509.readFileSync(paths[0],'utf8'));\n  21 |\n    at callErrorFromStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\call.ts:84:17)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:360:55)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:466:34)\n    at Object.onReceiveStatus (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client-interceptors.ts:424:48)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\resolving-call.ts:206:24\n    at ServiceClientImpl.makeUnaryRequest (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\client.ts:325:42)\n    at ServiceClientImpl.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@grpc\\grpc-js\\src\\make-client.ts:189:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\v1\\firestore_client.js:242:33\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\timeout.ts:54:13\n    at repeat (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\retries.ts:110:19)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\retries.ts:157:7\n    at OngoingCallPromise.call (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\call.ts:81:23)\n    at NormalApiCaller.call (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\normalCalls\\normalApiCaller.ts:43:15)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\google-gax\\src\\createApiCall.ts:157:26\n    at _firestore._traceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\write-batch.js:438:27)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:110:30\n    at NoopContextManager.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\context\\NoopContextManager.ts:20:15)\n    at ContextAPI.with (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\api\\context.ts:68:42)\n    at NoopTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\NoopTracer.ts:87:27)\n    at ProxyTracer.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@opentelemetry\\api\\src\\trace\\ProxyTracer.ts:51:20)\n    at EnabledTraceUtil.startActiveSpan (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\telemetry\\enabled-trace-util.js:102:28)\n    at WriteBatch.commit (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\write-batch.js:436:43)\n    at set (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:18:80)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts:22:9"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:3476) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-25T05:05:31.371Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Se prueba desde la computadora.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                        "line": 95,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa509-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts\\ak207-pantallas-tocadas-ta-79d36-a-y-NO-dice-Todo-tranquilo--chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts\\ak207-pantallas-tocadas-ta-79d36-a-y-NO-dice-Todo-tranquilo--chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts\\ak207-pantallas-tocadas-ta-79d36-a-y-NO-dice-Todo-tranquilo--chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\512-batch-040-artifacts\\ak207-pantallas-tocadas-ta-79d36-a-y-NO-dice-Todo-tranquilo--chromium-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q\\tests\\e2e\\ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+                    "column": 80,
+                    "line": 18
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "0c34583f1be06a9aee39-f24e5a58d59a9116127e",
+          "file": "ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+          "line": 179,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T05:03:09.153Z",
+    "duration": 151887.46,
+    "expected": 10,
+    "skipped": 8,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

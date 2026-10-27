@@ -1,4 +1,14 @@
-## Reparto vigente - ultima aclaracion del dueno, 15/10/2026
+## Excepcion puntual autorizada por el dueno -25/10/2026
+
+- Pedido directo: "revisa todo y reparalo con agentes economicos".
+- En esta tanda Codex puede implementar las correcciones verificadas, con
+  agentes acotados; el principal conserva seguridad, dinero y datos.
+- No fusionar ni publicar en produccion. No tocar cuentas/datos reales ni
+  ramas activas de Gemini/Claude. Contrastar primero la entrega2b17bebf.
+- Esta excepcion no convierte automaticamente futuras auditorias en permiso
+  de programacion ni modifica decisiones comerciales del dueno.
+
+## Reparto previo - aclaracion del dueno, 15/10/2026
 
 - CLAUDE Y GEMINI PROGRAMAN SIEMPRE. CODEX SOLO AUDITA: revisa, prueba y
   documenta resultados/instrucciones. No implementa codigo de la app.

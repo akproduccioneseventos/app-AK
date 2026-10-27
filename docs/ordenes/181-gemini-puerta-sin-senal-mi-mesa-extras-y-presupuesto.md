@@ -72,8 +72,8 @@ usa: escaneadoEn en src/app/actions/fiesta/invitados.actions.ts
 usa: /evento/hub/ en src/app/evento/mi-mesa/[fiestaId]/page.tsx
 usa: totem_touch_ia en src/app/portal/page.tsx
 usa: FranjaTranquilidad en src/components/budget/BudgetDocument.tsx
-prueba: PENDIENTE src/__tests__/la-puerta-anda-sin-senal.test.tsx
-prueba: PENDIENTE src/__tests__/mi-mesa-lleva-a-la-app.test.tsx
-prueba: PENDIENTE src/__tests__/el-portal-ofrece-las-estaciones.test.ts
-prueba: PENDIENTE src/__tests__/la-franja-del-presupuesto-no-cambia-numeros.test.tsx
+prueba: src/__tests__/la-puerta-anda-sin-senal.test.tsx
+prueba: src/__tests__/mi-mesa-lleva-a-la-app.test.tsx
+prueba: src/__tests__/el-portal-ofrece-las-estaciones.test.ts
+prueba: src/__tests__/la-franja-del-presupuesto-no-cambia-numeros.test.tsx
 ```

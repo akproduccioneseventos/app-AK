@@ -1,0 +1,335 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "609-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts",
+      "ak207-muro-subir-foto.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\609-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 2700000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-008-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/609-batch-008-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-574-f8f-z1BF2d/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-muro-subir-foto.spec.ts",
+      "file": "ak207-muro-subir-foto.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "el invitado sube una foto al muro",
+          "file": "ak207-muro-subir-foto.spec.ts",
+          "line": 78,
+          "column": 6,
+          "specs": [
+            {
+              "title": "encuentra cómo compartir y, si falla, se entera",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 64048,
+                      "error": {
+                        "message": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n",
+                        "stack": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts:124:7",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts",
+                          "column": 7,
+                          "line": 124
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 122 |\u001b[39m       respuesta\u001b[33m,\u001b[39m\n \u001b[90m 123 |\u001b[39m       \u001b[32m'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no'\u001b[39m\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 124 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m45\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 125 |\u001b[39m\n \u001b[90m 126 |\u001b[39m     expect(erroresJs\u001b[33m,\u001b[39m \u001b[32m`El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`\u001b[39m)\u001b[33m.\u001b[39mtoEqual([])\u001b[33m;\u001b[39m\n \u001b[90m 127 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts",
+                            "column": 7,
+                            "line": 124
+                          },
+                          "message": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n\n\n  122 |       respuesta,\n  123 |       'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no',\n> 124 |     ).toBeVisible({ timeout: 45_000 });\n      |       ^\n  125 |\n  126 |     expect(erroresJs, `El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`).toEqual([]);\n  127 |   });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts:124:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:1932) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T12:57:18.131Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\test-failed-1.png"
+                        },
+                        {
+                          "name": "qa608-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "qa604-observations",
+                          "contentType": "application/json",
+                          "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL3NvY2lhbC9lMmVfbXVyb18xNzkyOTMzMDM3ODIwP2d1ZXN0SWQ9aW52X3BydWViYV8wJnRva2VuPXRva2VuLXBydWViYS0wIiwiZXZlbnRzIjpbeyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMwMzc4MjAiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJtdWx0aXBhcnQvZm9ybS1kYXRhOyBib3VuZGFyeT0tLS0tV2ViS2l0Rm9ybUJvdW5kYXJ5ZUg3ZWczT3FkQjFRQXM3QSJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzAzNzgyMCIsInN0YXR1cyI6MjAwfV0sImJvZHkiOiJNdXJvIHNvY2lhbCBkZSBWYWxlbnRpbmFcblxuSG9sYSwgTHVjw61hIEZlcm7DoW5kZXpcblxuTWkgTWVzYVxuSW5pY2lvXG5Dcm9ub2dyYW1hXG5SYW5raW5nXG5NaXNpb25lc1xuQ2FuY2lvbmVzXG5NZW5zYWplc1xuQ2hhdFxuwr9DVcOBTkRPIENVTVBMw41TIFRVUyBRVUlOQ0U/XG5ZYSBsb3MgZmVzdGVqw6lcbkVzdGUgYcOxb1xuRWwgYcOxbyBxdWUgdmllbmVcbk5vIGVzIGxvIG3DrW9cbsK/UXVlcsOpcyBndWFyZGFyIGVsIGVubGFjZSBkZSB0dXMgZm90b3M/IFBhcmEgdm9sdmVyIGEgdmVyIHR1IHJlY3VlcmRvIHkgdmlkZW8gbWHDsWFuYS5cbk1hbmTDoXJtZWxvIHBvciBXaGF0c0FwcFxuTEZcbsK/UXXDqSBxdWVyw6lzIGNvbXBhcnRpcj9cbkZvdG9cblZpZGVvXG5cblRvZGF2w61hIG5vIGhheSBwdWJsaWNhY2lvbmVzXG5cblPDqSBsYSBwcmltZXJhIHBlcnNvbmEgZW4gY29tcGFydGlyIHVuIG1vbWVudG8gZGUgbGEgZmllc3RhLlxuXG5TdWLDrSB0dSBwcmltZXJhIGZvdG9cblxuVG9kbyBsbyBxdWUgc3ViYXMgYXBhcmVjZSB0YW1iacOpbiBlbiBsYSBwYW50YWxsYSBncmFuZGUgZGVsIHNhbMOzbi5cblxuwr9UZSB0b2NhIGZlc3RlamFyIGVsIGHDsW8gcXVlIHZpZW5lPyBNaXLDoSBjdcOhbnRvIHNhbGUgdHUgZmllc3RhXG7ihpJcbvCfkY9cbuKdpO+4j1xu8J+UpSIsIm1lZGlhIjp7InJlY29yZGVycyI6W10sInZpZGVvcyI6W119fQ=="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts",
+                        "column": 7,
+                        "line": 124
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "688ca7f4f835058dd7a9-38fb5838f2319f4bb5e5",
+              "file": "ak207-muro-subir-foto.spec.ts",
+              "line": 79,
+              "column": 7
+            },
+            {
+              "title": "encuentra cómo compartir y, si falla, se entera",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 61538,
+                      "error": {
+                        "message": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n",
+                        "stack": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts:124:7",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts",
+                          "column": 7,
+                          "line": 124
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 122 |\u001b[39m       respuesta\u001b[33m,\u001b[39m\n \u001b[90m 123 |\u001b[39m       \u001b[32m'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no'\u001b[39m\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 124 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m45\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 125 |\u001b[39m\n \u001b[90m 126 |\u001b[39m     expect(erroresJs\u001b[33m,\u001b[39m \u001b[32m`El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`\u001b[39m)\u001b[33m.\u001b[39mtoEqual([])\u001b[33m;\u001b[39m\n \u001b[90m 127 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts",
+                            "column": 7,
+                            "line": 124
+                          },
+                          "message": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n\n\n  122 |       respuesta,\n  123 |       'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no',\n> 124 |     ).toBeVisible({ timeout: 45_000 });\n      |       ^\n  125 |\n  126 |     expect(erroresJs, `El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`).toEqual([]);\n  127 |   });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts:124:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [
+                        {
+                          "text": "(node:10188) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                        }
+                      ],
+                      "retry": 0,
+                      "startTime": "2026-10-25T12:58:31.876Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "qa-fis-mode",
+                          "contentType": "text/plain",
+                          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                        },
+                        {
+                          "name": "qa-egress-blocked",
+                          "contentType": "text/plain",
+                          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                        },
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\test-failed-1.png"
+                        },
+                        {
+                          "name": "qa608-sdk-persistence",
+                          "contentType": "application/json",
+                          "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                        },
+                        {
+                          "name": "qa604-observations",
+                          "contentType": "application/json",
+                          "body": "eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvZXZlbnRvL3NvY2lhbC9lMmVfbXVyb18xNzkyOTMzMTExMTI1P2d1ZXN0SWQ9aW52X3BydWViYV8wJnRva2VuPXRva2VuLXBydWViYS0wIiwiZXZlbnRzIjpbeyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJ0ZXh0L3BsYWluO2NoYXJzZXQ9VVRGLTgifSx7ImtpbmQiOiJyZXNwb25zZSIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJzdGF0dXMiOjIwMH0seyJraW5kIjoicmVxdWVzdCIsInVybCI6Ii9ldmVudG8vc29jaWFsL2UyZV9tdXJvXzE3OTI5MzMxMTExMjUiLCJtZXRob2QiOiJQT1NUIiwiY29udGVudFR5cGUiOiJtdWx0aXBhcnQvZm9ybS1kYXRhOyBib3VuZGFyeT0tLS0tV2ViS2l0Rm9ybUJvdW5kYXJ5V1JJdTBBVnM1NWpYQVo0NCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfSx7ImtpbmQiOiJyZXF1ZXN0IiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsIm1ldGhvZCI6IlBPU1QiLCJjb250ZW50VHlwZSI6InRleHQvcGxhaW47Y2hhcnNldD1VVEYtOCJ9LHsia2luZCI6InJlc3BvbnNlIiwidXJsIjoiL2V2ZW50by9zb2NpYWwvZTJlX211cm9fMTc5MjkzMzExMTEyNSIsInN0YXR1cyI6MjAwfV0sImJvZHkiOiJNdXJvIHNvY2lhbCBkZSBWYWxlbnRpbmFcblxuSG9sYSwgTHVjw61hIEZlcm7DoW5kZXpcblxuTWkgTWVzYVxuSW5pY2lvXG5Dcm9ub2dyYW1hXG5SYW5raW5nXG5NaXNpb25lc1xuQ2FuY2lvbmVzXG5NZW5zYWplc1xuQ2hhdFxuwr9DVcOBTkRPIENVTVBMw41TIFRVUyBRVUlOQ0U/XG5ZYSBsb3MgZmVzdGVqw6lcbkVzdGUgYcOxb1xuRWwgYcOxbyBxdWUgdmllbmVcbk5vIGVzIGxvIG3DrW9cbsK/UXVlcsOpcyBndWFyZGFyIGVsIGVubGFjZSBkZSB0dXMgZm90b3M/XG5QYXJhIHZvbHZlciBhIHZlciB0dSByZWN1ZXJkbyB5IHZpZGVvIG1hw7FhbmEuXG5NYW5kw6FybWVsbyBwb3IgV2hhdHNBcHBcbkxGXG7Cv1F1w6kgcXVlcsOpcyBjb21wYXJ0aXI/XG5Gb3RvXG5WaWRlb1xuXG5Ub2RhdsOtYSBubyBoYXkgcHVibGljYWNpb25lc1xuXG5Tw6kgbGEgcHJpbWVyYSBwZXJzb25hIGVuIGNvbXBhcnRpciB1biBtb21lbnRvIGRlIGxhIGZpZXN0YS5cblxuU3Viw60gdHUgcHJpbWVyYSBmb3RvXG5cblRvZG8gbG8gcXVlIHN1YmFzIGFwYXJlY2UgdGFtYmnDqW4gZW4gbGEgcGFudGFsbGEgZ3JhbmRlIGRlbCBzYWzDs24uXG5cbsK/VGUgdG9jYSBmZXN0ZWphciBlbCBhw7FvIHF1ZSB2aWVuZT8gTWlyw6EgY3XDoW50byBzYWxlIHR1IGZpZXN0YVxu4oaSXG7wn5GPXG7inaTvuI9cbvCflKUiLCJtZWRpYSI6eyJyZWNvcmRlcnMiOltdLCJ2aWRlb3MiOltdfX0="
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\609-batch-008-artifacts\\ak207-muro-subir-foto-el-i-1697f-partir-y-si-falla-se-entera-chromium-mobile\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-574-f8f-z1BF2d\\tests\\e2e\\ak207-muro-subir-foto.spec.ts",
+                        "column": 7,
+                        "line": 124
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "688ca7f4f835058dd7a9-8a5a0d0d13d0139a8564",
+              "file": "ak207-muro-subir-foto.spec.ts",
+              "line": 79,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-25T12:57:16.019Z",
+    "duration": 146091.196,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,17 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {createRequire} from 'node:module';import {fileURLToPath,pathToFileURL} from 'node:url';
+const dir=fileURLToPath(new URL('./',import.meta.url)),ts=createRequire('C:/Users/Usuario/Documents/Codex/ak-codex88/ak-react19-candidato-103/package.json')('typescript');
+assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'456-emuladores.json'),'utf8')).phase,'finished');
+assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'468-codecs-resultados.json'),'utf8')).browserClosed,true);
+const fixture=path.join(dir,'469-video-ficticio.mp4');assert(fs.existsSync(fixture));
+let code=fs.readFileSync(path.join(dir,'451-preparar-medios-y-venta.mjs'),'utf8').replaceAll('451','470').replaceAll('457','472').replaceAll('456','471').replaceAll('expected:14','expected:3').replaceAll('list.length,14','list.length,3').replaceAll('Only14','Only3').replace('cases:14','cases:3');
+code=code.replace('/ak207-447|ak207-entertainment-stations.*time capsule|ak207-las-estaciones.*cada estaci|ak207-la-grilla.*la selfie no sale/','/ak207-entertainment-stations.*time capsule|ak207-la-grilla.*la selfie no sale/');
+code=code.replace("447-venta-por-ruta.spec.ts,entertainment-stations.spec.ts,las-estaciones-respetan-los-ajustes.spec.ts,la-grilla-de-caras.spec.ts","entertainment-stations.spec.ts,la-grilla-de-caras.spec.ts");
+const tree=ts.createSourceFile('preparation.mjs',code,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),edits=[];
+const visit=n=>{if(ts.isPropertyAssignment(n)&&n.name.getText(tree)==='text'&&n.initializer.getText(tree).includes("'const qa470Video=await page.evaluate"))edits.push({start:n.initializer.getStart(tree),end:n.initializer.end,text:JSON.stringify('await input.setInputFiles('+JSON.stringify(fixture.replaceAll('\\','/'))+');')});ts.forEachChild(n,visit);};visit(tree);assert.equal(edits.length,1);
+for(const e of edits.sort((a,b)=>b.start-a.start))code=code.slice(0,e.start)+e.text+code.slice(e.end);
+code=code.replace("e.text.includes('qa470Video')","e.text.includes('setInputFiles')");
+code=code.replace("result=result.replace('await page.waitForTimeout(4000);'","result=result.replaceAll('await page.waitForTimeout(4000);'");
+const pump="n.getText(tree)+'const qa470Pump=";assert(code.includes(pump));
+code=code.replace(pump,"n.getText(tree)+'const qa470Audio=new AudioContext();const qa470Destination=qa470Audio.createMediaStreamDestination();const qa470Tone=qa470Audio.createOscillator();qa470Tone.connect(qa470Destination);qa470Tone.start();for(const a of qa470Destination.stream.getAudioTracks())stream.addTrack(a);const qa470Pump=");
+code=code.replace('for(const t of stream.getTracks()){const stop=t.stop.bind(t);t.stop=()=>{clearInterval(qa470Pump);stop();};}', 'for(const t of stream.getTracks()){const stop=t.stop.bind(t);t.stop=()=>{clearInterval(qa470Pump);stop();qa470Audio.close().catch(()=>{});};}');
+const file=path.join(dir,'470-preparacion-generada.mjs');assert(!fs.existsSync(file));fs.writeFileSync(file,code);await import(pathToFileURL(file).href);

@@ -1,0 +1,23 @@
+[
+  {
+    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\89-la-barra-no-ofrece-lo-agotado.spec.ts",
+    "original": "422620b2e86ad11c49665296ebac994aefdf6859a1b377d6c8b00a1fd7380a9b",
+    "prepared": "86d0cf5b26660d40428e0f98d2a33894317fcb3c1fd98ae129aa504d0663f5d8",
+    "assertionsChanged": false,
+    "scope": "Only case runtime budget/font-readiness upper bound; baseline expectations and absolute geometry rules untouched."
+  },
+  {
+    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\layout-baseline.spec.ts",
+    "original": "ccc8359c4ce965c511d368f620977a1b22ef6eb29f5cd6044e92aeb5299022fa",
+    "prepared": "ec1a565662f229611ffc2ee8707503924a005795df30cebf89edd672ffde753d",
+    "assertionsChanged": false,
+    "scope": "Only case runtime budget/font-readiness upper bound; baseline expectations and absolute geometry rules untouched."
+  },
+  {
+    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\mobile-overflow.spec.ts",
+    "original": "d70653f5767a26f832638a6ff96cdea9e6901fb3bbeab4c95d6501a9af525336",
+    "prepared": "54d94cab131f32ed60a10b144f8186b738d7c32b3d8fa1f60807ee0399cd1b87",
+    "assertionsChanged": false,
+    "scope": "Only case runtime budget/font-readiness upper bound; baseline expectations and absolute geometry rules untouched."
+  }
+]

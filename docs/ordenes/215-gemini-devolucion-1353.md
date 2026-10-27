@@ -1,5 +1,21 @@
 # Orden 215 — Devolución de la propuesta 1353 (para Gemini)
 
+## Contraste actual Codex347-359 - 24/10
+
+HEADactual1353:3f9460185143ef034dcd713e975d2a0af5e20f1a. El fallo de build y
+los38fallos relatados abajo pertenecen a la entrega HISTORICA, no al HEADnuevo.
+347 build exit0/tipos/lint/sourceDiff0.349 Jest:861suites5237tests,
+5224PASS13FAIL0pending. No aprobar por buildsolo ni llamarlos13bugs de app.
+Once timeouts5000ms; una asercion de ajustes (mock sin exportmutarDocumento
+que ahora usa dependencia); un fixture data/blog-posts.json ausente enQA.
+Causa final de esos13 no confirmada por retest:354 no ejecuto por RAM,
+el artefactoTemp347 dejo de estar disponible; conservar fuentes y recibos.
+NO quitar permisos, mocks/aserciones negativas o timeouts para dar verde.
+Repetir SOLO esas siete suites con fixture del mismoSHA y resolver la causa;
+no otra bateria completa si el codigo no cambia. Ver353/358/359.
+357 cierra212A7/A8;356 mantiene214;350 pasa217original con variante nueva.
+NO aceptacion global de1353 ni de sus otras propuestas relacionadas.
+
 **Rama:** seguí en `gemini/ordenes-180-195` y **subí a la misma propuesta 1353**. Antes de empezar,
 traé `claude/app-debug-stabilize-m70e6z` a tu rama. **Una sola propuesta** con todo lo de abajo. Si un
 bloque se traba, entregá el resto igual y decí cuál faltó. Leé `docs/ANTES-DE-ENTREGAR.md` antes de decir
@@ -133,9 +149,10 @@ usa: tocaRecordarHoy en src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: liberarReservaDelDia en src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: reservasFallidas en src/app/api/cron/recordar-invitacion-no-abierta/route.ts
 usa: avisosProactivosActivos en src/lib/asistente/avisar-al-duenio.ts
+# Bloque 3 — Las 23 pruebas que fallan
 prueba: src/__tests__/la-fiesta-llega-con-la-plata-de-cada-perfil.test.ts
 usa: hoyEnUruguay en src/app/api/asistente/voz-en-vivo/cliente/route.ts
-usa: guardarCostosInterno en src/app/actions/fiesta/decoracion.actions.ts
+usa: mutarCostosInterno en src/app/actions/fiesta/decoracion.actions.ts
 no-usa: updateGestionCostosInterno en src/lib/fiesta/costos-interno.ts
 prueba: src/__tests__/la-bandeja-pide-permiso.test.ts
 prueba: src/__tests__/crowd-sync-quien-la-cambia.test.ts

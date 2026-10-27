@@ -1,0 +1,46 @@
+{
+  "created": "2026-10-25T00:36:02.214Z",
+  "scope": "Audit execution close, not every-control/role acceptance or release approval",
+  "nativeSource": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "focusedSource": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "nativeCounts": {
+    "pass": 13,
+    "fail": 9,
+    "skip": 0
+  },
+  "attempts": 22,
+  "notDistinctFeatures": true,
+  "codecsPositive": 10,
+  "newSourceFocal": {
+    "effectsAndPin": 8,
+    "reactDOM": 11,
+    "initialReact11Failures": "QA NODE_ENVproduction, preserved480"
+  },
+  "ports": [
+    {
+      "port": 3300,
+      "status": "CLOSED"
+    },
+    {
+      "port": 8085,
+      "status": "CLOSED"
+    },
+    {
+      "port": 9195,
+      "status": "CLOSED"
+    }
+  ],
+  "qaDiffs": [
+    {
+      "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez",
+      "diff": ""
+    },
+    {
+      "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q",
+      "diff": ""
+    }
+  ],
+  "estadoLines": 37,
+  "appEdited": false,
+  "merge": false
+}

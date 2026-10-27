@@ -1,0 +1,144 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "scope": "Closed310batches1..19 only; actual captured browser errors, no new app run.",
+  "reports": [
+    "310-batch-001-resultados.json",
+    "310-batch-002-resultados.json",
+    "310-batch-003-resultados.json",
+    "310-batch-004-resultados.json",
+    "310-batch-005-resultados.json",
+    "310-batch-006-resultados.json",
+    "310-batch-007-resultados.json",
+    "310-batch-008-resultados.json",
+    "310-batch-009-resultados.json",
+    "310-batch-010-resultados.json",
+    "310-batch-011-resultados.json",
+    "310-batch-012-resultados.json",
+    "310-batch-013-resultados.json",
+    "310-batch-014-resultados.json",
+    "310-batch-015-resultados.json",
+    "310-batch-016-resultados.json",
+    "310-batch-017-resultados.json",
+    "310-batch-018-resultados.json",
+    "310-batch-019-resultados.json"
+  ],
+  "unexpectedProducerCount": 17,
+  "casesWithFailedFetch": 3,
+  "casesAllErrorsKnownFirebaseInstallations": 3,
+  "chunk": "97757.f9560f5d593e1aa2.js",
+  "chunkSha256": "ad3c20d4cafaee90af32ace5013c66eb7d5126244a80bb0994da12821e4b567b",
+  "cases": [
+    {
+      "caseId": "5e43484170c5635d965a-517fe8f0bb6ad5311ce4|chromium-desktop",
+      "file": "ak207-internal-dynamic-route-inventory.spec.ts",
+      "title": "representative dynamic screens hydrate without browser errors",
+      "project": "chromium-desktop",
+      "report": "310-batch-007-resultados.json",
+      "errors": [
+        "Error: /empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\n/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\n/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\n/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 6\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/empleados/emp_1759833938625_518g1/historial: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/menus/menu_entradas_maestro/editar: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/salones/e2e-dynamic-salon/croquis: Failed to fetch\",\u001b[39m\n\u001b[31m+   \"/empresa/servicios/editar/serv_hielo: Failed to fetch | Failed to fetch\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  290 |   }\n  291 |\n> 292 |   expect(failures, failures.join('\\n')).toEqual([]);\n      |                                         ^\n  293 | });\n  294 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-internal-dynamic-route-inventory.spec.ts:292:41"
+      ],
+      "traces": [
+        {
+          "zip": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-007-artifacts\\ak207-internal-dynamic-rou-9e6a7-rate-without-browser-errors-chromium-desktop\\trace.zip",
+          "files": [
+            "test.trace",
+            "0-trace.trace"
+          ]
+        }
+      ],
+      "pageErrors": [
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        },
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        },
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        },
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        },
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        },
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        },
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        }
+      ],
+      "matchingKnownFirebaseInstallations": true
+    },
+    {
+      "caseId": "5b6e459e7815f1e69974-2ca371b9dff1650d9596|chromium-desktop",
+      "file": "ak207-la-hoja-de-cocina.spec.ts",
+      "title": "la hoja de cocina se abre, se puede imprimir y avisa si falta cargar algo",
+      "project": "chromium-desktop",
+      "report": "310-batch-009-resultados.json",
+      "errors": [
+        "Error: la hoja no se rompe por dentro\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Failed to fetch\"\u001b[39m\n\n  73 |   // 4. Nada de basura tecnica delante de quien la usa.\n  74 |   expect(texto, 'no muestra texto tecnico').not.toMatch(/undefined|\\[object Object\\]|NaN|is not a valid/i);\n> 75 |   expect(erroresJs.join('\\n'), 'la hoja no se rompe por dentro').toBe('');\n     |                                                                  ^\n  76 | });\n  77 |\n  78 | test('desde la comida se llega a la hoja de cocina en un toque', async ({ context, page }, testInfo) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-la-hoja-de-cocina.spec.ts:75:66"
+      ],
+      "traces": [
+        {
+          "zip": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-009-artifacts\\ak207-la-hoja-de-cocina-la-5de4c--avisa-si-falta-cargar-algo-chromium-desktop\\trace.zip",
+          "files": [
+            "test.trace",
+            "0-trace.trace"
+          ]
+        }
+      ],
+      "pageErrors": [
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        }
+      ],
+      "matchingKnownFirebaseInstallations": true
+    },
+    {
+      "caseId": "065dbbcc2f18fbfc55bd-254b092e44c9b7a2bced|chromium-desktop",
+      "file": "ak207-limpiar-la-agenda.spec.ts",
+      "title": "la pantalla de sincronizaciones ofrece limpiar la agenda y contesta al tocarla",
+      "project": "chromium-desktop",
+      "report": "310-batch-016-resultados.json",
+      "errors": [
+        "Error: la pantalla no se rompe por dentro\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Failed to fetch\"\u001b[39m\n\n  58 |   const texto = ((await page.locator('body').innerText().catch(() => '')) || '').replace(/\\s+/g, ' ');\n  59 |   expect(texto, 'no muestra texto tecnico').not.toMatch(/undefined|\\[object Object\\]|is not a valid/i);\n> 60 |   expect(erroresJs.join('\\n'), 'la pantalla no se rompe por dentro').toBe('');\n     |                                                                      ^\n  61 | });\n  62 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-qa-280-gzMK2z\\tests\\e2e\\ak207-limpiar-la-agenda.spec.ts:60:70"
+      ],
+      "traces": [
+        {
+          "zip": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\310-batch-016-artifacts\\ak207-limpiar-la-agenda-la-d9dc4-genda-y-contesta-al-tocarla-chromium-desktop\\trace.zip",
+          "files": [
+            "test.trace",
+            "0-trace.trace"
+          ]
+        }
+      ],
+      "pageErrors": [
+        {
+          "message": "Failed to fetch",
+          "stack": "TypeError: Failed to fetch\n    at http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1715\n    at m (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1360)\n    at y (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:1709)\n    at async N (http://127.0.0.1:3300/_next/static/chunks/97757.f9560f5d593e1aa2.js:1:3934)",
+          "matchingKnownFirebaseInstallations": true
+        }
+      ],
+      "matchingKnownFirebaseInstallations": true
+    }
+  ],
+  "limits": "Matching the first stack frame identifies this denied FirebaseInstallations registration, NOT a broken agenda/financial/report button. No area accepted, no offline/realFirebase certification, no source change. Other assertion/capture/time failures still require separate classification. Cheap helper could not finish extraction or create files; principal implemented this small archive reader and checked producer counts."
+}

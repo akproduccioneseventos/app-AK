@@ -1,0 +1,2049 @@
+{
+  "source": "3e45a4ac6b479f89605163168e31b37dc84f2d0f",
+  "scope": "Observed results of EXACT27 replayed318 native pairs; not another execution, statuses untouched",
+  "cases": [
+    {
+      "file": "143-cocina-fecha-local.spec.ts",
+      "title": "ak207-143-cocina-fecha-local.spec.ts > fecha civil del evento se conserva en hoja de cocina y modo impresion",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "TimeoutError: locator.screenshot: Timeout 4850.448000000004ms exceeded.\nCall log:\n\u001b[2m  - taking element screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n\u001b[2m  - attempting scroll into view action\u001b[22m\n\u001b[2m    - waiting for element to be stable\u001b[22m\n\n\n  37 |     fixtureDate: fiesta.configuracion.fechaEvento, expectedCivilDate: [8, 8, 2027], screen, printed, timezone,\n  38 |   })) });\n> 39 |   await info.attach('cabecera.jpeg', { contentType: 'image/jpeg', body: await header.screenshot({ type: 'jpeg', quality: 65, timeout: 5000 }) });\n     |                                                                                      ^\n  40 |   const civilParts = (text: string) => text.match(/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/)?.slice(1).map(Number);\n  41 |   expect(civilParts(screen)).toEqual([8, 8, 2027]);\n  42 |   expect(civilParts(printed)).toEqual([8, 8, 2027]);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-143-cocina-fecha-local.spec.ts:39:86"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "fecha.json",
+          "contentType": "application/json",
+          "body": "eyJmaXh0dXJlRGF0ZSI6IjIwMjctMDgtMDgiLCJleHBlY3RlZENpdmlsRGF0ZSI6WzgsOCwyMDI3XSwic2NyZWVuIjoiSE9KQSBERSBDT0NJTkFcblxuRmVjaGEgY29jaW5hIFFBMTQzXG5cbjgvOC8yMDI3IMK3IDE2MCBhZHVsdG9zIHkgMCBjaGljb3Mg4oCUIDE2MCBwZXJzb25hcyDCtyAxMjEgY29uZmlybWFyb24iLCJwcmludGVkIjoiSE9KQSBERSBDT0NJTkFcblxuRmVjaGEgY29jaW5hIFFBMTQzXG5cbjgvOC8yMDI3IMK3IDE2MCBhZHVsdG9zIHkgMCBjaGljb3Mg4oCUIDE2MCBwZXJzb25hcyDCtyAxMjEgY29uZmlybWFyb24iLCJ0aW1lem9uZSI6IkFtZXJpY2EvTW9udGV2aWRlbyJ9"
+        },
+        {
+          "name": "screenshot",
+          "contentType": "image/png",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-001-artifacts\\ak207-143-cocina-fecha-loc-4d181--de-cocina-y-modo-impresion-chromium-desktop\\test-failed-1.png"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-001-artifacts\\ak207-143-cocina-fecha-loc-4d181--de-cocina-y-modo-impresion-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-001-artifacts\\ak207-143-cocina-fecha-loc-4d181--de-cocina-y-modo-impresion-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 75872
+    },
+    {
+      "file": "48-fotocabina-recuerdo-seguro.spec.ts",
+      "title": "ak207-48-fotocabina-recuerdo-seguro.spec.ts > Orden 48: la fotocabina levanta y deja sacar la foto > ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        }
+      ],
+      "duration": 9480
+    },
+    {
+      "file": "48-touchpix-entrega-sin-reinicio.spec.ts",
+      "title": "ak207-48-touchpix-entrega-sin-reinicio.spec.ts > Orden 48: Touchpix levanta entero > ENT-03: sesion segura - subida lenta de A no pisa la sesion de B al llegar tarde",
+      "project": "chromium-mobile",
+      "status": "timedOut",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+        "Error: La captura no llegó a mostrarse tras sacar la foto\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('button:has-text(\"Publicar al muro\"), button:has-text(\"Guardar foto\")').first()\nExpected: visible\nError: element(s) not found\n\nCall log:\n\u001b[2m  - La captura no llegó a mostrarse tras sacar la foto with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('button:has-text(\"Publicar al muro\"), button:has-text(\"Guardar foto\")').first()\u001b[22m\n\n\n  107 |     // Esperamos a que termine la cuenta regresiva (1s) y aparezca el botón de subir\n  108 |     const botonSubir = page.locator('button:has-text(\"Publicar al muro\"), button:has-text(\"Guardar foto\")').first();\n> 109 |     await expect(botonSubir, 'La captura no llegó a mostrarse tras sacar la foto').toBeVisible({ timeout: 15_000 });\n      |                                                                                    ^\n  110 |\n  111 |     // 2. Persona A dispara la subida lenta\n  112 |     await botonSubir.click();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-48-touchpix-entrega-sin-reinicio.spec.ts:109:84"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-003-artifacts\\ak207-48-touchpix-entrega--a8fda-sesion-de-B-al-llegar-tarde-chromium-mobile\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-003-artifacts\\ak207-48-touchpix-entrega--a8fda-sesion-de-B-al-llegar-tarde-chromium-mobile\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-003-artifacts\\ak207-48-touchpix-entrega--a8fda-sesion-de-B-al-llegar-tarde-chromium-mobile\\trace.zip"
+        }
+      ],
+      "duration": 104709
+    },
+    {
+      "file": "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "title": "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts > Orden 89 — Bloque 2: La barra no ofrece lo agotado > trago con stock 0 se muestra como Agotado, no se puede pedir, va al final y nunca es sugerido",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+        "\u001b[31mTearing down \"context\" exceeded the test timeout of 90000ms.\u001b[39m",
+        "Error: browserContext._wrapApiCall: Tracing is already stopping",
+        "Error: locator.click: Test ended.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /sugerirme uno/i })\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold ring-offset-background transition-all duration-200 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background text-foreground shadow-sm hover:border-primary/40 hover:…>…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\n\n  116 |\n  117 |     for (let i = 0; i < 20; i++) {\n> 118 |       await btnSugerir.click();\n      |                        ^\n  119 |\n  120 |       // Al sugerir, se abre el modal de confirmación con el trago seleccionado\n  121 |       const modalDialog = page.getByRole('dialog');\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts:118:24",
+        "Error: browserContext.close: Target page, context or browser has been closed"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1NDYxNzE3NTMtOTdkNzY3NmU0NjAy"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1NTY2NzkzNDMtYzczMDZjMTk3NmJj"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1NTEwMjQ3MDktOGYyM2JlZmM2Zjg3"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE2MjAwODQzNjAzNDEtMzhmMTJhMmRmN2Yy"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1ODcyMjM5NjI5MzAtY2I3ZjMxMzg0YzE5"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-004-artifacts\\ak207-89-la-barra-no-ofrec-fdebd-l-final-y-nunca-es-sugerido-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-004-artifacts\\ak207-89-la-barra-no-ofrec-fdebd-l-final-y-nunca-es-sugerido-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 180291
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /publicar en el muro/i })\u001b[22m\n\n\n   98 |     // Esperar a que pase la captura y aparezca la vista previa con el botón para publicar\n   99 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 100 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  101 |     await btnPublicar.click();\n  102 |\n  103 |     // Debe mostrar que quedó guardada en el equipo\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:100:31"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 55713
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /publicar en el muro/i })\u001b[22m\n\n\n  138 |\n  139 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 140 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  141 |     await btnPublicar.click();\n  142 |\n  143 |     // Debe informar el error de rechazo\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:140:31"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "screenshot",
+          "contentType": "image/png",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\test-failed-1.png"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 73040
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con corte de red: dice guardada en el equipo y NUNCA subida ni galería",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /publicar en el muro/i })\u001b[22m\n\n\n   98 |     // Esperar a que pase la captura y aparezca la vista previa con el botón para publicar\n   99 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 100 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  101 |     await btnPublicar.click();\n  102 |\n  103 |     // Debe mostrar que quedó guardada en el equipo\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:100:31"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-mobile\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-mobile\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-709c9-o-y-NUNCA-subida-ni-galería-chromium-mobile\\trace.zip"
+        }
+      ],
+      "duration": 66501
+    },
+    {
+      "file": "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "title": "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts > Orden 90 — Bloque 2: la pantalla dice la verdad según dónde quedó la captura > Fotocabina con subida rechazada: muestra el error y NO dice que se sube sola",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /publicar en el muro/i })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /publicar en el muro/i })\u001b[22m\n\n\n  138 |\n  139 |     const btnPublicar = page.getByRole('button', { name: /publicar en el muro/i });\n> 140 |     await expect(btnPublicar).toBeVisible({ timeout: 25_000 });\n      |                               ^\n  141 |     await btnPublicar.click();\n  142 |\n  143 |     // Debe informar el error de rechazo\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts:140:31"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-mobile\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-mobile\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-005-artifacts\\ak207-90-lo-que-va-atras-d-4c08c--y-NO-dice-que-se-sube-sola-chromium-mobile\\trace.zip"
+        }
+      ],
+      "duration": 41310
+    },
+    {
+      "file": "carga-rapido.spec.ts",
+      "title": "ak207-carga-rapido.spec.ts > Orden 37 — Que cargue rápido (límite 2500 ms) > /quinceaneras responde y completa carga inicial dentro del límite de 2500 ms",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: /quinceaneras debe cargar dentro de 2500 ms\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m2500\u001b[39m\nReceived:    \u001b[31m4345\u001b[39m\n\n  45 |       // En modo desarrollo toleramos hasta 10s por compilación on-the-fly, pero dejamos la constante 2500 requerida\n  46 |       const limite = process.env.NODE_ENV === 'production' ? LIMITE_CARGA_MS : 10_000;\n> 47 |       expect(tiempoCarga, `${ruta} debe cargar dentro de ${limite} ms`).toBeLessThanOrEqual(limite);\n     |                                                                         ^\n  48 |     });\n  49 |   }\n  50 | });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-carga-rapido.spec.ts:47:73",
+        "\u001b[31mTearing down \"context\" exceeded the test timeout of 90000ms.\u001b[39m",
+        "Error: browserContext.close: Target page, context or browser has been closed"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-006-artifacts\\ak207-carga-rapido-Orden-3-e3c44-entro-del-límite-de-2500-ms-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-006-artifacts\\ak207-carga-rapido-Orden-3-e3c44-entro-del-límite-de-2500-ms-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 96970
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts > time capsule exposes every media mode and records the configured frame",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "errors": [
+        "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+        "Error: locator.click: Test timeout of 90000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /Detener Grabación/i })\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"w-full py-3.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-transform active:scale-95\">…</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n\n  171 |   await expect(stopButton).toBeVisible();\n  172 |   await page.waitForTimeout(1_000);\n> 173 |   await stopButton.click();\n      |                    ^\n  174 |   // La etiqueta se llama \"Video Grabado\", no \"Video Analogico\". Se verifico en\n  175 |   // `src/app/evento/buzon/[fiestaId]/page.tsx`: el paso de revision existe y\n  176 |   // funciona, solo cambio el texto. La prueba habia quedado con el nombre viejo.\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-entertainment-stations.spec.ts:173:20"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "screenshot",
+          "contentType": "image/png",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-007-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\test-failed-1.png"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-007-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-007-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-007-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 92281
+    },
+    {
+      "file": "entertainment-stations.spec.ts",
+      "title": "ak207-entertainment-stations.spec.ts > time capsule bakes the configured frame into an uploaded gallery video",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Video Cargado')\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Video Cargado')\u001b[22m\n\n\n  248 |   });\n  249 |\n> 250 |   await expect(page.getByText('Video Cargado')).toBeVisible();\n      |                                                 ^\n  251 |   const reviewVideo = page.locator('video[src^=\"blob:\"]').first();\n  252 |   await expect(reviewVideo).toBeVisible();\n  253 |   await expect.poll(async () => reviewVideo.evaluate(async (element) => {\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-entertainment-stations.spec.ts:250:49"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "screenshot",
+          "contentType": "image/png",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-007-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\test-failed-1.png"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-007-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-007-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-007-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 55558
+    },
+    {
+      "file": "internal-dynamic-route-inventory.spec.ts",
+      "title": "ak207-internal-dynamic-route-inventory.spec.ts > representative dynamic screens hydrate without browser errors",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        }
+      ],
+      "duration": 195627
+    },
+    {
+      "file": "la-grilla-de-caras.spec.ts",
+      "title": "ak207-la-grilla-de-caras.spec.ts > Orden 36: La grilla de caras > la selfie no sale del teléfono ni se manda a la red",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: muestra la pantalla de resultados, armada en el propio teléfono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\n  287 |       if (await titulos.nth(i).isVisible()) visibles += 1;\n  288 |     }\n> 289 |     expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);\n      |                                                                                         ^\n  290 |   });\n  291 | });\n  292 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-la-grilla-de-caras.spec.ts:289:89"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MTE3OTU0MDk4MzQtZWYwNGJiZDYxNjIy"
+        },
+        {
+          "name": "screenshot",
+          "contentType": "image/png",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\test-failed-1.png"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-009-artifacts\\ak207-la-grilla-de-caras-O-fdf6f-léfono-ni-se-manda-a-la-red-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 22390
+    },
+    {
+      "file": "la-hoja-de-cocina.spec.ts",
+      "title": "ak207-la-hoja-de-cocina.spec.ts > la hoja de cocina se abre, se puede imprimir y avisa si falta cargar algo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        }
+      ],
+      "duration": 12257
+    },
+    {
+      "file": "la-web-de-venta-no-se-rompe.spec.ts",
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts > las pantallas de venta se abren solas sin romperse por dentro",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "errors": [
+        "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "screenshot",
+          "contentType": "image/png",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-011-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\test-failed-2.png"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-011-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-011-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 249218
+    },
+    {
+      "file": "las-estaciones-respetan-los-ajustes.spec.ts",
+      "title": "ak207-las-estaciones-respetan-los-ajustes.spec.ts > cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: Bogue: no llego a la pantalla de compartir en 90 segundos\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"Bogue: no llego a la pantalla de compartir en 90 segundos\"\u001b[39m\n\n  166 |   }\n  167 |\n> 168 |   expect(noLoRespetan.join('\\n'), noLoRespetan.join('\\n')).toBe('');\n      |                                                            ^\n  169 | });\n  170 |\n  171 | test('el buzón respeta la cuenta regresiva que puso el equipo', async ({ page }, testInfo) => {\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-las-estaciones-respetan-los-ajustes.spec.ts:168:60"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1Mjc1Mjk0ODI4MzctNDY5ODE3OWRjNmNl"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-012-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-012-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-012-artifacts\\ak207-las-estaciones-respe-1ab28-de-marca-que-puso-el-equipo-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 469343
+    },
+    {
+      "file": "layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts > huella de maquetación > las pantallas de referencia mantienen su geometría",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: La maquetación cambió:\n  /presupuestos/nuevo · h1W: era 212, ahora 216\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/presupuestos/nuevo · h1W: era 212, ahora 216\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  228 |\n  229 |     expect(absolutos, `Pantallas con defectos propios:\\n  ${absolutos.join('\\n  ')}`).toEqual([]);\n> 230 |     expect(desvios, `La maquetación cambió:\\n  ${desvios.join('\\n  ')}`).toEqual([]);\n      |                                                                          ^\n  231 |   });\n  232 | });\n  233 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-layout-baseline.spec.ts:230:74"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-013-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-013-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 135668
+    },
+    {
+      "file": "layout-baseline.spec.ts",
+      "title": "ak207-layout-baseline.spec.ts > huella de maquetación > las pantallas de referencia mantienen su geometría",
+      "project": "chromium-mobile",
+      "status": "failed",
+      "errors": [
+        "Error: La maquetación cambió:\n  /admin · h1W: era 101, ahora 98\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/admin · h1W: era 101, ahora 98\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  228 |\n  229 |     expect(absolutos, `Pantallas con defectos propios:\\n  ${absolutos.join('\\n  ')}`).toEqual([]);\n> 230 |     expect(desvios, `La maquetación cambió:\\n  ${desvios.join('\\n  ')}`).toEqual([]);\n      |                                                                          ^\n  231 |   });\n  232 | });\n  233 |\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-layout-baseline.spec.ts:230:74"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "screenshot",
+          "contentType": "image/png",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-013-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-mobile\\test-failed-1.png"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-013-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-mobile\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-013-artifacts\\ak207-layout-baseline-huel-bbcba-ncia-mantienen-su-geometría-chromium-mobile\\trace.zip"
+        }
+      ],
+      "duration": 82666
+    },
+    {
+      "file": "limpiar-la-agenda.spec.ts",
+      "title": "ak207-limpiar-la-agenda.spec.ts > la pantalla de sincronizaciones ofrece limpiar la agenda y contesta al tocarla",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        }
+      ],
+      "duration": 12733
+    },
+    {
+      "file": "mobile-overflow.spec.ts",
+      "title": "ak207-mobile-overflow.spec.ts > sin desborde horizontal en celular > rutas internas del staff",
+      "project": "chromium-desktop",
+      "status": "timedOut",
+      "errors": [
+        "\u001b[31mTest timeout of 300000ms exceeded.\u001b[39m",
+        "Error: page.goto: Test timeout of 300000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/fiestas/nueva/gestion-costos-rentabilidad\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  64 |\n  65 |     for (const ruta of RUTAS_INTERNAS) {\n> 66 |       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });\n     |                                   ^\n  67 |       expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);\n  68 |       expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);\n  69 |       // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-mobile-overflow.spec.ts:66:35"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-015-artifacts\\ak207-mobile-overflow-sin--1d2ef-ar-rutas-internas-del-staff-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-015-artifacts\\ak207-mobile-overflow-sin--1d2ef-ar-rutas-internas-del-staff-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 320695
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts > noche de fiesta > las pantallas del equipo funcionan con una fiesta real",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MzMxNzQwNzI1NDUtN2E0YjZhZDdhNmMz"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MzMxNzQwNzI1NDUtN2E0YjZhZDdhNmMz"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        }
+      ],
+      "duration": 92067
+    },
+    {
+      "file": "noche-de-fiesta.spec.ts",
+      "title": "ak207-noche-de-fiesta.spec.ts > noche de fiesta > las pantallas del equipo funcionan con una fiesta real",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MzMxNzQwNzI1NDUtN2E0YjZhZDdhNmMz"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9pbWFnZXMudW5zcGxhc2guY29tL3Bob3RvLTE1MzMxNzQwNzI1NDUtN2E0YjZhZDdhNmMz"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        }
+      ],
+      "duration": 73620
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts > decoracion/pdf: cada zona contratada muestra su icono y su nombre",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        }
+      ],
+      "duration": 3728
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts > experiencia-mundial: los seis bloques del recorrido muestran icono, titulo y estado",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        }
+      ],
+      "duration": 12185
+    },
+    {
+      "file": "pantallas-con-iconos-react19.spec.ts",
+      "title": "ak207-pantallas-con-iconos-react19.spec.ts > zona-digital: las doce funciones muestran su icono, su nombre y su interruptor",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        }
+      ],
+      "duration": 22931
+    },
+    {
+      "file": "pantallas-tocadas-tanda-12-10.spec.ts",
+      "title": "ak207-pantallas-tocadas-tanda-12-10.spec.ts > /fiestas/nueva/servicios-contratados?fiestaId=B muestra los datos de B",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "errors": [],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlc3RvcmUuZ29vZ2xlYXBpcy5jb20vZ29vZ2xlLmZpcmVzdG9yZS52MS5GaXJlc3RvcmUvTGlzdGVuL2NoYW5uZWw="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9pbWFnZXMvY2xlYXJkb3QuZ2lm"
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9maXJlYmFzZXJlbW90ZWNvbmZpZy5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kZW1vLWFrLXByb2R1Y2Npb25lcy9uYW1lc3BhY2VzL2ZpcmVwZXJmOmZldGNo"
+        }
+      ],
+      "duration": 8924
+    },
+    {
+      "file": "prospecto-simulador.spec.ts",
+      "title": "ak207-prospecto-simulador.spec.ts > recorrido del prospecto > llega desde el simulador hasta ver un precio",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "errors": [
+        "Error: El prospecto llegó al final pero no tiene cómo cerrar\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first()\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El prospecto llegó al final pero no tiene cómo cerrar with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first()\u001b[22m\n\n\n  114 |     // Y tiene que poder cerrar: o generar el presupuesto o escribirle a AK.\n  115 |     const cierre = page.getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first();\n> 116 |     await expect(cierre, 'El prospecto llegó al final pero no tiene cómo cerrar').toBeVisible({ timeout: 20_000 });\n      |                                                                                   ^\n  117 |\n  118 |     expect(erroresJs, `El simulador tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`).toEqual([]);\n  119 |   });\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\tests\\e2e\\ak207-prospecto-simulador.spec.ts:116:83"
+      ],
+      "attachments": [
+        {
+          "name": "qa-fis-mode",
+          "contentType": "text/plain",
+          "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+        },
+        {
+          "name": "qa-egress-blocked",
+          "contentType": "text/plain",
+          "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-019-artifacts\\ak207-prospecto-simulador--c77c1-mulador-hasta-ver-un-precio-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "error-context",
+          "contentType": "text/markdown",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-019-artifacts\\ak207-prospecto-simulador--c77c1-mulador-hasta-ver-un-precio-chromium-desktop\\error-context.md"
+        },
+        {
+          "name": "trace",
+          "contentType": "application/zip",
+          "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-019-artifacts\\ak207-prospecto-simulador--c77c1-mulador-hasta-ver-un-precio-chromium-desktop\\trace.zip"
+        }
+      ],
+      "duration": 133563
+    }
+  ],
+  "summary": {
+    "total": 27,
+    "pass": 10,
+    "fail": 17
+  }
+}

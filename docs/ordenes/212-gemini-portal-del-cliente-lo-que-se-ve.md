@@ -1,5 +1,17 @@
 # Orden 212 — Portal del cliente: lo que se ve (Codex 193-194, orden 210)
 
+## Contraste Codex357 - 24/10, candidata1353 SHA3f946018
+
+A7/A8 CORREGIDOS y comprobados por alcance:4PASS pagina/DTO/ReactDOM/Radix
+reales. Informar pago abre monto/comprobante; cerrar no escribe/sube.
+Album entregado visible y borrador sin enlace, con accessPhase=organizacion.
+NO reimplementar esos dos bloques ni volver a usar fallo229b91 como actual.
+352/355 primeros intentos usaban fase financiera: erroresQA conservados,
+no fallos de permisos de la app. Ver359-cierre-candidata-1353.
+No aceptacion de otras acciones/roles, pago/HTTP/SDK real ni toda212.
+Privados posteriores NO CONTRASTADOS; instrucciones de ramas abajo historicas,
+contrastar HEAD real antes de cualquier cambio adicional.
+
 **Rama:** arrancá de `claude/app-debug-stabilize-m70e6z` actualizada (traé los cambios primero).
 **Una sola propuesta** contra esa rama, con los tres bloques. Si un bloque se traba, entregá el resto
 igual y decí cuál faltó. Antes de decir "terminé", leé `docs/ANTES-DE-ENTREGAR.md`.
@@ -78,6 +90,7 @@ precios, ni cuentas, ni textos comerciales.
 
 ```comprobar
 usa: open={paymentModalOpen} en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
+# Bloque 2
 usa: linkEntrega en src/app/portal/c/[accessKey]/page.tsx
 usa: seccionesAbiertas en src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx
 prueba: src/__tests__/portal-cliente-lo-que-se-ve.test.tsx

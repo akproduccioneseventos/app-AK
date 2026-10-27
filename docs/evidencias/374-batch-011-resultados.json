@@ -1,0 +1,198 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "374-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-011-artifacts",
+      "ak207-la-web-de-venta-no-se-rompe.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-366-main-TzCI01\\374-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/374-batch-011-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/374-batch-011-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-366-main-TzCI01/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-011-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "file": "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "las pantallas de venta se abren solas sin romperse por dentro",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 249218,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                    }
+                  ],
+                  "stdout": [
+                    {
+                      "text": "[BROWSER CONSOLE /blog] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /blog] info: Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /blog] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[PAGE TEXT /blog] Length: 2938, Preview: AK PRODUCCIONES\nINICIO\nBLOG\nSIMULADOR\n¡CONSULTANOS!\nBLOG AK PRODUCCIONES\nConsejo\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing] info: Loading the script 'https://connect.facebook.net/en_US/fbevents.js' violates the following Content Security Policy directive: \"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com\". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback. The policy is report-only, so the violation has been logged but no further action has been taken.\n"
+                    },
+                    {
+                      "text": "[BROWSER CONSOLE /landing] error: Failed to load resource: net::ERR_NAME_NOT_RESOLVED\n"
+                    },
+                    {
+                      "text": "[PAGE TEXT /landing] Length: 11233, Preview: AK Producciones\nINICIO\nSERVICIOS\nGALERÍA HD\nSIMULADOR\nBLOG\nPREGUNTAS FRECUENTES\n\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T15:58:10.276Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-011-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-011-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\374-batch-011-artifacts\\ak207-la-web-de-venta-no-s-d4aba-las-sin-romperse-por-dentro-chromium-desktop\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "89c54b14b054937b08c0-ba0f6adc39249c9c907c",
+          "file": "ak207-la-web-de-venta-no-se-rompe.spec.ts",
+          "line": 40,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T15:58:08.560Z",
+    "duration": 272925.604,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

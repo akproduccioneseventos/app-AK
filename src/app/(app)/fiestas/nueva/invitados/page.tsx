@@ -1,4 +1,5 @@
 'use client';
+import { armarMesasInteligente, type ResultadoAsignacionMesas } from '@/lib/fiesta/armador-mesas-inteligente';
 
 import React, { useState, type FormEvent, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,10 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Edit3, Save, Loader2, QrCode, Printer, Download, Crown, Users, User, Accessibility, Upload, FileSpreadsheet, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit3, Save, Loader2, RefreshCw, QrCode, Printer, Download, Crown, Users, User, Accessibility, Upload, FileSpreadsheet, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, CategoriaInvitado, PerfilInvitado, DietaryRestriction } from '@/types/invitado';
 import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaParaPantalla } from '@/app/actions/fiesta/fiesta.actions';
 import { addInvitado } from '@/app/actions/fiesta/invitados.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
@@ -73,6 +75,7 @@ function InvitadosEventoContent() {
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   // New guest form state
@@ -89,6 +92,55 @@ function InvitadosEventoContent() {
 
   // QR modal state
   const [isMesaQrOpen, setIsMesaQrOpen] = useState(false);
+  const [propuestaMesas, setPropuestaMesas] = useState<ResultadoAsignacionMesas | null>(null);
+  const [isConfirmingMesas, setIsConfirmingMesas] = useState(false);
+
+  const handleArmarMesasSolo = () => {
+    const lista = invitados.map((inv) => ({
+      id: inv.id,
+      nombre: inv.nombre,
+      grupoAfinidad: inv.categoria || inv.perfil || 'General',
+      cantidadAcompaniantes: (inv.partySize || 1) - 1,
+      tableNumber: inv.tableNumber,
+    }));
+    const res = armarMesasInteligente(lista, { capacidadPorMesa: 10 });
+    setPropuestaMesas(res);
+  };
+
+  const handleConfirmarMesas = async () => {
+    if (!propuestaMesas || !fiestaId) return;
+    setIsConfirmingMesas(true);
+    try {
+      let noGuardadas = 0;
+      for (const mesa of propuestaMesas.mesas) {
+        for (const invAsignado of mesa.invitados) {
+          const invOriginal = invitados.find((i) => i.id === invAsignado.id);
+          if (invOriginal) {
+            const respuesta = await updateInvitadoFiestaActual(fiestaId, {
+              ...invOriginal,
+              tableNumber: `Mesa ${mesa.numero}`,
+            });
+            if (!respuesta?.success) noGuardadas += 1;
+          }
+        }
+      }
+      await fetchInvitados();
+      if (noGuardadas > 0) {
+        toast({
+          title: `No se guardaron ${noGuardadas} asignaciones de mesa`,
+          description: 'La propuesta sigue abierta: probá confirmar de nuevo.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      toast({ title: '¡Mesas asignadas y guardadas con éxito!' });
+      setPropuestaMesas(null);
+    } catch {
+      toast({ title: 'Error al guardar asignación de mesas', variant: 'destructive' });
+    } finally {
+      setIsConfirmingMesas(false);
+    }
+  };
   const [guestQrModal, setGuestQrModal] = useState<Invitado | null>(null);
 
   // Import spreadsheet modal state
@@ -209,9 +261,17 @@ function InvitadosEventoContent() {
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
+    setError(null);
     try {
-      const fiestaData = await getFiestaById(fiestaId);
-      if (!fiestaData) throw new Error("Fiesta no encontrada");
+      const { fiesta: fiestaData, fallo } = await getFiestaParaPantalla(fiestaId);
+      if (fallo) {
+        setError("No se pudo cargar la fiesta");
+        return;
+      }
+      if (!fiestaData) {
+        setFiesta(null);
+        return;
+      }
 
       setFiesta(fiestaData);
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
@@ -220,7 +280,8 @@ function InvitadosEventoContent() {
         .map(el => el.name);
       setTableNames(tables);
     } catch {
-      toast({ title: "Error al cargar", variant: "destructive"});
+      setError("No se pudo cargar la fiesta");
+      toast({ title: "Error al cargar", description: "No se pudo cargar la fiesta", variant: "destructive"});
     } finally {
       setIsLoading(false);
     }
@@ -308,7 +369,17 @@ function InvitadosEventoContent() {
   };
 
   if (!fiestaId) return <EventSelectionRequired moduleName="la gestión de invitados" />;
-  if (isLoading || !fiesta) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
+  if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
+  if (error) return (
+    <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center">
+      <h2 className="text-xl font-bold">No se pudo cargar la fiesta</h2>
+      <p className="text-muted-foreground">{error}</p>
+      <Button onClick={() => fetchInvitados()} variant="outline">
+        <RefreshCw className="w-4 h-4 mr-2" /> Reintentar
+      </Button>
+    </div>
+  );
+  if (!fiesta) return <div className="flex flex-col items-center justify-center p-8 space-y-4 text-center"><h2 className="text-xl font-bold">Fiesta no encontrada</h2><Button asChild variant="outline"><Link href="/eventos">Volver a eventos</Link></Button></div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -353,6 +424,73 @@ function InvitadosEventoContent() {
               <CardContent className="p-4 pt-0"><span className="text-2xl font-black text-yellow-600">{stats.vips}</span></CardContent>
           </Card>
       </div>
+
+      {/* Armador Inteligente de Mesas */}
+      <Card className="border-indigo-200 bg-indigo-50/50 print:hidden mb-4">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-black flex items-center gap-2">
+            <Users className="w-4 h-4 text-indigo-600" /> Armador Inteligente de Mesas
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Agrupa invitados por afinidad automáticamente y respeta la capacidad de cada mesa.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            size="sm"
+            onClick={handleArmarMesasSolo}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+          >
+            Armar mesas solo
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Modal de Propuesta de Mesas Inteligente */}
+      {propuestaMesas && (
+        <Dialog open={true} onOpenChange={(open) => !open && setPropuestaMesas(null)}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black">Propuesta de Distribución de Mesas</DialogTitle>
+              <DialogDescription>
+                Se armaron {propuestaMesas.totalMesasUsadas} mesas con {propuestaMesas.totalAsignados} invitados.
+                Revisá la propuesta. Nada se guarda hasta que confirmes.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 my-2">
+              {propuestaMesas.mesas.map((m) => (
+                <div key={m.numero} className="p-3 bg-slate-50 border rounded-xl text-xs space-y-1">
+                  <div className="flex justify-between items-center font-bold text-slate-800">
+                    <span>{m.etiqueta}</span>
+                    <span className="text-slate-500">{m.totalPersonas} / {m.capacidadMaxima} personas</span>
+                  </div>
+                  <p className="text-slate-600">
+                    {m.invitados.map((i) => i.nombre).join(', ')}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button
+                variant="outline"
+                onClick={() => setPropuestaMesas(null)}
+                disabled={isConfirmingMesas}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleConfirmarMesas}
+                disabled={isConfirmingMesas}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+              >
+                {isConfirmingMesas ? 'Guardando en la fiesta...' : 'Confirmar y Guardar Mesas'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* QR Buscador de Mesas */}
       <Card className="border-purple-200 bg-purple-50/50 print:hidden">

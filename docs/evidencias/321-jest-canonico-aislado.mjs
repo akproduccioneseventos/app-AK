@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');
+let code=fs.readFileSync(path.join(dir,'314-jest-final-aislado.mjs'),'utf8');
+code=code.replace("const root=fileURLToPath(new URL('../../',import.meta.url)),dir=",`const root=${JSON.stringify(root)},dir=`).replaceAll('314','321');
+const start=code.indexOf('const forced=spawnSync('),end=code.indexOf('const report=path.join');assert(start>0&&end>start);
+const environment="const env={...safe,HOME:home,USERPROFILE:home,APPDATA:path.join(home,'config'),XDG_CONFIG_HOME:path.join(home,'config'),NODE_ENV:'test',GOOGLE_APPLICATION_CREDENTIALS:'',NODE_OPTIONS:`--max-old-space-size=1536 --require \"${path.join(dir,'323-egress-unit-canonico.cjs').replaceAll('\\\\','/')}\"`};\n";
+code=code.slice(0,start)+environment+code.slice(end);
+code=code.replace('ONE full existing Jest suite on frozenQA3e after native jobs end; original assertions/mocks retained.','Canonical package test=jest, jest.config.js/jest.setup.js, frozenQA3e. NO forced browser/demo/JSON/Gemini variables: each test retains its own env/mocks.314 noncanonical environment report preserved, NOT app regressions.');
+fs.writeFileSync(path.join(dir,'321-adaptacion.json'),JSON.stringify({source:'3e45a4ac6b479f89605163168e31b37dc84f2d0f',previous:'314-jest-final.json',reason:'Official unit suite does not globally enable AK_ENTORNO_AISLADO, LOCAL_JSON or dummy model keys.314 incorrectly forced browser/demo variables, changing data/permissions/moderation paths and key precedence. Correct runner environment, NEVER app/tests/assertions.',assertionsChanged:false,sourceFilesChanged:false,externalSocketsDenied:true},null,2)+'\n');
+await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));

@@ -195,8 +195,17 @@ export default function ContenidoPublicoSettingsPage() {
     enabled: !loading && !!presentacion && !!catalogo,
   });
 
-  if (loading || !presentacion || !catalogo) {
+  if (loading) {
     return <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin" /></div>;
+  }
+  if (!presentacion || !catalogo) {
+    return (
+      <div className="flex flex-col justify-center items-center p-10 space-y-4 text-center">
+        <h2 className="text-xl font-bold">Configuración no disponible</h2>
+        <p className="text-muted-foreground">No se pudieron cargar los datos de contenido público.</p>
+        <Button onClick={() => window.location.reload()} variant="outline">Reintentar</Button>
+      </div>
+    );
   }
 
   return (

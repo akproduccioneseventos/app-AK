@@ -1,0 +1,66 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "stats": {
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:36:19.299Z",
+      "report": "455-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:31:20.725Z",
+        "duration": 298544.965,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-layout-baseline.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T20:38:15.421Z",
+      "report": "455-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:36:20.528Z",
+        "duration": 114860.59999999999,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-mobile-overflow.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T20:44:36.052Z",
+      "report": "455-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T20:38:16.502Z",
+        "duration": 379505.56100000005,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

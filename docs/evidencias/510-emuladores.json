@@ -1,0 +1,14 @@
+{
+  "qa": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-510-sdk-wJ9WuZ",
+  "started": "2026-10-25T02:16:11.165Z",
+  "freeBytesAtStart": 3995815936,
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "appEdited": false,
+  "realServices": false,
+  "firestorePid": 15440,
+  "storageCliPid": 14656,
+  "phase": "finished",
+  "exitCode": 1,
+  "cleanupError": "TypeError: fetch failed",
+  "finished": "2026-10-25T05:46:17.393Z"
+}

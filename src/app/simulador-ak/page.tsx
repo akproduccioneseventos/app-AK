@@ -1315,20 +1315,20 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <Button
                           asChild
-                          className="h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-lg px-2 flex items-center justify-center gap-1.5"
+                          className="min-h-[2.75rem] h-auto py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs w-full rounded-lg px-3 flex items-center justify-center gap-1.5 text-center leading-tight tracking-normal"
                         >
                           <a href={buildWhatsAppHref()} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full h-full">
-                            <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar Reunión</span>
+                            <Share2 className="w-4 h-4 shrink-0"/> <span>Coordinar Reunión</span>
                           </a>
                         </Button>
                         <Button
                           variant="outline"
                           disabled={!generatedId || isDownloadingPdf}
                           onClick={handleDownloadBudgetPdf}
-                          className="h-11 border-border text-foreground hover:bg-muted font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-lg bg-card px-2 flex items-center justify-center gap-1.5"
+                          className="min-h-[2.75rem] h-auto py-2.5 border-border text-foreground hover:bg-muted font-bold text-xs w-full rounded-lg bg-card px-3 flex items-center justify-center gap-1.5 text-center leading-tight tracking-normal"
                         >
                           {isDownloadingPdf ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Printer className="w-4 h-4 shrink-0"/>}
-                          <span className="truncate">Descargar PDF</span>
+                          <span>Descargar PDF</span>
                         </Button>
                       </div>
                     </CardContent>

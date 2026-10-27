@@ -21,13 +21,9 @@ describe('settings import boundary', () => {
       path.join(process.cwd(), 'src', 'app', 'actions', 'blog.ts'),
       'utf8',
     );
-    const blogAi = fs.readFileSync(
-      path.join(process.cwd(), 'src', 'app', 'actions', 'blog-ai.ts'),
-      'utf8',
-    );
-
+    // blog-ai.ts se borró el 26/10 (orden 233): no lo usaba nadie y quedaba llamable desde afuera.
     expect(publicBlog).not.toContain('@/lib/blog-ai-generator');
-    expect(blogAi).toContain('@/lib/blog-ai-generator');
+    expect(fs.existsSync(path.join(process.cwd(), 'src', 'app', 'actions', 'blog-ai.ts'))).toBe(false);
   });
 
   it('loads marketing and multiagent AI only when those actions run', () => {

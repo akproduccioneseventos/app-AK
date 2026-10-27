@@ -1,0 +1,1185 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "qa": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-480-delta-Apsy7q",
+  "started": "2026-10-25T02:16:56.674Z",
+  "phase": "finished",
+  "buildFinished": "2026-10-25T01:56:50.413Z",
+  "dependencyLimit": "Reused existing dependency artifact as206: sole disclosed type mismatch @types/estree installed1.0.8 vs locked1.0.9. Not clean npm-ci/type-patch validation. Package dependency sections and lock.packages equal206 sourcefa3b.",
+  "realServices": false,
+  "appEdited": false,
+  "specFilter": [
+    "133-invitado-con-red-local.spec.ts",
+    "143-cocina-fecha-local.spec.ts",
+    "45-recorridos-pendientes.spec.ts",
+    "48-fotocabina-recuerdo-seguro.spec.ts",
+    "48-touchpix-entrega-sin-reinicio.spec.ts",
+    "81-cola-aislamiento-y-reintento.spec.ts",
+    "89-la-barra-no-ofrece-lo-agotado.spec.ts",
+    "90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+    "calendarios-react19.spec.ts",
+    "carga-rapido.spec.ts",
+    "el-totem-de-bienvenida.spec.ts",
+    "entertainment-stations.spec.ts",
+    "internal-dynamic-route-inventory.spec.ts",
+    "la-grilla-de-caras.spec.ts",
+    "la-hoja-de-cocina.spec.ts",
+    "la-web-de-venta-no-se-rompe.spec.ts",
+    "la-web-publica-se-ve.spec.ts",
+    "las-estaciones-respetan-los-ajustes.spec.ts",
+    "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+    "layout-baseline.spec.ts",
+    "lectura-invitados-aislada.spec.ts",
+    "limpiar-la-agenda.spec.ts",
+    "los-enlaces-llegan-a-donde-dicen.spec.ts",
+    "mobile-overflow.spec.ts",
+    "muro-subir-foto.spec.ts",
+    "noche-de-fiesta.spec.ts",
+    "orden-86-pantallas.spec.ts",
+    "pantallas-con-iconos-react19.spec.ts",
+    "pantallas-tocadas-tanda-12-10.spec.ts",
+    "prospecto-simulador.spec.ts",
+    "public-smoke.spec.ts",
+    "simulator-budget-journey.spec.ts",
+    "espejo-moderacion-caida-y-reintento.spec.ts",
+    "video-vida-error-lectura.spec.ts",
+    "306-home-clic-y-estado.spec.ts",
+    "326-control-fixture-navegacion-qa.spec.ts",
+    "barra-listo-contraste.spec.ts",
+    "la-realidad-aumentada-carga-mindar.spec.ts",
+    "las-pantallas-no-quedan-cargando.spec.ts",
+    "81-roles-y-pedidos-sin-duplicados.spec.ts",
+    "49-contabilidad-cobros-conciliados.spec.ts",
+    "49-contabilidad-permisos-y-errores.spec.ts",
+    "contrato-constancia-mantiene-papel.spec.ts",
+    "portal-fecha-y-botones.spec.ts",
+    "catering-maestro-simulador-fotos.spec.ts"
+  ],
+  "batchSize": 1,
+  "copiedTests": 45,
+  "newTestSha256": null,
+  "manifest": [
+    {
+      "original": "tests/e2e/133-invitado-con-red-local.spec.ts",
+      "copy": "tests/e2e/ak207-133-invitado-con-red-local.spec.ts",
+      "originalSha256": "0231afcb0bd7117cd59095c2e172f605a9c7322566a7fef9c9b731fe1cbec85d",
+      "instrumentedSha256": "a617679eda593ccdb373850a3afaddf35de7037b9075375aa19dc8f082eef5d6"
+    },
+    {
+      "original": "tests/e2e/143-cocina-fecha-local.spec.ts",
+      "copy": "tests/e2e/ak207-143-cocina-fecha-local.spec.ts",
+      "originalSha256": "9a84359d38fe54d71d87ccca3f49a793f3b574db3d12846831e29f38cc7918f7",
+      "instrumentedSha256": "b694a47570e0030afb5d84f0dc15f8601c25749eb1c529d189904b69123cc9af"
+    },
+    {
+      "original": "tests/e2e/306-home-clic-y-estado.spec.ts",
+      "copy": "tests/e2e/ak207-306-home-clic-y-estado.spec.ts",
+      "originalSha256": "6506f70450385d55083bf27221435e03f7897cfdad12433bed6046bfe72da02d",
+      "instrumentedSha256": "f0380a1f4107241b01cd9fa6d29c857edbbbd7200ae22ca36c965781e05b5172"
+    },
+    {
+      "original": "tests/e2e/326-control-fixture-navegacion-qa.spec.ts",
+      "copy": "tests/e2e/ak207-326-control-fixture-navegacion-qa.spec.ts",
+      "originalSha256": "8005c041384ccce303d359980e2f4ee54f3b1df3cc43af94c5fe1be825789e8d",
+      "instrumentedSha256": "5b617934db806e31ae8c151fbd6a355aa8bc2f47cbd71a7b72ddeb99ef1deab0"
+    },
+    {
+      "original": "tests/e2e/45-recorridos-pendientes.spec.ts",
+      "copy": "tests/e2e/ak207-45-recorridos-pendientes.spec.ts",
+      "originalSha256": "e50659ee654a336fa8a5dcd258919175722b546c9e7c32448a2115c03be31279",
+      "instrumentedSha256": "7d78d6183f5e5bf282b1ef2c30060ffe727112cb7e309f9c9f61ca1e149d7004"
+    },
+    {
+      "original": "tests/e2e/48-fotocabina-recuerdo-seguro.spec.ts",
+      "copy": "tests/e2e/ak207-48-fotocabina-recuerdo-seguro.spec.ts",
+      "originalSha256": "26ea4503ceadc3579bb18254a946e10de72961e65fa1046e1561f4a2a21556fe",
+      "instrumentedSha256": "a2baa1362cc48412e448225978b21216a57a3175f6950473a17c846b519411d6"
+    },
+    {
+      "original": "tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts",
+      "copy": "tests/e2e/ak207-48-touchpix-entrega-sin-reinicio.spec.ts",
+      "originalSha256": "2719d1b67d9b083186a2ce0e693961a774fea66f62c9e674afb391145a77a238",
+      "instrumentedSha256": "8c6e4b752a87cf7bea9afadefaf93808bcf0c5b224651572e8d66773da635011"
+    },
+    {
+      "original": "tests/e2e/49-contabilidad-cobros-conciliados.spec.ts",
+      "copy": "tests/e2e/ak207-49-contabilidad-cobros-conciliados.spec.ts",
+      "originalSha256": "c45bbab7a361cfd03767cf42c9916035489960c46785f447a409bf566eaf11ab",
+      "instrumentedSha256": "9c51800ca8190b074885f2fccc0899d60b2d1658023dddc62068565443c217b3"
+    },
+    {
+      "original": "tests/e2e/49-contabilidad-permisos-y-errores.spec.ts",
+      "copy": "tests/e2e/ak207-49-contabilidad-permisos-y-errores.spec.ts",
+      "originalSha256": "b580ef410443b32a75d1190db28057f7df781bcdcc6b9ba79d9d04a0bb8796ab",
+      "instrumentedSha256": "3dc8557b979814b65b892937e9a4f52ad4ba9e7d62997d4789d323e6692cf314"
+    },
+    {
+      "original": "tests/e2e/81-cola-aislamiento-y-reintento.spec.ts",
+      "copy": "tests/e2e/ak207-81-cola-aislamiento-y-reintento.spec.ts",
+      "originalSha256": "38b3784800f14965a958aadbc4ba767792a235e55b1f5a101a01d063beda7c37",
+      "instrumentedSha256": "20b76fcc1bd4997afebc4f8e640da0de65286b092baa7a9b8284c03d7bc19258"
+    },
+    {
+      "original": "tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts",
+      "copy": "tests/e2e/ak207-81-roles-y-pedidos-sin-duplicados.spec.ts",
+      "originalSha256": "77d76662593d8c8fe5216fbf892f25eadbb1b260b5d4ee0b15479918605bf73f",
+      "instrumentedSha256": "92c56bde344bd7f37400331dd8d0c64204d28abc9b9bdb9aa06f53cb97ca4a01"
+    },
+    {
+      "original": "tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "copy": "tests/e2e/ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts",
+      "originalSha256": "422620b2e86ad11c49665296ebac994aefdf6859a1b377d6c8b00a1fd7380a9b",
+      "instrumentedSha256": "86403ae9a20d67e44b15e89a812090fa08edfe42de19daee454142f599c46bf4"
+    },
+    {
+      "original": "tests/e2e/90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "copy": "tests/e2e/ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts",
+      "originalSha256": "efb56b9b9d100c06c90b3230f34b2b9caedcfe4dd1ed003c8c82f4963f2e92fb",
+      "instrumentedSha256": "de91582b50627df843b1ac23f372e8f4393a1f0ddcdc99ec55cb27f9880d64ba"
+    },
+    {
+      "original": "tests/e2e/barra-listo-contraste.spec.ts",
+      "copy": "tests/e2e/ak207-barra-listo-contraste.spec.ts",
+      "originalSha256": "d42de0580a3b550c5c58d6fb5fa2713c372e6837367751c1e7ee182ff023a5af",
+      "instrumentedSha256": "a8d9b580b633c7a5f7b6edba86dd3a4ae444d053cf809bfb406ef0901db4ee09"
+    },
+    {
+      "original": "tests/e2e/calendarios-react19.spec.ts",
+      "copy": "tests/e2e/ak207-calendarios-react19.spec.ts",
+      "originalSha256": "881cc2eb90cbce90d3f6636f4e4a4d8f1a7e7d8f2e1701b21a25638d9e5a897e",
+      "instrumentedSha256": "f30aa26fa7fb6ce219da25bf1523665bd1699169502bacb9c71ef68880e7cb43"
+    },
+    {
+      "original": "tests/e2e/carga-rapido.spec.ts",
+      "copy": "tests/e2e/ak207-carga-rapido.spec.ts",
+      "originalSha256": "6676dd0e51ddd973cf1254c3a69822de1bc5b7eb8234f934ba26eff3aa44e725",
+      "instrumentedSha256": "772a01524ed12d08d94b403347197279191ee4fe6d21b1d9d0af13c8bdb71147"
+    },
+    {
+      "original": "tests/e2e/catering-maestro-simulador-fotos.spec.ts",
+      "copy": "tests/e2e/ak207-catering-maestro-simulador-fotos.spec.ts",
+      "originalSha256": "f29e7bae636a8b8ca83e5aa2d2125fb59cb59b417e8a72aa5090656b31e06781",
+      "instrumentedSha256": "731435e741e5e94b52591df60516206c426e8061c94b98bf5f51509a37f5f0f1"
+    },
+    {
+      "original": "tests/e2e/contrato-constancia-mantiene-papel.spec.ts",
+      "copy": "tests/e2e/ak207-contrato-constancia-mantiene-papel.spec.ts",
+      "originalSha256": "13b1724ef232662bc2d10e9388059895466cecd988bf203e1ffeb95582fe88ca",
+      "instrumentedSha256": "b0dcc21dfc474ae801aae4bd82408037a7a0200bc4e3f373804cc5b68d089763"
+    },
+    {
+      "original": "tests/e2e/el-totem-de-bienvenida.spec.ts",
+      "copy": "tests/e2e/ak207-el-totem-de-bienvenida.spec.ts",
+      "originalSha256": "6081cf5da5048b5d05d8ef6a7322e905c315c07d2c081dc5a2209da181362d3e",
+      "instrumentedSha256": "a281895daedc54ff3624b8d596dc381548cecf7e94e314ce90e96f0657b712d2"
+    },
+    {
+      "original": "tests/e2e/entertainment-stations.spec.ts",
+      "copy": "tests/e2e/ak207-entertainment-stations.spec.ts",
+      "originalSha256": "3b53c31acae97b827d5e6cbefbb4afe5ea3e6bc0393753f15aa26e14b1adc0f9",
+      "instrumentedSha256": "46b7349de67b3086754e23ca428da192eb28c871c97137129aa366f1a163e67a"
+    },
+    {
+      "original": "tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts",
+      "copy": "tests/e2e/ak207-espejo-moderacion-caida-y-reintento.spec.ts",
+      "originalSha256": "fbaf3ecaad5934c196c45765eb1459cc4db20b56604df1b8553166d1ae37a5b9",
+      "instrumentedSha256": "b15319660ab9ae0c538045e9a80b5f8099f1859508e4a0dedb0d61f9c8995359"
+    },
+    {
+      "original": "tests/e2e/internal-dynamic-route-inventory.spec.ts",
+      "copy": "tests/e2e/ak207-internal-dynamic-route-inventory.spec.ts",
+      "originalSha256": "86f708625899eaa7514f0779e068a96587c0a05009edd67e5913309f85a0eab8",
+      "instrumentedSha256": "4549f66b9d8ee95facc9d18253e9fbadb4216a788f26d81ab6a2ba28567d33af"
+    },
+    {
+      "original": "tests/e2e/la-grilla-de-caras.spec.ts",
+      "copy": "tests/e2e/ak207-la-grilla-de-caras.spec.ts",
+      "originalSha256": "2c295f7be7fec95f0b711d3f3b67c27386ef68e4d8ab83dad3f8c069281dee31",
+      "instrumentedSha256": "b485795145ad4d140a2f30b79895ad7282dc050d8c453d46b0c565461c0e65d5"
+    },
+    {
+      "original": "tests/e2e/la-hoja-de-cocina.spec.ts",
+      "copy": "tests/e2e/ak207-la-hoja-de-cocina.spec.ts",
+      "originalSha256": "16039ab03021e1a4fd7d243ac90a5eb8d71d5868a13b0617e007f4371b2795b9",
+      "instrumentedSha256": "c13fde7c926e66399ad7f7910633416bbd2a9594ea7f7c33e580cf5f4625b100"
+    },
+    {
+      "original": "tests/e2e/la-realidad-aumentada-carga-mindar.spec.ts",
+      "copy": "tests/e2e/ak207-la-realidad-aumentada-carga-mindar.spec.ts",
+      "originalSha256": "d10e85acd9a638383547f49a8c11cf0960abcdb30b553e5d8a0957a4b21757f6",
+      "instrumentedSha256": "8fc7cc557ace74858036cead2b28575b5f6813f48e887a02509cbd40bcb69ac3"
+    },
+    {
+      "original": "tests/e2e/la-web-de-venta-no-se-rompe.spec.ts",
+      "copy": "tests/e2e/ak207-la-web-de-venta-no-se-rompe.spec.ts",
+      "originalSha256": "fe9438812f7f9bc112b966bd091f10ae813c49e1a4b612a3a536699b2ca25785",
+      "instrumentedSha256": "d443bc0038290bd8f0d0d4f5372789c7efd6c3229a4000b787c3400b99137a2e"
+    },
+    {
+      "original": "tests/e2e/la-web-publica-se-ve.spec.ts",
+      "copy": "tests/e2e/ak207-la-web-publica-se-ve.spec.ts",
+      "originalSha256": "3b720f311c799e5a08ad26a7ba01eaf13ef4cf8a83980ff04fe1bdac7e4bbed0",
+      "instrumentedSha256": "43c9a17a27dbd741407d1886f68716a8bd4fb66f919b119ff043a65f257bb628"
+    },
+    {
+      "original": "tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts",
+      "copy": "tests/e2e/ak207-las-estaciones-respetan-los-ajustes.spec.ts",
+      "originalSha256": "8d70a4065cade9e5548054e7f2796dfddbeeb80b838e46e7555c7f07a86a7e39",
+      "instrumentedSha256": "49178a09bb199054c810d436463efafdca5738e992d13f300040783ce6e688ae"
+    },
+    {
+      "original": "tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "copy": "tests/e2e/ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "originalSha256": "237261db0a75fce4aef303dbfb578eb96d20e77c8c424286e8d422a051cea48e",
+      "instrumentedSha256": "60d1406c45a5f2f0d93488cccb32569798328a7cd5782910dd26a05a31136664"
+    },
+    {
+      "original": "tests/e2e/las-pantallas-no-quedan-cargando.spec.ts",
+      "copy": "tests/e2e/ak207-las-pantallas-no-quedan-cargando.spec.ts",
+      "originalSha256": "281a5b2f0b487d282ba9acfd7442123599fe2799182d0c281cac4a8f1e716a7f",
+      "instrumentedSha256": "723d77808b6364491f38998a86e97fa8f3744219691426df25ad4489e3715175"
+    },
+    {
+      "original": "tests/e2e/layout-baseline.spec.ts",
+      "copy": "tests/e2e/ak207-layout-baseline.spec.ts",
+      "originalSha256": "ccc8359c4ce965c511d368f620977a1b22ef6eb29f5cd6044e92aeb5299022fa",
+      "instrumentedSha256": "f34478ace9907d111281bc0b67bea30cc6bc2dcf6c7aacc9635dcdd583101bc0"
+    },
+    {
+      "original": "tests/e2e/lectura-invitados-aislada.spec.ts",
+      "copy": "tests/e2e/ak207-lectura-invitados-aislada.spec.ts",
+      "originalSha256": "054501cba353109fdaa85b91c17aa9c0171d92324c90f1f3e0f1746b9af6c0e4",
+      "instrumentedSha256": "f7b466971a4aa23ecfc467c0f5573e8847ff78a7bf21188702e0cbf96c7f6e5c"
+    },
+    {
+      "original": "tests/e2e/limpiar-la-agenda.spec.ts",
+      "copy": "tests/e2e/ak207-limpiar-la-agenda.spec.ts",
+      "originalSha256": "8b5d4b0ef05c5cd0fd0c873f629812f551590099974240ba6c386a9b01ce762c",
+      "instrumentedSha256": "30a9c9f457a579178726cf68635473b722bc69e30a929b2d230206d30afe8bbb"
+    },
+    {
+      "original": "tests/e2e/los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "copy": "tests/e2e/ak207-los-enlaces-llegan-a-donde-dicen.spec.ts",
+      "originalSha256": "eb4124b5d2f1eb62aa7abd0371ce8d698f75766d569273a1e68d813e3195703d",
+      "instrumentedSha256": "9937acd4fb7296d7be895d7694fb3860b4a81f37fa08944732dc87df602d6e0b"
+    },
+    {
+      "original": "tests/e2e/mobile-overflow.spec.ts",
+      "copy": "tests/e2e/ak207-mobile-overflow.spec.ts",
+      "originalSha256": "d70653f5767a26f832638a6ff96cdea9e6901fb3bbeab4c95d6501a9af525336",
+      "instrumentedSha256": "88ea2c240f941de38eff7138e6610fe21e35f4afc81fefa6a20c805baed6794e"
+    },
+    {
+      "original": "tests/e2e/muro-subir-foto.spec.ts",
+      "copy": "tests/e2e/ak207-muro-subir-foto.spec.ts",
+      "originalSha256": "fb6a331ba7700825d4413304c7bda52949bbbadcfbb485fe1b61d82587c6325c",
+      "instrumentedSha256": "c98dab5c986b18ad80e11f4a6bb42bfeb4d64be64ec2f6450b21bba199e732f6"
+    },
+    {
+      "original": "tests/e2e/noche-de-fiesta.spec.ts",
+      "copy": "tests/e2e/ak207-noche-de-fiesta.spec.ts",
+      "originalSha256": "63e79b830dda052e98488019a2af6e72286e67cd42318d2f4cd3e0e83ce2fa2b",
+      "instrumentedSha256": "a8dae05261cbaa379de2073fd87b44f0f84af2af13517c9cacd6d50a10d3f35e"
+    },
+    {
+      "original": "tests/e2e/orden-86-pantallas.spec.ts",
+      "copy": "tests/e2e/ak207-orden-86-pantallas.spec.ts",
+      "originalSha256": "66558d1ba6e6769ee979780c4e1aaf386d071e92f1c433d990c65b8f838c9f4a",
+      "instrumentedSha256": "ec2a3d53927119a30f0a0654fc08a16317624a601b3254165857e8e36aa4d235"
+    },
+    {
+      "original": "tests/e2e/pantallas-con-iconos-react19.spec.ts",
+      "copy": "tests/e2e/ak207-pantallas-con-iconos-react19.spec.ts",
+      "originalSha256": "08d1940cc98dbce2d1ff3da23eac0adc63be3dd38104df6514814c8b17bc752a",
+      "instrumentedSha256": "53af334bf5f6dca41a84e9212dd3f55e3c7bbd62bd0037acba019b9d6b056309"
+    },
+    {
+      "original": "tests/e2e/pantallas-tocadas-tanda-12-10.spec.ts",
+      "copy": "tests/e2e/ak207-pantallas-tocadas-tanda-12-10.spec.ts",
+      "originalSha256": "70ca64b246912daf64964ebd73716d7bcfbf865a817610adb1b31d10160d43e1",
+      "instrumentedSha256": "39654e040c75a12572300a7a0605b00b251c48cadabebd5a02f02b9e1eb8273c"
+    },
+    {
+      "original": "tests/e2e/portal-fecha-y-botones.spec.ts",
+      "copy": "tests/e2e/ak207-portal-fecha-y-botones.spec.ts",
+      "originalSha256": "1d893fd00f91c91d2c90b6d23879f01a44227fdc12871f3897536dea542d24ed",
+      "instrumentedSha256": "397442fb093ea90bad0ebe01eaca476cc020699cf69d06ca4bd4c5cd9b5832ae"
+    },
+    {
+      "original": "tests/e2e/prospecto-simulador.spec.ts",
+      "copy": "tests/e2e/ak207-prospecto-simulador.spec.ts",
+      "originalSha256": "e2ee360ce033cfa99d10c8c353e9e26ae32846805d96808895de935d969f3e55",
+      "instrumentedSha256": "0a5e9df1ab90404eb9e9df8d2beec52f948a02937de4a4cda26c82b6d221f108"
+    },
+    {
+      "original": "tests/e2e/public-smoke.spec.ts",
+      "copy": "tests/e2e/ak207-public-smoke.spec.ts",
+      "originalSha256": "8d595cfa1c8f5e70f476a079cbeb035de15a693d8dd0bdb7d2ba1781a0e6ad87",
+      "instrumentedSha256": "4aff5d9fcd0ef514ff9c1500d79b922a113f6651f7c3bb1e962397d67d1da395"
+    },
+    {
+      "original": "tests/e2e/simulator-budget-journey.spec.ts",
+      "copy": "tests/e2e/ak207-simulator-budget-journey.spec.ts",
+      "originalSha256": "7dfb06926283c1c9a2509f59c595056f159672557059cd8a1ac53be2d4c14981",
+      "instrumentedSha256": "d4145e67648f9a8581c20589fa38a43a5c182f838cca6497bc888ddf6c60a7b9"
+    },
+    {
+      "original": "tests/e2e/video-vida-error-lectura.spec.ts",
+      "copy": "tests/e2e/ak207-video-vida-error-lectura.spec.ts",
+      "originalSha256": "9322084503ee05c515be448b234d4ed06c4bebbe85309ffe31941ccb5c70f67b",
+      "instrumentedSha256": "b830f188ca651296683dcb55f06e14ad18a5f1038c748fa0ce6f88659bb50d74"
+    }
+  ],
+  "limits": "Selected E2E specs (all only if specFilter is null) on one frozen-source Next build, plus active portal cases. Tests copied without changing assertions, adding only common local-network guard. Existing deliberate skips remain skips, not acceptance. Default inventory traversal excluded separately; route availability is not function acceptance. External requests blocked; no real services or zero-error certificate.",
+  "serverPid": 10080,
+  "health": {
+    "status": "ok",
+    "timestamp": "2026-10-25T02:17:16.716Z",
+    "version": "978af7d65a60bd287f3ee3cc05037a29566074f4 · compilada 2026-10-25T01:42:56.218Z",
+    "services": {
+      "firebase": true,
+      "gemini": false,
+      "googleWorkspace": false,
+      "mail": false,
+      "instagram": false,
+      "mercadoPago": false
+    },
+    "environment": "production",
+    "uptime": 13
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-133-invitado-con-red-local.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:17:18.241Z",
+      "report": "512-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:17:17.796Z",
+        "duration": 370.297,
+        "expected": 0,
+        "skipped": 10,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-143-cocina-fecha-local.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:17:20.076Z",
+      "report": "512-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:17:19.251Z",
+        "duration": 438.07900000000006,
+        "expected": 0,
+        "skipped": 2,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-306-home-clic-y-estado.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:18:23.440Z",
+      "report": "512-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:17:21.753Z",
+        "duration": 61608.469000000005,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-326-control-fixture-navegacion-qa.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:19:44.193Z",
+      "report": "512-batch-004-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:18:24.997Z",
+        "duration": 79153.88399999999,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 5,
+      "files": [
+        "ak207-45-recorridos-pendientes.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:22:13.769Z",
+      "report": "512-batch-005-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:19:45.599Z",
+        "duration": 148129.5,
+        "expected": 10,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 6,
+      "files": [
+        "ak207-48-fotocabina-recuerdo-seguro.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:22:54.317Z",
+      "report": "512-batch-006-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:22:15.378Z",
+        "duration": 38903.769,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 7,
+      "files": [
+        "ak207-48-touchpix-entrega-sin-reinicio.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:24:56.726Z",
+      "report": "512-batch-007-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:22:55.759Z",
+        "duration": 120905.028,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 8,
+      "files": [
+        "ak207-49-contabilidad-cobros-conciliados.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:25:36.148Z",
+      "report": "512-batch-008-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:24:58.059Z",
+        "duration": 38024.890999999996,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 9,
+      "files": [
+        "ak207-49-contabilidad-permisos-y-errores.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T02:30:58.431Z",
+      "report": "512-batch-009-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:30:08.228Z",
+        "duration": 50143.968,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 10,
+      "files": [
+        "ak207-81-cola-aislamiento-y-reintento.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T02:39:30.721Z",
+      "report": "512-batch-010-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:32:30.161Z",
+        "duration": 420445.061,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 11,
+      "files": [
+        "ak207-81-roles-y-pedidos-sin-duplicados.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T02:45:17.544Z",
+      "report": "512-batch-011-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:42:02.977Z",
+        "duration": 194527.16,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 12,
+      "files": [
+        "ak207-89-la-barra-no-ofrece-lo-agotado.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T02:51:24.488Z",
+      "report": "512-batch-012-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:45:18.704Z",
+        "duration": 366767.826,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 13,
+      "files": [
+        "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T02:58:22.017Z",
+      "report": "512-batch-013-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:51:25.725Z",
+        "duration": 415438.27499999997,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 14,
+      "files": [
+        "ak207-barra-listo-contraste.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T03:11:15.316Z",
+      "report": "512-batch-014-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T02:58:30.444Z",
+        "duration": 764830.064,
+        "expected": 11,
+        "skipped": 0,
+        "unexpected": 3,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 15,
+      "files": [
+        "ak207-calendarios-react19.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T03:15:15.066Z",
+      "report": "512-batch-015-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:11:16.461Z",
+        "duration": 238537.375,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 16,
+      "files": [
+        "ak207-carga-rapido.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T03:16:58.564Z",
+      "report": "512-batch-016-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:15:16.838Z",
+        "duration": 101693.442,
+        "expected": 2,
+        "skipped": 4,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 17,
+      "files": [
+        "ak207-catering-maestro-simulador-fotos.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T03:17:40.059Z",
+      "report": "512-batch-017-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:16:59.574Z",
+        "duration": 40455.473999999995,
+        "expected": 1,
+        "skipped": 1,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 18,
+      "files": [
+        "ak207-contrato-constancia-mantiene-papel.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T03:18:52.005Z",
+      "report": "512-batch-018-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:17:41.026Z",
+        "duration": 70925.58,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 19,
+      "files": [
+        "ak207-el-totem-de-bienvenida.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T03:30:34.847Z",
+      "report": "512-batch-019-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:18:53.099Z",
+        "duration": 701694.99,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 5,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 20,
+      "files": [
+        "ak207-entertainment-stations.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T03:37:12.341Z",
+      "report": "512-batch-020-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:33:36.608Z",
+        "duration": 215692.72400000002,
+        "expected": 6,
+        "skipped": 3,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 21,
+      "files": [
+        "ak207-espejo-moderacion-caida-y-reintento.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T03:37:39.783Z",
+      "report": "512-batch-021-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:37:13.548Z",
+        "duration": 26176.326999999997,
+        "expected": 1,
+        "skipped": 3,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 22,
+      "files": [
+        "ak207-internal-dynamic-route-inventory.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T03:39:01.865Z",
+      "report": "512-batch-022-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:37:41.037Z",
+        "duration": 80760.716,
+        "expected": 2,
+        "skipped": 2,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 23,
+      "files": [
+        "ak207-la-grilla-de-caras.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T03:43:00.395Z",
+      "report": "512-batch-023-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:39:03.305Z",
+        "duration": 236967.631,
+        "expected": 6,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 24,
+      "files": [
+        "ak207-la-hoja-de-cocina.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T03:47:04.942Z",
+      "report": "512-batch-024-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:45:17.273Z",
+        "duration": 107629.662,
+        "expected": 2,
+        "skipped": 2,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 25,
+      "files": [
+        "ak207-la-realidad-aumentada-carga-mindar.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T03:47:26.997Z",
+      "report": "512-batch-025-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:47:06.658Z",
+        "duration": 20285.034,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 26,
+      "files": [
+        "ak207-la-web-de-venta-no-se-rompe.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T03:53:41.772Z",
+      "report": "512-batch-026-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:49:01.141Z",
+        "duration": 280574.919,
+        "expected": 0,
+        "skipped": 1,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 27,
+      "files": [
+        "ak207-la-web-publica-se-ve.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T03:56:43.557Z",
+      "report": "512-batch-027-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:53:43.450Z",
+        "duration": 180070.41,
+        "expected": 6,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 28,
+      "files": [
+        "ak207-las-estaciones-respetan-los-ajustes.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T04:03:49.561Z",
+      "report": "512-batch-028-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T03:56:45.155Z",
+        "duration": 424355.25,
+        "expected": 1,
+        "skipped": 2,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 29,
+      "files": [
+        "ak207-las-pantallas-del-invitado-no-quedan-colgadas.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T04:08:28.362Z",
+      "report": "512-batch-029-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:03:51.053Z",
+        "duration": 276893.971,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 30,
+      "files": [
+        "ak207-las-pantallas-no-quedan-cargando.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T04:17:16.710Z",
+      "report": "512-batch-030-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:08:36.446Z",
+        "duration": 520182.157,
+        "expected": 7,
+        "skipped": 0,
+        "unexpected": 3,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 31,
+      "files": [
+        "ak207-layout-baseline.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T04:20:50.671Z",
+      "report": "512-batch-031-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:17:17.803Z",
+        "duration": 212812.74,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 32,
+      "files": [
+        "ak207-lectura-invitados-aislada.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T04:23:32.933Z",
+      "report": "512-batch-032-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:20:51.927Z",
+        "duration": 160958.472,
+        "expected": 8,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 33,
+      "files": [
+        "ak207-limpiar-la-agenda.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T04:24:13.040Z",
+      "report": "512-batch-033-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:23:34.194Z",
+        "duration": 38815.203,
+        "expected": 1,
+        "skipped": 1,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 34,
+      "files": [
+        "ak207-los-enlaces-llegan-a-donde-dicen.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T04:25:10.624Z",
+      "report": "512-batch-034-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:24:14.004Z",
+        "duration": 56590.145,
+        "expected": 5,
+        "skipped": 5,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 35,
+      "files": [
+        "ak207-mobile-overflow.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T04:39:01.113Z",
+      "report": "512-batch-035-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:25:11.682Z",
+        "duration": 829387.391,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 36,
+      "files": [
+        "ak207-muro-subir-foto.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T04:42:39.127Z",
+      "report": "512-batch-036-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:39:05.879Z",
+        "duration": 213187.576,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 37,
+      "files": [
+        "ak207-noche-de-fiesta.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T04:56:59.377Z",
+      "report": "512-batch-037-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:42:40.908Z",
+        "duration": 858435.7490000001,
+        "expected": 7,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 38,
+      "files": [
+        "ak207-orden-86-pantallas.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:01:52.601Z",
+      "report": "512-batch-038-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T04:57:00.415Z",
+        "duration": 292121.496,
+        "expected": 7,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 39,
+      "files": [
+        "ak207-pantallas-con-iconos-react19.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-25T05:03:05.863Z",
+      "report": "512-batch-039-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:01:55.073Z",
+        "duration": 70689.38900000001,
+        "expected": 3,
+        "skipped": 3,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 40,
+      "files": [
+        "ak207-pantallas-tocadas-tanda-12-10.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:05:41.082Z",
+      "report": "512-batch-040-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:03:09.153Z",
+        "duration": 151887.46,
+        "expected": 10,
+        "skipped": 8,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 41,
+      "files": [
+        "ak207-portal-fecha-y-botones.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:07:33.392Z",
+      "report": "512-batch-041-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:05:42.144Z",
+        "duration": 111215.01,
+        "expected": 0,
+        "skipped": 5,
+        "unexpected": 3,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 42,
+      "files": [
+        "ak207-prospecto-simulador.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:27:53.847Z",
+      "report": "512-batch-042-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:10:50.482Z",
+        "duration": 1023172.3400000001,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "errors": [
+        {
+          "message": "Error: The client has already been terminated\n\n\u001b[31mFailed worker ran 1 test:\u001b[39m\n[chromium-mobile] › tests\\e2e\\ak207-prospecto-simulador.spec.ts:146:7 › recorrido del prospecto › el catálogo lleva al simulador con el tipo de fiesta elegido",
+          "stack": "Error: The client has already been terminated\n\n\u001b[31mFailed worker ran 1 test:\u001b[39m\n[chromium-mobile] › tests\\e2e\\ak207-prospecto-simulador.spec.ts:146:7 › recorrido del prospecto › el catálogo lleva al simulador con el tipo de fiesta elegido\n    at ClientPool.run (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\pool.js:258:35)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\index.js:1412:30\n    at Firestore._retry (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\index.js:1270:30)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query-util.js:189:33"
+        }
+      ]
+    },
+    {
+      "index": 43,
+      "files": [
+        "ak207-public-smoke.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:40:26.870Z",
+      "report": "512-batch-043-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:27:55.781Z",
+        "duration": 751011.756,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 16,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 44,
+      "files": [
+        "ak207-simulator-budget-journey.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:42:44.522Z",
+      "report": "512-batch-044-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:40:59.502Z",
+        "duration": 104957.936,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 45,
+      "files": [
+        "ak207-video-vida-error-lectura.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-25T05:46:08.957Z",
+      "report": "512-batch-045-resultados.json",
+      "stats": {
+        "startTime": "2026-10-25T05:42:46.027Z",
+        "duration": 202830.161,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "exitCode": 1,
+  "currentBatch": 45,
+  "totalBatches": 45,
+  "testPid": 15084,
+  "stats": {
+    "expected": 138,
+    "skipped": 52,
+    "unexpected": 68,
+    "flaky": 0
+  },
+  "reportErrors": [
+    {
+      "message": "Error: The client has already been terminated\n\n\u001b[31mFailed worker ran 1 test:\u001b[39m\n[chromium-mobile] › tests\\e2e\\ak207-prospecto-simulador.spec.ts:146:7 › recorrido del prospecto › el catálogo lleva al simulador con el tipo de fiesta elegido",
+      "stack": "Error: The client has already been terminated\n\n\u001b[31mFailed worker ran 1 test:\u001b[39m\n[chromium-mobile] › tests\\e2e\\ak207-prospecto-simulador.spec.ts:146:7 › recorrido del prospecto › el catálogo lleva al simulador con el tipo de fiesta elegido\n    at ClientPool.run (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\pool.js:258:35)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\index.js:1412:30\n    at Firestore._retry (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\index.js:1270:30)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@google-cloud\\firestore\\build\\src\\reference\\query-util.js:189:33"
+    }
+  ],
+  "snapshotCount": 79,
+  "sourceDiff": "",
+  "finished": "2026-10-25T05:46:13.122Z"
+}

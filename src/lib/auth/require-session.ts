@@ -1,5 +1,12 @@
 import { verifySession } from '@/lib/auth/session-token';
-import { NOMBRE_DEL_PERFIL, perfilDe, puede, type Permiso } from '@/lib/auth/perfiles';
+import {
+  NOMBRE_DEL_PERFIL,
+  PERMISOS,
+  esPerfilValido,
+  perfilDe,
+  puede,
+  type Permiso,
+} from '@/lib/auth/perfiles';
 
 export async function hasAppSession(): Promise<boolean> {
   const session = await verifySession();
@@ -21,7 +28,10 @@ export async function requireAppSession(): Promise<void> {
 export async function requireAdminSession(): Promise<{ ok: true } | { ok: false; error: string }> {
   const session = await verifySession();
   if (!session.success) return { ok: false, error: session.error || 'Sesion no autorizada.' };
-  if (session.user?.role !== 'admin') {
+  if (
+    (session.user?.perfil !== undefined && !esPerfilValido(session.user.perfil)) ||
+    !puede(session.user, PERMISOS.ADMINISTRACION)
+  ) {
     return { ok: false, error: 'Solo administradores pueden realizar esta accion.' };
   }
   return { ok: true };
@@ -40,6 +50,10 @@ export async function requirePermiso(
 ): Promise<{ ok: true; user: { userId?: string; email?: string; role?: string; perfil?: string } } | { ok: false; error: string }> {
   const session = await verifySession();
   if (!session.success) return { ok: false, error: session.error || 'Sesion no autorizada.' };
+
+  if (session.user?.perfil !== undefined && !esPerfilValido(session.user.perfil)) {
+    return { ok: false, error: 'Tu perfil no es válido. Solicita al administrador que revise tu acceso.' };
+  }
 
   if (!puede(session.user, permiso)) {
     const perfil = NOMBRE_DEL_PERFIL[perfilDe(session.user)];

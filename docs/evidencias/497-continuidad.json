@@ -1,0 +1,18 @@
+{
+  "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+  "started": "2026-10-25T02:10:36.163Z",
+  "phase": "finished",
+  "appEdited": false,
+  "realServices": false,
+  "canonical": {
+    "source": "978af7d65a60bd287f3ee3cc05037a29566074f4",
+    "exit": 0,
+    "suites": 865,
+    "total": 5253,
+    "pass": 5253,
+    "fail": 0,
+    "pending": 0,
+    "scope": "Canonical existing full suite on NEW frozen917 source, original configuration/assertions, no custom370 adapter"
+  },
+  "finished": "2026-10-25T02:10:54.172Z"
+}

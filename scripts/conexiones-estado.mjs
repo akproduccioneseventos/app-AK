@@ -12,12 +12,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 function leerJson(nombreArchivo, porDefecto = {}) {
-  try {
-    const ruta = path.join(process.cwd(), 'data', nombreArchivo);
-    if (fs.existsSync(ruta)) {
-      return JSON.parse(fs.readFileSync(ruta, 'utf8'));
-    }
-  } catch {}
+  const candidatos = [
+    path.join(process.cwd(), 'data', nombreArchivo),
+    path.join(process.cwd(), 'src', 'data', nombreArchivo),
+  ];
+  for (const ruta of candidatos) {
+    try {
+      if (fs.existsSync(ruta)) {
+        return JSON.parse(fs.readFileSync(ruta, 'utf8'));
+      }
+    } catch {}
+  }
   return porDefecto;
 }
 
@@ -25,7 +30,7 @@ export function verificarConexionesNode() {
   const settings = leerJson('settings.json', {});
   const socialConnections = leerJson('social-connections.json', []);
   const googleWs = leerJson('google-workspace.json', {});
-  const whatsappConfig = leerJson('whatsapp-business.json', {});
+  const whatsappConfig = leerJson('whatsapp-business.json', leerJson('whatsapp-config.json', leerJson('whatsapp-settings.json', {})));
 
   const findSocial = (name) =>
     Array.isArray(socialConnections)
@@ -150,7 +155,9 @@ export function verificarConexionesNode() {
       id: 'google-maps',
       nombre: 'Google Maps (Geolocalización)',
       activa: Boolean(settings?.googleMapsUrl || settings?.address),
-      detalle: settings?.address ? settings.address : 'Dirección base configurada',
+      detalle: !(settings?.googleMapsUrl || settings?.address)
+        ? 'Sin dirección ni enlace'
+        : (settings?.address ? settings.address : 'Dirección base configurada'),
     },
   ];
 

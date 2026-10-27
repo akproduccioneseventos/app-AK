@@ -1,5 +1,23 @@
 # AK-CODEX-249/250 - Recordatorios que realmente se ejecutan
 
+## Retest Codex350 - 24/10, candidata1353 SHA3f946018
+
+Los OCHO criterios originales pasan en3f9460185143ef034dcd713e975d2a0af5e20f1a:
+R1-R4 CORREGIDOS por ese alcance de motor/GET/adaptadores; no reencargarlos
+desde el relato historico de abajo.9PASS/1FAIL contando dos variantes nuevas.
+Sin mensaje/proveedor/cuenta real; no validacion HTTP nativa ni SDK nueva.
+
+Queda UNA variante del criterio R3: esRechazoConocido en el motor acepta
+regex403 dentro del texto aunque error.status sea503 (resultado incierto).
+Caso controlado:503+trace neutral conserva reserva/revisarEnvio y solo1intento;
+503+trace qa403 libera reserva, llama2veces al remitente en2corridas y no deja
+revision, con respaldo fallido en ambos casos. Ver350-recordatorios-motor.json.
+Un estado estructurado503 no debe reinterpretarse como rechazo403 por texto
+incidental. Preservar rechazo403conocido recuperable y no reenviar resultado
+incierto a ciegas. No afirmar duplicacion real de mensajes ni cambiar politicas.
+Actualizar la misma entrega217; no crear una PR/orden por esta variante.
+Privados posteriores NO CONTRASTADOS. Ver359-cierre-candidata-1353.
+
 Responsables: Claude controla autorizacion/puerta; Gemini motor del recordatorio.
 Codex solo audita/prueba/documenta. Una entrega conjunta, no una PR por causa.
 Fuente mainbaa034fd25ab77b886e7096105a6114f0336bfdc; los cuatro archivos efectivos
@@ -69,6 +87,20 @@ Prueba de regresion propuesta PENDIENTE abajo; no existe/ejecuto porCodex.
 
 <!-- Claude, 22/10: R1 hecho por Claude. R2-R4 los programa Gemini (orden 215, bloque 6); estas
      líneas dejan la orden a medias hasta que lleguen. -->
+## Retest final388 - cerrada por este alcance
+
+Fuente publica1353:917a98e32c63fe2f832f5cdc16db87f4fc722b6c.
+388 ejecuta los diez criterios:10PASS/0FAIL. Los ocho originales y las DOS
+variantes503 pasan. Un trace incidental qa403 ya no invalida status503:
+conserva revisarEnvio y una sola llamada ante dos corridas, como controlneutral.
+Se conserva el rechazo conocido403 recuperable y la puerta sin clave503.
+Codigo de motor, ruta y fechas reales; remitente/almacen/reserva controlados.
+No acredita proveedor real ni configuracionCRON de produccion. No reemitir217
+ni la extension de350 como fallo actual con esos mismos blobs.
+La otra orden225 deClaude/Gemini incluye esta correccion; no duplicarla.
+El primer wrapper388 fallo por sintaxis ANTES de ejecutar el motor; queda
+archivado como errorQA, separado del recibo388-recordatorios-motor.json.
+
 ```comprobar
 usa: tocaRecordarHoy en src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: liberarReservaDelDia en src/lib/invitaciones/recordatorio-no-abiertas.ts

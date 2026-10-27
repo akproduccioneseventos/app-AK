@@ -1,0 +1,298 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "457-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts",
+      "ak207-entertainment-stations.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\457-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/457-batch-002-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-entertainment-stations.spec.ts",
+      "file": "ak207-entertainment-stations.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "time capsule exposes every media mode and records the configured frame",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 65844,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts:207:7",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts",
+                      "column": 7,
+                      "line": 207
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 205 |\u001b[39m     \u001b[36mconst\u001b[39m source \u001b[33m=\u001b[39m (element \u001b[36mas\u001b[39m \u001b[33mHTMLVideoElement\u001b[39m)\u001b[33m.\u001b[39msrc\u001b[33m;\u001b[39m\n \u001b[90m 206 |\u001b[39m     \u001b[36mreturn\u001b[39m (\u001b[36mawait\u001b[39m (\u001b[36mawait\u001b[39m fetch(source))\u001b[33m.\u001b[39mblob())\u001b[33m.\u001b[39msize\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 207 |\u001b[39m   }))\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 208 |\u001b[39m\n \u001b[90m 209 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/Grabar de nuevo/i\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 210 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/Comenzar a Grabar/i\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts",
+                        "column": 7,
+                        "line": 207
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n\n  205 |     const source = (element as HTMLVideoElement).src;\n  206 |     return (await (await fetch(source)).blob()).size;\n> 207 |   })).toBeGreaterThan(0);\n      |       ^\n  208 |\n  209 |   await page.getByRole('button', { name: /Grabar de nuevo/i }).click();\n  210 |   await expect(page.getByRole('button', { name: /Comenzar a Grabar/i })).toBeVisible();\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts:207:7"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:4372) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:51:21.260Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-e6e95-ecords-the-configured-frame-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts",
+                    "column": 7,
+                    "line": 207
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "20f5d321b72c5daa756a-97355cf161092fab99ee",
+          "file": "ak207-entertainment-stations.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "time capsule bakes the configured frame into an uploaded gallery video",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 60001,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Video Cargado')\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Video Cargado')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Video Cargado')\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Video Cargado')\u001b[22m\n\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts:266:49",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts",
+                      "column": 49,
+                      "line": 266
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 264 |\u001b[39m \u001b[36mconst\u001b[39m extension \u001b[33m=\u001b[39m outputType\u001b[33m.\u001b[39mincludes(\u001b[32m'mp4'\u001b[39m) \u001b[33m?\u001b[39m \u001b[32m'mp4'\u001b[39m \u001b[33m:\u001b[39m \u001b[32m'webm'\u001b[39m\u001b[33m;\u001b[39m\u001b[33m;\u001b[39m\u001b[36mreturn\u001b[39m{type\u001b[33m:\u001b[39moutputType\u001b[33m,\u001b[39mname\u001b[33m:\u001b[39m\u001b[32m`gallery-test.${extension}`\u001b[39m\u001b[33m,\u001b[39mbytes\u001b[33m:\u001b[39m\u001b[33mArray\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(\u001b[36mnew\u001b[39m \u001b[33mUint8Array\u001b[39m(\u001b[36mawait\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mBlob\u001b[39m(chunks\u001b[33m,\u001b[39m{type\u001b[33m:\u001b[39moutputType})\u001b[33m.\u001b[39marrayBuffer()))}\u001b[33m;\u001b[39m})\u001b[33m;\u001b[39m \u001b[36mawait\u001b[39m input\u001b[33m.\u001b[39msetInputFiles({name\u001b[33m:\u001b[39mqa451Video\u001b[33m.\u001b[39mname\u001b[33m,\u001b[39mmimeType\u001b[33m:\u001b[39mqa451Video\u001b[33m.\u001b[39mtype\u001b[33m,\u001b[39mbuffer\u001b[33m:\u001b[39m\u001b[33mBuffer\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(qa451Video\u001b[33m.\u001b[39mbytes)})\u001b[33m;\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 265 |\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 266 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Video Cargado'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 267 |\u001b[39m   \u001b[36mconst\u001b[39m reviewVideo \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'video[src^=\"blob:\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m 268 |\u001b[39m   \u001b[36mawait\u001b[39m expect(reviewVideo)\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 269 |\u001b[39m   \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(\u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m reviewVideo\u001b[33m.\u001b[39mevaluate(\u001b[36masync\u001b[39m (element) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts",
+                        "column": 49,
+                        "line": 266
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Video Cargado')\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Video Cargado')\u001b[22m\n\n\n  264 | const extension = outputType.includes('mp4') ? 'mp4' : 'webm';;return{type:outputType,name:`gallery-test.${extension}`,bytes:Array.from(new Uint8Array(await new Blob(chunks,{type:outputType}).arrayBuffer()))};}); await input.setInputFiles({name:qa451Video.name,mimeType:qa451Video.type,buffer:Buffer.from(qa451Video.bytes)});;\n  265 |\n> 266 |   await expect(page.getByText('Video Cargado')).toBeVisible();\n      |                                                 ^\n  267 |   const reviewVideo = page.locator('video[src^=\"blob:\"]').first();\n  268 |   await expect(reviewVideo).toBeVisible();\n  269 |   await expect.poll(async () => reviewVideo.evaluate(async (element) => {\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts:266:49"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:2528) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:52:36.527Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-002-artifacts\\ak207-entertainment-statio-2ecd2-o-an-uploaded-gallery-video-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\ak207-entertainment-stations.spec.ts",
+                    "column": 49,
+                    "line": 266
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "20f5d321b72c5daa756a-0c2dab6e15be52b2caa8",
+          "file": "ak207-entertainment-stations.spec.ts",
+          "line": 220,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T20:51:19.309Z",
+    "duration": 144056.716,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

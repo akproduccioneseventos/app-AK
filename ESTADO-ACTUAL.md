@@ -1,6 +1,6 @@
 # Estado actual — 20 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1358 (`725e62ba2`, 22/10): revisión contable y de contratos (avisos de pago a la vez, costos automáticos, factura, seña, texto firmado).
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z` (subida, al día). Versión publicada: la de la propuesta 1360 (`3e45a4ac6`, 23/10): órdenes 218 y 219 (aviso de pago reintentado, texto y plan de pagos con firma) y el barrido de las preguntas 93 y 94 (cancelación, cambio de fecha, cobro de factura).
 
 ## En qué se está
 Codex 186-206: orden 210 publicada (1351); orden 211 (aprobaciones y contrato firmado, incluye un error mío ya publicado) hecha, falta publicar. Para Gemini: orden 212 (lo de pantalla del portal) y las 180 a 195 que siguen pendientes.
@@ -31,9 +31,24 @@ Codex sólo audita.
 - Cerrada la 1336 de Gemini (arrancaba de la 1333 devuelta). Error 39 anotado.
 
 ## Errores de plata y permisos abiertos en la app publicada
-- Ninguno. La orden 197 (con 183 y 198) se publicó el 20/10 en la propuesta 1339.
+- 26/10: el rol viejo `admin` pasaba por encima del perfil: arreglado en la rama de Claude (órdenes 230 y 233), falta publicar.
+- 26/10: el PIN de operaciones del cliente viaja a las pantallas públicas de la fiesta; arreglado en la 1353 (`recortar-para-afuera`), falta publicar.
 
 ## Revisado hasta (lo usa el despertador de cada hora)
+- Codex 1361 (`e0ffd2395`): juntado. Órdenes 229-231 en la rama; preguntas 98 y 99; orden 233 urgente (rol viejo `admin`).
+- Gemini 1353 (`2b17bebfd`) + Codex 1363 (`a3ecd0089`): plata y permisos bien (orden 228 cumplida; además tapa que el PIN del cliente viajaba a pantallas públicas). Devuelta con la orden 232: una prueba con perfil inexistente, dos pantallas sin prueba, un componente sin usar y 14 pruebas de navegador en rojo.
+- Codex 1361 (`e0ffd2395`, cierre 650): escribió las órdenes 229-231; 230 y 228 ya entraron en la entrega de Gemini.
+- Gemini 1353 (`ff4750107`): trae la orden 214 y las formas que mienten, pero no trajo la rama de Claude ni hizo la orden 228 (el PIN del cliente sigue vacío). Sigue devuelta.
+- Gemini 1353 (`d2f49f09f`, órdenes 226-227): devuelta con la orden 228 — sacaba `clientPortalSettings` al cliente (PIN vacío cancelaba la fiesta), acción nueva sin sesión, prueba vieja de la 224 y tres de navegador en rojo.
+- Codex 1361 (`fcad4e36e`, 362-443): juntado. Sobre la 917: 225 y 217 cerradas; siguen el fondo claro (otra regla) y la factura que dice "no existe" si falla la lectura → orden 227 (barrido: 10 pantallas). 214 sin cambios.
+- Gemini 1353 (`917a98e32`, órdenes 222-225): compila, 862 suites en verde, órdenes 220-225 HECHA. Frena en "lo que se dijo": cinco pantallas tocadas sin prueba y la de realidad aumentada con `toBeVisible` → orden 226 (sólo pruebas).
+- Codex 1361 (`98f54f952`, 347-361): juntado. Volvió a probar la entrega 1353 (`3f9460185`): 212 A7/A8 y 217 R1-R4 pasan; 214 sigue igual. Nuevo: un 503 tomado por rechazo manda el recordatorio dos veces, y una prueba del asistente sin `mutarDocumento` → orden 225 para Gemini, pregunta 97.
+- Codex 1361 (`b8b839876`, 267-345): juntado. Dos hallazgos de pantalla: órdenes 223 (contraste, ampliada a 5 pantallas) y 224 (cargando infinito, ampliada a 14), las dos para Gemini.
+- Codex 1361 (`47d24689a`, 285-308): juntado. Confirma cerradas las órdenes 218 y 219; sin hallazgos nuevos. Su revisión de navegador sigue activa en esa misma rama.
+- Gemini 1353 (`3f9460185`): compila, pero no trajo la rama de Claude ni hizo los bloques 2 a 4 de la orden 222. Sigue devuelta.
+- Gemini 1353 (`b02fad0a3`, orden 221): devuelta por cuarta vez con la orden 222 (no compila, presupuesto de WhatsApp sin precios, formas que mienten, prueba de realidad aumentada vacía).
+- Gemini 1353 (`045123535`, orden 220): devuelta por tercera vez con la orden 221 (4 guardados con import sin usar, voz del cliente con token inventado, seña y saldo al personal, prueba de voz en rojo, pendientes de 196 y 202).
+- (antes) Gemini 1353 (`7f2b251e9`, órdenes 180-195, 212, 214, 215, 217): devuelta otra vez con la orden 220 (costos públicos sin permiso, prueba de la 183 sobre copias, un error de tipos, 6 guardados de lista entera, frase de la 190).
 - Codex 1359 (`914d78307`, auditorías 260-264): juntado. Dos fallas nuevas de plata y contrato (órdenes 218 y 219), arregladas por Claude el 23/10; preguntas 93 y 94.
 - Codex 1359 (`e9477ba8e`, auditorías 254-255): juntado. Confirma arreglados la firma del contrato (216, C1-C4) y el recordatorio R1 (217); sin hallazgos nuevos. R2-R4 siguen con Gemini.
 - Codex 1356 (`5ec6bb2fa`, recuento único 253): juntado, sin hallazgos nuevos.

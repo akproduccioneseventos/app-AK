@@ -1,0 +1,10 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {fileURLToPath,pathToFileURL} from 'node:url';
+const dir=fileURLToPath(new URL('./',import.meta.url));
+const prepared=JSON.parse(fs.readFileSync(path.join(dir,'480-delta-nuevo.json'),'utf8'));
+assert(prepared.finished&&prepared.sourceDiff==='');assert.equal(prepared.source,'978af7d65a60bd287f3ee3cc05037a29566074f4');
+assert(!fs.existsSync(path.join(prepared.qa,'.next/BUILD_ID')),'Never rebuild unchanged compiled source');
+let code=fs.readFileSync(path.join(dir,'392-entorno-actual.mjs'),'utf8').replaceAll('392','486').replaceAll('917a98e32c63fe2f832f5cdc16db87f4fc722b6c',prepared.source);
+const start=code.indexOf('  const qa=fs.mkdtempSync('),end=code.indexOf('\n  assert.equal(git(',start);assert(start>0&&end>start);
+code=code.slice(0,start)+'  const qa='+JSON.stringify(prepared.qa)+';record.qa=qa;record.reusedPreparedWorkspace=true;'+code.slice(end);
+code=code.replace("NODE_ENV:'production'};","NODE_ENV:'production',NODE_OPTIONS:'--require \\\"'+path.join(dir,'208-egress-guard.cjs').replaceAll('\\\\','/')+'\\\"'};");
+const file=path.join(dir,'486-compilacion-generada.mjs');assert(!fs.existsSync(file));fs.writeFileSync(file,code);await import(pathToFileURL(file).href);

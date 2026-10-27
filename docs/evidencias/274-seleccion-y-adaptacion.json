@@ -1,0 +1,74 @@
+{
+  "source": "725e62ba2f909578628fad47402d125ed9632c70",
+  "selected": [
+    "la-vidriera-de-la-tecnologia.spec.ts",
+    "mobile-overflow.spec.ts",
+    "mural-geometria-visible.spec.ts",
+    "muro-subir-foto.spec.ts",
+    "noche-de-fiesta.spec.ts",
+    "orden-86-pantallas.spec.ts",
+    "pantallas-con-iconos-react19.spec.ts",
+    "pantallas-tocadas-tanda-12-10.spec.ts",
+    "planner-missing-portals.spec.ts",
+    "portal-fecha-y-botones.spec.ts",
+    "presupuesto-publico-sin-sesion.spec.ts",
+    "prospecto-simulador.spec.ts",
+    "public-experience-matrix.spec.ts",
+    "public-smoke.spec.ts",
+    "qr-archivo-rotaciones.spec.ts",
+    "qr-descargado-lector-real.spec.ts",
+    "recorrido-de-pantallas.spec.ts",
+    "salon-3d-ayuda-recorrido.spec.ts",
+    "salon-3d-cliente.spec.ts",
+    "salon-3d-real.spec.ts",
+    "salon-3d-se-dibuja.spec.ts",
+    "senal-mala.spec.ts",
+    "simulador-contacto-oficial.spec.ts",
+    "simulator-budget-journey.spec.ts",
+    "sofia-composer.spec.ts",
+    "tarjetas-whatsapp.spec.ts",
+    "touchpix-camara-y-recuerdo-con-imagen.spec.ts",
+    "trabajos-completos.spec.ts",
+    "viaje-invitado.spec.ts",
+    "video-vida-error-lectura.spec.ts",
+    "voz-en-vivo-reintento-y-cancelacion.spec.ts"
+  ],
+  "originalSha256": "d4e63c1ba732eb08c1fc2f0d2c9b9ef41650dc000b67d1581e4978af29050733",
+  "driverSha256": "b1323d8af6e39be7307d7c4557d5fae1f91d8d2e0ee1894aa2114eb06eaf9051",
+  "changes": [
+    {
+      "from": "const root=fileURLToPath(new URL('../../',import.meta.url)),dir=path.join(root,'docs/evidencias');",
+      "to": "const root=\"C:\\\\Users\\\\Usuario\\\\Documents\\\\Codex\\\\ak-codex88\\\\ak-auditoria192-portal\\\\\",dir=path.join(root,'docs/evidencias');"
+    },
+    {
+      "from": "fa3b492b8f1d6a77433a92f4d63b665cfea3747c",
+      "to": "725e62ba2f909578628fad47402d125ed9632c70"
+    },
+    {
+      "from": "206-entorno.json",
+      "to": "267-entorno.json"
+    },
+    {
+      "from": "ak-qa-206-",
+      "to": "ak-qa-267-"
+    },
+    {
+      "from": "const runId=process.env.AK_AUDIT_RUN_ID||'209';",
+      "to": "const runId='274';"
+    },
+    {
+      "from": "if(includePortal){const newTest=",
+      "to": "assert.equal(manifest.length,31,'All selected remaining specs must exist');\nif(includePortal){const newTest="
+    },
+    {
+      "from": "for(let index=0;index<groups.length;index++){",
+      "to": "const overallDeadline=Date.now()+4*60*60*1000;\n  for(let index=0;index<groups.length;index++){\n    assert.ok(Date.now()<overallDeadline,'Native run exceeded4hours; remaining NOT accepted');\n    assert.ok(fs.existsSync(path.join(qa,'208-config.ts')),'QA config lost; stop');"
+    },
+    {
+      "from": "'test','--config','208-config.ts','--output'",
+      "to": "'test','--config','208-config.ts','--global-timeout',String(Math.max(60000,Math.min(45*60*1000,overallDeadline-Date.now()))),'--output'"
+    }
+  ],
+  "assertionsChanged": false,
+  "reason": "Only files with at least one unexecuted/interrupted case, preserving complete specs for dependent setup. Earlier failed results retained, no automatic acceptance."
+}

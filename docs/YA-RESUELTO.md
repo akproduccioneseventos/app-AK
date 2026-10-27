@@ -1,5 +1,307 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26/10/2026 - Once controles de permisos más dejaron de mirar el rol viejo (orden 233)
+
+- Borrado de la base, consumo de IA, blog con IA, automatización de marketing, la ficha de otro usuario y la carga
+  operativa comparaban `role === 'admin'`. Ahora usan `esAdministrador` (perfil válido con permiso de administración) o
+  `puede(...)`. Sólo el ingreso con la clave maestra sigue leyendo el rol.
+
+```comprobar
+usa: esAdministrador en src/app/api/admin/clean-db/route.ts
+prueba: src/__tests__/el-rol-admin-no-pasa-por-encima-del-perfil.test.ts
+```
+
+## 26/10/2026 - El rol viejo `admin` ya no pasa por encima del perfil (orden 230)
+
+- `requireAdminSession` aceptaba `role: 'admin'` aunque el dueño le hubiera puesto otro perfil a esa cuenta, y un perfil
+  inexistente caía en el rol viejo. Ahora decide `puede(..., ADMINISTRACION)` y un perfil inválido se rechaza, también en
+  `requirePermiso` (arreglo de Codex en la 1363, traído tal cual). Los otros once lugares van en la orden 233.
+
+```comprobar
+usa: esPerfilValido en src/lib/auth/require-session.ts
+prueba: src/__tests__/admin-session-respeta-perfil-explicito.test.ts
+```
+
+## 25/10/2026 -653 correccion directa autorizada, entrega2b17bebf contrastada
+
+- Pedido actual del dueño autoriza reparar con agentes economicos; excepcion
+  puntual anotada enAGENTS. No merge ni datos reales. Rama propia desde2b17bebf,
+  sin tocar la rama activaGemini. Privados NO CONTRASTADOS.
+- La entregaGemini ya corrige230 requireAdminSession y231contraste ytrae
+  cambios229: NO reimplementar esos arreglos. Sus nueve tests de permisosPASS.
+- Nuevo caso reproducido:perfil explicito invalido conroleadmin era denegado
+  porrequireAdminSession, pero requirePermiso heredaba los permisos viejos.
+  TRESregresiones firmadas reales fallaron; se rechaza perfil invalido tambien
+  enrequirePermiso. No cambiarperfilDe/permisos comerciales ni cuentas antiguas
+  sinperfil. Dinero/cuentas/Firestore reales no se tocaron.
+- Audio importado:siresume falla/contextosuspendido/sinpistas,2b resolvia video
+  mudo. Trespruebas de comportamientoRED reales del helper(canal multimedia
+  doblado),luegoPASS:ahora error recuperable, no exito silencioso. Se conserva
+  rutaMediaElementSource->destino->grabador;sinmutear al fallarplay. Metadatos
+  acotados8s;contexto/pistas/URL liberados. No certificacion dehardware.
+- Captura:se elimina respaldo soloVIDEO que podia sustituir voz por silencio;
+  no anunciar blobs0 oindecodificables comoVideoGrabado. Reutiliza validador
+  real deURLcon dimensiones, estadoerror/reintento reabre camara. Cancelar
+  limpia countdown yresultado tardio no pisa otra captura. No nuevasfeatures.
+- AgentesParfit/Rawls acotados terminaron yse cerraron. Director corrigio
+  arnesaudio del primerborrador(faketimers colgaban ymetadata0 redefinia una
+  propiedad fija); fallosQA conservados, no bugsapp. Focales35PASS trasarreglo.
+  Source/build/nativos actuales quedan pendientes hasta recibos nuevos; no
+  reutilizar build574 ni593 para dar estos cambios por aceptados.
+
+## 23/10/2026 - El candado de la plata ve los ayudantes que guardan plata (pregunta 95)
+
+- La entrega 1353 de Gemini volvió a exportar `updateGestionCostosInterno`: una acción pública que reescribe
+  los costos de una fiesta sin permiso. El candado no la vio porque sólo miraba nombres de archivos y campos.
+  Ahora también cuenta las llamadas a los ayudantes que guardan plata. La entrega se devolvió con la orden 220.
+
+```comprobar
+usa: mutarCostosInterno en src/__tests__/el-candado-de-la-plata.test.ts
+prueba: src/__tests__/el-candado-de-la-plata.test.ts
+```
+
+## 25/10/2026 - Continuacion650: recorridos enumerados ejecutados, no reabrir lista
+
+- Sobre f8f7/build574:609 fotocabina4PASS (red/rechazoPCymovil),totem1PASS,
+  grilla2PASS,selfiemovil1PASS,ventas9rutas1PASS,Bogue1PASS. No appedit.
+- 620 stock0/orden/20sugerencias/cancelacionesPASS; tiempo global240s conserva
+  aserciones.614 espejoJSONlocalPASS:posteo unico,pending oculto yrecarga.
+- 647 muro2PASS PCymovil con foto640x480 valida:AdminSDKdemo prueba1posteo,
+  mismIDtrasrecarga,statuspending/Momentoenviado,anonimo no ve caption.
+  No proveedorGoogle real. Los dos casosviejos fallaban conPNG1px/regex que
+  noaceptabaMomentoenviado. No inventar bugStorage ni cambiar copy para test.
+- 622 RESTanonimo obtuvo403: NOprueba que no habia posteos.647 SIusoAdminSDK.
+- 600 clasifica37SKIP:36guardasmoviles y1PCmodoJSON, unicoPC cerrado614.
+  No37funciones ausentes ni deuda humana.640 actualiza258claves originales
+  a211PASS11FAIL36SKIP, conSHAporfila,2viajes Murovalidos apartePASS.
+  Originalesnoreescritos. No11bugs ni258funciones/todosroles aceptados.
+- 620 captura viva convideoANIMADO+audio produce0bytes yUIVideoGrabado/listo:
+  extension229, no firma dehardware ni causaencoder inventada. SelfiePC609
+  llega tarde/discrepante aresultados:75sasercionFAIL, adjunto finalSIresultados.
+  No fuga ni nuevacausa; movilSIpass, no repetirgrilla ni movil para resolverPC.
+- Home61410064ms local contra2500:failmedicion no rendimientodeHosting;
+  hubo buildajeno durante tanda.650 conserva el limite, no reintentos enbucle.
+- AdaptacionesQA604/616:camara conframes/audio,selector ambiguo.first(),
+  espera selfiesolo trasconsentir,tiempo20ciclos yguardia encontextosnuevos.
+  El campo limits heredado de losdrivers no detalla estasadaptaciones.
+- ErroresQA preservados:603/606 y636/638 renombrado numerico alteraba
+  cadenaSHAde comparacion;guardia rechazo antesdetest.608importobservaciones
+  faltante corregido,originalgz.629/634RAMrechazada antesdelbrowser.
+  645 protege TODOSlosSHA40 al renombrar; nodetenerbuild/procesos ajenos.
+  649 final2PASS,cleanup200/sourceDiff0;652 confirma servicios/puertos cerrados.
+- Registrarantesdeaprobar:230guardia,231contraste,229audio/capturavacia y
+  criterioPC aun requierenresponsables. No convertirlos en pendientes sin
+  auditar ni afirmar app0errores. Manualdeldueno no es deudaCodex.
+
+## 25/10/2026 - Cierre597, canonica finalf8f7 y defectos contrastados
+
+- Informe400/597 yrecuento253 actualizados;596 reconcilia258casos/proyectos
+  nativos978 sin sumar intentos:199PASS19FAIL3timeout37SKIP. No22bugs,
+  no258funciones aceptadas.594 clasifica fallos/errores propios y limites.
+- 486build978 y490canonico865suites5253PASS. NuevaPR1353f8f7cf34e8778de784b20e2654058fd722b2a2ec
+  SOLO cambia cuatrofuentes de medios;574buildPASS tipos/lint;593canonico
+ 865suites5253PASS0FAIL0pending exit0/fuente0diff. No repetir por documentos.
+- 585 marco importado229 ahoraPASS:conservarlo. Otrosdoscriterios nativos
+  no alcanzan revision de captura/resultado selfie y siguen NOaceptados,
+  sin causa interna ni filtracion demostradas.525fallos978 ya son historicos.
+- 589 demuestra NUEVA regresion del MISMO procesador229:inputH264/AAC tiene
+  audio, salida978decodifica audio, salidaf8f7solo video/no pista0:a:0.
+  Chromium/Recorder/canvas/modulos reales yFFmpeg; no microfono/proveedor.
+  Gemini conserva marco eimagen yrestaura audio ORIGINAL; no pista muda.
+- 230ClaudeP1 actual:requireAdminSession ignora perfil explicito restringido
+  si rol viejoadmin;4993PASS6FAIL y5062PASS6FAIL con firmador/guardia/cuerpo
+  real resetAllFiestasHistoricas yBDcontrolada. No datos reales borrados,
+  noHTTPreal ni afirmar cuentas vivas con esos campos. Productor de sesiones
+  SI permite los campos independientes. Una causa, no seis encargos.
+- 51350fronterasHTTPPASS con7perfiles/anonimo/alterada/vencida. NO cierra230:
+  es otra politica.231GeminiP2 titulo simulador blanco sobre claro en546.
+  Guardia ysimulador siguen iguales978/f8f7. Privados NO CONTRASTADOS.
+- Factura221 ya cerrada482ReactDOM11PASS;480ochoefectos/PINPASS. No reabrir
+  cinco defectos917 como actuales ni aceptar modelo entero por esos cierres.
+- ErroresQA conservados:491fixture notifications alterada,500bytes/restaura
+  SOLOQA;512JavaOOM05:05:21UTC invalida cola como prueba de fallosapp;
+  540TEMPStoragecompartidoENOENT,542huerfana cerrada548/restaura79JSON;
+  552TEMPaislado/supervisorpropio,55456casos45PASS1oraculoviejo10SKIP,
+  56831casos15PASS16noPASS,cleanup200/sourceDiff0. Nunca parar ajenos.
+- 556 traza demuestra prospecto no clicabaVerResumen: no bug deCTA.557
+  cuatroobservaciones fecha8/8/2027DOM/printcorrectas; capturaPCrawFAIL
+  sigueFAIL, noPDFvisual certificado. Dosgrillafail son strictlocator.
+- Borrador594 barato errado: atribuia autoPublish:false comoexpectativa
+  automatica y modo desarrollo en velocidad. Director leyo originales y
+  rectifico: publicar manual SIclick previsto;productionLOCAL3560>2500.
+  Son inferenciasQA descartadas, no cambios de app ni cierres positivos.
+- 577pathQAincorrecto fue RECHAZADOantesdeJest;593 ejecuta fuente correcta.
+  Todoslosrecibos se conservan; no appedit/merge porCodex ni0errores.
+  Manualdeldueno no es pendienteCodex.399 documenta artefactos locales
+  no publicados, no anunciar trazas grandes como entregadas.
+
+## 24/10/2026 - Cierre483 de pendientes y entrega nueva978
+
+- 455 SOLOpendientes917:barra20sugerencias/cancelacionesPASS,overflow390PASS.
+  HuellasPC/movilFAIL por referencia+4/-3px yhashcolor, absolutos pasan;
+  no resetear baseline a ciegas ni afirmar superposicion por ese resultado.
+- 457 CIERRA nueve rutas de venta por HTTP/cuerpo/erroresReact, no botones;
+  Bogue comparte marcaPASS.472 CIERRA grabacion/video/marco/pistas con camara
+  yaudio sinteticos.457blob0 anterior se conserva, no causa de hardware probada.
+- Importado469finito1.5s H264/AAC4112bytes llega aVideoCargado en472 pero
+  marco0pixelesFAIL/capturanegra. Selfie esperaCORRECTA60s quedaAnalizando;
+  478captura lo muestra.229 pide diagnosticar con978 antes de arreglar, no
+  afirmar filtracion ni codec culpable. 451cambio otro4000ms fue errorQA,
+  rectificado470 sin borrar fallo.465/468 diez codecsdanbytes>0.
+- 477 velocidad:3HTTP200/titulos,10519/612/3599ms; umbral localFAIL, no
+  produccion.480/482CIERRE y483 tabla unica sustituyen pendientes genericos.
+- PR1353 avanzo978af7d65a60bd287f3ee3cc05037a29566074f4. Tiene arreglos
+  de214/220/221: NOreencargar cinco causas de917 como actuales.480 ocho
+  efectos/PINPASS. OnceReactFAIL fueron NODE_ENVproduction impuesto porQA;
+  482modooficialtest repite SOLOtres suites11PASS. No oncebugs ni canonica
+  completa978. Cierra variante221 porReactDOM; detector/CSSsin native978.
+- Todos los jobs de esta tanda terminados,cleanup200/diffQA0, herramientas
+  imageio-ffmpeg fuera de dependencias de app; sin appedit/merge. Informe400,
+  recuento253 y483 conservan limites, no cadaaccion/rol ni0errores.
+
+## 24/10/2026 - Cierre406-443: build y controlesSDK, tres ordenes aun abiertas
+
+- Fuente917:406buildPASS exit0 con tipos/lint.392 fue un preflight anterior
+  sinbuild; no seguir diciendo que917 no compilo.386 sigue5243PASS oficial.
+- 442SDKdemo8PASS:preview foto1/3, red/rechazoPC/movil, Visioncaida ysimulador.
+ 443 verifica presupuesto1/prospecto1 guardados,sourceDiff0,cleanup200/PID0.
+ No camara/impresora/modelo/proveedor real, rechazo simulado del lado cliente.
+ En3fotos hay respuestas de transicion invalida:preview no certifica estado.
+- 425TouchpixA/B tardioPASS conSDK; mantener ese cierre acotado.407camara
+ estatica como causa NOdemostrada:408preview pasa estatica yanimada.
+- 437 test simulador no clicaba resumen:439 espera boton y442SI persiste.
+ No reencargar CTA/generacion por ese falso diagnostico. Fotocabina438 instala
+ fallo SOLO en subida, DESPUES depreview; originales fallidos se conservan.
+- IMPORTANTE220/Claude223 SIGUEPARCIAL:se quito main.flex-1 pero otroselector
+ ak-internal-experience-polish.css pinta gradiente blanco en hijo.423/425
+ PC/movil1.390/1.376:1FAIL ycaptura416.393/410falsePASS ignoraba gradientes.
+ Orden220 ampliada, NOreencargar selector ya corregido ni borrar el falsoPASS.
+- 415 muestra refFotocabina inicializada[] y nunca alimentada. Extension de
+ MISMA causa214carasvacias, no cuarta causa. Con reactivos/ruleta sonTRES.
+ Factura387 sigueUNA causa221 pendiente; totalCINCOcausas/TRESordenes, no17.
+- 405 clasifica34SKIP desktop-only;412 ensaya34variantesmoviles27PASS6FAIL1SKIP.
+ No son34funciones ausentes ni aceptacion retroactiva.400 detalla limites.
+- 421 guardia preflight no restaurodatos deSUQA392:quarantena. No afirmar
+ restauracion exacta.427fuenteGitnueva+copia3897runtimeSHA256;443restaurada.
+ 426carrera antes delrecibo427 y433argumentosPS fueronQA, ningunbugapp.
+ No appedit/merge. Informe400/recuento253/manifiesto399 actualizados juntos.
+
+## 24/10/2026 - Cierre consolidado:5243 canonicasPASS, sin certificado total
+
+- Fuente917a98e32c63fe2f832f5cdc16db87f4fc722b6c:386 bateria oficial
+  862suites5243PASS0FAIL0pending SIN adaptador370. No usar los13fallos
+  historicos349 como resultado actual; conservarlos y su diagnostico.
+- 388 CIERRA217 completa por alcance,10criteriosPASS, incluido503 con
+  trace incidental403. No repetir orden217 ni extension350/Claude225.
+- 387 CIERRA221null (ya no spinner) y prueba pendientePASS. Queda UNA
+  variante de la MISMA221/Claude224:lectura de plantilla rechazada termina
+  diciendo factura no encontrada/no existe/eliminada.2PASS1FAIL realReactDOM;
+  no desaparicion real de factura ni error de importes. Orden221 actualizada.
+- 220/Claude223 quita selector globalmain.flex-1. Correccion PARCIAL:
+  ampliacion423 de arriba demuestra otro selector hijo todavia aplicado.
+- 356 sigue vigente en seis blobs pertinentes3f/917 identicos,390 los compara:
+  TRES causas214, no nuevas ordenes. No hardware/modelo certificado.
+- 374 SOLO27nativos antes no aprobados:10PASS17FAIL/timeout.390 concilia
+  210unicos159PASS17FAIL34SKIP, no17bugs ni210flujosaceptados.381 confirma
+  cinco ciclos sugerir/cancelar;382 confirma fechaDOM8/8/2027 pantalla/print,
+  sin transformar el error de captura/variableQA de381 enPASS nativo entero.
+- 366 reconstruyo buildmain3e ausente,exit0tipos/lint/sourceDiff0; no reusar
+  como compilacion917.392 es el intento/resultado NUEVO para esa entrega.
+- 363/364 causa blog demostrada:sparse checkout omitia archivotrackedS;
+  materializar SOLO su blobGit hace pasar ese caso.364 conserva12fallos.
+  376 diagnostico26PASS con adaptadorIOmock, NO era canonico niSDKreal.
+  386 SI es oficial sinadaptador, diferencia fundamental, no permisos quitados.
+- ErroresQA conservados:367 variableqa antes de iniciar;371 adapterv1
+  rechaza callback anidado y guard mezcla slash;375 limpia sin repetir casos;
+  381testInfo en captura;388wrapper quoting. Ninguno nuevo bugapp.
+- 383/384 corregidos por principal:Publicar en el muro no es selector
+  obsoleto demostrado;gtag/Unsplash no prueban modelo bloqueado;3eSIexiste;
+  no falloBogue/CDP confirmado. No publicar esas hipotesis como defectos.
+- 391 restaura notifications escrito por tests en copiaQA/sourceDiff0.
+  390 observa privadoHEAD917/trackedlimpio a17:21UTC; posteriores privados
+  NO CONTRASTADOS.400 es informe final;253 sigue siendo unico recuento.
+  Aperturas/inventario no certifican cada boton/rol ni0errores.
+
+## 24/10/2026 - Codex347-359 candidata1353 contrastada, no aprobada globalmente
+
+- Fuente3f9460185143ef034dcd713e975d2a0af5e20f1a:347buildPASS con tipos/lint;
+ 349861suites5237tests5224PASS13FAIL0pending, sin sourceDiff. Una corrida,
+ no aprobar por existencia del codigo ni repetir una amplia por documentos.
+- 357 CIERRA212A7/A8:4PASS pagina/DTO/ReactDOM/Radix. Album entregado visible,
+ borrador sinenlace, Informar pago abre y cerrar no guarda/sube. No toda212.
+ 352/355 con fasefinanciera eran errores de fixtureQA, no defectos del portal.
+- 350 CIERRA ocho criterios originales217R1-R4 en3f por alcance;9PASS/1FAIL
+ incluyendo dos variantes. NUEVO caso de la MISMA217R3 NO RESUELTO:status503
+ con trace incidental403 provoca2intentos;control503neutral1yrevision.
+ Proveedores/reserva controlados, no duplicacion real de mensajes demostrada.
+- 356 conserva MISMAS tres causas214:caras[] enTouchpix/Bogue/Espejo,
+ guino/cejas sin efecto activo y ruleta inestable.12criterios9PASS3FAIL,
+ ASTreal de consumidores. FotocabinaSI pasa ref; no modelo/camara certificado.
+- 349trecefallos son11timeouts,1asercion ajustes y1fixture ausente; NO13bugs.
+ 353 ayudante no determina causa final; accion/test iguales, dependencia ahora
+ usa mutarDocumento ausente del mock. No bajar permisos. BlogJSONexisteGit;
+ no se demostro por que falto enQA.354 intento focal NO ejecuto, RAM<2GiB,
+ yTemp347ausente en reanudacion358; no esconder13 ni afirmar retestverde.
+- Build antiguo y .nextausente no sirven para aceptar nativos nuevos.359
+ cierra EJECUCIONES y limites de esta tanda;253 conserva recuento unico.
+ 220/221 siguen entregadas, no programadas porCodex. Privados NO CONTRASTADOS.
+
+## 24/10/2026 - Validacion canonica y cierres nativos sobre3e45a4ac
+
+- Cierre318:210casos nativos/176ejecutados,149PASS/27FAIL o timeout/34SKIP;
+  no27bugs.374/374paginas visitadas,359PASO/1FALLO/14NO_PROBADA,0sin visitar.
+  334 corrige67entradasQA sinfiestaId;344 recoge15diagnosticos sin cambiar
+  sus etiquetas ni dar por comprobados todos los controles o perfiles.
+- DOS observaciones nuevas NO RESUELTAS:220/Gemini contraste de pantalla
+  tragos listos (341 captura/paleta1.42:1);221/Claude factura null que sigue
+  cargando (345 ReactDOM1PASScontrol/1FAILnull). No ignorarlas por estar en
+  este registro ni afirmar queCodex las programo. Sus consumidores contrastados
+  son identicos3e/3f; privados NO CONTRASTADOS.
+- 342 observaPR1353 nueva3f9460185143ef034dcd713e975d2a0af5e20f1a,
+  131entradas src/tests distintas. b91 historica;217 motor tiene propuesta nueva,
+  212/214/215 consumidores cambiados. No reemitir sin contraste ni aceptar
+  candidata3f por pruebas de3e. La tanda se cierra por fuente, no por promesa0errores.
+- 339/340 fueron diagnosticosQA interrumpidos;343 localiza espera sin timeout
+  de unmain ausente en estaciones basadas endiv.344 termino con lectura
+  acotada,15/15diagnosticos ysourceDiff0; no un fallo probado deBogue/CDP.
+- 321:834suites/5136tests PASS,0FAIL/0pending,exit0/sourceDiff0. Configuracion
+  oficial de Jest, sin forzadas globales de navegador/demo ni claves heredadas;
+  transporte externo bloqueado323.324:7controles del arnes, no7funciones app.
+- 314 NO es una regresion de72funciones: el propio arnes habia forzado variables
+  que cambian permisos/escrituras/modelos. Se preservan resultado y diagnostico;
+  321 no cambia app, aserciones ni mocks para pasar. No reencargar esos72fallos.
+- 307:2PASS escritorio/celular, clic confiable cambia seleccion y enlace360.
+  Los intentos previos con coordenadas inestables quedan como erroresQA.
+- 304:5PASS1SKIP, lectoresVideoVida ante error/reintento y espejo moderado
+  con AdminSDK/Storage demo.0documentos/cleanup200, camara/modelo controlados;
+  no aceptar proveedor/hardware reales. SKIPmovil del espejo es deliberado.
+- 327:2PASS con sesion completa y DOBLE LOCAL FIS invocado, portada/panel/fiesta
+  ficticia visibles. No acredita OAuth ni un proveedorFirebase real.
+- 319:9casos FailedToFetch del reensayo nativo:6FirebaseInstallations,
+  3Firebase mas initScript de almacenamientoQA. No nueve modulos rotos.
+- Inventario actual3e:374paginas y50handlers,424entradas.421era inventario
+  historico, no421pantallas aprobadas.334 corrige entradasQA sinfiestaId;
+  mantiene originales y no convierte ruta abierta en cada accion/rol aceptado.
+
+## 23/10/2026 - Reensayo independiente Codex de218/219 en3e45a4ac
+
+- **218 comprobada por285:** AdminSDK real al emulador demo,2criterios PASS:
+  el reintento acredita1000 y la respuesta tardia del intento fallido no vuelve
+  el aviso a pendiente; control positivo acredita una vez. Datos ficticios,
+  identidad/notificaciones y respaldos controlados; no proveedor ni cobro real.
+- **219 comprobada por286:** AdminSDK real al emulador demo,2criterios PASS:
+  firmaA en el borde real de actualizarFiesta impide guardar textoB y conserva
+  texto/huellaA; control de firma previa tambien rechaza.284 explica la
+  adaptacion del gancho al nuevo consumidor, no se aflojaron las aserciones.
+- Ambas limpiezas dejaron0documentos y devolvieron200; procesos propios cerrados.
+ 287 ejecuto3suites/16tests del autor PASS; no equivale a toda la app ni a dos
+ servidores reales.291 compilo fuente3e sin cambios de app por Codex.
+- **Contador QA, no app:**276/277 corrigen el parser del reporte Playwright:
+ proyecto vive en cada test, status expected/unexpected no es passed/failed,
+ identidad necesita spec.id y proyecto.8pruebas del parser PASS. Los542casos
+ ejecutados del baseline no son1144aprobados;273 preliminar queda archivado.
+
+
 ## 23/10/2026 - Órdenes 218 y 219 (Codex 263-264): las dos fallas, arregladas por Claude
 
 - **218, el aviso de pago que volvía a pendiente:** un intento A fallaba en el presupuesto (supera el
@@ -15657,3 +15959,34 @@ En una lectura GET de solo lectura de `https://akproducciones.uy/public/blog/com
 Esto no prueba incumplimiento legal ni que el calculo de stock sea matematicamente incorrecto. Es un riesgo editorial/de confianza, registrado en orden 175 para revision por Gemini. La pagina se leyo via HTML publico; no se probo visualmente, no se enviaron formularios ni se contacto a AK.
 
 Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-nacional-drogas/comunicacion/publicaciones/eventos-cuidados), [Junta Nacional de Drogas, alcohol y riesgos](https://www.gub.uy/junta-nacional-drogas/comunicacion/comunicados/alcohol-conocer-sus-efectos-tambien-es-forma-prevenir), [OMS, Alcohol](https://www.who.int/en/news-room/fact-sheets/detail/alcohol).
+
+## 26/10/2026 — El vigilante de publicidad ya no toca campañas solo
+
+- **Qué estaba mal:** el agente "Vigilante de Publicidad" decía "nunca modifica campañas ni gasta dinero", y
+  pausaba campañas y **subía el presupuesto un 25% cada 12 horas**, solo, contra la decisión del dueño
+  ("sin gastar ni modificar campañas solo").
+- **Qué se hizo:** ahora sólo mira y deja la propuesta ("Propuesta para tu OK: pausar / subir") en el
+  asistente. Gastar o tocar una campaña lo decide el dueño.
+- **Control:** `src/__tests__/el-agente-de-publicidad-no-toca-campanias.test.ts`, que frena si un agente
+  vuelve a llamar a pausar, ajustar o crear campañas.
+
+## 26/10/2026 — Barridos de las preguntas 100 y 101
+
+- **El enlace "Confirmar asistencia" del editor de la invitación llevaba a la portada:** apuntaba a
+  `/evento/actual` sin la fiesta. Ahora lleva a `/invitacion/<fiesta>`. Control:
+  `src/__tests__/el-enlace-de-confirmar-lleva-a-la-invitacion.test.ts`.
+- **Las descripciones de dos agentes prometían de más:** el cobrador y el creador de contenido. Ahora dicen lo que
+  hacen.
+- **Revisado y se deja así (decisión, no defecto):** el pedido de reseña por WhatsApp al contestar la encuesta sale
+  solo, pero sólo si el dueño prende el interruptor en Ajustes, que viene apagado.
+
+## 26/10/2026 — Los avisos con plata ya no le llegan a quien no ve plata (Codex en la 1364 y pregunta 102)
+
+- **Qué estaba mal (publicado):** cada aviso interno ("Pago de $15.000 registrado para Sofía", "Saldo pendiente…")
+  salía con su texto al teléfono de todo el equipo, personal incluido, y la lista de avisos se mostraba entera a
+  cualquiera con sesión. La entrega 1353 sumaba otro envío igual desde el asistente.
+- **Qué se hizo:** al teléfono va "Tenés un aviso nuevo en AK" cuando el aviso es de plata
+  (`src/lib/notifications/aviso-con-plata.ts`), y la lista (`getNotifications`, que usan también el tablero y la torre
+  de control) oculta esos avisos a quien no tiene permiso de contabilidad.
+- **Control:** `src/__tests__/los-avisos-de-plata-no-llegan-a-quien-no-ve-plata.test.ts` y
+  `src/__tests__/el-aviso-a-todos-los-telefonos-no-lleva-plata.test.ts`.

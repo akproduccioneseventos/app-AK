@@ -24,7 +24,10 @@ export type FuncionConCosto =
   | 'chat-de-la-fiesta'
   | 'encargado-general'
   | 'nota-del-blog'
-  | 'multiagente';
+  | 'multiagente'
+  | 'trivia-ia'
+  | 'voz-cliente'
+  | 'asistente-dot-contador';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -51,6 +54,9 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   // Una nota de blog es texto largo mas una imagen generada: sale mas que un chat.
   'nota-del-blog': 5,
   multiagente: 1,
+  'trivia-ia': 1,
+  'voz-cliente': 1,
+  'asistente-dot-contador': 1,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */

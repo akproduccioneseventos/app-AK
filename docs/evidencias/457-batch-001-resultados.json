@@ -1,0 +1,687 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "457-config.ts",
+      "--output",
+      "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-001-artifacts",
+      "ak207-447-venta-por-ruta.spec.ts"
+    ],
+    "configFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\457-config.ts",
+    "rootDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 10800000,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/ak-auditoria267-cierre/docs/evidencias/457-batch-001-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/Documents/Codex/ak-codex88/.qa-427-source-7GJHez/tests/e2e",
+        "testIgnore": [
+          "**/ak207-recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/ak207-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-001-resultados.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ak207-447-venta-por-ruta.spec.ts",
+      "file": "ak207-447-venta-por-ruta.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "447 venta aislada /blog",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11092,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [
+                    {
+                      "text": "(node:6680) MetadataLookupWarning: received unexpected error = AK_QA_EGRESS_BLOCKED: external services disabled code = AK_QA_EGRESS_BLOCKED\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+                    }
+                  ],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:45:33.747Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9ibG9nIiwidXJsIjoiaHR0cDovLzEyNy4wLjAuMTozMzAwL3B1YmxpYy9ibG9nIiwiZHVyYXRpb24iOjc4NTIsInRleHQiOiJBSyBQUk9EVUNDSU9ORVNcbklOSUNJT1xuQkxPR1xuU0lNVUxBRE9SXG7CoUNPTlNVTFRBTk9TIVxuQkxPRyBBSyBQUk9EVUNDSU9ORVNcbkNvbnNlam9zIGNsYXJvcyBwYXJhIGRlY2lkaXIgbWVqb3IgdHUgZXZlbnRvLlxuXG5HdcOtYXMgcGFyYSBlbGVnaXIgc2Fsw7NuLCBtZW7DuiwgcHJlc3VwdWVzdG8sIHRpZW1wb3MgeSBzZXJ2aWNpb3MgYW50ZXMgZGUgY29udHJhdGFyLlxuXG5TSU1VTEFSIFBSRVNVUFVFU1RPXG5QRURJUiBBU0VTT1JBTUlFTlRPXG5cbkFSVMONQ1VMTyBERVNUQUNBRE9cblxuQ8OzbW8gZW1wZXphciBhIG9yZ2FuaXphciB1bmEgZmllc3RhIHNpbiBlc3Ryw6lzXG5cbkVsIG9yZGVuIGNvcnJlY3RvIHBhcmEgcGFzYXIgZGUgdW5hIGlkZWEgc3VlbHRhIGEgdW5hIGZpZXN0YSBwb3NpYmxlLCBjb24gZmVjaGEsIGludml0YWRvcywgcHJpb3JpZGFkZXMgeSBwcmVzdXB1ZXN0byBjbGFyby5cblxuT1JHQU5JWkFDScOTTlxuNSBNSU5cblxuR1XDjUFTIFBSw4FDVElDQVNcblxuQ29udGVuaWRvIHBhcmEgZGVjaWRpciBtZWpvclxuXG5DYWRhIGFydMOtY3VsbyByZXNwb25kZSBkdWRhcyBmcmVjdWVudGVzIHkgYXl1ZGEgYSB0b21hciBkZWNpc2lvbmVzIGludGVsaWdlbnRlcyBhbnRlcyBkZSB0dSBldmVudG8uXG5cbk9SR0FOSVpBQ0nDk05cbjUgTUlOXG5Dw7NtbyBlbXBlemFyIGEgb3JnYW5pemFyIHVuYSBmaWVzdGEgc2luIGVzdHLDqXNcblxuRWwgb3JkZW4gY29ycmVjdG8gcGFyYSBwYXNhciBkZSB1bmEgaWRlYSBzdWVsdGEgYSB1bmEgZmllc3RhIHBvc2libGUsIGNvbiBmZWNoYSwgaW52aXRhZG9zLCBwcmlvcmlkYWRlcyB5IHByZXN1cHVlc3RvIGNsYXJvLlxuXG5MRUVSIEFSVMONQ1VMT1xuMjAyNi0wNi0wMVxuUFJFU1VQVUVTVE9cbjYgTUlOXG5RdcOpIGRlYmUgaW5jbHVpciB1biBwcmVzdXB1ZXN0byBkZSBmaWVzdGEgYmllbiBoZWNob1xuXG5Mb3MgcHVudG9zIHF1ZSB0aWVuZW4gcXVlIGVzdGFyIGNsYXJvcyBwYXJhIGNvbXBhcmFyIHByb3B1ZXN0YXMgc2luIGNhZXIgZW4gcHJlY2lvcyBpbmNvbXBsZXRvcyBvIHNvcnByZXNhcyBkZSDDumx0aW1vIG1vbWVudG8uXG5cbkxFRVIgQVJUw41DVUxPXG4yMDI2LTA2LTAxXG5DQVRFUklOR1xuNSBNSU5cbkPDs21vIGVsZWdpciBlbCBtZW7DuiBwYXJhIHVuIGV2ZW50byBzaW4gZXF1aXZvY2FydGVcblxuVW5hIGd1w61hIHNpbXBsZSBwYXJhIGVsZWdpciBjb21pZGEgYWJ1bmRhbnRlLCBvcmRlbmFkYSB5IGFjb3JkZSBhbCB0aXBvIGRlIGZpZXN0YSwiLCJlcnJvcnMiOltdLCJjb25zb2xlRXJyb3JzIjpbXSwic2NvcGUiOiJTYW1lIG5pbmUgcm91dGVzIGFuZCBIVFRQL2JvZHkvUmVhY3QgYXNzZXJ0aW9ucyBhcyBvcmlnaW5hbCBsb25nIHdhbGssIHNlcGFyYXRlIGZpeHR1cmUgY29udGV4dCBwZXIgcm91dGU7IG5vbmFzc2VydGVkIG5ldHdvcmtpZGxlIGxpbWl0ZWQ1cyBpbnN0ZWFkMTUuIE5vdCBldmVyeSBjb250cm9sIGFjY2VwdGFuY2UuIn0="
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-99e9414e0f2969818e23",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 venta aislada /landing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15902,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:45:45.123Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9sYW5kaW5nIiwidXJsIjoiaHR0cDovLzEyNy4wLjAuMTozMzAwLyIsImR1cmF0aW9uIjo5ODI4LCJ0ZXh0IjoiQUsgUHJvZHVjY2lvbmVzXG5JTklDSU9cblNFUlZJQ0lPU1xuR0FMRVLDjUEgSERcblNJTVVMQURPUlxuQkxPR1xuUFJFR1VOVEFTIEZSRUNVRU5URVNcbkNMVUIgVVJVR1VBWVxuU0lNVUxBUiBNSSBQUkVTVVBVRVNUT1xuXG5BSyBQUk9EVUNDSU9ORVMgRVZFTlRPUyDCtyBTQUxUTywgVVJVR1VBWVxuXG5Pcmdhbml6w6EgdHUgZmllc3RhIGNvbXBsZXRhIGVuIFNhbHRvIGNvbiBBSyBQcm9kdWNjaW9uZXNcblxuU2Fsw7NuLCBjb21pZGEsIGRpc2NvdGVjYSwgZGVjb3JhY2nDs24sIGZvdG9ncmFmw61hLCBmaWxtYWNpw7NuLCBiYXJyYSB5IGNvb3JkaW5hY2nDs24gZW4gdW4gc29sbyBsdWdhci5cblxuQ29taWRhIGdvdXJtZXQgeSBiYXJyYVxuQW1iaWVudGFjacOzbiB5IG1vYmlsaWFyaW9cbkRpc2NvdGVjYSwgcGFudGFsbGFzIHkgbHVjZXNcblRJUE8gREUgRVZFTlRPXG4xNSBBw7Fvc1xuQm9kYXNcblNvY2lhbGVzXG5FbXByZXNhcmlhbGVzXG5NRVMgWSBBw5FPIEVTVElNQURPXG5JTlZJVEFET1MgQVBST1guXG5Db25zdWx0YXIgZGlzcG9uaWJpbGlkYWQgZGUgZmVjaGFcblNpbXVsYXIgbWkgcHJlc3VwdWVzdG9cbkNvbnN1bHRhciBkaXNwb25pYmlsaWRhZCBwb3IgV2hhdHNBcHBcblxuUHJvZHVjY2nDs24gaW50ZWdyYWwgQUtcblxuVW5hIHNvbGEgY29udmVyc2FjacOzbi4gVG9kb3MgbG9zIHNlcnZpY2lvcyBxdWUgdHUgZmllc3RhIG5lY2VzaXRhLlxuXG5SZXVuaW1vcyBjYXRlcmluZywgYmFycmEsIGFtYmllbnRhY2nDs24sIG1vYmlsaWFyaW8sIGRpc2NvdGVjYSwgdGVjbm9sb2fDrWEgeSBjb29yZGluYWNpw7NuLiBDYWRhIHByb3B1ZXN0YSBzZSBhZGFwdGEgYSB0dSBmZWNoYSwgZXN0aWxvIGUgaW52aXRhZG9zLlxuXG5Cb2Rhc1xuXG5DZXJlbW9uaWEsIGNlbmEgeSBmaWVzdGEgY29vcmRpbmFkYXMgcG9yIHVuIG1pc21vIGVxdWlwby5cblxuVmVyIHByb3B1ZXN0YVxuRmllc3RhcyBkZSAxNVxuXG5VbmEgbm9jaGUgcGVyc29uYWwsIGNvbiBwaXN0YSwgcmVjdWVyZG9zIHkgZW5lcmfDrWEgcGFyYSBjZWxlYnJhci5cblxuVmVyIHByb3B1ZXN0YVxuQ3VtcGxlYcOxb3MgeSBzb2NpYWxlc1xuXG5HYXN0cm9ub23DrWEsIGJhcnJhIHkgbcO6c2ljYSBwZW5zYWRhcyBzZWfDum4gY2FkYSBncnVwby5cblxuVmVyIHByb3B1ZXN0YVxuRXZlbnRvcyBlbXByZXNhcmlhbGVzXG5cblJlY2VwY2lvbmVzIHkgZW5jdWVudHJvcyBjb24gcHVlc3RhIHTDqWNuaWNhIHkgb3BlcmF0aXZhLlxuXG5WZXIgcHJvcHVlc3RhXG7inKggRUwgVkFMT1IgREUgTEEiLCJlcnJvcnMiOltdLCJjb25zb2xlRXJyb3JzIjpbXSwic2NvcGUiOiJTYW1lIG5pbmUgcm91dGVzIGFuZCBIVFRQL2JvZHkvUmVhY3QgYXNzZXJ0aW9ucyBhcyBvcmlnaW5hbCBsb25nIHdhbGssIHNlcGFyYXRlIGZpeHR1cmUgY29udGV4dCBwZXIgcm91dGU7IG5vbmFzc2VydGVkIG5ldHdvcmtpZGxlIGxpbWl0ZWQ1cyBpbnN0ZWFkMTUuIE5vdCBldmVyeSBjb250cm9sIGFjY2VwdGFuY2UuIn0="
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-4d8650c1eacad2ee86be",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 venta aislada /presentacion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 21384,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:46:01.077Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9wcmVzZW50YWNpb24iLCJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvcHJlc2VudGFjaW9uLWxlZCIsImR1cmF0aW9uIjo4NjgzLCJ0ZXh0IjoiUG9ydGFkYVxuXG7wn4+b77iPIFNhbMOzbiBDbHViIFVydWd1YXlcbkRlbW8gQ29tZXJjaWFsXG5NT0RPIFBBTlRBTExBIEdJR0FOVEVcbkFLIFByb2R1Y2Npb25lc1xuXG5UdSBldmVudG8gc2/DsWFkbywgaGVjaG8gcmVhbGlkYWRcblxuU2Fsw7NuLCBjb21pZGEsIG3DunNpY2EsIGZvdG9zIHkgY29vcmRpbmFjacOzbiBjb24gdW4gc29sbyBlcXVpcG8uXG5cbkVtcGV6YXIgcHJvcHVlc3RhXG5QZW5zYWRvIHBhcmEgdmVuZGVyIGVuIHZpdm8sIHNpbiBhc3BlY3RvIGRlIGNhdGFsb2dvIGludGVybm9cblxuQUsgUFJPRFVDQ0lPTkVTXG5cbkVYUEVSSUVOQ0lBIFZJU1VBTCBFWENMVVNJVkFcblxuRVhQRVJJRU5DSUEgQUtcblxuRXZlbnRvIGNvbXBsZXRvLCBjbGFybyB5IGxpc3RvIHBhcmEgZGVjaWRpclxuXG5BbnRlcmlvclxuU2lndWllbnRlXG7ihpAg4oaSIE5hdmVnYXIgwrcgRiBQYW50YWxsYSBjb21wbGV0YSIsImVycm9ycyI6W10sImNvbnNvbGVFcnJvcnMiOltdLCJzY29wZSI6IlNhbWUgbmluZSByb3V0ZXMgYW5kIEhUVFAvYm9keS9SZWFjdCBhc3NlcnRpb25zIGFzIG9yaWdpbmFsIGxvbmcgd2Fsaywgc2VwYXJhdGUgZml4dHVyZSBjb250ZXh0IHBlciByb3V0ZTsgbm9uYXNzZXJ0ZWQgbmV0d29ya2lkbGUgbGltaXRlZDVzIGluc3RlYWQxNS4gTm90IGV2ZXJ5IGNvbnRyb2wgYWNjZXB0YW5jZS4ifQ=="
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-a25d384915711590089e",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 venta aislada /public/blog",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10703,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:46:22.577Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9wdWJsaWMvYmxvZyIsInVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6MzMwMC9wdWJsaWMvYmxvZyIsImR1cmF0aW9uIjo4MjAzLCJ0ZXh0IjoiQUsgUFJPRFVDQ0lPTkVTXG5JTklDSU9cbkJMT0dcblNJTVVMQURPUlxuwqFDT05TVUxUQU5PUyFcbkJMT0cgQUsgUFJPRFVDQ0lPTkVTXG5Db25zZWpvcyBjbGFyb3MgcGFyYSBkZWNpZGlyIG1lam9yIHR1IGV2ZW50by5cblxuR3XDrWFzIHBhcmEgZWxlZ2lyIHNhbMOzbiwgbWVuw7osIHByZXN1cHVlc3RvLCB0aWVtcG9zIHkgc2VydmljaW9zIGFudGVzIGRlIGNvbnRyYXRhci5cblxuU0lNVUxBUiBQUkVTVVBVRVNUT1xuUEVESVIgQVNFU09SQU1JRU5UT1xuXG5BUlTDjUNVTE8gREVTVEFDQURPXG5cbkPDs21vIGVtcGV6YXIgYSBvcmdhbml6YXIgdW5hIGZpZXN0YSBzaW4gZXN0csOpc1xuXG5FbCBvcmRlbiBjb3JyZWN0byBwYXJhIHBhc2FyIGRlIHVuYSBpZGVhIHN1ZWx0YSBhIHVuYSBmaWVzdGEgcG9zaWJsZSwgY29uIGZlY2hhLCBpbnZpdGFkb3MsIHByaW9yaWRhZGVzIHkgcHJlc3VwdWVzdG8gY2xhcm8uXG5cbk9SR0FOSVpBQ0nDk05cbjUgTUlOXG5cbkdVw41BUyBQUsOBQ1RJQ0FTXG5cbkNvbnRlbmlkbyBwYXJhIGRlY2lkaXIgbWVqb3JcblxuQ2FkYSBhcnTDrWN1bG8gcmVzcG9uZGUgZHVkYXMgZnJlY3VlbnRlcyB5IGF5dWRhIGEgdG9tYXIgZGVjaXNpb25lcyBpbnRlbGlnZW50ZXMgYW50ZXMgZGUgdHUgZXZlbnRvLlxuXG5PUkdBTklaQUNJw5NOXG41IE1JTlxuQ8OzbW8gZW1wZXphciBhIG9yZ2FuaXphciB1bmEgZmllc3RhIHNpbiBlc3Ryw6lzXG5cbkVsIG9yZGVuIGNvcnJlY3RvIHBhcmEgcGFzYXIgZGUgdW5hIGlkZWEgc3VlbHRhIGEgdW5hIGZpZXN0YSBwb3NpYmxlLCBjb24gZmVjaGEsIGludml0YWRvcywgcHJpb3JpZGFkZXMgeSBwcmVzdXB1ZXN0byBjbGFyby5cblxuTEVFUiBBUlTDjUNVTE9cbjIwMjYtMDYtMDFcblBSRVNVUFVFU1RPXG42IE1JTlxuUXXDqSBkZWJlIGluY2x1aXIgdW4gcHJlc3VwdWVzdG8gZGUgZmllc3RhIGJpZW4gaGVjaG9cblxuTG9zIHB1bnRvcyBxdWUgdGllbmVuIHF1ZSBlc3RhciBjbGFyb3MgcGFyYSBjb21wYXJhciBwcm9wdWVzdGFzIHNpbiBjYWVyIGVuIHByZWNpb3MgaW5jb21wbGV0b3MgbyBzb3JwcmVzYXMgZGUgw7psdGltbyBtb21lbnRvLlxuXG5MRUVSIEFSVMONQ1VMT1xuMjAyNi0wNi0wMVxuQ0FURVJJTkdcbjUgTUlOXG5Dw7NtbyBlbGVnaXIgZWwgbWVuw7ogcGFyYSB1biBldmVudG8gc2luIGVxdWl2b2NhcnRlXG5cblVuYSBndcOtYSBzaW1wbGUgcGFyYSBlbGVnaXIgY29taWRhIGFidW5kYW50ZSwgb3JkZW5hZGEgeSBhY29yZGUgYWwgdGlwbyBkZSBmaWVzdGEsIiwiZXJyb3JzIjpbXSwiY29uc29sZUVycm9ycyI6W10sInNjb3BlIjoiU2FtZSBuaW5lIHJvdXRlcyBhbmQgSFRUUC9ib2R5L1JlYWN0IGFzc2VydGlvbnMgYXMgb3JpZ2luYWwgbG9uZyB3YWxrLCBzZXBhcmF0ZSBmaXh0dXJlIGNvbnRleHQgcGVyIHJvdXRlOyBub25hc3NlcnRlZCBuZXR3b3JraWRsZSBsaW1pdGVkNXMgaW5zdGVhZDE1LiBOb3QgZXZlcnkgY29udHJvbCBhY2NlcHRhbmNlLiJ9"
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-f67d81a3944c62e7e924",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 venta aislada /landing/xv-anos",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16771,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:46:33.312Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9sYW5kaW5nL3h2LWFub3MiLCJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvcXVpbmNlYW5lcmFzIiwiZHVyYXRpb24iOjExMzkzLCJ0ZXh0IjoiQUsgUHJvZHVjY2lvbmVzXG5JTklDSU9cblNFUlZJQ0lPU1xuR0FMRVLDjUEgSERcblNJTVVMQURPUlxuQkxPR1xuUFJFR1VOVEFTIEZSRUNVRU5URVNcbkNMVUIgVVJVR1VBWVxuU0lNVUxBUiBNSSBQUkVTVVBVRVNUT1xuXG5BSyBQUk9EVUNDSU9ORVMgRVZFTlRPUyDCtyBTQUxUTywgVVJVR1VBWVxuXG5GaWVzdGEgZGUgMTUgQcOxb3NcblxuTGEgbm9jaGUgZGUgdHVzIDE1IHBlbnNhZGEgcGFyYSBxdWUgdGUgZGl2aWVydGFzIGFsIG3DoXhpbW8ganVudG8gYSB0dXMgYW1pZ29zIHkgZmFtaWxpYS5cblxuQ29taWRhIGdvdXJtZXQgeSBiYXJyYVxuQW1iaWVudGFjacOzbiB5IG1vYmlsaWFyaW9cbkRpc2NvdGVjYSwgcGFudGFsbGFzIHkgbHVjZXNcblRJUE8gREUgRVZFTlRPXG4xNSBBw7Fvc1xuQm9kYXNcblNvY2lhbGVzXG5FbXByZXNhcmlhbGVzXG5NRVMgWSBBw5FPIEVTVElNQURPXG5JTlZJVEFET1MgQVBST1guXG5Db25zdWx0YXIgZGlzcG9uaWJpbGlkYWQgZGUgZmVjaGFcbkRlc2N1YnJpciBtaSBmaWVzdGEgaWRlYWxcbkhhYmxhciBjb24gdW4gcHJvZHVjdG9yIHBvciBXaGF0c0FwcFxuUHJlc3VwdWVzdG8gVHJhbnNwYXJlbnRlICYgU2luIENvbXByb21pc29cblJlc2VydmEgVGVudGF0aXZhIGRlIEZlY2hhXG5cblBST0RVQ0NJw5NOIElOVEVHUkFMXG5cblVuYSBwcm9wdWVzdGEgaGVjaGEgcGFyYSB0dSBldmVudG9cblxuQXJtYW1vcyBjYWRhIHNlcnZpY2lvIGFscmVkZWRvciBkZSBsYSBmZWNoYSwgbGFzIHBlcnNvbmFzIGludml0YWRhcyB5IGVsIGVzdGlsbyBxdWUgcXVlcsOpcyBsb2dyYXIuXG5cbkJhcnJhIGRlIHRyYWdvcyBzaW4gYWxjb2hvbFxuXG5Dw7NjdGVsZXMgZGUgYXV0b3IgZnJ1dGFsZXMsIG1pbGtzaGFrZXMgeSBwcmVzZW50YWNpb25lcyBkaXZlcnRpZGFzIHBhcmEgdHVzIGludml0YWRvcy5cblxuRXNwZWpvIE3DoWdpY28gJiBGb3RvY2FiaW5hIElBXG5cbkZvdG9zIGRpdmVydGlkYXMgaW1wcmVzYXMgZW4gZWwgYWN0byBjb24gYWNjZXNvcmlvcyB5IGZpbHRyb3MgbcOhZ2ljb3MgZGUgSUEuXG5cbk11cm8gU29jaWFsIDRLICYgRGlzY290ZWNhXG5cblN1YmlkYSBkZSBmb3RvcyBlbiB0aWVtcG8gcmVhbCBkZXNkZSBlbCBjZWx1bGFyIGEgbGEgcGFudGFsbGEgZ2lnYW50ZSBkZWwgc2Fsw7NuLlxuXG5DYXRlcmluZyBBZG9sZXNjZW50ZSAmIEdhbGFcblxuRmluZ2VyIGZvb2QsIGhhbWJ1cmd1ZXNpdGFzIGRlIGF1dG9yLCBwaXp6YSBwYXJ0eSB5IG1lbsO6ZXMgZXNwZWNpYWxlcy5cblxuRGVjb3IiLCJlcnJvcnMiOltdLCJjb25zb2xlRXJyb3JzIjpbXSwic2NvcGUiOiJTYW1lIG5pbmUgcm91dGVzIGFuZCBIVFRQL2JvZHkvUmVhY3QgYXNzZXJ0aW9ucyBhcyBvcmlnaW5hbCBsb25nIHdhbGssIHNlcGFyYXRlIGZpeHR1cmUgY29udGV4dCBwZXIgcm91dGU7IG5vbmFzc2VydGVkIG5ldHdvcmtpZGxlIGxpbWl0ZWQ1cyBpbnN0ZWFkMTUuIE5vdCBldmVyeSBjb250cm9sIGFjY2VwdGFuY2UuIn0="
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-6701fefa84747b80c0db",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 venta aislada /public",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 24825,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:46:50.136Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9wdWJsaWMiLCJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjMzMDAvIiwiZHVyYXRpb24iOjEyNzE2LCJ0ZXh0IjoiQUsgUHJvZHVjY2lvbmVzXG5JTklDSU9cblNFUlZJQ0lPU1xuR0FMRVLDjUEgSERcblNJTVVMQURPUlxuQkxPR1xuUFJFR1VOVEFTIEZSRUNVRU5URVNcbkNMVUIgVVJVR1VBWVxuU0lNVUxBUiBNSSBQUkVTVVBVRVNUT1xuXG5BSyBQUk9EVUNDSU9ORVMgRVZFTlRPUyDCtyBTQUxUTywgVVJVR1VBWVxuXG5Pcmdhbml6w6EgdHUgZmllc3RhIGNvbXBsZXRhIGVuIFNhbHRvIGNvbiBBSyBQcm9kdWNjaW9uZXNcblxuU2Fsw7NuLCBjb21pZGEsIGRpc2NvdGVjYSwgZGVjb3JhY2nDs24sIGZvdG9ncmFmw61hLCBmaWxtYWNpw7NuLCBiYXJyYSB5IGNvb3JkaW5hY2nDs24gZW4gdW4gc29sbyBsdWdhci5cblxuQ29taWRhIGdvdXJtZXQgeSBiYXJyYVxuQW1iaWVudGFjacOzbiB5IG1vYmlsaWFyaW9cbkRpc2NvdGVjYSwgcGFudGFsbGFzIHkgbHVjZXNcblRJUE8gREUgRVZFTlRPXG4xNSBBw7Fvc1xuQm9kYXNcblNvY2lhbGVzXG5FbXByZXNhcmlhbGVzXG5NRVMgWSBBw5FPIEVTVElNQURPXG5JTlZJVEFET1MgQVBST1guXG5Db25zdWx0YXIgZGlzcG9uaWJpbGlkYWQgZGUgZmVjaGFcblNpbXVsYXIgbWkgcHJlc3VwdWVzdG9cbkNvbnN1bHRhciBkaXNwb25pYmlsaWRhZCBwb3IgV2hhdHNBcHBcblxuUHJvZHVjY2nDs24gaW50ZWdyYWwgQUtcblxuVW5hIHNvbGEgY29udmVyc2FjacOzbi4gVG9kb3MgbG9zIHNlcnZpY2lvcyBxdWUgdHUgZmllc3RhIG5lY2VzaXRhLlxuXG5SZXVuaW1vcyBjYXRlcmluZywgYmFycmEsIGFtYmllbnRhY2nDs24sIG1vYmlsaWFyaW8sIGRpc2NvdGVjYSwgdGVjbm9sb2fDrWEgeSBjb29yZGluYWNpw7NuLiBDYWRhIHByb3B1ZXN0YSBzZSBhZGFwdGEgYSB0dSBmZWNoYSwgZXN0aWxvIGUgaW52aXRhZG9zLlxuXG5Cb2Rhc1xuXG5DZXJlbW9uaWEsIGNlbmEgeSBmaWVzdGEgY29vcmRpbmFkYXMgcG9yIHVuIG1pc21vIGVxdWlwby5cblxuVmVyIHByb3B1ZXN0YVxuRmllc3RhcyBkZSAxNVxuXG5VbmEgbm9jaGUgcGVyc29uYWwsIGNvbiBwaXN0YSwgcmVjdWVyZG9zIHkgZW5lcmfDrWEgcGFyYSBjZWxlYnJhci5cblxuVmVyIHByb3B1ZXN0YVxuQ3VtcGxlYcOxb3MgeSBzb2NpYWxlc1xuXG5HYXN0cm9ub23DrWEsIGJhcnJhIHkgbcO6c2ljYSBwZW5zYWRhcyBzZWfDum4gY2FkYSBncnVwby5cblxuVmVyIHByb3B1ZXN0YVxuRXZlbnRvcyBlbXByZXNhcmlhbGVzXG5cblJlY2VwY2lvbmVzIHkgZW5jdWVudHJvcyBjb24gcHVlc3RhIHTDqWNuaWNhIHkgb3BlcmF0aXZhLlxuXG5WZXIgcHJvcHVlc3RhXG7inKggRUwgVkFMT1IgREUgTEEiLCJlcnJvcnMiOltdLCJjb25zb2xlRXJyb3JzIjpbXSwic2NvcGUiOiJTYW1lIG5pbmUgcm91dGVzIGFuZCBIVFRQL2JvZHkvUmVhY3QgYXNzZXJ0aW9ucyBhcyBvcmlnaW5hbCBsb25nIHdhbGssIHNlcGFyYXRlIGZpeHR1cmUgY29udGV4dCBwZXIgcm91dGU7IG5vbmFzc2VydGVkIG5ldHdvcmtpZGxlIGxpbWl0ZWQ1cyBpbnN0ZWFkMTUuIE5vdCBldmVyeSBjb250cm9sIGFjY2VwdGFuY2UuIn0="
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-e48ae581304d53289e67",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 venta aislada /portal-cliente",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12644,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:47:14.994Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9wb3J0YWwtY2xpZW50ZSIsInVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6MzMwMC9wb3J0YWwiLCJkdXJhdGlvbiI6NjA5OCwidGV4dCI6IlBvcnRhbCBkZSBQbGFuaWZpY2FjacOzbiBkZWwgQ2xpZW50ZVxuXG5Fc3RlIGVzcGFjaW8gZXMgZXhjbHVzaXZvIHBhcmEgbG9zIGFuZml0cmlvbmVzIGRlIGV2ZW50b3Mgb3JnYW5pemFkb3MgcG9yIEFLIFByb2R1Y2Npb25lcy4gRGVzZGUgYWPDoSBwb2TDqXMgc2VndWlyIGNhZGEgZGV0YWxsZSBkZSB0dSBldmVudG86IGNvbmZpcm1hciB0dSBtZW7Duiwgb3JnYW5pemFyIGxhIG3DunNpY2EsIGNoZXF1ZWFyIGVsIGNyb25vZ3JhbWEgZGVsIGTDrWEsIHZlciBsYSBsaXN0YSBkZSB0YXJlYXMgeSByZXZpc2FyIGVsIGVzdGFkbyBkZSBwYWdvcyB5IGNvbnRyYXRvcy5cblxuUGFyYSBpbmdyZXNhciBhIHR1IGZpZXN0YSwgYWJyw60gZWwgZW5sYWNlIHBlcnNvbmFsaXphZG8gcXVlIHRlIGVudmnDsyB0dSBjb29yZGluYWRvciBvIGNvbXVuaWNhdGUgZGlyZWN0YW1lbnRlIGNvbiBudWVzdHJvIGVxdWlwbyBwYXJhIHJlY2liaXIgdHUgYWNjZXNvIGRpcmVjdG8geSByZXNvbHZlciBjdWFscXVpZXIgY29uc3VsdGEuXG5cbklyIGEgbGEgcMOhZ2luYSBwcmluY2lwYWxcbkNvdGl6YXIgbWkgZmllc3RhIiwiZXJyb3JzIjpbXSwiY29uc29sZUVycm9ycyI6W10sInNjb3BlIjoiU2FtZSBuaW5lIHJvdXRlcyBhbmQgSFRUUC9ib2R5L1JlYWN0IGFzc2VydGlvbnMgYXMgb3JpZ2luYWwgbG9uZyB3YWxrLCBzZXBhcmF0ZSBmaXh0dXJlIGNvbnRleHQgcGVyIHJvdXRlOyBub25hc3NlcnRlZCBuZXR3b3JraWRsZSBsaW1pdGVkNXMgaW5zdGVhZDE1LiBOb3QgZXZlcnkgY29udHJvbCBhY2NlcHRhbmNlLiJ9"
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-31db1456bfe132a1604e",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 venta aislada /catalogo/bodas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8514,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:47:27.729Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly9jb25uZWN0LmZhY2Vib29rLm5ldC9lbl9VUy9mYmV2ZW50cy5qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9jYXRhbG9nby9ib2RhcyIsInVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6MzMwMC9jYXRhbG9nby9ib2RhcyIsImR1cmF0aW9uIjo3OTkxLCJ0ZXh0Ijoi8J+SjVxuQm9kYXNcbsK3XG5Qb3J0YWRhXG4xLzlcblBvcnRhZGFcblByZXNlbnRhY2nDs25cblBvciBxdcOpIGVsZWdpcm5vc1xuRWwgcHJvY2Vzb1xuU2VydmljaW9zXG5SZWdhbG9zIGluY2x1aWRvc1xuVGVzdGltb25pb3NcbkZvcm1hcyBkZSBwYWdvXG5SZXN1bWVuXG7wn5KNXG5Cb2Rhc1xuVHUgYm9kYSBwZXJmZWN0YSwgaGVjaGEgcmVhbGlkYWRcblxuT3JnYW5pemFtb3MgY2FkYSBkZXRhbGxlIHBhcmEgcXVlIGVsIGTDrWEgbcOhcyBpbXBvcnRhbnRlIGRlIHR1IHZpZGEgc2VhIGV4YWN0YW1lbnRlIGNvbW8gbG8gc2/DsWFzdGUuIETDqWNvciwgY2F0ZXJpbmcsIG3DunNpY2EsIGZvdG9ncmFmw61hIOKAlCB0b2RvIGVuIHVuIHNvbG8gbHVnYXIuXG5cbsKhQ290aXphciBtaSBib2RhIVxuQW50ZXJpb3JcblNpZ3VpZW50ZSIsImVycm9ycyI6W10sImNvbnNvbGVFcnJvcnMiOltdLCJzY29wZSI6IlNhbWUgbmluZSByb3V0ZXMgYW5kIEhUVFAvYm9keS9SZWFjdCBhc3NlcnRpb25zIGFzIG9yaWdpbmFsIGxvbmcgd2Fsaywgc2VwYXJhdGUgZml4dHVyZSBjb250ZXh0IHBlciByb3V0ZTsgbm9uYXNzZXJ0ZWQgbmV0d29ya2lkbGUgbGltaXRlZDVzIGluc3RlYWQxNS4gTm90IGV2ZXJ5IGNvbnRyb2wgYWNjZXB0YW5jZS4ifQ=="
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-4df8008f46a785af6f9c",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 venta aislada /configuracion/backup-final",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13685,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:47:36.277Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa-egress-blocked",
+                      "contentType": "text/plain",
+                      "body": "aHR0cHM6Ly93d3cuZ29vZ2xldGFnbWFuYWdlci5jb20vZ3RhZy9qcw=="
+                    },
+                    {
+                      "name": "qa447-ruta-aislada",
+                      "contentType": "application/json",
+                      "body": "eyJyb3V0ZSI6Ii9jb25maWd1cmFjaW9uL2JhY2t1cC1maW5hbCIsInVybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzMwMC9sb2dpbj9yZWRpcmVjdD0lMkZzZXR0aW5ncyUyRmJhY2t1cC1maW5hbCIsImR1cmF0aW9uIjo3OTgyLCJ0ZXh0IjoiQWNjZXNvIFByb3RlZ2lkb1xuSW5ncmVzYSBjb24gdHUgY29ycmVvIHkgY29udHJhc2XDsWEuXG5Db3JyZW8gZWxlY3Ryw7NuaWNvXG5Db250cmFzZcOxYVxuSW5ncmVzYXJcbk9cbkluZ3Jlc2FyIGNvbiBHb29nbGVcbk9sdmlkZSBtaSBjb250cmFzZcOxYSIsImVycm9ycyI6W10sImNvbnNvbGVFcnJvcnMiOltdLCJzY29wZSI6IlNhbWUgbmluZSByb3V0ZXMgYW5kIEhUVFAvYm9keS9SZWFjdCBhc3NlcnRpb25zIGFzIG9yaWdpbmFsIGxvbmcgd2Fsaywgc2VwYXJhdGUgZml4dHVyZSBjb250ZXh0IHBlciByb3V0ZTsgbm9uYXNzZXJ0ZWQgbmV0d29ya2lkbGUgbGltaXRlZDVzIGluc3RlYWQxNS4gTm90IGV2ZXJ5IGNvbnRyb2wgYWNjZXB0YW5jZS4ifQ=="
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-75d2b49ca9e97db60850",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 33,
+          "column": 31
+        },
+        {
+          "title": "447 quinceaneras tres cargas aisladas criterio2500ms",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 192410,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "message": "Error: browserContext._wrapApiCall: Tracing is already stopping"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-24T20:47:50.002Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "qa-fis-mode",
+                      "contentType": "text/plain",
+                      "body": "TE9DQUwgRE9VQkxFIG9ubHk7IG5vIEZpcmViYXNlIHByb3ZpZGVyIGFjY2VwdGFuY2U="
+                    },
+                    {
+                      "name": "qa451-sdk-persistence",
+                      "contentType": "application/json",
+                      "body": "eyJidWRnZXRzIjpbXSwibGVhZHMiOltdfQ=="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-001-artifacts\\ak207-447-venta-por-ruta-4-d4882-gas-aisladas-criterio2500ms-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria267-cierre\\docs\\evidencias\\457-batch-001-artifacts\\ak207-447-venta-por-ruta-4-d4882-gas-aisladas-criterio2500ms-chromium-desktop\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "597c65041ba75a51b3c6-80d80c46dca0853d0c4b",
+          "file": "ak207-447-venta-por-ruta.spec.ts",
+          "line": 47,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-24T20:45:32.445Z",
+    "duration": 344531.501,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

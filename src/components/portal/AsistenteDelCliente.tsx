@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2, Sparkles, Bot } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, Sparkles, Bot, PhoneCall } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { chatConAsistenteCliente } from '@/app/actions/asistente-virtual';
@@ -33,6 +33,20 @@ export function AsistenteDelCliente({
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // La llamada de voz del cliente todavia no abre audio en este panel: antes pedia la ficha
+  // al servidor (gastaba los minutos del dia del cliente) y anunciaba "conectada" sin conectar nada.
+  // Mientras no haya audio de verdad, no se pide ficha y se le dice la verdad.
+  const handleIniciarLlamadaVoz = () => {
+    setMensajes((prev) => [
+      ...prev,
+      {
+        id: `sys-${Date.now()}`,
+        role: 'assistant',
+        text: 'La llamada por voz todavía no está disponible; escribime y te contesto.',
+      },
+    ]);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -144,15 +158,27 @@ export function AsistenteDelCliente({
                   <p className="text-[11px] opacity-80 leading-tight">AK Producciones · Portal del Cliente</p>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(false)}
-                className="text-primary-foreground hover:bg-primary-foreground/20 rounded-full h-8 w-8"
-                aria-label="Cerrar asistente"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleIniciarLlamadaVoz}
+                  className="text-xs font-bold text-amber-300 hover:text-amber-200 hover:bg-primary-foreground/20 rounded-full px-2.5 h-8 gap-1"
+                  title="Hablar por voz con el asistente"
+                >
+                  <PhoneCall className="w-3.5 h-3.5" />
+                  Hablar
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsOpen(false)}
+                  className="text-primary-foreground hover:bg-primary-foreground/20 rounded-full h-8 w-8"
+                  aria-label="Cerrar asistente"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Mensajes */}

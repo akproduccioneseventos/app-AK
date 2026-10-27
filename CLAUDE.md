@@ -1146,6 +1146,39 @@ todos los controles de la vieja, no sólo el que se estaba arreglando.
 **Qué se hace distinto:** pregunta 89 del método y 60 de `ANTES-DE-ENTREGAR.md`. Y el control
 `sin-saber-si-el-contrato-esta-firmado-no-se-toca` más las pruebas de aprobación con contrato firmado.
 
+### 45. Escribir la comprobación de un bloque mirando un archivo de seis
+
+**Pasó el 23 de octubre de 2026, en la orden 220.** El bloque 5 pedía pasar a transacción seis guardados y
+el bloque `comprobar` miraba uno solo. La entrega arregló ese y en los otros cuatro agregó un `import` sin
+usarlo. `ordenes?` dio la orden por hecha.
+
+**Qué era lo cierto:** `ordenes?` mira lo que dice `comprobar`, no lo que dice el texto del bloque.
+
+**Qué se hace distinto:** cuando un bloque nombra varios archivos, va una línea de `comprobar` por cada
+uno (así quedó la orden 221).
+
+### 46. Juntar una entrega en mi rama antes de saber si compila
+
+**Pasó el 24 de octubre de 2026.** La entrega 1353 se veía bien leyendo el cambio. La junté en mi rama y
+lancé la puerta, que frenó en el segundo paso. Recién ahí vi que no compilaba. Tuve que deshacer la
+unión de las dos ramas.
+
+**Qué era lo cierto:** leer el cambio no dice si compila. La entrega decía "tipos en cero" y tenía cinco
+errores.
+
+**Qué se hace distinto:** antes de juntar una entrega, `npx tsc --noEmit` y `npm run "publicar?:rapido"`
+sobre una copia aparte. Sólo si dan verde, se junta y se corre la puerta completa.
+
+### 47. Pedir que se toque una pantalla sin pedir su prueba de navegador
+
+**Pasó el 24 de octubre de 2026, en la orden 224.** Pedí arreglar el "cargando para siempre" en 14 pantallas
+y la comprobación pedía una sola prueba. Cinco de esas pantallas no tenían ninguna, y la puerta frena toda
+pantalla tocada sin prueba: la entrega volvió por un descuido de la orden.
+
+**Qué se hace distinto:** antes de mandar a tocar pantallas, correr `node scripts/lo-que-se-dijo-es-lo-que-es.mjs`
+mentalmente: por cada pantalla de la lista, buscar si ya tiene prueba (`grep -rl "<ruta>" tests/e2e`). Las que
+no tienen, la orden pide la prueba con el texto del resultado (orden 226).
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1844,6 +1877,10 @@ con otra cara.
 | La firma del contrato en el portal: resumen en cero, constancia falsificable, dos firmas que se pisaban y un texto que el cliente no vio | `src/__tests__/contrato-constancia-version-y-permisos.test.ts` |
 | El recordatorio que manda a los invitados se podía disparar desde internet sin clave | `src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts` |
 | Un reintento acreditaba un aviso de pago y la respuesta tardía del primero lo volvía a pendiente; el texto del contrato se guardaba después de que el cliente firmaba | `src/__tests__/pago-aprobado-no-vuelve-pendiente-por-reintento.test.ts` y `src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts` |
+| Los avisos de pagos y saldos llegaban al teléfono de todo el equipo y la lista de avisos se veía entera | `src/__tests__/los-avisos-de-plata-no-llegan-a-quien-no-ve-plata.test.ts` |
+| El enlace de confirmar asistencia del editor de la invitación llevaba a la portada | `src/__tests__/el-enlace-de-confirmar-lleva-a-la-invitacion.test.ts` |
+| El agente de publicidad pausaba campañas y subía el presupuesto solo, diciendo que no tocaba nada | `src/__tests__/el-agente-de-publicidad-no-toca-campanias.test.ts` |
+| Una cuenta vieja de administrador con perfil de secretaria seguía entrando a lo del dueño, incluido el borrado de la base | `src/__tests__/el-rol-admin-no-pasa-por-encima-del-perfil.test.ts` |
 | Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
 
 ### Cómo se elige el matafuego

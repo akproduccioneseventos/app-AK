@@ -1,0 +1,102 @@
+{
+  "format": "AK_BATCH_REPORT_NOT_PLAYWRIGHT_NATIVE",
+  "source": "917a98e32c63fe2f832f5cdc16db87f4fc722b6c",
+  "stats": {
+    "expected": 1,
+    "skipped": 1,
+    "unexpected": 7,
+    "flaky": 0
+  },
+  "batches": [
+    {
+      "index": 1,
+      "files": [
+        "ak207-423-barra-pixeles.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:45:39.191Z",
+      "report": "425-batch-001-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:45:12.847Z",
+        "duration": 26291.076,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 2,
+      "files": [
+        "ak207-48-touchpix-entrega-sin-reinicio.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:46:07.386Z",
+      "report": "425-batch-002-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:45:41.018Z",
+        "duration": 26327.699,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 3,
+      "files": [
+        "ak207-90-lo-que-va-atras-dice-donde-quedo.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:49:07.485Z",
+      "report": "425-batch-003-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:46:08.542Z",
+        "duration": 178902.499,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 4,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 4,
+      "files": [
+        "ak207-espejo-moderacion-caida-y-reintento.spec.ts"
+      ],
+      "exitCode": 0,
+      "finished": "2026-10-24T19:49:12.309Z",
+      "report": "425-batch-004-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:49:08.920Z",
+        "duration": 3336.2490000000003,
+        "expected": 0,
+        "skipped": 1,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "index": 5,
+      "files": [
+        "ak207-prospecto-simulador.spec.ts"
+      ],
+      "exitCode": 1,
+      "finished": "2026-10-24T19:51:43.955Z",
+      "report": "425-batch-005-resultados.json",
+      "stats": {
+        "startTime": "2026-10-24T19:49:13.544Z",
+        "duration": 150356.503,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ]
+}

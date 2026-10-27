@@ -1,0 +1,9 @@
+[
+  {
+    "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\.qa-427-source-7GJHez\\tests\\e2e\\474-carga-contexto-controlado.spec.ts",
+    "original": "5bfe69521cd8bdfaf354900823004d3429f8101922f3cffdea0aa000d547662b",
+    "prepared": "5bfe69521cd8bdfaf354900823004d3429f8101922f3cffdea0aa000d547662b",
+    "assertionsChanged": false,
+    "scope": "Only case runtime budget/font-readiness upper bound; baseline expectations and absolute geometry rules untouched."
+  }
+]
