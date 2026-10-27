@@ -239,7 +239,7 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
                     <h4 className="text-base sm:text-lg font-black text-slate-950 mb-2 leading-tight">
                       {paso.titulo}
                     </h4>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
+                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
                       {paso.descripcion}
                     </p>
                   </div>

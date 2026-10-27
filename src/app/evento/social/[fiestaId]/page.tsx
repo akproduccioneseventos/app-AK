@@ -1127,11 +1127,11 @@ export default function SocialEventPage() {
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
           {section !== 'feed' && <button type="button" onClick={() => chooseSection('feed')} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Volver"><ArrowLeft className="h-5 w-5" /></button>}
-          <div className="min-w-0 flex-1"><h1 className="truncate text-base font-black sm:text-lg">{eventName}</h1><p className="text-xs text-slate-500">Hola, {authorName || 'invitado'}</p></div>
+          <div className="min-w-0 flex-1"><h1 className="break-words text-base font-black leading-tight sm:text-lg">{eventName}</h1><p className="text-xs text-slate-500">Hola, {authorName || 'invitado'}</p></div>
           <VideoDeAyuda lugar="muro-subir-foto" />
           <a
             href={`/evento/mi-mesa/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 text-amber-800 transition text-xs font-bold shrink-0"
+            className="flex items-center gap-1.5 px-3 min-h-10 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 text-amber-800 transition text-xs font-bold shrink-0"
             title="Buscar mi mesa"
             aria-label="Mi mesa: buscar dónde me siento"
           >
@@ -1465,7 +1465,7 @@ export default function SocialEventPage() {
               })}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition-colors"
+              className="inline-flex min-h-10 items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition-colors"
             >
               <span>¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta</span>
               <span aria-hidden="true">&rarr;</span>

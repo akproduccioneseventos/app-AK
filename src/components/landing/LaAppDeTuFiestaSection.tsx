@@ -316,7 +316,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("menu")}
                           className={cn(
-                            "rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
                             demoMenuTab === "menu" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -326,7 +326,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("musica")}
                           className={cn(
-                            "rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
                             demoMenuTab === "musica" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -336,7 +336,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("deco")}
                           className={cn(
-                            "rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
                             demoMenuTab === "deco" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -649,7 +649,7 @@ export function LaAppDeTuFiestaSection({
               href={waHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 font-bold text-red-600 hover:text-red-700"
+              className="inline-flex min-h-10 items-center gap-1.5 font-bold text-red-600 hover:text-red-700"
             >
               Hablar con un asesor por WhatsApp
               <ChevronRight className="h-4 w-4" />

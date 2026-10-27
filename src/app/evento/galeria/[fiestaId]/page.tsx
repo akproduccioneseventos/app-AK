@@ -433,7 +433,7 @@ export default function GaleriaPage() {
           <button
             aria-label="Compartir galería"
             onClick={handleShare}
-            className="p-2 -mr-2 text-zinc-400 hover:text-white transition"
+            className="p-2.5 -mr-2.5 text-zinc-400 hover:text-white transition"
           >
             <Share2 className="w-5 h-5" />
           </button>
@@ -467,7 +467,7 @@ export default function GaleriaPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as FilterTab)}
-                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                className={`shrink-0 px-4 min-h-10 py-2 rounded-full text-xs font-bold transition-all border ${
                   activeTab === tab.id
                     ? 'bg-white text-zinc-950 border-white'
                     : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-300'
@@ -876,7 +876,7 @@ export default function GaleriaPage() {
             })}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-amber-400 transition-colors"
+            className="inline-flex min-h-10 items-center gap-1.5 text-xs text-zinc-500 hover:text-amber-400 transition-colors"
           >
             <span>¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta</span>
             <span aria-hidden="true">&rarr;</span>

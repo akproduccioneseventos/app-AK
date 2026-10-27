@@ -351,7 +351,7 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
                 whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 onClick={() => setSelectedStation(station)}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all shrink-0 border backdrop-blur-md',
+                  'flex min-h-11 items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all shrink-0 border backdrop-blur-md',
                   isSelected
                     ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.45)]'
                     : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:bg-slate-800 hover:text-white hover:border-slate-700'

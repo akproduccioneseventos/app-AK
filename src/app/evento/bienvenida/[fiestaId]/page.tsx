@@ -337,7 +337,7 @@ export default function TotemBienvenidaPage() {
             <Button
               type="submit"
               size="sm"
-              className="bg-rose-600 hover:bg-rose-500 text-white font-black text-xs h-9 px-3 rounded-xl"
+              className="bg-rose-600 hover:bg-rose-500 text-white font-black text-xs h-10 px-3 rounded-xl"
             >
               Leer
             </Button>
