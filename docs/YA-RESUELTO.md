@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex706-708: tres hallazgos NUEVOS, no corregidos
+
+- Mainc0add57f, fuentes iguales Claude0c355975:11criterios7PASS4FAIL.
+- K1 tagmariscos/restriccionAlergiaMariscos explicitos no producen alerta;
+  K2 reporte omite isCeliac:true sin dietaryRestriction (formato RSVP real).
+  No reabrir partySize/clipboard ya resueltos: ahora falla contenido, no copia.
+- F1 resumen-feedback sin IA devuelve temas prefijados como repetidos aunque
+  encuesta solo dice estacionamiento. No demostrado visible enUI; resultado servidor.
+- Orden240 K1/K2Claude, F1Gemini; informe708 y recibos706/707. No appedit ni build,
+  browser/SDK/modelo real. Sondas ficticias terminadas, agente Cicero cerrado.
+  No repetir238Codex/239 en correccion; privados NO CONTRASTADOS.
+
 ## 27/10/2026 - Codex704: dialogo de propuestas auditado, NO corregido
 
 - AK-CODEX-704-DIALOGO-PROPUESTAS:mainc0add57f, consumidores identicos Claude0c355975.

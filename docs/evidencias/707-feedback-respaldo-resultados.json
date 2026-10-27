@@ -1,0 +1,123 @@
+{
+  "sha": "c0add57f6237f666db97e7e902ef75f6c8d97479",
+  "file": "src/lib/feedback/resumen-feedback.ts",
+  "sourceSha256": "7b2658f0fce60a74cc617d7d2675f50671cde67be9862e7117032d684ad35084",
+  "method": "Exact summary module with provider/budget doubles; tests absent-analysis fallback, not AI accuracy or rendered UI.",
+  "input": [
+    {
+      "id": "qa707",
+      "fiestaId": "qa-fiesta",
+      "fiestaNombre": "QA",
+      "clientName": "QA Cliente",
+      "enjoyedMost": "",
+      "generalComments": "Falta estacionamiento.",
+      "toImprove": "Estacionamiento.",
+      "timestamp": "2026-10-27T12:00:00.000Z",
+      "npsScore": 2,
+      "ratingComida": 2
+    }
+  ],
+  "cases": [
+    {
+      "id": "budget_disabled_no_invented_themes",
+      "status": "FAIL",
+      "observed": {
+        "result": {
+          "temasRepetidos": [
+            "Puntualidad en el armado",
+            "Variedad de música en la pista",
+            "Atención del personal"
+          ],
+          "areasNotaBaja": [
+            {
+              "area": "comida",
+              "promedio": 2,
+              "cantidad": 1
+            }
+          ],
+          "mejorasPropuestas": [
+            "Reforzar coordinación previa con el DJ sobre horarios de corte de música.",
+            "Revisar cantidades de insumos de barra en fiestas con más de 100 adultos.",
+            "Enviar recordatorio de fotos pendientes con mayor anticipación."
+          ],
+          "testimoniosSugeridos": []
+        },
+        "calls": {
+          "model": 0,
+          "testimonial": 0
+        }
+      }
+    },
+    {
+      "id": "provider_failed_no_invented_themes",
+      "status": "FAIL",
+      "observed": {
+        "result": {
+          "temasRepetidos": [
+            "Puntualidad en el armado",
+            "Variedad de música en la pista",
+            "Atención del personal"
+          ],
+          "areasNotaBaja": [
+            {
+              "area": "comida",
+              "promedio": 2,
+              "cantidad": 1
+            }
+          ],
+          "mejorasPropuestas": [
+            "Reforzar coordinación previa con el DJ sobre horarios de corte de música.",
+            "Revisar cantidades de insumos de barra en fiestas con más de 100 adultos.",
+            "Enviar recordatorio de fotos pendientes con mayor anticipación."
+          ],
+          "testimoniosSugeridos": []
+        },
+        "calls": {
+          "model": 1,
+          "testimonial": 0
+        }
+      }
+    },
+    {
+      "id": "empty_no_model_control",
+      "status": "PASS",
+      "observed": {
+        "result": null,
+        "calls": {
+          "model": 0,
+          "testimonial": 0
+        }
+      }
+    },
+    {
+      "id": "valid_model_control",
+      "status": "PASS",
+      "observed": {
+        "result": {
+          "temasRepetidos": [
+            "Estacionamiento"
+          ],
+          "areasNotaBaja": [
+            {
+              "area": "comida",
+              "promedio": 2,
+              "cantidad": 1
+            }
+          ],
+          "mejorasPropuestas": [
+            "Revisar estacionamiento."
+          ],
+          "testimoniosSugeridos": []
+        },
+        "calls": {
+          "model": 1,
+          "testimonial": 0
+        }
+      }
+    },
+    {
+      "id": "deterministic_average_control",
+      "status": "PASS"
+    }
+  ]
+}

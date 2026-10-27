@@ -1,0 +1,60 @@
+{
+  "sha": "c0add57f6237f666db97e7e902ef75f6c8d97479",
+  "method": "Unmodified classifier and AST report expressions/callback; successful clipboard double. No browser, SDK, provider, real guests or clinical claims.",
+  "sources": {
+    "src/lib/catering/choques-alergias.ts": "41ef38ef4089d044354fcee715e3705c1c52b1011b990d0fce254ab196d6726b",
+    "src/app/(app)/fiestas/nueva/alergias/page.tsx": "1401791f70068527d5c4909866dfc0e2eed5bc97500370b869a1a102fb8342b2"
+  },
+  "cases": [
+    {
+      "id": "explicit_mariscos",
+      "status": "FAIL",
+      "observed": []
+    },
+    {
+      "id": "frutos_secos_control",
+      "status": "PASS",
+      "observed": [
+        {
+          "platoNombre": "Plato QA",
+          "tipoPlato": "Entrada",
+          "restriccion": "Frutos Secos",
+          "personasAfectadas": 5,
+          "ingredientesEnConflicto": [
+            "Frutos secos"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "celiac_flag_count_control",
+      "status": "PASS",
+      "observed": [
+        {
+          "platoNombre": "Plato QA",
+          "tipoPlato": "Entrada",
+          "restriccion": "Celíaco / Sin Gluten",
+          "personasAfectadas": 5,
+          "ingredientesEnConflicto": [
+            "Gluten / TACC"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unconfirmed_control",
+      "status": "PASS",
+      "observed": []
+    },
+    {
+      "id": "legacy_celiac_report",
+      "status": "FAIL",
+      "observed": "REPORTE ALIMENTARIO - Evento QA706\nFecha: 2027-01-10\nTotal confirmados: 5 personas\nCon restricciones alimentarias: 0 personas\n\n=== RESUMEN POR RESTRICCIÓN ===\n\n=== DETALLE POR INVITADO ==="
+    },
+    {
+      "id": "typed_celiac_report_control",
+      "status": "PASS",
+      "observed": "REPORTE ALIMENTARIO - Evento QA706\nFecha: 2027-01-10\nTotal confirmados: 5 personas\nCon restricciones alimentarias: 5 personas\n\n=== RESUMEN POR RESTRICCIÓN ===\nCelíaco (Sin TACC): 5 persona(s)\n\n=== DETALLE POR INVITADO ===\n• QA Familia (Mesa -): Celíaco (Sin TACC)"
+    }
+  ]
+}
