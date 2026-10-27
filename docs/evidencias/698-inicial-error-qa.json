@@ -1,0 +1,67 @@
+{
+  "sha": "b58abab75d94a732daf79b32aff54ec253ccf63c",
+  "method": "Unmodified module bodies with memory filesystem per worker/shared data double; actual control+web actions, generated template double. No SDK/HTTP/real model/production.",
+  "sources": {
+    "src/lib/ia/reglas-de-la-ia.ts": "8f70fcc4b0d2d309a058a0ea82cac50d4ed00223e8254c32a3f897d9e3bcd773",
+    "src/lib/invitacion-digital-defaults.ts": "fa9df96c97978a8e60493cb43c423539df12a073943827bd6690dbb73cf19e37",
+    "src/app/actions/fiesta/armar-web-con-ia.actions.ts": "1c3b271287da0a04df942e52c8c3257040924378e3e58bac8a8563fcb602df2f",
+    "src/app/actions/centro-de-control.ts": "57bc768497e2e866bd68c4ef5a6c3bde2ce711c45aee7eec78fd59d5a2cefa7b"
+  },
+  "rows": [
+    {
+      "id": "R01",
+      "title": "Disable on instance B must be observed on existing instance A",
+      "status": "HARNESS_ERROR",
+      "error": "TypeError: Cannot read properties of undefined (reading 'join')\n    at leerJson (b58abab75d94a732daf79b32aff54ec253ccf63c/src/lib/ia/reglas-de-la-ia.ts:21:38)\n    at Object.guardarReglaIA (b58abab75d94a732daf79b32aff54ec253ccf63c/src/lib/ia/reglas-de-la-ia.ts:196:29)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:34:13\n    at check (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:21:62)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:32:9\n    at Object.<anonymous> (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:83:3)\n    at Module._compile (node:internal/modules/cjs/loader:1872:14)\n    at Object..js (node:internal/modules/cjs/loader:2003:10)\n    at Module.load (node:internal/modules/cjs/loader:1594:32)\n    at Module._load (node:internal/modules/cjs/loader:1396:12)"
+    },
+    {
+      "id": "R02",
+      "title": "Failed shared save must not report durable success",
+      "status": "HARNESS_ERROR",
+      "error": "TypeError: Cannot read properties of undefined (reading 'join')\n    at leerJson (b58abab75d94a732daf79b32aff54ec253ccf63c/src/lib/ia/reglas-de-la-ia.ts:21:38)\n    at Object.guardarReglaIA (b58abab75d94a732daf79b32aff54ec253ccf63c/src/lib/ia/reglas-de-la-ia.ts:196:29)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:41:66\n    at check (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:21:62)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:40:9"
+    },
+    {
+      "id": "R03",
+      "title": "Sequential changes from stale workers must retain unrelated disabled rules",
+      "status": "HARNESS_ERROR",
+      "error": "TypeError: Cannot read properties of undefined (reading 'join')\n    at leerJson (b58abab75d94a732daf79b32aff54ec253ccf63c/src/lib/ia/reglas-de-la-ia.ts:21:38)\n    at Object.guardarReglaIA (b58abab75d94a732daf79b32aff54ec253ccf63c/src/lib/ia/reglas-de-la-ia.ts:196:29)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:47:13\n    at check (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:21:62)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:45:9"
+    },
+    {
+      "id": "R04",
+      "title": "Forbidden solo messaging is rejected",
+      "status": "PASS",
+      "pass": true,
+      "message": "Esta tarea no puede ejecutarse sola por seguridad"
+    },
+    {
+      "id": "R05",
+      "title": "One worker sees its successful local setting",
+      "status": "HARNESS_ERROR",
+      "error": "TypeError: Cannot read properties of undefined (reading 'join')\n    at leerJson (b58abab75d94a732daf79b32aff54ec253ccf63c/src/lib/ia/reglas-de-la-ia.ts:21:38)\n    at Object.guardarReglaIA (b58abab75d94a732daf79b32aff54ec253ccf63c/src/lib/ia/reglas-de-la-ia.ts:196:29)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:57:46\n    at check (C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:21:62)\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-auditoria697\\docs\\evidencias\\698-reglas-y-web-sonda.cjs:56:9"
+    },
+    {
+      "id": "W01",
+      "title": "Actual control action plus actual web action must save before claiming web completed",
+      "status": "FAIL",
+      "pass": false,
+      "result": {
+        "success": true,
+        "mensaje": "¡Listo, che! Ya le armé la web a la fiesta de Sofía. Quedó impecable y lista para revisar."
+      },
+      "saved": 0,
+      "generated": 1,
+      "records": [
+        {
+          "tareaId": "armar_web_evento",
+          "que": "Armé el diseño y textos de la web de invitación para la fiesta de Sofía con la plantilla recomendada.",
+          "enlace": "/fiestas/qa-lucia/pagina-web"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "PASS": 1,
+    "FAIL": 1,
+    "HARNESS_ERROR": 4
+  }
+}

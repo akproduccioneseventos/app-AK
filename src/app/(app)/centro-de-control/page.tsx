@@ -201,11 +201,13 @@ export default function CentroDeControlPage() {
       if (!res.success) {
         // No salió: la tarjeta vuelve a la lista y se dice por qué.
         setItemsOK((prev) => (prev.some((i) => i.id === item.id) ? prev : [item, ...prev]));
+        if (nuevoTexto !== undefined) setEditandoId(item.id); // la edición no se pierde
         setErrorOk(res.error || 'No se pudo aprobar. Probá de nuevo.');
       }
     } catch (err) {
       console.error('[Centro de Control] Error al aprobar:', err);
       setItemsOK((prev) => (prev.some((i) => i.id === item.id) ? prev : [item, ...prev]));
+      if (nuevoTexto !== undefined) setEditandoId(item.id);
       setErrorOk('No se pudo aprobar. Probá de nuevo.');
     } finally {
       setProcesandoId(null);

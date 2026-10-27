@@ -1,0 +1,73 @@
+{
+  "sha": "c0add57f6237f666db97e7e902ef75f6c8d97479",
+  "file": "src/app/(app)/centro-de-control/page.tsx",
+  "line": 181,
+  "sourceSha256": "7839d1ad9fc2e704f446e8120bd62787d62ade1820828a0111e1c7ed97c45d90",
+  "method": "Exact TS AST initializer only; no rendered browser, no network, no real window.open.",
+  "results": [
+    {
+      "id": "edit",
+      "status": "PASS",
+      "opened": [
+        [
+          "https://api.whatsapp.com/send?phone=59800000000&text=CORRECTED",
+          "_blank"
+        ]
+      ],
+      "calls": [
+        [
+          "qa-message",
+          "mensaje",
+          "mandar_mensajes_clientes",
+          "OLD",
+          "CORRECTED"
+        ]
+      ],
+      "remaining": []
+    },
+    {
+      "id": "reject",
+      "status": "PASS",
+      "opened": [
+        [
+          "https://api.whatsapp.com/send?phone=59800000000&text=CORRECTED",
+          "_blank"
+        ]
+      ],
+      "calls": [
+        [
+          "qa-message",
+          "mensaje",
+          "mandar_mensajes_clientes",
+          "OLD",
+          "CORRECTED"
+        ]
+      ],
+      "remaining": [
+        "qa-message"
+      ]
+    },
+    {
+      "id": "throw",
+      "status": "PASS",
+      "opened": [
+        [
+          "https://api.whatsapp.com/send?phone=59800000000&text=CORRECTED",
+          "_blank"
+        ]
+      ],
+      "calls": [
+        [
+          "qa-message",
+          "mensaje",
+          "mandar_mensajes_clientes",
+          "OLD",
+          "CORRECTED"
+        ]
+      ],
+      "remaining": [
+        "qa-message"
+      ]
+    }
+  ]
+}

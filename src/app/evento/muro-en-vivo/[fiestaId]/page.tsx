@@ -571,7 +571,7 @@ export default function MuroEnVivoPage() {
                   document.exitFullscreen?.().catch(() => {});
                 }
               }}
-              className="grid h-9 w-9 place-items-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+              className="grid h-11 w-11 place-items-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
               title="Pantalla completa"
               aria-label="Pantalla completa"
             >

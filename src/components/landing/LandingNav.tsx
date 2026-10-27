@@ -82,7 +82,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
         <div className="flex items-center justify-between h-16 md:h-20">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50">
+          <Link href="/" className="flex items-center gap-3 shrink-0 min-h-10 min-w-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50">
             {/* Sin fondo blanco la barra es transparente y el logo queda oscuro
                 sobre la foto: en el celular no se veia nada arriba a la
                 izquierda, solo las rayitas del menu. */}

@@ -30,7 +30,7 @@ export function PublicNavbar({
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo + Brand */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group min-h-10 min-w-10">
           <CompanyLogo size="sm" className="group-hover:scale-110 transition-transform duration-200" />
           <span className="text-sm font-black uppercase tracking-widest text-slate-800 hidden sm:block">
             AK Producciones
@@ -52,7 +52,7 @@ export function PublicNavbar({
         <a href={waHref} target="_blank" rel="noopener noreferrer">
           <button
             className={cn(
-              'flex items-center gap-2 rounded-md px-4 py-2',
+              'flex min-h-10 items-center gap-2 rounded-md px-4 py-2',
               'bg-[#25D366] hover:bg-[#1eb356]',
               'text-white font-black text-xs uppercase tracking-widest',
               'shadow-md shadow-green-900/20',

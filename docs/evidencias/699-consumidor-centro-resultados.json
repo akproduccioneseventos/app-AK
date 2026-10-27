@@ -1,0 +1,69 @@
+{
+  "sha": "b58abab75d94a732daf79b32aff54ec253ccf63c",
+  "file": "src/app/(app)/centro-de-control/page.tsx",
+  "line": 180,
+  "sourceSha256": "33fa12cb8ac36a68e87af8251d540a5f87c11b0bf07a2e6e0bbf9557f3387152",
+  "method": "Exact TS AST initializer only; no rendered browser, no network, no real window.open.",
+  "results": [
+    {
+      "id": "edit",
+      "status": "FAIL",
+      "opened": [
+        [
+          "https://api.whatsapp.com/send?phone=59800000000&text=OLD",
+          "_blank"
+        ]
+      ],
+      "calls": [
+        [
+          "qa-message",
+          "mensaje",
+          "mandar_mensajes_clientes",
+          "OLD",
+          "CORRECTED"
+        ]
+      ],
+      "remaining": []
+    },
+    {
+      "id": "reject",
+      "status": "FAIL",
+      "opened": [
+        [
+          "https://api.whatsapp.com/send?phone=59800000000&text=OLD",
+          "_blank"
+        ]
+      ],
+      "calls": [
+        [
+          "qa-message",
+          "mensaje",
+          "mandar_mensajes_clientes",
+          "OLD",
+          "CORRECTED"
+        ]
+      ],
+      "remaining": []
+    },
+    {
+      "id": "throw",
+      "status": "FAIL",
+      "opened": [
+        [
+          "https://api.whatsapp.com/send?phone=59800000000&text=OLD",
+          "_blank"
+        ]
+      ],
+      "calls": [
+        [
+          "qa-message",
+          "mensaje",
+          "mandar_mensajes_clientes",
+          "OLD",
+          "CORRECTED"
+        ]
+      ],
+      "remaining": []
+    }
+  ]
+}

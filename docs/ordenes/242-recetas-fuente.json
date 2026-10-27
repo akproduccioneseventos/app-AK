@@ -1,0 +1,817 @@
+{
+  "marca": "AK Producciones Eventos",
+  "titulo": "Carta de 12 tragos — alcohol reducido / sin alcohol",
+  "vaso_ml": 300,
+  "oz_ml_aprox": 30,
+  "alc_reducido_ml_por_trago": 15,
+  "moneda": "UYU",
+  "instrucciones_generales": "Vaso de 300 ml. 1 oz = 30 ml aproximadamente. El hielo ocupa espacio: completar hasta el borde del vaso, no agregar 300 ml de líquido.",
+  "advertencias": [
+    "Tragos alcohólicos solamente para personas mayores de 18 años.",
+    "La versión sin alcohol debe usar granadina y Blue Curaçao en formato jarabe 0 %; los licores alcohólicos no sirven para esa versión.",
+    "No existen versiones idénticas sin alcohol de Fernet con Coca, Ron Cola y Gin con pomelo; se muestran alternativas de refrescos sin alcohol.",
+    "La Caipirinha se hace con CAÑA, no vodka ni cachaça.",
+    "Arizona y Atardecer son fórmulas propias propuestas para AK, no recetas únicas estandarizadas."
+  ],
+  "tragos": [
+    {
+      "id": "daiquiri_durazno",
+      "orden": 1,
+      "nombre": "Daiquiri de durazno",
+      "vaso_ml": 300,
+      "imagen": "imagenes/01_daiquiri_durazno.jpg",
+      "metodo": "licuado",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Ron",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Durazno en almíbar",
+            "medida": "1 mitad",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "2 oz",
+            "equivalencia": "60 ml"
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "1 cucharadita",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "3–4 cubitos",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Agua",
+            "medida": "cantidad necesaria hasta rendir 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Licuar fruta, hielo, azúcar y líquidos; agregar agua de a poco hasta obtener una porción de 300 ml."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Durazno en almíbar",
+            "medida": "1 mitad",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "2½ oz",
+            "equivalencia": "75 ml"
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "1 cucharadita",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "3–4 cubitos",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Agua",
+            "medida": "cantidad necesaria hasta rendir 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Licuar fruta, hielo, azúcar y líquidos; agregar agua de a poco hasta obtener una porción de 300 ml.",
+        "nombre_alternativo": null
+      }
+    },
+    {
+      "id": "daiquiri_frutilla",
+      "orden": 2,
+      "nombre": "Daiquiri de frutilla",
+      "vaso_ml": 300,
+      "imagen": "imagenes/02_daiquiri_frutilla.jpg",
+      "metodo": "licuado",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Ron",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Frutillas",
+            "medida": "4–5 unidades",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "1–2 cucharaditas",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "3–4 cubitos",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Agua",
+            "medida": "cantidad necesaria hasta rendir 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Licuar con el hielo y agregar agua poco a poco hasta lograr 300 ml de mezcla."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Frutillas",
+            "medida": "5–6 unidades",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "1–2 cucharaditas",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "3–4 cubitos",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Agua",
+            "medida": "cantidad necesaria hasta rendir 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Licuar con el hielo y agregar agua poco a poco hasta lograr 300 ml de mezcla.",
+        "nombre_alternativo": null
+      }
+    },
+    {
+      "id": "daiquiri_anana",
+      "orden": 3,
+      "nombre": "Daiquiri de ananá",
+      "vaso_ml": 300,
+      "imagen": "imagenes/03_daiquiri_anana.jpg",
+      "metodo": "licuado",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Ron",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Ananá",
+            "medida": "2 rodajas chicas",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de ananá",
+            "medida": "2 oz",
+            "equivalencia": "60 ml"
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "1 cucharadita",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "3–4 cubitos",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Agua",
+            "medida": "cantidad necesaria hasta rendir 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Licuar y completar con agua de a poco hasta obtener 300 ml de mezcla."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Ananá",
+            "medida": "2 rodajas chicas",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de ananá",
+            "medida": "2½ oz",
+            "equivalencia": "75 ml"
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "1 cucharadita",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "3–4 cubitos",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Agua",
+            "medida": "cantidad necesaria hasta rendir 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Licuar y completar con agua de a poco hasta obtener 300 ml de mezcla.",
+        "nombre_alternativo": null
+      }
+    },
+    {
+      "id": "daiquiri_primavera",
+      "orden": 4,
+      "nombre": "Daiquiri Primavera",
+      "vaso_ml": 300,
+      "imagen": "imagenes/04_daiquiri_primavera.jpg",
+      "metodo": "licuado",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Ron",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Durazno",
+            "medida": "1 rodaja",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Ananá",
+            "medida": "2 rodajas chicas",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "2 oz",
+            "equivalencia": "60 ml"
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "1 cucharadita",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "3–4 cubitos",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Agua",
+            "medida": "cantidad necesaria hasta rendir 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Licuar fruta, hielo y líquidos; completar gradualmente con agua hasta obtener 300 ml de mezcla."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Durazno",
+            "medida": "1 rodaja",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Ananá",
+            "medida": "2 rodajas chicas",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "2½ oz",
+            "equivalencia": "75 ml"
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "1 cucharadita",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "3–4 cubitos",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Agua",
+            "medida": "cantidad necesaria hasta rendir 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Licuar fruta, hielo y líquidos; completar gradualmente con agua hasta obtener 300 ml de mezcla.",
+        "nombre_alternativo": null
+      }
+    },
+    {
+      "id": "atomic_green",
+      "orden": 5,
+      "nombre": "Atomic Green",
+      "vaso_ml": 300,
+      "imagen": "imagenes/05_atomic_green.jpg",
+      "metodo": "directo",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Vodka",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Jarabe Blue Curaçao sin alcohol",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Colocar hielo y Blue Curaçao SIN alcohol; agregar el vodka solo en la versión para adultos; completar con naranja y mezclar. Verificar que el Blue Curaçao utilizado sea jarabe 0 % y no licor."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Jarabe Blue Curaçao sin alcohol",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Colocar hielo y Blue Curaçao SIN alcohol; agregar el vodka solo en la versión para adultos; completar con naranja y mezclar. Verificar que el Blue Curaçao utilizado sea jarabe 0 % y no licor.",
+        "nombre_alternativo": null
+      }
+    },
+    {
+      "id": "caipirinha",
+      "orden": 6,
+      "nombre": "Caipirinha con caña",
+      "vaso_ml": 300,
+      "imagen": "imagenes/06_caipirinha.jpg",
+      "metodo": "directo",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Caña uruguaya",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Limón",
+            "medida": "½ unidad",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "2 cucharaditas",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo picado",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Soda o agua con gas",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Cortar el limón, machacarlo suavemente con azúcar, agregar hielo y la caña solo para adultos; completar con soda. La versión 0 % es una limonada estilo caipirinha."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Limón",
+            "medida": "½ unidad",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Azúcar",
+            "medida": "2 cucharaditas",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo picado",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Soda o agua con gas",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Cortar el limón, machacarlo suavemente con azúcar, agregar hielo y la caña solo para adultos; completar con soda. La versión 0 % es una limonada estilo caipirinha.",
+        "nombre_alternativo": null
+      }
+    },
+    {
+      "id": "arizona",
+      "orden": 7,
+      "nombre": "Arizona – versión AK",
+      "vaso_ml": 300,
+      "imagen": "imagenes/07_arizona.jpg",
+      "metodo": "directo",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Vodka",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "2 oz",
+            "equivalencia": "60 ml"
+          },
+          {
+            "ingrediente": "Jugo de ananá",
+            "medida": "1 oz",
+            "equivalencia": "30 ml"
+          },
+          {
+            "ingrediente": "Granadina sin alcohol",
+            "medida": "1 cucharadita",
+            "equivalencia": "5 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Mezclar jugos y hielo; agregar vodka solo en la versión para adultos. Poner granadina al final. Versión AK: el nombre Arizona no tiene una fórmula única."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "2½ oz",
+            "equivalencia": "75 ml"
+          },
+          {
+            "ingrediente": "Jugo de ananá",
+            "medida": "1 oz",
+            "equivalencia": "30 ml"
+          },
+          {
+            "ingrediente": "Granadina sin alcohol",
+            "medida": "1 cucharadita",
+            "equivalencia": "5 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Mezclar jugos y hielo; agregar vodka solo en la versión para adultos. Poner granadina al final. Versión AK: el nombre Arizona no tiene una fórmula única.",
+        "nombre_alternativo": null
+      }
+    },
+    {
+      "id": "fernet_con_coca",
+      "orden": 8,
+      "nombre": "Fernet con Coca",
+      "vaso_ml": 300,
+      "imagen": "imagenes/08_fernet_con_coca.jpg",
+      "metodo": "directo",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Fernet",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Coca-Cola",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Poner hielo y completar con Coca-Cola. Para adultos agregar ½ oz de fernet; la opción 0 % se denomina «Cola con naranja» y no reproduce el sabor del Fernet."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Coca-Cola",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "1 cucharada",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Poner hielo y completar con Coca-Cola. Para adultos agregar ½ oz de fernet; la opción 0 % se denomina «Cola con naranja» y no reproduce el sabor del Fernet.",
+        "nombre_alternativo": "Cola con naranja"
+      }
+    },
+    {
+      "id": "atardecer",
+      "orden": 9,
+      "nombre": "Atardecer – versión AK",
+      "vaso_ml": 300,
+      "imagen": "imagenes/09_atardecer.jpg",
+      "metodo": "directo",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Ron",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "3 oz",
+            "equivalencia": "90 ml"
+          },
+          {
+            "ingrediente": "Jugo de ananá",
+            "medida": "1 oz",
+            "equivalencia": "30 ml"
+          },
+          {
+            "ingrediente": "Granadina sin alcohol",
+            "medida": "1 cucharadita",
+            "equivalencia": "5 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Agregar jugos y hielo, ron solo para adultos y granadina al final para lograr el degradado. Versión propuesta de AK."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "3½ oz",
+            "equivalencia": "105 ml"
+          },
+          {
+            "ingrediente": "Jugo de ananá",
+            "medida": "1 oz",
+            "equivalencia": "30 ml"
+          },
+          {
+            "ingrediente": "Granadina sin alcohol",
+            "medida": "1 cucharadita",
+            "equivalencia": "5 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Agregar jugos y hielo, ron solo para adultos y granadina al final para lograr el degradado. Versión propuesta de AK.",
+        "nombre_alternativo": null
+      }
+    },
+    {
+      "id": "destornillador",
+      "orden": 10,
+      "nombre": "Destornillador",
+      "vaso_ml": 300,
+      "imagen": "imagenes/10_destornillador.jpg",
+      "metodo": "directo",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Vodka",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Adultos: vodka, hielo y jugo de naranja; 0 %: jugo de naranja con un toque de limón y soda, como una naranjada."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Jugo de naranja",
+            "medida": "3 oz",
+            "equivalencia": "90 ml"
+          },
+          {
+            "ingrediente": "Jugo de limón",
+            "medida": "1 cucharadita",
+            "equivalencia": "5 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Soda o agua con gas",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Adultos: vodka, hielo y jugo de naranja; 0 %: jugo de naranja con un toque de limón y soda, como una naranjada.",
+        "nombre_alternativo": "Naranjada"
+      }
+    },
+    {
+      "id": "ron_cola",
+      "orden": 11,
+      "nombre": "Ron Cola",
+      "vaso_ml": 300,
+      "imagen": "imagenes/11_ron_cola.jpg",
+      "metodo": "directo",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Ron",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Coca-Cola",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Adultos: ron, hielo y Coca-Cola. La alternativa 0 % es «Cola con limón»; no contiene ron."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Coca-Cola",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Limón",
+            "medida": "1 rodaja",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Adultos: ron, hielo y Coca-Cola. La alternativa 0 % es «Cola con limón»; no contiene ron.",
+        "nombre_alternativo": "Cola con limón"
+      }
+    },
+    {
+      "id": "gin_con_pomelo",
+      "orden": 12,
+      "nombre": "Gin con pomelo",
+      "vaso_ml": 300,
+      "imagen": "imagenes/12_gin_con_pomelo.jpg",
+      "metodo": "directo",
+      "con_alcohol_reducido": {
+        "solo_mayores_de_18": true,
+        "alcohol_principal_ml": 15,
+        "ingredientes": [
+          {
+            "ingrediente": "Gin",
+            "medida": "½ oz",
+            "equivalencia": "15 ml"
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Refresco de pomelo",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Adultos: gin, hielo y refresco de pomelo. Alternativa 0 %: refresco de pomelo con una rodaja de limón; no lleva gin."
+      },
+      "sin_alcohol": {
+        "contiene_alcohol": false,
+        "ingredientes": [
+          {
+            "ingrediente": "Refresco de pomelo",
+            "medida": "completar hasta 300 ml",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Limón",
+            "medida": "1 rodaja",
+            "equivalencia": null
+          },
+          {
+            "ingrediente": "Hielo",
+            "medida": "½ vaso",
+            "equivalencia": null
+          }
+        ],
+        "preparacion": "Adultos: gin, hielo y refresco de pomelo. Alternativa 0 %: refresco de pomelo con una rodaja de limón; no lleva gin.",
+        "nombre_alternativo": "Pomelo con limón"
+      }
+    }
+  ]
+}

@@ -193,7 +193,11 @@ function PaginaWebPageContent() {
         }));
       }
 
-      const res = await crearTresPropuestasDeWeb(fiestaId, propuestasColor);
+      const res = await crearTresPropuestasDeWeb(fiestaId, propuestasColor, {
+        nombre: propuestasNombre,
+        fecha: propuestasFecha,
+        salon: propuestasSalon,
+      });
       if (res.success) {
         // El servidor guardó las propuestas: el estado local las toma para que el autoguardado no las borre.
         setFiesta((prev) =>

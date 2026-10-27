@@ -99,7 +99,7 @@ function ExperienciaContent() {
       {/* Barra superior institucional */}
       <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex min-h-10 items-center gap-2">
             <span className="font-extrabold text-xl tracking-wider text-amber-400">AK</span>
             <span className="text-xs uppercase tracking-widest text-slate-400">Eventos</span>
           </Link>
@@ -159,7 +159,7 @@ function ExperienciaContent() {
                     <Icono className={`w-3.5 h-3.5 ${esActivo ? 'text-amber-400' : 'text-slate-400'}`} />
                   )}
                 </div>
-                <div className="text-[11px] font-medium truncate">{paso.titulo}</div>
+                <div className="text-xs font-medium leading-tight break-words">{paso.titulo}</div>
               </button>
             );
           })}

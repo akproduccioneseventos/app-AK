@@ -1,0 +1,87 @@
+{
+  "sha": "c0add57f6237f666db97e7e902ef75f6c8d97479",
+  "method": "Unmodified module bodies with memory filesystem per worker/shared data double; actual control+web actions, generated template double. No SDK/HTTP/real model/production.",
+  "sources": {
+    "src/lib/ia/reglas-de-la-ia.ts": "9e562966037e7bf7308eb8fe1d088c083f62830815cec4df98bd531c11fa5fd6",
+    "src/lib/invitacion-digital-defaults.ts": "fa9df96c97978a8e60493cb43c423539df12a073943827bd6690dbb73cf19e37",
+    "src/app/actions/fiesta/armar-web-con-ia.actions.ts": "ea3ae605d7dff287c3ee492820349ae88f45b053ecfc2c4636347cc563cddf09",
+    "src/app/actions/centro-de-control.ts": "dd32dadd6c44655d64321eb9e5df4d80452a5131f2a09d51edf37936c6d4eba9"
+  },
+  "rows": [
+    {
+      "id": "R01",
+      "title": "Disable on instance B must be observed on existing instance A",
+      "status": "PASS",
+      "pass": true,
+      "actualA": "apagada",
+      "actualB": "apagada",
+      "remote": {
+        "reglas-de-la-ia.json": {
+          "armar_web_evento": "apagada"
+        }
+      }
+    },
+    {
+      "id": "R02",
+      "title": "Failed shared save must not report durable success",
+      "status": "FAIL",
+      "pass": false,
+      "result": {
+        "success": true
+      },
+      "fresh": "sola",
+      "remote": {}
+    },
+    {
+      "id": "R03",
+      "title": "Sequential changes from stale workers must retain unrelated disabled rules",
+      "status": "PASS",
+      "pass": true,
+      "remote": {
+        "reglas-de-la-ia.json": {
+          "armar_web_evento": "sola",
+          "vigilante_fiestas": "apagada",
+          "generador_contenido": "apagada"
+        }
+      }
+    },
+    {
+      "id": "R04",
+      "title": "Forbidden solo messaging is rejected",
+      "status": "PASS",
+      "pass": true,
+      "message": "Esta tarea no puede ejecutarse sola por seguridad"
+    },
+    {
+      "id": "R05",
+      "title": "One worker sees its successful local setting",
+      "status": "PASS",
+      "pass": true,
+      "observed": "apagada"
+    },
+    {
+      "id": "W01",
+      "title": "Actual control action plus actual web action must save before claiming web completed",
+      "status": "PASS",
+      "pass": true,
+      "result": {
+        "success": true,
+        "mensaje": "¡Listo, che! Ya le armé la web a la fiesta de Sofía. Quedó impecable y lista para revisar."
+      },
+      "saved": 1,
+      "generated": 1,
+      "records": [
+        {
+          "tareaId": "armar_web_evento",
+          "que": "Armé el diseño y textos de la web de invitación para la fiesta de Sofía con la plantilla recomendada.",
+          "enlace": "/fiestas/qa-lucia/pagina-web"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "PASS": 5,
+    "FAIL": 1,
+    "HARNESS_ERROR": 0
+  }
+}

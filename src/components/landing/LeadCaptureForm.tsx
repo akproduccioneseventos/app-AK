@@ -311,7 +311,7 @@ export function LeadCaptureForm({
             href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('¡Hola AK Producciones! Me gustaría cotizar mi evento.')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-green-600 font-bold hover:underline"
+            className="inline-flex min-h-10 items-center text-green-600 font-bold hover:underline"
           >
             <MessageSquare className="w-3 h-3 inline mr-0.5" />
             WhatsApp

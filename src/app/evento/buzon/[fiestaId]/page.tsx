@@ -1234,7 +1234,7 @@ export default function GuestBuzonPage() {
         <p className="mt-3 max-w-xs text-xs text-muted-foreground">
           Si llegaste por un enlace viejo, pedile el QR del buzón al equipo de AK.
         </p>
-        <button onClick={() => router.back()} className="mt-4 px-4 py-2 bg-muted rounded-lg text-xs font-bold border border-border">Volver</button>
+        <button onClick={() => router.back()} className="mt-4 px-4 min-h-10 py-2 bg-muted rounded-lg text-xs font-bold border border-border">Volver</button>
       </div>
     );
   }

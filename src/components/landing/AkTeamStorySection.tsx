@@ -68,7 +68,7 @@ export function AkTeamStorySection() {
                 <h3 className="text-xl font-black font-headline text-white group-hover:text-red-400 transition-colors">
                   {card.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-medium">
+                <p className="text-sm text-zinc-400 leading-relaxed font-medium">
                   {card.text}
                 </p>
               </div>

@@ -310,7 +310,7 @@ export default function PublicAlbumPage() {
             <div className="inline-flex rounded-full bg-zinc-900 p-1 border border-white/10">
               <button
                 onClick={() => setViewMode('libro')}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 min-h-10 py-1.5 rounded-full text-xs font-bold transition-all ${
                   viewMode === 'libro'
                     ? 'bg-amber-400 text-zinc-950 shadow-md'
                     : 'text-zinc-400 hover:text-white'
@@ -321,7 +321,7 @@ export default function PublicAlbumPage() {
               </button>
               <button
                 onClick={() => setViewMode('cuadricula')}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 min-h-10 py-1.5 rounded-full text-xs font-bold transition-all ${
                   viewMode === 'cuadricula'
                     ? 'bg-amber-400 text-zinc-950 shadow-md'
                     : 'text-zinc-400 hover:text-white'
@@ -334,7 +334,7 @@ export default function PublicAlbumPage() {
 
             <button
               onClick={handleShare}
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white text-zinc-950 font-bold text-xs hover:bg-zinc-200 transition-all shadow-lg active:scale-95"
+              className="inline-flex items-center gap-2 px-5 min-h-10 py-2 rounded-full bg-white text-zinc-950 font-bold text-xs hover:bg-zinc-200 transition-all shadow-lg active:scale-95"
             >
               {copied ? (
                 <>
@@ -354,7 +354,7 @@ export default function PublicAlbumPage() {
               disabled={isDownloadingAll}
               aria-label="Descargar todo el álbum"
               data-testid="boton-descargar-album"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-white/10 text-white font-bold text-xs hover:bg-zinc-800 transition-all shadow-md active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 min-h-10 py-2 rounded-full bg-zinc-900 border border-white/10 text-white font-bold text-xs hover:bg-zinc-800 transition-all shadow-md active:scale-95 disabled:opacity-50"
             >
               {isDownloadingAll ? (
                 <>
@@ -373,7 +373,7 @@ export default function PublicAlbumPage() {
               <div
                 role="alert"
                 data-testid="aviso-descarga-fallida"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-950/60 border border-red-400/30 text-red-100 text-xs"
+                className="inline-flex items-center gap-2 px-4 min-h-10 py-2 rounded-full bg-red-950/60 border border-red-400/30 text-red-100 text-xs"
               >
                 <span>La descarga no se completó.</span>
                 <button
@@ -391,7 +391,7 @@ export default function PublicAlbumPage() {
               onClick={() => setVideoModalAbierto(true)}
               aria-label="Tu video de la fiesta"
               data-testid="boton-video-resumen"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 font-black text-xs hover:brightness-110 transition-all shadow-md active:scale-95"
+              className="inline-flex items-center gap-2 px-4 min-h-10 py-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 font-black text-xs hover:brightness-110 transition-all shadow-md active:scale-95"
             >
               <Film className="w-3.5 h-3.5 fill-current" />
               <span>Tu video de la fiesta</span>
@@ -403,7 +403,7 @@ export default function PublicAlbumPage() {
                 onClick={toggleMusica}
                 aria-label={musicaActiva ? 'Silenciar música' : 'Activar música de fondo'}
                 data-testid="boton-musica-album"
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-all shadow-md active:scale-95 border ${
+                className={`inline-flex items-center gap-2 px-4 min-h-10 py-2 rounded-full font-bold text-xs transition-all shadow-md active:scale-95 border ${
                   musicaActiva
                     ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
                     : 'bg-zinc-900 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
@@ -574,7 +574,7 @@ export default function PublicAlbumPage() {
                 <button
                   onClick={() => setPaginaActual((p) => Math.max(0, p - 1))}
                   disabled={paginaActual === 0}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
+                  className="inline-flex items-center gap-1.5 px-4 min-h-10 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
                 >
                   <ChevronLeft className="w-4 h-4" /> Anterior
                 </button>
@@ -588,7 +588,7 @@ export default function PublicAlbumPage() {
                 <button
                   onClick={() => setPaginaActual((p) => Math.min(albumDigital.totalPaginas, p + 1))}
                   disabled={paginaActual >= albumDigital.totalPaginas}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
+                  className="inline-flex items-center gap-1.5 px-4 min-h-10 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
                 >
                   Siguiente <ChevronRight className="w-4 h-4" />
                 </button>
@@ -614,7 +614,7 @@ export default function PublicAlbumPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as FilterTab)}
-                  className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                  className={`shrink-0 px-4 min-h-10 py-1.5 rounded-full text-xs font-bold transition-all border ${
                     activeTab === tab.id
                       ? 'bg-amber-400 text-zinc-950 border-amber-400'
                       : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-200'
@@ -633,7 +633,7 @@ export default function PublicAlbumPage() {
                   <p className="text-xs text-zinc-400 mt-1 mb-4">Ocurrió un problema al leer los mensajes de los invitados.</p>
                   <button
                     onClick={loadPosts}
-                    className="px-5 py-2 rounded-full bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all shadow-md active:scale-95"
+                    className="px-5 min-h-10 py-2 rounded-full bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all shadow-md active:scale-95"
                   >
                     Reintentar
                   </button>
@@ -746,7 +746,7 @@ export default function PublicAlbumPage() {
               href={buildAkWhatsAppUrl(`Hola! Vi el álbum del evento ${nombreFiesta} y quiero consultar para mi fiesta.`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md"
+              className="inline-flex items-center gap-1.5 px-4 min-h-10 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md"
             >
               <MessageCircle className="w-3.5 h-3.5" />
               Escribinos por WhatsApp
