@@ -6,6 +6,9 @@ REGLA DUENO: Codex NUNCA fusiona. Cada actuacion enYA+evidencia, subir/verificar
 No appedit/deploy ni documentacion fusionada sola.
 
 ## Entrega nueva revisada
+Nueva241Gemini: ClubUruguay filtrado desdePDF, informe715 y originalenreferencias.
+Reutilizar existente; dosespacios/fotosverificadas/heroestable/ventaclara.
+NOcambiar50%/precios/ids/aforos globales; pruebas241PENDIENTES. Claudecompila/fusiona.
 PR1368 ABIERTA, fuente092906d666d73d3e895f8d3126e9f51bc18d72b1, base mainc0add57f.
 709:2suites16PASS;711:6suites52PASS;712:1suite3PASS. Total9suites71PASS.
 710:12criteriosPASS separados, callbackAST+accion con fronteras ficticias.
@@ -17,8 +20,7 @@ Informe713: no modeloGoogle/audiohumano/HTTPnativo/SDK/editorcompleto ni E2Enati
 No build amplio propio;884suites/304paginas son declaracionGemini, no evidenciaCodex.
 PRnoactualizaYA/ESTADO: Claude incorporar registro con codigo antes de integrar.
 Descripcion atomicidad/guardado previo no demostrada: mezcla/genera/guarda despues.
-AgenteAristotle cerrado; sugerencia quitar tools es propuesta, no bypass probado.
-Todos los procesos propios terminaron; copiaQA709 aislada reutiliza dependencias.
+AgentesAristotle/Hypatia cerrados; sin procesos propios. QA709 dependenciasreutilizadas.
 
 ## Otros hallazgos sin delta en1368
 Mainc0:70222criterios15PASS7FAIL, seis grupos703/orden238Codex aun sin cambio.

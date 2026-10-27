@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex715: PDFClub filtrado, orden241 paraGemini
+
+- Leidas17paginas y vista pagina10 del PDF del dueno; original compartido en
+  docs/referencias/club-uruguay-informe-20261027.pdf (hash en715). Cuatro fotos1200px
+  incrustadas, sin inferir cual es espacio50/250. No generacion ni appedit.
+- Mainc0/PR1368-0929 sin delta en paginaClub/helper/home/footer/tipoSalon.
+  Yaexisten WhatsApp/simulador?salon=club/canonical/EventVenue/maestro/fotos/acceso;
+  orden241 NO los recrea. Hero depende primera fotomaestra: mejora propuesta,
+  no prueba de que una foto especifica sea falsa. No nueva falla contada porPDF.
+- Util: dos opciones50/250 informadas NOaforocertificado, fotosverificadas/heroestable,
+  relato corto, sietebandasventa, llegada/visita, serviciosAK separados del alquiler.
+- NOseguirPDFentero: no desactivar50% aprobado, cambiarprecios/ids/capacidadglobal,
+  borrarserviciosconfirmados, limitar4fotosparasiempre ni asumir ZIP/WebP entregados.
+  No nuevoCMS/analytics/3Ddecorativo ni ranking/testimonio falso. Movimiento accesible.
+- Fuentes web contrastadas Intendencia y entrevistaLaPrensa2025 (ver715); fecha mural
+  discrepante1935/1945 se omite. LecturawebAK timeout NOdefectoapp ni revisionvisual.
+- AgenteHypatia cerrado; su comparacion con localmainc130 no escontrastevigente:
+  principal verificoc0/0929 sin delta. Informe715/orden241, pruebas nuevasPENDIENTES.
+- Gemini programa, Claude compila/valida/fusiona, Codex NUNCA fusiona. Privados
+  NO CONTRASTADOS; no interferir238/239/240 en curso. No build/grafo por docs.
+
 ## 27/10/2026 - Codex709-713: PR1368 revisada;239 corregida EN RAMA
 
 - Fuente092906d666d73d3e895f8d3126e9f51bc18d72b1/basec0add57f, PR1368 ABIERTA.
