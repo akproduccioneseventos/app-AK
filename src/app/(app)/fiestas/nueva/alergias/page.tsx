@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { avisarChoquesDeAlergiasACocina } from '@/app/actions/fiesta/avisar-alergias.actions';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Invitado, DietaryRestriction } from '@/types/fiesta';
 
@@ -44,6 +45,7 @@ function AlergiasContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [menu, setMenu] = useState<FullMenu | null>(null);
   const [avisoCocinaEnviado, setAvisoCocinaEnviado] = useState(false);
+  const [enviandoAviso, setEnviandoAviso] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -184,12 +186,33 @@ function AlergiasContent() {
                 size="sm"
                 variant={avisoCocinaEnviado ? "outline" : "destructive"}
                 className={avisoCocinaEnviado ? "border-emerald-500 text-emerald-700 bg-emerald-50" : ""}
-                onClick={() => {
-                  setAvisoCocinaEnviado(true);
-                  toast({
-                    title: "Aviso enviado a Cocina",
-                    description: `Se notificó a cocina de ${choquesMenuAlergias.length} choques de ingredientes con invitados confirmados.`
-                  });
+                disabled={avisoCocinaEnviado || enviandoAviso}
+                onClick={async () => {
+                  if (!fiestaId) return;
+                  setEnviandoAviso(true);
+                  try {
+                    const res = await avisarChoquesDeAlergiasACocina(
+                      fiestaId,
+                      choquesMenuAlergias.map((c) => ({
+                        platoNombre: c.platoNombre,
+                        restriccion: c.restriccion,
+                        personasAfectadas: c.personasAfectadas,
+                      })),
+                    );
+                    if (res.success) {
+                      setAvisoCocinaEnviado(true);
+                      toast({
+                        title: "Aviso enviado a Cocina",
+                        description: `Se dejó el aviso para el equipo con ${choquesMenuAlergias.length} choques de ingredientes.`,
+                      });
+                    } else {
+                      toast({ title: "No se pudo avisar a cocina", description: res.error || 'Probá de nuevo.', variant: 'destructive' });
+                    }
+                  } catch (err) {
+                    toast({ title: "No se pudo avisar a cocina", description: err instanceof Error ? err.message : 'Probá de nuevo.', variant: 'destructive' });
+                  } finally {
+                    setEnviandoAviso(false);
+                  }
                 }}
               >
                 <ChefHat className="w-4 h-4 mr-1.5" />

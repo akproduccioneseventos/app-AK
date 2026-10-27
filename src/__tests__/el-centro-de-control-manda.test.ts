@@ -26,6 +26,13 @@ jest.mock('@/app/actions/fiesta/armar-web-con-ia.actions', () => ({
   })),
 }));
 
+const mockSaveFiesta = jest.fn(async (f: unknown) => ({ success: true, fiesta: f }));
+const mockGetFiestaById = jest.fn(async (id: string) => ({ id, configuracion: { nombreEvento: 'Sofía' } }));
+jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
+  getFiestaById: (id: string) => mockGetFiestaById(id),
+  saveFiesta: (f: unknown) => mockSaveFiesta(f),
+}));
+
 import {
   guardarReglaIA,
   getReglasDeLaIA,
@@ -138,6 +145,31 @@ describe('El Centro de Control Manda (Orden 236)', () => {
     expect(acciones.length).toBeGreaterThanOrEqual(1);
     expect(acciones[0].tareaId).toBe('armar_web_evento');
     expect(acciones[0].que).toMatch(/Sofía/i);
+    // La web armada se guarda de verdad (antes se descartaba y se anotaba "hecho").
+    expect(mockSaveFiesta).toHaveBeenCalledWith(
+      expect.objectContaining({ invitacionDigital: { cabecera: { protagonista1: 'Sofía' } } }),
+    );
+  });
+
+  it('(c2) si armar la web falla, no se anota "hecho" y se dice', async () => {
+    await guardarReglaIA('armar_web_evento', 'sola', 'dueno');
+    const { armarWebConIA } = jest.requireMock('@/app/actions/fiesta/armar-web-con-ia.actions');
+    armarWebConIA.mockResolvedValueOnce({ success: false, error: 'La IA no contestó.' });
+    const antes = (await getRegistroAccionesSolas()).length;
+
+    const res = await darOrdenPorVozOTexto('armale la web a la fiesta de Sofía');
+    expect(res.success).toBe(false);
+    expect(res.mensaje).toMatch(/La IA no contestó/);
+    expect((await getRegistroAccionesSolas()).length).toBe(antes);
+  });
+
+  it('(c3) si guardar la web falla, tampoco se anota "hecho"', async () => {
+    await guardarReglaIA('armar_web_evento', 'sola', 'dueno');
+    mockSaveFiesta.mockResolvedValueOnce({ success: false, error: 'sin permiso' } as never);
+    const antes = (await getRegistroAccionesSolas()).length;
+    const res = await darOrdenPorVozOTexto('armale la web a la fiesta de Sofía');
+    expect(res.success).toBe(false);
+    expect((await getRegistroAccionesSolas()).length).toBe(antes);
   });
 
   // (d) Querer poner "mandar mensajes a clientes" o "gastar en publicidad" en sola se rechaza en el servidor (throw Error)

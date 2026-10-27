@@ -354,7 +354,8 @@ export async function elegirPropuestaDeWeb(
   // 3. Guarda la elegida en fiesta.propuestaDeWebElegida y avisa al equipo con createNotification.
   const fiestaActualizada: FiestaEnPlanificacion = {
     ...fiesta,
-    invitacionDigital: propuesta.invitacionDigital,
+    // Mezcla, no pisa: datos bancarios, regalos y textos escritos a mano siguen (las propuestas los traen vacíos).
+    invitacionDigital: mezclarInvitacionConExistente(propuesta.invitacionDigital, fiesta.invitacionDigital, false),
     propuestaDeWebElegida: propuesta.id,
   };
 

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { readData, writeData } from '@/lib/data-service';
+import { readDataConDetalle, writeData } from '@/lib/data-service';
 
 export type ReglaModo = 'sola' | 'preguntar' | 'apagada';
 
@@ -38,6 +38,17 @@ const MAX_REGISTRO = 100;
 const MAX_APRENDIZAJE = 300;
 
 async function leerJson<T>(filename: string, fallback: T): Promise<T> {
+  // La base manda (con varios servidores, apagar una tarea tiene que valer en todos).
+  // La copia local es sólo respaldo si la base no está o no tiene el dato.
+  if (!(process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
+    try {
+      const { valor, huboFalla } = await readDataConDetalle<T | null>(filename, null);
+      if (!huboFalla && valor !== null && valor !== undefined) return valor as T;
+    } catch {
+      // Sin base: cae a la copia local
+    }
+  }
+
   const localPath = path.join(process.cwd(), 'data', filename);
   try {
     if (fs.existsSync(localPath)) {
@@ -47,16 +58,7 @@ async function leerJson<T>(filename: string, fallback: T): Promise<T> {
   } catch {
     // Si falla lectura local, continuar
   }
-
-  if (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST) {
-    return fallback;
-  }
-
-  try {
-    return await readData<T>(filename, fallback);
-  } catch {
-    return fallback;
-  }
+  return fallback;
 }
 
 async function guardarJson<T>(filename: string, data: T): Promise<void> {

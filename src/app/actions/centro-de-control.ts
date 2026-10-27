@@ -12,7 +12,9 @@ import {
   getScheduledMessages,
   markMessageAsSent,
   cancelScheduledMessage,
+  updateScheduledMessageText,
 } from '@/app/actions/scheduled-messages';
+import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import { readData, writeData } from '@/lib/data-service';
 import type { SocialPost } from '@/types/social-media';
@@ -242,6 +244,11 @@ export async function aprobarItemOK(
     const res = await aceptarPropuesta(id, 'Dueño', { esDuenio: true });
     if (!res.success) return { success: false, error: res.mensaje || 'No se pudo aceptar la propuesta.' };
   } else if (origen === 'mensaje') {
+    if (huboCambio) {
+      // El texto aprobado queda guardado en el mensaje (es lo que se aprendió y lo que salió).
+      const edit = await updateScheduledMessageText(id, textoFinal!);
+      if (!edit.success) return { success: false, error: edit.error || 'No se pudo guardar el texto corregido.' };
+    }
     const res = await markMessageAsSent(id, 'Dueño');
     if (!res.success) return { success: false, error: res.error || 'No se pudo marcar el mensaje como enviado.' };
   } else if (origen === 'post') {
@@ -387,10 +394,29 @@ export async function darOrdenPorVozOTexto(
         // En tests o si no hay fiestas
       }
 
+      let falla: string | null = null;
       try {
-        await armarWebConIA(fiestaId);
-      } catch {
-        // Simulación controlada
+        const armada = await armarWebConIA(fiestaId);
+        if (!armada.success || !armada.invitacionDigital) {
+          falla = armada.error || 'No se pudo armar la web.';
+        } else {
+          const fiesta = await getFiestaById(fiestaId);
+          if (!fiesta) {
+            falla = 'No se encontró la fiesta para guardar la web.';
+          } else {
+            const guardado = await saveFiesta({ ...fiesta, invitacionDigital: armada.invitacionDigital });
+            if (!guardado.success) falla = guardado.error || 'No se pudo guardar la web.';
+          }
+        }
+      } catch (err) {
+        falla = err instanceof Error ? err.message : 'No se pudo armar la web.';
+      }
+
+      if (falla) {
+        return {
+          success: false,
+          mensaje: `No pude armar la web de la fiesta: ${falla} No se guardó nada.`,
+        };
       }
 
       await registrarAccionSola({

@@ -320,8 +320,42 @@ describe('Orden 234 — La IA arma la web sin inventar', () => {
     expect(resElegir.success).toBe(true);
 
     // 4. Ahora sí la web publicada cambió a la propuesta elegida
-    expect(fiestaEstado.invitacionDigital).toEqual(propuestaElegida.invitacionDigital);
+    // Mezcla: lo escrito a mano (protagonista) queda; el resto sale de la propuesta.
+    expect(fiestaEstado.invitacionDigital?.cabecera.protagonista1).toBe('Web Publicada Original');
+    expect(fiestaEstado.invitacionDigital?.plantilla).toEqual(propuestaElegida.invitacionDigital.plantilla);
     expect(fiestaEstado.propuestaDeWebElegida).toBe(propuestaElegida.id);
     expect(createNotification).toHaveBeenCalled();
+  });
+
+  it('elegir una propuesta conserva los datos bancarios y los regalos cargados', async () => {
+    const propuesta: any = {
+      id: 'p1',
+      invitacionDigital: {
+        ...defaultInvitacionDigitalData,
+        regalos: { ...defaultInvitacionDigitalData.regalos, datosBancarios: '', items: [] },
+      },
+    };
+    let estado: any = {
+      id: 'f-banco',
+      configuracion: { nombreEvento: 'X', tipoCelebracion: '15', fechaEvento: '2026-11-20' },
+      invitacionDigital: {
+        ...defaultInvitacionDigitalData,
+        regalos: {
+          ...defaultInvitacionDigitalData.regalos,
+          datosBancarios: 'BROU 001-123456-7',
+          items: [{ id: 'g1', nombre: 'Reloj' }],
+        },
+      },
+      propuestasDeWeb: [propuesta],
+    };
+    (getFiestaById as jest.Mock).mockImplementation(async () => estado);
+    (saveFiesta as jest.Mock).mockImplementation(async (f: any) => {
+      estado = f;
+      return { success: true, fiesta: f };
+    });
+    const res = await elegirPropuestaDeWeb('f-banco', 'p1');
+    expect(res.success).toBe(true);
+    expect(estado.invitacionDigital.regalos.datosBancarios).toBe('BROU 001-123456-7');
+    expect(estado.invitacionDigital.regalos.items).toHaveLength(1);
   });
 });

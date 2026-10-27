@@ -195,6 +195,12 @@ function PaginaWebPageContent() {
 
       const res = await crearTresPropuestasDeWeb(fiestaId, propuestasColor);
       if (res.success) {
+        // El servidor guardó las propuestas: el estado local las toma para que el autoguardado no las borre.
+        setFiesta((prev) =>
+          prev
+            ? { ...prev, propuestasDeWeb: res.propuestas ?? prev.propuestasDeWeb }
+            : prev,
+        );
         setTresPropuestasDialogOpen(false);
         toast({
           title: '3 propuestas creadas',

@@ -184,7 +184,12 @@ export default function CentroDeControlPage() {
 
     // Si es WhatsApp y tiene enlace, abrirlo en nueva pestaña
     if (item.enlaceWhatsapp) {
-      window.open(item.enlaceWhatsapp, '_blank');
+      // El enlace lleva el texto aprobado (el corregido, si lo cambió), no el original.
+      const textoAprobado = nuevoTexto && nuevoTexto.trim() !== '' ? nuevoTexto : item.texto;
+      const enlace = item.telefono
+        ? `https://api.whatsapp.com/send?phone=${String(item.telefono).replace(/\D/g, '')}&text=${encodeURIComponent(textoAprobado)}`
+        : item.enlaceWhatsapp;
+      window.open(enlace, '_blank');
     }
 
     // Feedback optimista: quitar de la lista inmediatamente
