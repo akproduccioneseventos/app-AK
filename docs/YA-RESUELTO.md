@@ -16036,3 +16036,14 @@ Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-n
 
 - **Qué estaba mal:** elegir una propuesta de web borraba los datos bancarios; la regla "tarea apagada" se leía de una copia local y no de la base; en "Cambiar" + aprobar un WhatsApp salía el texto viejo; tras crear las 3 versiones el autoguardado las borraba; la orden "armá la web" en modo sola no guardaba y anotaba "hecho" igual; "Se notificó a cocina" no enviaba nada.
 - **Qué se hizo:** `elegirPropuestaDeWeb` mezcla con lo existente (`mezclarInvitacionConExistente`); `leerJson` de `reglas-de-la-ia.ts` consulta primero la base; `aprobarItemOK` guarda el texto corregido y la pantalla arma el enlace con el aprobado; la pantalla de la web toma las propuestas guardadas; `darOrdenPorVozOTexto` comprueba y guarda la web antes de anotar; `avisarChoquesDeAlergiasACocina` crea un aviso real. Prueba: `src/__tests__/codex-1367-seis-defectos.test.ts`.
+
+## 27/10/2026 — Recetas de la barra con las proporciones del dueño
+
+- **Qué estaba mal:** las recetas de la carta de la barra eran inventadas (ron 50 ml, almíbar, etc.) y faltaban 5 tragos de la carta del dueño.
+- **Qué se hizo:** en `src/lib/fiesta-defaults.ts` (`defaultCartaTragosData`) quedaron 17 tragos con las cantidades del dueño; se crearon los insumos `ing-pina-colada`, `ing-blue-curacao`, `ing-martini` e `ing-licor-frutilla` en `src/data/insumos.json` con precio 0. **Supuestos editables, por el estándar de los medidores de bar:** medida = 1 oz = 30 ml, medida grande = 1,5 oz = 45 ml, botella 750 ml, vaso 300 ml, jarra de 1 L = 0,3 vaso y de 600 cc = 0,5; "completar" = 300 ml menos lo demás. No se cargan rolo de hielo, cucharada, mitades/rodajas ni agua (sin equivalencia).
+- **Control:** `src/__tests__/las-recetas-de-la-barra-son-las-del-duenio.test.ts`.
+
+```comprobar
+archivo: src/__tests__/las-recetas-de-la-barra-son-las-del-duenio.test.ts
+usa: ing-blue-curacao en src/lib/fiesta-defaults.ts
+```

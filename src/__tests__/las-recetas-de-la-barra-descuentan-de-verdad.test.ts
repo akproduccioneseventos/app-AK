@@ -14,8 +14,8 @@ const insumos: Array<{ id: string; unidad: string }> = JSON.parse(
 const porId = new Map(insumos.map((i) => [i.id, i]));
 
 describe('Las recetas de la barra descuentan de verdad', () => {
-  it('son los 12 tragos de la carta', () => {
-    expect(defaultCartaTragosData.items).toHaveLength(12);
+  it('son los 17 tragos de la carta', () => {
+    expect(defaultCartaTragosData.items).toHaveLength(17);
   });
 
   it('cada ingrediente es un insumo que existe, en su misma unidad', () => {
@@ -39,11 +39,11 @@ describe('Las recetas de la barra descuentan de verdad', () => {
     }
   });
 
-  it('el Atomic green lleva 40 ml de licor de durazno, 30 de vodka y 150 de Sprite', () => {
+  it('el Atomic green lleva 45 ml de vodka, 30 de blue curaçao y 225 de jugo de naranja', () => {
     const atomic = defaultCartaTragosData.items.find((t) => t.nombre === 'Atomic green')!;
     const de = (id: string) => atomic.recetaIngredientes!.find((i) => i.insumoId === id)!.cantidad;
-    expect(de('ing-licor-durazno')).toBeCloseTo(40 / 750, 3);
-    expect(de('ing-vodka')).toBeCloseTo(30 / 750, 3);
-    expect(de('ing-sprite')).toBeCloseTo(0.15, 3);
+    expect(de('ing-vodka')).toBeCloseTo(45 / 750, 3);
+    expect(de('ing-blue-curacao')).toBeCloseTo(30 / 750, 3);
+    expect(de('ing-naranja')).toBeCloseTo(0.225, 3);
   });
 });

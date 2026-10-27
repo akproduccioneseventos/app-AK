@@ -246,6 +246,10 @@ export const defaultGiftItems: GiftItem[] = [
   { id: 'gift_default_12', name: '🌟 Experiencia especial',    description: 'Spa, cena romántica o actividad única',               isClaimed: false },
 ];
 
+// Recetas de la carta de la barra (27/10/2026). SUPUESTOS EDITABLES, por el estándar de los medidores de bar:
+// 1 oz = 30 ml, "medida" = 1 oz = 30 ml, "medida grande" = 1,5 oz = 45 ml (jigger estándar), botella = 750 ml,
+// vaso = 300 ml, jarra de 1 L = 0,3 vaso y de 600 cc = 0,5. "Completar" = 300 ml menos los demás líquidos.
+// Sin equivalencia definida (no se cargan): rolo de hielo, cucharada, mitades/rodajas de fruta, agua.
 export const defaultCartaTragosData: CartaTragosData = {
   titulo: 'CARTA DE TRAGOS',
   // Vacio a proposito: lo llena el nombre real de la fiesta. Ver arriba.
@@ -270,10 +274,8 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Ron blanco', 'Durazno', 'Jugo de limón', 'Almíbar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.0667, unidad: 'Botella' },
-        { insumoId: 'ing-durazno', nombre: 'Durazno', cantidad: 0.08, unidad: 'Kg' },
-        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.02, unidad: 'Litro' },
-        { insumoId: 'ing-almibar', nombre: 'Almíbar', cantidad: 0.015, unidad: 'Litro' },
+        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.018, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de naranja', cantidad: 0.045, unidad: 'Litro' },
       ],
     },
     {
@@ -309,14 +311,12 @@ export const defaultCartaTragosData: CartaTragosData = {
       nombre: 'Daiquiri de ananá',
       imageUrl: 'https://images.unsplash.com/photo-1546171753-97d7676e4602?q=80&w=600&auto=format&fit=crop',
       aiHint: 'pineapple daiquiri cocktail',
-      descripcion: 'Ron blanco con pulpa de ananá, jugo de limón y almíbar.',
-      ingredientes: ['Ron blanco', 'Ananá', 'Jugo de limón', 'Almíbar'],
+      descripcion: 'Daiquiri de ananá con ron y piña colada (receta del dueño, jarra de 600 cc).',
+      ingredientes: ['Ron blanco', 'Ananá', 'Piña colada', 'Azúcar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.0667, unidad: 'Botella' },
-        { insumoId: 'ing-anana', nombre: 'Ananá', cantidad: 0.08, unidad: 'Kg' },
-        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.02, unidad: 'Litro' },
-        { insumoId: 'ing-almibar', nombre: 'Almíbar', cantidad: 0.015, unidad: 'Litro' },
+        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.16, unidad: 'Botella' },
+        { insumoId: 'ing-pina-colada', nombre: 'Piña colada', cantidad: 0.04, unidad: 'Botella' },
       ],
     },
     {
@@ -328,10 +328,8 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Ron blanco', 'Frutilla', 'Jugo de limón', 'Almíbar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.0667, unidad: 'Botella' },
-        { insumoId: 'ing-frutilla', nombre: 'Frutilla', cantidad: 0.08, unidad: 'Kg' },
-        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.02, unidad: 'Litro' },
-        { insumoId: 'ing-almibar', nombre: 'Almíbar', cantidad: 0.015, unidad: 'Litro' },
+        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.018, unidad: 'Botella' },
+        { insumoId: 'ing-licor-frutilla', nombre: 'Licor de frutilla', cantidad: 0.018, unidad: 'Botella' },
       ],
     },
     {
@@ -339,13 +337,13 @@ export const defaultCartaTragosData: CartaTragosData = {
       nombre: 'Atomic green',
       imageUrl: 'https://images.unsplash.com/photo-1587223962930-cb7f31384c19?q=80&w=600&auto=format&fit=crop',
       aiHint: 'green cocktail peach sprite',
-      descripcion: 'Licor de durazno, vodka y Sprite.',
-      ingredientes: ['Licor de durazno', 'Vodka', 'Sprite'],
+      descripcion: 'Vodka, blue curaçao y jugo de naranja.',
+      ingredientes: ['Vodka', 'Blue curaçao', 'Jugo de naranja'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ing-licor-durazno', nombre: 'Licor de durazno', cantidad: 0.0533, unidad: 'Botella' },
-        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.04, unidad: 'Botella' },
-        { insumoId: 'ing-sprite', nombre: 'Sprite', cantidad: 0.15, unidad: 'Litro' },
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.06, unidad: 'Botella' },
+        { insumoId: 'ing-blue-curacao', nombre: 'Blue curaçao', cantidad: 0.04, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de naranja', cantidad: 0.225, unidad: 'Litro' },
       ],
     },
     {
@@ -353,14 +351,12 @@ export const defaultCartaTragosData: CartaTragosData = {
       nombre: 'Daiquiri primavera',
       imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
       aiHint: 'fruit daiquiri cocktail',
-      descripcion: 'Ron blanco, mix de frutas, jugo de limón y almíbar.',
-      ingredientes: ['Ron blanco', 'Mix de frutas', 'Jugo de limón', 'Almíbar'],
+      descripcion: 'Ron blanco con jugo de naranja, durazno y ananá (receta del dueño, jarra de 1 litro).',
+      ingredientes: ['Ron blanco', 'Jugo de naranja', 'Durazno', 'Ananá', 'Azúcar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.0667, unidad: 'Botella' },
-        { insumoId: 'ing-mix-frutas', nombre: 'Mix de frutas', cantidad: 0.08, unidad: 'Kg' },
-        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.02, unidad: 'Litro' },
-        { insumoId: 'ing-almibar', nombre: 'Almíbar', cantidad: 0.015, unidad: 'Litro' },
+        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.072, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de naranja', cantidad: 0.045, unidad: 'Litro' },
       ],
     },
     {
@@ -427,6 +423,79 @@ export const defaultCartaTragosData: CartaTragosData = {
       recetaIngredientes: [
         { insumoId: 'ing-gin', nombre: 'Gin', cantidad: 0.0667, unidad: 'Botella' },
         { insumoId: 'ing-pomelo', nombre: 'Gaseosa de pomelo', cantidad: 0.2, unidad: 'Litro' },
+      ],
+    },
+    {
+      id: 'martini-refresh',
+      nombre: 'Martini Refresh',
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'martini sprite vodka',
+      descripcion: 'Martini, vodka y Sprite.',
+      ingredientes: ['Martini', 'Vodka', 'Azúcar', 'Sprite'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-martini', nombre: 'Martini', cantidad: 0.16, unidad: 'Botella' },
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.04, unidad: 'Botella' },
+        { insumoId: 'ing-sprite', nombre: 'Sprite', cantidad: 0.15, unidad: 'Litro' },
+      ],
+    },
+    {
+      id: 'pantera-rosa',
+      nombre: 'Pantera Rosa',
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'pink cocktail grenadine',
+      descripcion: 'Vodka, piña colada y granadina, batidos con hielo.',
+      ingredientes: ['Vodka', 'Piña colada', 'Granadina'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.06, unidad: 'Botella' },
+        { insumoId: 'ing-pina-colada', nombre: 'Piña colada', cantidad: 0.12, unidad: 'Botella' },
+        { insumoId: 'ing-granadina', nombre: 'Granadina', cantidad: 0.1, unidad: 'Botella' },
+      ],
+    },
+    {
+      id: 'electric-lemonade',
+      nombre: 'Electric Lemonade',
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'blue lemonade cocktail',
+      descripcion: 'Vodka, blue curaçao, limón y Sprite.',
+      ingredientes: ['Vodka', 'Jugo de limón', 'Blue curaçao', 'Sprite', 'Rodaja de limón'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.06, unidad: 'Botella' },
+        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.15, unidad: 'Litro' },
+        { insumoId: 'ing-blue-curacao', nombre: 'Blue curaçao', cantidad: 0.04, unidad: 'Botella' },
+        { insumoId: 'ing-sprite', nombre: 'Sprite', cantidad: 0.075, unidad: 'Litro' },
+      ],
+    },
+    {
+      id: 'sex-on-the-beach',
+      nombre: 'Sex on the Beach',
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'sex on the beach cocktail',
+      descripcion: 'Vodka, licor de durazno, jugo de naranja y granadina.',
+      ingredientes: ['Vodka', 'Licor de durazno', 'Jugo de naranja', 'Granadina'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.08, unidad: 'Botella' },
+        { insumoId: 'ing-licor-durazno', nombre: 'Licor de durazno', cantidad: 0.04, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de naranja', cantidad: 0.195, unidad: 'Litro' },
+        { insumoId: 'ing-granadina', nombre: 'Granadina', cantidad: 0.02, unidad: 'Botella' },
+      ],
+    },
+    {
+      id: 'orgasmo',
+      nombre: 'Orgasmo',
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'creamy peach cocktail',
+      descripcion: 'Vodka, licor de durazno, piña colada y granadina.',
+      ingredientes: ['Vodka', 'Licor de durazno', 'Piña colada', 'Granadina'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.06, unidad: 'Botella' },
+        { insumoId: 'ing-licor-durazno', nombre: 'Licor de durazno', cantidad: 0.04, unidad: 'Botella' },
+        { insumoId: 'ing-pina-colada', nombre: 'Piña colada', cantidad: 0.08, unidad: 'Botella' },
+        { insumoId: 'ing-granadina', nombre: 'Granadina', cantidad: 0.02, unidad: 'Botella' },
       ],
     },
   ],
