@@ -86,6 +86,24 @@ Que no se repita dos veces en la misma pantalla.
 la entrevista". Contradice la decisión del dueño: nada se congela. Cambialo por "Tu promoción sigue vigente mientras
 corre el reloj."
 
+## Bloque 6 — el simulador avisa cuando usa la lista guardada (27/10/2026)
+
+`src/app/actions/public-simulator-bootstrap.ts:74-83` cae a `servicios-empresa.json` si la lectura viva falla, viene
+vacía o tarda de más, y nadie se entera. Si esa lista está vieja, el prospecto ve precios viejos.
+
+- Al cliente **no** se le muestra nada distinto: el simulador sigue andando.
+- Al dueño le llega un aviso con `createNotification`: "El simulador usó la lista de precios guardada porque no pudo
+  leer la del momento". Uno por día como máximo.
+- La respuesta del bootstrap lleva `origenDePrecios: 'vivo' | 'respaldo'` para poder probarlo.
+
+Prueba Jest: con la lectura viva fallando, `origenDePrecios` es `'respaldo'` y se crea un solo aviso aunque se llame
+dos veces el mismo día.
+
+```comprobar
+# Bloque 6
+usa: origenDePrecios en src/app/actions/public-simulator-bootstrap.ts
+```
+
 ## Pruebas
 
 Navegador, en `tests/e2e/el-simulador-tiene-los-textos-nuevos.spec.ts`. Comprobar:
