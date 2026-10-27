@@ -48,6 +48,8 @@ import { KpiCard } from '@/components/dashboard/kpi-card';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import { PushNotificationPrompt } from '@/components/push-notification-prompt';
 import { getDashboardKpiData, type GlobalAlert } from '@/app/actions/dashboard';
+import { puede, PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+import { getUsuarioActual } from '@/app/actions/sesion';
 import { descartarPrioridad } from '@/app/actions/alertas.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -79,6 +81,7 @@ export interface HubItem {
   lightColor: string;
   featured?: boolean;
   category: 'comercial' | 'operaciones' | 'finanzas' | 'marketing';
+  permiso: Permiso;
 }
 
 const CATEGORIES = [
@@ -91,28 +94,28 @@ const CATEGORIES = [
 
 const mainHubItems: HubItem[] = [
   // Comercial & CRM
-  { title: 'Prospectos', description: 'Ver, registrar y gestionar todos los prospectos activos del CRM.', href: '/contabilidad/crm', icon: ListChecks, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'comercial' },
-  { title: 'Nuevo Presupuesto', description: 'Crear una nueva cotización para un cliente.', href: '/presupuestos/nuevo/crear', icon: FileText, lightColor: 'bg-indigo-50 text-indigo-600', featured: true, category: 'comercial' },
-  { title: 'Ver Presupuestos', description: 'Consultar todos los presupuestos generados.', href: '/presupuestos', icon: Files, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'comercial' },
-  { title: 'Base de Clientes', description: 'Directorio completo de clientes y contactos.', href: '/customers', icon: Users, lightColor: 'bg-amber-50 text-amber-600', featured: false, category: 'comercial' },
+  { title: 'Prospectos', description: 'Ver, registrar y gestionar todos los prospectos activos del CRM.', href: '/contabilidad/crm', icon: ListChecks, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'comercial', permiso: PERMISOS.CRM },
+  { title: 'Nuevo Presupuesto', description: 'Crear una nueva cotización para un cliente.', href: '/presupuestos/nuevo/crear', icon: FileText, lightColor: 'bg-indigo-50 text-indigo-600', featured: true, category: 'comercial', permiso: PERMISOS.CONTABILIDAD },
+  { title: 'Ver Presupuestos', description: 'Consultar todos los presupuestos generados.', href: '/presupuestos', icon: Files, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'comercial', permiso: PERMISOS.CONTABILIDAD },
+  { title: 'Base de Clientes', description: 'Directorio completo de clientes y contactos.', href: '/customers', icon: Users, lightColor: 'bg-amber-50 text-amber-600', featured: false, category: 'comercial', permiso: PERMISOS.CRM },
 
   // Operación & Eventos
-  { title: 'Eventos Activos', description: 'Planificación y seguimiento de eventos en curso.', href: '/eventos', icon: CalendarClock, lightColor: 'bg-indigo-50 text-indigo-600', featured: false, category: 'operaciones' },
-  { title: 'Calendario', description: 'Vista de agenda y próximas fechas importantes.', href: '/calendario', icon: CalendarDays, lightColor: 'bg-teal-50 text-teal-600', featured: false, category: 'operaciones' },
-  { title: 'Planificador Gastronómico', description: 'Menús, recetas, bebidas y repostería maestra.', href: '/empresa/menus', icon: ChefHat, lightColor: 'bg-amber-50 text-amber-600', featured: false, category: 'operaciones' },
-  { title: 'Catálogo de Servicios', description: 'Presentación digital del catálogo por tipo de fiesta.', href: '/catalogo', icon: BookOpen, lightColor: 'bg-sky-50 text-sky-600', featured: false, category: 'operaciones' },
+  { title: 'Eventos Activos', description: 'Planificación y seguimiento de eventos en curso.', href: '/eventos', icon: CalendarClock, lightColor: 'bg-indigo-50 text-indigo-600', featured: false, category: 'operaciones', permiso: PERMISOS.ORGANIZACION },
+  { title: 'Calendario', description: 'Vista de agenda y pr?ximas fechas importantes.', href: '/calendario', icon: CalendarDays, lightColor: 'bg-teal-50 text-teal-600', featured: false, category: 'operaciones', permiso: PERMISOS.ORGANIZACION },
+  { title: 'Planificador Gastronómico', description: 'Men?s, recetas, bebidas y repostería maestra.', href: '/empresa/menus', icon: ChefHat, lightColor: 'bg-amber-50 text-amber-600', featured: false, category: 'operaciones', permiso: PERMISOS.INSUMOS },
+  { title: 'Catálogo de Servicios', description: 'Presentaci?n digital del cat?logo por tipo de fiesta.', href: '/catalogo', icon: BookOpen, lightColor: 'bg-sky-50 text-sky-600', featured: false, category: 'operaciones', permiso: PERMISOS.ORGANIZACION },
 
   // Finanzas & Facturación
-  { title: 'Cobros / Pagos Rápidos', description: 'Registrar cobros y enviar recibos al instante.', href: '/pagos-rapidos', icon: Wallet, lightColor: 'bg-emerald-50 text-emerald-600', featured: false, category: 'finanzas' },
-  { title: 'Contabilidad', description: 'Panel financiero, facturas, flujo de caja y reportes.', href: '/empresa/contabilidad', icon: BarChart3, lightColor: 'bg-orange-50 text-orange-600', featured: false, category: 'finanzas' },
-  { title: 'Facturas', description: 'Gestión completa de facturación.', href: '/invoices', icon: FileText, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'finanzas' },
-  { title: 'Activos Fijos', description: 'Inventario de equipos y bienes.', href: '/empresa/activos-fijos', icon: Package, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'finanzas' },
+  { title: 'Cobros / Pagos Rápidos', description: 'Registrar cobros y enviar recibos al instante.', href: '/pagos-rapidos', icon: Wallet, lightColor: 'bg-emerald-50 text-emerald-600', featured: false, category: 'finanzas', permiso: PERMISOS.CONTABILIDAD },
+  { title: 'Contabilidad', description: 'Panel financiero, facturas, flujo de caja y reportes.', href: '/empresa/contabilidad', icon: BarChart3, lightColor: 'bg-orange-50 text-orange-600', featured: false, category: 'finanzas', permiso: PERMISOS.CONTABILIDAD },
+  { title: 'Facturas', description: 'Gestión completa de facturaci?n.', href: '/invoices', icon: FileText, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'finanzas', permiso: PERMISOS.CONTABILIDAD },
+  { title: 'Activos Fijos', description: 'Inventario de equipos y bienes.', href: '/empresa/activos-fijos', icon: Package, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'finanzas', permiso: PERMISOS.INSUMOS },
 
   // Marketing & Empresa
-  { title: 'Marketing y Redes', description: 'Contenido, campañas, demo comercial, plantilla LED y redes de AK.', href: '/marketing', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false, category: 'marketing' },
-  { title: 'Gestión de Empresa', description: 'Empleados, servicios, galería, landing page y más.', href: '/empresa', icon: Building2, lightColor: 'bg-cyan-50 text-cyan-600', featured: false, category: 'marketing' },
-  { title: 'Envíos de WhatsApp', description: 'Mensajes programados y envíos del día vía WhatsApp.', href: '/contabilidad/crm/outbox', icon: MessageCircle, lightColor: 'bg-green-50 text-green-600', featured: false, category: 'marketing' },
-  { title: 'Contratos', description: 'Gestionar plantillas de contrato y cláusulas editables.', href: '/settings/contratos', icon: FileSignature, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'marketing' },
+  { title: 'Marketing y Redes', description: 'Contenido, campañas, demo comercial, plantilla LED y redes de AK.', href: '/marketing', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false, category: 'marketing', permiso: PERMISOS.CRM },
+  { title: 'Gestión de Empresa', description: 'Empleados, servicios, galería, landing page y más.', href: '/empresa', icon: Building2, lightColor: 'bg-cyan-50 text-cyan-600', featured: false, category: 'marketing', permiso: PERMISOS.ADMINISTRACION },
+  { title: 'Envíos de WhatsApp', description: 'Mensajes programados y envíos del día vía WhatsApp.', href: '/contabilidad/crm/outbox', icon: MessageCircle, lightColor: 'bg-green-50 text-green-600', featured: false, category: 'marketing', permiso: PERMISOS.CRM },
+  { title: 'Contratos', description: 'Gestionar plantillas de contrato y cláusulas editables.', href: '/settings/contratos', icon: FileSignature, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'marketing', permiso: PERMISOS.CONTABILIDAD },
 ];
 
 function alertIcon(alert: GlobalAlert) {
@@ -129,6 +132,7 @@ export default function MainDashboardPage() {
   const [greeting, setGreeting] = useState('');
   const [greetingEmoji, setGreetingEmoji] = useState('');
   const [loadError, setLoadError] = useState('');
+  const [usuario, setUsuario] = useState<{ role?: string; perfil?: string } | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -170,6 +174,23 @@ export default function MainDashboardPage() {
   }, [toast]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  useEffect(() => {
+    let cancelado = false;
+    getUsuarioActual()
+      .then((res) => {
+        if (!cancelado && res.usuario) setUsuario(res.usuario);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelado = true;
+    };
+  }, []);
+
+  const itemsVisibles = useMemo(() => {
+    if (!usuario) return [];
+    return mainHubItems.filter((item) => puede(usuario, item.permiso));
+  }, [usuario]);
 
   const alerts: GlobalAlert[] = useMemo(() => kpiData?.alerts || [], [kpiData]);
   const alertasUrgentes = useMemo(() => alerts.filter(alert => alert.severity === 'high').slice(0, 4), [alerts]);
@@ -400,7 +421,7 @@ export default function MainDashboardPage() {
           <TabsList className="flex flex-wrap h-auto p-1.5 bg-slate-100/80 rounded-2xl border border-slate-200/60 gap-1">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
-              const count = cat.id === 'todos' ? mainHubItems.length : mainHubItems.filter(i => i.category === cat.id).length;
+              const count = cat.id === 'todos' ? itemsVisibles.length : itemsVisibles.filter(i => i.category === cat.id).length;
               return (
                 <TabsTrigger
                   key={cat.id}
@@ -418,7 +439,7 @@ export default function MainDashboardPage() {
           </TabsList>
 
           {CATEGORIES.map((cat) => {
-            const items = cat.id === 'todos' ? mainHubItems : mainHubItems.filter(i => i.category === cat.id);
+            const items = cat.id === 'todos' ? itemsVisibles : itemsVisibles.filter(i => i.category === cat.id);
             return (
               <TabsContent key={cat.id} value={cat.id} className="space-y-4 focus-visible:outline-none">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">

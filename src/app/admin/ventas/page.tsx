@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestas, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestas, actualizarFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const PIPELINE_STAGES = [
@@ -19,6 +19,7 @@ const PIPELINE_STAGES = [
 ];
 
 const DEFAULT_STAGE = 'Lead';
+const MOVABLE_STAGES = ['Lead', 'Reunión', 'Cotizado'];
 
 const formatCurrency = (v?: number) =>
   v == null ? '—' : new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(v);
@@ -49,11 +50,15 @@ export default function VentasPage() {
   const handleMove = async (fiesta: FiestaEnPlanificacion, newStage: string) => {
     setMovingId(fiesta.id);
     try {
-      const saveRes = await saveFiesta({ ...fiesta, estado: newStage });
+      const saveRes = await actualizarFiesta(fiesta.id, { estado: newStage });
       if (!saveRes.success) {
         throw new Error(saveRes.error || 'No se pudo actualizar el estado.');
       }
-      setFiestas(prev => prev.map(f => f.id === fiesta.id ? { ...f, estado: newStage } : f));
+      if (saveRes.updatedFiesta) {
+        setFiestas(prev => prev.map(f => f.id === fiesta.id ? saveRes.updatedFiesta! : f));
+      } else {
+        setFiestas(prev => prev.map(f => f.id === fiesta.id ? { ...f, estado: newStage } : f));
+      }
       toast({ title: 'Movido', description: `${fiesta.configuracion.nombreEvento} → ${newStage}` });
     } catch (e: any) {
       toast({ title: 'Error', description: e.message || 'No se pudo actualizar el estado.', variant: 'destructive' });
@@ -62,8 +67,14 @@ export default function VentasPage() {
     }
   };
 
+  const getStageForFiesta = (f: FiestaEnPlanificacion): string => {
+    if (f.estado === 'Completado' || f.estado === 'Archivado') return 'Completado';
+    if (f.estado === 'Contratada' || f.estado === 'Seña' || f.contratoFirmaInfo?.isSigned) return 'Seña';
+    return f.estado || DEFAULT_STAGE;
+  };
+
   const byStage = (stageId: string) =>
-    fiestas.filter(f => (f.estado || DEFAULT_STAGE) === stageId);
+    fiestas.filter(f => getStageForFiesta(f) === stageId);
 
   const pipelineTotal = fiestas
     .filter(f => !['Completado', 'Cancelado', 'Archivado'].includes(f.estado || ''))
@@ -156,16 +167,19 @@ export default function VentasPage() {
                         </div>
                         {/* Move buttons */}
                         <div className="flex gap-1 flex-wrap pt-1">
-                          {PIPELINE_STAGES.filter(s => s.id !== stage.id).map(s => (
-                            <button
-                              key={s.id}
-                              disabled={movingId === fiesta.id}
-                              onClick={() => handleMove(fiesta, s.id)}
-                              className={`text-xs px-2 py-0.5 rounded-full border font-medium transition-opacity ${movingId === fiesta.id ? 'opacity-40' : 'hover:opacity-80'} ${s.color} ${s.textColor}`}
-                            >
-                              → {s.label}
-                            </button>
-                          ))}
+                          {MOVABLE_STAGES.filter(sId => sId !== stage.id).map(sId => {
+                            const target = PIPELINE_STAGES.find(s => s.id === sId);
+                            return (
+                              <button
+                                key={sId}
+                                disabled={movingId === fiesta.id}
+                                onClick={() => handleMove(fiesta, sId)}
+                                className={`text-xs px-2 py-0.5 rounded-full border font-medium transition-opacity ${movingId === fiesta.id ? 'opacity-40' : 'hover:opacity-80'} ${target?.color || 'bg-slate-500'} ${target?.textColor || 'text-white'}`}
+                              >
+                                → {target?.label || sId}
+                              </button>
+                            );
+                          })}
                         </div>
                       </CardContent>
                     </Card>

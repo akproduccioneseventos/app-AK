@@ -26,7 +26,7 @@ import { createHash } from 'crypto';
 
 export const CLAVE_DE_LA_MARCA = '_leido';
 
-export type MarcaDeLectura = { v: string; h: string; w: string };
+export type MarcaDeLectura = { v: string; h: string; w: string; plata?: Record<string, string> };
 
 export class ChoqueAlGuardar extends Error {
   readonly ids: string[];
@@ -91,11 +91,16 @@ export function marcarLectura(docs: Array<{ datos: Record<string, unknown>; vers
   }));
 }
 
-function marcaDe(item: unknown): MarcaDeLectura | null {
+export function marcaDe(item: unknown): MarcaDeLectura | null {
   const m = item && typeof item === 'object' ? (item as Record<string, unknown>)[CLAVE_DE_LA_MARCA] : null;
   if (!m || typeof m !== 'object') return null;
-  const { v, h, w } = m as Record<string, unknown>;
-  return typeof v === 'string' && typeof h === 'string' && typeof w === 'string' ? { v, h, w } : null;
+  const { v, h, w, plata } = m as Record<string, unknown>;
+  if (typeof v === 'string' && typeof h === 'string' && typeof w === 'string') {
+    const res: MarcaDeLectura = { v, h, w };
+    if (plata && typeof plata === 'object') res.plata = plata as Record<string, string>;
+    return res;
+  }
+  return null;
 }
 
 /**
@@ -141,4 +146,28 @@ export function decidirGuardado<T>(
     if (!algunaMarca || version <= hastaDondeSeVio) borrar.push(id);
   }
   return { escribir, borrar, choques, sinMarcas: !algunaMarca };
+}
+
+export function marcarItemLectura<T extends Record<string, unknown>>(
+  item: T,
+  version?: string,
+  camposPlata?: readonly string[],
+): T & { [CLAVE_DE_LA_MARCA]: MarcaDeLectura } {
+  const v = version || String((item as any)._syncedAt ?? (item as any).version ?? '');
+  const h = huellaDe(sacarMarcas(item));
+  const plata: Record<string, string> = {};
+  if (camposPlata) {
+    for (const campo of camposPlata) {
+      plata[campo] = huellaDe((item as Record<string, unknown>)[campo]);
+    }
+  }
+  return {
+    ...item,
+    [CLAVE_DE_LA_MARCA]: {
+      v: v || h,
+      h,
+      w: v || h,
+      ...(camposPlata ? { plata } : {}),
+    },
+  };
 }

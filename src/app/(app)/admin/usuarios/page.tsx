@@ -14,7 +14,10 @@ import {
   NOMBRE_DEL_PERFIL,
   PERFILES_DEL_EQUIPO,
   QUE_HACE_CADA_PERFIL,
+  PERMISOS_POR_PERFIL,
+  PERMISOS,
   type Perfil,
+  type Permiso,
 } from '@/lib/auth/perfiles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,6 +75,46 @@ const SYSTEM_MODULES = [
   { id: 'empresa', label: 'Empresa (Servicios, Empleados, Proveedores)' },
   { id: 'whatsapp', label: 'WhatsApp y Comunicación' },
 ] as const;
+
+
+const DESCRIPCION_PERMISOS_LEGIBLE: Record<Permiso, string> = {
+  [PERMISOS.CONTABILIDAD]: 'Contabilidad (presupuestos, facturas, cobros)',
+  [PERMISOS.SUELDOS]: 'Sueldos del personal y liquidaciones',
+  [PERMISOS.GANANCIAS]: 'Ganancias, costos y márgenes del negocio',
+  [PERMISOS.CRM]: 'CRM (prospectos, seguimiento comercial, agenda)',
+  [PERMISOS.ORGANIZACION]: 'Organización de fiestas (menús, cronograma, invitados)',
+  [PERMISOS.NOCHE]: 'La noche del evento (puerta, muro, pantalla, estaciones)',
+  [PERMISOS.INSUMOS]: 'Insumos, stock y proveedores',
+  [PERMISOS.ADMINISTRACION]: 'Administración total del sistema y usuarios',
+};
+
+function InfoPerfilPermisos({ perfil }: { perfil: Perfil }) {
+  const permisos = PERMISOS_POR_PERFIL[perfil] || [];
+  return (
+    <div className="space-y-2">
+      <Label className="text-sm font-semibold text-slate-800">Lo que ve cada persona depende de su perfil</Label>
+      <div className="p-3 border rounded-xl bg-slate-50/70 space-y-2 text-sm">
+        <p className="text-slate-700 font-medium text-xs leading-relaxed">
+          {QUE_HACE_CADA_PERFIL[perfil]}
+        </p>
+        {permisos.length > 0 ? (
+          <div className="space-y-1 pt-1 border-t border-slate-200/60">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Incluye:</span>
+            <ul className="list-disc list-inside space-y-0.5 text-xs text-slate-600">
+              {permisos.map((p) => (
+                <li key={p}>{DESCRIPCION_PERMISOS_LEGIBLE[p] || p}</li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p className="text-xs text-slate-500 italic pt-1 border-t border-slate-200/60">
+            Solo acceso a su propia información de trabajo.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminUsuariosPage() {
   const { toast } = useToast();
@@ -203,7 +246,8 @@ export default function AdminUsuariosPage() {
 
     setIsProcessing(true);
     try {
-      const res = await updateUserModules(selectedUser.id, editModules, editRole, editPerfil);
+      const modulesToSave = (selectedUser.modules && selectedUser.modules.length > 0) ? selectedUser.modules : editModules;
+      const res = await updateUserModules(selectedUser.id, modulesToSave, editRole, editPerfil);
       if (res.success) {
         toast({
           title: 'Permisos actualizados',

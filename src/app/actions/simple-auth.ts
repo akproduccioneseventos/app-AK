@@ -907,7 +907,15 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
       }
     }
 
-    const perfil = esPerfilValido(storedUser?.perfil) ? storedUser.perfil : perfilDesdeRolViejo(storedUser?.role);
+    if (storedUser?.perfil !== undefined && storedUser?.perfil !== null && (storedUser.perfil as string) !== '') {
+      if (!esPerfilValido(storedUser.perfil)) {
+        return {
+          success: false,
+          error: 'Tu usuario tiene un perfil que no existe. Pedile al dueño que lo corrija.',
+        };
+      }
+    }
+    const perfil = storedUser?.perfil ? storedUser.perfil : perfilDesdeRolViejo(storedUser?.role);
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie({
       email: decodedToken?.email ?? 'google-user@akproducciones.com',
@@ -915,6 +923,7 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
       userId: cuentaCreada || decodedToken?.uid || 'google-uid',
       perfil,
       modules: Array.isArray(storedUser?.modules) ? storedUser.modules : ['all'],
+      versionDeSesion: typeof storedUser?.versionDeSesion === 'number' ? storedUser.versionDeSesion : 1,
     });
     await clearLoginProtection();
     return { success: true };

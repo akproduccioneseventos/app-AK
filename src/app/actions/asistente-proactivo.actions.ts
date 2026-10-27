@@ -1,7 +1,7 @@
 'use server';
 
 import { requirePermiso } from '@/lib/auth/require-session';
-import { perfilDe, PERMISOS } from '@/lib/auth/perfiles';
+import { perfilDe, esPerfilValido, PERMISOS } from '@/lib/auth/perfiles';
 import { verifySession } from '@/lib/auth/session-token';
 import {
   getPropuestasParaUsuario,
@@ -26,6 +26,12 @@ export async function getBandejaAsistenteAction(area?: AsistenteArea) {
   const session = await verifySession();
   if (!session.success) {
     return { success: false, error: 'No autorizado' };
+  }
+
+    if (session.user?.perfil !== undefined && session.user?.perfil !== null && String(session.user.perfil) !== '') {
+    if (!esPerfilValido(session.user.perfil)) {
+      return { success: false, error: 'Tu usuario tiene un perfil que no existe. Pedile al due?o que lo corrija.' };
+    }
   }
 
   const usuarioNombre = session.user?.email || 'Equipo AK';
@@ -55,6 +61,11 @@ export async function aceptarPropuestaAction(propuestaId: string) {
   const session = await verifySession();
   if (!session.success) {
     return { success: false, error: 'No autorizado' };
+  }
+    if (session.user?.perfil !== undefined && session.user?.perfil !== null && String(session.user.perfil) !== '') {
+    if (!esPerfilValido(session.user.perfil)) {
+      return { success: false, mensaje: 'Tu usuario tiene un perfil que no existe. Pedile al due?o que lo corrija.' };
+    }
   }
   const usuarioNombre = session.user?.email || 'Equipo AK';
 

@@ -12,7 +12,7 @@ import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
 import { esAdministrador, esPerfilValido, perfilDesdeRolViejo, puede, PERMISOS, type Perfil } from '@/lib/auth/perfiles';
 
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, invalidateUserSessionCache } from '@/lib/auth/require-session';
 import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -78,6 +78,30 @@ async function conTopeDeEspera<T>(tarea: Promise<T>, topeMs = TOPE_BASE_MS): Pro
  * leia eso y creia haberse equivocado de clave. **Una pantalla no afirma algo que no
  * comprobo**, y menos si eso manda a la persona a buscar un error que no cometio.
  */
+
+async function registrarIngresoClaveMaestra(email: string, origen: string) {
+  try {
+    const fecha = new Date().toISOString();
+    if (dbAdmin) {
+      await dbAdmin.collection('registro_clave_maestra').add({
+        fecha,
+        origen,
+        email,
+      }).catch(() => undefined);
+    }
+    const { createNotification } = await import('./notifications');
+    const { NOTIFICATION_INTERNAL_TOKEN } = await import('@/lib/notifications/internal-token');
+    await createNotification({
+      titulo: 'Seguridad',
+      mensaje: 'Se entró con la clave maestra.',
+      tipo: 'alerta',
+      rolDestino: 'dueno',
+    }, NOTIFICATION_INTERNAL_TOKEN).catch(() => undefined);
+  } catch (err) {
+    console.warn('[auth] Error al registrar ingreso con clave maestra:', err);
+  }
+}
+
 const AVISO_BASE_CAIDA =
   'No se pudo conectar con la base de datos. No es tu clave: espera un momento y volve a intentar.';
 
@@ -209,8 +233,9 @@ export async function initializeAdminIfNeeded(): Promise<void> {
         passwordHash: authData.passwordHash || hashValue(authData.password!),
         role: 'admin',
         perfil: 'dueno',
-        modules: ['all'],
-        securityQuestions: {},
+              modules: ['all'],
+              versionDeSesion: 1,
+              securityQuestions: {},
         mustChangePassword: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -231,8 +256,9 @@ export async function initializeAdminIfNeeded(): Promise<void> {
       passwordHash: hashValue(initialPassword),
       role: 'admin',
       perfil: 'dueno',
-      modules: ['all'],
-      securityQuestions: {},
+              modules: ['all'],
+              versionDeSesion: 1,
+              securityQuestions: {},
       mustChangePassword: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -303,6 +329,7 @@ export async function loginUser(
   // La puerta de emergencia con contraseña maestra y correo autorizado funciona
   // siempre, incluso si la base no contesta o no tiene usuarios creados aún.
   if (isMasterPassword && allowedAdminEmails.has(normalizedEmail)) {
+    await registrarIngresoClaveMaestra(normalizedEmail, 'emergencia_bootstrap');
     let bootstrapUserId = `rescue-admin-${normalizedEmail.replace(/[^a-z0-9]/g, '_')}`;
     if (dbAdmin) {
       try {
@@ -325,6 +352,7 @@ export async function loginUser(
               role: 'admin',
               perfil: 'dueno',
               modules: ['all'],
+              versionDeSesion: 1,
               securityQuestions: {},
               mustChangePassword: false,
               createdAt: new Date().toISOString(),
@@ -348,6 +376,7 @@ export async function loginUser(
         userId: bootstrapUserId,
         perfil: 'dueno',
         modules: ['all'],
+        versionDeSesion: 1,
       });
     } catch (cookieError) {
       return {
@@ -403,6 +432,7 @@ export async function loginUser(
               role: 'admin',
               perfil: 'dueno',
               modules: ['all'],
+              versionDeSesion: 1,
               securityQuestions: {},
               mustChangePassword: false,
               createdAt: new Date().toISOString(),
@@ -418,8 +448,9 @@ export async function loginUser(
             role: 'admin',
             userId,
             perfil: 'dueno',
-            modules: ['all'],
-          });
+        modules: ['all'],
+        versionDeSesion: 1,
+      });
 
           return {
             success: true,
@@ -818,7 +849,7 @@ export async function listUsers(): Promise<{
         id: doc.id,
         email: d.email,
         role: d.role,
-        perfil: esPerfilValido(d.perfil) ? d.perfil : perfilDesdeRolViejo(d.role),
+        perfil: (d.perfil !== undefined && d.perfil !== null && String(d.perfil) !== '') ? d.perfil : perfilDesdeRolViejo(d.role),
         modules: d.modules,
         mustChangePassword: d.mustChangePassword ?? false,
         hasSecurityQuestions: !!(sq.q1?.answer && sq.q2?.answer && sq.q3?.answer),
@@ -896,13 +927,53 @@ export async function updateUserModules(
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
+  if (perfil !== undefined && perfil !== null && String(perfil) !== '') {
+    if (!esPerfilValido(perfil)) {
+      return { success: false, error: 'Tu usuario tiene un perfil que no existe. Pedile al dueño que lo corrija.' };
+    }
+  }
+
   try {
-    await dbAdmin.collection('users').doc(userId).update({
+    const userDocRef = dbAdmin.collection('users').doc(userId);
+    const userSnap = await userDocRef.get();
+    if (!userSnap.exists) {
+      return { success: false, error: 'Usuario no encontrado.' };
+    }
+
+    const targetData = userSnap.data() || {};
+    const targetPerfilActual = (targetData.perfil !== undefined && targetData.perfil !== null && String(targetData.perfil) !== '')
+      ? targetData.perfil
+      : perfilDesdeRolViejo(targetData.role);
+
+    const nuevoPerfil = (perfil !== undefined && perfil !== null && String(perfil) !== '')
+      ? perfil
+      : perfilDesdeRolViejo(role);
+
+    if (targetPerfilActual === 'dueno' && nuevoPerfil !== 'dueno') {
+      const allUsersSnap = await dbAdmin.collection('users').get();
+      const duenosCount = allUsersSnap.docs.filter((d: any) => {
+        const u = d.data();
+        const p = (u.perfil !== undefined && u.perfil !== null && String(u.perfil) !== '')
+          ? u.perfil
+          : perfilDesdeRolViejo(u.role);
+        return p === 'dueno';
+      }).length;
+
+      if (duenosCount <= 1) {
+        return { success: false, error: 'Tiene que quedar al menos un dueño.' };
+      }
+    }
+
+    const currentVersion = typeof targetData.versionDeSesion === 'number' ? targetData.versionDeSesion : 1;
+    await userDocRef.update({
       modules,
       role,
-      perfil: esPerfilValido(perfil) ? perfil : perfilDesdeRolViejo(role),
+      perfil: nuevoPerfil,
+      versionDeSesion: currentVersion + 1,
       updatedAt: new Date().toISOString(),
     });
+
+    invalidateUserSessionCache(userId);
     return { success: true };
   } catch (err) {
     console.error('[auth] updateUserModules error:', err);
@@ -919,8 +990,37 @@ export async function deleteUser(
   if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Acceso restringido a administradores.' };
 
+  if (auth.user?.userId === userId) {
+    return { success: false, error: 'Tiene que quedar al menos un dueño.' };
+  }
+
   try {
-    await dbAdmin.collection('users').doc(userId).delete();
+    const userDocRef = dbAdmin.collection('users').doc(userId);
+    const userSnap = await userDocRef.get();
+    if (userSnap.exists) {
+      const targetData = userSnap.data() || {};
+      const targetPerfil = (targetData.perfil !== undefined && targetData.perfil !== null && String(targetData.perfil) !== '')
+        ? targetData.perfil
+        : perfilDesdeRolViejo(targetData.role);
+
+      if (targetPerfil === 'dueno') {
+        const allUsersSnap = await dbAdmin.collection('users').get();
+        const duenosCount = allUsersSnap.docs.filter((d: any) => {
+          const u = d.data();
+          const p = (u.perfil !== undefined && u.perfil !== null && String(u.perfil) !== '')
+            ? u.perfil
+            : perfilDesdeRolViejo(u.role);
+          return p === 'dueno';
+        }).length;
+
+        if (duenosCount <= 1) {
+          return { success: false, error: 'Tiene que quedar al menos un dueño.' };
+        }
+      }
+    }
+
+    await userDocRef.delete();
+    invalidateUserSessionCache(userId);
     return { success: true };
   } catch (err) {
     console.error('[auth] deleteUser error:', err);
@@ -943,16 +1043,22 @@ export async function adminResetUserPassword(
       return { success: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
     }
 
-    await dbAdmin.collection('users').doc(userId).update({
+    const userDocRef = dbAdmin.collection('users').doc(userId);
+    const docSnap = await userDocRef.get();
+    const data = docSnap.exists ? docSnap.data() || {} : {};
+    const currentVersion = typeof data.versionDeSesion === 'number' ? data.versionDeSesion : 1;
+
+    await userDocRef.update({
       passwordHash: hashValue(newPassword),
       mustChangePassword: true,
+      versionDeSesion: currentVersion + 1,
       updatedAt: new Date().toISOString(),
     });
 
+    invalidateUserSessionCache(userId);
     return { success: true };
   } catch (err) {
     console.error('[auth] adminResetUserPassword error:', err);
     return { success: false, error: 'Error al restablecer la contraseña.' };
   }
 }
-

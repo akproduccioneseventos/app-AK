@@ -67,7 +67,7 @@ export interface ItemPresupuestado {
   categoriaServicio?: string;
   subcategoria?: string;
   esRegalo?: boolean;
-  
+
   // Fields to support complex calculations, copied from catalog or overridden
   calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
   precioBase?: number;
@@ -122,6 +122,7 @@ export interface Presupuesto {
   archived?: boolean; // Soft-delete: when true the budget is hidden from active lists
   archivedAt?: string; // ISO timestamp of archival
   totalFinal?: number; // Added to resolve build error on approvals / client requests
+  versionDeEnlace?: number;
   acquisition?: import('@/lib/commercial/acquisition').CommercialAttribution;
 }
 
@@ -157,7 +158,7 @@ export interface PresupuestoFormData {
     invitadosPorUnidad?: number;
     tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
   }>;
-  
+
   // Gastronomic selections
   selectedMenuId?: string;
 

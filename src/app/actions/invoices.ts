@@ -125,6 +125,13 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
   return invoices.find(inv => inv.id === id) || null;
 }
 
+export async function getInvoicesByPresupuestoId(presupuestoId: string): Promise<Invoice[]> {
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) throw new Error(permiso.error);
+  const invoices = await leerFacturasSinGuardia();
+  return invoices.filter(inv => inv.sourcePresupuestoId === presupuestoId || (presupuestoId.length >= 5 && inv.invoiceNumber === ('HIST-' + presupuestoId.slice(-5))));
+}
+
 // Todas estas funciones hacen leer-modificar-escribir sobre el mismo archivo de
 // facturas. Sin turno, dos guardados simultaneos se pisan y se pierde una
 // factura entera. `presupuestos.ts` ya usaba este mismo mecanismo; facturas no.

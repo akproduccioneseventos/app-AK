@@ -3,14 +3,13 @@
 import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { TrendingUp, Loader2, RefreshCw, DollarSign, TrendingDown, Wallet, CalendarDays, ArrowRight } from 'lucide-react';
+import { TrendingUp, Loader2, RefreshCw, DollarSign, Wallet, CalendarDays, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { Separator } from '@/components/ui/separator';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 
 const formatCurrency = (v: number) =>
@@ -24,9 +23,10 @@ interface FiestaFinanzas {
   nombre: string;
   fecha: string;
   estado: string;
-  ingresos: number;
+  ingresos: number; // Cobrado efectivamente
+  totalPactado: number; // Total acordado/pactado
   egresos: number;
-  ganancia: number;
+  ganancia: number; // ingresos - egresos (ganancia sobre lo cobrado)
 }
 
 function calcularEgresos(fiesta: FiestaEnPlanificacion): number {
@@ -37,14 +37,18 @@ function calcularEgresos(fiesta: FiestaEnPlanificacion): number {
 }
 
 function calcularIngresos(fiesta: FiestaEnPlanificacion): number {
-  // Use plan de pagos (actual received) if available
   if (fiesta.planDePagos?.cuotas) {
     const paymentSummary = getPaymentPlanSummary(fiesta.planDePagos.cuotas);
-    if (paymentSummary.paid > 0) return paymentSummary.paid;
-    // Fallback: total del plan
-    if (paymentSummary.total > 0) return paymentSummary.total;
+    return paymentSummary.paid;
   }
-  // Fallback to estimated budget or gestionCostos
+  return 0;
+}
+
+function calcularTotalPactado(fiesta: FiestaEnPlanificacion): number {
+  if (fiesta.planDePagos?.cuotas && fiesta.planDePagos.cuotas.length > 0) {
+    const s = getPaymentPlanSummary(fiesta.planDePagos.cuotas);
+    if (s.total > 0) return s.total;
+  }
   return fiesta.gestionCostos?.ingresosTotalesEstimados
     ?? fiesta.configuracion.presupuestoEstimado
     ?? 0;
@@ -61,6 +65,7 @@ export default function FinanzasPage() {
       const data = await getFiestas(true);
       const calculados: FiestaFinanzas[] = (Array.isArray(data) ? data : []).map(f => {
         const ingresos = calcularIngresos(f);
+        const totalPactado = calcularTotalPactado(f);
         const egresos = calcularEgresos(f);
         return {
           id: f.id,
@@ -68,6 +73,7 @@ export default function FinanzasPage() {
           fecha: f.configuracion.fechaEvento || '',
           estado: f.estado || '—',
           ingresos,
+          totalPactado,
           egresos,
           ganancia: ingresos - egresos,
         };
@@ -84,10 +90,12 @@ export default function FinanzasPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  const totalIngresos = fiestas.reduce((s, f) => s + f.ingresos, 0);
+  const totalCobrado = fiestas.reduce((s, f) => s + f.ingresos, 0);
+  const totalPactado = fiestas.reduce((s, f) => s + f.totalPactado, 0);
   const totalEgresos = fiestas.reduce((s, f) => s + f.egresos, 0);
-  const totalGanancia = totalIngresos - totalEgresos;
-  const margen = totalIngresos > 0 ? (totalGanancia / totalIngresos) * 100 : 0;
+  const porCobrar = Math.max(0, totalPactado - totalCobrado);
+  const gananciaCobrado = totalCobrado - totalEgresos;
+  const gananciaEsperada = totalPactado - totalEgresos;
 
   return (
     <div className="space-y-4">
@@ -108,28 +116,28 @@ export default function FinanzasPage() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <DollarSign className="w-4 h-4 text-green-600" />
-              <p className="text-xs text-green-700 font-medium">Ingresos Totales</p>
+              <p className="text-xs text-green-700 font-medium">Cobrado</p>
             </div>
-            <p className="text-xl font-bold text-green-700">{formatCurrency(totalIngresos)}</p>
+            <p className="text-xl font-bold text-green-700">{formatCurrency(totalCobrado)}</p>
           </CardContent>
         </Card>
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-amber-200 bg-amber-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingDown className="w-4 h-4 text-red-600" />
-              <p className="text-xs text-red-700 font-medium">Egresos Totales</p>
+              <Wallet className="w-4 h-4 text-amber-600" />
+              <p className="text-xs text-amber-700 font-medium">Por cobrar</p>
             </div>
-            <p className="text-xl font-bold text-red-700">{formatCurrency(totalEgresos)}</p>
+            <p className="text-xl font-bold text-amber-700">{formatCurrency(porCobrar)}</p>
           </CardContent>
         </Card>
-        <Card className={`${totalGanancia >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'}`}>
+        <Card className={gananciaCobrado >= 0 ? 'border-emerald-200 bg-emerald-50' : 'border-orange-200 bg-orange-50'}>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
-              <Wallet className={`w-4 h-4 ${totalGanancia >= 0 ? 'text-emerald-600' : 'text-orange-600'}`} />
-              <p className={`text-xs font-medium ${totalGanancia >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>Ganancia Neta</p>
+              <TrendingUp className={`w-4 h-4 ${gananciaCobrado >= 0 ? 'text-emerald-600' : 'text-orange-600'}`} />
+              <p className={`text-xs font-medium ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>Ganancia sobre lo cobrado</p>
             </div>
-            <p className={`text-xl font-bold ${totalGanancia >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
-              {formatCurrency(totalGanancia)}
+            <p className={`text-xl font-bold ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-700'}`}>
+              {formatCurrency(gananciaCobrado)}
             </p>
           </CardContent>
         </Card>
@@ -137,9 +145,10 @@ export default function FinanzasPage() {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp className="w-4 h-4 text-violet-600" />
-              <p className="text-xs text-violet-700 font-medium">Margen Promedio</p>
+              <p className="text-xs text-violet-700 font-medium">Ganancia esperada</p>
             </div>
-            <p className="text-xl font-bold text-violet-700">{margen.toFixed(1)}%</p>
+            <p className="text-xl font-bold text-violet-700">{formatCurrency(gananciaEsperada)}</p>
+            <p className="text-[10px] text-violet-600/80 mt-0.5">si se cobra todo lo pactado</p>
           </CardContent>
         </Card>
       </div>
@@ -148,7 +157,7 @@ export default function FinanzasPage() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Detalle por Evento</CardTitle>
-          <CardDescription>Ingresos − Egresos = Ganancia Neta por fiesta</CardDescription>
+          <CardDescription>Cobrado − Egresos = Ganancia sobre lo cobrado por fiesta</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -165,7 +174,7 @@ export default function FinanzasPage() {
                     <th className="text-left pb-2 font-medium">Evento</th>
                     <th className="text-left pb-2 font-medium">Fecha</th>
                     <th className="text-left pb-2 font-medium hidden md:table-cell">Estado</th>
-                    <th className="text-right pb-2 font-medium text-green-700">Ingresos</th>
+                    <th className="text-right pb-2 font-medium text-green-700">Cobrado</th>
                     <th className="text-right pb-2 font-medium text-red-700">Egresos</th>
                     <th className="text-right pb-2 font-medium">Ganancia</th>
                     <th className="pb-2" />
@@ -200,10 +209,10 @@ export default function FinanzasPage() {
                 <tfoot>
                   <tr className="border-t-2 font-bold">
                     <td colSpan={3} className="pt-3 text-sm">TOTAL</td>
-                    <td className="pt-3 text-right text-green-700">{formatCurrency(totalIngresos)}</td>
+                    <td className="pt-3 text-right text-green-700">{formatCurrency(totalCobrado)}</td>
                     <td className="pt-3 text-right text-red-600">{formatCurrency(totalEgresos)}</td>
-                    <td className={`pt-3 text-right text-lg ${totalGanancia >= 0 ? 'text-emerald-700' : 'text-orange-600'}`}>
-                      {formatCurrency(totalGanancia)}
+                    <td className={`pt-3 text-right text-lg ${gananciaCobrado >= 0 ? 'text-emerald-700' : 'text-orange-600'}`}>
+                      {formatCurrency(gananciaCobrado)}
                     </td>
                     <td />
                   </tr>
