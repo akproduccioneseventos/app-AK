@@ -188,6 +188,21 @@ usa: empleadoId en src/app/actions/personal-fiestas.ts
 prueba: src/__tests__/un-enlace-de-presupuesto-se-puede-apagar.test.ts
 ```
 
+## Bloque 7 — el panel muestra a cada uno lo suyo
+
+En `src/app/(app)/admin/page.tsx`, `mainHubItems` (~92) no tiene permiso y el filtro (~403 y ~421) es sólo por categoría.
+Un operador ve los accesos a cobros, facturas y contabilidad, que después el servidor le rechaza.
+
+- Cada acceso lleva el permiso que pide su pantalla (`PERMISOS.*` de `src/lib/auth/perfiles.ts`) y se filtra con
+  `puede(usuario, …)`. El servidor sigue siendo el que frena: esto es sólo para que no vea botones que no le sirven.
+- "en tiempo real" (~228) pasa a "al día de hoy", porque los números se leen al abrir.
+
+```comprobar
+# Bloque 7
+usa: puede en src/app/(app)/admin/page.tsx
+no-usa: en tiempo real en src/app/(app)/admin/page.tsx
+```
+
 ## Pruebas finales
 
 Corré solas las cuatro de Jest. Después corré `npx tsc --noEmit`, `npx jest --silent` completo y
