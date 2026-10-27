@@ -1,0 +1,19 @@
+{
+  "started": "2026-10-27T23:22:06.643Z",
+  "finished": "2026-10-27T23:22:14.183Z",
+  "before": {
+    "source": "90cc18b5d9a6a19f3e209a7f078017619435de38",
+    "matched": 2517
+  },
+  "after": {
+    "source": "90cc18b5d9a6a19f3e209a7f078017619435de38",
+    "matched": 2517
+  },
+  "suites": [
+    "src/__tests__/qa-744-usuarios-ui.test.tsx"
+  ],
+  "exit": 1,
+  "signal": null,
+  "error": null,
+  "limits": "Acciones/helpers reales; cookies y persistencia controladas. No SDK/HTTP/proveedor/cuentas reales. Dependencias reutilizadas, no build."
+}

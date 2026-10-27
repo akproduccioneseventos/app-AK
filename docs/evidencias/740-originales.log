@@ -1,0 +1,17 @@
+PASS src/__tests__/un-enlace-de-presupuesto-se-puede-apagar.test.ts
+PASS src/__tests__/la-factura-no-se-borra-mientras-se-cobra.test.ts
+PASS src/__tests__/la-carga-historica-no-duplica.test.ts
+PASS src/__tests__/el-contador-recibe-los-centavos.test.ts
+PASS src/__tests__/una-pantalla-vieja-del-duenio-no-pisa-cuotas.test.ts
+PASS src/__tests__/un-perfil-invalido-no-entra.test.ts
+PASS src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts
+PASS src/__tests__/una-sesion-vieja-se-corta.test.ts
+(node:18428) MetadataLookupWarning: received unexpected error = QA739 egreso real bloqueado code = UNKNOWN
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts
+
+Test Suites: 9 passed, 9 total
+Tests:       49 passed, 49 total
+Snapshots:   0 total
+Time:        16.692 s
+Test results written to: ..\..\..\..\Documents\Codex\ak-codex88\ak-auditoria697\docs\evidencias\740-originales.json

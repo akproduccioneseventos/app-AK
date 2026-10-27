@@ -1,0 +1,19 @@
+{
+  "started": "2026-10-27T23:23:45.616Z",
+  "finished": "2026-10-27T23:23:55.625Z",
+  "before": {
+    "source": "90cc18b5d9a6a19f3e209a7f078017619435de38",
+    "matched": 2517
+  },
+  "after": {
+    "source": "90cc18b5d9a6a19f3e209a7f078017619435de38",
+    "matched": 2517
+  },
+  "suites": [
+    "src/__tests__/el-candado-de-la-plata.test.ts"
+  ],
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "limits": "Acciones/helpers reales; cookies y persistencia controladas. No SDK/HTTP/proveedor/cuentas reales. Dependencias reutilizadas, no build."
+}

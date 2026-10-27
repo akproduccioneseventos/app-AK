@@ -1,5 +1,30 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex739-748: PR1370 NO APTA; seis causas/orden252
+
+- PR1370head90cc18b5d9a6a19f3e209a7f078017619435de38,main/base0abe9199.
+  43diffs/2517fuentes config lock contrastados antes/despues; privadosNO CONTRASTADOS.
+- 740+745:10suites52originalesPASS0FAIL0omitidos. No homologar13suites61 del cuerpoPR.
+  741/743historia:13criterios5PASS8FAIL=SEIScausas, no ocho bugs:
+  C1P1accionRPC actualizarFiesta expone bypass ycamposplata+clave;personal CONflag
+  yoperador asignado SINflag vacian cuota1000. C2P1login clavecorrectaversion2
+  emitecookie1 y siguiente guarda rechaza. C3P1cookieya revocada reseteaclaveAJENA.
+  C4P1dosbajas simultaneas success ambas dejan0duenos. C5P2SeñaYAexistente
+  rechaza guardar musica. C6P1historicosA1000/B2000 con sufijoabcde usan facturaA.
+- C1/C2/C5 ya tenian comentariosPR; reproducidos yC1extendido, no tresnuevos.
+  C3/C4/C6 nuevos enesta devolucion. Orden252completa247/249, no reimplementar.
+- D1porcodigo:casillas modules sigueneditables/handlerignoraedits,resumenperfil
+  definidoNOusado. D2apagarEnlace sinconsumidorUI/rechazoNOversiona. D3faltaYA/
+  ESTADO enPRapp. UI743noiniciaRTL/744AggregateError2inconclusos NOappbugs/niPASS.
+- CSV/Texto costos60.30/120.60PASShelper yfixturesoriginalesarreglados:conservar.
+  Transaccionfactura PRESENTE/originalesPASS,NOcierreSDK/dosservidores. Maestros
+  recheckNOatomicidad demostrada. CambioPasswordNOversiona,alcance247incompleto.
+- Sinappedit/build/merge/produccion/cuentas/datos/cargos/enviosreales. Claude
+  dinero/permisos/valida/compila/SIEMPREfusiona;GeminiUI/resto. AgenteLuna cerrado.
+  Raw741/743/744preservados;746dictamen/747contraste/748higiene y252devolucion.
+  250/251siguencon susIDs,no cerradaspor1370. RetestSOLOdelta nuevoSHA.
+  Esta revisionterminada NOcertifica todaapp/cadarol/cadaboton/0errores.
+
 ## 27/10/2026 - Codex736-738: contratos/contraste legal, UNA copia nueva/orden251Claude
 
 - Fuente0abe9199/QA2510archivos:13suites70originalesPASS0FAIL0omitidas/exit0.

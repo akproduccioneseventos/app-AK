@@ -1,0 +1,93 @@
+[
+  {
+    "case": "login-v1",
+    "login": {
+      "success": true,
+      "user": {
+        "id": "p",
+        "email": "p@qa.invalid",
+        "role": "user",
+        "modules": [
+          "all"
+        ],
+        "mustChangePassword": false
+      }
+    },
+    "next": {
+      "ok": true,
+      "user": {
+        "email": "p@qa.invalid",
+        "role": "user",
+        "userId": "p",
+        "perfil": "personal",
+        "modules": [
+          "all"
+        ],
+        "versionDeSesion": 1
+      }
+    }
+  },
+  {
+    "case": "login-v2",
+    "login": {
+      "success": true,
+      "user": {
+        "id": "p",
+        "email": "p@qa.invalid",
+        "role": "user",
+        "modules": [
+          "all"
+        ],
+        "mustChangePassword": false
+      }
+    },
+    "cookie": {
+      "isValid": true,
+      "user": {
+        "email": "p@qa.invalid",
+        "role": "user",
+        "userId": "p",
+        "perfil": "personal",
+        "modules": [
+          "all"
+        ],
+        "versionDeSesion": 1
+      }
+    },
+    "next": {
+      "ok": false,
+      "error": "Tu sesión se cerró. Volvé a entrar."
+    }
+  },
+  {
+    "case": "one-owner",
+    "result": {
+      "success": false,
+      "error": "Tiene que quedar al menos un dueño."
+    },
+    "owners": 1
+  },
+  {
+    "case": "two-owners-concurrent",
+    "result": [
+      {
+        "success": true
+      },
+      {
+        "success": true
+      }
+    ],
+    "owners": 0
+  },
+  {
+    "case": "revoked-owner-admin-reset",
+    "guard": {
+      "ok": false,
+      "error": "Tu sesión se cerró. Volvé a entrar."
+    },
+    "result": {
+      "success": true
+    },
+    "targetVersion": 2
+  }
+]

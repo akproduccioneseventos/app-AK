@@ -1,0 +1,64 @@
+FAIL src/__tests__/qa-743-historicos.test.ts
+  ● dos cargas distintas con iguales cinco caracteres finales NO comparten factura
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 2
+    Received length: 1
+    Received array:  [{"currency": "UYU", "customer": {"estadoCliente": "Antiguo", "id": "cust_hist_carga-A-abcde", "name": "A739", "partyDate": "2025-10-15T00:00:00.000Z"}, "dueDate": "2025-10-15T00:00:00.000Z", "id": "inv_1793143274297_xwdowus", "invoiceNumber": "HIST-abcde", "issueDate": "2025-10-15T00:00:00.000Z", "items": [{"description": "Servicios históricos para A739", "id": "item_inv_1793143274297_xwdowus_1_1793143274297_create", "quantity": 1, "total": 1000, "unitPrice": 1000}], "payments": [{"amount": 1000, "id": "pay_hist_carga-A-abcde", "method": "Otro", "notes": "Pago registrado desde carga histórica", "paymentDate": "2025-10-15T00:00:00.000Z"}], "sourcePresupuestoId": "pres_hist_carga-A-abcde", "status": "Paid", "subtotal": 1000, "taxAmount": 0, "taxRate": 0, "totalAmount": 1000, "vendorName": "AK Producciones"}]
+
+    [0m [90m 102 |[39m [36mfunction[39m form(id[33m:[39mstring[33m,[39mname[33m:[39mstring[33m,[39mamount[33m:[39mnumber){[36mconst[39m fd[33m=[39m[36mnew[39m [33mFormData[39m()[33m;[39mfd[33m.[39m[36mset[39m([32m'idIntento'[39m[33m,[39mid)[33m;[39mfd[33m.[39m[36mset[39m([32m'clienteNombre'[39m[33m,[39mname)[33m;[39mfd[33m.[39m[36mset[39m([32m'eventoFecha'[39m[33m,[39m[32m'2025-10-15T00:00:00.000Z'[39m)[33m;[39mfd[33m.[39m[36mset[39m([32m'montoTotal'[39m[33m,[39m[33mString[39m(amount))[33m;[39m[36mreturn[39m fd[33m;[39m}
+     [90m 103 |[39m test([32m'control dos cargas deliberadas con sufijos distintos conservan dos facturas'[39m[33m,[39m[36masync[39m()[33m=>[39m{[36mconst[39m a[33m=[39m[36mawait[39m processHistoricRecord(form([32m'carga-A-11111'[39m[33m,[39m[32m'A739'[39m[33m,[39m[35m1000[39m))[33m;[39m[36mconst[39m b[33m=[39m[36mawait[39m processHistoricRecord(form([32m'carga-B-22222'[39m[33m,[39m[32m'B739'[39m[33m,[39m[35m2000[39m))[33m;[39mobs[33m.[39mpush({[36mcase[39m[33m:[39m[32m'different-suffix'[39m[33m,[39ma[33m,[39mb[33m,[39minvoices[33m:[39malmacen[[32m'invoices.json'[39m][33m,[39mfiestas[33m:[39m[33mObject[39m[33m.[39mkeys(almacen)[33m.[39mfilter(k[33m=>[39mk[33m.[39mstartsWith([32m'fiestas/'[39m))})[33m;[39mexpect(a[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39mexpect(b[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39mexpect(almacen[[32m'invoices.json'[39m])[33m.[39mtoHaveLength([35m2[39m)[33m;[39m})[33m;[39m
+    [31m[1m>[22m[39m[90m 104 |[39m test([32m'dos cargas distintas con iguales cinco caracteres finales NO comparten factura'[39m[33m,[39m[36masync[39m()[33m=>[39m{[36mconst[39m a[33m=[39m[36mawait[39m processHistoricRecord(form([32m'carga-A-abcde'[39m[33m,[39m[32m'A739'[39m[33m,[39m[35m1000[39m))[33m;[39m[36mconst[39m b[33m=[39m[36mawait[39m processHistoricRecord(form([32m'carga-B-abcde'[39m[33m,[39m[32m'B739'[39m[33m,[39m[35m2000[39m))[33m;[39mobs[33m.[39mpush({[36mcase[39m[33m:[39m[32m'same-suffix'[39m[33m,[39ma[33m,[39mb[33m,[39minvoices[33m:[39malmacen[[32m'invoices.json'[39m][33m,[39mbudgets[33m:[39malmacen[[32m'presupuestos.json'[39m][33m,[39mfiestas[33m:[39m[33mObject[39m[33m.[39mfromEntries([33mObject[39m[33m.[39mentries(almacen)[33m.[39mfilter(([k])[33m=>[39mk[33m.[39mstartsWith([32m'fiestas/'[39m)))})[33m;[39mexpect(a[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39mexpect(b[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39mexpect(almacen[[32m'invoices.json'[39m])[33m.[39mtoHaveLength([35m2[39m)[33m;[39m})[33m;[39m
+     [90m     |[39m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                [31m[1m^[22m[39m
+     [90m 105 |[39m test([32m'helper no devuelve factura cuyo presupuestoId explicito pertenece a otra carga'[39m[33m,[39m[36masync[39m()[33m=>[39m{almacen[[32m'invoices.json'[39m][33m=[39m[{id[33m:[39m[32m'inv-other'[39m[33m,[39minvoiceNumber[33m:[39m[32m'HIST-abcde'[39m[33m,[39msourcePresupuestoId[33m:[39m[32m'pres_hist_carga-A-abcde'[39m[33m,[39mpayments[33m:[39m[{amount[33m:[39m[35m1000[39m}]}][33m;[39m[36mconst[39m result[33m=[39m[36mawait[39m getInvoicesByPresupuestoId([32m'pres_hist_carga-B-abcde'[39m)[33m;[39mobs[33m.[39mpush({[36mcase[39m[33m:[39m[32m'foreign-budget-id'[39m[33m,[39mresult})[33m;[39mexpect(result)[33m.[39mtoEqual([])[33m;[39m})[33m;[39m
+     [90m 106 |[39m
+     [90m 107 |[39m[0m
+
+      at Object.toHaveLength (src/__tests__/qa-743-historicos.test.ts:104:528)
+
+  ● helper no devuelve factura cuyo presupuestoId explicito pertenece a otra carga
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 12
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "id": "inv-other",
+    +     "invoiceNumber": "HIST-abcde",
+    +     "payments": Array [
+    +       Object {
+    +         "amount": 1000,
+    +       },
+    +     ],
+    +     "sourcePresupuestoId": "pres_hist_carga-A-abcde",
+    +   },
+    + ]
+
+    [0m [90m 103 |[39m test([32m'control dos cargas deliberadas con sufijos distintos conservan dos facturas'[39m[33m,[39m[36masync[39m()[33m=>[39m{[36mconst[39m a[33m=[39m[36mawait[39m processHistoricRecord(form([32m'carga-A-11111'[39m[33m,[39m[32m'A739'[39m[33m,[39m[35m1000[39m))[33m;[39m[36mconst[39m b[33m=[39m[36mawait[39m processHistoricRecord(form([32m'carga-B-22222'[39m[33m,[39m[32m'B739'[39m[33m,[39m[35m2000[39m))[33m;[39mobs[33m.[39mpush({[36mcase[39m[33m:[39m[32m'different-suffix'[39m[33m,[39ma[33m,[39mb[33m,[39minvoices[33m:[39malmacen[[32m'invoices.json'[39m][33m,[39mfiestas[33m:[39m[33mObject[39m[33m.[39mkeys(almacen)[33m.[39mfilter(k[33m=>[39mk[33m.[39mstartsWith([32m'fiestas/'[39m))})[33m;[39mexpect(a[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39mexpect(b[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39mexpect(almacen[[32m'invoices.json'[39m])[33m.[39mtoHaveLength([35m2[39m)[33m;[39m})[33m;[39m
+     [90m 104 |[39m test([32m'dos cargas distintas con iguales cinco caracteres finales NO comparten factura'[39m[33m,[39m[36masync[39m()[33m=>[39m{[36mconst[39m a[33m=[39m[36mawait[39m processHistoricRecord(form([32m'carga-A-abcde'[39m[33m,[39m[32m'A739'[39m[33m,[39m[35m1000[39m))[33m;[39m[36mconst[39m b[33m=[39m[36mawait[39m processHistoricRecord(form([32m'carga-B-abcde'[39m[33m,[39m[32m'B739'[39m[33m,[39m[35m2000[39m))[33m;[39mobs[33m.[39mpush({[36mcase[39m[33m:[39m[32m'same-suffix'[39m[33m,[39ma[33m,[39mb[33m,[39minvoices[33m:[39malmacen[[32m'invoices.json'[39m][33m,[39mbudgets[33m:[39malmacen[[32m'presupuestos.json'[39m][33m,[39mfiestas[33m:[39m[33mObject[39m[33m.[39mfromEntries([33mObject[39m[33m.[39mentries(almacen)[33m.[39mfilter(([k])[33m=>[39mk[33m.[39mstartsWith([32m'fiestas/'[39m)))})[33m;[39mexpect(a[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39mexpect(b[33m.[39msuccess)[33m.[39mtoBe([36mtrue[39m)[33m;[39mexpect(almacen[[32m'invoices.json'[39m])[33m.[39mtoHaveLength([35m2[39m)[33m;[39m})[33m;[39m
+    [31m[1m>[22m[39m[90m 105 |[39m test([32m'helper no devuelve factura cuyo presupuestoId explicito pertenece a otra carga'[39m[33m,[39m[36masync[39m()[33m=>[39m{almacen[[32m'invoices.json'[39m][33m=[39m[{id[33m:[39m[32m'inv-other'[39m[33m,[39minvoiceNumber[33m:[39m[32m'HIST-abcde'[39m[33m,[39msourcePresupuestoId[33m:[39m[32m'pres_hist_carga-A-abcde'[39m[33m,[39mpayments[33m:[39m[{amount[33m:[39m[35m1000[39m}]}][33m;[39m[36mconst[39m result[33m=[39m[36mawait[39m getInvoicesByPresupuestoId([32m'pres_hist_carga-B-abcde'[39m)[33m;[39mobs[33m.[39mpush({[36mcase[39m[33m:[39m[32m'foreign-budget-id'[39m[33m,[39mresult})[33m;[39mexpect(result)[33m.[39mtoEqual([])[33m;[39m})[33m;[39m
+     [90m     |[39m                                                                                                                                                                                                                                                                                                                                                                                   [31m[1m^[22m[39m
+     [90m 106 |[39m
+     [90m 107 |[39m[0m
+
+      at Object.toEqual (src/__tests__/qa-743-historicos.test.ts:105:371)
+
+FAIL src/__tests__/qa-743-usuarios-ui.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/react' from 'src/__tests__/qa-743-usuarios-ui.test.tsx'
+
+    [0m[0m
+
+      at Resolver._throwModNotFoundError (../../../../Documents/Codex/ak-codex88/ak-react19-candidato-103/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (src/__tests__/qa-743-usuarios-ui.test.tsx:34:17)
+
+Test Suites: 2 failed, 2 total
+Tests:       2 failed, 1 passed, 3 total
+Snapshots:   0 total
+Time:        3.642 s
+Test results written to: ..\..\..\..\Documents\Codex\ak-codex88\ak-auditoria697\docs\evidencias\743-complemento.json

@@ -1,0 +1,266 @@
+{
+  "at": "2026-10-27T23:24:38.086Z",
+  "repo": "akproduccioneseventos/app-AK",
+  "main": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "target": {
+    "pr": 1370,
+    "head": "90cc18b5d9a6a19f3e209a7f078017619435de38",
+    "base": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "tree": "90cc18b5d9a6a19f3e209a7f078017619435de38"
+  },
+  "docs": {
+    "pr": 1366,
+    "head": "6c736e007de0fc9d44ed2f612f27b542bb7003f3"
+  },
+  "changedFiles": [
+    {
+      "path": "docs/deuda-medida.json",
+      "sha": "ae5789bf182020b996207a7c750005b66f7375c7",
+      "status": "modified"
+    },
+    {
+      "path": "docs/ordenes/249-gemini-contabilidad-centavos-y-borrado-atomico.md",
+      "sha": "715291a10e3dd92246eab257b344a5d3504329c2",
+      "status": "added"
+    },
+    {
+      "path": "src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts",
+      "sha": "f77aff46712c7e8ebaa7cb5856d593ed171eb531",
+      "status": "modified"
+    },
+    {
+      "path": "src/__tests__/el-contador-recibe-los-centavos.test.ts",
+      "sha": "05432ff2f3caf07e0e5fc7d8edeefef971d756ab",
+      "status": "added"
+    },
+    {
+      "path": "src/__tests__/la-carga-historica-no-duplica.test.ts",
+      "sha": "395e535c01b884d3122a1c9721bc15ef7e4dcb7b",
+      "status": "added"
+    },
+    {
+      "path": "src/__tests__/la-factura-no-se-borra-mientras-se-cobra.test.ts",
+      "sha": "589c9f0e7cfa91585e8cc532793f65a93fd7689b",
+      "status": "added"
+    },
+    {
+      "path": "src/__tests__/un-enlace-de-presupuesto-se-puede-apagar.test.ts",
+      "sha": "f62a4a0fed41984730f4c96dc4213184e2415e98",
+      "status": "added"
+    },
+    {
+      "path": "src/__tests__/un-perfil-invalido-no-entra.test.ts",
+      "sha": "cff1af614cf85d4a4f244e93a2b57993f01f3faa",
+      "status": "added"
+    },
+    {
+      "path": "src/__tests__/una-pantalla-vieja-del-duenio-no-pisa-cuotas.test.ts",
+      "sha": "c4348a141b8d05c1c420359a9ec8e59202982878",
+      "status": "added"
+    },
+    {
+      "path": "src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts",
+      "sha": "e5fadf358b1cad16b12ad5f2b9ee191bcca1bdf7",
+      "status": "modified"
+    },
+    {
+      "path": "src/__tests__/una-sesion-vieja-se-corta.test.ts",
+      "sha": "c6bb9d9e73ff7efc44e29ee1dc22b635363d6856",
+      "status": "added"
+    },
+    {
+      "path": "src/app/(app)/admin/page.tsx",
+      "sha": "e426fa92e95676d6f1878ee346efb45031366447",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/(app)/admin/usuarios/page.tsx",
+      "sha": "363b05c0dc35af1406c3a2e7b2acc0c93a08cb7e",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/(app)/empresa/menus/tragos/page.tsx",
+      "sha": "f6944a95837643665979c48cf3345c28bb32a29a",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/activos-fijos.ts",
+      "sha": "a1aa031b97ec7ff68845bdc8bafe81fb6bf5bc39",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/analytics.ts",
+      "sha": "1a51fbafced084a0a2541a38e1805727614fa3da",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/asistente-proactivo.actions.ts",
+      "sha": "83c556543dc3faa50873708fc2f2a993ea1bb3c6",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/auth.ts",
+      "sha": "7d9258f034936c83dac476430aa4f2598199393e",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/empleados.ts",
+      "sha": "21f9e880105eb1324a80d635d486d3d802623c86",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/fiesta-actual.ts",
+      "sha": "a890bacdfd68a27412a5523b5b3a81cfb098437e",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/fiesta/fiesta.actions.ts",
+      "sha": "22d9bf7d77274a91d10bf62c17485a0f723bfd20",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/google-workspace.ts",
+      "sha": "5533340c06ac5f42d1870d33418738fff6abbca9",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/historicos.ts",
+      "sha": "43785221f4deadcb75cf855603686fc654dee9bd",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/insumos.ts",
+      "sha": "6affb8fca7098325b4c0e514c66117db9b734718",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/invoices.ts",
+      "sha": "7cb4b827805d0fd1d36905e80f973a55bf23d10e",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/menus-catering.ts",
+      "sha": "6c00cd6a5d2b231bebf53dabd0019200e78b50c3",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/personal-fiestas.ts",
+      "sha": "507b8d9c11b38eab2ec81ba9fe1beb0b2af4bbb2",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/presupuestos.ts",
+      "sha": "b94f1a5045e779e7b5c32ed73bad89721015530b",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/sesion.ts",
+      "sha": "d5855ec97b552393ea744d5b257198203c0f607c",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/actions/simple-auth.ts",
+      "sha": "76cffdc621f77b3563999bcf349018b503762e66",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/admin/carga-historicos/page.tsx",
+      "sha": "9ac6ca13a63cece4c6ca74245510b2ee2d7fd478",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/admin/finanzas/page.tsx",
+      "sha": "c8c538f9eb17fb06b5616215aee04aff9dae3a59",
+      "status": "modified"
+    },
+    {
+      "path": "src/app/admin/ventas/page.tsx",
+      "sha": "ec7b60cd0767bf75cd4fcb85ae694a2563989c76",
+      "status": "modified"
+    },
+    {
+      "path": "src/components/main-nav.tsx",
+      "sha": "26504a6aa9ae98398411a288c34cecd3fd4b2db2",
+      "status": "modified"
+    },
+    {
+      "path": "src/lib/auth/entertainment-token.ts",
+      "sha": "22461da8a852221398c5210cee288b1149b1ae08",
+      "status": "modified"
+    },
+    {
+      "path": "src/lib/auth/event-access.ts",
+      "sha": "7077526e9a6697c4923a4ae35fe3cfe92a75fa0d",
+      "status": "modified"
+    },
+    {
+      "path": "src/lib/auth/require-session.ts",
+      "sha": "cd16d5ed9bc956e14764bbd0c5c4f1c6dfd4cbe2",
+      "status": "modified"
+    },
+    {
+      "path": "src/lib/auth/session-token.ts",
+      "sha": "fab6add54e23c523bf71bd9452c5ed2e6da957c0",
+      "status": "modified"
+    },
+    {
+      "path": "src/lib/contabilidad/resumen-para-el-contador.ts",
+      "sha": "b28fdfec27ab995ac748eb16b69451a36e0d5821",
+      "status": "modified"
+    },
+    {
+      "path": "src/lib/fiesta/actualizar-fiesta.ts",
+      "sha": "e8f833f51a7e9b421fa953c5dfcc2244e782127d",
+      "status": "modified"
+    },
+    {
+      "path": "src/lib/fiesta/recortar-para-afuera.ts",
+      "sha": "7548ef38f38fac1322e97bfba36fd11e549801da",
+      "status": "modified"
+    },
+    {
+      "path": "src/lib/marca-de-lectura.ts",
+      "sha": "1751981e3ce5b4aa07b8335512ec43190cde1d5b",
+      "status": "modified"
+    },
+    {
+      "path": "src/types/presupuesto.ts",
+      "sha": "ab8deb7d9e388546da4914dc9514e3b6fb3f8f3b",
+      "status": "modified"
+    }
+  ],
+  "commentsAlreadyPresent": [
+    {
+      "id": 4394845311,
+      "path": "src/app/actions/fiesta/fiesta.actions.ts",
+      "line": 1704,
+      "url": "https://github.com/akproduccioneseventos/app-AK/pull/1370#discussion_r4394845311"
+    },
+    {
+      "id": 4394845323,
+      "path": "src/lib/auth/session-token.ts",
+      "line": 85,
+      "url": "https://github.com/akproduccioneseventos/app-AK/pull/1370#discussion_r4394845323"
+    },
+    {
+      "id": 4394845332,
+      "path": "src/lib/fiesta/actualizar-fiesta.ts",
+      "line": 80,
+      "url": "https://github.com/akproduccioneseventos/app-AK/pull/1370#discussion_r4394845332"
+    },
+    {
+      "id": 4394845342,
+      "path": "docs/ordenes/249-gemini-contabilidad-centavos-y-borrado-atomico.md",
+      "line": 5,
+      "url": "https://github.com/akproduccioneseventos/app-AK/pull/1370#discussion_r4394845342"
+    }
+  ],
+  "privateChanges": "NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS",
+  "agent": {
+    "name": "Anscombe",
+    "model": "gpt-6-luna low",
+    "scope": "Cuatro diffs UI, solo lectura; responsable principal contraste de consumidor y decisiones sensibles",
+    "closed": true,
+    "discard": "404 inicial fue repo mal escrito por QA, no un fallo de permisos ni de app"
+  }
+}

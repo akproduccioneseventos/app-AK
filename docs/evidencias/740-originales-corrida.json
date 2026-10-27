@@ -1,0 +1,27 @@
+{
+  "started": "2026-10-27T23:17:20.891Z",
+  "finished": "2026-10-27T23:17:45.349Z",
+  "before": {
+    "source": "90cc18b5d9a6a19f3e209a7f078017619435de38",
+    "matched": 2517
+  },
+  "after": {
+    "source": "90cc18b5d9a6a19f3e209a7f078017619435de38",
+    "matched": 2517
+  },
+  "suites": [
+    "src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts",
+    "src/__tests__/el-contador-recibe-los-centavos.test.ts",
+    "src/__tests__/la-carga-historica-no-duplica.test.ts",
+    "src/__tests__/la-factura-no-se-borra-mientras-se-cobra.test.ts",
+    "src/__tests__/un-enlace-de-presupuesto-se-puede-apagar.test.ts",
+    "src/__tests__/un-perfil-invalido-no-entra.test.ts",
+    "src/__tests__/una-pantalla-vieja-del-duenio-no-pisa-cuotas.test.ts",
+    "src/__tests__/una-sena-de-contrato-es-una-por-presupuesto.test.ts",
+    "src/__tests__/una-sesion-vieja-se-corta.test.ts"
+  ],
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "limits": "Acciones/helpers reales; cookies y persistencia controladas. No SDK/HTTP/proveedor/cuentas reales. Dependencias reutilizadas, no build."
+}

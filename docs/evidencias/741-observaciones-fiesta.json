@@ -1,0 +1,151 @@
+[
+  {
+    "case": "personal-no-flag",
+    "result": {
+      "success": false,
+      "error": "No autorizado para modificar este evento."
+    }
+  },
+  {
+    "case": "personal-flag",
+    "result": {
+      "success": true,
+      "updatedFiesta": {
+        "id": "f739",
+        "estado": "Cotizado",
+        "configuracion": {
+          "nombreEvento": "Evento ficticio739"
+        },
+        "personalAsignado": [
+          {
+            "empleadoId": "op739"
+          }
+        ],
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "FAKE-SECRET-739"
+        },
+        "planDePagos": {
+          "cuotas": []
+        },
+        "musica": {
+          "preferencias": "Original"
+        }
+      }
+    },
+    "stored": {
+      "id": "f739",
+      "estado": "Cotizado",
+      "configuracion": {
+        "nombreEvento": "Evento ficticio739"
+      },
+      "personalAsignado": [
+        {
+          "empleadoId": "op739"
+        }
+      ],
+      "clientPortalSettings": {
+        "enabled": true,
+        "accessKey": "FAKE-SECRET-739"
+      },
+      "planDePagos": {
+        "cuotas": []
+      },
+      "musica": {
+        "preferencias": "Original"
+      }
+    }
+  },
+  {
+    "case": "assigned-operator",
+    "result": {
+      "success": true,
+      "updatedFiesta": {
+        "id": "f739",
+        "estado": "Cotizado",
+        "configuracion": {
+          "nombreEvento": "Evento ficticio739"
+        },
+        "personalAsignado": [
+          {
+            "empleadoId": "op739"
+          }
+        ],
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "FAKE-SECRET-739"
+        },
+        "planDePagos": {
+          "cuotas": []
+        },
+        "musica": {
+          "preferencias": "Original"
+        }
+      }
+    },
+    "stored": {
+      "id": "f739",
+      "estado": "Cotizado",
+      "configuracion": {
+        "nombreEvento": "Evento ficticio739"
+      },
+      "personalAsignado": [
+        {
+          "empleadoId": "op739"
+        }
+      ],
+      "clientPortalSettings": {
+        "enabled": true,
+        "accessKey": "FAKE-SECRET-739"
+      },
+      "planDePagos": {
+        "cuotas": []
+      },
+      "musica": {
+        "preferencias": "Original"
+      }
+    }
+  },
+  {
+    "case": "owner-cotizado",
+    "result": {
+      "success": true,
+      "updatedFiesta": {
+        "id": "f739",
+        "estado": "Cotizado",
+        "configuracion": {
+          "nombreEvento": "Evento ficticio739"
+        },
+        "personalAsignado": [
+          {
+            "empleadoId": "op739"
+          }
+        ],
+        "clientPortalSettings": {
+          "enabled": true,
+          "accessKey": "FAKE-SECRET-739"
+        },
+        "planDePagos": {
+          "cuotas": [
+            {
+              "id": "c739",
+              "monto": 1000,
+              "pagado": true,
+              "montoPagado": 1000
+            }
+          ]
+        },
+        "musica": {
+          "preferencias": "Cambio"
+        }
+      }
+    }
+  },
+  {
+    "case": "owner-already-sena",
+    "result": {
+      "success": false,
+      "error": "No se puede mover a Seña."
+    }
+  }
+]

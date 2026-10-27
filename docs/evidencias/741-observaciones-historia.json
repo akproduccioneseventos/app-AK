@@ -1,0 +1,2091 @@
+[
+  {
+    "case": "different-suffix",
+    "a": {
+      "success": true
+    },
+    "b": {
+      "success": true
+    },
+    "invoices": [
+      {
+        "invoiceNumber": "HIST-11111",
+        "customer": {
+          "id": "cust_hist_carga-A-11111",
+          "name": "A739",
+          "partyDate": "2025-10-15T00:00:00.000Z",
+          "estadoCliente": "Antiguo"
+        },
+        "issueDate": "2025-10-15T00:00:00.000Z",
+        "dueDate": "2025-10-15T00:00:00.000Z",
+        "sourcePresupuestoId": "pres_hist_carga-A-11111",
+        "items": [
+          {
+            "id": "item_inv_1793143274278_hwpjpsw_1_1793143274278_create",
+            "description": "Servicios históricos para A739",
+            "quantity": 1,
+            "unitPrice": 1000,
+            "total": 1000
+          }
+        ],
+        "subtotal": 1000,
+        "totalAmount": 1000,
+        "status": "Paid",
+        "currency": "UYU",
+        "vendorName": "AK Producciones",
+        "payments": [
+          {
+            "id": "pay_hist_carga-A-11111",
+            "paymentDate": "2025-10-15T00:00:00.000Z",
+            "amount": 1000,
+            "method": "Otro",
+            "notes": "Pago registrado desde carga histórica"
+          }
+        ],
+        "id": "inv_1793143274278_hwpjpsw",
+        "taxRate": 0,
+        "taxAmount": 0
+      },
+      {
+        "invoiceNumber": "HIST-22222",
+        "customer": {
+          "id": "cust_hist_carga-B-22222",
+          "name": "B739",
+          "partyDate": "2025-10-15T00:00:00.000Z",
+          "estadoCliente": "Antiguo"
+        },
+        "issueDate": "2025-10-15T00:00:00.000Z",
+        "dueDate": "2025-10-15T00:00:00.000Z",
+        "sourcePresupuestoId": "pres_hist_carga-B-22222",
+        "items": [
+          {
+            "id": "item_inv_1793143274287_paa5wbr_1_1793143274287_create",
+            "description": "Servicios históricos para B739",
+            "quantity": 1,
+            "unitPrice": 2000,
+            "total": 2000
+          }
+        ],
+        "subtotal": 2000,
+        "totalAmount": 2000,
+        "status": "Paid",
+        "currency": "UYU",
+        "vendorName": "AK Producciones",
+        "payments": [
+          {
+            "id": "pay_hist_carga-B-22222",
+            "paymentDate": "2025-10-15T00:00:00.000Z",
+            "amount": 2000,
+            "method": "Otro",
+            "notes": "Pago registrado desde carga histórica"
+          }
+        ],
+        "id": "inv_1793143274287_paa5wbr",
+        "taxRate": 0,
+        "taxAmount": 0
+      }
+    ],
+    "fiestas": [
+      "fiestas/fiesta_hist_carga-A-11111.json",
+      "fiestas/fiesta_hist_carga-B-22222.json"
+    ]
+  },
+  {
+    "case": "same-suffix",
+    "a": {
+      "success": true
+    },
+    "b": {
+      "success": true
+    },
+    "invoices": [
+      {
+        "invoiceNumber": "HIST-abcde",
+        "customer": {
+          "id": "cust_hist_carga-A-abcde",
+          "name": "A739",
+          "partyDate": "2025-10-15T00:00:00.000Z",
+          "estadoCliente": "Antiguo"
+        },
+        "issueDate": "2025-10-15T00:00:00.000Z",
+        "dueDate": "2025-10-15T00:00:00.000Z",
+        "sourcePresupuestoId": "pres_hist_carga-A-abcde",
+        "items": [
+          {
+            "id": "item_inv_1793143274297_xwdowus_1_1793143274297_create",
+            "description": "Servicios históricos para A739",
+            "quantity": 1,
+            "unitPrice": 1000,
+            "total": 1000
+          }
+        ],
+        "subtotal": 1000,
+        "totalAmount": 1000,
+        "status": "Paid",
+        "currency": "UYU",
+        "vendorName": "AK Producciones",
+        "payments": [
+          {
+            "id": "pay_hist_carga-A-abcde",
+            "paymentDate": "2025-10-15T00:00:00.000Z",
+            "amount": 1000,
+            "method": "Otro",
+            "notes": "Pago registrado desde carga histórica"
+          }
+        ],
+        "id": "inv_1793143274297_xwdowus",
+        "taxRate": 0,
+        "taxAmount": 0
+      }
+    ],
+    "budgets": [
+      {
+        "id": "pres_hist_carga-A-abcde",
+        "clienteNombre": "A739",
+        "eventoTipo": "Histórico",
+        "eventoFecha": "2025-10-15T00:00:00.000Z",
+        "invitadosCantidad": 1,
+        "salonFiestas": "N/A (Histórico)",
+        "itemsPresupuestados": [
+          {
+            "idServicioCatalogo": "historic_item",
+            "nombreServicio": "Servicios según contrato histórico adjunto",
+            "cantidad": 1,
+            "precioUnitario": 1000,
+            "precioUnitarioPresupuesto": 1000,
+            "costoTotalItem": 1000,
+            "esRegalo": false,
+            "categoriaServicio": "Otros servicios",
+            "calculationMethod": "fijo",
+            "precioBase": 1000
+          }
+        ],
+        "costoTotalEstimado": 1000,
+        "totalConDescuento": 1000,
+        "pagosCliente": [
+          {
+            "id": "pago_hist_carga-A-abcde",
+            "fecha": "2025-10-15T00:00:00.000Z",
+            "monto": 1000,
+            "metodoPago": "Otro",
+            "referencia": "AK_SYNC:historico:pres_hist_carga-A-abcde",
+            "estadoPago": "confirmado"
+          }
+        ],
+        "estado": "Facturado",
+        "ajusteAnualActivo": true,
+        "timestamp": "2026-10-27T23:21:14.296Z",
+        "notas": "Registro histórico cargado el 27/10/2026. Contrato adjunto.",
+        "invoiceId": "inv_1793143274297_xwdowus",
+        "leadId": "lead-1"
+      },
+      {
+        "id": "pres_hist_carga-B-abcde",
+        "clienteNombre": "B739",
+        "eventoTipo": "Histórico",
+        "eventoFecha": "2025-10-15T00:00:00.000Z",
+        "invitadosCantidad": 1,
+        "salonFiestas": "N/A (Histórico)",
+        "itemsPresupuestados": [
+          {
+            "idServicioCatalogo": "historic_item",
+            "nombreServicio": "Servicios según contrato histórico adjunto",
+            "cantidad": 1,
+            "precioUnitario": 2000,
+            "precioUnitarioPresupuesto": 2000,
+            "costoTotalItem": 2000,
+            "esRegalo": false,
+            "categoriaServicio": "Otros servicios",
+            "calculationMethod": "fijo",
+            "precioBase": 2000
+          }
+        ],
+        "costoTotalEstimado": 2000,
+        "totalConDescuento": 2000,
+        "pagosCliente": [
+          {
+            "id": "pago_hist_carga-B-abcde",
+            "fecha": "2025-10-15T00:00:00.000Z",
+            "monto": 2000,
+            "metodoPago": "Otro",
+            "referencia": "AK_SYNC:historico:pres_hist_carga-B-abcde",
+            "estadoPago": "confirmado"
+          }
+        ],
+        "estado": "Facturado",
+        "ajusteAnualActivo": true,
+        "timestamp": "2026-10-27T23:21:14.300Z",
+        "notas": "Registro histórico cargado el 27/10/2026. Contrato adjunto."
+      }
+    ],
+    "fiestas": {
+      "fiestas/fiesta_hist_carga-A-abcde.json": {
+        "id": "fiesta_hist_carga-A-abcde",
+        "configuracion": {
+          "nombreEvento": "Histórico: A739",
+          "tipoCelebracion": "Boda",
+          "fechaEvento": "2025-10-15T00:00:00.000Z",
+          "horaInicio": "21:00",
+          "horaFin": "04:00",
+          "nombreLugar": "Salón a definir",
+          "invitadosEstimados": 100,
+          "presupuestoEstimado": 0,
+          "notesAdicionales": "",
+          "clienteId": "cust_hist_carga-A-abcde"
+        },
+        "modulosContratados": {
+          "tareas": true,
+          "invitados": true,
+          "paginaWeb": true,
+          "decoracion": true,
+          "catering": true,
+          "musica": true,
+          "personal": true,
+          "itinerario": true,
+          "documentos": true,
+          "costos": true,
+          "cargaOperativa": true,
+          "fotografia": true,
+          "videoVida": true,
+          "reuniones": true,
+          "muroSocial": true,
+          "redSocial": true,
+          "regalos": false,
+          "feedback": false,
+          "menuMesa": false,
+          "buzon": true,
+          "checkin": false,
+          "resumenImprimible": false,
+          "configuracion": true,
+          "disenoSalon": true,
+          "listaCompras": true,
+          "portalCliente": true,
+          "numerosMesa": true,
+          "mesasCliente": true,
+          "resumenPlanificacion": true,
+          "enVivo": true,
+          "entretenimiento": true,
+          "pantallasTotem": true,
+          "barraTecnologica": true,
+          "zonaDigital": true,
+          "carteleria": true
+        },
+        "personalAsignado": [],
+        "invoiceIds": [
+          "inv_1793143274297_xwdowus"
+        ],
+        "reuniones": [],
+        "tareas": [],
+        "decoracion": {
+          "tema": "Elegante y Moderno",
+          "paletaColores": {
+            "primary": "#D9B8FF",
+            "secondary": "#FCD3DE",
+            "accent": "#F0E6CC"
+          },
+          "decoracionTorta": {
+            "descripcion": "",
+            "imageUrl": "",
+            "dataAiHint": "cake design"
+          },
+          "items": [],
+          "zonasContratadas": [
+            {
+              "id": "atras_torta",
+              "nombreDisplay": "Atrás de la torta",
+              "activada": false,
+              "dataAiHint": "cake backdrop"
+            },
+            {
+              "id": "frente_salon",
+              "nombreDisplay": "Frente del salón / Entrada principal",
+              "activada": false,
+              "dataAiHint": "event entrance"
+            },
+            {
+              "id": "zona_regalos",
+              "nombreDisplay": "Zona de regalos",
+              "activada": false,
+              "dataAiHint": "gift table"
+            },
+            {
+              "id": "zona_fotografia",
+              "nombreDisplay": "Zona de fotografía / Photocall",
+              "activada": false,
+              "dataAiHint": "photo booth"
+            },
+            {
+              "id": "centro_salon",
+              "nombreDisplay": "Centro del salón / Ambientación general",
+              "activada": false,
+              "dataAiHint": "event hall center"
+            }
+          ],
+          "generalNotesDecoracion": "Detalles pendientes de definir.",
+          "salonWidth": 15,
+          "salonHeight": 15,
+          "salonElements": [],
+          "pixelsPerMeter": 40,
+          "moodboardItems": []
+        },
+        "invitados": [],
+        "invitacionDigital": {
+          "plantilla": "Grazia",
+          "name": "Plantilla Grazia por Defecto",
+          "category": "Boda",
+          "musicaFondoUrl": "",
+          "secciones": [],
+          "cabecera": {
+            "visible": true,
+            "protagonista1": "Novio/a 1",
+            "protagonista2": "Novio/a 2",
+            "subtitulo": {
+              "text": "Nuestra Boda",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1.25rem",
+                "color": "#654321"
+              }
+            },
+            "paletaColores": {
+              "primary": "#6d8b74",
+              "secondary": "#e6d5b8",
+              "accent": "#a47e63"
+            }
+          },
+          "bienvenida": {
+            "visible": true,
+            "titulo": {
+              "text": "¡Nos Casamos!",
+              "style": {
+                "fontFamily": "Belleza",
+                "fontSize": "2.5rem",
+                "color": "#363636"
+              }
+            },
+            "texto": {
+              "text": "Después de un hermoso camino juntos, damos el siguiente paso.",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            }
+          },
+          "cuentaRegresiva": {
+            "visible": true
+          },
+          "detallesEvento": {
+            "visible": true,
+            "ceremoniaReligiosa": {
+              "visible": true,
+              "titulo": "Ceremonia",
+              "hora": "20:00",
+              "nombreLugar": "Catedral",
+              "direccionLugar": "",
+              "mapaUrl": "",
+              "imagenUrl": ""
+            },
+            "ceremoniaCivil": {
+              "visible": false,
+              "titulo": "",
+              "hora": "",
+              "nombreLugar": "",
+              "direccionLugar": "",
+              "mapaUrl": "",
+              "imagenUrl": ""
+            },
+            "celebracion": {
+              "visible": true,
+              "titulo": "Fiesta",
+              "hora": "21:30",
+              "nombreLugar": "Salón El Paraíso",
+              "direccionLugar": "",
+              "mapaUrl": "",
+              "imagenUrl": ""
+            }
+          },
+          "itinerario": {
+            "visible": true
+          },
+          "galeria": {
+            "visible": true,
+            "fotos": []
+          },
+          "historia": {
+            "visible": true,
+            "titulo": {
+              "text": "Nuestra Historia",
+              "style": {
+                "fontFamily": "Belleza",
+                "fontSize": "2.5rem",
+                "color": "#363636"
+              }
+            },
+            "texto": {
+              "text": "",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            }
+          },
+          "regalos": {
+            "visible": true,
+            "titulo": {
+              "text": "Lista de Regalos",
+              "style": {
+                "fontFamily": "Belleza",
+                "fontSize": "2.5rem",
+                "color": "#363636"
+              }
+            },
+            "texto": {
+              "text": "",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            },
+            "datosBancarios": "",
+            "items": []
+          },
+          "dressCode": {
+            "visible": true
+          },
+          "musica": {
+            "visible": true,
+            "placeholder": "Ej: Bohemian Rhapsody - Queen"
+          },
+          "redesSociales": {
+            "visible": true,
+            "hashtag": "#BodaJuanYMaria",
+            "texto": {
+              "text": "¡Comparte tus momentos!",
+              "style": {
+                "fontFamily": "Belleza",
+                "fontSize": "2rem",
+                "color": "#363636"
+              }
+            }
+          },
+          "confirmacion": {
+            "visible": true,
+            "showRelationshipTags": true
+          },
+          "despedida": {
+            "visible": true
+          },
+          "footer": {
+            "visible": true,
+            "titulo": {
+              "text": "¡Te esperamos!",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            },
+            "nombreEmpresa": {
+              "text": "AK Producciones",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            }
+          }
+        },
+        "menuMesa": {
+          "titulo": "MENÚ",
+          "protagonistaNombre": "",
+          "fontFamily": "Playfair Display",
+          "paletaColores": {
+            "primary": "#8b5cf6",
+            "secondary": "#4b5563",
+            "accent": "#3b82f6",
+            "background": "#ffffff"
+          },
+          "entrada": "",
+          "platoPrincipal": "",
+          "adolescentes": "",
+          "postres": "",
+          "bebidas": "",
+          "empresa": {
+            "linea1": "AK PRODUCCIONES",
+            "linea2": "Servicio integral",
+            "contacto": "098 355 530"
+          }
+        },
+        "numerosMesa": {
+          "protagonistaNombre": "",
+          "fechaEvento": "",
+          "backgroundImageUrl": "",
+          "colorPrincipal": "#9333ea",
+          "colorSecundario": "#363636",
+          "fontFamily": "Playfair Display"
+        },
+        "clientPortalSettings": {
+          "enabled": false,
+          "accessKey": "",
+          "clientPassword": "",
+          "accessPhase": "financiera",
+          "liveAccessDaysBefore": 7,
+          "checklist": {
+            "visible": true,
+            "editable": true
+          },
+          "itinerario": {
+            "visible": true
+          },
+          "musica": {
+            "visible": true,
+            "editable": true
+          },
+          "videoVida": {
+            "visible": true,
+            "editable": true
+          },
+          "listaRegalos": {
+            "visible": true
+          },
+          "documentos": {
+            "visible": true
+          },
+          "notasCliente": {
+            "visible": true,
+            "editable": true
+          },
+          "invitados": {
+            "visible": true
+          },
+          "paginaPublica": {
+            "visible": true
+          },
+          "fotografiaYFilmacion": {
+            "visible": true
+          },
+          "moodboard": {
+            "visible": true,
+            "editable": true
+          },
+          "buzon": {
+            "visible": true,
+            "editable": true
+          },
+          "contrato": {
+            "visible": true
+          },
+          "pagos": {
+            "visible": true
+          },
+          "simuladorInvitados": {
+            "visible": true,
+            "minReductionPercent": 10,
+            "maxIncreasePercent": 30
+          },
+          "simuladorInvitadosConfig": {
+            "limiteReduccionPorcentaje": 10,
+            "limiteAumentoPorcentaje": 30,
+            "penalizacionReduccion": true
+          },
+          "calculadoraBebidas": {
+            "visible": true,
+            "items": [
+              {
+                "id": "cerveza",
+                "nombre": "Cerveza Corona",
+                "emoji": "🍺",
+                "cantidadPorPersona": 5,
+                "unidad": "unidades",
+                "clienteLleva": false,
+                "visible": true,
+                "color": "amber"
+              },
+              {
+                "id": "refresco",
+                "nombre": "Agua / Gaseosa",
+                "emoji": "🥤",
+                "cantidadPorPersona": 1.5,
+                "unidad": "litros",
+                "clienteLleva": false,
+                "visible": true,
+                "color": "sky"
+              },
+              {
+                "id": "hielo",
+                "nombre": "Hielo",
+                "emoji": "🧊",
+                "cantidadPorPersona": 1,
+                "unidad": "kg",
+                "clienteLleva": false,
+                "visible": true,
+                "color": "slate"
+              },
+              {
+                "id": "agua",
+                "nombre": "Agua mineral",
+                "emoji": "💧",
+                "cantidadPorPersona": 0.5,
+                "unidad": "litros",
+                "clienteLleva": false,
+                "visible": true,
+                "color": "blue"
+              }
+            ]
+          },
+          "serviciosContratados": {
+            "visible": true
+          },
+          "ubicacion": {
+            "visible": true
+          },
+          "menu": {
+            "visible": true
+          },
+          "cartaTragos": {
+            "visible": true
+          },
+          "dressCode": {
+            "visible": true
+          },
+          "faq": {
+            "visible": true
+          },
+          "informarPago": {
+            "visible": true,
+            "editable": true
+          }
+        },
+        "socialGallerySettings": {
+          "enabled": true,
+          "allowLikes": true,
+          "allowComments": true,
+          "uploadsActive": true,
+          "requireApproval": true,
+          "chatEnabled": true,
+          "showPolls": true,
+          "marketingTickerText": "Seguinos en nuestras redes sociales",
+          "ledMarqueeText": ""
+        },
+        "zonaDigitalAdolescentes": {
+          "enabled": true,
+          "title": "Zona Digital AK",
+          "subtitle": "Retos, fotos, juegos, pantallas y momentos para compartir.",
+          "accessMode": "qr_abierto",
+          "primaryColor": "#111827",
+          "accentColor": "#dc2626",
+          "backgroundStyle": "glass_party",
+          "hashtag": "#AKProducciones",
+          "moderationRequired": true,
+          "showLeaderboard": true,
+          "showPoints": true,
+          "showEmojiBar": true,
+          "showSocialFollowGate": true,
+          "allowNicknames": true,
+          "allowAvatarUpload": true,
+          "allowComments": true,
+          "allowDedications": true,
+          "allowSongVotes": true,
+          "autoRotateOnScreens": true,
+          "syncWithMuroSocial": true,
+          "syncWithTotems": true,
+          "syncWithBarra": true,
+          "syncWithEntretenimiento": true,
+          "recapEnabled": true,
+          "features": [
+            {
+              "id": "muro_social",
+              "label": "Muro social",
+              "description": "Suben fotos, videos, comentarios y aparecen en pantalla.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "muroSocial"
+            },
+            {
+              "id": "retos",
+              "label": "Retos de la fiesta",
+              "description": "Misiones rápidas para sacar fotos, grabar clips y sumar puntos.",
+              "enabled": true,
+              "visibleForGuests": true
+            },
+            {
+              "id": "juegos",
+              "label": "Juegos en vivo",
+              "description": "Trivia, votaciones, emoji battle y baile con ranking.",
+              "enabled": true,
+              "visibleForGuests": true
+            },
+            {
+              "id": "fotocabina",
+              "label": "Fotocabina",
+              "description": "Plantillas, marcos, stickers y descarga con marca del evento.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "entretenimiento",
+              "requiresHardware": true
+            },
+            {
+              "id": "plataforma360",
+              "label": "Plataforma 360",
+              "description": "Clips verticales con intro, música, efecto y salida social.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "entretenimiento",
+              "requiresHardware": true
+            },
+            {
+              "id": "bogue",
+              "label": "Vogue / Boomerang",
+              "description": "Loops cortos tipo social, pensados para compartir rápido.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "entretenimiento",
+              "requiresHardware": true
+            },
+            {
+              "id": "espejo_magico",
+              "label": "Espejo mágico",
+              "description": "Pantalla táctil con firma, dibujo, props y salida premium.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "entretenimiento",
+              "requiresHardware": true
+            },
+            {
+              "id": "barra",
+              "label": "Barra interactiva",
+              "description": "Eligen tragos, ven ingredientes, video y pasan a pantalla del barman.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "barraTecnologica"
+            },
+            {
+              "id": "totems",
+              "label": "Tótems sincronizados",
+              "description": "Pantallas con QR, fotos, retos y fondos animados.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "pantallasTotem",
+              "requiresHardware": true
+            },
+            {
+              "id": "audioritmico",
+              "label": "Modo baile audiorrítmico",
+              "description": "Visuales de discoteca con fotos, QR y movimiento.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "muroSocial"
+            },
+            {
+              "id": "ranking",
+              "label": "Ranking por puntos",
+              "description": "Leaderboard por invitado, mesa o grupo.",
+              "enabled": true,
+              "visibleForGuests": true
+            },
+            {
+              "id": "recap",
+              "label": "Resumen final",
+              "description": "Cierre con mejores fotos, retos y momentos compartibles.",
+              "enabled": true,
+              "visibleForGuests": true
+            }
+          ],
+          "challenges": [
+            {
+              "id": "selfie_protagonista",
+              "title": "Selfie con la protagonista",
+              "description": "Subí una foto con la cumpleañera, novios o protagonista.",
+              "emoji": "🤳",
+              "points": 120,
+              "enabled": true,
+              "featured": true
+            },
+            {
+              "id": "mesa_mas_divertida",
+              "title": "Mesa más divertida",
+              "description": "Foto grupal de tu mesa con la mejor pose.",
+              "emoji": "🎉",
+              "points": 90,
+              "enabled": true,
+              "featured": true
+            },
+            {
+              "id": "look_party",
+              "title": "Look de fiesta",
+              "description": "Mostrá tu outfit con el marco oficial del evento.",
+              "emoji": "✨",
+              "points": 70,
+              "enabled": true
+            },
+            {
+              "id": "paso_baile",
+              "title": "Paso de baile",
+              "description": "Grabá un mini clip bailando y sumalo al muro.",
+              "emoji": "🕺",
+              "points": 110,
+              "enabled": true
+            },
+            {
+              "id": "barra_favorito",
+              "title": "Trago favorito",
+              "description": "Elegí tu trago o mocktail favorito en la barra digital.",
+              "emoji": "🍹",
+              "points": 60,
+              "enabled": true
+            },
+            {
+              "id": "mensaje_lindo",
+              "title": "Mensaje lindo",
+              "description": "Dejá una dedicatoria corta para pantalla.",
+              "emoji": "💬",
+              "points": 50,
+              "enabled": true
+            },
+            {
+              "id": "foto_360",
+              "title": "Momento 360",
+              "description": "Subí tu mejor clip de plataforma 360.",
+              "emoji": "🎥",
+              "points": 150,
+              "enabled": true
+            },
+            {
+              "id": "emoji_mood",
+              "title": "Emoji mood",
+              "description": "Votá el emoji que mejor representa la fiesta.",
+              "emoji": "🔥",
+              "points": 30,
+              "enabled": true
+            }
+          ],
+          "games": [
+            {
+              "id": "emoji_battle",
+              "type": "emoji_battle",
+              "title": "Emoji Battle",
+              "prompt": "¿Qué emoji gana este momento?",
+              "emoji": "🔥",
+              "enabled": true,
+              "screenMode": "ambos",
+              "points": 30,
+              "options": [
+                "🔥",
+                "💎",
+                "😂",
+                "❤️"
+              ]
+            },
+            {
+              "id": "trivia_protagonista",
+              "type": "trivia",
+              "title": "Trivia de la fiesta",
+              "prompt": "¿Quién conoce más a la protagonista?",
+              "emoji": "🧠",
+              "enabled": true,
+              "screenMode": "pantalla",
+              "points": 80,
+              "options": [
+                "Opción A",
+                "Opción B",
+                "Opción C"
+              ]
+            },
+            {
+              "id": "votacion_tema",
+              "type": "votacion",
+              "title": "Votación de tema",
+              "prompt": "¿Qué tema tiene que sonar después?",
+              "emoji": "🎧",
+              "enabled": true,
+              "screenMode": "ambos",
+              "points": 40,
+              "options": [
+                "Reggaeton",
+                "Cumbia",
+                "Pop",
+                "Electrónica"
+              ]
+            },
+            {
+              "id": "busqueda_foto",
+              "type": "busqueda",
+              "title": "Búsqueda fotográfica",
+              "prompt": "Encontrá una foto con algo rojo, una risa y una pose rara.",
+              "emoji": "🔎",
+              "enabled": true,
+              "screenMode": "mobile",
+              "points": 120
+            },
+            {
+              "id": "duelo_baile",
+              "type": "baile",
+              "title": "Duelo de baile",
+              "prompt": "Dos mesas, una canción, gana la más votada.",
+              "emoji": "🪩",
+              "enabled": true,
+              "screenMode": "pantalla",
+              "points": 150
+            },
+            {
+              "id": "dedicatoria_flash",
+              "type": "dedicatoria",
+              "title": "Dedicatoria flash",
+              "prompt": "Escribí un mensaje corto para que salga en pantalla.",
+              "emoji": "💌",
+              "enabled": true,
+              "screenMode": "mobile",
+              "points": 40
+            }
+          ],
+          "socialNetworks": [
+            {
+              "id": "instagram",
+              "label": "Instagram",
+              "handle": "@akproduccionesfiestasyeventos",
+              "url": "https://www.instagram.com/akproduccionesfiestasyeventos/",
+              "enabled": true,
+              "requireBeforeDownload": true
+            },
+            {
+              "id": "tiktok",
+              "label": "TikTok",
+              "handle": "@akproduccioneseve",
+              "url": "https://www.tiktok.com/@akproduccioneseve",
+              "enabled": true,
+              "requireBeforeDownload": false
+            },
+            {
+              "id": "facebook",
+              "label": "Facebook",
+              "handle": "AK Producciones Eventos",
+              "url": "https://www.facebook.com/akproduccionessalto/",
+              "enabled": false
+            },
+            {
+              "id": "whatsapp",
+              "label": "WhatsApp",
+              "handle": "AK Producciones",
+              "url": "https://wa.me/59898355530",
+              "enabled": true
+            }
+          ],
+          "emojiReactions": [
+            {
+              "emoji": "🔥",
+              "label": "Fuego",
+              "enabled": true
+            },
+            {
+              "emoji": "❤️",
+              "label": "Me encanta",
+              "enabled": true
+            },
+            {
+              "emoji": "😂",
+              "label": "Risa",
+              "enabled": true
+            },
+            {
+              "emoji": "💎",
+              "label": "Premium",
+              "enabled": true
+            },
+            {
+              "emoji": "🪩",
+              "label": "Baile",
+              "enabled": true
+            },
+            {
+              "emoji": "👏",
+              "label": "Aplauso",
+              "enabled": true
+            }
+          ],
+          "safetyRules": [
+            "Todo contenido puede ser moderado por AK antes de aparecer en pantalla.",
+            "No se muestran datos privados: solo apodo, foto o mensaje autorizado.",
+            "Los retos se pueden pausar en cualquier momento desde el panel interno.",
+            "Si una estación no está contratada, se apaga y desaparece del celular del invitado."
+          ]
+        },
+        "musica": {
+          "cancionesTortaBrindis": []
+        },
+        "reposteria": {
+          "categorias": [
+            {
+              "id": "mesa_postres",
+              "nombreDisplay": "Mesa de Postres",
+              "activada": false,
+              "items": [],
+              "descripcion": "Variedad de postres clásicos y modernos."
+            },
+            {
+              "id": "candy_bar",
+              "nombreDisplay": "Candy Bar Temático",
+              "activada": false,
+              "items": [],
+              "descripcion": "Mesa de dulces y golosinas variadas."
+            },
+            {
+              "id": "fuente_chocolate",
+              "nombreDisplay": "Fuente de Chocolate",
+              "activada": false,
+              "items": [],
+              "descripcion": "Con frutas, malvaviscos y más."
+            },
+            {
+              "id": "mesa_helada",
+              "nombreDisplay": "Mesa Helada",
+              "activada": false,
+              "items": [],
+              "descripcion": "Selección de helados y toppings."
+            }
+          ],
+          "notasGenerales": ""
+        },
+        "bebidas": {
+          "categorias": [
+            {
+              "id": "coctel_bienvenida",
+              "nombreDisplay": "Cóctel de Bienvenida",
+              "activada": true,
+              "items": [],
+              "recetas": [],
+              "descripcion": "El cóctel especial que se sirve al recibir a los invitados."
+            },
+            {
+              "id": "refrescos_gaseosas",
+              "nombreDisplay": "Refrescos / Gaseosas",
+              "activada": false,
+              "items": [],
+              "descripcion": "Variedad de bebidas carbonatadas."
+            },
+            {
+              "id": "jugos",
+              "nombreDisplay": "Mesa de jugos naturales",
+              "activada": false,
+              "items": [],
+              "descripcion": "Opciones frutales y refrescantes."
+            },
+            {
+              "id": "aguas_saborizadas",
+              "nombreDisplay": "Aguas Saborizadas y Minerales",
+              "activada": false,
+              "items": [],
+              "descripcion": "Con y sin gas, opciones saborizadas."
+            },
+            {
+              "id": "cervezas",
+              "nombreDisplay": "Cervezas",
+              "activada": false,
+              "items": [],
+              "descripcion": "Variedad de cervezas nacionales e importadas."
+            },
+            {
+              "id": "vinos_espumantes",
+              "nombreDisplay": "Vinos y Espumantes",
+              "activada": false,
+              "items": [],
+              "descripcion": "Selección de tintos, blancos, rosados y espumosos."
+            },
+            {
+              "id": "barra_tragos",
+              "nombreDisplay": "Barra de Tragos",
+              "activada": false,
+              "items": [],
+              "recetas": [],
+              "descripcion": "Bebidas blancas y licores para la barra."
+            },
+            {
+              "id": "cafeteria",
+              "nombreDisplay": "Servicio de Cafetería",
+              "activada": false,
+              "items": [],
+              "descripcion": "Café, té, instituciones."
+            }
+          ],
+          "notasGenerales": ""
+        },
+        "listaDeCargaOperativa": {
+          "categorias": []
+        },
+        "gestionCostos": {
+          "costosItems": [],
+          "ingresosTotalesEstimados": 0,
+          "notasGeneralesCostos": ""
+        },
+        "videoVida": {
+          "galleryEnabled": true,
+          "photosUploaded": false,
+          "songSuggestion": "",
+          "customText": "",
+          "photoCount": 50
+        },
+        "programa": [],
+        "fotografiaYFilmacion": {
+          "servicios": [],
+          "notasGenerales": ""
+        },
+        "othersDocumentos": [],
+        "pagosProveedores": [],
+        "estadosCompra": [],
+        "liveState": {
+          "llegadaProtagonistas": {
+            "enCamino": false,
+            "confirmado": false
+          },
+          "entregas": [],
+          "incidentes": [],
+          "staffCheckIn": {}
+        },
+        "presupuestoId": "pres_hist_carga-A-abcde"
+      },
+      "fiestas/fiesta_hist_carga-B-abcde.json": {
+        "id": "fiesta_hist_carga-B-abcde",
+        "configuracion": {
+          "nombreEvento": "Histórico: B739",
+          "tipoCelebracion": "Boda",
+          "fechaEvento": "2025-10-15T00:00:00.000Z",
+          "horaInicio": "21:00",
+          "horaFin": "04:00",
+          "nombreLugar": "Salón a definir",
+          "invitadosEstimados": 100,
+          "presupuestoEstimado": 0,
+          "notesAdicionales": "",
+          "clienteId": "cust_hist_carga-B-abcde"
+        },
+        "modulosContratados": {
+          "tareas": true,
+          "invitados": true,
+          "paginaWeb": true,
+          "decoracion": true,
+          "catering": true,
+          "musica": true,
+          "personal": true,
+          "itinerario": true,
+          "documentos": true,
+          "costos": true,
+          "cargaOperativa": true,
+          "fotografia": true,
+          "videoVida": true,
+          "reuniones": true,
+          "muroSocial": true,
+          "redSocial": true,
+          "regalos": false,
+          "feedback": false,
+          "menuMesa": false,
+          "buzon": true,
+          "checkin": false,
+          "resumenImprimible": false,
+          "configuracion": true,
+          "disenoSalon": true,
+          "listaCompras": true,
+          "portalCliente": true,
+          "numerosMesa": true,
+          "mesasCliente": true,
+          "resumenPlanificacion": true,
+          "enVivo": true,
+          "entretenimiento": true,
+          "pantallasTotem": true,
+          "barraTecnologica": true,
+          "zonaDigital": true,
+          "carteleria": true
+        },
+        "personalAsignado": [],
+        "invoiceIds": [
+          "inv_1793143274297_xwdowus"
+        ],
+        "reuniones": [],
+        "tareas": [],
+        "decoracion": {
+          "tema": "Elegante y Moderno",
+          "paletaColores": {
+            "primary": "#D9B8FF",
+            "secondary": "#FCD3DE",
+            "accent": "#F0E6CC"
+          },
+          "decoracionTorta": {
+            "descripcion": "",
+            "imageUrl": "",
+            "dataAiHint": "cake design"
+          },
+          "items": [],
+          "zonasContratadas": [
+            {
+              "id": "atras_torta",
+              "nombreDisplay": "Atrás de la torta",
+              "activada": false,
+              "dataAiHint": "cake backdrop"
+            },
+            {
+              "id": "frente_salon",
+              "nombreDisplay": "Frente del salón / Entrada principal",
+              "activada": false,
+              "dataAiHint": "event entrance"
+            },
+            {
+              "id": "zona_regalos",
+              "nombreDisplay": "Zona de regalos",
+              "activada": false,
+              "dataAiHint": "gift table"
+            },
+            {
+              "id": "zona_fotografia",
+              "nombreDisplay": "Zona de fotografía / Photocall",
+              "activada": false,
+              "dataAiHint": "photo booth"
+            },
+            {
+              "id": "centro_salon",
+              "nombreDisplay": "Centro del salón / Ambientación general",
+              "activada": false,
+              "dataAiHint": "event hall center"
+            }
+          ],
+          "generalNotesDecoracion": "Detalles pendientes de definir.",
+          "salonWidth": 15,
+          "salonHeight": 15,
+          "salonElements": [],
+          "pixelsPerMeter": 40,
+          "moodboardItems": []
+        },
+        "invitados": [],
+        "invitacionDigital": {
+          "plantilla": "Grazia",
+          "name": "Plantilla Grazia por Defecto",
+          "category": "Boda",
+          "musicaFondoUrl": "",
+          "secciones": [],
+          "cabecera": {
+            "visible": true,
+            "protagonista1": "Novio/a 1",
+            "protagonista2": "Novio/a 2",
+            "subtitulo": {
+              "text": "Nuestra Boda",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1.25rem",
+                "color": "#654321"
+              }
+            },
+            "paletaColores": {
+              "primary": "#6d8b74",
+              "secondary": "#e6d5b8",
+              "accent": "#a47e63"
+            }
+          },
+          "bienvenida": {
+            "visible": true,
+            "titulo": {
+              "text": "¡Nos Casamos!",
+              "style": {
+                "fontFamily": "Belleza",
+                "fontSize": "2.5rem",
+                "color": "#363636"
+              }
+            },
+            "texto": {
+              "text": "Después de un hermoso camino juntos, damos el siguiente paso.",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            }
+          },
+          "cuentaRegresiva": {
+            "visible": true
+          },
+          "detallesEvento": {
+            "visible": true,
+            "ceremoniaReligiosa": {
+              "visible": true,
+              "titulo": "Ceremonia",
+              "hora": "20:00",
+              "nombreLugar": "Catedral",
+              "direccionLugar": "",
+              "mapaUrl": "",
+              "imagenUrl": ""
+            },
+            "ceremoniaCivil": {
+              "visible": false,
+              "titulo": "",
+              "hora": "",
+              "nombreLugar": "",
+              "direccionLugar": "",
+              "mapaUrl": "",
+              "imagenUrl": ""
+            },
+            "celebracion": {
+              "visible": true,
+              "titulo": "Fiesta",
+              "hora": "21:30",
+              "nombreLugar": "Salón El Paraíso",
+              "direccionLugar": "",
+              "mapaUrl": "",
+              "imagenUrl": ""
+            }
+          },
+          "itinerario": {
+            "visible": true
+          },
+          "galeria": {
+            "visible": true,
+            "fotos": []
+          },
+          "historia": {
+            "visible": true,
+            "titulo": {
+              "text": "Nuestra Historia",
+              "style": {
+                "fontFamily": "Belleza",
+                "fontSize": "2.5rem",
+                "color": "#363636"
+              }
+            },
+            "texto": {
+              "text": "",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            }
+          },
+          "regalos": {
+            "visible": true,
+            "titulo": {
+              "text": "Lista de Regalos",
+              "style": {
+                "fontFamily": "Belleza",
+                "fontSize": "2.5rem",
+                "color": "#363636"
+              }
+            },
+            "texto": {
+              "text": "",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            },
+            "datosBancarios": "",
+            "items": []
+          },
+          "dressCode": {
+            "visible": true
+          },
+          "musica": {
+            "visible": true,
+            "placeholder": "Ej: Bohemian Rhapsody - Queen"
+          },
+          "redesSociales": {
+            "visible": true,
+            "hashtag": "#BodaJuanYMaria",
+            "texto": {
+              "text": "¡Comparte tus momentos!",
+              "style": {
+                "fontFamily": "Belleza",
+                "fontSize": "2rem",
+                "color": "#363636"
+              }
+            }
+          },
+          "confirmacion": {
+            "visible": true,
+            "showRelationshipTags": true
+          },
+          "despedida": {
+            "visible": true
+          },
+          "footer": {
+            "visible": true,
+            "titulo": {
+              "text": "¡Te esperamos!",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            },
+            "nombreEmpresa": {
+              "text": "AK Producciones",
+              "style": {
+                "fontFamily": "Inter",
+                "fontSize": "1rem",
+                "color": "#6b7280"
+              }
+            }
+          }
+        },
+        "menuMesa": {
+          "titulo": "MENÚ",
+          "protagonistaNombre": "",
+          "fontFamily": "Playfair Display",
+          "paletaColores": {
+            "primary": "#8b5cf6",
+            "secondary": "#4b5563",
+            "accent": "#3b82f6",
+            "background": "#ffffff"
+          },
+          "entrada": "",
+          "platoPrincipal": "",
+          "adolescentes": "",
+          "postres": "",
+          "bebidas": "",
+          "empresa": {
+            "linea1": "AK PRODUCCIONES",
+            "linea2": "Servicio integral",
+            "contacto": "098 355 530"
+          }
+        },
+        "numerosMesa": {
+          "protagonistaNombre": "",
+          "fechaEvento": "",
+          "backgroundImageUrl": "",
+          "colorPrincipal": "#9333ea",
+          "colorSecundario": "#363636",
+          "fontFamily": "Playfair Display"
+        },
+        "clientPortalSettings": {
+          "enabled": false,
+          "accessKey": "",
+          "clientPassword": "",
+          "accessPhase": "financiera",
+          "liveAccessDaysBefore": 7,
+          "checklist": {
+            "visible": true,
+            "editable": true
+          },
+          "itinerario": {
+            "visible": true
+          },
+          "musica": {
+            "visible": true,
+            "editable": true
+          },
+          "videoVida": {
+            "visible": true,
+            "editable": true
+          },
+          "listaRegalos": {
+            "visible": true
+          },
+          "documentos": {
+            "visible": true
+          },
+          "notasCliente": {
+            "visible": true,
+            "editable": true
+          },
+          "invitados": {
+            "visible": true
+          },
+          "paginaPublica": {
+            "visible": true
+          },
+          "fotografiaYFilmacion": {
+            "visible": true
+          },
+          "moodboard": {
+            "visible": true,
+            "editable": true
+          },
+          "buzon": {
+            "visible": true,
+            "editable": true
+          },
+          "contrato": {
+            "visible": true
+          },
+          "pagos": {
+            "visible": true
+          },
+          "simuladorInvitados": {
+            "visible": true,
+            "minReductionPercent": 10,
+            "maxIncreasePercent": 30
+          },
+          "simuladorInvitadosConfig": {
+            "limiteReduccionPorcentaje": 10,
+            "limiteAumentoPorcentaje": 30,
+            "penalizacionReduccion": true
+          },
+          "calculadoraBebidas": {
+            "visible": true,
+            "items": [
+              {
+                "id": "cerveza",
+                "nombre": "Cerveza Corona",
+                "emoji": "🍺",
+                "cantidadPorPersona": 5,
+                "unidad": "unidades",
+                "clienteLleva": false,
+                "visible": true,
+                "color": "amber"
+              },
+              {
+                "id": "refresco",
+                "nombre": "Agua / Gaseosa",
+                "emoji": "🥤",
+                "cantidadPorPersona": 1.5,
+                "unidad": "litros",
+                "clienteLleva": false,
+                "visible": true,
+                "color": "sky"
+              },
+              {
+                "id": "hielo",
+                "nombre": "Hielo",
+                "emoji": "🧊",
+                "cantidadPorPersona": 1,
+                "unidad": "kg",
+                "clienteLleva": false,
+                "visible": true,
+                "color": "slate"
+              },
+              {
+                "id": "agua",
+                "nombre": "Agua mineral",
+                "emoji": "💧",
+                "cantidadPorPersona": 0.5,
+                "unidad": "litros",
+                "clienteLleva": false,
+                "visible": true,
+                "color": "blue"
+              }
+            ]
+          },
+          "serviciosContratados": {
+            "visible": true
+          },
+          "ubicacion": {
+            "visible": true
+          },
+          "menu": {
+            "visible": true
+          },
+          "cartaTragos": {
+            "visible": true
+          },
+          "dressCode": {
+            "visible": true
+          },
+          "faq": {
+            "visible": true
+          },
+          "informarPago": {
+            "visible": true,
+            "editable": true
+          }
+        },
+        "socialGallerySettings": {
+          "enabled": true,
+          "allowLikes": true,
+          "allowComments": true,
+          "uploadsActive": true,
+          "requireApproval": true,
+          "chatEnabled": true,
+          "showPolls": true,
+          "marketingTickerText": "Seguinos en nuestras redes sociales",
+          "ledMarqueeText": ""
+        },
+        "zonaDigitalAdolescentes": {
+          "enabled": true,
+          "title": "Zona Digital AK",
+          "subtitle": "Retos, fotos, juegos, pantallas y momentos para compartir.",
+          "accessMode": "qr_abierto",
+          "primaryColor": "#111827",
+          "accentColor": "#dc2626",
+          "backgroundStyle": "glass_party",
+          "hashtag": "#AKProducciones",
+          "moderationRequired": true,
+          "showLeaderboard": true,
+          "showPoints": true,
+          "showEmojiBar": true,
+          "showSocialFollowGate": true,
+          "allowNicknames": true,
+          "allowAvatarUpload": true,
+          "allowComments": true,
+          "allowDedications": true,
+          "allowSongVotes": true,
+          "autoRotateOnScreens": true,
+          "syncWithMuroSocial": true,
+          "syncWithTotems": true,
+          "syncWithBarra": true,
+          "syncWithEntretenimiento": true,
+          "recapEnabled": true,
+          "features": [
+            {
+              "id": "muro_social",
+              "label": "Muro social",
+              "description": "Suben fotos, videos, comentarios y aparecen en pantalla.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "muroSocial"
+            },
+            {
+              "id": "retos",
+              "label": "Retos de la fiesta",
+              "description": "Misiones rápidas para sacar fotos, grabar clips y sumar puntos.",
+              "enabled": true,
+              "visibleForGuests": true
+            },
+            {
+              "id": "juegos",
+              "label": "Juegos en vivo",
+              "description": "Trivia, votaciones, emoji battle y baile con ranking.",
+              "enabled": true,
+              "visibleForGuests": true
+            },
+            {
+              "id": "fotocabina",
+              "label": "Fotocabina",
+              "description": "Plantillas, marcos, stickers y descarga con marca del evento.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "entretenimiento",
+              "requiresHardware": true
+            },
+            {
+              "id": "plataforma360",
+              "label": "Plataforma 360",
+              "description": "Clips verticales con intro, música, efecto y salida social.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "entretenimiento",
+              "requiresHardware": true
+            },
+            {
+              "id": "bogue",
+              "label": "Vogue / Boomerang",
+              "description": "Loops cortos tipo social, pensados para compartir rápido.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "entretenimiento",
+              "requiresHardware": true
+            },
+            {
+              "id": "espejo_magico",
+              "label": "Espejo mágico",
+              "description": "Pantalla táctil con firma, dibujo, props y salida premium.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "entretenimiento",
+              "requiresHardware": true
+            },
+            {
+              "id": "barra",
+              "label": "Barra interactiva",
+              "description": "Eligen tragos, ven ingredientes, video y pasan a pantalla del barman.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "barraTecnologica"
+            },
+            {
+              "id": "totems",
+              "label": "Tótems sincronizados",
+              "description": "Pantallas con QR, fotos, retos y fondos animados.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "pantallasTotem",
+              "requiresHardware": true
+            },
+            {
+              "id": "audioritmico",
+              "label": "Modo baile audiorrítmico",
+              "description": "Visuales de discoteca con fotos, QR y movimiento.",
+              "enabled": true,
+              "visibleForGuests": true,
+              "linkedModuleId": "muroSocial"
+            },
+            {
+              "id": "ranking",
+              "label": "Ranking por puntos",
+              "description": "Leaderboard por invitado, mesa o grupo.",
+              "enabled": true,
+              "visibleForGuests": true
+            },
+            {
+              "id": "recap",
+              "label": "Resumen final",
+              "description": "Cierre con mejores fotos, retos y momentos compartibles.",
+              "enabled": true,
+              "visibleForGuests": true
+            }
+          ],
+          "challenges": [
+            {
+              "id": "selfie_protagonista",
+              "title": "Selfie con la protagonista",
+              "description": "Subí una foto con la cumpleañera, novios o protagonista.",
+              "emoji": "🤳",
+              "points": 120,
+              "enabled": true,
+              "featured": true
+            },
+            {
+              "id": "mesa_mas_divertida",
+              "title": "Mesa más divertida",
+              "description": "Foto grupal de tu mesa con la mejor pose.",
+              "emoji": "🎉",
+              "points": 90,
+              "enabled": true,
+              "featured": true
+            },
+            {
+              "id": "look_party",
+              "title": "Look de fiesta",
+              "description": "Mostrá tu outfit con el marco oficial del evento.",
+              "emoji": "✨",
+              "points": 70,
+              "enabled": true
+            },
+            {
+              "id": "paso_baile",
+              "title": "Paso de baile",
+              "description": "Grabá un mini clip bailando y sumalo al muro.",
+              "emoji": "🕺",
+              "points": 110,
+              "enabled": true
+            },
+            {
+              "id": "barra_favorito",
+              "title": "Trago favorito",
+              "description": "Elegí tu trago o mocktail favorito en la barra digital.",
+              "emoji": "🍹",
+              "points": 60,
+              "enabled": true
+            },
+            {
+              "id": "mensaje_lindo",
+              "title": "Mensaje lindo",
+              "description": "Dejá una dedicatoria corta para pantalla.",
+              "emoji": "💬",
+              "points": 50,
+              "enabled": true
+            },
+            {
+              "id": "foto_360",
+              "title": "Momento 360",
+              "description": "Subí tu mejor clip de plataforma 360.",
+              "emoji": "🎥",
+              "points": 150,
+              "enabled": true
+            },
+            {
+              "id": "emoji_mood",
+              "title": "Emoji mood",
+              "description": "Votá el emoji que mejor representa la fiesta.",
+              "emoji": "🔥",
+              "points": 30,
+              "enabled": true
+            }
+          ],
+          "games": [
+            {
+              "id": "emoji_battle",
+              "type": "emoji_battle",
+              "title": "Emoji Battle",
+              "prompt": "¿Qué emoji gana este momento?",
+              "emoji": "🔥",
+              "enabled": true,
+              "screenMode": "ambos",
+              "points": 30,
+              "options": [
+                "🔥",
+                "💎",
+                "😂",
+                "❤️"
+              ]
+            },
+            {
+              "id": "trivia_protagonista",
+              "type": "trivia",
+              "title": "Trivia de la fiesta",
+              "prompt": "¿Quién conoce más a la protagonista?",
+              "emoji": "🧠",
+              "enabled": true,
+              "screenMode": "pantalla",
+              "points": 80,
+              "options": [
+                "Opción A",
+                "Opción B",
+                "Opción C"
+              ]
+            },
+            {
+              "id": "votacion_tema",
+              "type": "votacion",
+              "title": "Votación de tema",
+              "prompt": "¿Qué tema tiene que sonar después?",
+              "emoji": "🎧",
+              "enabled": true,
+              "screenMode": "ambos",
+              "points": 40,
+              "options": [
+                "Reggaeton",
+                "Cumbia",
+                "Pop",
+                "Electrónica"
+              ]
+            },
+            {
+              "id": "busqueda_foto",
+              "type": "busqueda",
+              "title": "Búsqueda fotográfica",
+              "prompt": "Encontrá una foto con algo rojo, una risa y una pose rara.",
+              "emoji": "🔎",
+              "enabled": true,
+              "screenMode": "mobile",
+              "points": 120
+            },
+            {
+              "id": "duelo_baile",
+              "type": "baile",
+              "title": "Duelo de baile",
+              "prompt": "Dos mesas, una canción, gana la más votada.",
+              "emoji": "🪩",
+              "enabled": true,
+              "screenMode": "pantalla",
+              "points": 150
+            },
+            {
+              "id": "dedicatoria_flash",
+              "type": "dedicatoria",
+              "title": "Dedicatoria flash",
+              "prompt": "Escribí un mensaje corto para que salga en pantalla.",
+              "emoji": "💌",
+              "enabled": true,
+              "screenMode": "mobile",
+              "points": 40
+            }
+          ],
+          "socialNetworks": [
+            {
+              "id": "instagram",
+              "label": "Instagram",
+              "handle": "@akproduccionesfiestasyeventos",
+              "url": "https://www.instagram.com/akproduccionesfiestasyeventos/",
+              "enabled": true,
+              "requireBeforeDownload": true
+            },
+            {
+              "id": "tiktok",
+              "label": "TikTok",
+              "handle": "@akproduccioneseve",
+              "url": "https://www.tiktok.com/@akproduccioneseve",
+              "enabled": true,
+              "requireBeforeDownload": false
+            },
+            {
+              "id": "facebook",
+              "label": "Facebook",
+              "handle": "AK Producciones Eventos",
+              "url": "https://www.facebook.com/akproduccionessalto/",
+              "enabled": false
+            },
+            {
+              "id": "whatsapp",
+              "label": "WhatsApp",
+              "handle": "AK Producciones",
+              "url": "https://wa.me/59898355530",
+              "enabled": true
+            }
+          ],
+          "emojiReactions": [
+            {
+              "emoji": "🔥",
+              "label": "Fuego",
+              "enabled": true
+            },
+            {
+              "emoji": "❤️",
+              "label": "Me encanta",
+              "enabled": true
+            },
+            {
+              "emoji": "😂",
+              "label": "Risa",
+              "enabled": true
+            },
+            {
+              "emoji": "💎",
+              "label": "Premium",
+              "enabled": true
+            },
+            {
+              "emoji": "🪩",
+              "label": "Baile",
+              "enabled": true
+            },
+            {
+              "emoji": "👏",
+              "label": "Aplauso",
+              "enabled": true
+            }
+          ],
+          "safetyRules": [
+            "Todo contenido puede ser moderado por AK antes de aparecer en pantalla.",
+            "No se muestran datos privados: solo apodo, foto o mensaje autorizado.",
+            "Los retos se pueden pausar en cualquier momento desde el panel interno.",
+            "Si una estación no está contratada, se apaga y desaparece del celular del invitado."
+          ]
+        },
+        "musica": {
+          "cancionesTortaBrindis": []
+        },
+        "reposteria": {
+          "categorias": [
+            {
+              "id": "mesa_postres",
+              "nombreDisplay": "Mesa de Postres",
+              "activada": false,
+              "items": [],
+              "descripcion": "Variedad de postres clásicos y modernos."
+            },
+            {
+              "id": "candy_bar",
+              "nombreDisplay": "Candy Bar Temático",
+              "activada": false,
+              "items": [],
+              "descripcion": "Mesa de dulces y golosinas variadas."
+            },
+            {
+              "id": "fuente_chocolate",
+              "nombreDisplay": "Fuente de Chocolate",
+              "activada": false,
+              "items": [],
+              "descripcion": "Con frutas, malvaviscos y más."
+            },
+            {
+              "id": "mesa_helada",
+              "nombreDisplay": "Mesa Helada",
+              "activada": false,
+              "items": [],
+              "descripcion": "Selección de helados y toppings."
+            }
+          ],
+          "notasGenerales": ""
+        },
+        "bebidas": {
+          "categorias": [
+            {
+              "id": "coctel_bienvenida",
+              "nombreDisplay": "Cóctel de Bienvenida",
+              "activada": true,
+              "items": [],
+              "recetas": [],
+              "descripcion": "El cóctel especial que se sirve al recibir a los invitados."
+            },
+            {
+              "id": "refrescos_gaseosas",
+              "nombreDisplay": "Refrescos / Gaseosas",
+              "activada": false,
+              "items": [],
+              "descripcion": "Variedad de bebidas carbonatadas."
+            },
+            {
+              "id": "jugos",
+              "nombreDisplay": "Mesa de jugos naturales",
+              "activada": false,
+              "items": [],
+              "descripcion": "Opciones frutales y refrescantes."
+            },
+            {
+              "id": "aguas_saborizadas",
+              "nombreDisplay": "Aguas Saborizadas y Minerales",
+              "activada": false,
+              "items": [],
+              "descripcion": "Con y sin gas, opciones saborizadas."
+            },
+            {
+              "id": "cervezas",
+              "nombreDisplay": "Cervezas",
+              "activada": false,
+              "items": [],
+              "descripcion": "Variedad de cervezas nacionales e importadas."
+            },
+            {
+              "id": "vinos_espumantes",
+              "nombreDisplay": "Vinos y Espumantes",
+              "activada": false,
+              "items": [],
+              "descripcion": "Selección de tintos, blancos, rosados y espumosos."
+            },
+            {
+              "id": "barra_tragos",
+              "nombreDisplay": "Barra de Tragos",
+              "activada": false,
+              "items": [],
+              "recetas": [],
+              "descripcion": "Bebidas blancas y licores para la barra."
+            },
+            {
+              "id": "cafeteria",
+              "nombreDisplay": "Servicio de Cafetería",
+              "activada": false,
+              "items": [],
+              "descripcion": "Café, té, instituciones."
+            }
+          ],
+          "notasGenerales": ""
+        },
+        "listaDeCargaOperativa": {
+          "categorias": []
+        },
+        "gestionCostos": {
+          "costosItems": [],
+          "ingresosTotalesEstimados": 0,
+          "notasGeneralesCostos": ""
+        },
+        "videoVida": {
+          "galleryEnabled": true,
+          "photosUploaded": false,
+          "songSuggestion": "",
+          "customText": "",
+          "photoCount": 50
+        },
+        "programa": [],
+        "fotografiaYFilmacion": {
+          "servicios": [],
+          "notasGenerales": ""
+        },
+        "othersDocumentos": [],
+        "pagosProveedores": [],
+        "estadosCompra": [],
+        "liveState": {
+          "llegadaProtagonistas": {
+            "enCamino": false,
+            "confirmado": false
+          },
+          "entregas": [],
+          "incidentes": [],
+          "staffCheckIn": {}
+        },
+        "presupuestoId": "pres_hist_carga-B-abcde"
+      }
+    }
+  },
+  {
+    "case": "foreign-budget-id",
+    "result": [
+      {
+        "id": "inv-other",
+        "invoiceNumber": "HIST-abcde",
+        "sourcePresupuestoId": "pres_hist_carga-A-abcde",
+        "payments": [
+          {
+            "amount": 1000
+          }
+        ]
+      }
+    ]
+  }
+]

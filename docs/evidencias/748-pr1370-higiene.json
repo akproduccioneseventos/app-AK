@@ -1,0 +1,20 @@
+{
+  "source": "90cc18b5d9a6a19f3e209a7f078017619435de38",
+  "finished": "2026-10-27T23:29:38.203Z",
+  "matchedFiles": 2517,
+  "sourceDiff": 0,
+  "qaExtraSourceFiles": [],
+  "envFiles": [],
+  "ownNodeProcesses": 0,
+  "serversStarted": 0,
+  "buildStarted": false,
+  "agentsClosed": [
+    "Anscombe"
+  ],
+  "appEditsInRepo": 0,
+  "realAccounts": false,
+  "realPayments": false,
+  "realMessages": false,
+  "merge": false,
+  "notes": "QA aislado. Datos/identidades ficticios; sin env heredadas. Raw iniciales conservados. No se detuvieron ni tocaron procesos/archivos de otras IA."
+}

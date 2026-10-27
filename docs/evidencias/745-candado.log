@@ -1,0 +1,7 @@
+PASS src/__tests__/el-candado-de-la-plata.test.ts
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        3.983 s
+Test results written to: ..\..\..\..\Documents\Codex\ak-codex88\ak-auditoria697\docs\evidencias\745-candado.json
