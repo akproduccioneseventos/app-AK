@@ -411,11 +411,11 @@
     },
     "103": {
       "fecha": "2026-10-27",
-      "resultado": "parcial: además de crear 3 propuestas (Codex 704), 'Sincronizar desde presupuesto' en fiestas/nueva/configuracion recarga y pierde lo escrito en los últimos 2 s; armar escena en invitados/layout usa memoria (bajo riesgo). Se arreglan en la tanda de la 1366."
+      "resultado": "barrida en src/app: crear 3 propuestas (orden 239) y 'Sincronizar desde presupuesto' en fiestas/nueva/configuracion (ahora espera saveNow() antes de sincronizar). Armar escena en invitados/layout usa memoria (bajo riesgo, queda como estaba)."
     },
     "104": {
       "fecha": "2026-10-27",
-      "resultado": "parcial: además de 'Sofía' en el Centro de control, rellenos fijos: 'Agasajado' en la web con IA si falla el modelo, tipo 'Fiesta' en el borrador de presupuesto del asistente, 'Evento (Salón)' en el monitor en vivo. Se arreglan en la tanda de la 1366."
+      "resultado": "barrida y arreglada: 'Sofía' fija y respuestas del sábado/desconocidas en el Centro de control, 'Agasajado' en la web con IA (ahora pide el nombre), tipo 'Fiesta' del borrador de presupuesto del asistente (ahora pide el dato), 'Evento (Salón)' del monitor en vivo ('sin nombre cargado'/'sin lugar cargado'), y 'temas repetidos' de relleno del resumen de encuestas (ahora dice que no se pudo analizar)."
     }
   },
   "hallazgos": {
@@ -546,6 +546,18 @@
     "orden-237": {
       "fecha": "2026-10-27",
       "resultado": "Devolución de la 1365 (pregunta 52: una entrega arrancada de una versión vieja choca y deshace lo nuevo). Barrido: las otras ramas abiertas de Gemini (ordenes-196-202, 205-206) también arrancan de un main viejo; ninguna se fusiona sin juntar antes la versión publicada y pasar la puerta."
+    },
+    "orden-239": {
+      "fecha": "2026-10-27",
+      "resultado": "Codex 704 (diálogo de propuestas con datos viejos). Barrido de la pregunta 103: el otro caso real era 'Sincronizar desde presupuesto' en configuración; arreglado en la misma tanda (1366). La acción ahora recibe nombre, fecha y salón validados."
+    },
+    "orden-240": {
+      "fecha": "2026-10-27",
+      "resultado": "Cocina y encuestas (sondas 706/707 de Codex): alergia a mariscos sin detectar, celíacos sólo con interruptor fuera de la hoja de cocina, y temas de relleno en el resumen de encuestas. Barrido de la pregunta 104: los rellenos fijos de 'Agasajado', tipo 'Fiesta' y 'Evento (Salón)' también arreglados."
+    },
+    "orden-241": {
+      "fecha": "2026-10-27",
+      "resultado": "Codex 238/703 (Centro de control): fiesta real sin 'Sofía' de relleno, sin respuestas inventadas, ID inexistente no se aprueba ni se aprende, aprobaciones por id, correo no queda enviado, regla no guardada no se anuncia. Barrido de la pregunta 104 en asistentes y monitores: ver orden-240."
     }
   }
 }

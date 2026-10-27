@@ -90,13 +90,19 @@ export function armarHojaDeCocina(
 
   const invitados = fiesta.invitados ?? [];
   const confirmados = invitados.filter((g) => g.rsvp === 'Confirmado');
-  const conRestriccion = confirmados.filter(
-    (g) => g.dietaryRestriction && g.dietaryRestriction !== 'Ninguna',
-  );
+  // Un celíaco marcado sólo con el interruptor (isCeliac) o con una alergia escrita a mano también
+  // cuenta: la cocina no puede dejarlos afuera por no tener la restricción elegida de la lista.
+  const restriccionDe = (g: (typeof confirmados)[number]): string | null => {
+    if (g.dietaryRestriction && g.dietaryRestriction !== 'Ninguna') return String(g.dietaryRestriction);
+    if (g.isCeliac) return 'Celiaco';
+    if (g.alergiasEspecificas && g.alergiasEspecificas.trim()) return 'Otro';
+    return null;
+  };
 
   const porRestriccion = new Map<string, { personas: number; detalles: string[] }>();
-  for (const g of conRestriccion) {
-    const clave = String(g.dietaryRestriction);
+  for (const g of confirmados) {
+    const clave = restriccionDe(g);
+    if (!clave) continue;
     const actual = porRestriccion.get(clave) || { personas: 0, detalles: [] };
     actual.personas += g.partySize || 1;
     if (g.alergiasEspecificas) actual.detalles.push(g.alergiasEspecificas);

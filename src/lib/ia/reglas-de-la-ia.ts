@@ -61,7 +61,21 @@ async function leerJson<T>(filename: string, fallback: T): Promise<T> {
   return fallback;
 }
 
+/**
+ * Guarda en la base (que es la que manda con varios servidores) y recién después deja la copia
+ * local de respaldo. Si la base rechaza el guardado, TIRA el error: un archivo temporal local
+ * no es un guardado durable, y quien llama no puede anunciar "guardado" ni dejar la copia local
+ * mostrando algo que las otras instancias no ven.
+ */
 async function guardarJson<T>(filename: string, data: T): Promise<void> {
+  const sinBaseRemota =
+    (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST) ||
+    process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+
+  if (!sinBaseRemota) {
+    await writeData(filename, data, undefined, { skipAutoBackup: true });
+  }
+
   const localPath = path.join(process.cwd(), 'data', filename);
   try {
     const dir = path.dirname(localPath);
@@ -70,17 +84,8 @@ async function guardarJson<T>(filename: string, data: T): Promise<void> {
     }
     fs.writeFileSync(localPath, JSON.stringify(data, null, 2), 'utf8');
   } catch (err) {
+    if (sinBaseRemota) throw err;
     console.warn(`[Reglas IA] Error al escribir ${filename} localmente:`, err);
-  }
-
-  if (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST) {
-    return;
-  }
-
-  try {
-    await writeData(filename, data, undefined, { skipAutoBackup: true });
-  } catch {
-    // Silencioso si falla sync remoto
   }
 }
 
@@ -231,7 +236,12 @@ export async function guardarReglaIA(
     [tareaId]: modo,
   };
 
-  await guardarJson(ARCHIVO_REGLAS, actualizadas);
+  try {
+    await guardarJson(ARCHIVO_REGLAS, actualizadas);
+  } catch (err) {
+    console.warn('[Reglas IA] No se pudo guardar la regla:', err);
+    return { success: false, error: 'No se pudo guardar la regla. Probá de nuevo.' };
+  }
   return { success: true };
 }
 

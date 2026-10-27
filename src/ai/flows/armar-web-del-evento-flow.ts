@@ -253,7 +253,8 @@ Devolvé un único objeto JSON con esta estructura exacta:
     parsedIA = {
       plantilla: plantillaFallback,
       cabecera: {
-        protagonista1: nombreHomenajeada || 'Agasajado',
+        // Sin nombre cargado NO se inventa uno: queda vacío (la acción pide el dato antes de armar).
+        protagonista1: nombreHomenajeada || '',
         protagonista2: nombreHomenajeado2 || '',
         subtitulo: tipoEvento.toLowerCase().includes('15') ? 'Mis 15 Años' : 'Nuestra Celebración',
         paletaColores: {
@@ -284,7 +285,7 @@ Devolvé un único objeto JSON con esta estructura exacta:
   const protagonista1Final =
     limpiarNombreAgasajado(parsedIA.cabecera?.protagonista1) ||
     nombreHomenajeada ||
-    'Agasajado';
+    '';
 
   const plantillaFinal = input.plantillaForzada || parsedIA.plantilla;
   const paleta =

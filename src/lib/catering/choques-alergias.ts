@@ -77,6 +77,28 @@ export function detectarChoquesMenuYAlergias(
       }
     }
 
+    // Check Mariscos
+    const tieneMariscos =
+      item.allergenTags?.includes('mariscos') ||
+      /(marisco|camaron|langostino|langosta|cangrejo|calamar|pulpo|mejillon|almeja|ostra|crustace|molusco)/i.test(
+        itemText.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
+      );
+    if (tieneMariscos) {
+      const afectados = invitados.filter(
+        (g) => g.rsvp === 'Confirmado' && g.dietaryRestriction === 'Alergia Mariscos',
+      );
+      if (afectados.length > 0) {
+        const pax = afectados.reduce((s, g) => s + (g.partySize || 1), 0);
+        choques.push({
+          platoNombre: item.name,
+          tipoPlato: item.type || 'Plato',
+          restriccion: 'Alergia a Mariscos',
+          personasAfectadas: pax,
+          ingredientesEnConflicto: ['Mariscos / Crustáceos'],
+        });
+      }
+    }
+
     // Check Frutos Secos
     const tieneFrutosSecos =
       item.allergenTags?.includes('frutos_secos') ||

@@ -16047,3 +16047,21 @@ Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-n
 archivo: src/__tests__/las-recetas-de-la-barra-son-las-del-duenio.test.ts
 usa: ing-blue-curacao en src/lib/fiesta-defaults.ts
 ```
+
+## 27/10/2026 — Centro de control, propuestas de web y cocina (órdenes 239, 240 y 241)
+
+- **Qué estaba mal:** la orden por voz armaba la web de "Sofía" aunque la fiesta fuera otra, contestaba el horario y el menú del sábado sin mirarlos y decía "me pongo a trabajar" sin hacer nada; aprobar un post inexistente figuraba bien y se "aprendía"; dos aprobaciones a la vez perdían una; aprobar un correo lo dejaba como enviado sin enviar nada; una regla que la base no guardó se anunciaba como guardada. "Crear 3 propuestas" usaba el nombre, la fecha y el salón viejos; "Sincronizar desde presupuesto" pisaba lo escrito en los últimos 2 segundos. La alergia a mariscos no chocaba con ningún plato, la hoja de cocina dejaba afuera al celíaco marcado sólo con el interruptor, y el resumen de encuestas inventaba "temas repetidos" cuando la IA fallaba. Además había nombres de relleno ("Agasajado", tipo "Fiesta", "Evento (Salón)").
+- **Qué se hizo:** `darOrdenPorVozOTexto` busca la fiesta por nombre (`resolverFiestaDeLaOrden`) y si no hay una sola coincidencia no hace nada; las respuestas sin consulta dicen que no se pudo. `aprobarItemOK` y `rechazarItemOK` fallan con un id inexistente antes de aprender; los posts se cambian por id (`mutarPostPorId`); un correo aprobado no se marca enviado (desde acá no sale ningún correo; el WhatsApp sigue el camino manual de siempre); la pantalla vuelve a abrir la edición si falla. `guardarReglaIA` escribe primero en la base y devuelve error si falla. `crearTresPropuestasDeWeb` recibe nombre, fecha y salón validados en el servidor. La sincronización con el presupuesto hace `saveNow()` antes. Mariscos en `choques-alergias.ts`, celíacos en `hoja-de-cocina.ts`, `analisisDisponible` en el resumen de encuestas. Sin nombre cargado, la web con IA y el borrador de presupuesto piden el dato.
+- **Por qué así:** un asistente que no sabe dice que no sabe: un relleno que suena bien manda a la persona a trabajar sobre un dato falso. La orden 240 y las sondas 706/707 no estaban en la propuesta 1366, así que esos tres puntos salen de la descripción del pedido.
+- **Control:** `src/__tests__/orden-241-centro-de-control-no-miente.test.ts`, `src/__tests__/orden-241-una-regla-no-guardada-no-dice-guardada.test.ts` y `src/__tests__/orden-239-240-propuestas-cocina-encuestas.test.ts`.
+
+```comprobar
+archivo: src/__tests__/orden-241-centro-de-control-no-miente.test.ts
+usa: resolverFiestaDeLaOrden en src/app/actions/centro-de-control.ts
+usa: mutarPostPorId en src/app/actions/centro-de-control.ts
+usa: analisisDisponible en src/lib/feedback/resumen-feedback.ts
+usa: Alergia Mariscos en src/lib/catering/choques-alergias.ts
+usa: datosDelDialogo en src/app/actions/fiesta/armar-web-con-ia.actions.ts
+prueba: src/__tests__/orden-241-una-regla-no-guardada-no-dice-guardada.test.ts
+prueba: src/__tests__/orden-239-240-propuestas-cocina-encuestas.test.ts
+```

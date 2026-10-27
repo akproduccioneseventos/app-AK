@@ -223,6 +223,9 @@ function ConfiguracionEventoContent() {
     if (!fiestaId || !linkedPresupuestoId) return;
     setIsSyncingPresupuesto(true);
     try {
+      // Lo que el equipo escribió y todavía no se guardó se guarda ANTES: si no, la recarga que
+      // sigue a la sincronización lo pisa con lo viejo del servidor.
+      await saveNow();
       const result = await syncFiestaFromBudget(fiestaId);
       if (result.success) {
         toast({ title: '✅ Sincronizado', description: 'El evento fue sincronizado con el presupuesto.' });

@@ -268,6 +268,20 @@ function sincronizarSecciones(data: InvitacionDigitalData): SeccionInvitacion[] 
   ];
 }
 
+/** ¿Hay algún nombre del agasajado cargado? Sin él no se arma nada: no se inventa uno de relleno. */
+function tieneNombreDelAgasajado(fiesta: FiestaEnPlanificacion): boolean {
+  const cfg = fiesta.invitacionConfig;
+  const c = fiesta.configuracion as any;
+  return Boolean(
+    cfg?.nombreHomenajeada?.trim() ||
+      c?.protagonista1Nombre?.trim() ||
+      c?.nombreEvento?.trim() ||
+      fiesta.invitacionDigital?.cabecera?.protagonista1?.trim(),
+  );
+}
+
+const FALTA_EL_NOMBRE = 'Falta cargar el nombre del agasajado en la fiesta. Cargalo y volvé a armar la web.';
+
 export async function armarWebConIA(
   fiestaId: string,
   options?: { rehacer?: boolean },
@@ -279,6 +293,8 @@ export async function armarWebConIA(
     if (!fiesta) {
       return { success: false, error: 'No se encontró la fiesta solicitada.' };
     }
+
+    if (!tieneNombreDelAgasajado(fiesta)) return { success: false, error: FALTA_EL_NOMBRE };
 
     const generada = await armarWebDelEventoFlow({ fiesta });
     const invitacionDigital = mezclarInvitacionConExistente(
@@ -294,17 +310,68 @@ export async function armarWebConIA(
   }
 }
 
+/** Lo que el dueño escribió en el diálogo antes de crear las propuestas (se valida acá, no se confía). */
+export interface DatosDelDialogoDePropuestas {
+  nombre?: string;
+  fecha?: string;
+  salon?: string;
+}
+
+function limpiarDatosDelDialogo(
+  datos?: DatosDelDialogoDePropuestas,
+): { ok: true; valores: DatosDelDialogoDePropuestas } | { ok: false; error: string } {
+  const valores: DatosDelDialogoDePropuestas = {};
+  if (!datos) return { ok: true, valores };
+  const texto = (v: unknown, max: number): string | undefined | null => {
+    if (v === undefined || v === null || v === '') return undefined;
+    if (typeof v !== 'string') return null;
+    const t = v.trim();
+    if (t.length > max) return null;
+    return t || undefined;
+  };
+  const nombre = texto(datos.nombre, 80);
+  const salon = texto(datos.salon, 120);
+  const fecha = texto(datos.fecha, 40);
+  if (nombre === null) return { ok: false, error: 'El nombre es demasiado largo o no es válido.' };
+  if (salon === null) return { ok: false, error: 'El salón es demasiado largo o no es válido.' };
+  if (fecha === null || (fecha !== undefined && !(/^\d{4}-\d{2}-\d{2}/.test(fecha) && !Number.isNaN(Date.parse(fecha))))) {
+    return { ok: false, error: 'La fecha no es válida.' };
+  }
+  if (nombre !== undefined) valores.nombre = nombre;
+  if (salon !== undefined) valores.salon = salon;
+  if (fecha !== undefined) valores.fecha = fecha;
+  return { ok: true, valores };
+}
+
 export async function crearTresPropuestasDeWeb(
   fiestaId: string,
   colorBase?: string,
+  datosDelDialogo?: DatosDelDialogoDePropuestas,
 ): Promise<{ success: boolean; propuestas?: PropuestaDeWeb[]; error?: string }> {
   await requireFiestaWriteAccess(fiestaId);
 
+  const limpios = limpiarDatosDelDialogo(datosDelDialogo);
+  if (!limpios.ok) return { success: false, error: limpios.error };
+
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) {
+    const fiestaGuardada = await getFiestaById(fiestaId);
+    if (!fiestaGuardada) {
       return { success: false, error: 'No se encontró la fiesta solicitada.' };
     }
+    // Lo escrito en el diálogo se aplica sobre la fiesta del servidor (no se manda la fiesta entera
+    // desde el navegador) y queda guardado junto con las propuestas.
+    const { nombre, fecha, salon } = limpios.valores;
+    const fiesta: FiestaEnPlanificacion = {
+      ...fiestaGuardada,
+      invitacionConfig: {
+        ...(fiestaGuardada.invitacionConfig || {}),
+        ...(nombre ? { nombreHomenajeada: nombre } : {}),
+        ...(fecha ? { fechaEvento: fecha } : {}),
+        ...(salon ? { nombreSalon: salon } : {}),
+        ...(colorBase ? { colorPrincipal: colorBase } : {}),
+      },
+    } as FiestaEnPlanificacion;
+    if (!tieneNombreDelAgasajado(fiesta)) return { success: false, error: FALTA_EL_NOMBRE };
 
     const propuestas = await generarTresPropuestasFlow({
       fiesta,

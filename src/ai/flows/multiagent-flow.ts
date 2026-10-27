@@ -638,13 +638,17 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       } catch (err) {
         console.error('[Multiagent Flow] Error preparando propuesta de prospecto:', err);
       }
+    } else if (action?.type === 'draft_budget' && action.data?.clientName && !String(action.data.partyType || '').trim()) {
+      // Sin tipo de fiesta no se arma el borrador: no se inventa uno, se pide el dato.
+      action = { type: 'none' };
+      finalResponse += '\n\nPara armar el borrador del presupuesto me falta saber qué tipo de fiesta es (por ejemplo, cumpleaños de 15 o casamiento). Decímelo y lo preparo.';
     } else if (action?.type === 'draft_budget' && action.data?.clientName) {
       try {
         const budgetProposal = await prepareAssistantBudgetProposal({
           clientName: action.data.clientName,
           phone: action.data.phone,
           email: action.data.email,
-          partyType: action.data.partyType || 'Fiesta',
+          partyType: String(action.data.partyType).trim(),
           eventDate: action.data.eventDate,
           guestCount: action.data.guestCount,
           venueName: action.data.venueName,

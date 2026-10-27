@@ -1,4 +1,4 @@
-# Orden238 - Centro de control: resultados reales y reglas compartidas
+# Orden241 (antes 238 de Codex) - Centro de control: resultados reales y reglas compartidas
 
 ## Actualizacion prioritaria - 27/10/2026
 

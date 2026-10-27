@@ -466,8 +466,8 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
     hallazgos.push('No hay fiestas en vivo programadas para hoy.');
   } else {
     for (const f of fiestasHoy) {
-      const nombre = f.configuracion?.nombreEvento || f.configuracion?.nombreAgasajado || 'Evento';
-      const lugar = f.configuracion?.nombreLugar || (f.configuracion as any)?.salon || 'Salón';
+      const nombre = f.configuracion?.nombreEvento || f.configuracion?.nombreAgasajado || 'una fiesta sin nombre cargado';
+      const lugar = f.configuracion?.nombreLugar || (f.configuracion as any)?.salon || 'sin lugar cargado';
       hallazgos.push(`Monitoreando fiesta en vivo hoy: ${nombre} (${lugar}).`);
     }
   }
