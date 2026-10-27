@@ -40,7 +40,7 @@ export async function extractReceiptData(input: ExtractReceiptDataInput): Promis
   try {
     const { output } = await ejecutarPromptConFallback(extractReceiptPrompt, input);
     if (!output) throw new Error('No se obtuvo respuesta estructurada.');
-    await registrarConsumoIA('lectura-recibo').catch(() => {});
+    await registrarConsumoIA('lectura-recibo').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
     return {
       vendor: output.vendor || 'Proveedor sin identificar',
       date: output.date || new Date().toISOString().slice(0, 10),

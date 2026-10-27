@@ -143,9 +143,10 @@ export async function armarWebDelEventoFlow(input: ArmarWebInput): Promise<Invit
   const linkMaps = cfg?.linkMaps?.trim() || fConfig.googleMapsUrl?.trim() || '';
 
   const cronograma = cfg?.cronograma || (fiesta as any).itinerario || (fiesta as any).cronograma || [];
+  const dressCodeSuelto = (fConfig as { dressCode?: unknown }).dressCode;
   const dressCodeInput =
     (typeof cfg?.dressCode?.tipo === 'string' ? cfg.dressCode.tipo : '') ||
-    (typeof (fConfig as any).dressCode === 'string' ? (fConfig as any).dressCode : '') ||
+    (typeof dressCodeSuelto === 'string' ? dressCodeSuelto : '') ||
     '';
   const hitos = cfg?.hitos || [];
 

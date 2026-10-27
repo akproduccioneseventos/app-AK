@@ -137,7 +137,7 @@ Devolvé SOLO un JSON válido con esta estructura:
         if (Array.isArray(parsed.mejorasPropuestas) && parsed.mejorasPropuestas.length) {
           mejorasPropuestas = parsed.mejorasPropuestas.slice(0, 3);
         }
-        await registrarConsumoIA('resumen-feedback').catch(() => {});
+        await registrarConsumoIA('resumen-feedback').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
       }
     } catch (e) {
       console.warn('[feedback] Fallback usado para resumen:', e);

@@ -275,7 +275,7 @@ export async function processIncomingMessage(
               const match = raw.match(/\{[\s\S]*\}/);
               if (match) {
                 extracted = JSON.parse(match[0]);
-                await registrarConsumoIA('extraccion-prospecto-whatsapp').catch(() => {});
+                await registrarConsumoIA('extraccion-prospecto-whatsapp').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
               }
             } catch (err) {
               console.warn('[whatsapp] Error con Gemini en extracción, usando fallback:', err);

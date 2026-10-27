@@ -73,7 +73,7 @@ Reglas:
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       if (parsed.caption) {
-        await registrarConsumoIA('material-post-evento').catch(() => {});
+        await registrarConsumoIA('material-post-evento').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
         return {
           caption: parsed.caption,
           shortCaption: parsed.shortCaption || fallback.shortCaption,
@@ -84,7 +84,7 @@ Reglas:
     }
 
     if (rawText.length > 30) {
-      await registrarConsumoIA('material-post-evento').catch(() => {});
+      await registrarConsumoIA('material-post-evento').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
       return {
         caption: rawText,
         shortCaption: fallback.shortCaption,

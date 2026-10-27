@@ -91,7 +91,7 @@ Devolvé SOLO un objeto JSON válido con esta estructura exacta:
     if (match) {
       const parsed = JSON.parse(match[0]);
       if (parsed.paletteName && Array.isArray(parsed.colors) && parsed.colors.length >= 3) {
-        await registrarConsumoIA('sugerir-paleta').catch(() => {});
+        await registrarConsumoIA('sugerir-paleta').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
         return {
           paletteName: parsed.paletteName,
           colors: parsed.colors,

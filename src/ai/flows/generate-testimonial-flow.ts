@@ -56,7 +56,7 @@ Devolvé SOLO un JSON válido con:
     if (match) {
       const parsed = JSON.parse(match[0]);
       if (parsed.testimonial && parsed.shortQuote) {
-        await registrarConsumoIA('resumen-feedback').catch(() => {});
+        await registrarConsumoIA('resumen-feedback').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
         return {
           testimonial: parsed.testimonial,
           shortQuote: parsed.shortQuote,
