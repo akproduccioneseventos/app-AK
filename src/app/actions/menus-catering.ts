@@ -41,7 +41,7 @@ const parseSafeNumber = (val: any): number => {
     if (typeof val === 'number') return val;
     let str = String(val).trim();
     if (!str) return 0;
-    
+
     if (str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
     } else {
@@ -61,9 +61,9 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     const quantity = parseSafeNumber(ing.quantityPerPerson);
     const unitCost = parseSafeNumber(ing.costoUnitario);
     const recipeUnit = (ing.unit || '').toLowerCase().trim();
-    
+
     if (quantity === 0 || unitCost === 0) return 0;
-    
+
     const catalogItem = ing.origenId ? catalogItems.find(item => item.id === ing.origenId) : null;
     const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
 
@@ -90,7 +90,7 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
                     const dName = d.name.toUpperCase();
                     return (dName === 'MESA BUFET' || dName === 'MESA BUFFET') && d.id !== item.id;
                 });
-                
+
                 if (mesaBuffetBase && mesaBuffetBase.ingredients) {
                     mesaBuffetBase.ingredients.forEach(buffetIng => {
                         if (!finalIngredients.some(existing => existing.name.toLowerCase() === buffetIng.name.toLowerCase())) {
@@ -107,7 +107,7 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
 
             const totalDishCost = ingredientsWithCost.reduce((sum, ing) => sum + ing.costoTotalReceta, 0);
             const profitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
-            
+
             let suggestedSellingPrice: number;
             if (item.suggestedSellingPrice !== undefined && Number(item.suggestedSellingPrice) > 0) {
                 suggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
@@ -262,32 +262,47 @@ async function saveMenuInterno(
 async function deleteMenuInterno(id: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
 
-  const targetMenu = await getMenuById(id);
-  const menuItemIds = new Set(targetMenu?.items.map(item => item.id) || []);
-  const [{ getPresupuestos }, { getFiestas }] = await Promise.all([
-    import('./presupuestos'),
-    import('./fiesta/fiesta.actions'),
-  ]);
-  const [presupuestos, fiestas] = await Promise.all([getPresupuestos(), getFiestas(false)]);
-  const presupuestosEnUso = presupuestos.filter(p =>
-    p.selectedMenuId === id || p.itemsPresupuestados?.some(item =>
-      item.idServicioCatalogo === id || menuItemIds.has(item.idServicioCatalogo)
-    )
-  );
-  const fiestasEnUso = fiestas.filter(fiesta => fiesta.menuAsignadoId === id);
-  if (presupuestosEnUso.length > 0 || fiestasEnUso.length > 0) {
+  const comprobarUso = async () => {
+    const targetMenu = await getMenuById(id);
+    const menuItemIds = new Set(targetMenu?.items.map(item => item.id) || []);
+    const [{ getPresupuestos }, { getFiestas }] = await Promise.all([
+      import('./presupuestos'),
+      import('./fiesta/fiesta.actions'),
+    ]);
+    const [presupuestos, fiestas] = await Promise.all([getPresupuestos(), getFiestas(false)]);
+    const presupuestosEnUso = presupuestos.filter(p =>
+      p.selectedMenuId === id || p.itemsPresupuestados?.some(item =>
+        item.idServicioCatalogo === id || menuItemIds.has(item.idServicioCatalogo)
+      )
+    );
+    const fiestasEnUso = fiestas.filter(fiesta => fiesta.menuAsignadoId === id);
+    if (presupuestosEnUso.length > 0 || fiestasEnUso.length > 0) {
+      return {
+        enUso: true,
+        error: `No se puede eliminar el menú porque está en ${presupuestosEnUso.length} presupuesto(s) y ${fiestasEnUso.length} evento(s).`,
+      };
+    }
+    return { enUso: false };
+  };
+
+  const primerControl = await comprobarUso();
+  if (primerControl.enUso) {
     return {
       success: false,
-      error: `No se puede eliminar el menú porque está en ${presupuestosEnUso.length} presupuesto(s) y ${fiestasEnUso.length} evento(s).`,
+      error: primerControl.error,
     };
   }
 
   invalidateMenusCache();
   if (!SIN_BASE()) {
+    const recheck = await comprobarUso();
+    if (recheck.enUso) return { success: false, error: recheck.error };
     const borrado = await deleteDataItem(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, id);
     invalidateMenusCache();
     return borrado ? { success: true } : { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };
   }
+  const recheck = await comprobarUso();
+  if (recheck.enUso) return { success: false, error: recheck.error };
   let menus = await readMenusFile();
   const initialLength = menus.length;
   menus = menus.filter(menu => menu.id !== id);

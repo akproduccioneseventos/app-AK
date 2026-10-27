@@ -588,23 +588,78 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
-  const originalInvoices = await leerFacturasSinGuardia();
-  // Borrar una factura cobrada hace desaparecer el comprobante del cobro.
-  const aBorrar = originalInvoices.find(inv => inv.id === id);
-  if (aBorrar && ((aBorrar.payments ?? []).length > 0 || aBorrar.status === 'Paid')) {
-    return { success: false, error: 'No se puede eliminar una factura con pagos registrados. Es el comprobante del cobro.' };
+
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (dbAdmin) {
+      const ref = dbAdmin.collection('facturas').doc(id);
+      let errorMsg: string | undefined;
+      let facturaEliminada: Invoice | undefined;
+
+      try {
+        await dbAdmin.runTransaction(async (transaction: any) => {
+          errorMsg = undefined;
+          facturaEliminada = undefined;
+          const snapshot = await transaction.get(ref);
+          if (!snapshot.exists) {
+            errorMsg = `Factura con ID ${id} no encontrada para eliminar.`;
+            return;
+          }
+          const data = (typeof snapshot.data === 'function' ? snapshot.data() : snapshot.data) as Invoice;
+          if ((data.payments ?? []).length > 0 || data.status === 'Paid') {
+            errorMsg = 'Esta factura ya tiene un cobro. No se puede borrar.';
+            return;
+          }
+          transaction.delete(ref);
+          facturaEliminada = data;
+        });
+      } catch (txError: any) {
+        console.error('Error en transacción de Firestore al eliminar factura:', txError);
+        return { success: false, error: txError.message || 'Error al eliminar la factura.' };
+      }
+
+      if (errorMsg) {
+        return { success: false, error: errorMsg };
+      }
+
+      const originalInvoices = await leerFacturasSinGuardia();
+      const invoices = originalInvoices.filter(inv => inv.id !== id);
+      try {
+        await writeData(INVOICES_FILE, invoices);
+        if (linkedFiestaId) {
+          const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
+          if (!unlinkResult.success) {
+            if (facturaEliminada) {
+              await ref.set(facturaEliminada);
+            }
+            await writeData(INVOICES_FILE, originalInvoices);
+            return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
+          }
+        }
+        return { success: true };
+      } catch (writeError: any) {
+        console.error('Error actualizando invoices tras eliminar en Firestore:', writeError);
+        return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
+      }
+    }
   }
-  const initialLength = originalInvoices.length;
-  const invoices = originalInvoices.filter(inv => inv.id !== id);
-  if (invoices.length === initialLength) {
+
+  const originalInvoices = await leerFacturasSinGuardia();
+  const aBorrar = originalInvoices.find(inv => inv.id === id);
+  if (!aBorrar) {
     return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
   }
+  if ((aBorrar.payments ?? []).length > 0 || aBorrar.status === 'Paid') {
+    return { success: false, error: 'Esta factura ya tiene un cobro. No se puede borrar.' };
+  }
+
+  const invoices = originalInvoices.filter(inv => inv.id !== id);
   let deletionPersisted = false;
   try {
     await writeData(INVOICES_FILE, invoices);
-    // La lista entera ya no borra facturas por omision (una lista vieja borraba las que
-    // otro acababa de crear): el borrado de esta es explicito.
-    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') await forceDeleteDocFromFirestore('facturas', id);
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      await forceDeleteDocFromFirestore('facturas', id);
+    }
     deletionPersisted = true;
     if (linkedFiestaId) {
       const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
@@ -801,7 +856,7 @@ async function addPaymentToInvoiceInner(
 
   let invoices = await leerFacturasSinGuardia();
   const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
-  if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+  if (invoiceIndex === -1) return { success: false, error: 'Esa factura ya no existe.' };
 
   const invoice = invoices[invoiceIndex];
   const amount = montoDelFormulario(amountStr, invoice.currency);
@@ -879,7 +934,7 @@ async function addPaymentToInvoiceInner(
       if (saldoAlGuardar !== null) {
         return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${(saldoAlGuardar as number).toLocaleString('es-UY')} ${invoice.currency}.` };
       }
-      return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+      return { success: false, error: 'Esa factura ya no existe.' };
     }
     invoices[invoiceIndex] = guardada;
   }
@@ -1017,4 +1072,8 @@ export async function pasarCobrosPendientesAlPresupuesto(): Promise<{ success: b
   }
   return { success: true, pasados };
 }
+
+
+
+
 

@@ -217,13 +217,18 @@ async function saveInsumoInterno(
 
 async function deleteInsumoInterno(id: string): Promise<{ success: boolean; error?: string }> {
   await requirePermisoAlguno(PERMISOS.INSUMOS);
-  const { getMenus } = await import('./menus-catering');
-  const menus = await getMenus();
-  const menusEnUso = menus.filter(m =>
-    m.items?.some(item =>
-      item.ingredients?.some(ing => ing.origenId === id)
-    )
-  );
+  const { getMenus, invalidateMenusCache } = await import('./menus-catering');
+  const comprobarMenusEnUso = async () => {
+    invalidateMenusCache();
+    const menus = await getMenus();
+    return menus.filter(m =>
+      m.items?.some(item =>
+        item.ingredients?.some(ing => ing.origenId === id)
+      )
+    );
+  };
+
+  const menusEnUso = await comprobarMenusEnUso();
   if (menusEnUso.length > 0) {
     return {
       success: false,
@@ -233,9 +238,23 @@ async function deleteInsumoInterno(id: string): Promise<{ success: boolean; erro
 
   limpiarCacheInsumos();
   if (!SIN_BASE()) {
+    const menusRecheck = await comprobarMenusEnUso();
+    if (menusRecheck.length > 0) {
+      return {
+        success: false,
+        error: `No se puede eliminar el insumo porque está siendo utilizado en ${menusRecheck.length} menú(s)/receta(s) de catering.`,
+      };
+    }
     const borrado = await deleteDataItem(INSUMOS_FILE, INSUMOS_COLLECTION, id);
     limpiarCacheInsumos();
     return borrado ? { success: true } : { success: false, error: `Insumo con ID ${id} no encontrado para eliminar.` };
+  }
+  const menusRecheck = await comprobarMenusEnUso();
+  if (menusRecheck.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el insumo porque está siendo utilizado en ${menusRecheck.length} menú(s)/receta(s) de catering.`,
+    };
   }
   let inventario = await leerInsumosCrudos();
   const initialLength = inventario.length;

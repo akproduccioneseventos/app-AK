@@ -91,6 +91,7 @@ async function registrarIngresoClaveMaestra(email: string, origen: string) {
     }
     const { createNotification } = await import('./notifications');
     const { NOTIFICATION_INTERNAL_TOKEN } = await import('@/lib/notifications/internal-token');
+    // no-mira-el-resultado: el aviso de clave maestra es secundario y no debe interrumpir el login si falla
     await createNotification({
       titulo: 'Seguridad',
       mensaje: 'Se entró con la clave maestra.',

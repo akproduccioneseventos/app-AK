@@ -644,15 +644,30 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!puede(auth.user, PERMISOS.ADMINISTRACION)) return { success: false, error: 'Solo administradores pueden eliminar presupuestos.' };
-  const contrato = await estadoDelContrato(id);
-  if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
-  if (contrato === 'firmado') {
-    return { success: false, error: 'No se puede eliminar un presupuesto con contrato firmado.' };
-  }
 
   return await presupuestosMutex.runExclusive(async () => {
     const all = await getPresupuestos(true);
     const target = all.find(p => p.id === id);
+    if (!target) return { success: false, error: 'Presupuesto no encontrado para eliminar.' };
+
+    const firmadoPorInfo = Boolean(target.contractSignatureInfo?.isSigned);
+    const tieneCobros = (target.pagosCliente?.length || 0) > 0;
+    if (firmadoPorInfo || tieneCobros) {
+      return {
+        success: false,
+        error: 'Este presupuesto tiene cobros o contrato firmado. Archivalo en lugar de borrarlo.',
+      };
+    }
+
+    const contrato = await estadoDelContrato(id);
+    if (contrato === 'no-se-sabe') return { success: false, error: NO_SE_PUDO_COMPROBAR_EL_CONTRATO };
+    if (contrato === 'firmado') {
+      return {
+        success: false,
+        error: 'Este presupuesto tiene cobros o contrato firmado. Archivalo en lugar de borrarlo.',
+      };
+    }
+
     const remaining = all.filter(p => p.id !== id);
     try {
       await writeData(PRESUPUESTOS_FILE, remaining);
@@ -1453,3 +1468,5 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
     return { success: false, error: error.message || 'Error al reiniciar los presupuestos.' };
   }
 }
+
+

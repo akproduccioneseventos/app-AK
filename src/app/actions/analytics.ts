@@ -153,12 +153,16 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     });
 
     const monthlyProfitability: MonthlyProfitabilityData[] = Array.from(monthlyMap.entries()).map(
-      ([month, { ingresos, costos }]) => ({
-        month,
-        ingresos: Math.round(ingresos),
-        costos: Math.round(costos),
-        rentabilidad: Math.round(ingresos - costos),
-      })
+      ([month, { ingresos, costos }]) => {
+        const ing = Math.round(ingresos);
+        const cos = Math.round(costos);
+        return {
+          month,
+          ingresos: ing,
+          costos: cos,
+          rentabilidad: ing - cos,
+        };
+      }
     );
 
     // ─── Conversion Funnel ────────────────────────────────────────────────────
@@ -270,12 +274,14 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     const eventTypeProfitability: EventTypeProfitabilityData[] = Array.from(
       eventTypeMap.entries()
     ).map(([tipo, { ingresos, costos, cantidad }]) => {
+      const ing = Math.round(ingresos);
+      const cos = Math.round(costos);
+      const margenNeto = ing - cos;
       const margenBruto = ingresos > 0 ? Math.round(((ingresos - costos) / ingresos) * 100) : 0;
-      const margenNeto = Math.round(ingresos - costos);
       return {
         tipo,
-        ingresos: Math.round(ingresos),
-        costos: Math.round(costos),
+        ingresos: ing,
+        costos: cos,
         margenBruto,
         margenNeto,
         cantidad,

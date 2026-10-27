@@ -45,6 +45,13 @@ jest.mock('@/lib/data-service', () => ({
     const guardado = almacen[archivo];
     return guardado === undefined ? porDefecto : JSON.parse(JSON.stringify(guardado));
   }),
+  readDataConDetalle: jest.fn(async (archivo: string, porDefecto: any) => {
+    const guardado = almacen[archivo];
+    return {
+      valor: guardado === undefined ? porDefecto : JSON.parse(JSON.stringify(guardado)),
+      huboFalla: false,
+    };
+  }),
   // Guardar tarda: sin esa demora los dos cobros no llegan a pisarse nunca y la
   // prueba daria verde con el defecto puesto.
   writeData: jest.fn(async (archivo: string, datos: any) => {
@@ -126,3 +133,5 @@ describe('Dos cobros al mismo tiempo no se pisan', () => {
     expect(guardado.pagosCliente[0].estadoPago).toBe('confirmado');
   });
 });
+
+

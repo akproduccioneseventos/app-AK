@@ -119,6 +119,7 @@ export interface Presupuesto {
   /** Marcas de ajustes ya aplicados desde el portal (cancelacion, cambio de fecha): un doble toque no los repite. */
   ajustesAplicados?: string[];
   fechaFirmaContrato?: string; // ISO date de firma del contrato
+  contractSignatureInfo?: { isSigned?: boolean; signedAt?: string; [key: string]: unknown };
   archived?: boolean; // Soft-delete: when true the budget is hidden from active lists
   archivedAt?: string; // ISO timestamp of archival
   totalFinal?: number; // Added to resolve build error on approvals / client requests
@@ -179,3 +180,4 @@ export interface PresupuestoFormData {
   marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real
   timestamp?: string;
 }
+
