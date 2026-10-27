@@ -109,3 +109,25 @@ usa: mayores de 18 en src/app/(app)/fiestas/nueva/carteleria/page.tsx
 prueba: src/__tests__/la-barra-no-le-da-alcohol-a-un-menor.test.ts
 prueba: tests/e2e/la-barra-con-o-sin-alcohol.spec.ts
 ```
+
+## Bloque 5 — la Caipirinha no aparece en "Con alcohol" (Codex 717, 27/10/2026)
+
+`getDrinkTags` (`src/lib/barra-tecnologica.ts`) arma las etiquetas leyendo el texto del trago. La Caipirinha no
+cae en "Con alcohol", y `visibleDrinks` la saca de esa categoría.
+
+- Con la carta nueva, la etiqueta sale del dato (`soloMayores`, `recetaIngredientes` con alcohol), **no del
+  nombre ni de la descripción**.
+- Un trago sin datos claros **no** se marca "sin alcohol".
+- No borres ni cambies la receta, la foto ni el id para taparlo.
+
+Que el dato llegue entero de la carta maestra a la fiesta, de la fiesta al dato público, y de ahí al tótem y al
+portal.
+
+Prueba: la Caipirinha con caña figura en "Con alcohol", y un trago sin alcohol de verdad no pasa a "Con alcohol" por
+el nombre. La sonda de Codex está en `docs/evidencias/717-barra-filtro-carta-sonda.cjs`, en la rama
+`codex/697-auditoria-automatismos-20261026`.
+
+```comprobar
+# Bloque 5
+usa: soloMayores en src/lib/barra-tecnologica.ts
+```

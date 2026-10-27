@@ -203,6 +203,36 @@ usa: puede en src/app/(app)/admin/page.tsx
 no-usa: en tiempo real en src/app/(app)/admin/page.tsx
 ```
 
+## Bloque 8 — un perfil inválido con rol viejo de administrador entra como dueño (Codex 719, 27/10/2026)
+
+`perfilDe` (`src/lib/auth/perfiles.ts` ~114) ignora un `perfil` **presente pero inválido** y cae a
+`perfilDesdeRolViejo(role)`. Con `role: 'admin'` eso da `dueno` con todos los permisos. Codex lo reprodujo con
+una sesión firmada: un perfil desconocido más `role: 'admin'` entra al panel privado.
+
+**Qué hacer:**
+
+- Si `perfil` **viene** y no es válido, `puede` devuelve `false` para todo y la guardia rechaza.
+- Si `perfil` **no viene** (una cuenta vieja de verdad), sigue la conversión de hoy.
+- Revisá quién más llama a `perfilDe` antes de cambiarlo. Puede ser el menú o la guardia del cliente
+  (`src/components/auth-guard.tsx`).
+
+**Criterios de la prueba**, que son los de Codex. Tienen que comprobar:
+
+- un perfil inválido firmado se rechaza, sin datos y sin escrituras;
+- un perfil válido restringido con `role: 'admin'` se rechaza donde su perfil no alcanza;
+- una firma alterada o ausente se rechaza;
+- el dueño válido entra, y una cuenta admin vieja **sin** el campo `perfil` también;
+- el operador asignado a la fiesta entra y el no asignado no.
+
+Comprobalo en cinco acciones además del ayudante. Sus sondas están en `docs/evidencias/718-barra-perfiles.test.ts` y
+`719-barra-sesion-firmada.test.ts`, en la rama `codex/697-auditoria-automatismos-20261026`. Pasalas a
+`src/__tests__/un-perfil-invalido-no-entra.test.ts`.
+
+```comprobar
+# Bloque 8
+prueba: src/__tests__/un-perfil-invalido-no-entra.test.ts
+```
+
 ## Pruebas finales
 
 Corré solas las cuatro de Jest. Después corré `npx tsc --noEmit`, `npx jest --silent` completo y
