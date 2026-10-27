@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { aprenderDeLoAprobado } from '@/lib/ia/aprender-de-lo-aprobado';
 import type {
   FiestaEnPlanificacion,
   InvitacionDigitalConfig,
@@ -159,6 +160,13 @@ export async function armarWebDelEventoFlow(input: ArmarWebInput): Promise<Invit
   }
 
   // 3. Preparar prompt
+  const ejemplosAprobados = await aprenderDeLoAprobado('web-evento');
+  const seccionEjemplos =
+    ejemplosAprobados.length > 0
+      ? `\n\nEJEMPLOS REALES APROBADOS POR EL DUEÑO ANTERIORMENTE:\n${ejemplosAprobados
+          .map((ej, idx) => `Ejemplo ${idx + 1}:\n${ej}`)
+          .join('\n---\n')}\nInspirate en el tono y estilo de estos ejemplos aprobados para redactar la bienvenida y los textos.\n`
+      : '';
   const prompt = `Actuá como el diseñador web experto de AK Producciones.
 Tu tarea es generar el contenido y diseño para la web de invitación digital de un evento.
 
@@ -187,7 +195,7 @@ REGLAS ESTRICTAS DE TEXTO Y CONTENIDO:
    - Cumpleaños / Fiesta noche: 'FiestaNoche' o 'Allegria'.
 6. PROTAGONISTAS: En protagonista1 poné solo el nombre limpio del agasajado (ej. si era '15 de Sofía', debe ser 'Sofía'). En protagonista2 poné el segundo si corresponde o dejalo vacío "".
 7. BIENVENIDA: Título cálido (ej. "¡Mis 15 Años!", "¡Nos Casamos!", "¡Festejamos juntos!") y texto breve rioplatense.
-8. PALETA DE COLORES: Proponé colores armónicos en hex (#RRGGBB) para primary, secondary y accent.
+8. PALETA DE COLORES: Proponé colores armónicos en hex (#RRGGBB) para primary, secondary y accent.${seccionEjemplos}
 
 Devolvé un único objeto JSON con esta estructura exacta:
 {

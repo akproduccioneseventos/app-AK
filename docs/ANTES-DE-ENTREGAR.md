@@ -235,3 +235,6 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 69. **¿Tu control de permisos mira `role`?** Usá `puede(...)` o `requireAdminSession()`. El rol viejo no sabe del
     perfil que le puso el dueño.
 70. **¿Grabaste o capturaste algo?** Antes de decir "listo", mirá que no esté vacío y que se reproduzca.
+71. **¿Algo tuyo corre solo?** Seguilo hasta lo que hace. Si manda afuera, cobra, cierra, toca permisos o gasta,
+    va como propuesta para el OK del dueño. Y que su descripción diga lo que hace de verdad.
+72. **¿Agregaste una redirección?** Fijate que en el origen no haya una pantalla viva: si la hay, queda sin entrada.

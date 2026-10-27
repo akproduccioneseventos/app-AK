@@ -647,6 +647,15 @@ La inteligencia artificial asume tareas repetitivas respetando las reglas inviol
 13. **Asignación visual de mesas**: distribuye invitados confirmados y muestra la distribución en pantalla modal interactiva.
 14. **Consultas del cliente visibles en la fiesta**: muestra en el panel del evento qué estuvo preguntando el cliente a la asistente virtual.
 
+## Centro de control de la IA y la app que aprende (26 de octubre de 2026 — Orden 236)
+
+Una pantalla unificada para el dueño (`/centro-de-control`) donde mandarle a la IA con una frase (voz o texto), darle el visto bueno a todo lo que prepara antes de que salga, y definir con tres opciones claras el nivel de autonomía de cada tarea:
+
+1. **Una sola bandeja de entrada ("Para tu OK")**: reúne propuestas del asistente, mensajes de WhatsApp y borradores de redes sociales, con botones grandes ("Sí, hacelo", "Cambiar", "No").
+2. **Las tres opciones mandan de verdad ("Tus reglas")**: selector con "Sola", "Preguntame antes" o "Apagada" (`reglas-de-la-ia.json`). Bloqueo estricto tanto en pantalla como en el servidor para tareas prohibidas en modo sola (mensajes a clientes, tocar dinero, cerrar presupuestos, modificar permisos, gastar en publicidad).
+3. **Órdenes en una frase**: caja "¿Qué querés que haga?" para dar instrucciones directas ("armale la web a la fiesta de Sofía", "prepará los seguimientos de esta semana", "¿qué me falta para el sábado?").
+4. **La app aprende de lo que se hace**: anota cada decisión en `ia-aprendizaje.json`, alimenta los pedidos a la IA con los últimos textos aprobados (`aprenderDeLoAprobado`), apaga automáticamente las tareas rechazadas 3 veces seguidas y genera un resumen mensual real ("Lo que hizo sola").
+
 ---
 
 ## LO QUE LA APP DICE TENER, COMPROBADO SOLO

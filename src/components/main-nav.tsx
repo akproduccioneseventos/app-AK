@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -87,6 +87,7 @@ const navGroups: NavGroup[] = [
     label: "Mi Día",
     emoji: "☀️",
     items: [
+      { title: "Centro de Control", href: "/centro-de-control", icon: Bot, highlight: true, permiso: PERMISOS.ADMINISTRACION, active: (pathname) => isPathActive(pathname, "/centro-de-control") },
       { title: "Mi Día", href: "/mi-dia", icon: SunMedium, highlight: true, active: (pathname) => isPathActive(pathname, "/mi-dia") || isPathActive(pathname, "/repaso-diario") },
     ],
   },

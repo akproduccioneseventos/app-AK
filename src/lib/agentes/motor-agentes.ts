@@ -13,8 +13,7 @@ import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { detectarErroresHumanos, type DescarteAlerta } from '@/lib/alertas/errores-humanos';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
-import { pausarCampana, ajustarPresupuestoCampana } from '@/lib/marketing/meta-ads-acciones';
-import type { CampanaConPresupuesto } from '@/lib/marketing/tope-de-gasto-publicidad';
+import { getReglaParaTarea, registrarAccionSola } from '@/lib/ia/reglas-de-la-ia';
 import {
   AGENTES_DEFAULT_CONFIG,
   type AgenteId,
@@ -231,7 +230,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
     ejecutadoEn: ahora.toISOString(),
     hallazgos: hallazgos.length > 0 ? hallazgos : ['No hay presupuestos pendientes de seguimiento comercial.'],
     accionesPreparadas: acciones.length > 0 ? acciones : ['Sin borradores nuevos'],
-    estado: 'sin_novedades',
+    estado: nuevosMensajes.length > 0 ? 'exito' : 'sin_novedades',
   };
 
   await registrarEjecucionAgente(registro);
@@ -441,7 +440,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
     ejecutadoEn: ahora.toISOString(),
     hallazgos: hallazgos.length > 0 ? hallazgos : ['Calendario de contenido evaluado; sin eventos pendientes de borrador.'],
     accionesPreparadas: acciones.length > 0 ? acciones : ['Sin borradores nuevos'],
-    estado: 'sin_novedades',
+    estado: (nuevosPosts.length > 0 || nuevosScheduled.length > 0) ? 'exito' : 'sin_novedades',
   };
 
   await registrarEjecucionAgente(registro);
@@ -502,41 +501,18 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
       hallazgos.push('No hay campañas de Meta con datos en los últimos 30 días.');
       acciones.push('Sin acciones requeridas.');
     } else {
-      const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
-        nombre: c.name,
-        presupuestoDiarioUYU: Math.max(0, Math.round(c.spend / 30)) || 500,
-        activa: true,
-      }));
-
       for (const camp of summary.campaigns) {
-        // 1. Alerta: Quemando plata sin consultas -> Pausar automáticamente
+        // 1. Alerta: Quemando plata sin consultas -> Proponer pausar para el OK del dueño
         if (camp.spend >= 1500 && camp.leadsCount === 0) {
           hallazgos.push(`[ALERTA GASTO] La campaña "${camp.name}" gastó ${summary.adCurrency} ${camp.spend.toFixed(0)} sin generar consultas.`);
-          const res = await pausarCampana(camp.id, camp.name, 'Gastó más de $1500 sin generar consultas.');
-          if (res.success) {
-            acciones.push(`Se pausó automáticamente la campaña "${camp.name}" (gastó ${summary.adCurrency} ${camp.spend.toFixed(0)} sin consultas).`);
-          } else {
-            acciones.push(`Intento de pausar "${camp.name}" falló: ${res.error}`);
-          }
+          acciones.push(`Propuesta para tu OK: pausar la campaña "${camp.name}" (gastó ${summary.adCurrency} ${camp.spend.toFixed(0)} sin consultas).`);
         }
-        // 2. Éxito: Campaña rentable lista para escalar -> Escalar presupuesto con tope
+        // 2. Éxito: Campaña rentable lista para escalar -> Proponer subir el presupuesto con el OK del dueño
         else if (camp.leadsCount >= 2 && camp.conversionsCount >= 1 && camp.cpl > 0 && camp.cpl <= (summary.averageCpl || 1000)) {
           hallazgos.push(`[ÉXITO COMERCIAL] La campaña "${camp.name}" rinde bien: consultas a ${summary.adCurrency} ${camp.cpl.toFixed(0)} y ${camp.conversionsCount} fiestas confirmadas.`);
           const presActual = Math.max(0, Math.round(camp.spend / 30)) || 500;
           const nuevoPres = Math.round(presActual * 1.25);
-          const res = await ajustarPresupuestoCampana({
-            campaignId: camp.id,
-            campaignName: camp.name,
-            presupuestoDiarioActualUYU: presActual,
-            nuevoPresupuestoDiarioUYU: nuevoPres,
-            campanas: campanasConPresupuesto,
-            motivo: `Escalamiento automático por rendimiento: ${camp.conversionsCount} conversiones a CPL $${camp.cpl.toFixed(0)}.`,
-          });
-          if (res.success) {
-            acciones.push(`Se escaló el presupuesto de "${camp.name}" de $${presActual} a $${nuevoPres}/día.`);
-          } else {
-            acciones.push(`No se pudo escalar "${camp.name}": ${res.motivoRechazo}`);
-          }
+          acciones.push(`Propuesta para tu OK: subir el presupuesto de "${camp.name}" de $${presActual} a $${nuevoPres}/día.`);
         }
         // 3. Aviso: Campaña sin impresiones
         else if (camp.impressions === 0 && camp.spend > 0) {
@@ -585,6 +561,9 @@ export async function ejecutarAgentesAutonomos(
 
   for (const agente of config) {
     if (!agente.activo) continue;
+    const modo = await getReglaParaTarea(agente.id);
+    if (modo === 'apagada') continue;
+
     // Cada agente espera su propio intervalo: el despertador pasa cada minuto, pero un agente
     // de 15 minutos no corre antes de que pasen 15 desde la última vez.
     if (!opciones.ignorarIntervalo && agente.ultimaEjecucion && agente.intervaloMinutos > 0) {
@@ -614,7 +593,12 @@ export async function ejecutarAgentesAutonomos(
           reg = await ejecutarVigilantePublicidad(ahora);
           break;
       }
-      if (reg) resultados.push(reg);
+      if (reg) {
+        resultados.push(reg);
+        if (modo === 'sola') {
+          await registrarAccionSola({ tareaId: agente.id, que: `Ejecutó automáticamente: ${agente.nombre}` });
+        }
+      }
     } catch (err) {
       console.error(`[Agentes] Error ejecutando ${agente.id}:`, err);
     }

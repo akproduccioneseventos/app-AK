@@ -1877,6 +1877,8 @@ con otra cara.
 | La firma del contrato en el portal: resumen en cero, constancia falsificable, dos firmas que se pisaban y un texto que el cliente no vio | `src/__tests__/contrato-constancia-version-y-permisos.test.ts` |
 | El recordatorio que manda a los invitados se podía disparar desde internet sin clave | `src/__tests__/recordatorio-no-abiertas-origen-reserva-y-fallo.test.ts` |
 | Un reintento acreditaba un aviso de pago y la respuesta tardía del primero lo volvía a pendiente; el texto del contrato se guardaba después de que el cliente firmaba | `src/__tests__/pago-aprobado-no-vuelve-pendiente-por-reintento.test.ts` y `src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts` |
+| El enlace de confirmar asistencia del editor de la invitación llevaba a la portada | `src/__tests__/el-enlace-de-confirmar-lleva-a-la-invitacion.test.ts` |
+| El agente de publicidad pausaba campañas y subía el presupuesto solo, diciendo que no tocaba nada | `src/__tests__/el-agente-de-publicidad-no-toca-campanias.test.ts` |
 | Una cuenta vieja de administrador con perfil de secretaria seguía entrando a lo del dueño, incluido el borrado de la base | `src/__tests__/el-rol-admin-no-pasa-por-encima-del-perfil.test.ts` |
 | Revisión contable 22/10: aviso de pago aprobado y rechazado a la vez, costos automáticos que borraban uno manual, factura deshecha por un formulario viejo, seña inventada y texto del contrato cambiado después de firmar | `src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts` y las del portal, la seña y el contrato |
 

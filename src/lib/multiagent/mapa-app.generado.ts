@@ -15,6 +15,10 @@ export type EntradaDeMenu = { etiqueta: string; ruta: string };
 /** Las opciones del menu del panel, tal como las ve el equipo. */
 export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
+    "etiqueta": "Centro de Control",
+    "ruta": "/centro-de-control"
+  },
+  {
     "etiqueta": "Mi Día",
     "ruta": "/mi-dia"
   },
@@ -230,6 +234,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/blog/:slug",
     "/buscar",
     "/calendario",
+    "/centro-de-control",
     "/comparativa-ganancias",
     "/compras",
     "/configuracion/backup-final",
