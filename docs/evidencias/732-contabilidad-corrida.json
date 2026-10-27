@@ -1,0 +1,21 @@
+{
+  "started": "2026-10-27T21:44:56.214Z",
+  "finished": "2026-10-27T21:45:06.935Z",
+  "before": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalized": "SoloCRLF->LF"
+  },
+  "after": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalized": "SoloCRLF->LF"
+  },
+  "suites": [
+    "src/__tests__/qa-732-contabilidad-consumidores.test.ts"
+  ],
+  "exit": 1,
+  "signal": null,
+  "error": null,
+  "limits": "Focales con fronteras controladas; no SDK/HTTP/proveedor/cuentas reales ni nueva compilacion; no repite25suites725"
+}

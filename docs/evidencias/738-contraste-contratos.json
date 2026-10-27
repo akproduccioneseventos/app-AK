@@ -1,0 +1,76 @@
+{
+  "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "rows": [
+    {
+      "label": "Claude publicado",
+      "head": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/lib/contract-template.ts",
+      "blob": "f600e20d0ec2ff6dfaa37aeb5cce8b0d72ad262a",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "head": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/data/preguntas-frecuentes-contrato.ts",
+      "blob": "bc4dbbc0106cf187c3bd3ea35fc93d11c6d40b49",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "head": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/app/actions/fiesta/documentos.actions.ts",
+      "blob": "da424781b2f39a6465e001813f075ba0d422b14c",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "head": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/app/privacidad/page.tsx",
+      "blob": "212f5879ffc86927e1998cd5164c9ca64d0925bc",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "head": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/lib/budget/financial-guardrails.ts",
+      "blob": "1b7b91bf2d971a9114f151242a6f514541195045",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "head": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/lib/contract-template.ts",
+      "blob": "f600e20d0ec2ff6dfaa37aeb5cce8b0d72ad262a",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "head": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/data/preguntas-frecuentes-contrato.ts",
+      "blob": "bc4dbbc0106cf187c3bd3ea35fc93d11c6d40b49",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "head": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/app/actions/fiesta/documentos.actions.ts",
+      "blob": "da424781b2f39a6465e001813f075ba0d422b14c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "head": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/app/privacidad/page.tsx",
+      "blob": "212f5879ffc86927e1998cd5164c9ca64d0925bc",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "head": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/lib/budget/financial-guardrails.ts",
+      "blob": "1b7b91bf2d971a9114f151242a6f514541195045",
+      "sameAsMain": true
+    }
+  ],
+  "limits": "Fuentes base, no contratos individuales almacenados; privados posteriores NO CONTRASTADOS."
+}

@@ -1,0 +1,182 @@
+{
+  "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "claude": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+  "rows": [
+    {
+      "label": "PR1368",
+      "sha": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "sha": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/app/actions/analytics.ts",
+      "blob": "2f0337862241f66d355ca8496c53d97579147a3c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "sha": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/lib/payments/mercadopago-core.ts",
+      "blob": "75aed900e9ebd42746b5bc466ad60a03c2d07e9f",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "sha": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1368",
+      "sha": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+      "path": "src/lib/costos/comparativa.ts",
+      "blob": "c8770e6ef03d3f0fdd7992630d4c1d68d09551b1",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1344",
+      "sha": "103abce83b9995d3ec7293b52f25996f7d928456",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1344",
+      "sha": "103abce83b9995d3ec7293b52f25996f7d928456",
+      "path": "src/app/actions/analytics.ts",
+      "blob": "2f0337862241f66d355ca8496c53d97579147a3c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1344",
+      "sha": "103abce83b9995d3ec7293b52f25996f7d928456",
+      "path": "src/lib/payments/mercadopago-core.ts",
+      "blob": "75aed900e9ebd42746b5bc466ad60a03c2d07e9f",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1344",
+      "sha": "103abce83b9995d3ec7293b52f25996f7d928456",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1344",
+      "sha": "103abce83b9995d3ec7293b52f25996f7d928456",
+      "path": "src/lib/costos/comparativa.ts",
+      "blob": "c8770e6ef03d3f0fdd7992630d4c1d68d09551b1",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1337",
+      "sha": "5fbf0db09db78e4ad140cb515a3ce73f4dbd7b6e",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1337",
+      "sha": "5fbf0db09db78e4ad140cb515a3ce73f4dbd7b6e",
+      "path": "src/app/actions/analytics.ts",
+      "blob": "2f0337862241f66d355ca8496c53d97579147a3c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1337",
+      "sha": "5fbf0db09db78e4ad140cb515a3ce73f4dbd7b6e",
+      "path": "src/lib/payments/mercadopago-core.ts",
+      "blob": "75aed900e9ebd42746b5bc466ad60a03c2d07e9f",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1337",
+      "sha": "5fbf0db09db78e4ad140cb515a3ce73f4dbd7b6e",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1337",
+      "sha": "5fbf0db09db78e4ad140cb515a3ce73f4dbd7b6e",
+      "path": "src/lib/costos/comparativa.ts",
+      "blob": "c8770e6ef03d3f0fdd7992630d4c1d68d09551b1",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1329",
+      "sha": "64d1c5c81236cf091a8ab3c85f48f9de809a3725",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1329",
+      "sha": "64d1c5c81236cf091a8ab3c85f48f9de809a3725",
+      "path": "src/app/actions/analytics.ts",
+      "blob": "2f0337862241f66d355ca8496c53d97579147a3c",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1329",
+      "sha": "64d1c5c81236cf091a8ab3c85f48f9de809a3725",
+      "path": "src/lib/payments/mercadopago-core.ts",
+      "blob": "75aed900e9ebd42746b5bc466ad60a03c2d07e9f",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1329",
+      "sha": "64d1c5c81236cf091a8ab3c85f48f9de809a3725",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "PR1329",
+      "sha": "64d1c5c81236cf091a8ab3c85f48f9de809a3725",
+      "path": "src/lib/costos/comparativa.ts",
+      "blob": "c8770e6ef03d3f0fdd7992630d4c1d68d09551b1",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "sha": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/app/actions/reportes.ts",
+      "blob": "01eca3121f06d8cc9f5f53e38a5671eed4f73fb6",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "sha": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/app/actions/analytics.ts",
+      "blob": "2f0337862241f66d355ca8496c53d97579147a3c",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "sha": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/lib/payments/mercadopago-core.ts",
+      "blob": "75aed900e9ebd42746b5bc466ad60a03c2d07e9f",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "sha": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/app/actions/invoices.ts",
+      "blob": "0eefd25fb2ffa64b0eee18c9bf5ee1f6891136a4",
+      "sameAsMain": true
+    },
+    {
+      "label": "Claude publicado",
+      "sha": "89a263b1df4d8fd7d2217a684daf54cafaa0ad83",
+      "path": "src/lib/costos/comparativa.ts",
+      "blob": "c8770e6ef03d3f0fdd7992630d4c1d68d09551b1",
+      "sameAsMain": true
+    }
+  ],
+  "limits": "Igualdad de fuentes centrales; no prueba transitive/PR completa. Privados posteriores NO CONTRASTADOS."
+}

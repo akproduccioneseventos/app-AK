@@ -1,0 +1,202 @@
+[
+  {
+    "caso": "comision-reporte",
+    "pago": {
+      "id": "pago_mp_730",
+      "fecha": "2026-10-20T12:00:00-03:00",
+      "monto": 100000,
+      "metodoPago": "MercadoPago",
+      "referencia": "Mercado Pago #730",
+      "estadoPago": "confirmado",
+      "montoCobrado": 100000,
+      "montoReintegrado": 0,
+      "recargoFinanciero": 0,
+      "cuotasFinanciacion": 1,
+      "comisionProveedor": 3000,
+      "proveedorPago": "mercadopago",
+      "proveedorPagoId": "730",
+      "sesionPagoId": "sesion_qa730",
+      "estadoProveedorPago": "approved"
+    },
+    "reporte": {
+      "ingresos": {
+        "total": 100000,
+        "detalle": [
+          {
+            "id": "pago_mp_730",
+            "fecha": "2026-10-20T12:00:00-03:00",
+            "concepto": "Pago Presupuesto #pres_qa730 (FICTICIO)",
+            "monto": 100000
+          }
+        ]
+      },
+      "costos": {
+        "total": 0,
+        "detalle": []
+      },
+      "gananciaNeta": 100000,
+      "margen": 100
+    },
+    "gananciaComparativa": {
+      "ingreso": 100000,
+      "costoEstimado": 0,
+      "costoReal": 3000,
+      "gananciaEstimada": 100000,
+      "gananciaReal": 97000,
+      "margenEstimado": 100,
+      "margenReal": 97,
+      "pagadoAProveedores": 0,
+      "hayGastoCargado": false,
+      "sinRendir": 0,
+      "comisionesMercadoPago": 3000,
+      "recargosCobrados": 0,
+      "cobrosSinComisionInformada": 0
+    }
+  },
+  {
+    "caso": "comision-analiticas",
+    "mes": {
+      "month": "oct 2026",
+      "ingresos": 100000,
+      "costos": 0,
+      "rentabilidad": 100000
+    }
+  },
+  {
+    "caso": "mismo-mes-control",
+    "guardado": [
+      {
+        "id": "qa730_pago_mismo-mes-control",
+        "monto": 1000,
+        "fecha": "2026-10-21",
+        "proveedorNombre": "FICTICIO",
+        "metodoPago": "Efectivo"
+      }
+    ],
+    "costos": {
+      "total": 1000,
+      "detalle": [
+        {
+          "id": "pago-qa730_pago_mismo-mes-control",
+          "fecha": "2026-10-21",
+          "concepto": "Pago Proveedor (FICTICIO QA730)",
+          "categoria": "Egresos Reales",
+          "monto": 1000
+        }
+      ]
+    }
+  },
+  {
+    "caso": "evento-septiembre-pago-octubre",
+    "guardado": [
+      {
+        "id": "qa730_pago_evento-septiembre-pago-octubre",
+        "monto": 1000,
+        "fecha": "2026-10-21",
+        "proveedorNombre": "FICTICIO",
+        "metodoPago": "Efectivo"
+      }
+    ],
+    "costos": {
+      "total": 0,
+      "detalle": []
+    }
+  },
+  {
+    "caso": "evento-octubre-pago-septiembre",
+    "guardado": [
+      {
+        "id": "qa730_pago_evento-octubre-pago-septiembre",
+        "monto": 1000,
+        "fecha": "2026-09-21",
+        "proveedorNombre": "FICTICIO",
+        "metodoPago": "Efectivo"
+      }
+    ],
+    "costos": {
+      "total": 1000,
+      "detalle": [
+        {
+          "id": "pago-qa730_pago_evento-octubre-pago-septiembre",
+          "fecha": "2026-09-21",
+          "concepto": "Pago Proveedor (FICTICIO QA730)",
+          "categoria": "Egresos Reales",
+          "monto": 1000
+        }
+      ]
+    }
+  },
+  {
+    "caso": "sena-sin-presupuesto",
+    "accion": {
+      "success": true,
+      "invoiceId": "inv_1793113200000_tz2iu9b"
+    },
+    "recibo": {
+      "invoiceNumber": "SEÑA-qa730",
+      "customer": {
+        "id": "cliente_qa730",
+        "name": "FICTICIO"
+      },
+      "issueDate": "2026-10-20",
+      "dueDate": "2026-10-20",
+      "items": [
+        {
+          "description": "Seña para reserva de evento: FICTICIO QA730",
+          "quantity": 1,
+          "unitPrice": 1000,
+          "total": 1000,
+          "id": "item_inv_1793113200000_tz2iu9b_1_1793113200000_create"
+        }
+      ],
+      "subtotal": 1000,
+      "taxRate": 0,
+      "taxAmount": 0,
+      "totalAmount": 1000,
+      "status": "Paid",
+      "currency": "UYU",
+      "vendorName": "AK Producciones",
+      "documentKind": "deposit_receipt",
+      "sourceFiestaId": "fiesta_qa730",
+      "payments": [
+        {
+          "id": "pay_dep_1793113200000",
+          "paymentDate": "2026-10-20",
+          "amount": 1000,
+          "method": "Efectivo",
+          "notes": "Seña inicial de contratación",
+          "baseAmount": 1000,
+          "surchargeAmount": 0
+        }
+      ],
+      "id": "inv_1793113200000_tz2iu9b"
+    },
+    "libro": {
+      "ventasTotales": 0,
+      "totalCobrado": 1000,
+      "saldoPendiente": 0,
+      "porMes": [
+        {
+          "mes": "2026-10",
+          "ventas": 0,
+          "cobros": 1000,
+          "saldo": -1000
+        }
+      ],
+      "cantidadFacturas": 0,
+      "presupuestosAceptadosSinFactura": 0
+    },
+    "reporte": {
+      "ingresos": {
+        "total": 0,
+        "detalle": []
+      },
+      "costos": {
+        "total": 0,
+        "detalle": []
+      },
+      "gananciaNeta": 0,
+      "margen": 0
+    }
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "started": "2026-10-27T21:42:07.384Z",
+  "finished": "2026-10-27T21:42:29.817Z",
+  "before": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalized": "SoloCRLF->LF"
+  },
+  "after": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalized": "SoloCRLF->LF"
+  },
+  "suites": [
+    "src/__tests__/auditoria-70-contabilidad.test.ts",
+    "src/__tests__/el-ajuste-de-costos-no-miente.test.ts"
+  ],
+  "exit": 1,
+  "signal": null,
+  "error": null,
+  "limits": "Focales con fronteras controladas; no SDK/HTTP/proveedor/cuentas reales ni nueva compilacion; no repite25suites725"
+}

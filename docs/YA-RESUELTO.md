@@ -1,5 +1,45 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex736-738: contratos/contraste legal, UNA copia nueva/orden251Claude
+
+- Fuente0abe9199/QA2510archivos:13suites70originalesPASS0FAIL0omitidas/exit0.
+  Constancia/papel/texto/huella/concurrencia,fecha/hora,marcadores/portal/privacidad
+  segun casos. No SDK/HTTP/PDF/firmaavanzada/identidad civil/proveedor acreditados.
+- 7373criterios2PASS1FAIL L1P2 AK-CODEX-737-FAQ-AJUSTE-SALDO: FAQpromete15%sobre
+  saldo, contrato/motor ajustan presupuesto. Base100000/pagado50000/ano2027:
+  motor65000saldo vs57500inferidosFAQ (7500diferencia). Motorcorrecto, alinear copia,
+  NO cambiar politica.251 nueva; FAQ5vs30 sigue243, no reencargada.
+- 738separa revision normativa de fallos de app: retracto segun canal,penalidades,
+  imagen/titulares,firmaCFE. Ley20531arts108/2: cambio generaldesde1/1/2027,
+  NO aplicar plazo futuro hoy. FuentesIMPO/DGI/URCDP y limites eninforme738.
+  No sentencia de nulidad ni certificacion juridica/fiscal; no reescribir firmados.
+- Cincofuentes iguales main/PR1368/Claude89a263b1; privadosNO CONTRASTADOS.
+  Codexsoloaudita,Claude condiciones/plata/valida/fusiona. AyudanteTesla cerrado;
+  sin appedit/build/merge/cuentas/envios/cargos reales.736NOhomologa todaapp.
+
+## 27/10/2026 - Codex729-735: contabilidad complementaria, TRES causas/orden250Claude
+
+- Fuente0abe9199, mismoQA2510archivos contrastados antes/despues. NO repetir725/249.
+- 729:25suites nuevas162casos155PASS7FAIL por modoJSON deQA donde dos tests
+  necesitaban base atomica falsa.731mismos23casosPASS peroexit1 porSDKenbackground.
+  734aisla Firebase sin cambiar tests/aserciones:23PASS/exit0. Unicos162=139+23,
+  NO155+23. Iniciales/teardown conservados, no bugs de dinero por estos7fallosQA.
+- 732corrige factory getFiestaById de730 (soloQA),8casos3PASS5FAIL=TRES causas.
+  R1P1 AK-CODEX-732-COMISION-NO-LLEGA-AL-REPORTE: MPconciliado100000/fee3000,
+  Comparativa97000 vsReporte/Analiticas100000. Parser/helperSIcorrectos, consumidorNO.
+- R2P2 AK-CODEX-732-PROVEEDOR-FECHA-EVENTO-VS-PAGO: reporteOctubre omite pagoOct
+  de fiestaSep, incluye pagoSep de fiestaOct; control mismo mesPASS. Separar filtros
+  de movimientos/imputacion sin cambiar devengo/caja del dueno silenciosamente.
+- R3P1 AK-CODEX-732-SENA-SIN-PRESUPUESTO-NO-REPORTA: registerBookingDeposit real
+  crea reciboPaid1000 sinpresupuesto; libro1000cobrados, reporte0. Espejo controlPASS.
+  No convertir anticipo en venta ni duplicar, hacer visible/conciliable el cobrado.
+- Cincofuentes iguales enmain/PR1368/1344/1337/1329/Claude89a263b1; privadosNO
+  CONTRASTADOS.250 SOLOestos3, no duplicar247/249. Informe735/recibo735-contraste.
+- Acumulado725+729:50suites304originales distintos,299asercionesPASS porperfil;
+  cinco725solo adaptacion diagnostica727, NOcanonica304verde. Nuevassondas aparte.
+  NO appedit/build/merge/SDK/HTTP/proveedor/cargos/envios reales; fronteras locales.
+  AyudanteMeitner cerrado, ningunservicio propio. AREA CON HALLAZGOS, no0errores.
+
 ## 27/10/2026 - Codex725-728: contabilidad, DOS causas nuevas/orden249Claude
 
 - Main0abe9199ddb7281a945fd0f000a1a89f25b8fa8e; QA nueva aislada,2510archivos

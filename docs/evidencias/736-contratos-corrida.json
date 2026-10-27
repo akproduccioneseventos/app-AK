@@ -1,0 +1,33 @@
+{
+  "started": "2026-10-27T21:54:31.946Z",
+  "finished": "2026-10-27T21:55:06.200Z",
+  "before": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalized": "SoloCRLF->LF"
+  },
+  "after": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalized": "SoloCRLF->LF"
+  },
+  "suites": [
+    "src/__tests__/contrato-constancia-version-y-permisos.test.ts",
+    "src/__tests__/contrato-guardado-no-cambia-texto-firmado-en-medio.test.ts",
+    "src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts",
+    "src/__tests__/sin-saber-si-el-contrato-esta-firmado-no-se-toca.test.ts",
+    "src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts",
+    "src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts",
+    "src/__tests__/contrato-fecha-portal-dia-civil.test.tsx",
+    "src/__tests__/las-preguntas-del-contrato-llegan.test.ts",
+    "src/__tests__/marcadores-contrato.test.ts",
+    "src/__tests__/la-privacidad-dice-la-ley-y-la-verdad.test.ts",
+    "src/__tests__/privacidad-llega-al-visitante.test.ts",
+    "src/__tests__/estetica-portal-contract.test.ts",
+    "src/__tests__/doble-toque-en-presupuestos-no-duplica-ni-baja-contratos.test.ts"
+  ],
+  "exit": 0,
+  "signal": null,
+  "error": null,
+  "limits": "Focales con fronteras controladas; no SDK/HTTP/proveedor/cuentas reales ni nueva compilacion; no repite25suites725"
+}

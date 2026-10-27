@@ -1,0 +1,29 @@
+{
+  "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "rows": [
+    {
+      "raw": "736-contratos-originales.json",
+      "file": "736-contratos-originales.json.gz",
+      "sha256": "f3fc69c2b5dcc1067fc393184398bf280ef3f28da275d99a21aae2091a39b691",
+      "gzipSha256": "74a7e40b98170caaed4ab32ac6c17c619fe4ce02e0c8d27c2144bdd35a39b6df"
+    },
+    {
+      "raw": "736-contratos-originales.log",
+      "file": "736-contratos-originales.log.gz",
+      "sha256": "75208d234a58de97e87cd063fda2994bef63fbdecea815d24637c6caa13044df",
+      "gzipSha256": "b5fef56ed1d73c84306d6c63274698490bc5a8d9f13e45bfda84a1d011e7f703"
+    },
+    {
+      "raw": "737-contrato-faq-originales.json",
+      "file": "737-contrato-faq-originales.json.gz",
+      "sha256": "80c3e5a245a50a3c90f839e73309d7c0404792e60fea050c4f05b36fa292c566",
+      "gzipSha256": "93d6629aaf4b33fa086e35fdb72420b40e3121f2374d138aec458bf19046320d"
+    },
+    {
+      "raw": "737-contrato-faq-originales.log",
+      "file": "737-contrato-faq-originales.log.gz",
+      "sha256": "60e7b5cddef1416fdb23dfb271dd88eacf2ec18c56407ffb2d13c257b5c46678",
+      "gzipSha256": "effb671c0e831114a598f45d8fb19647223d6234257b21f70951c17cb13cdb58"
+    }
+  ]
+}

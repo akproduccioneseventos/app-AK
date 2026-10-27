@@ -1,0 +1,45 @@
+{
+  "started": "2026-10-27T21:38:43.211Z",
+  "finished": "2026-10-27T21:39:38.672Z",
+  "before": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalized": "SoloCRLF->LF"
+  },
+  "after": {
+    "source": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+    "matched": 2510,
+    "normalized": "SoloCRLF->LF"
+  },
+  "suites": [
+    "src/__tests__/la-comparativa-descuenta-la-comision.test.ts",
+    "src/__tests__/comparativa-ganancias.test.ts",
+    "src/__tests__/el-total-cobrado-del-personal-no-miente.test.ts",
+    "src/__tests__/el-recibo-y-el-contrato-no-corren-la-fecha.test.ts",
+    "src/__tests__/contrato-recibo-parcial-aviso.test.ts",
+    "src/__tests__/reponer-plata-identidad-proveedor.test.ts",
+    "src/__tests__/flujo-caja-dia-calendario-uruguay.test.ts",
+    "src/__tests__/el-flujo-de-caja-no-muestra-ceros-falsos.test.ts",
+    "src/__tests__/poner-al-dia-arma-la-lista.test.ts",
+    "src/__tests__/poner-al-dia-aplica-solo-lo-que-arma-el-servidor.test.ts",
+    "src/__tests__/resumen-contador.test.ts",
+    "src/__tests__/payment-notification-transitions.test.ts",
+    "src/__tests__/la-contabilidad-no-se-pisa-ni-inventa-importes.test.ts",
+    "src/__tests__/auditoria-70-contabilidad.test.ts",
+    "src/__tests__/recordatorios-de-pago.test.ts",
+    "src/__tests__/reportes-compartir-seguro.test.tsx",
+    "src/__tests__/reporte-evento-error-reintento.test.tsx",
+    "src/__tests__/el-ajuste-de-costos-no-miente.test.ts",
+    "src/__tests__/ajustes-costos-respaldo-restauracion.test.ts",
+    "src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts",
+    "src/lib/payments/mercadopago-core.test.ts",
+    "src/lib/payments/deposit-payment.test.ts",
+    "src/lib/invoice-money.test.ts",
+    "src/lib/budget/recibo-contrato-ajuste.test.ts",
+    "src/lib/simulator/payment-plan.test.ts"
+  ],
+  "exit": 1,
+  "signal": null,
+  "error": null,
+  "limits": "Focales con fronteras controladas; no SDK/HTTP/proveedor/cuentas reales ni nueva compilacion; no repite25suites725"
+}

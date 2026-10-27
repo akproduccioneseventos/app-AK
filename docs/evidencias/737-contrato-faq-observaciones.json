@@ -1,0 +1,16 @@
+{
+  "fuente": "0abe9199ddb7281a945fd0f000a1a89f25b8fa8e",
+  "pregunta": "¿El precio cambia si la fiesta es el año que viene?",
+  "respuesta": "Sí. Cada 1º de enero se aplica un ajuste del 15% sobre lo que falte, acumulado año a año, si el evento es en un año posterior al de la firma.",
+  "resumenReal": {
+    "total": 115000,
+    "paid": 50000,
+    "pendingReview": 0,
+    "balance": 65000,
+    "paidPercent": 43,
+    "isFullyPaid": false
+  },
+  "saldoSegunFrase": 57499.99999999999,
+  "diferencia": 7500.000000000007,
+  "limites": "Motor y FAQ reales/datos ficticios; no contrato individual almacenado ni asesoria legal definitiva"
+}

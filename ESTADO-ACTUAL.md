@@ -3,35 +3,34 @@
 Rama codex/697-auditoria-automatismos-20261026, PR1366 abierta/borrador.
 Codex audita; Gemini programa; Claude permisos/dinero/valida/compila/SIEMPREfusiona.
 Codex NUNCA fusiona. TODO enYA+evidencia; subir/verificar. No appedit/deploy.
-## Contabilidad725-728 / orden249Claude
-Fuente0abe9199ddb7281a945fd0f000a1a89f25b8fa8e, QA2510archivos fuente contrastados.
-725:25suites142tests137PASS5FAILfixtures;727solo doblecompatible5PASS, no canonica.
-726:6casos3PASS3FAIL=DOScausas. C1P1 cobro1000success despues de guarda borrado:
-deleteInvoice sigue y borra comprobante/success. C2P2CSVcontador pierde centavos:
-60.30->60;dos60.30 reporte120.60/CSV120/texto121. NOcorregidas, orden249.
-Iguales blobs main/PR1368/1344/1337/1329/Claude74042dea; privadosNO CONTRASTADOS.
-247activa ya cubre pantallasviejas/historicos/sesiones/cobradoesperado: no duplicar.
-QA sinSDK/HTTP/proveedor/cargos reales ni build. Fuente intacta, propios cerrados.
+## Contabilidad725-735 / ordenes249y250Claude
+Fuente0abe9199ddb7281a945fd0f000a1a89f25b8fa8e, QA2510archivos contrastados.
+725:142originales137PASS5FAILfixtures;727diagnostico5PASS, no canonica.
+249 sigue: borrado concurrente tras cobro1000 y perdida de centavosCSV. No repetir.
+729+734:25suites complementarias162casos unicosPASS=139+23, no155+23.
+729primeros7FAIL eran modoJSON deQA;731exit1teardown;73423PASS/exit0 aislados.
+732:8casos3PASS5FAIL=TRES causas,250Claude NOcorregida:
+R1P1 MP100000/fee3000 ->Comparativa97000,Reporte/Analiticas100000.
+R2P2 pagoOct de fiestaSep se omite; pagoSep de fiestaOct entra enOct.
+R3P1 recibo de sena sinpresupuesto1000 ->libro1000cobrados/reporte0; espejoPASS.
+729-734conservan inicialesQA. Informe735/contraste; privadostardiosNO CONTRASTADOS.
+Cincofuentes iguales main/PR1368/1344/1337/1329/Claude89a263b1; no PR completas.
+247ya cubre pantallasviejas/historicos/sesiones/cobradoesperado: no duplicar.
+Acumulado50suites304originales:299PASS porperfil,5solo727diag; NO304canonica verde.
+SinSDK/HTTP/proveedor/cargos reales ni build; fuente intacta, propios cerrados.
 
-## FAQ722-723 / orden243Codex
-Fuente mainc0/PR1368-0929. Banco22/14publicaspropuestas; separarcliente/contrato/interno.
-F1Claude saldo5dias vscontrato30;F2Gemini chatrechazado igual diceenviado/borra.
-5criterios2PASS3FAIL=DOScausas. Informe723; pruebas contenidoPENDIENTES, noenvio real.
-
-## Barra716-721 / orden242
-716-719fuentehistorica mainc0: causas Caipirinha y perfilinvalido; no escrituras reales.
-Main0abe trae nueva carta; NO repetir/transferir717al catalogonuevo.247incluye perfil.
-Retest solo entregado; carta/menores no aceptados por inventario. Ver721/725contraste.
-
+## Contratos736-738 / orden251Claude
+13suites70casosPASS/exit0; 7372PASS1FAIL FAQajuste:saldo65000vs57500 inferido.
+Motor/contrato coinciden, corregir copia; no cambiar politica ni firmados.251L1abierta.
+738contrasta consumo/firma/datos/DGI; riesgoslegales aparte, no certificado.
+Ley20531arts108/2 cambio general1/1/2027, NO aplicar regla futura hoy. PrivadosNO CONTRASTADOS.
 ## Entregas previas
 244Gemini nuevo piloto360Club/ambientacion:724contraste/fuentes. URLexterna!=visor.
-Webprospecto+portal salon elegido/SUfiesta; armado antesdespues,real/simulado/opcional.
-Base salon/versionprivada no pisa aprobados; material nuevo y pruebasPENDIENTES.
+Webprospecto+portal salon elegido/SUfiesta; real/simulado/opcional, pruebasPENDIENTES.
 241Gemini ClubUruguay:715/PDF; reutilizar/no tocar50%/precios/ids, pruebasPENDIENTES.
 PR1368-0929:709-7149suites71PASS;71012criteriosPASS,239Codex CORREGIDA EN RAMA.
 Voz238Gemini pasa transportelocal, noGoogle/HTTP/E2Enativo. Claude valida/fusiona.
-703/708 sonfuentesanteriores;0abe trae correcciones CentroControl/catering/feedback:
-esta tanda contable NOretestea esos modulos ni los declara aunrotos porrecibosviejos.
+703/708historicas,0abe trae cambios; esta tanda no certifica esosmodulos.
 Retestsolo delta entregado, sin duplicar responsables ni transferir PASSentreSHA.
 
 ## Limites
