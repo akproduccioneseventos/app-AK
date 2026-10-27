@@ -20,6 +20,12 @@ respuestas contractuales: existen, pero no sustituyen una FAQ comercial accesibl
 
 ## Valor comercial (propuesta, no error)
 
+Confirmacion posterior DIRECTA del dueno27/10: AK cuenta con todos los servicios,
+trabaja en otros salones y organiza para que los anfitriones disfruten como invitados.
+Orden243 actualizada: tres primeras preguntas con respuestas afirmativas y concretas.
+No es inferencia del auditor ni promesa de todo incluido en cualquier presupuesto.
+Resto de condiciones desde contrato/fuentes vigentes, no copiar reglas de competencia.
+
 Las6base cubren reserva/integral/serviciossueltos/Club/presupuesto/tiposfiesta.
 Faltan respuestas de decision: que incluye el total, vigencia/promos, comparar
 opciones, disponibilidad vs reserva, pagos/ajuste sin contradicciones, eleccion de

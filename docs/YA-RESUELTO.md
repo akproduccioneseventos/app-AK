@@ -2,6 +2,11 @@
 
 ## 27/10/2026 - Codex722-723: FAQ insuficiente y DOS inconsistencias/orden243
 
+- Confirmacion DIRECTA posterior del dueno: SI todos los servicios, SI otros salones,
+  SI organizacion para disfrutar como invitados. Ahora son las tres primeras en243,
+  con respuestas comerciales claras y servicioscontratados (no todoincluido automatico).
+  Condiciones del resto desde contrato aprobado; no ampliar cobertura/costos/garantias.
+
 - Mainc0/PR1368-0929 sin deltaFAQ. Baseinicio6preguntas reemplaza respaldo9 del
   componente al pasarlista no vacia. PortalFAQ5; portalprincipal ya muestra24contrato.
   No afirmar numero realdeproduccion sin leerconfigdeldueno. No recrear24 existentes.

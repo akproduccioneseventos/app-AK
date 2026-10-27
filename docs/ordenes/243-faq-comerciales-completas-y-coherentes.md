@@ -33,79 +33,92 @@ Ver todas las preguntas muestra las restantes en la misma seccion. Sin muro de
 22respuestas abiertas, paginas nuevas innecesarias, carrusel automatico ni otrochat.
 Estos borradores deben validarse contra catalogo/configuracion/contrato actuales:
 
-1. Que tipos de eventos organizan?
-   Bodas, fiestas de15, cumpleanos, aniversarios y eventos empresariales. La propuesta
-   se arma segun celebracion, invitados y servicios elegidos.
-2. Que incluye la organizacion integral?
-   AK puede coordinar comida, musica, decoracion, personal, foto/video y tecnologia.
-   Tu presupuesto detalla lo contratado, lo regalado y lo que no esta incluido.
-3. Puedo contratar servicios por separado?
-   Si. Se pueden consultar servicios individuales o una produccion integral;
-   disponibilidad e inclusiones quedan detalladas en la propuesta.
-4. Como pido un presupuesto?
-   Usa el simulador o escribi por WhatsApp con fecha, tipo de fiesta e invitados.
-   El equipo puede ayudarte a ajustar la propuesta a lo que necesitas.
-5. El simulador confirma el precio y reserva mi fecha?
-   Genera una propuesta segun los datos y servicios elegidos. La reserva requiere
-   disponibilidad confirmada y las condiciones de contratacion, no solo simular.
-6. Puedo comparar varias opciones?
-   Si. Podes evaluar distintos paquetes/servicios antes de decidir. No eliminar
-   presupuestos anteriores ni deduplicar por telefono para responder esta pregunta.
-7. Como se que incluye el total?
-   Revisa el desglose: servicios, cantidades, regalos, descuentos y condiciones.
-   No asumir que salon, adicionales u horasextra estan incluidos si no figuran.
-8. Como consulto si mi fecha esta disponible?
-   Consulta tu fecha y cantidad de invitados. AK confirma disponibilidad antes de
-   formalizar la reserva. No decir que abrir calendario garantiza disponibilidad.
-9. Como se reserva la fiesta?
-   Con disponibilidad confirmada, firma del contrato y sena acordada. No hardcodear
-   $5000/20% ni otro importe si no sale de la oferta aplicable.
-10. Cuanto dura el presupuesto y sus promociones?
-    Usar vigencia y condiciones REALES de la propuesta/campana. No inventar vencimiento
-    ni quitar el50% aprobado del Club. Si la FAQ no tiene contexto, explicar donde
-    consultar la fecha de validez, sin prometer una promocion permanente.
-11. Con cuanta anticipacion conviene consultar?
-    Cuanto antes consultes, mas margen hay para coordinar servicios y salon.
-    Si falta poco para la fecha, el equipo puede revisar opciones disponibles.
-12. Necesito usar un salon de AK?
-    Se coordina el lugar segun el evento y los servicios. Consultar ClubUruguay u
-    otra ubicacion; no presentar aAK como propietario ni prometer cobertura ilimitada.
-13. Puedo visitar Club Uruguay antes de decidir?
-    Coordina una visita/entrevista sin costo conAK. Mostrar contacto real; un clic
-    aWhatsApp no es una cita confirmada. Remitir a paginaClub para sus espacios.
-14. Puedo elegir estilo y decoracion?
-    Comparti referencias, colores y prioridades. La propuesta aclara lo incluido y
-    cualquier adicional; no prometer replicar exactamente cualquier imagen ni
-    modificaciones ilimitadas sin costo.
-15. Como son la sena, las cuotas y el saldo?
-    Usar fuente contractual aprobada/plan aplicable, no copiar una regla resumida
-    distinta. Referir a presupuesto/contrato; Claude valida texto exacto antes de usarlo.
-16. Que pasa con el precio si la fiesta es otro ano?
-    Explicar precio actual vs proyeccion/ajuste aplicable segun contrato y propuesta;
-    mostrar condiciones vigentes, no congelamiento de precio ni nueva tasa inventada.
-17. Puedo cambiar invitados o menu?
-    Se solicitan cambios dentro de plazos y limites del contrato, sujetos a
-    disponibilidad y diferencia correspondiente. Reutilizar respuesta compartida.
-18. Tienen opciones infantiles y contemplan alergias?
-    Consultar menus y avisar restricciones con anticipacion. Reutilizar texto aprobado
-    sobre adaptaciones y trazas; no garantizar ausencia de gluten/contaminacion.
-19. Que tecnologia puedo contratar?
-    Mostrar fotocabina,360,espejo,portal,QR,muro y otras opciones disponibles segun
-    propuesta. No decir que todas estan incluidas ni promover funciones aun no entregadas.
-20. Como organizo musica e informacion para mis invitados?
-    El portal y enlaces contratados ayudan a compartir datos y preferencias con el
-    equipo. Enlazar recorrido real; no prometer cambios automaticos que no existan.
-21. Publican las fotos de mi fiesta?
-    Reutilizar consentimiento del contrato. Contratar no autoriza publicacion por
-    defecto; proteger menores. No generar testimonios ni permisos ficticios.
-22. Que pasa si cambio de fecha o cancelo?
-    Se aplican condiciones del contrato/propuesta. Reutilizar texto aprobado porClaude;
-    no inventar devolucion total, cambios gratuitos ni nuevas penalidades.
+1. ¿Cuentan con todos los servicios para mi fiesta?
+   Sí. Contamos con los servicios para organizar tu fiesta de forma
+   integral: comida, decoración, discoteca, sonido, iluminación, fotografía,
+   filmación, barra, personal y tecnología. Tu presupuesto detalla lo contratado.
+2. ¿Pueden realizar el evento en otro salón que no sea Club Uruguay?
+   Sí. Podemos trabajar en otro salón o lugar que elijas. Coordinamos las
+   condiciones del espacio y los servicios necesarios para tu evento.
+3. ¿Se encargan de todo para que nosotros disfrutemos como invitados?
+   Sí. Planificamos y coordinamos los servicios contratados antes y durante la
+   fiesta. Definimos juntos los detalles para que ustedes y su familia disfruten
+   la fiesta como invitados, sin estar pendientes de coordinar a cada proveedor.
+4. ¿Qué tipos de fiestas organizan?
+   Organizamos fiestas de 15, bodas, cumpleaños, aniversarios, reuniones familiares
+   y eventos empresariales. Adaptamos la propuesta al tipo de celebración.
+5. ¿Qué incluye el total del presupuesto?
+   El desglose indica servicios, cantidades, regalos, descuentos y condiciones.
+   Lo que no figure no se considera incluido; podés consultarlo antes de contratar.
+6. ¿Puedo contratar solo algunos servicios?
+   Sí. Podés consultar servicios individuales o una producción integral.
+   Confirmamos disponibilidad y detalle en la propuesta.
+7. ¿Pueden adaptar la propuesta a mis ideas y presupuesto?
+   Podemos preparar alternativas de servicios y estilo para que elijas. Los
+   cambios y adicionales se detallan; no prometemos descuentos nuevos ni costos cero.
+8. ¿Cómo pido un presupuesto?
+   Podés usar el simulador o escribirnos por WhatsApp con fecha, tipo de evento
+   y cantidad de invitados. El equipo te ayuda a revisar las opciones.
+9. ¿Puedo comparar varias opciones con el simulador?
+   Sí. Podés evaluar distintas propuestas antes de decidir. Simular no reserva
+   la fecha: disponibilidad y contratación se confirman por separado.
+10. ¿Cómo reservo mi fecha?
+    Confirmamos disponibilidad y formalizamos la reserva con el contrato y la
+    seña acordada. No fijar un importe universal distinto al de la oferta aplicable.
+11. ¿Con cuánta anticipación conviene consultar?
+    Cuanto antes consultes, más margen hay para coordinar salón y servicios.
+    Si falta poco, revisamos las opciones disponibles sin garantizar una fecha libre.
+12. ¿Puedo conocer Club Uruguay antes de decidir?
+    Sí. Coordiná una visita o entrevista sin costo para conocer el espacio y
+    conversar sobre tu fiesta. Enlazar páginaClub y contacto; clic no es cita confirmada.
+13. ¿Cómo se pagan la seña, las cuotas y el saldo?
+    Reutilizar respuesta de fuente contractual/plan aplicable validada por Claude.
+    No repetir cinco días hábiles ni inventar flexibilidad distinta al contrato.
+14. ¿Qué pasa con el precio si la fiesta es otro año?
+    Distinguir precio actual y proyección/ajuste según contrato y presupuesto.
+    Reutilizar tasa/reglas aprobadas, sin congelamiento ni tasa nueva por FAQ.
+15. ¿Hasta cuándo vale mi presupuesto y sus promociones?
+    Mostrar vigencia y condiciones reales de la propuesta/campaña. En FAQ general,
+    explicar dónde consultar esa fecha. No inventar un contador ni quitar el 50% aprobado.
+16. ¿Hay menús para niños y adolescentes y opciones por restricciones alimentarias?
+    Explicar menús del catálogo y que se deben informar edades/restricciones con
+    anticipación. Reutilizar texto contractual sobre adaptaciones, precio y trazas.
+    No garantizar cocina exclusiva ni ausencia de gluten/contaminación.
+17. ¿Puedo modificar la cantidad de invitados o el menú?
+    Reutilizar plazos/límites de la fuente contractual aplicable y explicar que
+    se coordinan diferencias y disponibilidad. No crear una regla financiera nueva.
+18. ¿Puedo elegir la decoración y personalizar mi fiesta?
+    Compartí colores, temática y referencias. Acordamos lo que se va a realizar y
+    queda por escrito; la propuesta distingue lo incluido de cualquier adicional.
+19. ¿Qué tecnología y entretenimiento puedo contratar?
+    Presentar fotocabina, plataforma360, espejo, pantallas, tótems y otras opciones
+    disponibles de AK según catálogo/propuesta. No afirmar que todo viene incluido
+    ni anunciar como operativas funciones privadas todavía sin entrega aceptada.
+20. ¿Cómo participo en la organización y comparto información con mis invitados?
+    Explicar portal, invitación y enlaces realmente disponibles para la propuesta,
+    preferencias de música e información para el equipo. Conectar a recorridos reales.
+21. ¿Van a publicar fotos de mi fiesta?
+    Reutilizar consentimiento contractual. Contratar no autoriza publicación
+    automática; respetar autorizaciones y protección de menores.
+22. ¿Puedo cambiar de fecha o cancelar?
+    Reutilizar respuesta contractual aprobada por Claude, no prometer cambios
+    gratuitos, devolución total ni penalidades diferentes.
 
-Prioritarias sugeridas:2,3,4,5,8,9,13,15. La redaccion final debe ser corta, natural,
-en espanol con tildes, sin lenguaje interno, sin emojis decorativos ni CTA por pregunta.
-Un CTA de consulta al final basta. No agregar campos de edad/telefono alFAQ.
-Agregar preguntas por tipo de landing solo si aportan una diferencia real.
+Las respuestas1/2/3 se apoyan en confirmación DIRECTA del dueño en este chat,
+27/10/2026: todos los servicios, otros salones y organización para disfrutar como
+invitados. Son las tres primeras, no esconderlas en el final ni detrás de Ver más.
+No diluirlas en frases genéricas. Preservar el límite: servicios CONTRATADOS, no
+todo incluido por defecto; otro salón no implica transporte ilimitado o sin costo.
+Prioritarias sugeridas:1,2,3,5,8,10,12,13. Mantener el resto disponible sin salir.
+Las preguntas contractuales son BORRADORES de integración, no nueva política.
+Las24contractuales existentes tambien atienden duracion/horasextra/proveedores
+externos/sobrantes/cuidado de menores/AGADU. Conservarlas accesibles en el portal;
+no volcar todas en la home. Organizacion integral no es servicio de cuidado infantil:
+mantener esa aclaracion en su pregunta especifica, no cargar la respuesta comercial3.
+Las notas de programación (Reutilizar/No fijar/Enlazar...) NO van como texto público:
+Gemini debe resolverlas con la fuente real y Claude validar la redacción final.
+Sin cobertura nacional/horarios/garantías inventadas, sin lenguaje interno ni CTA
+por respuesta. Un contacto al final basta.
 
 ## F1 Claude - AK-CODEX-722-FAQ-SALDO
 

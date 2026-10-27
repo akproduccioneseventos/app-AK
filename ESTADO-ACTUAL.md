@@ -8,6 +8,7 @@ Codex NUNCA fusiona. TODO enYA+evidencia; subir/verificar. No appedit/deploy.
 Fuente mainc0add57f6237f666db97e7e902ef75f6c8d97479, PR1368-0929 sindeltaFAQ.
 Basehome6 reemplaza respaldo9; portalFAQ5 y portalprincipal24contractuales.
 Propuesta:22comerciales/8prioritarias+restodesplegable, sin borrar ediciones deldueno.
+Dueno confirma3primeras:todosservicios/otrossalones/anfitrionesdisfrutancomoinvitados.
 722:5criterios2PASS3FAIL=DOScausas, no3bugs; fuentes/ASTdobles, no envio real.
 F1Claude: FAQsaldo5dias habiles vscontrato30dias; alinear copia, no cambiarcondiciones.
 F2Gemini: success:false delchat igual anunciaConsultaenviada y borra texto.
