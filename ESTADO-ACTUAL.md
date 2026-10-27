@@ -1,23 +1,21 @@
 # Estado actual — 27 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propuesta **1367** (`c0add57f6`, 27/10): órdenes 234 a 237 (web con IA y 3 versiones, tareas automáticas, Centro de control) más 6 arreglos de Codex.
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propuesta **1369** (`0abe9199d`, 27/10).
 
-## Publicado en la 1364
-- Entrega de Gemini 1353 (órdenes 180 a 229) corregida, arreglos de Codex 1363, orden 233 (permisos por perfil).
-- El vigilante de publicidad sólo propone; no pausa ni sube presupuestos.
-- Avisos de plata: al teléfono sin importes y la lista filtrada por permiso de contabilidad (pregunta 102).
-- Codex en la 1364: mesas, voz en vivo con confirmación, voz del cliente sin "conectada" falsa, filtro de cámara frontal.
-- Planificador de redes sigue en `/empresa/redes-sociales`; enlace de confirmar asistencia arreglado.
-
-## Revisado hasta
-- Gemini `gemini/ordenes-234-235`: `b58abab75`, terminada por Claude y publicada en la 1367 (1365 cerrada).
-- Codex `codex/653-correcciones-20261025`: `25facaf1c` (sólo informes).
+## Publicado en la 1369
+- Carta definitiva de 12 tragos del dueño (fotos, receta con alcohol reducido 15 ml que descuenta stock, receta sin alcohol guardada, stock de fábrica 120).
+- Celular y tablet: botones de 40 px o más y títulos sin cortar.
+- Arreglos de Codex 1366 (órdenes 239 a 241).
+- Pie de la portada con "Acceso Staff & Equipo AK"; fuera el recuadro repetido de la sección de la app.
+- Preguntas 103 a 107 con su barrido.
 
 ## Para Gemini
-- Nada pendiente.
+- **Orden 247** (plata y permisos, propuesta aparte y primero): pantalla vieja que pisa cuotas, carga histórica que duplica, sesiones sin revocar, perfil roto que entra como dueño, enlaces que no se apagan, último dueño, casillas de módulos, finanzas, panel por perfil.
+- **Órdenes 242 a 246 y 248** (una sola propuesta): con o sin alcohol y menores, textos del simulador, blog que dice "corrió" sin publicar y su barrido, portada creíble y testimonios reales, sección de la app, Club Uruguay.
+- Orden 238 (voz del cliente en el portal) sigue pendiente.
+
+## Codex
+- Revisó el área Barra (717 y 719): sumado a 242 y 247. Numera órdenes que ya existen: que mire el último número antes.
 
 ## Errores de plata y permisos abiertos
-- Ninguno conocido sin arreglar en la versión publicada.
-
-## Pendiente del dueño
-- La voz del cliente en su portal todavía no abre audio de verdad (muestra "todavía no disponible").
+- Los de la orden 247 (encontrados 27/10), en la app publicada hasta que Gemini entregue.
