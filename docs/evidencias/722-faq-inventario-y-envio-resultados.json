@@ -1,0 +1,86 @@
+{
+  "sha": "c0add57f6237f666db97e7e902ef75f6c8d97479",
+  "scope": "Default source inventory, not production landing-settings. Actual callback AST with local action/state doubles. Copy comparison, not legal validity or account audit.",
+  "counts": {
+    "landingBase": 6,
+    "componentFallback": 9,
+    "portalDedicated": 5,
+    "contractShared": 24
+  },
+  "cases": [
+    {
+      "id": "failed_send_not_reported_sent",
+      "status": "FAIL"
+    },
+    {
+      "id": "failed_send_visible",
+      "status": "FAIL"
+    },
+    {
+      "id": "success_control",
+      "status": "PASS"
+    },
+    {
+      "id": "thrown_control",
+      "status": "PASS"
+    },
+    {
+      "id": "payment_copy_consistent",
+      "status": "FAIL",
+      "portal": "El saldo restante del evento se abona en las cuotas pactadas hasta 5 días hábiles antes de la fecha. Podés solicitar tu recibo o consultar el estado de tu cuenta directamente por WhatsApp.",
+      "canonical": "En cuotas libres: como mínimo $10.000 en cada período de tres meses contado desde la firma; al primer tercio del plazo tiene que estar pago el 30%, a la mitad el 50%, y el total 30 días antes de la fiesta. Podés adelantar cuando quieras.",
+      "contractClausePresent": true
+    }
+  ],
+  "reject": {
+    "questions": [
+      {
+        "q": "QA pregunta",
+        "status": "Enviada al equipo"
+      }
+    ],
+    "text": "",
+    "ended": 0,
+    "toasts": [
+      {
+        "title": "✅ Consulta enviada",
+        "description": "Tu pregunta fue recibida por nuestro equipo. Te responderemos a la brevedad."
+      }
+    ]
+  },
+  "success": {
+    "questions": [
+      {
+        "q": "QA pregunta",
+        "status": "Enviada al equipo"
+      }
+    ],
+    "text": "",
+    "ended": 1,
+    "toasts": [
+      {
+        "title": "✅ Consulta enviada",
+        "description": "Tu pregunta fue recibida por nuestro equipo. Te responderemos a la brevedad."
+      }
+    ]
+  },
+  "thrown": {
+    "questions": [],
+    "text": "QA pregunta",
+    "ended": 0,
+    "toasts": [
+      {
+        "title": "Error al enviar",
+        "description": "No se pudo enviar la consulta. Verificá tu conexión e intentá de nuevo.",
+        "variant": "destructive"
+      }
+    ]
+  },
+  "sources": {
+    "src/types/landing-editor.ts": "794d0003bf80784f02010d1556e4ba07e320b847d0dc5e5a0db6a8b2cbbf9c29",
+    "src/components/landing/FAQSection.tsx": "66c9985198dcbf73299677f186de12d3d83c4327036704735a9ae4ac621d41e0",
+    "src/app/portal-cliente/[id]/faq/page.tsx": "c1a60ae43da4edb42f63f69dd00605933b142722e0b5e72227d1f10fb388f341",
+    "src/data/preguntas-frecuentes-contrato.ts": "67b9f1ce6dd0a14f94f9b00c5656ef7d1af8c08387e4e1a1ef2d8cf2ad05368b",
+    "src/lib/contract-template.ts": "0313e61a917f64bc458f4ba1eedb16b81875b8291c6643eae88098de146bc1b3"
+  }
+}

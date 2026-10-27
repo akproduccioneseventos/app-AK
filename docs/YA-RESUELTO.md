@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex722-723: FAQ insuficiente y DOS inconsistencias/orden243
+
+- Mainc0/PR1368-0929 sin deltaFAQ. Baseinicio6preguntas reemplaza respaldo9 del
+  componente al pasarlista no vacia. PortalFAQ5; portalprincipal ya muestra24contrato.
+  No afirmar numero realdeproduccion sin leerconfigdeldueno. No recrear24 existentes.
+- Propuesta editorial243:22comerciales/8prioritarias+restodesplegable, sinrelleno;
+  ampliar fuente que consumehome/editor, no soloDEFAULT_FAQS. Conservar personalizacion.
+- F1Claude: portalFAQdice5dias habiles de saldo, fuentecontrato/clausula3f dice30dias.
+  No cambiar condiciones/cuentas: alinear copia con contratoaplicable. Mismoblobbf0.
+- F2Gemini: callback marcaConsultaenviada/borra texto con addChatMessage success:false.
+  7225criterios2PASS3FAIL=DOScausas. Exito/throw controlesPASS, rechazoexplicitoFAIL.
+  NoHTTP/navegadormodelo/realenvio; AST+fuentesreales/fronteraslocales, recibosguardados.
+- 243asigna contenido/UX/F2Gemini, F1/condiciones/compilacion/fusionClaude.
+  Propuestas separadas de defectos; pruebas nuevasPENDIENTES. Sinappedit/build/agentes.
+  Privados NO CONTRASTADOS. Registrar/compartir enmismaPR, CodexNUNCAfusiona.
+
 ## 27/10/2026 - Codex716-721: area barra, DOS causas abiertas/orden242
 
 - Mainc0add57f confirmado por conector; PR1368-0929 no cambia barra. Claude publico
