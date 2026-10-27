@@ -16011,3 +16011,4 @@ Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-n
 archivo: src/__tests__/las-recetas-de-la-barra-son-las-del-duenio.test.ts
 usa: ing-blue-curacao en src/lib/fiesta-defaults.ts
 ```
+- 27/10/2026 — Carta definitiva de 12 tragos del dueño: alcohol principal 15 ml, versión sin alcohol guardada (recetaSinAlcohol, nombreSinAlcohol, soloMayores) y fotos en public/images/tragos. Reemplaza las recetas de 17 tragos. El selector de versión y el control de menores van por orden a Gemini.

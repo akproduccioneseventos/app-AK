@@ -1,8 +1,7 @@
 /**
- * Las recetas de la barra descuentan de verdad (orden 110, 2/10/2026).
- * La 1249 traía recetas con insumos que no existían (`ins-vodka`…) y en mililitros: el descuento
- * resta la cantidad tal cual del insumo con ese id, así que no se descontaba nada, y con el id
- * bueno se habrían descontado 50 botellas por trago.
+ * La carta definitiva de 12 tragos del dueño (27/10/2026), con alcohol reducido (15 ml).
+ * Botella = 750 ml, litro = 1000 ml. El descuento resta la cantidad tal cual del insumo con ese id,
+ * así que cada ingrediente tiene que ser un insumo real y en su misma unidad.
  */
 import fs from 'fs';
 import path from 'path';
@@ -12,38 +11,72 @@ const insumos: Array<{ id: string; unidad: string }> = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), 'src/data/insumos.json'), 'utf8'),
 );
 const porId = new Map(insumos.map((i) => [i.id, i]));
+const ML: Record<string, number> = { Botella: 750, Litro: 1000 };
+const ALCOHOLES = ['ing-ron', 'ing-vodka', 'ing-gin', 'ing-fernet', 'ing-cana-uruguaya'];
+const items = defaultCartaTragosData.items;
+const ml = (id: string) => {
+  const t = items.find((x) => x.id === id)!;
+  return Object.fromEntries((t.recetaIngredientes || []).map((i) => [i.insumoId, Math.round(i.cantidad * ML[i.unidad] * 10) / 10]));
+};
 
-describe('Las recetas de la barra descuentan de verdad', () => {
-  it('son los 17 tragos de la carta', () => {
-    expect(defaultCartaTragosData.items).toHaveLength(17);
+describe('La carta de 12 tragos descuenta de verdad', () => {
+  it('son 12 tragos, sólo para mayores, con su receta sin alcohol guardada', () => {
+    expect(items).toHaveLength(12);
+    for (const t of items) {
+      expect(t.soloMayores).toBe(true);
+      expect((t.recetaSinAlcohol || []).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('cada trago tiene su foto en public', () => {
+    for (const t of items) {
+      expect(t.imageUrl).toMatch(/^\/images\/tragos\/\d\d_.+\.jpg$/);
+      expect(fs.existsSync(path.join(process.cwd(), 'public', t.imageUrl!))).toBe(true);
+    }
   });
 
   it('cada ingrediente es un insumo que existe, en su misma unidad', () => {
-    for (const trago of defaultCartaTragosData.items) {
-      for (const ing of trago.recetaIngredientes || []) {
+    for (const t of items) {
+      for (const ing of t.recetaIngredientes || []) {
         const insumo = porId.get(ing.insumoId);
-        expect({ trago: trago.nombre, id: ing.insumoId, existe: !!insumo }).toEqual({ trago: trago.nombre, id: ing.insumoId, existe: true });
+        expect({ trago: t.nombre, id: ing.insumoId, existe: !!insumo }).toEqual({ trago: t.nombre, id: ing.insumoId, existe: true });
         expect(ing.unidad).toBe(insumo!.unidad);
+        expect(ing.cantidad).toBeGreaterThan(0);
+        expect(ing.cantidad).toBeLessThan(1);
       }
     }
   });
 
-  it('un trago descuenta una fracción de botella, no mililitros', () => {
-    for (const trago of defaultCartaTragosData.items) {
-      for (const ing of trago.recetaIngredientes || []) {
-        if (ing.unidad === 'Botella' || ing.unidad === 'Litro' || ing.unidad === 'Kg') {
-          expect(ing.cantidad).toBeGreaterThan(0);
-          expect(ing.cantidad).toBeLessThan(1);
-        }
-      }
+  it('el alcohol principal es 15 ml en todos', () => {
+    for (const t of items) {
+      const alc = (t.recetaIngredientes || []).filter((i) => ALCOHOLES.includes(i.insumoId));
+      expect(alc).toHaveLength(1);
+      expect(Math.round(alc[0].cantidad * 750 * 10) / 10).toBe(15);
     }
   });
 
-  it('el Atomic green lleva 45 ml de vodka, 30 de blue curaçao y 225 de jugo de naranja', () => {
-    const atomic = defaultCartaTragosData.items.find((t) => t.nombre === 'Atomic green')!;
-    const de = (id: string) => atomic.recetaIngredientes!.find((i) => i.insumoId === id)!.cantidad;
-    expect(de('ing-vodka')).toBeCloseTo(45 / 750, 3);
-    expect(de('ing-blue-curacao')).toBeCloseTo(30 / 750, 3);
-    expect(de('ing-naranja')).toBeCloseTo(0.225, 3);
+  it('la Caipirinha usa caña uruguaya y no vodka ni cachaça', () => {
+    const r = ml('caipirinha');
+    expect(r['ing-cana-uruguaya']).toBe(15);
+    expect(r['ing-vodka']).toBeUndefined();
+    expect(r['ing-cachaca']).toBeUndefined();
+  });
+
+  it('completar hasta 300 ml descuenta 300 menos lo demás y menos ~100 de hielo', () => {
+    expect(ml('atomic-green')).toEqual({ 'ing-vodka': 15, 'ing-blue-curacao-sin-alcohol': 15, 'ing-naranja': 170 });
+    expect(ml('arizona')).toEqual({ 'ing-vodka': 15, 'ing-naranja': 150, 'ing-jugo-anana': 30, 'ing-granadina-sin-alcohol': 5 });
+    expect(ml('fernet-con-coca')).toEqual({ 'ing-fernet': 15, 'ing-coca': 185 });
+  });
+
+  it('las versiones con nombre propio sin alcohol', () => {
+    const nombre = (id: string) => items.find((x) => x.id === id)!.nombreSinAlcohol;
+    expect(nombre('fernet-con-coca')).toBe('Cola con naranja');
+    expect(nombre('destornillador')).toBe('Naranjada');
+    expect(nombre('ron-cola')).toBe('Cola con limón');
+    expect(nombre('gin-con-pomelo')).toBe('Pomelo con limón');
+  });
+
+  it('no quedan los insumos de las recetas viejas', () => {
+    for (const id of ['ing-pina-colada', 'ing-blue-curacao', 'ing-martini', 'ing-licor-frutilla']) expect(porId.has(id)).toBe(false);
   });
 });
