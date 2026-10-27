@@ -408,6 +408,14 @@
     "102": {
       "fecha": "2026-10-26",
       "resultado": "barrida en createNotification, sendPushNotificationToAll, avisarAlDuenio, getNotifications, tablero y torre de control: todo aviso salía con su texto a todos los teléfonos y la lista se mostraba entera. Arreglado de raíz: al teléfono va texto genérico si es de plata (textoParaElTelefono) y getNotifications oculta los de plata sin permiso de contabilidad."
+    },
+    "103": {
+      "fecha": "2026-10-27",
+      "resultado": "parcial: además de crear 3 propuestas (Codex 704), 'Sincronizar desde presupuesto' en fiestas/nueva/configuracion recarga y pierde lo escrito en los últimos 2 s; armar escena en invitados/layout usa memoria (bajo riesgo). Se arreglan en la tanda de la 1366."
+    },
+    "104": {
+      "fecha": "2026-10-27",
+      "resultado": "parcial: además de 'Sofía' en el Centro de control, rellenos fijos: 'Agasajado' en la web con IA si falla el modelo, tipo 'Fiesta' en el borrador de presupuesto del asistente, 'Evento (Salón)' en el monitor en vivo. Se arreglan en la tanda de la 1366."
     }
   },
   "hallazgos": {

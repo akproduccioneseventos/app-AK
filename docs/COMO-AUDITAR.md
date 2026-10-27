@@ -1460,3 +1460,16 @@ Codex en la 1364 (26/10/2026). El asistente mandaba al teléfono de todo el equi
 el barrido mostró que **todo** aviso interno salía así ("Pago de $15.000 registrado para…"), y que la lista de avisos se
 mostraba entera a cualquiera con sesión. Se mira cada envío a muchos (aviso al teléfono, lista de avisos, grupo): si
 puede llegar a alguien sin permiso de plata, el texto no lleva importes ni deudas, y la lista filtra por permiso.
+
+### 103. Una acción que usa lo que se acaba de escribir en pantalla, ¿lee eso o lo guardado antes?
+
+Codex 704 (27/10/2026). Al cambiar nombre, fecha o salón y tocar "Crear 3 propuestas", la acción del servidor leía la
+fiesta guardada, con los datos viejos, porque el autoguardado todavía no había corrido. Se mira cada botón que dispara
+algo en el servidor justo después de editar: o le pasa los valores actuales (validados) o espera el guardado
+confirmado antes de leer.
+
+### 104. Un asistente que contesta o actúa, ¿usa datos reales o un ejemplo fijo cuando no sabe?
+
+Codex sobre la 1365 (27/10/2026). El Centro de control armaba la web de "Sofía" si no encontraba la fiesta, y
+contestaba el menú del sábado sin consultarlo. Se mira cada respuesta del asistente: si no tiene el dato, pregunta o
+dice que no sabe; nunca rellena con un nombre o un dato de ejemplo.
