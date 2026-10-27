@@ -1473,3 +1473,17 @@ confirmado antes de leer.
 Codex sobre la 1365 (27/10/2026). El Centro de control armaba la web de "Sofía" si no encontraba la fiesta, y
 contestaba el menú del sábado sin consultarlo. Se mira cada respuesta del asistente: si no tiene el dato, pregunta o
 dice que no sabe; nunca rellena con un nombre o un dato de ejemplo.
+### 105. El camino seguro de un guardado, ¿vale para todos los perfiles, o sólo para el que tiene menos permisos?
+
+Auditoría externa del panel (27/10/2026). La auditoría 73 había puesto la reposición de la plata adentro de la
+transacción, **pero sólo para quien no tiene permiso de plata**. El dueño y la secretaria seguían guardando la fiesta
+entera con lo que tenía la pantalla, y una pantalla abierta hace rato borraba una cuota cobrada después. La pregunta 90
+se había pasado mirando el camino del personal, no el del dueño. Por cada `if` que elige entre "guardar con cuidado" y
+"guardar entero", se mira el lado que queda: el que tiene **más** permisos es el que más puede romper.
+
+### 106. Lo que decide un permiso, ¿mira el estado de hoy o lo que quedó guardado en una cookie, un enlace o un token?
+
+Auditoría externa del panel (27/10/2026). El perfil viaja firmado en la cookie siete días y nadie lo vuelve a mirar:
+un usuario borrado o con menos permisos seguía entrando con los de antes. Se mira cada llave que dura (sesión, enlace del
+portal, del proveedor, del personal, del invitado, QR, códigos): si se da de baja a la persona o se le cambia el
+permiso, ¿la llave vieja deja de servir?

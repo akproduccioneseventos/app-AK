@@ -1053,6 +1053,12 @@ export interface Trago {
   videoUrl?: string;
   ingredientes?: string[];
   recetaIngredientes?: TragoRecetaIngrediente[];
+  /** Solo para mayores de 18 (versión con alcohol reducido). */
+  soloMayores?: boolean;
+  /** Receta sin alcohol, en texto (no descuenta stock). */
+  recetaSinAlcohol?: string[];
+  /** Nombre de la versión sin alcohol, si tiene uno distinto. */
+  nombreSinAlcohol?: string;
   stockDisponible?: number;
 }
 

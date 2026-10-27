@@ -229,6 +229,12 @@ export function PublicFooter({ className }: PublicFooterProps) {
                   Testimonios & Preguntas Frecuentes
                 </a>
               </li>
+              <li>
+                <Link href="/login" className="hover:text-white transition-colors text-zinc-300 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-zinc-400" aria-hidden="true" />
+                  Acceso Staff & Equipo AK
+                </Link>
+              </li>
             </ul>
           </div>
 

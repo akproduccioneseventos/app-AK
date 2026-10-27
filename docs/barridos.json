@@ -416,6 +416,14 @@
     "104": {
       "fecha": "2026-10-27",
       "resultado": "parcial: además de 'Sofía' en el Centro de control, rellenos fijos: 'Agasajado' en la web con IA si falla el modelo, tipo 'Fiesta' en el borrador de presupuesto del asistente, 'Evento (Salón)' en el monitor en vivo. Se arreglan en la tanda de la 1366."
+    },
+    "105": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en saveFiesta y sus llamadores, presupuestos, facturas, cuotas, insumos, contratos: causa raíz en saveFiesta (la reposición dentro del turno sólo para quien no tiene plata); addInvoiceId, removeInvoiceId, updateFiestaPresupuestoId y la sincronización desde el presupuesto guardan la fiesta entera fuera de turno; tragos manda el insumo entero; savePlanPagosContrato lee contratoDatos afuera. updatePresupuesto, facturas y planes de pago ya están protegidos. Va en la orden 247, bloques 1 y 6."
+    },
+    "106": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en sesión, enlace del presupuesto, portal del cliente, proveedor, personal, invitados, estaciones y códigos: la sesión dura 7 días sin revocación y cambiar la clave no la corta; el enlace del presupuesto no vence ni se apaga; el control de estaciones no mira si sigue habilitada; marcarLlegadaPersonal no compara quién marca. Portal, proveedor, personal, QR y recuperación sí miran el estado vigente. Va en la orden 247, bloques 3 y 6."
     }
   },
   "hallazgos": {
@@ -546,6 +554,14 @@
     "orden-237": {
       "fecha": "2026-10-27",
       "resultado": "Devolución de la 1365 (pregunta 52: una entrega arrancada de una versión vieja choca y deshace lo nuevo). Barrido: las otras ramas abiertas de Gemini (ordenes-196-202, 205-206) también arrancan de un main viejo; ninguna se fusiona sin juntar antes la versión publicada y pasar la puerta."
+    },
+    "orden-244": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 92 (una tarea que falla devolviendo el error queda anotada como corrida). Barrido de toda la IA y las tareas automáticas: blog, recordatorios a invitados, botón de recordatorios de pago que no revisaba nada, métricas, dos rutas del despertador, lectura de comprobantes, testimonio de respaldo y web del evento. Todo va en la orden 244, bloque 4."
+    },
+    "orden-247": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 90 (lo que se guarda con una foto vieja). Barrido en saveFiesta: la reposición dentro de la transacción sólo corría para quien no tiene plata; el dueño y la secretaria guardaban la fiesta entera fuera de turno (/admin/ventas y todas las pantallas de fiesta). Mismo barrido: carga histórica sin idIntento (duplica facturas), sesiones sin revocación, casillas de módulos que nadie lee, finanzas que mezcla cobrado con esperado. Todo en la orden 247, propuesta aparte."
     }
   }
 }
