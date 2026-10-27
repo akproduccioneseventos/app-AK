@@ -239,3 +239,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     va como propuesta para el OK del dueño. Y que su descripción diga lo que hace de verdad.
 72. **¿Agregaste una redirección?** Fijate que en el origen no haya una pantalla viva: si la hay, queda sin entrada.
 73. **¿Mandás un aviso a varios?** Si llega a todo el equipo, que no lleve importes ni deudas de un cliente.
+74. **¿Tu botón usa lo que se acaba de escribir?** Pasale los valores de pantalla o esperá el guardado; no leas lo viejo.
+75. **¿Tu asistente no sabe algo?** Que pregunte o diga que no sabe; nada de nombres o datos de ejemplo.
+76. **¿Pusiste un "guardar con cuidado" sólo para algunos perfiles?** Mirá el otro lado: el dueño también abre pantallas viejas.
+77. **¿Tu permiso sale de una cookie o un enlace?** Fijate qué pasa si mañana se da de baja a esa persona: la llave vieja no puede seguir abriendo.
+78. **¿Pusiste un "si no es válido, usá esto otro"?** Que lo roto dé menos permisos, nunca más.

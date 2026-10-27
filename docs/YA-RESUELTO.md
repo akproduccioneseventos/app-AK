@@ -1,5 +1,64 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex704: dialogo de propuestas auditado, NO corregido
+
+- AK-CODEX-704-DIALOGO-PROPUESTAS:mainc0add57f, consumidores identicos Claude0c355975.
+  Tres valores nuevos (nombre/fecha/salon) quedan locales y el generador lee viejos;
+  color y control original pasan. Un defecto,5criterios2PASS3FAIL. Orden239/informe705.
+- Callback y accion reales con fronteras ficticias, no navegador/SDK/modelo real.
+  No appedit ni repetir seis pendientes703. Agente barato cerrado; ausencia de
+  simbolo sugerida por su busqueda fue descartada por la extraccion/ejecucion real.
+
+## 27/10/2026 - Retest702/703: correcciones presentes y pendientes separados
+
+- Mainc0add57f6237f666db97e7e902ef75f6c8d97479:22criterios15PASS7FAIL,
+  seis grupos aun abiertos. Sustituye estado anterior b58 de697-700, no sus recibos.
+- Cerrados por alcance: F enlace con texto corregido; G lectura compartida entre
+  instancias y conservacion de regla ajena en cambios secuenciales. A ahora guarda
+  web/detecta error; C propaga varios errores y devuelve tarjeta. NO reencargarlos.
+- Restan A fiesta/nombre fijo, B respuestas inventadas, C post inexistente,
+  D perdida de aprobacion concurrente, E email enviado sin envio, H fallo remoto
+  de regla reportado como exito. Orden238 actualizada, no crear otra igual.
+- 701 fallo por fronteras QA viejas;702 adapta imports/setter/telefono y lector.
+  No appedit/build/SDK/browser renderizado/servicios reales; finales0erroresQA.
+
+## 26/10/2026 - Codex697-700: centro236 auditado, NO corregido
+
+- PR1365/b58abab75d94a732daf79b32aff54ec253ccf63c:22criterios5PASS17FAIL,
+  ocho grupos A-H en informe700/orden238, complemento de237Claude.
+- Web anuncia creada sin guardar; respuestas fijas; rechazos ocultos; aprobaciones
+  pierden una; correo marcado enviado sin envio; enlace usa texto viejo; reglas
+  divergentes entre instancias y fallo remoto reportado como exito.
+- TS real con fronteras ficticias y callback real porAST, noHTTP/browser/SDK/modelo.
+  No se corrigio app ni se corrio build. Retest solo ante delta publicado.
+- Inicial698 import default path/fs fue errorQA archivado, noapp. Final0erroresQA.
+- Agente cerrado; sospechas UI sinreproduccion no son hallazgos. CierresD4 vigentes.
+- Claude cddd22c0/237 y comentarios previos1365 contrastados, no reemitidos.
+  NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
+
+## 27/10/2026 - Celular y tablet: botones tocables y títulos sin cortar (pedido del dueño)
+
+- Se midió la versión compilada en 390x844 y 820x1180 sobre portada, landings, blog, tecnología, experiencia, portal del
+  cliente, invitación, álbum y estaciones públicas. Ninguna página se corría para el costado; lo que fallaba era chico:
+  en celular 312 botones y enlaces tocables de menos de 40 px (pie de página, pestañas de la portada, "Probalo",
+  álbum, galería, buzón, muro) y los títulos de los pasos de `/experiencia` cortados con puntos suspensivos.
+  Ahora el tamaño mínimo es `min-h-10`/`min-h-11`, `Button size="sm"` pasó de 36 a 40 px y los títulos envuelven.
+- A propósito NO se tocó: los resúmenes con `line-clamp` (tarjetas del blog y del catálogo, a dos o tres líneas), los
+  textos, precios, promociones, el reloj del simulador ni el orden de las secciones. Los párrafos de las secciones
+  de la portada pasaron de 12 a 14 px en celular; el resto de la letra chica (etiquetas) se dejó como estaba.
+- Por qué así: un dedo no acierta por debajo de 40 px y un título con "..." esconde palabras. La prueba mide el
+  resultado en pantalla (alto del botón y `scrollWidth`), no que exista una clase.
+
+```comprobar
+archivo: src/components/public-footer.tsx
+usa: min-h-10 en src/components/public-footer.tsx
+usa: h-10 en src/components/ui/button.tsx
+usa: break-words en src/app/experiencia/page.tsx
+prueba: tests/e2e/celular-y-tablet-sin-cortes.spec.ts
+```
+
+- **El acceso al equipo volvió a "Accesos Rápidos" del pie de la portada (27/10/2026).** Con la portada Argon se había ido y quedaba sólo un enlace gris chico al final; el dueño no lo encontraba.
+
 ## 26/10/2026 - Once controles de permisos más dejaron de mirar el rol viejo (orden 233)
 
 - Borrado de la base, consumo de IA, blog con IA, automatización de marketing, la ficha de otro usuario y la carga
@@ -16000,3 +16059,34 @@ Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-n
 
 - **Qué estaba mal:** elegir una propuesta de web borraba los datos bancarios; la regla "tarea apagada" se leía de una copia local y no de la base; en "Cambiar" + aprobar un WhatsApp salía el texto viejo; tras crear las 3 versiones el autoguardado las borraba; la orden "armá la web" en modo sola no guardaba y anotaba "hecho" igual; "Se notificó a cocina" no enviaba nada.
 - **Qué se hizo:** `elegirPropuestaDeWeb` mezcla con lo existente (`mezclarInvitacionConExistente`); `leerJson` de `reglas-de-la-ia.ts` consulta primero la base; `aprobarItemOK` guarda el texto corregido y la pantalla arma el enlace con el aprobado; la pantalla de la web toma las propuestas guardadas; `darOrdenPorVozOTexto` comprueba y guarda la web antes de anotar; `avisarChoquesDeAlergiasACocina` crea un aviso real. Prueba: `src/__tests__/codex-1367-seis-defectos.test.ts`.
+
+## 27/10/2026 — Recetas de la barra con las proporciones del dueño
+
+- **Qué estaba mal:** las recetas de la carta de la barra eran inventadas (ron 50 ml, almíbar, etc.) y faltaban 5 tragos de la carta del dueño.
+- **Qué se hizo:** en `src/lib/fiesta-defaults.ts` (`defaultCartaTragosData`) quedaron 17 tragos con las cantidades del dueño; se crearon los insumos `ing-pina-colada`, `ing-blue-curacao`, `ing-martini` e `ing-licor-frutilla` en `src/data/insumos.json` con precio 0. **Supuestos editables, por el estándar de los medidores de bar:** medida = 1 oz = 30 ml, medida grande = 1,5 oz = 45 ml, botella 750 ml, vaso 300 ml, jarra de 1 L = 0,3 vaso y de 600 cc = 0,5; "completar" = 300 ml menos lo demás. No se cargan rolo de hielo, cucharada, mitades/rodajas ni agua (sin equivalencia).
+- **Control:** `src/__tests__/las-recetas-de-la-barra-son-las-del-duenio.test.ts`.
+
+```comprobar
+archivo: src/__tests__/las-recetas-de-la-barra-son-las-del-duenio.test.ts
+usa: ing-blue-curacao en src/lib/fiesta-defaults.ts
+```
+
+## 27/10/2026 — Centro de control, propuestas de web y cocina (órdenes 239, 240 y 241)
+
+- **Qué estaba mal:** la orden por voz armaba la web de "Sofía" aunque la fiesta fuera otra, contestaba el horario y el menú del sábado sin mirarlos y decía "me pongo a trabajar" sin hacer nada; aprobar un post inexistente figuraba bien y se "aprendía"; dos aprobaciones a la vez perdían una; aprobar un correo lo dejaba como enviado sin enviar nada; una regla que la base no guardó se anunciaba como guardada. "Crear 3 propuestas" usaba el nombre, la fecha y el salón viejos; "Sincronizar desde presupuesto" pisaba lo escrito en los últimos 2 segundos. La alergia a mariscos no chocaba con ningún plato, la hoja de cocina dejaba afuera al celíaco marcado sólo con el interruptor, y el resumen de encuestas inventaba "temas repetidos" cuando la IA fallaba. Además había nombres de relleno ("Agasajado", tipo "Fiesta", "Evento (Salón)").
+- **Qué se hizo:** `darOrdenPorVozOTexto` busca la fiesta por nombre (`resolverFiestaDeLaOrden`) y si no hay una sola coincidencia no hace nada; las respuestas sin consulta dicen que no se pudo. `aprobarItemOK` y `rechazarItemOK` fallan con un id inexistente antes de aprender; los posts se cambian por id (`mutarPostPorId`); un correo aprobado no se marca enviado (desde acá no sale ningún correo; el WhatsApp sigue el camino manual de siempre); la pantalla vuelve a abrir la edición si falla. `guardarReglaIA` escribe primero en la base y devuelve error si falla. `crearTresPropuestasDeWeb` recibe nombre, fecha y salón validados en el servidor. La sincronización con el presupuesto hace `saveNow()` antes. Mariscos en `choques-alergias.ts`, celíacos en `hoja-de-cocina.ts`, `analisisDisponible` en el resumen de encuestas. Sin nombre cargado, la web con IA y el borrador de presupuesto piden el dato.
+- **Por qué así:** un asistente que no sabe dice que no sabe: un relleno que suena bien manda a la persona a trabajar sobre un dato falso. La orden 240 y las sondas 706/707 no estaban en la propuesta 1366, así que esos tres puntos salen de la descripción del pedido.
+- **Control:** `src/__tests__/orden-241-centro-de-control-no-miente.test.ts`, `src/__tests__/orden-241-una-regla-no-guardada-no-dice-guardada.test.ts` y `src/__tests__/orden-239-240-propuestas-cocina-encuestas.test.ts`.
+
+```comprobar
+archivo: src/__tests__/orden-241-centro-de-control-no-miente.test.ts
+usa: resolverFiestaDeLaOrden en src/app/actions/centro-de-control.ts
+usa: mutarPostPorId en src/app/actions/centro-de-control.ts
+usa: analisisDisponible en src/lib/feedback/resumen-feedback.ts
+usa: Alergia Mariscos en src/lib/catering/choques-alergias.ts
+usa: datosDelDialogo en src/app/actions/fiesta/armar-web-con-ia.actions.ts
+prueba: src/__tests__/orden-241-una-regla-no-guardada-no-dice-guardada.test.ts
+prueba: src/__tests__/orden-239-240-propuestas-cocina-encuestas.test.ts
+```
+
+- 27/10/2026 — Carta definitiva de 12 tragos del dueño: alcohol principal 15 ml, versión sin alcohol guardada (recetaSinAlcohol, nombreSinAlcohol, soloMayores) y fotos en public/images/tragos. Reemplaza las recetas de 17 tragos. El selector de versión y el control de menores van por orden a Gemini.

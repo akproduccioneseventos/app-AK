@@ -1460,3 +1460,37 @@ Codex en la 1364 (26/10/2026). El asistente mandaba al teléfono de todo el equi
 el barrido mostró que **todo** aviso interno salía así ("Pago de $15.000 registrado para…"), y que la lista de avisos se
 mostraba entera a cualquiera con sesión. Se mira cada envío a muchos (aviso al teléfono, lista de avisos, grupo): si
 puede llegar a alguien sin permiso de plata, el texto no lleva importes ni deudas, y la lista filtra por permiso.
+
+### 103. Una acción que usa lo que se acaba de escribir en pantalla, ¿lee eso o lo guardado antes?
+
+Codex 704 (27/10/2026). Al cambiar nombre, fecha o salón y tocar "Crear 3 propuestas", la acción del servidor leía la
+fiesta guardada, con los datos viejos, porque el autoguardado todavía no había corrido. Se mira cada botón que dispara
+algo en el servidor justo después de editar: o le pasa los valores actuales (validados) o espera el guardado
+confirmado antes de leer.
+
+### 104. Un asistente que contesta o actúa, ¿usa datos reales o un ejemplo fijo cuando no sabe?
+
+Codex sobre la 1365 (27/10/2026). El Centro de control armaba la web de "Sofía" si no encontraba la fiesta, y
+contestaba el menú del sábado sin consultarlo. Se mira cada respuesta del asistente: si no tiene el dato, pregunta o
+dice que no sabe; nunca rellena con un nombre o un dato de ejemplo.
+### 105. El camino seguro de un guardado, ¿vale para todos los perfiles, o sólo para el que tiene menos permisos?
+
+Auditoría externa del panel (27/10/2026). La auditoría 73 había puesto la reposición de la plata adentro de la
+transacción, **pero sólo para quien no tiene permiso de plata**. El dueño y la secretaria seguían guardando la fiesta
+entera con lo que tenía la pantalla, y una pantalla abierta hace rato borraba una cuota cobrada después. La pregunta 90
+se había pasado mirando el camino del personal, no el del dueño. Por cada `if` que elige entre "guardar con cuidado" y
+"guardar entero", se mira el lado que queda: el que tiene **más** permisos es el que más puede romper.
+
+### 106. Lo que decide un permiso, ¿mira el estado de hoy o lo que quedó guardado en una cookie, un enlace o un token?
+
+Auditoría externa del panel (27/10/2026). El perfil viaja firmado en la cookie siete días y nadie lo vuelve a mirar:
+un usuario borrado o con menos permisos seguía entrando con los de antes. Se mira cada llave que dura (sesión, enlace del
+portal, del proveedor, del personal, del invitado, QR, códigos): si se da de baja a la persona o se le cambia el
+permiso, ¿la llave vieja deja de servir?
+
+### 107. Un dato que llega roto o desconocido (un perfil, un rol, un tipo), ¿cae a "nada" o a algo con más permisos?
+
+Codex 719 (27/10/2026). Un usuario con un perfil que no existe y el rol viejo de administrador salía con la sesión de
+dueño, porque al armar la cookie el perfil roto se reemplazaba por el que daba el rol viejo, y el rechazo que ya existía
+nunca llegaba a verlo. Se mira cada "si no es válido, usar…": lo inválido tiene que dar menos, nunca más, y la
+conversión de cuentas viejas sólo vale cuando el dato falta, no cuando está roto.

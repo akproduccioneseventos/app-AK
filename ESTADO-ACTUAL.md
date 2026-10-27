@@ -1,6 +1,6 @@
 # Estado actual — 27 de octubre de 2026
 
-Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propuesta **1364** (`1081fd267`, 27/10).
+Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propuesta **1367** (`c0add57f6`, 27/10): órdenes 234 a 237 (web con IA y 3 versiones, tareas automáticas, Centro de control) más 6 arreglos de Codex.
 
 ## Publicado en la 1364
 - Entrega de Gemini 1353 (órdenes 180 a 229) corregida, arreglos de Codex 1363, orden 233 (permisos por perfil).
@@ -10,11 +10,11 @@ Rama de trabajo: `claude/app-debug-stabilize-m70e6z`. Versión publicada: propue
 - Planificador de redes sigue en `/empresa/redes-sociales`; enlace de confirmar asistencia arreglado.
 
 ## Revisado hasta
-- Gemini `gemini/ordenes-234-235`: `ba4d13b0c` (sumó la 236). Devuelta con la **orden 237** (7 suites rojas, 4 choques, falta bloque 5 de la 234). Falta revisar lo que sumó en `ba4d13b0c`.
+- Gemini `gemini/ordenes-234-235`: `b58abab75`, terminada por Claude y publicada en la 1367 (1365 cerrada).
 - Codex `codex/653-correcciones-20261025`: `25facaf1c` (sólo informes).
 
 ## Para Gemini
-- Órdenes 234, 235, 236 y la devolución 237, en la propuesta 1365.
+- Nada pendiente.
 
 ## Errores de plata y permisos abiertos
 - Ninguno conocido sin arreglar en la versión publicada.

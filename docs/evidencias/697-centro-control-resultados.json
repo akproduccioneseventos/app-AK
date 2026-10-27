@@ -1,0 +1,598 @@
+{
+  "sha": "b58abab75d94a732daf79b32aff54ec253ccf63c",
+  "method": "Exact TypeScript module bodies transpiled with explicit memory, auth and provider boundaries. Actual scheduled-message action. No Next HTTP, browser, Firestore, external model, real messages or production.",
+  "sources": {
+    "src/app/actions/scheduled-messages.ts": {
+      "sha256": "5f863ea74021186287e85df7d14e409ec0f0322d345791c63550a8edfc1e2a5c",
+      "lines": 340
+    },
+    "src/app/actions/centro-de-control.ts": {
+      "sha256": "57bc768497e2e866bd68c4ef5a6c3bde2ce711c45aee7eec78fd59d5a2cefa7b",
+      "lines": 460
+    }
+  },
+  "results": [
+    {
+      "id": "C01",
+      "title": "Model throws: do not assert saved web",
+      "status": "FAIL",
+      "result": {
+        "success": true,
+        "mensaje": "¡Listo, che! Ya le armé la web a la fiesta de Sofía. Quedó impecable y lista para revisar."
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [],
+        "records": [
+          {
+            "tareaId": "armar_web_evento",
+            "que": "Armé el diseño y textos de la web de invitación para la fiesta de Sofía con la plantilla recomendada.",
+            "enlace": "/fiestas/fiesta-sofia-15/pagina-web"
+          }
+        ],
+        "webCalls": [
+          "fiesta-sofia-15"
+        ],
+        "reads": [
+          "fiestas.json"
+        ],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C02",
+      "title": "No matching party: never use fabricated fallback ID",
+      "status": "FAIL",
+      "result": {
+        "success": true,
+        "mensaje": "¡Listo, che! Ya le armé la web a la fiesta de Sofía. Quedó impecable y lista para revisar."
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [],
+        "records": [
+          {
+            "tareaId": "armar_web_evento",
+            "que": "Armé el diseño y textos de la web de invitación para la fiesta de Sofía con la plantilla recomendada.",
+            "enlace": "/fiestas/fiesta-sofia-15/pagina-web"
+          }
+        ],
+        "webCalls": [
+          "fiesta-sofia-15"
+        ],
+        "reads": [
+          "fiestas.json"
+        ],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C03",
+      "title": "Saturday answer must not invent time and special menu without reads",
+      "status": "FAIL",
+      "result": {
+        "success": true,
+        "mensaje": "Para este sábado tenemos todo encaminado: chequeá el armado técnico a las 18:00 y confirmá el menú celíaco con cocina. ¡Tranqui que no se nos pasa nada!"
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [],
+        "records": [],
+        "webCalls": [],
+        "reads": [],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C04",
+      "title": "Unknown request must not claim work started without dispatch",
+      "status": "FAIL",
+      "result": {
+        "success": true,
+        "mensaje": "¡Anotado, bo! Me pongo a trabajar en \"prepara el inventario de cables QA\". Cualquier cosa que requiera tu confirmación te la dejo en \"Para tu OK\"."
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [],
+        "records": [],
+        "webCalls": [],
+        "reads": [],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C05",
+      "title": "Post write rejection must reach caller",
+      "status": "FAIL",
+      "result": {
+        "success": true
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [
+          {
+            "tipoTarea": "generador_contenido",
+            "textoPropuesto": "original A",
+            "textoFinal": "edited",
+            "decision": "cambiar"
+          }
+        ],
+        "records": [],
+        "webCalls": [],
+        "reads": [
+          "social-posts.json"
+        ],
+        "writes": [
+          "social-posts.json"
+        ],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C06",
+      "title": "Missing post must not succeed",
+      "status": "FAIL",
+      "result": {
+        "success": true
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [
+          {
+            "tipoTarea": "generador_contenido",
+            "decision": "si"
+          }
+        ],
+        "records": [],
+        "webCalls": [],
+        "reads": [
+          "social-posts.json"
+        ],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C07",
+      "title": "Two approvals retain both decisions",
+      "status": "FAIL",
+      "result": [
+        {
+          "success": true
+        },
+        {
+          "success": true
+        }
+      ],
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Aprobado",
+            "updatedAt": "2026-10-27T01:57:05.287Z"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [
+          {
+            "tipoTarea": "generador_contenido",
+            "decision": "si"
+          },
+          {
+            "tipoTarea": "generador_contenido",
+            "decision": "si"
+          }
+        ],
+        "records": [],
+        "webCalls": [],
+        "reads": [
+          "social-posts.json",
+          "social-posts.json"
+        ],
+        "writes": [
+          "social-posts.json",
+          "social-posts.json"
+        ],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C08",
+      "title": "Email approval alone is not evidence of delivery",
+      "status": "FAIL",
+      "result": {
+        "success": true
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "enviado",
+            "channel": "email",
+            "messageText": "OLD",
+            "sentAt": "2026-10-27T01:57:05.385Z",
+            "sentBy": "Dueño"
+          }
+        ],
+        "learning": [
+          {
+            "tipoTarea": "mandar_mensajes_clientes",
+            "textoPropuesto": "OLD",
+            "textoFinal": "CORRECTED",
+            "decision": "cambiar"
+          }
+        ],
+        "records": [],
+        "webCalls": [],
+        "reads": [],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C09",
+      "title": "Rejected child proposal must reach caller",
+      "status": "FAIL",
+      "result": {
+        "success": true
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [
+          {
+            "tipoTarea": "armar_web_evento",
+            "decision": "si"
+          }
+        ],
+        "records": [],
+        "webCalls": [],
+        "reads": [],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C10",
+      "title": "Message mutation failure must reach caller",
+      "status": "FAIL",
+      "result": {
+        "success": true
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [
+          {
+            "tipoTarea": "mandar_mensajes_clientes",
+            "decision": "si"
+          }
+        ],
+        "records": [],
+        "webCalls": [],
+        "reads": [],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C11",
+      "title": "Denied owner permission prevents side effects",
+      "status": "PASS",
+      "result": {
+        "success": false,
+        "error": "QA_DENIED"
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [],
+        "records": [],
+        "webCalls": [],
+        "reads": [],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C12",
+      "title": "Disabled web rule prevents execution",
+      "status": "PASS",
+      "result": {
+        "success": false,
+        "mensaje": "La tarea de diseñar webs está apagada en tus reglas. Si querés que la haga, prendela antes en \"Tus reglas\"."
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "original A",
+            "status": "Borrador"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [],
+        "records": [],
+        "webCalls": [],
+        "reads": [],
+        "writes": [],
+        "sends": 0,
+        "proposals": []
+      }
+    },
+    {
+      "id": "C13",
+      "title": "Sequential successful post approval persists edited text",
+      "status": "PASS",
+      "result": {
+        "success": true
+      },
+      "observed": {
+        "posts": [
+          {
+            "id": "qa-a",
+            "text": "edited",
+            "status": "Aprobado",
+            "updatedAt": "2026-10-27T01:57:05.643Z"
+          },
+          {
+            "id": "qa-b",
+            "text": "original B",
+            "status": "Borrador"
+          }
+        ],
+        "messages": [
+          {
+            "id": "qa-mail",
+            "status": "pendiente",
+            "channel": "email",
+            "messageText": "OLD"
+          }
+        ],
+        "learning": [
+          {
+            "tipoTarea": "generador_contenido",
+            "textoPropuesto": "original A",
+            "textoFinal": "edited",
+            "decision": "cambiar"
+          }
+        ],
+        "records": [],
+        "webCalls": [],
+        "reads": [
+          "social-posts.json"
+        ],
+        "writes": [
+          "social-posts.json"
+        ],
+        "sends": 0,
+        "proposals": []
+      }
+    }
+  ],
+  "counts": {
+    "PASS": 3,
+    "FAIL": 10,
+    "HARNESS_ERROR": 0
+  }
+}

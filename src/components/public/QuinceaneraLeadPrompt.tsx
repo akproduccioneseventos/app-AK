@@ -152,7 +152,7 @@ export function QuinceaneraLeadPrompt({
                 localStorage.setItem(storageKey, 'dismissed');
                 setDismissed(true);
               }}
-              className="text-slate-400 hover:text-slate-600"
+              className="inline-flex h-10 w-10 items-center justify-center text-slate-400 hover:text-slate-600"
               title="Cerrar"
               aria-label="Cerrar pregunta de 15"
             >
@@ -166,7 +166,7 @@ export function QuinceaneraLeadPrompt({
                 key={option}
                 type="button"
                 onClick={() => handleSelectOption(option)}
-                className="rounded-xl border border-pink-200 bg-white py-2 px-3 text-xs font-bold text-slate-800 shadow-xs hover:border-pink-500 hover:bg-pink-50 hover:text-pink-900 transition active:scale-95"
+                className="min-h-10 rounded-xl border border-pink-200 bg-white py-2 px-3 text-xs font-bold text-slate-800 shadow-xs hover:border-pink-500 hover:bg-pink-50 hover:text-pink-900 transition active:scale-95"
               >
                 {option}
               </button>

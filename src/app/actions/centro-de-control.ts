@@ -16,7 +16,8 @@ import {
 } from '@/app/actions/scheduled-messages';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, mutateDataItem } from '@/lib/data-service';
+import { AsyncMutex } from '@/lib/mutex';
 import type { SocialPost } from '@/types/social-media';
 import {
   getReglasDeLaIA,
@@ -63,6 +64,71 @@ export interface CentroDeControlDatos {
   reglas: ReglaIA[];
   loQueHizoSola: AccionSolaItem[];
   resumenMensual: string;
+}
+
+const POSTS_FILE = 'social-posts.json';
+const POSTS_COLLECTION = 'social_posts';
+const turnoDePosts = new AsyncMutex();
+
+/**
+ * Cambia UN posteo por su id, sin reemplazar la lista entera: dos aprobaciones a la vez quedan
+ * las dos. Con base va en la transacción; en archivos locales, dentro del turno.
+ * Devuelve null si el posteo no existe (o `cambiar` devuelve null).
+ */
+async function mutarPostPorId(
+  id: string,
+  cambiar: (p: SocialPost) => SocialPost | null,
+): Promise<SocialPost | null> {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    return mutateDataItem<SocialPost>(POSTS_FILE, POSTS_COLLECTION, id, cambiar);
+  }
+  return turnoDePosts.runExclusive(async () => {
+    const posts = await readData<SocialPost[]>(POSTS_FILE, []);
+    const idx = posts.findIndex((p) => p.id === id);
+    if (idx === -1) return null;
+    const nuevo = cambiar(posts[idx]);
+    if (!nuevo) return null;
+    posts[idx] = nuevo;
+    await writeData(POSTS_FILE, posts);
+    return nuevo;
+  });
+}
+
+function sinAcentos(t: string): string {
+  return (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+type FiestaDeLaOrden = { ok: true; id: string; nombre: string } | { ok: false; mensaje: string };
+
+/** Busca la fiesta que nombra la frase. Nunca inventa una: sin coincidencia clara, lo dice. */
+async function resolverFiestaDeLaOrden(frase: string): Promise<FiestaDeLaOrden> {
+  let fiestas: FiestaEnPlanificacion[];
+  try {
+    fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
+  } catch {
+    return { ok: false, mensaje: 'No pude leer las fiestas para saber cuál es. No se hizo nada.' };
+  }
+  const f = sinAcentos(frase);
+  const coincidencias: { id: string; nombre: string }[] = [];
+  for (const fi of Array.isArray(fiestas) ? fiestas : []) {
+    const nombre = String(
+      fi.configuracion?.nombreEvento || fi.invitacionConfig?.nombreHomenajeada || (fi as any).nombre || '',
+    ).trim();
+    const norm = sinAcentos(nombre);
+    if (norm.length < 3) continue;
+    if (f.includes(norm)) coincidencias.push({ id: fi.id, nombre });
+  }
+  if (coincidencias.length === 0) {
+    return {
+      ok: false,
+      mensaje: 'No encontré una fiesta con ese nombre. Decime cuál es (como figura en la lista de fiestas) y la armo. No se hizo nada.',
+    };
+  }
+  if (coincidencias.length > 1) {
+    const nombres = coincidencias.map((c) => c.nombre).join(', ');
+    return { ok: false, mensaje: `Hay varias fiestas que coinciden (${nombres}). Decime cuál: no se hizo nada.` };
+  }
+  return { ok: true, ...coincidencias[0] };
 }
 
 /**
@@ -244,30 +310,43 @@ export async function aprobarItemOK(
     const res = await aceptarPropuesta(id, 'Dueño', { esDuenio: true });
     if (!res.success) return { success: false, error: res.mensaje || 'No se pudo aceptar la propuesta.' };
   } else if (origen === 'mensaje') {
+    let mensajes: Awaited<ReturnType<typeof getScheduledMessages>>;
+    try {
+      mensajes = await getScheduledMessages(WHATSAPP_AUTOMATION_INTERNAL_TOKEN);
+    } catch {
+      return { success: false, error: 'No se pudo leer el mensaje. Probá de nuevo.' };
+    }
+    const mensaje = (mensajes || []).find((m) => m.id === id);
+    if (!mensaje) return { success: false, error: 'Ese mensaje ya no existe.' };
     if (huboCambio) {
       // El texto aprobado queda guardado en el mensaje (es lo que se aprendió y lo que salió).
       const edit = await updateScheduledMessageText(id, textoFinal!);
       if (!edit.success) return { success: false, error: edit.error || 'No se pudo guardar el texto corregido.' };
     }
+    if (mensaje.channel === 'email') {
+      // Desde acá no sale ningún correo: aprobar no es enviar. Se queda pendiente en la bandeja.
+      return {
+        success: false,
+        error: 'El correo no se manda desde acá: queda pendiente en la bandeja de salida para que lo mandes vos.',
+      };
+    }
     const res = await markMessageAsSent(id, 'Dueño');
     if (!res.success) return { success: false, error: res.error || 'No se pudo marcar el mensaje como enviado.' };
   } else if (origen === 'post') {
     try {
-      const posts = await readData<SocialPost[]>('social-posts.json', []);
-      const idx = posts.findIndex((p) => p.id === id);
-      if (idx !== -1) {
-        posts[idx] = {
-          ...posts[idx],
-          status: 'Aprobado',
-          text: huboCambio ? textoFinal! : posts[idx].text,
-          updatedAt: new Date().toISOString(),
-        };
-        await writeData('social-posts.json', posts);
-      }
+      const aprobado = await mutarPostPorId(id, (p) => ({
+        ...p,
+        status: 'Aprobado',
+        text: huboCambio ? textoFinal! : p.text,
+        updatedAt: new Date().toISOString(),
+      }));
+      if (!aprobado) return { success: false, error: 'Esa publicación ya no existe.' };
     } catch (err) {
       console.warn('[Centro de Control] Error al aprobar post:', err);
       return { success: false, error: 'No se pudo aprobar la publicación.' };
     }
+  } else {
+    return { success: false, error: 'No se reconoce qué se quiere aprobar.' };
   }
 
   await registrarDecisionDuenio({
@@ -295,22 +374,20 @@ export async function rechazarItemOK(
   }
 
   if (origen === 'propuesta') {
+    const existe = ((await getPropuestas()) || []).some((p) => p.id === id);
+    if (!existe) return { success: false, error: 'Esa propuesta ya no existe.' };
     await descartarNoAvisarMas(id);
   } else if (origen === 'mensaje') {
     const res = await cancelScheduledMessage(id, 'Rechazado por el dueño');
     if (!res.success) return { success: false, error: res.error || 'No se pudo descartar el mensaje.' };
   } else if (origen === 'post') {
     try {
-      const posts = await readData<SocialPost[]>('social-posts.json', []);
-      const idx = posts.findIndex((p) => p.id === id);
-      if (idx !== -1) {
-        posts[idx] = {
-          ...posts[idx],
-          status: 'Descartado',
-          updatedAt: new Date().toISOString(),
-        };
-        await writeData('social-posts.json', posts);
-      }
+      const descartado = await mutarPostPorId(id, (p) => ({
+        ...p,
+        status: 'Descartado',
+        updatedAt: new Date().toISOString(),
+      }));
+      if (!descartado) return { success: false, error: 'Esa publicación ya no existe.' };
     } catch (err) {
       console.warn('[Centro de Control] Error al rechazar post:', err);
       return { success: false, error: 'No se pudo descartar la publicación.' };
@@ -376,24 +453,12 @@ export async function darOrdenPorVozOTexto(
       };
     }
 
-    if (modo === 'sola') {
-      let fiestaId = 'fiesta-sofia-15';
-      try {
-        const fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
-        const encontrada = fiestas.find((fi) => {
-          const nom = (
-            fi.configuracion?.nombreEvento ||
-            fi.invitacionConfig?.nombreHomenajeada ||
-            (fi as any).nombre ||
-            ''
-          ).toLowerCase();
-          return f.includes(nom) || (f.includes('sofia') && nom.includes('sofia'));
-        });
-        if (encontrada) fiestaId = encontrada.id;
-      } catch {
-        // En tests o si no hay fiestas
-      }
+    // La fiesta sale de lo que dijo el dueño: sin coincidencia clara no se arma nada.
+    const fiestaOrden = await resolverFiestaDeLaOrden(frase || '');
+    if (!fiestaOrden.ok) return { success: false, mensaje: fiestaOrden.mensaje };
+    const { id: fiestaId, nombre: nombreFiesta } = fiestaOrden;
 
+    if (modo === 'sola') {
       let falla: string | null = null;
       try {
         const armada = await armarWebConIA(fiestaId);
@@ -415,39 +480,40 @@ export async function darOrdenPorVozOTexto(
       if (falla) {
         return {
           success: false,
-          mensaje: `No pude armar la web de la fiesta: ${falla} No se guardó nada.`,
+          mensaje: `No pude armar la web de la fiesta de ${nombreFiesta}: ${falla} No se guardó nada.`,
         };
       }
 
       await registrarAccionSola({
         tareaId: 'armar_web_evento',
-        que: 'Armé el diseño y textos de la web de invitación para la fiesta de Sofía con la plantilla recomendada.',
+        que: `Armé el diseño y textos de la web de invitación para la fiesta de ${nombreFiesta} con la plantilla recomendada.`,
         enlace: `/fiestas/${fiestaId}/pagina-web`,
       });
 
       return {
         success: true,
-        mensaje: '¡Listo, che! Ya le armé la web a la fiesta de Sofía. Quedó impecable y lista para revisar.',
+        mensaje: `Listo, ya le armé la web a la fiesta de ${nombreFiesta}. Quedó guardada y lista para revisar.`,
       };
     }
 
     // Modo 'preguntar'
     await agregarPropuestasDeduplicadas([
       {
-        clave: `orden-web-sofia-${Date.now()}`,
+        clave: `orden-web-${fiestaId}-${Date.now()}`,
         area: 'fiestas',
-        titulo: 'Armar web para la fiesta de Sofía',
-        quePasa: 'Pediste armar la web de la fiesta de Sofía.',
+        titulo: `Armar web para la fiesta de ${nombreFiesta}`,
+        quePasa: `Pediste armar la web de la fiesta de ${nombreFiesta}.`,
         porQueImporta: 'Tener la web lista permite a los invitados confirmar su asistencia.',
         quePropone: 'Diseñar la web con plantilla personalizada y textos adaptados al evento.',
         tipoPropuesta: 'armar_web_evento',
-        clienteNombre: 'Sofía',
-      },
+        clienteNombre: nombreFiesta,
+        fiestaId,
+      } as any,
     ]);
 
     return {
       success: true,
-      mensaje: '¡Dale, impecable! Como tu regla está en "Preguntame antes", te dejé la propuesta en "Para tu OK" para que le des el visto bueno.',
+      mensaje: '¡Dale! Como tu regla está en "Preguntame antes", te dejé la propuesta en "Para tu OK" para que le des el visto bueno.',
     };
   }
 
@@ -471,7 +537,8 @@ export async function darOrdenPorVozOTexto(
     };
   }
 
-  // 3. Pregunta por el sábado o pendientes
+  // 3. Pregunta por el sábado o pendientes: esta orden no consulta la agenda ni la cocina,
+  // así que no afirma horarios ni menús que no miró.
   if (
     f.includes('sabado') ||
     f.includes('sábado') ||
@@ -479,14 +546,14 @@ export async function darOrdenPorVozOTexto(
     f.includes('pendiente')
   ) {
     return {
-      success: true,
-      mensaje: 'Para este sábado tenemos todo encaminado: chequeá el armado técnico a las 18:00 y confirmá el menú celíaco con cocina. ¡Tranqui que no se nos pasa nada!',
+      success: false,
+      mensaje: 'Todavía no puedo consultar desde acá el horario ni el menú de una fecha. Mirá la agenda y la ficha de cada fiesta, o pedime una cosa concreta (por ejemplo, armar la web de una fiesta o preparar los seguimientos de presupuestos).',
     };
   }
 
-  // 4. Cualquier otra orden
+  // 4. Cualquier otra orden: no se hace nada, y se dice.
   return {
-    success: true,
-    mensaje: `¡Anotado, bo! Me pongo a trabajar en "${frase}". Cualquier cosa que requiera tu confirmación te la dejo en "Para tu OK".`,
+    success: false,
+    mensaje: 'No entendí qué querés que haga, así que no hice nada. Probá con: "armá la web de la fiesta de [nombre]" o "preparar los seguimientos de presupuestos".',
   };
 }

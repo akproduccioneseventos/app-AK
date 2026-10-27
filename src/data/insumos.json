@@ -379,5 +379,50 @@
         "categoria": "Bebidas",
         "nombre": "Tequila",
         "unidad": "Botella"
+    },
+    {
+        "id": "ing-cana-uruguaya",
+        "nombre": "Caña uruguaya",
+        "tipoItem": "Insumo/Ingrediente",
+        "categoria": "Bebidas",
+        "valorUnitarioEstimado": 0,
+        "unidad": "Botella",
+        "proveedor": "MAYORISTA"
+    },
+    {
+        "id": "ing-blue-curacao-sin-alcohol",
+        "nombre": "Jarabe Blue Curaçao sin alcohol",
+        "tipoItem": "Insumo/Ingrediente",
+        "categoria": "Bebidas",
+        "valorUnitarioEstimado": 0,
+        "unidad": "Botella",
+        "proveedor": "MAYORISTA"
+    },
+    {
+        "id": "ing-granadina-sin-alcohol",
+        "nombre": "Granadina sin alcohol",
+        "tipoItem": "Insumo/Ingrediente",
+        "categoria": "Bebidas",
+        "valorUnitarioEstimado": 0,
+        "unidad": "Botella",
+        "proveedor": "MAYORISTA"
+    },
+    {
+        "id": "ing-jugo-anana",
+        "nombre": "Jugo de ananá",
+        "tipoItem": "Insumo/Ingrediente",
+        "categoria": "Bebidas",
+        "valorUnitarioEstimado": 0,
+        "unidad": "Litro",
+        "proveedor": "MAYORISTA"
+    },
+    {
+        "id": "ing-soda",
+        "nombre": "Soda",
+        "tipoItem": "Insumo/Ingrediente",
+        "categoria": "Bebidas",
+        "valorUnitarioEstimado": 0,
+        "unidad": "Litro",
+        "proveedor": "MAYORISTA"
     }
 ]

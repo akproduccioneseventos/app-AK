@@ -19,7 +19,6 @@ import {
   MessageSquare,
   Wine,
   Heart,
-  ChevronRight,
   Tv,
 } from "lucide-react";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
@@ -281,7 +280,7 @@ export function LaAppDeTuFiestaSection({
               </div>
 
               <p className="text-xs text-slate-400">
-                * Muestra interactiva pedagógica con datos de prueba. No publica ni emite mensajes reales.
+                * Es un ejemplo con datos de prueba: no manda mensajes de verdad.
               </p>
             </div>
 
@@ -316,7 +315,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("menu")}
                           className={cn(
-                            "rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
                             demoMenuTab === "menu" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -326,7 +325,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("musica")}
                           className={cn(
-                            "rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
                             demoMenuTab === "musica" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -336,7 +335,7 @@ export function LaAppDeTuFiestaSection({
                           type="button"
                           onClick={() => setDemoMenuTab("deco")}
                           className={cn(
-                            "rounded-lg px-3 py-1 text-xs font-semibold transition",
+                            "min-h-10 rounded-lg px-3 py-1 text-xs font-semibold transition",
                             demoMenuTab === "deco" ? "bg-red-600 text-white" : "text-slate-400 hover:text-white"
                           )}
                         >
@@ -633,27 +632,6 @@ export function LaAppDeTuFiestaSection({
                 </AnimatePresence>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Cierre y Transparencia */}
-        <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 sm:p-8">
-          <p className="font-medium text-slate-800">
-            ¿Querés ver cómo se adapta la app a tu tipo de fiesta?
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Los módulos contratados se integran a tu presupuesto personalizado (cumpleaños de 15, bodas, empresariales o infantiles).
-          </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 font-bold text-red-600 hover:text-red-700"
-            >
-              Hablar con un asesor por WhatsApp
-              <ChevronRight className="h-4 w-4" />
-            </a>
           </div>
         </div>
       </div>

@@ -18,6 +18,16 @@ jest.mock('@/lib/auth/session-token', () => ({
   })),
 }));
 
+// La orden por voz busca la fiesta nombrada en fiestas.json (ya no inventa una "Sofía" de relleno).
+jest.mock('@/lib/data-service', () => {
+  const real = jest.requireActual('@/lib/data-service');
+  return {
+    ...real,
+    readData: async (f: string, d: unknown) =>
+      f === 'fiestas.json' ? [{ id: 'fiesta-sofia-15', configuracion: { nombreEvento: 'Sofía' } }] : real.readData(f, d),
+  };
+});
+
 // Mock para armarWebConIA si se ejecuta en modo sola
 jest.mock('@/app/actions/fiesta/armar-web-con-ia.actions', () => ({
   armarWebConIA: jest.fn(async (fiestaId: string) => ({

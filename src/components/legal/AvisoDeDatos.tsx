@@ -25,7 +25,8 @@ export function AvisoDeDatos({ para = 'cliente', className = '' }: AvisoDeDatosP
       <span>{textoPrincipal}</span>
       <Link
         href="/privacidad"
-        className="underline underline-offset-2 hover:text-foreground transition-colors"
+        /* Area tocable de 40 px SIN agrandar la linea: el margen negativo compensa el relleno. Con min-h-10 la barra del asistente subia 25 px y el boton flotante de WhatsApp tapaba "Enviar" (sofia-composer.spec.ts). */
+        className="relative -my-3 inline-block py-3 underline underline-offset-2 hover:text-foreground transition-colors"
       >
         Privacidad
       </Link>

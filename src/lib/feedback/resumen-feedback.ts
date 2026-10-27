@@ -4,6 +4,10 @@ import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servi
 import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 
 export interface ResumenFeedbackMensual {
+  /** false = la IA no pudo analizar las encuestas: los temas y mejoras vienen vacíos, no de relleno. */
+  analisisDisponible: boolean;
+  /** Qué decirle al dueño cuando no se pudo analizar. */
+  avisoAnalisis?: string;
   temasRepetidos: string[];
   areasNotaBaja: { area: string; promedio: number; cantidad: number }[];
   mejorasPropuestas: string[];
@@ -93,12 +97,12 @@ export async function generarResumenFeedbackMensual(
   }
 
   // 3. Temas repetidos y 3 mejoras propuestas
-  let temasRepetidos = ['Puntualidad en el armado', 'Variedad de música en la pista', 'Atención del personal'];
-  let mejorasPropuestas = [
-    'Reforzar coordinación previa con el DJ sobre horarios de corte de música.',
-    'Revisar cantidades de insumos de barra en fiestas con más de 100 adultos.',
-    'Enviar recordatorio de fotos pendientes con mayor anticipación.',
-  ];
+  // Sin análisis real NO se inventan temas ni mejoras: quedan vacíos y se avisa que no se pudo analizar.
+  let temasRepetidos: string[] = [];
+  let mejorasPropuestas: string[] = [];
+  let analisisDisponible = false;
+  let avisoAnalisis: string | undefined =
+    'No se pudo analizar las encuestas con la IA (sin presupuesto de IA disponible). Los temas repetidos y las mejoras se muestran cuando el análisis funcione.';
 
   const canUseAI = await hayPresupuestoParaIA().catch(() => false);
   if (canUseAI) {
@@ -137,14 +141,19 @@ Devolvé SOLO un JSON válido con esta estructura:
         if (Array.isArray(parsed.mejorasPropuestas) && parsed.mejorasPropuestas.length) {
           mejorasPropuestas = parsed.mejorasPropuestas.slice(0, 3);
         }
+        analisisDisponible = temasRepetidos.length > 0 || mejorasPropuestas.length > 0;
+        avisoAnalisis = analisisDisponible ? undefined : 'La IA contestó pero no se pudo leer el análisis de las encuestas.';
         await registrarConsumoIA('resumen-feedback').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
       }
     } catch (e) {
-      console.warn('[feedback] Fallback usado para resumen:', e);
+      console.warn('[feedback] No se pudo analizar las encuestas:', e);
+      avisoAnalisis = 'No se pudo analizar las encuestas con la IA. Probá de nuevo más tarde.';
     }
   }
 
   return {
+    analisisDisponible,
+    avisoAnalisis,
     temasRepetidos,
     areasNotaBaja,
     mejorasPropuestas,
