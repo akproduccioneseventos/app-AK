@@ -18,6 +18,11 @@ export async function analyzeEventPlan(input: AnalyzeEventPlanInput): Promise<An
   const clienteId = typeof plan.clienteId === 'string' ? plan.clienteId : '';
   const guestEstimate = readNumber(config.invitadosEstimados);
   const completedTasks = tareas.filter((task) => Boolean((task as { completed?: boolean }).completed)).length;
+  const menuAsignadoId = plan.menuAsignadoId;
+  const musica = (plan.musica && typeof plan.musica === 'object' ? plan.musica : {}) as Record<string, unknown>;
+  const planDePagos = (plan.planDePagos && typeof plan.planDePagos === 'object' ? plan.planDePagos : {}) as Record<string, unknown>;
+  const cuotas = Array.isArray(planDePagos.cuotas) ? planDePagos.cuotas : [];
+  const cuotasImpagas = cuotas.filter((c: any) => c.estado !== 'pagado');
 
   const items: AnalyzeEventPlanOutput['items'] = [
     {
@@ -31,6 +36,24 @@ export async function analyzeEventPlan(input: AnalyzeEventPlanInput): Promise<An
       status: invitados.length > 0 ? 'Parcial' : 'Faltante',
       details: `Hay ${invitados.length} invitados cargados sobre una referencia de ${guestEstimate || 'sin estimar'}.`,
       suggestion: invitados.length > 0 ? 'Revisar confirmados, pendientes y mesas.' : 'Cargar o importar la lista inicial de invitados.',
+    },
+    {
+      module: 'Catering',
+      status: menuAsignadoId ? 'Completo' : 'Faltante',
+      details: menuAsignadoId ? 'Menú gastronómico asignado.' : 'No se ha definido el menú del catering.',
+      suggestion: menuAsignadoId ? undefined : 'Elegir o personalizar el menú con el cliente.',
+    },
+    {
+      module: 'Musica',
+      status: (musica.playlistFiesta || musica.cancionEntrada) ? 'Completo' : 'Faltante',
+      details: (musica.playlistFiesta || musica.cancionEntrada) ? 'Preferencias musicales registradas.' : 'Falta completar las canciones clave de la fiesta.',
+      suggestion: 'Completar momentos protocolares y briefing del DJ.',
+    },
+    {
+      module: 'Cuotas y Pagos',
+      status: cuotasImpagas.length === 0 ? 'Completo' : 'Parcial',
+      details: cuotasImpagas.length === 0 ? 'Plan de pagos al día.' : `Existen ${cuotasImpagas.length} cuota(s) pendiente(s).`,
+      suggestion: 'Revisar vencimientos de cuotas y recibos de pago.',
     },
     {
       module: 'Tareas',
@@ -63,3 +86,4 @@ export async function analyzeEventPlan(input: AnalyzeEventPlanInput): Promise<An
 }
 
 export const analyzeEventPlanFlow = analyzeEventPlan;
+

@@ -1,5 +1,9 @@
 'use server';
 
+import { extraerDatosPresupuestoProspecto } from '@/lib/asistente/por-whatsapp';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
+
 import { readData, writeData } from '@/lib/data-service';
 import type { WhatsAppConfig, WhatsAppConversation, WhatsAppMessage, WhatsAppStats } from '@/types/whatsapp';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
@@ -245,6 +249,76 @@ export async function processIncomingMessage(
       conversations[convIdx].leadId = leadId;
     }
 
+    // Bloque 2 (Orden 235): La IA extrae datos del prospecto y sólo completa campos vacíos
+    if (leadId) {
+      try {
+        const existingLeads = await readData<CrmLead[]>('crm-leads.json', []);
+        const targetLead = existingLeads.find(l => l.id === leadId);
+        if (targetLead) {
+          const fallback = extraerDatosPresupuestoProspecto(message);
+          let extracted: {
+            partyType?: string;
+            eventDate?: string;
+            guestCount?: number;
+            venueName?: string;
+            nextAction?: string;
+            summary?: string;
+          } = {};
+
+          const canUseAi = await hayPresupuestoParaIA().catch(() => false);
+          if (canUseAi) {
+            try {
+              const model = getGeminiModelForAgent('comercial');
+              const prompt = `Sos un asistente comercial de AK Producciones. Extraé datos clave de este mensaje de WhatsApp de un cliente potencial:\nMENSAJE: "${message.replace(/"/g, '\\"')}"\n\nDevolvé SOLO un JSON válido con estas claves:\n{\n  "partyType": "Boda, 15 Años, Cumpleaños, Infantil, Empresarial, etc. o null",\n  "eventDate": "YYYY-MM-DD o null",\n  "guestCount": número entero o null,\n  "venueName": "salón/lugar o null",\n  "nextAction": "acción comercial sugerida",\n  "summary": "resumen en 1 o 2 oraciones"\n}`;
+              const aiRes = await generateWithGeminiFallback({ model, prompt });
+              const raw = aiRes?.text?.trim() || '';
+              const match = raw.match(/\{[\s\S]*\}/);
+              if (match) {
+                extracted = JSON.parse(match[0]);
+                await registrarConsumoIA('extraccion-prospecto-whatsapp').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
+              }
+            } catch (err) {
+              console.warn('[whatsapp] Error con Gemini en extracción, usando fallback:', err);
+            }
+          }
+
+          let modificado = false;
+          // Sólo completa campos vacíos
+          if (!targetLead.partyType && extracted.partyType) {
+            targetLead.partyType = extracted.partyType;
+            modificado = true;
+          }
+          if (!targetLead.eventDate && (extracted.eventDate || fallback.fecha)) {
+            targetLead.eventDate = extracted.eventDate || fallback.fecha;
+            modificado = true;
+          }
+          if (!targetLead.guestCount && (extracted.guestCount || fallback.invitados)) {
+            targetLead.guestCount = extracted.guestCount || fallback.invitados;
+            modificado = true;
+          }
+          if (!targetLead.venueName && (extracted.venueName || fallback.salon)) {
+            targetLead.venueName = extracted.venueName || fallback.salon;
+            modificado = true;
+          }
+          if (!targetLead.nextAction && extracted.nextAction) {
+            targetLead.nextAction = extracted.nextAction;
+            modificado = true;
+          }
+          if (extracted.summary && (!targetLead.notes || !targetLead.notes.includes(extracted.summary))) {
+            targetLead.notes = targetLead.notes ? `${targetLead.notes}\n[IA]: ${extracted.summary}` : `[IA]: ${extracted.summary}`;
+            modificado = true;
+          }
+
+          if (modificado) {
+            targetLead.updatedAt = new Date().toISOString();
+            await writeData('crm-leads.json', existingLeads);
+          }
+        }
+      } catch (err) {
+        console.warn('[whatsapp] Error enriqueciendo lead:', err);
+      }
+    }
+
     // Generate bot response based on mode
     let botResponse: string | undefined;
 
@@ -434,3 +508,4 @@ export async function getWhatsAppStats(): Promise<WhatsAppStats> {
     topQuestions,
   };
 }
+

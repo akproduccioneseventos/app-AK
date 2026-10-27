@@ -284,3 +284,25 @@ export async function requestGoogleReviewManual(feedbackId: string): Promise<{ s
   return result;
 }
 
+
+export async function getResumenFeedbackMensualAction() {
+  await requireAppSession();
+  const submissions = await getFeedback();
+  const { generarResumenFeedbackMensual } = await import('@/lib/feedback/resumen-feedback');
+  return generarResumenFeedbackMensual(submissions);
+}
+
+export async function generateTestimonialAction(feedback: FeedbackSubmission) {
+  await requirePermisoAlguno(PERMISOS.ORGANIZACION);
+  const { generateTestimonialFlow } = await import('@/ai/flows/generate-testimonial-flow');
+  const dateStr = feedback.timestamp ? feedback.timestamp.slice(0, 10) : new Date().toISOString().slice(0, 10);
+  const rating = feedback.npsScore ? Math.round(feedback.npsScore / 2) : 5;
+  return generateTestimonialFlow({
+    clientName: feedback.clientName || 'Cliente',
+    eventType: feedback.fiestaNombre || 'Fiesta',
+    eventDate: dateStr,
+    rating,
+    comments: feedback.generalComments || feedback.enjoyedMost || '',
+  });
+}
+

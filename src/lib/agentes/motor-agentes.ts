@@ -1,3 +1,7 @@
+import { generateAiCommercialFollowup } from '@/lib/commercial/commercial-followup';
+import { generateAiPostEventMaterial } from '@/lib/post-event/post-event-core';
+import { generateSocialPostFlow } from '@/ai/flows/generate-social-post-flow';
+import type { CrmLead } from '@/types/crm';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
@@ -13,6 +17,7 @@ import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { detectarErroresHumanos, type DescarteAlerta } from '@/lib/alertas/errores-humanos';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
+import { getReglaParaTarea, registrarAccionSola } from '@/lib/ia/reglas-de-la-ia';
 import {
   AGENTES_DEFAULT_CONFIG,
   type ConfiguracionAgente,
@@ -121,9 +126,10 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [presupuestos, scheduledMessages] = await Promise.all([
+  const [presupuestos, scheduledMessages, leads] = await Promise.all([
     readData<Presupuesto[]>('presupuestos.json', []),
     readData<ScheduledMessage[]>('scheduled-messages.json', []),
+    readData<CrmLead[]>('crm-leads.json', []),
   ]);
 
   const ahoraMs = ahora.getTime();
@@ -143,9 +149,28 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
     const yaEnCola = pendientes.some((m) => m.targetPhone === contacto && m.status === 'pendiente');
     if (yaEnCola) continue;
 
+    const lead = leads.find((l) => (p.leadId && l.id === p.leadId) || l.presupuestoId === p.id || (l.phone && l.phone.trim() === contacto));
+
     if (diasDesdeEnvio >= 5 && diasDesdeEnvio < 14) {
       hallazgos.push(`Presupuesto de ${p.clienteNombre} (${p.eventoTipo}) sin respuesta hace ${diasDesdeEnvio} días.`);
-      const texto = `Hola ${p.clienteNombre}, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del ${p.eventoFecha ? formatearFechaEvento(p.eventoFecha) : 'evento'}. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos.`;
+      const textoFijo = `Hola ${p.clienteNombre}, ¿cómo estás? Te escribo de AK Producciones para saber si pudiste revisar la propuesta para el evento del ${p.eventoFecha ? formatearFechaEvento(p.eventoFecha) : 'evento'}. Si querés coordinar una reunión o ajustar servicios, avisame y lo vemos juntos.`;
+
+      let textoFinal = textoFijo;
+      try {
+        const aiRes = await generateAiCommercialFollowup({
+          name: lead?.name || p.clienteNombre,
+          source: lead ? 'crm' : 'presupuesto',
+          eventType: lead?.partyType || p.eventoTipo,
+          eventDate: lead?.eventDate || p.eventoFecha,
+          reason: `Presupuesto de ${p.eventoTipo || 'evento'} enviado hace ${diasDesdeEnvio} días sin respuesta.`,
+          leadNotes: lead?.notes,
+        });
+        if (aiRes?.success && aiRes.message?.trim()) {
+          textoFinal = aiRes.message.trim();
+        }
+      } catch {
+        textoFinal = textoFijo;
+      }
 
       nuevosMensajes.push({
         id: `msg_follow_${p.id}_5d`,
@@ -153,7 +178,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         targetId: p.leadId || p.id,
         targetName: p.clienteNombre,
         targetPhone: contacto,
-        messageText: texto,
+        messageText: textoFinal,
         scheduledAt: ahora.toISOString(),
         createdAt: ahora.toISOString(),
         status: 'pendiente',
@@ -162,7 +187,24 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
       acciones.push(`Borrador de seguimiento preparado para ${p.clienteNombre} en la bandeja de salida.`);
     } else if (diasDesdeEnvio >= 14 && diasDesdeEnvio <= 30) {
       hallazgos.push(`Presupuesto de ${p.clienteNombre} sin respuesta hace ${diasDesdeEnvio} días (reactivación).`);
-      const texto = `Hola ${p.clienteNombre}, te contacto de AK Producciones. Queríamos consultar si la fecha del ${p.eventoFecha ? formatearFechaEvento(p.eventoFecha) : 'evento'} sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!`;
+      const textoFijo = `Hola ${p.clienteNombre}, te contacto de AK Producciones. Queríamos consultar si la fecha del ${p.eventoFecha ? formatearFechaEvento(p.eventoFecha) : 'evento'} sigue en pie o si te gustaría que mantengamos tu propuesta activa. ¡Quedamos a las órdenes!`;
+
+      let textoFinal = textoFijo;
+      try {
+        const aiRes = await generateAiCommercialFollowup({
+          name: lead?.name || p.clienteNombre,
+          source: lead ? 'crm' : 'presupuesto',
+          eventType: lead?.partyType || p.eventoTipo,
+          eventDate: lead?.eventDate || p.eventoFecha,
+          reason: `Reactivación de presupuesto de ${p.eventoTipo || 'evento'} tras ${diasDesdeEnvio} días.`,
+          leadNotes: lead?.notes,
+        });
+        if (aiRes?.success && aiRes.message?.trim()) {
+          textoFinal = aiRes.message.trim();
+        }
+      } catch {
+        textoFinal = textoFijo;
+      }
 
       nuevosMensajes.push({
         id: `msg_reactivate_${p.id}_14d`,
@@ -170,7 +212,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         targetId: p.leadId || p.id,
         targetName: p.clienteNombre,
         targetPhone: contacto,
-        messageText: texto,
+        messageText: textoFinal,
         scheduledAt: ahora.toISOString(),
         createdAt: ahora.toISOString(),
         status: 'pendiente',
@@ -185,11 +227,11 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
   }
 
   const registro: RegistroEjecucionAgente = {
-    id: `reg_perseguidor_${Date.now()}`,
+    id: `reg_presupuestos_${Date.now()}`,
     agenteId: 'perseguidor_presupuestos',
     agenteNombre: 'Perseguidor de Presupuestos',
     ejecutadoEn: ahora.toISOString(),
-    hallazgos: hallazgos.length > 0 ? hallazgos : ['No hay presupuestos pendientes de seguimiento hoy.'],
+    hallazgos: hallazgos.length > 0 ? hallazgos : ['No hay presupuestos pendientes de seguimiento comercial.'],
     accionesPreparadas: acciones.length > 0 ? acciones : ['Sin borradores nuevos'],
     estado: nuevosMensajes.length > 0 ? 'exito' : 'sin_novedades',
   };
@@ -199,7 +241,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3. EL COBRADOR (PREPARA RECORDATORIOS, NUNCA COBRA SOLO)
+// 3. EL COBRADOR (ALERTA DEUDAS Y PAGOS VENCIDOS)
 // ─────────────────────────────────────────────────────────────────────────────
 export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjecucionAgente> {
   const hallazgos: string[] = [];
@@ -274,37 +316,68 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
   const hallazgos: string[] = [];
   const acciones: string[] = [];
 
-  const [fiestas, posts] = await Promise.all([
+  const [fiestas, posts, scheduledMessages] = await Promise.all([
     readData<FiestaEnPlanificacion[]>('fiestas.json', []),
     readData<any[]>('social-posts.json', []),
+    readData<ScheduledMessage[]>('scheduled-messages.json', []),
   ]);
 
   const ahoraMs = ahora.getTime();
   const sieteDiasMs = 7 * 24 * 60 * 60 * 1000;
+  const unDiaMs = 24 * 60 * 60 * 1000;
+  const tresDiasMs = 3 * 24 * 60 * 60 * 1000;
+
   const nuevosPosts: any[] = [];
+  const nuevosScheduled: ScheduledMessage[] = [];
 
   for (const f of fiestas) {
     const fechaStr = f.configuracion?.fechaEvento || (f.configuracion as any)?.fecha;
     if (!fechaStr) continue;
 
     const fechaMs = new Date(fechaStr).getTime();
-    if (ahoraMs > fechaMs && (ahoraMs - fechaMs) < sieteDiasMs) {
+    const diferenciaMs = ahoraMs - fechaMs;
+
+    if (diferenciaMs > 0 && diferenciaMs < sieteDiasMs) {
       const nombre = f.configuracion?.nombreEvento || f.configuracion?.nombreAgasajado || 'Fiesta';
+      const tipo = f.configuracion?.tipoCelebracion || 'evento';
       hallazgos.push(`Fiesta reciente finalizada: ${nombre}.`);
 
-      const yaTienePost = (posts || []).some((p) => p.titulo?.includes(nombre) || p.caption?.includes(nombre));
+      const yaTienePost = (posts || []).some((p) => p.titulo?.includes(nombre) || p.caption?.includes(nombre) || p.eventId === f.id);
       if (!yaTienePost) {
-        // Antes esto SOLO decia "borrador creado" y no creaba nada: el borrador
-        // no aparecia nunca en Redes Sociales, y como tampoco quedaba escrito,
-        // el mismo aviso volvia a salir cada 15 minutos para siempre.
         const ahoraIso = ahora.toISOString();
+
+        // 1 a 3 fotos reales de la galería de esa fiesta
+        const fotos: string[] = [];
+        if (f.invitacionConfig?.galeriaFotos) fotos.push(...f.invitacionConfig.galeriaFotos);
+        if (f.invitacionDigital?.galeria?.fotos) fotos.push(...f.invitacionDigital.galeria.fotos);
+        if (f.galeriaUrl) fotos.push(f.galeriaUrl);
+        const fotosReales = fotos.filter(Boolean).slice(0, 3);
+
+        let textoPost = `Que noche la de ${nombre}. Gracias por confiar en AK Producciones para tu fiesta.`;
+        try {
+          const aiPost = await generateSocialPostFlow({
+            eventName: nombre,
+            eventType: tipo,
+            audience: 'invitados y seguidores',
+            goal: 'mostrar la diversión de la fiesta',
+            tone: 'cálido y emocionante',
+          });
+          if (aiPost?.caption?.trim()) {
+            textoPost = aiPost.caption.trim();
+          }
+        } catch {
+          // Fallback a texto fijo
+        }
+
         const borrador: any = {
           id: `post_agente_${f.id}`,
           platform: 'Instagram',
           isGeneralCampaign: true,
+          eventId: f.id,
           publishDate: ahoraIso.slice(0, 10),
           titulo: `Recuerdos de ${nombre}`,
-          text: `Que noche la de ${nombre}. Gracias por confiar en AK Producciones para tu fiesta.`,
+          text: textoPost,
+          mediaUrl: fotosReales[0] || undefined,
           status: 'Borrador',
           createdAt: ahoraIso,
           updatedAt: ahoraIso,
@@ -312,13 +385,55 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
         nuevosPosts.push(borrador);
         acciones.push(`Borrador de posteo creado para ${nombre} (listo para revisión en Redes Sociales).`);
       }
+
+      // Bloque 9: 1 a 3 días después de la fiesta corre generateAiPostEventMaterial como borrador
+      if (diferenciaMs >= unDiaMs && diferenciaMs <= tresDiasMs) {
+        const yaTieneBorrador = [...(scheduledMessages || []), ...nuevosScheduled].some(
+          (m) => m.targetId === f.id || m.id === `msg_post_event_${f.id}`
+        );
+
+        if (!yaTieneBorrador) {
+          try {
+            const clientName = f.configuracion?.clienteNombre || nombre;
+            const clientPhone = (f.configuracion as any)?.clienteTelefono || (f.configuracion as any)?.contacto || '';
+            const postEvent = await generateAiPostEventMaterial({
+              clientName,
+              eventName: nombre,
+              eventType: tipo,
+              eventDate: fechaStr,
+              score: 100,
+              pendingTasks: 0,
+            });
+
+            if (postEvent?.testimonyMessage) {
+              nuevosScheduled.push({
+                id: `msg_post_event_${f.id}`,
+                targetType: 'cliente',
+                targetId: f.id,
+                targetName: clientName,
+                targetPhone: clientPhone,
+                messageText: postEvent.testimonyMessage,
+                scheduledAt: ahora.toISOString(),
+                createdAt: ahora.toISOString(),
+                status: 'pendiente',
+                templateType: 'personalizado',
+              });
+              acciones.push(`Borrador post-evento preparado para ${nombre} en la bandeja de salida.`);
+            }
+          } catch (e) {
+            console.warn('[Agentes] Error al generar material post-evento:', e);
+          }
+        }
+      }
     }
   }
 
-  // Los borradores se guardan de verdad. Si no se escriben, no aparecen en Redes
-  // Sociales y el mismo aviso vuelve a salir cada 15 minutos para siempre.
   if (nuevosPosts.length > 0) {
     await mutateGenericJsonArray<any>('social-posts.json', (posts) => [...(posts || []), ...nuevosPosts]);
+  }
+
+  if (nuevosScheduled.length > 0) {
+    await writeData('scheduled-messages.json', [...(scheduledMessages || []), ...nuevosScheduled]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -328,7 +443,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
     ejecutadoEn: ahora.toISOString(),
     hallazgos: hallazgos.length > 0 ? hallazgos : ['Calendario de contenido evaluado; sin eventos pendientes de borrador.'],
     accionesPreparadas: acciones.length > 0 ? acciones : ['Sin borradores nuevos'],
-    estado: 'sin_novedades',
+    estado: (nuevosPosts.length > 0 || nuevosScheduled.length > 0) ? 'exito' : 'sin_novedades',
   };
 
   await registrarEjecucionAgente(registro);
@@ -450,6 +565,9 @@ export async function ejecutarAgentesAutonomos(
 
   for (const agente of config) {
     if (!agente.activo) continue;
+    const modo = await getReglaParaTarea(agente.id);
+    if (modo === 'apagada') continue;
+
     // Cada agente espera su propio intervalo: el despertador pasa cada minuto, pero un agente
     // de 15 minutos no corre antes de que pasen 15 desde la última vez.
     if (!opciones.ignorarIntervalo && agente.ultimaEjecucion && agente.intervaloMinutos > 0) {
@@ -479,7 +597,12 @@ export async function ejecutarAgentesAutonomos(
           reg = await ejecutarVigilantePublicidad(ahora);
           break;
       }
-      if (reg) resultados.push(reg);
+      if (reg) {
+        resultados.push(reg);
+        if (modo === 'sola') {
+          await registrarAccionSola({ tareaId: agente.id, que: `Ejecutó automáticamente: ${agente.nombre}` });
+        }
+      }
     } catch (err) {
       console.error(`[Agentes] Error ejecutando ${agente.id}:`, err);
     }

@@ -1,4 +1,6 @@
 import type { SuggestPaletteInput, SuggestPaletteOutput } from '@/ai/types/suggest-palette-types';
+import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 
 const FALLBACK_PALETTES: Record<string, SuggestPaletteOutput> = {
   quince: {
@@ -37,22 +39,72 @@ function normalize(value?: string) {
   return (value || '').toLowerCase();
 }
 
+function getFallback(input: SuggestPaletteInput): SuggestPaletteOutput {
+  const text = `${normalize(input.eventType)} ${normalize(input.mood)} ${normalize(input.season)} ${normalize(input.style)}`;
+  let base = FALLBACK_PALETTES.quince;
+  if (text.includes('boda') || text.includes('casamiento')) base = FALLBACK_PALETTES.boda;
+  else if (text.includes('corpor') || text.includes('empresa')) base = FALLBACK_PALETTES.corporativo;
+
+  if (input.baseColor) {
+    const colors = base.colors.map((c, i) => (i === 0 ? { ...c, hex: input.baseColor! } : { ...c }));
+    return {
+      ...base,
+      colors,
+    };
+  }
+
+  return base;
+}
+
 export async function suggestPalette(input: SuggestPaletteInput): Promise<SuggestPaletteOutput> {
-  const text = `${normalize(input.eventType)} ${normalize(input.mood)} ${normalize(input.season)}`;
-  if (text.includes('boda')) return FALLBACK_PALETTES.boda;
-  if (text.includes('corpor')) return FALLBACK_PALETTES.corporativo;
+  const fallback = getFallback(input);
 
-  const palette = FALLBACK_PALETTES.quince;
-  if (!input.baseColor) return palette;
+  // Regla Bloque 12 / Caso 12: Sin tope de IA, no llama al modelo
+  const canUseAI = await hayPresupuestoParaIA().catch(() => false);
+  if (!canUseAI) {
+    return fallback;
+  }
 
-  return {
-    ...palette,
-    colors: [
-      { name: 'Color elegido', hex: input.baseColor, usage: 'Personalizacion principal del cliente.' },
-      ...palette.colors.filter((color) => color.hex.toLowerCase() !== input.baseColor?.toLowerCase()).slice(0, 3),
-    ],
-    rationale: `${palette.rationale} Se respeta el color base elegido por el cliente.`,
-  };
+  try {
+    const model = getGeminiModelForAgent('fiesta');
+    const prompt = `Sos un diseñador experto en ambientación y colorimetría para eventos en AK Producciones (Salto, Uruguay).
+Creá una paleta armónica de 3 a 4 colores para la siguiente fiesta:
+- Tipo de fiesta: ${input.eventType || 'Evento'}
+- Estilo decorativo deseado: ${input.style || input.mood || 'Moderno y elegante'}
+- Color base preferido: ${input.baseColor || 'No especificado'}
+${input.referencePhotos && input.referencePhotos.length ? `- Fotos de referencia provistas: ${input.referencePhotos.length} fotos adjuntas.` : ''}
+
+Devolvé SOLO un objeto JSON válido con esta estructura exacta:
+{
+  "paletteName": "Nombre creativo de la paleta (ej: 'Atardecer Dorado', 'Noche Estrellada')",
+  "colors": [
+    { "name": "Nombre color 1", "hex": "#HEXHEX", "usage": "Uso principal en telas y mantelería" },
+    { "name": "Nombre color 2", "hex": "#HEXHEX", "usage": "Uso secundario en centros de mesa y luces" },
+    { "name": "Nombre color 3", "hex": "#HEXHEX", "usage": "Acento en servilletas y detalles" }
+  ],
+  "rationale": "Breve explicación de 1 o 2 oraciones del por qué combina con el evento"
+}`;
+
+    const res = await generateWithGeminiFallback({ model, prompt });
+    const raw = res?.text?.trim() || '';
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (match) {
+      const parsed = JSON.parse(match[0]);
+      if (parsed.paletteName && Array.isArray(parsed.colors) && parsed.colors.length >= 3) {
+        await registrarConsumoIA('sugerir-paleta').catch((e) => console.warn('[ia] No se pudo anotar el consumo:', e));
+        return {
+          paletteName: parsed.paletteName,
+          colors: parsed.colors,
+          rationale: parsed.rationale || fallback.rationale,
+        };
+      }
+    }
+    return fallback;
+  } catch (err) {
+    console.warn('[suggestPalette] Error llamando a Gemini, usando paleta fallback:', err);
+    return fallback;
+  }
 }
 
 export const suggestPaletteFlow = suggestPalette;
+

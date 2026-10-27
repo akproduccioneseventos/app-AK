@@ -25,6 +25,11 @@ export type FuncionConCosto =
   | 'encargado-general'
   | 'nota-del-blog'
   | 'multiagente'
+  | 'armar-web-evento'
+  | 'lectura-recibo'
+  | 'resumen-feedback'
+  | 'sugerir-paleta'
+  | 'extraccion-prospecto-whatsapp'
   | 'trivia-ia'
   | 'voz-cliente'
   | 'asistente-dot-contador';
@@ -54,6 +59,11 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   // Una nota de blog es texto largo mas una imagen generada: sale mas que un chat.
   'nota-del-blog': 5,
   multiagente: 1,
+  'armar-web-evento': 2,
+  'lectura-recibo': 1,
+  'resumen-feedback': 1,
+  'sugerir-paleta': 1,
+  'extraccion-prospecto-whatsapp': 1,
   'trivia-ia': 1,
   'voz-cliente': 1,
   'asistente-dot-contador': 1,
@@ -161,3 +171,4 @@ export function resumirGasto(consumo: ConsumoDelMes, topeUYU: number): ResumenDe
     mensaje: `Vas por $${gastado} de $${tope} este mes (${porcentaje}%).`,
   };
 }
+

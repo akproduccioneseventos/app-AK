@@ -1,5 +1,8 @@
 'use client';
 
+import { analyzeEventPlan } from '@/ai/flows/analyze-event-plan-flow';
+import { calculateReadinessScore } from '@/lib/readiness-score';
+
 import React, { useState, useEffect, useCallback, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -164,7 +167,7 @@ function GestionReunionesContent() {
     }
   };
 
-  const openFormModal = (reunion?: Reunion) => {
+  const openFormModal = async (reunion?: Reunion) => {
     if (reunion) {
       setCurrentReunion(reunion);
       setFormTitulo(reunion.titulo);
@@ -180,7 +183,51 @@ function GestionReunionesContent() {
       setFormHora('');
       setFormNotas('');
       setFormAcuerdos('');
-      setFormChecklist(masterTemplate?.checklist.map((i: any) => ({ ...i, completed: false })) || []);
+
+      const baseItems = masterTemplate?.checklist.map((i: any) => ({ ...i, completed: false })) || [];
+      const faltantes: ReunionChecklistItem[] = [];
+
+      if (fiesta) {
+        // Bloque 8 (Orden 235): Sumar arriba los puntos que faltan de esa fiesta: menú, invitados, música y cuotas
+        await analyzeEventPlan({ planData: fiesta as unknown as Record<string, unknown> });
+        calculateReadinessScore(fiesta);
+
+        // Menú
+        if (!fiesta.menuAsignadoId) {
+          faltantes.push({
+            id: 'check_falta_menu',
+            text: 'Definir menú gastronómico y opciones de catering',
+            completed: false,
+          });
+        }
+        // Invitados
+        if (!fiesta.invitados || fiesta.invitados.length === 0) {
+          faltantes.push({
+            id: 'check_falta_invitados',
+            text: 'Revisar nómina inicial de invitados y estimación de asistentes',
+            completed: false,
+          });
+        }
+        // Música
+        if (!fiesta.musica?.playlistFiesta && !fiesta.musica?.cancionEntrada) {
+          faltantes.push({
+            id: 'check_falta_musica',
+            text: 'Coordinar canciones especiales (vals, entrada) y lista para el DJ',
+            completed: false,
+          });
+        }
+        // Cuotas / pagos
+        const cuotasImpagas = (fiesta.planDePagos?.cuotas || []).filter(c => c.estado !== 'pagado');
+        if (cuotasImpagas.length > 0) {
+          faltantes.push({
+            id: 'check_falta_cuotas',
+            text: `Repasar cuotas pendientes del plan de pagos (${cuotasImpagas.length} pendiente(s))`,
+            completed: false,
+          });
+        }
+      }
+
+      setFormChecklist([...faltantes, ...baseItems]);
     }
     setIsFormModalOpen(true);
   };
@@ -414,3 +461,4 @@ export default function GestionReunionesPageWrapper() {
     </Suspense>
   )
 }
+

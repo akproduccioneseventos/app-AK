@@ -109,6 +109,9 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
     } as FiestaEnPlanificacion['configuracion'] : {} as FiestaEnPlanificacion['configuracion'],
     clientPortalSettings: portalSettings as FiestaEnPlanificacion['clientPortalSettings'],
     clientePortalExperience: fiesta.clientePortalExperience,
+    // Orden 234, bloque 5: las 3 versiones de la web las ve la quinceañera para elegir (no llevan precios ni datos de pago).
+    propuestasDeWeb: fiesta.propuestasDeWeb,
+    propuestaDeWebElegida: fiesta.propuestaDeWebElegida,
     modulosContratados: fiesta.modulosContratados,
     contratoDatos: fiesta.contratoDatos ? {
       senia: fiesta.contratoDatos.senia,

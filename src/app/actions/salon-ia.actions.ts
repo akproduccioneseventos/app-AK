@@ -15,7 +15,7 @@ export async function autoAssignTables(
 
     // 1. Clonar lista para no mutar original
     const newInvitados = [...invitados].map(i => ({ ...i }));
-    
+
     // 2. Extraer mesas y su capacidad
     const availableTables = tables.filter((t): t is LayoutElement & { width: number; height: number } => (
       t.category?.toLowerCase().includes('mesa') === true &&
@@ -60,7 +60,7 @@ export async function autoAssignTables(
 
       // Intento A: Buscar mesa que ya tenga el mismo tag y tenga espacio
       if (inv.tag) {
-        const tableWithTag = tableSeats.find(t => 
+        const tableWithTag = tableSeats.find(t =>
           t.tags.has(inv.tag!) && (t.capacity - t.seatsOccupied) >= size
         );
         if (tableWithTag) {
@@ -239,3 +239,10 @@ function getMockBotResponse(message: string, fiesta: any): string {
 
   return '¡Hola! Te esperamos con muchas ganas en la fiesta. Cualquier duda, consultale al anfitrión.';
 }
+
+export async function suggestPalette(input: any) {
+  await requireAppSession();
+  const { suggestPalette: flow } = await import('@/ai/flows/suggest-palette-flow');
+  return flow(input);
+}
+

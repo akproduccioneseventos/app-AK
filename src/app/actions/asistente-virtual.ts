@@ -179,6 +179,13 @@ function detectarSenalCliente(texto: string): { esImportante: boolean; tipoSenal
 }
 
 export async function getConversacionesAsistenteCliente(fiestaId?: string) {
+  const { requirePermiso } = await import('@/lib/auth/require-session');
+  const { PERMISOS } = await import('@/lib/auth/perfiles');
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) {
+    throw new Error(permiso.error || 'No autorizado para ver consultas del cliente.');
+  }
+
   const { readData } = await import('@/lib/data-service');
   const todas = await readData<any[]>('asistente-cliente-conversaciones.json', []);
   if (fiestaId) {
@@ -276,7 +283,8 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
     const senal = detectarSenalCliente(newMessage);
 
     try {
-      const { createDataItem, readData, writeData } = await import('@/lib/data-service');
+      const { createDataItem } = await import('@/lib/data-service');
+      const { mutateGenericJsonArray } = await import('@/lib/generic-json-store');
       const regId = `conv_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
       const registro = {
         id: regId,
@@ -293,9 +301,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
       if (!SIN_BASE) {
         await createDataItem('asistente-cliente-conversaciones.json', 'asistente-cliente-conversaciones', regId, registro).catch(() => null);
       } else {
-        const list = await readData<any[]>('asistente-cliente-conversaciones.json', []);
-        list.push(registro);
-        await writeData('asistente-cliente-conversaciones.json', list);
+        await mutateGenericJsonArray<any>('asistente-cliente-conversaciones.json', (list) => [...list, registro]);
       }
 
       if (senal.esImportante) {
@@ -425,3 +431,4 @@ REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
     };
   }
 }
+

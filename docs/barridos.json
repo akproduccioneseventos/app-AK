@@ -534,6 +534,10 @@
     "orden-224": {
       "fecha": "2026-10-24",
       "resultado": "Codex 345 (factura ausente). Barrido de la pregunta 19 en src/app: 14 pantallas con 'cargando o no hay dato' que giran para siempre si la lectura no trae nada o falla. Todas en la orden 224 para Gemini. Descartadas las estaciones, que ya muestran 'Experiencia no disponible'."
+    },
+    "orden-237": {
+      "fecha": "2026-10-27",
+      "resultado": "Devolución de la 1365 (pregunta 52: una entrega arrancada de una versión vieja choca y deshace lo nuevo). Barrido: las otras ramas abiertas de Gemini (ordenes-196-202, 205-206) también arrancan de un main viejo; ninguna se fusiona sin juntar antes la versión publicada y pasar la puerta."
     }
   }
 }

@@ -696,6 +696,17 @@ export interface InvitacionDigitalData {
   }
 }
 
+export type PaletaTipoPropuesta = 'analoga' | 'contraste' | 'suave';
+export type TonoPropuesta = 'clasico' | 'moderno' | 'divertido';
+
+export interface PropuestaDeWeb {
+  id: string;
+  invitacionDigital: InvitacionDigitalData;
+  creadaEn: string;
+  paletaTipo?: PaletaTipoPropuesta;
+  tono?: TonoPropuesta;
+}
+
 interface PortalModuleSettings {
   visible: boolean;
   editable: boolean;
@@ -1017,6 +1028,11 @@ export interface ScreenModeSettings {
   playlist: ScreenPlaylistItem[];
 }
 
+export interface BriefDj {
+  texto: string;
+  generadoEn: string;
+}
+
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
@@ -1024,6 +1040,7 @@ export interface MusicaFiesta {
   playlistFiesta?: string;
   listaNoReproducir?: string;
   sugerenciasInvitados?: string;
+  briefDj?: BriefDj | string;
 }
 
 export interface Trago {
@@ -1578,6 +1595,8 @@ export interface FiestaEnPlanificacion {
   clientNotes?: string;
   invitacionDigital?: InvitacionDigitalData;
   invitacionConfig?: InvitacionDigitalConfig;
+  propuestasDeWeb?: PropuestaDeWeb[];
+  propuestaDeWebElegida?: string;
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
   contratoServicioTexto?: string;
@@ -2005,5 +2024,6 @@ export interface AjustesEstacionEntretenimiento {
   marcosHabilitados?: string[];
   [key: string]: unknown;
 }
+
 
 

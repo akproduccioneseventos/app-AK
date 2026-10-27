@@ -194,7 +194,16 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
                 </div>
             </section>
 
-             <section>
+             {musica.briefDj && (
+              <section>
+                <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2">Notas para el DJ (IA Briefing)</h2>
+                <div className="text-sm print:text-xs text-gray-800 whitespace-pre-line bg-indigo-50 border border-indigo-200 p-3 rounded-md font-mono">
+                  {typeof musica.briefDj === 'string' ? musica.briefDj : musica.briefDj.texto}
+                </div>
+              </section>
+            )}
+
+            <section>
                 <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2">Playlist y Sugerencias</h2>
                 <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-gray-50 p-2 rounded-md">{musica.playlistFiesta || 'No hay sugerencias generales.'}</p>
             </section>
@@ -226,3 +235,4 @@ export default function MusicaPdfPageWrapper() {
     </Suspense>
   )
 }
+

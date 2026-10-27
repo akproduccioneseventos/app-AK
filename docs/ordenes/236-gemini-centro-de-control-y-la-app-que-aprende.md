@@ -150,6 +150,9 @@ Corré esas solas, después `npx tsc --noEmit`, `npx jest --silent` y `npm run "
 ```comprobar
 archivo: src/app/(app)/centro-de-control/page.tsx
 archivo: src/lib/ia/reglas-de-la-ia.ts
+# Bloque 3 — órdenes en una frase
+usa: darOrdenPorVozOTexto en src/app/(app)/centro-de-control/page.tsx
+archivo: src/lib/ia/aprender-de-lo-aprobado.ts
 usa: Para tu OK en src/app/(app)/centro-de-control/page.tsx
 usa: Tus reglas en src/app/(app)/centro-de-control/page.tsx
 usa: Lo que hizo sola en src/app/(app)/centro-de-control/page.tsx

@@ -1,4 +1,7 @@
 'use client';
+// Bloque 7: Se apoya en generateTestimonialFlow en el servidor
+
+import { generateTestimonialAction, getResumenFeedbackMensualAction } from '@/app/actions/feedback';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
@@ -36,6 +39,7 @@ export default function FeedbackPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [fiestaIdActual, setFiestaIdActual] = useState<string>('');
   const [generatingFeedbackId, setGeneratingFeedbackId] = useState<string | null>(null);
+  const [resumenMensual, setResumenMensual] = useState<any>(null);
 
   // State for post creation dialog
   const [postToCreate, setPostToCreate] = useState<Partial<SocialPost> | null>(null);
@@ -45,7 +49,13 @@ export default function FeedbackPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [feedbackData, testimonialsData, fiestaActual] = await Promise.all([getFeedback(), getAllTestimonials(), getFiestaActual()]);
+      const [feedbackData, testimonialsData, fiestaActual, resumen] = await Promise.all([
+        getFeedback(),
+        getAllTestimonials(),
+        getFiestaActual(),
+        getResumenFeedbackMensualAction().catch(() => null),
+      ]);
+      setResumenMensual(resumen);
       setFeedbackList(feedbackData);
       setTestimonials(testimonialsData);
       if(fiestaActual) setFiestaIdActual(fiestaActual.id);
@@ -93,10 +103,8 @@ export default function FeedbackPage() {
   const handleGenerateTestimonial = async (feedback: FeedbackSubmission) => {
     setGeneratingFeedbackId(feedback.id);
     try {
-      const source = feedback.generalComments?.trim() || feedback.enjoyedMost.trim();
-      const testimonialText = feedback.generalComments?.trim()
-        ? source
-        : `Lo que mas disfrutamos fue ${source.charAt(0).toLowerCase()}${source.slice(1)}.`;
+      const gen = await generateTestimonialAction(feedback);
+      const testimonialText = gen.testimonial || feedback.generalComments?.trim() || feedback.enjoyedMost;
       const result = await saveTestimonial({
         feedbackId: feedback.id,
         fiestaId: feedback.fiestaId,
@@ -367,3 +375,4 @@ export default function FeedbackPage() {
     </div>
   );
 }
+

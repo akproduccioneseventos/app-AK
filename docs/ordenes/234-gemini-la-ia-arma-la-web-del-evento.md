@@ -134,6 +134,8 @@ web completa en segundos → se ajusta conversando. Lo nuestro tiene que ser má
 - Después de elegir, el equipo la retoca en el editor de siempre.
 
 ```comprobar
+# Bloque 5 — tres versiones
+archivo: src/app/portal-cliente/[id]/tu-web/page.tsx
 usa: propuestasDeWeb en src/app/actions/fiesta/armar-web-con-ia.actions.ts
 usa: verifyPortalSession en src/app/actions/fiesta/armar-web-con-ia.actions.ts
 usa: elegirPropuestaDeWeb en src/app/portal-cliente/[id]/tu-web/page.tsx

@@ -1,3 +1,4 @@
+import { generateSocialPostFlow } from '@/ai/flows/generate-social-post-flow';
 import 'server-only';
 
 import type { SocialPost } from '@/types/social-media';
@@ -203,3 +204,4 @@ export async function autoGenerarBorradoresSemanales(): Promise<AutoGeneracionSe
     posts: nuevosBorradores,
   };
 }
+

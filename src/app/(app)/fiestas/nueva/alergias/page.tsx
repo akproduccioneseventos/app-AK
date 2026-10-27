@@ -1,5 +1,8 @@
 'use client';
 
+import { getMenuById } from '@/app/actions/menus-catering';
+import type { FullMenu } from '@/types/catering';
+import { detectarChoquesMenuYAlergias, type ChoqueAlergiaPlato } from '@/lib/catering/choques-alergias';
 import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,6 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+import { avisarChoquesDeAlergiasACocina } from '@/app/actions/fiesta/avisar-alergias.actions';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion, Invitado, DietaryRestriction } from '@/types/fiesta';
 
@@ -39,6 +43,9 @@ function AlergiasContent() {
   const fiestaId = searchParams.get('fiestaId');
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [menu, setMenu] = useState<FullMenu | null>(null);
+  const [avisoCocinaEnviado, setAvisoCocinaEnviado] = useState(false);
+  const [enviandoAviso, setEnviandoAviso] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -46,14 +53,22 @@ function AlergiasContent() {
     if (!fiestaId) { router.replace('/eventos'); return; }
     setIsLoading(true);
     getFiestaById(fiestaId)
-      .then(data => {
+      .then(async data => {
         if (!data) { router.replace('/eventos'); return; }
         setFiesta(data);
+        if (data.menuAsignadoId) {
+          try {
+            const menuData = await getMenuById(data.menuAsignadoId);
+            setMenu(menuData);
+          } catch {
+            setMenu(null);
+          }
+        }
       })
       .finally(() => setIsLoading(false));
   }, [fiestaId, router]);
 
-  const allGuests = fiesta?.invitados ?? [];
+  const allGuests = useMemo(() => fiesta?.invitados ?? [], [fiesta?.invitados]);
   const confirmedGuests = allGuests.filter(g => g.rsvp === 'Confirmado');
   const guestsWithRestrictions = confirmedGuests.filter(
     g => g.dietaryRestriction && g.dietaryRestriction !== 'Ninguna'
@@ -70,6 +85,10 @@ function AlergiasContent() {
   const contarPersonas = (lista: typeof allGuests) =>
     lista.reduce((sum, g) => sum + (g.partySize || 1), 0);
 
+
+  const choquesMenuAlergias = useMemo(() => {
+    return detectarChoquesMenuYAlergias(menu, allGuests);
+  }, [menu, allGuests]);
   const totalConfirmados = contarPersonas(confirmedGuests);
   const personasConRestricciones = contarPersonas(guestsWithRestrictions);
 
@@ -153,6 +172,76 @@ function AlergiasContent() {
           <p className="text-sm text-muted-foreground">{fiesta?.configuracion.nombreEvento} · Alergias y dietas para catering</p>
         </div>
       </div>
+
+      {/* Alerta de Choques entre Menú y Alergias (Bloque 11) */}
+      {choquesMenuAlergias.length > 0 && (
+        <Card className="border-rose-300 bg-rose-50/70 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-bold text-rose-800 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-rose-600" />
+                Alerta de Choques: Menú Asignado vs Restricciones de Invitados
+              </CardTitle>
+              <Button
+                size="sm"
+                variant={avisoCocinaEnviado ? "outline" : "destructive"}
+                className={avisoCocinaEnviado ? "border-emerald-500 text-emerald-700 bg-emerald-50" : ""}
+                disabled={avisoCocinaEnviado || enviandoAviso}
+                onClick={async () => {
+                  if (!fiestaId) return;
+                  setEnviandoAviso(true);
+                  try {
+                    const res = await avisarChoquesDeAlergiasACocina(
+                      fiestaId,
+                      choquesMenuAlergias.map((c) => ({
+                        platoNombre: c.platoNombre,
+                        restriccion: c.restriccion,
+                        personasAfectadas: c.personasAfectadas,
+                      })),
+                    );
+                    if (res.success) {
+                      setAvisoCocinaEnviado(true);
+                      toast({
+                        title: "Aviso enviado a Cocina",
+                        description: `Se dejó el aviso para el equipo con ${choquesMenuAlergias.length} choques de ingredientes.`,
+                      });
+                    } else {
+                      toast({ title: "No se pudo avisar a cocina", description: res.error || 'Probá de nuevo.', variant: 'destructive' });
+                    }
+                  } catch (err) {
+                    toast({ title: "No se pudo avisar a cocina", description: err instanceof Error ? err.message : 'Probá de nuevo.', variant: 'destructive' });
+                  } finally {
+                    setEnviandoAviso(false);
+                  }
+                }}
+              >
+                <ChefHat className="w-4 h-4 mr-1.5" />
+                {avisoCocinaEnviado ? 'Aviso Enviado a Cocina' : 'Enviar Aviso a Cocina'}
+              </Button>
+            </div>
+            <CardDescription className="text-rose-700 text-xs">
+              Se detectaron ingredientes que colisionan con las restricciones de los invitados confirmados.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 pt-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {choquesMenuAlergias.map((c, i) => (
+                <div key={i} className="p-2.5 bg-white rounded-lg border border-rose-200 text-xs space-y-1">
+                  <div className="flex justify-between font-bold text-rose-900">
+                    <span>{c.platoNombre} ({c.tipoPlato})</span>
+                    <Badge variant="destructive" className="text-[10px] h-5">
+                      {c.personasAfectadas} pax
+                    </Badge>
+                  </div>
+                  <p className="text-slate-600">
+                    Choca con: <span className="font-semibold text-rose-700">{c.restriccion}</span> ({c.ingredientesEnConflicto.join(', ')})
+                  </p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Summary KPIs */}
       <div className="grid grid-cols-3 gap-3">
@@ -343,3 +432,4 @@ export default function AlergiasPage() {
     </Suspense>
   );
 }
+
