@@ -79,13 +79,13 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
                 <MapPin className="h-5 w-5 text-red-700" aria-hidden="true" />
                 <p className="mt-3 font-black text-slate-950">Pleno centro de Salto</p>
-                <p className="mt-1 text-xs sm:text-sm text-slate-600">Club Uruguay, ubicación estratégica e histórica.</p>
+                <p className="mt-1 text-sm text-slate-600">Club Uruguay, ubicación estratégica e histórica.</p>
               </div>
               {capacity !== undefined && capacity > 0 && (
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
                   <Users className="h-5 w-5 text-red-700" aria-hidden="true" />
                   <p className="mt-3 font-black text-slate-950">Hasta {capacity} invitados</p>
-                  <p className="mt-1 text-xs sm:text-sm text-slate-600">Capacidad informada para este salón.</p>
+                  <p className="mt-1 text-sm text-slate-600">Capacidad informada para este salón.</p>
                 </div>
               )}
             </div>

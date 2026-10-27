@@ -171,25 +171,25 @@ export function PublicFooter({ className }: PublicFooterProps) {
             </h4>
             <ul className="space-y-3 text-xs font-semibold text-zinc-300">
               <li>
-                <Link href="/club-uruguay" className="hover:text-white transition-colors flex items-center gap-2 group">
+                <Link href="/club-uruguay" className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500 group-hover:w-3 transition-all duration-300" />
                   Salón Club Uruguay (Exclusivo)
                 </Link>
               </li>
               <li>
-                <a href="#landing-services" onClick={(e) => handleAnchorClick(e, '#landing-services')} className="hover:text-white transition-colors flex items-center gap-2 group">
+                <a href="#landing-services" onClick={(e) => handleAnchorClick(e, '#landing-services')} className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
                   Gastronomía Gourmet & Catering
                 </a>
               </li>
               <li>
-                <a href="#landing-services" onClick={(e) => handleAnchorClick(e, '#landing-services')} className="hover:text-white transition-colors flex items-center gap-2 group">
+                <a href="#landing-services" onClick={(e) => handleAnchorClick(e, '#landing-services')} className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
                   Discoteca & Pistas de Luces LED
                 </a>
               </li>
               <li>
-                <a href="#landing-technology" onClick={(e) => handleAnchorClick(e, '#landing-technology')} className="hover:text-white transition-colors flex items-center gap-2 group">
+                <a href="#landing-technology" onClick={(e) => handleAnchorClick(e, '#landing-technology')} className="min-h-10 hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
                   Plataforma 360° & Fotocabina QR
                 </a>
@@ -205,26 +205,26 @@ export function PublicFooter({ className }: PublicFooterProps) {
             </h4>
             <ul className="space-y-3 text-xs font-semibold text-zinc-300">
               <li>
-                <Link href="/simulador-de-presupuesto" className="hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link href="/simulador-de-presupuesto" className="min-h-10 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="text-red-400 group-hover:translate-x-0.5 transition-transform">→</span>
                   Simulador de Presupuesto
                   <ArrowUpRight className="w-3 h-3 text-red-400" aria-hidden="true" />
                 </Link>
               </li>
               <li>
-                <a href="#landing-gallery" onClick={(e) => handleAnchorClick(e, '#landing-gallery')} className="hover:text-white transition-colors flex items-center gap-1.5 group">
+                <a href="#landing-gallery" onClick={(e) => handleAnchorClick(e, '#landing-gallery')} className="min-h-10 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="text-zinc-500 group-hover:text-white transition-colors">→</span>
                   Galería de Eventos Reales
                 </a>
               </li>
               <li>
-                <Link href="/public/blog" className="hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link href="/public/blog" className="min-h-10 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="text-zinc-500 group-hover:text-white transition-colors">→</span>
                   Blog & Guías de Organización
                 </Link>
               </li>
               <li>
-                <a href="#landing-testimonials-faq" onClick={(e) => handleAnchorClick(e, '#landing-testimonials-faq')} className="hover:text-white transition-colors flex items-center gap-1.5 group">
+                <a href="#landing-testimonials-faq" onClick={(e) => handleAnchorClick(e, '#landing-testimonials-faq')} className="min-h-10 hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="text-zinc-500 group-hover:text-white transition-colors">→</span>
                   Testimonios & Preguntas Frecuentes
                 </a>
@@ -245,7 +245,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true" />
-                <a href={`tel:+${AK_WHATSAPP_NUMBER}`} className="hover:text-white transition-colors font-bold">{AK_WHATSAPP_PARA_MOSTRAR}</a>
+                <a href={`tel:+${AK_WHATSAPP_NUMBER}`} className="inline-flex min-h-10 items-center hover:text-white transition-colors font-bold">{AK_WHATSAPP_PARA_MOSTRAR}</a>
               </p>
               <p className="text-[11px] text-zinc-400 pt-1 border-t border-white/5 leading-relaxed">
                 Coordinación presencial el día de tu celebración.
@@ -292,17 +292,17 @@ export function PublicFooter({ className }: PublicFooterProps) {
             <span className="hidden sm:inline text-zinc-600">·</span>
             <p className="text-zinc-500">
               Tus datos se tratan según la{' '}
-              <Link href="/privacidad" className="hover:text-zinc-300 underline underline-offset-2 transition">
+              <Link href="/privacidad" className="inline-flex min-h-10 items-center hover:text-zinc-300 underline underline-offset-2 transition">
                 Ley 18.331
               </Link>{' '}
               de Protección de Datos Personales.
             </p>
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/club-uruguay" className="hover:text-white transition">Club Uruguay</Link>
-            <Link href="/simulador-de-presupuesto" className="hover:text-white transition">Simulador</Link>
-            <Link href="/privacidad" className="hover:text-white transition">Privacidad</Link>
-            <Link href="/login" className="hover:text-white transition text-zinc-500">Acceso Staff</Link>
+            <Link href="/club-uruguay" className="inline-flex min-h-10 items-center hover:text-white transition">Club Uruguay</Link>
+            <Link href="/simulador-de-presupuesto" className="inline-flex min-h-10 items-center hover:text-white transition">Simulador</Link>
+            <Link href="/privacidad" className="inline-flex min-h-10 items-center hover:text-white transition">Privacidad</Link>
+            <Link href="/login" className="inline-flex min-h-10 items-center hover:text-white transition text-zinc-500">Acceso Staff</Link>
           </div>
         </div>
 

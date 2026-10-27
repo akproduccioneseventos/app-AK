@@ -25,7 +25,7 @@ export function AvisoDeDatos({ para = 'cliente', className = '' }: AvisoDeDatosP
       <span>{textoPrincipal}</span>
       <Link
         href="/privacidad"
-        className="underline underline-offset-2 hover:text-foreground transition-colors"
+        className="inline-flex min-h-10 items-center underline underline-offset-2 hover:text-foreground transition-colors"
       >
         Privacidad
       </Link>

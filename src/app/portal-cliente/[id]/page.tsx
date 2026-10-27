@@ -429,7 +429,7 @@ export default function PortalClientePage() {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 underline underline-offset-4"
+                  className="inline-flex min-h-10 items-center text-xs font-semibold text-emerald-600 dark:text-emerald-400 underline underline-offset-4"
                 >
                   No uso correo: pedirla por WhatsApp
                 </a>

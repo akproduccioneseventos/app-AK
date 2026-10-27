@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Celular y tablet: botones tocables y títulos sin cortar (pedido del dueño)
+
+- Se midió la versión compilada en 390x844 y 820x1180 sobre portada, landings, blog, tecnología, experiencia, portal del
+  cliente, invitación, álbum y estaciones públicas. Ninguna página se corría para el costado; lo que fallaba era chico:
+  en celular 312 botones y enlaces tocables de menos de 40 px (pie de página, pestañas de la portada, "Probalo",
+  álbum, galería, buzón, muro) y los títulos de los pasos de `/experiencia` cortados con puntos suspensivos.
+  Ahora el tamaño mínimo es `min-h-10`/`min-h-11`, `Button size="sm"` pasó de 36 a 40 px y los títulos envuelven.
+- A propósito NO se tocó: los resúmenes con `line-clamp` (tarjetas del blog y del catálogo, a dos o tres líneas), los
+  textos, precios, promociones, el reloj del simulador ni el orden de las secciones. Los párrafos de las secciones
+  de la portada pasaron de 12 a 14 px en celular; el resto de la letra chica (etiquetas) se dejó como estaba.
+- Por qué así: un dedo no acierta por debajo de 40 px y un título con "..." esconde palabras. La prueba mide el
+  resultado en pantalla (alto del botón y `scrollWidth`), no que exista una clase.
+
+```comprobar
+archivo: src/components/public-footer.tsx
+usa: min-h-10 en src/components/public-footer.tsx
+usa: h-10 en src/components/ui/button.tsx
+usa: break-words en src/app/experiencia/page.tsx
+prueba: tests/e2e/celular-y-tablet-sin-cortes.spec.ts
+```
+
 ## 26/10/2026 - Once controles de permisos más dejaron de mirar el rol viejo (orden 233)
 
 - Borrado de la base, consumo de IA, blog con IA, automatización de marketing, la ficha de otro usuario y la carga

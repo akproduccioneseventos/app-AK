@@ -579,7 +579,7 @@ export default function LoginPage() {
                 Ingresar con Google
               </Button>
 
-              <Button asChild variant="link" className="h-auto p-0 text-xs mt-2">
+              <Button asChild variant="link" className="h-auto min-h-10 p-0 text-xs mt-2">
                 <a href="/login?mode=recovery" onClick={openRecovery}>
                 Olvide mi contraseña
                 </a>

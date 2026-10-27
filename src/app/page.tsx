@@ -326,12 +326,12 @@ function SalonSkeleton() {
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <MapPin className="h-5 w-5 text-red-700" aria-hidden="true" />
               <p className="mt-3 font-black text-slate-950">Centro de Salto</p>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600">Club Uruguay, un salón conocido para celebrar.</p>
+              <p className="mt-1 text-sm text-slate-600">Club Uruguay, un salón conocido para celebrar.</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <Users className="h-5 w-5 text-red-700" aria-hidden="true" />
               <p className="mt-3 font-black text-slate-950">Salón para eventos</p>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600">Espacio preparado para grandes celebraciones.</p>
+              <p className="mt-1 text-sm text-slate-600">Espacio preparado para grandes celebraciones.</p>
             </div>
           </div>
         </div>

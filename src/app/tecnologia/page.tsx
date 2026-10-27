@@ -33,7 +33,7 @@ export default function TecnologiaPage() {
       {/* Barra superior institucional */}
       <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 min-h-10">
             <span className="font-extrabold text-xl tracking-wider text-amber-400">AK</span>
             <span className="text-xs uppercase tracking-widest text-slate-400">Eventos</span>
           </Link>
@@ -127,7 +127,7 @@ export default function TecnologiaPage() {
                         <span className="text-[11px] text-slate-500 font-mono">
                           {item.rutaApp}
                         </span>
-                        <Button size="sm" variant="ghost" asChild className="text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 text-xs p-1 h-auto">
+                        <Button size="sm" variant="ghost" asChild className="text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 text-xs px-3 py-1 min-h-11">
                           <Link href={`/experiencia?paso=${item.pasoDemo}`}>
                             Probalo
                             <ArrowRight className="w-3.5 h-3.5 ml-1" />
