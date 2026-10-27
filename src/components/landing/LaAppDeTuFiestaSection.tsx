@@ -19,7 +19,6 @@ import {
   MessageSquare,
   Wine,
   Heart,
-  ChevronRight,
   Tv,
 } from "lucide-react";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
@@ -281,7 +280,7 @@ export function LaAppDeTuFiestaSection({
               </div>
 
               <p className="text-xs text-slate-400">
-                * Muestra interactiva pedagógica con datos de prueba. No publica ni emite mensajes reales.
+                * Es un ejemplo con datos de prueba: no manda mensajes de verdad.
               </p>
             </div>
 
@@ -633,27 +632,6 @@ export function LaAppDeTuFiestaSection({
                 </AnimatePresence>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Cierre y Transparencia */}
-        <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 sm:p-8">
-          <p className="font-medium text-slate-800">
-            ¿Querés ver la app funcionando con una fiesta como la tuya?
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Te mostramos qué partes de la app usaría tu fiesta (15, boda, cumpleaños o empresa), según los servicios que elijas.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 font-bold text-red-600 hover:text-red-700"
-            >
-              Pedinos que te la mostremos por WhatsApp
-              <ChevronRight className="h-4 w-4" />
-            </a>
           </div>
         </div>
       </div>
