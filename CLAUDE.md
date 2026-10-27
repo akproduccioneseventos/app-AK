@@ -1390,7 +1390,9 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
-- **Claude se despierta solo y revisa lo que entregan Gemini y Codex (20 de octubre de 2026).**
+- **Los despertadores automáticos quedaron APAGADOS (27 de octubre de 2026).** Palabras del dueño: *"apagala"*, porque gastaban de su plan cada media hora aunque no hubiera nada. Ahora el dueño avisa "terminó" y recién ahí se revisa. No se vuelven a prender sin que lo pida.
+
+- **Claude se despierta solo y revisa lo que entregan Gemini y Codex (20 de octubre de 2026; reemplazada por la de arriba).**
   Palabras suyas: *"cuando ellos terminen, tú lo detectas y trabajas solo; te activas solo"*. Hay un
   despertador cada hora que mira las propuestas abiertas.
   - Si hay algo nuevo, se revisa con ayudantes económicos: lista de controles, `formas-ya-arregladas`,
