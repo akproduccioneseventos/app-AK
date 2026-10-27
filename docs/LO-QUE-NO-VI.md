@@ -1350,6 +1350,8 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 246 → no es un defecto
 - Orden 247 → pregunta 105
 - Orden 248 → no es un defecto
+- Auditoria 719 (perfil inválido con rol admin entra como dueño) → pregunta 107
+- Auditoria 717 (Caipirinha fuera de "Con alcohol") → pregunta 104
 - Auditoria Gemini 20/10 (despertador bloqueado por la puerta) → pregunta 74
 - Auditoria Gemini 20/10 (eco de WhatsApp sin isEcho) → pregunta 75
 - Auditoria Gemini 20/10 (ingreso con Google sin perfil) → pregunta 76

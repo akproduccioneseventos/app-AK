@@ -243,3 +243,4 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 75. **¿Tu asistente no sabe algo?** Que pregunte o diga que no sabe; nada de nombres o datos de ejemplo.
 76. **¿Pusiste un "guardar con cuidado" sólo para algunos perfiles?** Mirá el otro lado: el dueño también abre pantallas viejas.
 77. **¿Tu permiso sale de una cookie o un enlace?** Fijate qué pasa si mañana se da de baja a esa persona: la llave vieja no puede seguir abriendo.
+78. **¿Pusiste un "si no es válido, usá esto otro"?** Que lo roto dé menos permisos, nunca más.

@@ -209,12 +209,22 @@ no-usa: en tiempo real en src/app/(app)/admin/page.tsx
 `perfilDesdeRolViejo(role)`. Con `role: 'admin'` eso da `dueno` con todos los permisos. Codex lo reprodujo con
 una sesión firmada: un perfil desconocido más `role: 'admin'` entra al panel privado.
 
-**Qué hacer:**
+**Qué hacer.** `YA-RESUELTO.md` (~34-37) dice que **`perfilDe` no se cambia**: el rechazo está en `requireAdminSession` y
+`requirePermiso` (`src/lib/auth/require-session.ts:32,54`). El agujero está en **quien arma la sesión**.
 
-- Si `perfil` **viene** y no es válido, `puede` devuelve `false` para todo y la guardia rechaza.
-- Si `perfil` **no viene** (una cuenta vieja de verdad), sigue la conversión de hoy.
-- Revisá quién más llama a `perfilDe` antes de cambiarlo. Puede ser el menú o la guardia del cliente
-  (`src/components/auth-guard.tsx`).
+- **`src/app/actions/simple-auth.ts:910` y `src/app/actions/auth.ts:508,821,872,903`** hacen
+  `esPerfilValido(p) ? p : perfilDesdeRolViejo(role)`. Así un `perfil` guardado roto con `role: 'admin'` sale en la
+  cookie como `dueno` válido, y el rechazo nunca se dispara.
+  - Si el `perfil` **viene** y es inválido, no se entra: "Tu usuario tiene un perfil que no existe. Pedile al dueño
+    que lo corrija."
+  - Sólo cuando el `perfil` **falta** se cae al rol viejo.
+- **Lo que usa `perfilDe` o `puede` sin pasar por `require-session`** también tiene que negar con un perfil presente e
+  inválido. Agregá esa comprobación en cada uno, sin tocar `perfilDe`:
+  - `src/app/actions/sesion.ts:17` (`getMisPermisos`);
+  - `src/components/main-nav.tsx:89`. Ojo: ahí el campo se lee como `profile` y no como `perfil` (~85), y está mal;
+  - `src/app/actions/asistente-proactivo.actions.ts:34,62`;
+  - `google-workspace.ts:451`;
+  - `recortar-para-afuera.ts:132`.
 
 **Criterios de la prueba**, que son los de Codex. Tienen que comprobar:
 
