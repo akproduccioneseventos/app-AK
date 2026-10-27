@@ -1,5 +1,41 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex704: dialogo de propuestas auditado, NO corregido
+
+- AK-CODEX-704-DIALOGO-PROPUESTAS:mainc0add57f, consumidores identicos Claude0c355975.
+  Tres valores nuevos (nombre/fecha/salon) quedan locales y el generador lee viejos;
+  color y control original pasan. Un defecto,5criterios2PASS3FAIL. Orden239/informe705.
+- Callback y accion reales con fronteras ficticias, no navegador/SDK/modelo real.
+  No appedit ni repetir seis pendientes703. Agente barato cerrado; ausencia de
+  simbolo sugerida por su busqueda fue descartada por la extraccion/ejecucion real.
+
+## 27/10/2026 - Retest702/703: correcciones presentes y pendientes separados
+
+- Mainc0add57f6237f666db97e7e902ef75f6c8d97479:22criterios15PASS7FAIL,
+  seis grupos aun abiertos. Sustituye estado anterior b58 de697-700, no sus recibos.
+- Cerrados por alcance: F enlace con texto corregido; G lectura compartida entre
+  instancias y conservacion de regla ajena en cambios secuenciales. A ahora guarda
+  web/detecta error; C propaga varios errores y devuelve tarjeta. NO reencargarlos.
+- Restan A fiesta/nombre fijo, B respuestas inventadas, C post inexistente,
+  D perdida de aprobacion concurrente, E email enviado sin envio, H fallo remoto
+  de regla reportado como exito. Orden238 actualizada, no crear otra igual.
+- 701 fallo por fronteras QA viejas;702 adapta imports/setter/telefono y lector.
+  No appedit/build/SDK/browser renderizado/servicios reales; finales0erroresQA.
+
+## 26/10/2026 - Codex697-700: centro236 auditado, NO corregido
+
+- PR1365/b58abab75d94a732daf79b32aff54ec253ccf63c:22criterios5PASS17FAIL,
+  ocho grupos A-H en informe700/orden238, complemento de237Claude.
+- Web anuncia creada sin guardar; respuestas fijas; rechazos ocultos; aprobaciones
+  pierden una; correo marcado enviado sin envio; enlace usa texto viejo; reglas
+  divergentes entre instancias y fallo remoto reportado como exito.
+- TS real con fronteras ficticias y callback real porAST, noHTTP/browser/SDK/modelo.
+  No se corrigio app ni se corrio build. Retest solo ante delta publicado.
+- Inicial698 import default path/fs fue errorQA archivado, noapp. Final0erroresQA.
+- Agente cerrado; sospechas UI sinreproduccion no son hallazgos. CierresD4 vigentes.
+- Claude cddd22c0/237 y comentarios previos1365 contrastados, no reemitidos.
+  NO CONTRASTADO CON CAMBIOS PRIVADOS NO PUBLICADOS.
+
 ## 26/10/2026 - Once controles de permisos más dejaron de mirar el rol viejo (orden 233)
 
 - Borrado de la base, consumo de IA, blog con IA, automatización de marketing, la ficha de otro usuario y la carga
