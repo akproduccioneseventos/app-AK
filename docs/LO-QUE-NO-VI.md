@@ -1350,6 +1350,8 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Orden 243 → no es un defecto
 - Orden 244 → pregunta 92
 - Orden 245 → no es un defecto
+- Orden 246 → no es un defecto
+- Orden 247 → pregunta 105
 - Auditoria Gemini 20/10 (despertador bloqueado por la puerta) → pregunta 74
 - Auditoria Gemini 20/10 (eco de WhatsApp sin isEcho) → pregunta 75
 - Auditoria Gemini 20/10 (ingreso con Google sin perfil) → pregunta 76
