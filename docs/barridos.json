@@ -381,6 +381,14 @@
       "fecha": "2026-10-23",
       "resultado": "barrida por el candado de la plata en todas las acciones del servidor: en la rama de Claude, ninguna acción llama a un ayudante de plata sin pedir permiso; en la entrega 1353 de Gemini frena updateGestionCostosInterno (devuelta en la orden 220)."
     },
+    "96": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src/app y los .css globales: la única regla general que pinta fondo es main.flex-1 en ak-global-premium.css; tiñe cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz en la orden 223 para Gemini."
+    },
+    "97": {
+      "fecha": "2026-10-24",
+      "resultado": "barrida en src (sin pruebas) en la rama de Claude y en la entrega 1353: la única función que clasifica un error leyendo números de estado en el texto es esRechazoConocido del recordatorio a invitados. Orden 225 para Gemini. Las demás expresiones sobre mensajes son de intención del asistente, no de errores."
+    },
     "98": {
       "fecha": "2026-10-26",
       "resultado": "barrida en src/app y src/lib sobre la 1353+Codex: once controles de permiso comparan role con 'admin' (ai-consumo, blog-ai, marketing-automation x3, api/marketing/automation, api/admin/clean-db, auth.ts 741, carga-operativa, motor-agentes x2). Orden 233 urgente para Gemini. Quedan afuera el ingreso (auth.ts 455-486) y perfiles.ts."
@@ -388,14 +396,6 @@
     "99": {
       "fecha": "2026-10-26",
       "resultado": "barrida por Codex en la 1353 (orden 229): video con marco sin audio y captura vacía presentada como lista; arreglado en la propuesta 1363 (recorded-video.ts, video-frame-processor.ts) con sus pruebas. Pendiente que Gemini lo junte en la 1353 (orden 232)."
-    },
-    "97": {
-      "fecha": "2026-10-24",
-      "resultado": "barrida en src (sin pruebas) en la rama de Claude y en la entrega 1353: la única función que clasifica un error leyendo números de estado en el texto es esRechazoConocido del recordatorio a invitados. Orden 225 para Gemini. Las demás expresiones sobre mensajes son de intención del asistente, no de errores."
-    },
-    "96": {
-      "fecha": "2026-10-24",
-      "resultado": "barrida en src/app y los .css globales: la única regla general que pinta fondo es main.flex-1 en ak-global-premium.css; tiñe cinco pantallas oscuras (barra lista, buzón, en vivo, experiencia, tecnología). Arreglo de raíz en la orden 223 para Gemini."
     },
     "100": {
       "fecha": "2026-10-26",
@@ -408,6 +408,14 @@
     "102": {
       "fecha": "2026-10-26",
       "resultado": "barrida en createNotification, sendPushNotificationToAll, avisarAlDuenio, getNotifications, tablero y torre de control: todo aviso salía con su texto a todos los teléfonos y la lista se mostraba entera. Arreglado de raíz: al teléfono va texto genérico si es de plata (textoParaElTelefono) y getNotifications oculta los de plata sin permiso de contabilidad."
+    },
+    "103": {
+      "fecha": "2026-10-27",
+      "resultado": "parcial: además de crear 3 propuestas (Codex 704), 'Sincronizar desde presupuesto' en fiestas/nueva/configuracion recarga y pierde lo escrito en los últimos 2 s; armar escena en invitados/layout usa memoria (bajo riesgo). Se arreglan en la tanda de la 1366."
+    },
+    "104": {
+      "fecha": "2026-10-27",
+      "resultado": "parcial: además de 'Sofía' en el Centro de control, rellenos fijos: 'Agasajado' en la web con IA si falla el modelo, tipo 'Fiesta' en el borrador de presupuesto del asistente, 'Evento (Salón)' en el monitor en vivo. Se arreglan en la tanda de la 1366."
     }
   },
   "hallazgos": {
@@ -538,6 +546,10 @@
     "orden-237": {
       "fecha": "2026-10-27",
       "resultado": "Devolución de la 1365 (pregunta 52: una entrega arrancada de una versión vieja choca y deshace lo nuevo). Barrido: las otras ramas abiertas de Gemini (ordenes-196-202, 205-206) también arrancan de un main viejo; ninguna se fusiona sin juntar antes la versión publicada y pasar la puerta."
+    },
+    "orden-239": {
+      "fecha": "2026-10-27",
+      "resultado": "bien, crearTresPropuestasDeWeb recibe los datos del diálogo antes del autoguardado"
     }
   }
 }

@@ -358,4 +358,39 @@ describe('Orden 234 — La IA arma la web sin inventar', () => {
     expect(estado.invitacionDigital.regalos.datosBancarios).toBe('BROU 001-123456-7');
     expect(estado.invitacionDigital.regalos.items).toHaveLength(1);
   });
+
+  it('Orden 239 — crearTresPropuestasDeWeb aplica y guarda los datos del diálogo', async () => {
+    let fiestaGuardada: any = null;
+    const fiestaInicial: any = {
+      id: 'f-dialogo',
+      configuracion: { nombreEvento: '15 de Clara', tipoCelebracion: '15' },
+      invitacionConfig: {
+        nombreHomenajeada: 'Clara Anterior',
+        fechaEvento: '2026-10-10',
+        nombreSalon: 'Salón Anterior',
+        colorPrincipal: '#111111',
+      },
+    };
+
+    (getFiestaById as jest.Mock).mockResolvedValue(fiestaInicial);
+    (saveFiesta as jest.Mock).mockImplementation(async (f: any) => {
+      fiestaGuardada = f;
+      return { success: true, fiesta: f };
+    });
+
+    const res = await crearTresPropuestasDeWeb('f-dialogo', '#ff00aa', {
+      nombreHomenajeada: 'Clara Nueva',
+      fechaEvento: '2027-05-15',
+      nombreSalon: 'Salón Las Rosas',
+    });
+
+    expect(res.success).toBe(true);
+    expect(fiestaGuardada).toBeDefined();
+    expect(fiestaGuardada.invitacionConfig.nombreHomenajeada).toBe('Clara Nueva');
+    expect(fiestaGuardada.invitacionConfig.fechaEvento).toBe('2027-05-15');
+    expect(fiestaGuardada.invitacionConfig.nombreSalon).toBe('Salón Las Rosas');
+    expect(fiestaGuardada.invitacionConfig.colorPrincipal).toBe('#ff00aa');
+    expect(fiestaGuardada.propuestasDeWeb).toHaveLength(3);
+  });
 });
+

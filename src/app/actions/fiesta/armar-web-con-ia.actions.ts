@@ -297,6 +297,11 @@ export async function armarWebConIA(
 export async function crearTresPropuestasDeWeb(
   fiestaId: string,
   colorBase?: string,
+  datosDialogo?: {
+    nombreHomenajeada?: string;
+    fechaEvento?: string;
+    nombreSalon?: string;
+  },
 ): Promise<{ success: boolean; propuestas?: PropuestaDeWeb[]; error?: string }> {
   await requireFiestaWriteAccess(fiestaId);
 
@@ -304,6 +309,16 @@ export async function crearTresPropuestasDeWeb(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) {
       return { success: false, error: 'No se encontró la fiesta solicitada.' };
+    }
+
+    if (fiesta.invitacionConfig || datosDialogo || colorBase) {
+      fiesta.invitacionConfig = {
+        ...(fiesta.invitacionConfig ?? ({} as any)),
+        ...(datosDialogo?.nombreHomenajeada !== undefined && { nombreHomenajeada: datosDialogo.nombreHomenajeada }),
+        ...(datosDialogo?.fechaEvento !== undefined && { fechaEvento: datosDialogo.fechaEvento }),
+        ...(datosDialogo?.nombreSalon !== undefined && { nombreSalon: datosDialogo.nombreSalon }),
+        ...(colorBase && { colorPrincipal: colorBase }),
+      };
     }
 
     const propuestas = await generarTresPropuestasFlow({
@@ -379,4 +394,5 @@ export async function elegirPropuestaDeWeb(
 
   return { success: true };
 }
+
 
