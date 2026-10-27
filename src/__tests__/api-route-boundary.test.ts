@@ -52,7 +52,7 @@ describe('API route authentication boundary', () => {
       // lugar: exige la clave si esta configurada, y si no lo esta deja pasar
       // unicamente las tareas que se pueden repetir sin hacer dano, con freno. La
       // que le escribe al cliente por WhatsApp no pasa nunca sin clave.
-      return !/requireAppSession|requirePermiso|hasAppSession|verifySession|esDelEquipoDeLaFiesta|usuarioDelEquipo|CRON_SECRET|abrirPuertaDeLaTarea|LOOKER_STUDIO_TOKEN|MARKETING_API_SECRET_KEY/.test(
+      return !/requireAppSession|requirePermiso|hasAppSession|verifySession|esDelEquipoDeLaFiesta|usuarioDelEquipo|CRON_SECRET|abrirPuertaDeLaTarea|LOOKER_STUDIO_TOKEN|MARKETING_API_SECRET_KEY|getFiestaForPortalSession/.test(
         read(route),
       );
     });

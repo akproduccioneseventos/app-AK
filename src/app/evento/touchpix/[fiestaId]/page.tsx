@@ -49,6 +49,7 @@ import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator'
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
+import { cargarDetectorDeCaras, detectarCarasEnFuente, dibujarFiltroDeCara } from '@/lib/entretenimiento/filtros-cara';
 import {
   obtenerModosCapturaHabilitados,
   obtenerDimensionesPorOrientacion,
@@ -479,6 +480,13 @@ export default function TouchpixPage() {
 
       if (selectedTheme === 'belleza' || fiesta?.station.enableBeautyFilter) {
         aplicarFiltroBelleza(ctx, offscreen.width, offscreen.height);
+        void cargarDetectorDeCaras();
+        const carasDetectadas = detectarCarasEnFuente(img, Date.now());
+        dibujarFiltroDeCara(ctx, offscreen, fiesta?.station?.filtrosActivos?.[0] || 'mis15', carasDetectadas, {
+          nombreAgasajado: fiesta?.nombreAgasajado,
+          tipoCelebracion: fiesta?.tipoCelebracion,
+          primaryColor: fiesta?.primaryColor,
+        });
       }
       if (fiesta?.station.enableChromaKey) {
         aplicarChromaKey(ctx, offscreen.width, offscreen.height);
@@ -517,7 +525,7 @@ export default function TouchpixPage() {
       onComplete(offscreen.toDataURL('image/jpeg', 0.92));
     };
     img.src = sourceDataUrl;
-  }, [drawWatermark, selectedTheme, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey]);
+  }, [drawWatermark, selectedTheme, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey, fiesta?.nombreAgasajado, fiesta?.primaryColor, fiesta?.station?.filtrosActivos, fiesta?.tipoCelebracion]);
 
   /* ── Capture ── */
   const captureRawPhoto = useCallback(async (): Promise<string | null> => {

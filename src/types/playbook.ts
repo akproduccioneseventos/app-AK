@@ -44,6 +44,7 @@ export interface Playbook {
 }
 
 export interface PlaybookAplicacion {
+  operacionId?: string;
   id: string;
   playbookId: string;
   fiestaId: string;

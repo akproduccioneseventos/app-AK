@@ -5,6 +5,9 @@ import { syncMetaPublicHistory, DEFAULT_EARLIEST_DATE } from '@/lib/social-media
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
 import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
+import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
+import { readData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
 /**
@@ -75,6 +78,20 @@ async function correrTarea(request: Request) {
       syncedAt: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'No se pudieron sincronizar los comentarios diarios.',
     }));
+
+    // Generar revisión diaria con IA y 3 propuestas para hoy
+    try {
+      const [posts, connections] = await Promise.all([
+        readData<any[]>('social-posts.json', []),
+        readData<any[]>('social-connections.json', []),
+      ]);
+      const revision = await buildDigitalPresenceDailyReview({ posts, connections });
+      if (revision) {
+        await mutarDocumento('presencia-digital-revision.json', revision, () => revision);
+      }
+    } catch (err) {
+      console.warn('[cron-metricas-redes] Error generando revisión diaria:', err);
+    }
 
     // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
     // una tarea automatica esta funcionando o solo esta escrita.

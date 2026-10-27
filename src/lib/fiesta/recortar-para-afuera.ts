@@ -1,5 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { puede, PERMISOS } from '@/lib/auth/perfiles';
+import { puede, perfilDe, PERMISOS } from '@/lib/auth/perfiles';
 
 /**
  * LO QUE VIAJA A QUIEN NO ES DEL EQUIPO (25 de septiembre de 2026).
@@ -33,6 +33,7 @@ export const CAMPOS_DEL_EQUIPO = [
 ] as const;
 
 export const CAMPOS_DEL_CLIENTE = [
+  'clientPortalSettings',
   'contratoServicioTexto',
   'contratoSalonTexto',
   'contratoGenerado',
@@ -127,6 +128,10 @@ export function recortarFiestaPorPerfil(
   usuario: { role?: string; profile?: string; perfil?: string; permissions?: string[] } | null | undefined,
 ): FiestaEnPlanificacion {
   const copia: Record<string, unknown> = { ...fiesta };
+
+  if (usuario && (perfilDe(usuario as any) === 'personal' || !puede(usuario as any, PERMISOS.CRM))) {
+    delete copia.clientPortalSettings;
+  }
 
   if (!puede(usuario ?? null, PERMISOS.SUELDOS)) {
     if (Array.isArray(fiesta.personalAsignado)) {

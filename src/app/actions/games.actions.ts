@@ -1,9 +1,11 @@
 'use server';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { generateWithGeminiFallback, geminiModel } from '@/ai/genkit';
 
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta-actual';
 import { getFiestaById as getFiestaPublica } from '@/app/actions/fiesta/fiesta.actions';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
-import { TriviaGame, PhotoMission, calculateLeaderboard } from '@/lib/games/game-engine';
+import { TriviaGame, type TriviaQuestion, PhotoMission, calculateLeaderboard } from '@/lib/games/game-engine';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -232,5 +234,182 @@ export async function terminarTrivia(fiestaId: string): Promise<{ success: boole
     return guardado.success ? { success: true } : { success: false, error: guardado.error || 'No se pudo terminar la trivia.' };
   } catch (err: any) {
     return { success: false, error: err.message || 'No se pudo terminar la trivia.' };
+  }
+}
+
+
+/**
+ * Genera automáticamente una trivia divertida de 5 preguntas usando IA Gemini.
+ * Requiere presupuesto de IA y la confirmación posterior del equipo antes de jugar.
+ */
+export async function generarTriviaConIa(
+  fiestaId: string
+): Promise<{ success: boolean; trivia?: TriviaGame; error?: string }> {
+  await requireAppSession();
+  try {
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const canUseAI = await hayPresupuestoParaIA().catch(() => false);
+    if (!canUseAI) {
+      return { success: false, error: 'Tope de IA agotado para este período.' };
+    }
+
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+
+    const nombre = fiesta.configuracion?.nombreEvento || fiesta.configuracion?.clienteNombre || 'la fiesta';
+    const historia = (fiesta as any).historia || (fiesta.configuracion as any)?.observaciones || '';
+
+    let preguntas: TriviaQuestion[] = [];
+
+    try {
+      const prompt = `Generá 5 preguntas divertidas de trivia para una fiesta llamada "${nombre}". ${
+        historia
+          ? `Datos e historia del cliente: ${historia}.`
+          : 'No hay datos personales cargados, generá preguntas de cultura general de fiestas, baile, música y tradiciones de celebraciones.'
+      }
+Respondé ÚNICAMENTE un array JSON con 5 objetos con el formato:
+[
+  {
+    "id": "q1",
+    "question": "¿...",
+    "options": [
+      { "id": "a", "text": "...", "emoji": "🎉" },
+      { "id": "b", "text": "...", "emoji": "💃" },
+      { "id": "c", "text": "...", "emoji": "🎵" },
+      { "id": "d", "text": "...", "emoji": "🥂" }
+    ],
+    "correctOptionId": "a"
+  }
+]`;
+
+      const response = await generateWithGeminiFallback({
+        model: geminiModel,
+        prompt,
+      });
+
+      await registrarConsumoIA('trivia-ia');
+
+      const jsonMatch = response.text?.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        preguntas = JSON.parse(jsonMatch[0]);
+      }
+    } catch {
+      // Fallback a preguntas de cultura general de fiestas
+    }
+
+    if (!preguntas || preguntas.length === 0) {
+      preguntas = [
+        {
+          id: 'q1',
+          question: '¿Cuál es el clásico tema que nunca puede faltar en el vals de una fiesta?',
+          options: [
+            { id: 'a', text: 'Danubio Azul', emoji: '🎻' },
+            { id: 'b', text: 'Cumbia tropical', emoji: '🥁' },
+            { id: 'c', text: 'Rock and roll', emoji: '🎸' },
+            { id: 'd', text: 'Reggaetón', emoji: '📻' },
+          ],
+          correctOptionId: 'a',
+        },
+        {
+          id: 'q2',
+          question: '¿A qué hora suele servirse el tradicional postre o torta principal?',
+          options: [
+            { id: 'a', text: 'Al inicio', emoji: '🕒' },
+            { id: 'b', text: 'En la mitad de la noche', emoji: '🎂' },
+            { id: 'c', text: 'Antes del amanecer', emoji: '🌅' },
+            { id: 'd', text: 'En la recepción', emoji: '🍸' },
+          ],
+          correctOptionId: 'b',
+        },
+        {
+          id: 'q3',
+          question: '¿Qué canción suele abrir la tanda de baile más prendida?',
+          options: [
+            { id: 'a', text: 'Música clásica', emoji: '🎼' },
+            { id: 'b', text: 'Cumbia retro o hits del momento', emoji: '💃' },
+            { id: 'c', text: 'Jazz instrumental', emoji: '🎷' },
+            { id: 'd', text: 'Tango tradicional', emoji: '🎩' },
+          ],
+          correctOptionId: 'b',
+        },
+        {
+          id: 'q4',
+          question: '¿Qué bebida clásica suele brindar toda la mesa a la medianoche?',
+          options: [
+            { id: 'a', text: 'Champagne o Espumante', emoji: '🥂' },
+            { id: 'b', text: 'Agua mineral', emoji: '💧' },
+            { id: 'c', text: 'Café', emoji: '☕' },
+            { id: 'd', text: 'Té verde', emoji: '🍵' },
+          ],
+          correctOptionId: 'a',
+        },
+        {
+          id: 'q5',
+          question: '¿Qué estación interactiva es la más concurrida para llevarse fotos impresas?',
+          options: [
+            { id: 'a', text: 'La Fotocabina AK', emoji: '📸' },
+            { id: 'b', text: 'El guardarropa', emoji: '🧥' },
+            { id: 'c', text: 'El estacionamiento', emoji: '🚗' },
+            { id: 'd', text: 'La cocina', emoji: '🍳' },
+          ],
+          correctOptionId: 'a',
+        },
+      ];
+    }
+
+    const nuevaTrivia: TriviaGame = {
+      id: `trivia_${fiestaId}_${Date.now()}`,
+      fiestaId,
+      title: `Trivia de la Noche - ${nombre}`,
+      questions: preguntas,
+      createdAt: new Date().toISOString(),
+      status: 'draft',
+      confirmadaPorEquipo: false,
+    };
+
+    const guardado = await saveFiesta({
+      ...fiesta,
+      triviaGame: nuevaTrivia,
+    });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la trivia.' };
+    }
+
+    return { success: true, trivia: nuevaTrivia };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Error al generar trivia con IA.' };
+  }
+}
+
+export async function confirmarTrivia(
+  fiestaId: string,
+  preguntas?: TriviaQuestion[]
+): Promise<{ success: boolean; trivia?: TriviaGame; error?: string }> {
+  await requireAppSession();
+  try {
+    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    if (!fiesta.triviaGame) {
+      return { success: false, error: 'No hay trivia para confirmar.' };
+    }
+
+    const triviaActualizada: TriviaGame = {
+      ...fiesta.triviaGame,
+      questions: preguntas || fiesta.triviaGame.questions,
+      confirmadaPorEquipo: true,
+      status: 'active',
+    };
+
+    const res = await saveFiesta({
+      ...fiesta,
+      triviaGame: triviaActualizada,
+    });
+
+    if (!res.success) {
+      return { success: false, error: res.error || 'Error al confirmar la trivia.' };
+    }
+
+    return { success: true, trivia: triviaActualizada };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Error al confirmar la trivia.' };
   }
 }

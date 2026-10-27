@@ -88,7 +88,10 @@ function nivelDePresupuestos(user: Parameters<typeof puede>[0]): 'completo' | 'o
   return null;
 }
 function sinCobros(p: Presupuesto): Presupuesto {
-  return { ...p, pagosCliente: [] };
+  const copia = { ...p, pagosCliente: [] };
+  delete (copia as any).senia;
+  delete (copia as any).saldo;
+  return copia;
 }
 
 /**

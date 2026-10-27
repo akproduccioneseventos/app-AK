@@ -404,6 +404,10 @@
     "101": {
       "fecha": "2026-10-26",
       "resultado": "barrida en next.config.js, middleware y page.tsx que redirigen: las pantallas redirigidas son atajos sin contenido propio. Un hallazgo: el enlace de confirmar asistencia del editor de la invitación llevaba a la portada; arreglado. La redirección de /empresa/redes-sociales de la entrega 1353 se sacó."
+    },
+    "102": {
+      "fecha": "2026-10-26",
+      "resultado": "barrida en createNotification, sendPushNotificationToAll, avisarAlDuenio, getNotifications, tablero y torre de control: todo aviso salía con su texto a todos los teléfonos y la lista se mostraba entera. Arreglado de raíz: al teléfono va texto genérico si es de plata (textoParaElTelefono) y getNotifications oculta los de plata sin permiso de contabilidad."
     }
   },
   "hallazgos": {

@@ -6,7 +6,7 @@
  * de la fiesta (nombre del homenajeado, motivo, fecha y paleta de color).
  */
 
-export type EstiloMarcoDinamico = 'elegante' | 'quince' | 'boda' | 'infantil' | 'neon_glam' | 'ninguno';
+export type EstiloMarcoDinamico = 'elegante' | 'quince' | 'boda' | 'infantil' | 'neon_glam' | 'revista' | 'polaroid' | 'cartel_neon' | 'ninguno';
 
 export interface OpcionesMarcoDinamico {
   estilo?: EstiloMarcoDinamico;
@@ -155,6 +155,72 @@ export function dibujarMarcoDinamico(
       ctx.textBaseline = 'middle';
       ctx.fillText(nombreMostrar, ancho / 2, alto - 50);
     }
+  } else if (estilo === 'revista') {
+    // Tapa de revista (estilo Canva / Vogue): título editorial arriba, titulares y código de barras
+    ctx.fillStyle = colorPrimario || '#ffffff';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 12;
+    ctx.font = '900 64px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    const tituloRevista = nombreMostrar || 'LA FIESTA';
+    ctx.fillText(tituloRevista, ancho / 2, 28);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#f4f4f5';
+    ctx.font = '600 18px sans-serif';
+    ctx.fillText('EDICIÓN EXCLUSIVA • ' + (fechaEvento || 'NOCHE ÚNICA'), ancho / 2, 98);
+    ctx.textAlign = 'left';
+    ctx.font = '700 24px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    ctx.shadowBlur = 8;
+    ctx.fillText('LOS MEJORES MOMENTOS', 30, alto - 150);
+    ctx.font = '500 16px sans-serif';
+    ctx.fillStyle = colorPrimario || '#e4e4e7';
+    ctx.fillText('Una noche inolvidable en fotos', 30, alto - 120);
+    ctx.shadowBlur = 0;
+    const barX = ancho - 140;
+    const barY = alto - 70;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(barX - 10, barY - 6, 120, 52);
+    ctx.fillStyle = '#000000';
+    for (let i = 0; i < 20; i++) {
+      const w = (i % 3 === 0) ? 4 : 2;
+      ctx.fillRect(barX + i * 5, barY, w, 32);
+    }
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('AK-PROD-2026', barX + 50, barY + 40);
+  } else if (estilo === 'polaroid') {
+    const grosorBorde = 24;
+    const mentonAlto = 110;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, ancho, grosorBorde);
+    ctx.fillRect(0, 0, grosorBorde, alto);
+    ctx.fillRect(ancho - grosorBorde, 0, grosorBorde, alto);
+    ctx.fillRect(0, alto - mentonAlto, ancho, mentonAlto);
+    ctx.fillStyle = '#27272a';
+    ctx.font = 'italic 600 28px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const textoPolaroid = [nombreMostrar, fechaEvento].filter(Boolean).join(' • ') || 'Recuerdo inolvidable';
+    ctx.fillText(textoPolaroid, ancho / 2, alto - (mentonAlto / 2));
+  } else if (estilo === 'cartel_neon') {
+    const textoNeon = nombreMostrar || 'LA FIESTA';
+    const colorNeon = colorPrimario || '#ec4899';
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.shadowColor = colorNeon;
+    ctx.shadowBlur = 35;
+    ctx.strokeStyle = colorNeon;
+    ctx.lineWidth = 6;
+    ctx.strokeRect(30, 20, ancho - 60, 80);
+    ctx.shadowBlur = 25;
+    ctx.font = '900 42px sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(textoNeon, ancho / 2, 36);
+    ctx.restore();
   }
 
   ctx.restore();

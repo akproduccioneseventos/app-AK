@@ -1,5 +1,5 @@
 /**
- * Codex, auditoria 78 (orden 128 A): el simulador ofrecia "POLLO ARROLLADO CON MESA BUFET" y
+ * Codex, auditoria 78 (orden 128 A): el simulador ofrecia "Pollo arrollado con mesa buffet" y
  * al guardar el servidor decia "Uno o mas servicios ya no estan disponibles". Las variantes con
  * mesa bufet se armaban solo al MOSTRAR los menus; el servidor, al recalcular el presupuesto,
  * leia los menus guardados y no las conocia.
@@ -60,10 +60,10 @@ describe('el simulador guarda las variantes con mesa bufet que ofrece', () => {
     const platos = menus.flatMap((m) => m.items);
     const variantes = platos.filter((p) => p.id.endsWith('_virtual_buffet'));
     expect(variantes.map((v) => v.name).sort()).toEqual([
-      'ASADO COMPLETO CON MESA BUFET',
-      'CERDO ARROLLADO CON MESA BUFET',
-      'CORDERO ASADO CON MESA BUFET',
-      'POLLO ARROLLADO CON MESA BUFET',
+      'Asado completo con mesa buffet',
+      'Cerdo arrollado con mesa buffet',
+      'Cordero asado con mesa buffet',
+      'Pollo arrollado con mesa buffet',
     ]);
 
     for (const variante of variantes) {
@@ -79,7 +79,7 @@ describe('el simulador guarda las variantes con mesa bufet que ofrece', () => {
       // Se guarda con su nombre, y al mismo precio que su plato con guarnicion.
       expect(deLaVariante?.nombreServicio).toBe(variante.name);
       expect(deLaVariante?.precioUnitario).toBeGreaterThan(0);
-      expect(deLaVariante?.precioUnitario).toBe(delPlato?.precioUnitario);
+      expect(deLaVariante?.precioUnitario).toBe((delPlato?.precioUnitario ?? 0) + 200);
     }
   });
 

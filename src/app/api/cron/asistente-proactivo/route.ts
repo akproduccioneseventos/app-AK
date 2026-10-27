@@ -1,3 +1,7 @@
+import { hoyEnUruguay } from '@/lib/utils';
+import { sendPushNotificationToAll } from '@/lib/firebase/server-messaging';
+import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea, respuestaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
@@ -199,13 +203,58 @@ export async function GET(request: Request) {
     }
   }
 
-  // 8. AVISO AL DUEÑO (Push / WhatsApp con filtros estrictos)
+  // 8. AVISOS PROACTIVOS AL EQUIPO (Push con server-messaging)
   let avisoDuenioRes = null;
-  if (resultadoPersistencia.agregadas.length > 0) {
+  const ajustes = await getAsistenteSettings().catch(() => ({ avisosProactivosActivos: true }));
+  const avisosPrendidos = (ajustes as any).avisosProactivosActivos !== false;
+
+  // Respetar horario de descanso: nunca entre las 23 y las 8 en Uruguay
+  const esHorarioDescanso = horaUy >= 23 || horaUy < 8;
+
+  if (avisosPrendidos && !esHorarioDescanso && resultadoPersistencia.agregadas.length > 0) {
     try {
+      const hoyKey = hoyEnUruguay(ahora);
+      const importantes = resultadoPersistencia.agregadas.filter(p => p.esImportante);
+
+      if (importantes.length > 0) {
+        let reservado = false;
+        await mutarDocumentoConTransaccion<Record<string, { fecha: string; count: number }>>(
+          'asistente/avisos-diarios.json',
+          {},
+          (store) => {
+            const actual = store || {};
+            const userTracking = actual['general'] || { fecha: hoyKey, count: 0 };
+            const countHoy = userTracking.fecha === hoyKey ? userTracking.count : 0;
+            if (countHoy >= 3) {
+              reservado = false;
+              return null;
+            }
+            reservado = true;
+            return {
+              ...actual,
+              general: { fecha: hoyKey, count: countHoy + 1 },
+            };
+          }
+        );
+
+        if (reservado) {
+          // El aviso llega a TODOS los teléfonos registrados del equipo (sendPushNotificationToAll),
+          // también a quien no tiene permiso de ver plata: por eso NO lleva el detalle (nombres de
+          // clientes ni saldos). El detalle se ve adentro de la app, con su permiso. Codex en la 1364.
+          await sendPushNotificationToAll({
+            title: 'Asistente AK',
+            body:
+              importantes.length === 1
+                ? 'Tenés un aviso nuevo del asistente. Abrí la app para verlo.'
+                : `Tenés ${importantes.length} avisos nuevos del asistente. Abrí la app para verlos.`,
+            url: '/mi-dia?hablar=1',
+          });
+        }
+      }
+
       avisoDuenioRes = await avisarAlDuenio(resultadoPersistencia.agregadas, ahora);
     } catch (err: any) {
-      console.warn('[AsistenteProactivo] Error avisando al dueño:', err);
+      console.warn('[AsistenteProactivo] Error enviando avisos proactivos:', err);
     }
   }
 

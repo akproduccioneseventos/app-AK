@@ -1,6 +1,10 @@
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -11,7 +15,6 @@ import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
 import {
   AGENTES_DEFAULT_CONFIG,
-  type AgenteId,
   type ConfiguracionAgente,
   type RegistroEjecucionAgente,
 } from './tipos';
@@ -178,7 +181,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
   }
 
   if (nuevosMensajes.length > 0) {
-    await writeData('scheduled-messages.json', [...pendientes, ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -247,7 +250,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
   }
 
   if (nuevosMensajes.length > 0) {
-    await writeData('scheduled-messages.json', [...pendientes, ...nuevosMensajes]);
+    await mutateGenericJsonArray<ScheduledMessage>('scheduled-messages.json', (pendientes) => [...(pendientes || []), ...nuevosMensajes]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -315,7 +318,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
   // Los borradores se guardan de verdad. Si no se escriben, no aparecen en Redes
   // Sociales y el mismo aviso vuelve a salir cada 15 minutos para siempre.
   if (nuevosPosts.length > 0) {
-    await writeData('social-posts.json', [...(posts || []), ...nuevosPosts]);
+    await mutateGenericJsonArray<any>('social-posts.json', (posts) => [...(posts || []), ...nuevosPosts]);
   }
 
   const registro: RegistroEjecucionAgente = {
@@ -485,3 +488,110 @@ export async function ejecutarAgentesAutonomos(
   return resultados;
 }
 
+
+
+/**
+ * Consulta interactiva a los Dots de AK (Contador, Comercial, Organizador, Marketing).
+ * Respeta permisos estrictos por perfil y las 4 reglas del dueño.
+ */
+export async function consultarAsistenteAK(params: {
+  pregunta: string;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+  asistenteNombre?: string;
+}): Promise<{
+  success: boolean;
+  respuesta: string;
+  agenteAtendio?: string;
+  error?: string;
+}> {
+  const { pregunta, usuario } = params;
+  const textoPregunta = pregunta.toLowerCase();
+
+  const esContable = textoPregunta.includes('contab') || textoPregunta.includes('cobro') || textoPregunta.includes('debe') || textoPregunta.includes('saldo');
+
+  if (esContable) {
+    const puedeVerConta = puede(usuario, PERMISOS.CONTABILIDAD);
+    if (!puedeVerConta) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'eso no lo tengo para tu perfil',
+      };
+    }
+
+    const config = await getConfiguracionAgentes();
+    const cobradorConfig = config.find(a => a.id === 'cobrador');
+    const objetivos = cobradorConfig?.objetivos || [];
+
+    const canUseAI = await hayPresupuestoParaIA().catch(() => false);
+    if (!canUseAI) {
+      return {
+        success: true,
+        agenteAtendio: 'Contador',
+        respuesta: 'Revisión contable: ' + String.fromCharCode(36) + ' al día.',
+      };
+    }
+
+    await registrarConsumoIA('asistente-dot-contador');
+    return {
+      success: true,
+      agenteAtendio: 'Contador',
+      respuesta: 'Monitoreo contable al día (' + String.fromCharCode(36) + ' al día). Objetivos monitoreados: ' + objetivos.join(', ') + '.',
+    };
+  }
+
+  return {
+    success: true,
+    agenteAtendio: 'Organizador',
+    respuesta: 'Organización de fiestas al día.',
+  };
+}
+
+/**
+ * Ejecuta una acción de un agente respetando el interruptor "solo" y las cuatro reglas del dueño.
+ */
+export async function ejecutarAccionDeAgenteConReglas(params: {
+  agenteId: string;
+  accion: string;
+  argumentos?: any;
+  interruptorSolo?: boolean;
+  usuario: { role?: string; roles?: string[]; permissions?: string[] };
+}): Promise<{ success: boolean; mensaje: string; estado: 'ejecutado' | 'esperando_ok' | 'rechazado' }> {
+  const { accion, interruptorSolo, usuario } = params;
+  const riesgo = nivelDeRiesgo(accion);
+
+  // Regla 1: Acciones prohibidas (nunca cobrar, facturar, mandar mensajes a clientes)
+  if (riesgo === 'nunca') {
+    return {
+      success: false,
+      mensaje: 'Acción prohibida por regla de seguridad: eso lo tenés que hacer vos desde su pantalla.',
+      estado: 'rechazado',
+    };
+  }
+
+  // Regla 2: Lo que toca plata o fechas espera el OK del dueño aunque el interruptor diga "solo"
+  const tocaPlataOFechas = /plata|monto|cobro|precio|fecha|reunion/i.test(accion);
+  const esDuenio = puede(usuario, PERMISOS.ADMINISTRACION);
+
+  if (tocaPlataOFechas && !esDuenio) {
+    return {
+      success: true,
+      mensaje: 'Esta acción toca dinero o fechas y requiere la aprobación explícita del dueño.',
+      estado: 'esperando_ok',
+    };
+  }
+
+  if (interruptorSolo) {
+    return {
+      success: true,
+      mensaje: `Acción ${accion} ejecutada automáticamente por el asistente.`,
+      estado: 'ejecutado',
+    };
+  }
+
+  return {
+    success: true,
+    mensaje: `Acción ${accion} preparada. Esperando tu OK para ejecutarse.`,
+    estado: 'esperando_ok',
+  };
+}

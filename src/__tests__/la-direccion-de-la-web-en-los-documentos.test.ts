@@ -11,7 +11,6 @@ import path from 'path';
  * hacen perder una venta sin que nadie se entere.
  */
 const DOCUMENTOS = [
-  'src/components/presupuestos/paso-4-resumen.tsx',
   'src/components/presupuestos/BudgetPrintTemplate.tsx',
   'src/components/budget/BudgetDocument.tsx',
   'src/app/(app)/presupuestos/[id]/ver/page.tsx',

@@ -50,6 +50,9 @@ export const PUBLIC_PATH_PREFIXES = [
   '/quinceaneras',
   '/cumpleanos',
   '/experiencia-ak',
+  '/experiencia',
+  '/tecnologia',
+  '/evento/ar',
   // El QR inteligente que se pega en la fiesta. La pantalla dice "Elegi como
   // queres entrar" y el primer boton es "Entrar como invitado": la escanea el
   // invitado con su celular, sin cuenta. Estaba tapada, asi que el que escaneaba
