@@ -565,6 +565,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/portal-cliente/:id/menu",
     "/portal-cliente/:id/muro-social",
     "/portal-cliente/:id/musica",
+    "/portal-cliente/:id/tu-web",
     "/portal-cliente/:id/videos-invitados"
   ]
 };

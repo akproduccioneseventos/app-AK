@@ -87,8 +87,16 @@ no-usa: 'use server' en src/ai/flows/generate-testimonial-flow.ts
 usa: hayPresupuestoParaIA en src/lib/commercial/commercial-followup.ts
 usa: elegirPropuestaDeWeb en src/app/portal-cliente/[id]/tu-web/page.tsx
 archivo: src/app/(app)/centro-de-control/page.tsx
-usa: esAvisoDePlata en src/app/(app)/centro-de-control/page.tsx
+no-usa: notifications.json en src/app/actions/centro-de-control.ts
 usa: textoParaElTelefono en src/app/actions/notifications.ts
+# Bloque 3 — centro de control
+usa: darOrdenPorVozOTexto en src/app/(app)/centro-de-control/page.tsx
+archivo: src/lib/ia/aprender-de-lo-aprobado.ts
+usa: await navigator.clipboard.writeText en src/app/(app)/fiestas/nueva/logistica/page.tsx
+no-usa: garantía en src/ai/flows/armar-web-del-evento-flow.ts
+usa: mutateGenericJsonArray en src/app/actions/asistente-virtual.ts
+prueba: tests/e2e/la-ia-arma-la-web-del-evento.spec.ts
+prueba: tests/e2e/la-ia-trabaja-sola.spec.ts
 prueba: tests/e2e/la-quinceaniera-elige-su-web.spec.ts
 prueba: tests/e2e/el-centro-de-control.spec.ts
 ```

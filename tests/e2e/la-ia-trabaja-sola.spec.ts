@@ -10,11 +10,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const FIESTA_ID = `e2e_ia_sola_${process.pid}_${Date.now()}`;
-const MENU_ID = `menu_e2e_alergias_${process.pid}`;
+// Mismo menú para escritorio y celular: el servidor guarda los menús en memoria al leerlos por primera vez,
+// y un menú con otro nombre que apareciera después no lo vería.
+const MENU_ID = 'menu_e2e_alergias_compartido';
 
-test.describe('Orden 235: La IA hace sola lo que hoy se completa a mano (E2E)', () => {
-  test.beforeAll(async () => {
-    // 1. Crear menú con gluten para probar choque de alergias
+// Idempotente: escritorio y celular corren a la vez y comparten este archivo; cada uno vuelve a
+// asegurarse de que su menú esté antes de mirar el choque, por si el otro lo pisó al guardar.
+function asegurarMenuDePrueba() {
     const menuPath = path.join(process.cwd(), 'data', 'menus-catering.json');
     let existingMenus: any[] = [];
     try {
@@ -22,8 +24,9 @@ test.describe('Orden 235: La IA hace sola lo que hoy se completa a mano (E2E)', 
         existingMenus = JSON.parse(fs.readFileSync(menuPath, 'utf8'));
       }
     } catch {}
+    if (existingMenus.some((m) => m?.id === MENU_ID)) return;
 
-    const testMenu = {
+  const testMenu = {
       id: MENU_ID,
       name: 'Menú E2E Italiano Tradicional',
       description: 'Platos tradicionales con pastas y salsas',
@@ -42,6 +45,12 @@ test.describe('Orden 235: La IA hace sola lo que hoy se completa a mano (E2E)', 
       ],
     };
     fs.writeFileSync(menuPath, JSON.stringify([testMenu, ...existingMenus], null, 2), 'utf8');
+}
+
+test.describe('Orden 235: La IA hace sola lo que hoy se completa a mano (E2E)', () => {
+  test.beforeAll(async () => {
+    // 1. Crear menú con gluten para probar choque de alergias
+    asegurarMenuDePrueba();
 
     // 2. Crear fiesta de prueba con datos para Bloques 6, 11 y 13
     const fiesta = crearFiestaDeEstaNoche({ id: FIESTA_ID });
@@ -141,6 +150,7 @@ test.describe('Orden 235: La IA hace sola lo que hoy se completa a mano (E2E)', 
     test.setTimeout(90_000);
     await ponerSesionDelEquipo(context, baseURL);
 
+    asegurarMenuDePrueba();
     await page.goto(`/fiestas/nueva/alergias?fiestaId=${FIESTA_ID}`, {
       waitUntil: 'domcontentloaded',
     });

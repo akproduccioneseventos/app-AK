@@ -1,8 +1,7 @@
 'use client';
 // Bloque 7: Se apoya en generateTestimonialFlow en el servidor
 
-import { generateTestimonialFlow } from '@/ai/flows/generate-testimonial-flow';
-import { getResumenFeedbackMensualAction } from '@/app/actions/feedback';
+import { generateTestimonialAction, getResumenFeedbackMensualAction } from '@/app/actions/feedback';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
@@ -104,13 +103,7 @@ export default function FeedbackPage() {
   const handleGenerateTestimonial = async (feedback: FeedbackSubmission) => {
     setGeneratingFeedbackId(feedback.id);
     try {
-      const gen = await generateTestimonialFlow({
-        clientName: feedback.clientName || 'Cliente',
-        eventType: feedback.fiestaNombre || 'Fiesta',
-        eventDate: feedback.timestamp ? feedback.timestamp.slice(0, 10) : new Date().toISOString().slice(0, 10),
-        rating: feedback.npsScore ? Math.round(feedback.npsScore / 2) : 5,
-        comments: feedback.generalComments || feedback.enjoyedMost,
-      });
+      const gen = await generateTestimonialAction(feedback);
       const testimonialText = gen.testimonial || feedback.generalComments?.trim() || feedback.enjoyedMost;
       const result = await saveTestimonial({
         feedbackId: feedback.id,

@@ -6,7 +6,10 @@ import path from 'node:path';
 test.describe('Centro de Control (Orden 236)', () => {
   const propuestasPath = path.join(process.cwd(), 'data', 'asistente-propuestas.json');
   let originalPropuestas: string | null = null;
-  const propId = `prop_e2e_test_${Date.now()}`;
+  // Título único por corrida y por proyecto (escritorio y celular corren a la vez): si no, quedan
+  // tarjetas repetidas de corridas anteriores y el "No" cae en otra.
+  const propId = `prop_e2e_test_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  const tituloUnico = `Confirmar recepción de catering para fiesta de Sofía ${propId.slice(-5)}`;
 
   test.beforeEach(async () => {
     if (fs.existsSync(propuestasPath)) {
@@ -16,7 +19,7 @@ test.describe('Centro de Control (Orden 236)', () => {
       id: propId,
       clave: `e2e-ok-${Date.now()}`,
       area: 'fiestas',
-      titulo: 'Confirmar recepción de catering para fiesta de Sofía',
+      titulo: tituloUnico,
       quePasa: 'El catering envió la confirmación final de platos.',
       porQueImporta: 'Permite cerrar la hoja de cocina a tiempo.',
       quePropone: 'Marcar el catering como verificado y notificar al salón.',
@@ -34,11 +37,13 @@ test.describe('Centro de Control (Orden 236)', () => {
   });
 
   test.afterEach(async () => {
-    if (originalPropuestas !== null) {
-      fs.writeFileSync(propuestasPath, originalPropuestas, 'utf8');
-    } else if (fs.existsSync(propuestasPath)) {
-      fs.unlinkSync(propuestasPath);
-    }
+    // Saca sólo la tarjeta propia: la otra corrida (escritorio o celular) puede estar usando la suya.
+    try {
+      const actual = JSON.parse(fs.readFileSync(propuestasPath, 'utf8')) as Array<{ id: string }>;
+      const resto = actual.filter((p) => p.id !== propId);
+      if (resto.length === 0 && originalPropuestas === null) fs.unlinkSync(propuestasPath);
+      else fs.writeFileSync(propuestasPath, JSON.stringify(resto, null, 2), 'utf8');
+    } catch {}
   });
 
   test('verifica que existan las 3 pestañas y que al tocar "No" la tarjeta desaparece', async ({
@@ -62,9 +67,11 @@ test.describe('Centro de Control (Orden 236)', () => {
     await expect(pestanaSola).toBeVisible();
 
     // 2. Verifica la presencia de la tarjeta en "Para tu OK"
-    const tarjeta = page.locator('div', {
-      hasText: 'Confirmar recepción de catering para fiesta de Sofía',
-    }).last();
+    // La tarjeta es el contenedor que lleva el título Y los botones (un div más adentro sólo tiene el texto).
+    const tarjeta = page
+      .locator('div', { hasText: tituloUnico })
+      .filter({ has: page.getByRole('button', { name: /^No$/i }) })
+      .last();
     await expect(tarjeta).toBeVisible();
 
     // 3. Toca el botón "No"
@@ -73,6 +80,6 @@ test.describe('Centro de Control (Orden 236)', () => {
     await botonNo.click();
 
     // 4. Verifica que la tarjeta desaparece inmediatamente de la vista
-    await expect(page.getByText('Confirmar recepción de catering para fiesta de Sofía')).not.toBeVisible();
+    await expect(page.getByText(tituloUnico)).not.toBeVisible();
   });
 });

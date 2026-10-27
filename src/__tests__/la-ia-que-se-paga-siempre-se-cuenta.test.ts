@@ -44,8 +44,8 @@ describe('la inteligencia artificial que se paga siempre se cuenta', () => {
   });
 
   it('al llegar al tope no se corta: queda el texto de siempre', () => {
-    const comercial = leer('src/app/actions/commercial-intelligence.ts');
-    const postEvento = leer('src/app/actions/post-event-intelligence.ts');
+    const comercial = leer('src/lib/commercial/commercial-followup.ts');
+    const postEvento = leer('src/lib/post-event/post-event-core.ts');
 
     // Misma decision que la fotocabina: nunca se deja al equipo sin mensaje por
     // una cuestion de plata. Se deja de gastar, no de funcionar.

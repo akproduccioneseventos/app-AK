@@ -241,6 +241,7 @@ function getMockBotResponse(message: string, fiesta: any): string {
 }
 
 export async function suggestPalette(input: any) {
+  await requireAppSession();
   const { suggestPalette: flow } = await import('@/ai/flows/suggest-palette-flow');
   return flow(input);
 }

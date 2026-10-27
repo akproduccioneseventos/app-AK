@@ -193,7 +193,7 @@ DATOS DEL EVENTO:
 REGLAS ESTRICTAS DE TEXTO Y CONTENIDO:
 1. Idioma y Tono: Escribí SIEMPRE en español rioplatense uruguayo/argentino (cálido, festivo, corto).
 2. NO INVENTAR DATOS: Ni fechas, ni horas, ni direcciones, ni nombres que no vengan en la entrada.
-3. PROHIBICIONES: Sin precios, sin "garantía", sin promesas y sin nombrar a nadie del personal de la empresa.
+3. PROHIBICIONES: Sin precios, sin promesas de resultado y sin nombrar a nadie del personal de la empresa.
 4. REGALOS Y DATOS BANCARIOS: NUNCA escribas ni inventes datos bancarios ni números de cuenta.
 5. PLANTILLA: Seleccioná exactamente una de estas 8 opciones según el tipo de evento:
    ['Grazia', 'Allegria', 'XvModerna', 'XvClasica', 'BodaMinimalista', 'BodaCampo', 'FiestaNoche', 'Corporativo']

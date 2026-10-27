@@ -1,5 +1,3 @@
-'use server';
-
 import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 

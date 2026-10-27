@@ -302,7 +302,7 @@
         "src/app/actions/asistente-proactivo.actions.ts",
         "src/app/actions/asistente-virtual.ts",
         "src/app/actions/multiagent.ts",
-        "src/app/(app)/asistente",
+        "src/app/(app)/asistente", "src/app/(app)/centro-de-control",
         "src/app/(app)/multiagente",
         "src/app/(app)/settings/asistente",
         "src/app/(app)/settings/ai-assistant",

@@ -18,6 +18,12 @@ jest.mock('@/lib/ai/consumo-servidor', () => ({
   registrarConsumoIA: jest.fn().mockResolvedValue(undefined),
 }));
 
+// Quien lee las consultas del cliente es el equipo con permiso de organización.
+jest.mock('@/lib/auth/require-session', () => ({
+  ...jest.requireActual('@/lib/auth/require-session'),
+  requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: { role: 'admin' } }),
+}));
+
 jest.mock('@/lib/commercial/public-rate-limit', () => ({
   enforcePublicRateLimit: jest.fn().mockResolvedValue(undefined),
 }));

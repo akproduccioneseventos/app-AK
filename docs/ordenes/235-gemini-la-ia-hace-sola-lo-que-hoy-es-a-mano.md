@@ -202,7 +202,7 @@ usa: media url en src/ai/flows/extract-receipt-data.ts
 usa: autoGenerarBorradoresSemanales en src/app/api/cron/asistente-proactivo/route.ts
 usa: readiness en src/app/(app)/fiestas/nueva/tareas/client.tsx
 usa: briefDj en src/app/(app)/fiestas/nueva/musica/page.tsx
-usa: generateTestimonialFlow en src/app/(app)/settings/feedback/page.tsx
+usa: generateTestimonialAction en src/app/(app)/settings/feedback/page.tsx
 usa: analyzeEventPlan en src/app/(app)/fiestas/nueva/reuniones/page.tsx
 # Bloque 9
 usa: generateAiPostEventMaterial en src/lib/agentes/motor-agentes.ts

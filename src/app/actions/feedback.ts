@@ -293,7 +293,7 @@ export async function getResumenFeedbackMensualAction() {
 }
 
 export async function generateTestimonialAction(feedback: FeedbackSubmission) {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ORGANIZACION);
   const { generateTestimonialFlow } = await import('@/ai/flows/generate-testimonial-flow');
   const dateStr = feedback.timestamp ? feedback.timestamp.slice(0, 10) : new Date().toISOString().slice(0, 10);
   const rating = feedback.npsScore ? Math.round(feedback.npsScore / 2) : 5;

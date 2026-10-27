@@ -29,7 +29,7 @@ export type FuncionConCosto =
   | 'lectura-recibo'
   | 'resumen-feedback'
   | 'sugerir-paleta'
-  | 'extraccion-prospecto-whatsapp';
+  | 'extraccion-prospecto-whatsapp'
   | 'trivia-ia'
   | 'voz-cliente'
   | 'asistente-dot-contador';
