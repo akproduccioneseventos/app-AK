@@ -15990,3 +15990,8 @@ Fuentes: [Junta Nacional de Drogas, Eventos Cuidados](https://www.gub.uy/junta-n
   de control) oculta esos avisos a quien no tiene permiso de contabilidad.
 - **Control:** `src/__tests__/los-avisos-de-plata-no-llegan-a-quien-no-ve-plata.test.ts` y
   `src/__tests__/el-aviso-a-todos-los-telefonos-no-lleva-plata.test.ts`.
+
+## 27/10/2026 — Se termina la entrega 1365 (orden 237)
+
+- **Qué estaba mal:** la quinceañera no veía las 3 versiones de su web (la vista del portal no llevaba `propuestasDeWeb`), el cartel de "Link copiado" salía sin esperar, un flujo de IA seguía siendo llamable desde afuera (`'use server'`), el aviso al dueño por consultas del cliente pedía sesión en la prueba, y tres pruebas de navegador de Gemini nunca habían corrido (cortaban hasta la verificación de sesión, compartían datos entre escritorio y celular, o buscaban el texto en el contenedor equivocado).
+- **Qué se hizo:** el portal pasa `propuestasDeWeb` y `propuestaDeWebElegida`; `generateTestimonialFlow` ya no es acción pública (la llama `generateTestimonialAction`, con permiso de organización); la conversación del asistente guarda con turno (`mutateGenericJsonArray`); las pruebas de navegador se corrigieron sin aflojar lo que comprueban.
