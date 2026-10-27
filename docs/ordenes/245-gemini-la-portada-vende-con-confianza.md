@@ -105,6 +105,12 @@ prueba: tests/e2e/la-portada-vende-con-confianza.spec.ts
 5. **Google ve las seis presentaciones.** En `src/lib/seo/paginas-publicas.ts:21-37` sumá `/public/cumpleanos`,
    `/public/corporativos` y `/public/aniversarios`. Hoy `robots.ts` las bloquea y no están en el sitemap.
 
+6. **La nota del blog "Cómo calcular la bebida…" (`data/blog-posts.json`, ~34)** usa rendimientos de botella que no
+   son los de AK: "Fernet rinde de 8 a 10 vasos, Gin unos 12, Vodka 10 tragos". El dueño decidió corregirla. Ese
+   párrafo pasa a: "En AK los tragos se sirven en vaso de 300 ml con alcohol reducido: 15 ml de bebida por trago, y
+   cada trago tiene también su versión sin alcohol. Así una botella de 750 ml rinde unos 50 tragos y la fiesta se
+   disfruta de otra manera." La mención de "8 horas" queda igual.
+
 Prueba extra en `tests/e2e/la-portada-vende-con-confianza.spec.ts`:
 
 - `/bodas` no contiene "Mariana S." ni "Experiencias Verificadas";
@@ -120,5 +126,6 @@ no-usa: Presupuesto cerrado en src/app/cumpleanos/page.tsx
 no-usa: Presupuesto cerrado en src/app/quinceaneras/page.tsx
 no-usa: Barra Libre en src/app/cumpleanos/page.tsx
 no-usa: congelar precios en data/blog-posts.json
+no-usa: Gin unos 12 en data/blog-posts.json
 usa: /public/corporativos en src/lib/seo/paginas-publicas.ts
 ```
