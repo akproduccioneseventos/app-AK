@@ -57,6 +57,8 @@ usa: break-words en src/app/experiencia/page.tsx
 prueba: tests/e2e/celular-y-tablet-sin-cortes.spec.ts
 ```
 
+- **El acceso al equipo volvió a "Accesos Rápidos" del pie de la portada (27/10/2026).** Con la portada Argon se había ido y quedaba sólo un enlace gris chico al final; el dueño no lo encontraba.
+
 ## 26/10/2026 - Once controles de permisos más dejaron de mirar el rol viejo (orden 233)
 
 - Borrado de la base, consumo de IA, blog con IA, automatización de marketing, la ficha de otro usuario y la carga
