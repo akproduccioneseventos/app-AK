@@ -1460,3 +1460,18 @@ Codex en la 1364 (26/10/2026). El asistente mandaba al teléfono de todo el equi
 el barrido mostró que **todo** aviso interno salía así ("Pago de $15.000 registrado para…"), y que la lista de avisos se
 mostraba entera a cualquiera con sesión. Se mira cada envío a muchos (aviso al teléfono, lista de avisos, grupo): si
 puede llegar a alguien sin permiso de plata, el texto no lleva importes ni deudas, y la lista filtra por permiso.
+
+### 105. El camino seguro de un guardado, ¿vale para todos los perfiles, o sólo para el que tiene menos permisos?
+
+Auditoría externa del panel (27/10/2026). La auditoría 73 había puesto la reposición de la plata adentro de la
+transacción, **pero sólo para quien no tiene permiso de plata**. El dueño y la secretaria seguían guardando la fiesta
+entera con lo que tenía la pantalla, y una pantalla abierta hace rato borraba una cuota cobrada después. La pregunta 90
+se había pasado mirando el camino del personal, no el del dueño. Por cada `if` que elige entre "guardar con cuidado" y
+"guardar entero", se mira el lado que queda: el que tiene **más** permisos es el que más puede romper.
+
+### 106. Lo que decide un permiso, ¿mira el estado de hoy o lo que quedó guardado en una cookie, un enlace o un token?
+
+Auditoría externa del panel (27/10/2026). El perfil viaja firmado en la cookie siete días y nadie lo vuelve a mirar:
+un usuario borrado o con menos permisos seguía entrando con los de antes. Se mira cada llave que dura (sesión, enlace del
+portal, del proveedor, del personal, del invitado, QR, códigos): si se da de baja a la persona o se le cambia el
+permiso, ¿la llave vieja deja de servir?

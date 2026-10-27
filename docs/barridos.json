@@ -408,6 +408,14 @@
     "102": {
       "fecha": "2026-10-26",
       "resultado": "barrida en createNotification, sendPushNotificationToAll, avisarAlDuenio, getNotifications, tablero y torre de control: todo aviso salía con su texto a todos los teléfonos y la lista se mostraba entera. Arreglado de raíz: al teléfono va texto genérico si es de plata (textoParaElTelefono) y getNotifications oculta los de plata sin permiso de contabilidad."
+    },
+    "105": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en saveFiesta y sus llamadores, presupuestos, facturas, cuotas, insumos, contratos: causa raíz en saveFiesta (la reposición dentro del turno sólo para quien no tiene plata); addInvoiceId, removeInvoiceId, updateFiestaPresupuestoId y la sincronización desde el presupuesto guardan la fiesta entera fuera de turno; tragos manda el insumo entero; savePlanPagosContrato lee contratoDatos afuera. updatePresupuesto, facturas y planes de pago ya están protegidos. Va en la orden 247, bloques 1 y 6."
+    },
+    "106": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en sesión, enlace del presupuesto, portal del cliente, proveedor, personal, invitados, estaciones y códigos: la sesión dura 7 días sin revocación y cambiar la clave no la corta; el enlace del presupuesto no vence ni se apaga; el control de estaciones no mira si sigue habilitada; marcarLlegadaPersonal no compara quién marca. Portal, proveedor, personal, QR y recuperación sí miran el estado vigente. Va en la orden 247, bloques 3 y 6."
     }
   },
   "hallazgos": {

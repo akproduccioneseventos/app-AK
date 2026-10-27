@@ -120,6 +120,74 @@ Se separa en cuatro tarjetas:
 
 Sin cobros, "Cobrado" es $0, y eso **sí** es correcto: no hubo cobros.
 
+## Bloque 6 — lo que encontró el barrido con las preguntas 105 y 106 (27/10/2026)
+
+**Pregunta 105, la misma forma del bloque 1 en otras funciones.** Leen la fiesta afuera del turno y la guardan entera
+con `saveFiesta`:
+
+- **Plata, gravedad alta.** Cada una pasa a `actualizarFiesta(id, (actual) => …)` y cambia **sólo su campo** sobre
+  `actual`, como ya hacen `updateCuotaEstado` y `savePlanDePagos` (`src/app/actions/payment-plans.ts:67-170`).
+  - `addInvoiceId` (`src/app/actions/fiesta/fiesta.actions.ts` ~1405);
+  - `removeInvoiceId` (~1427);
+  - `updateFiestaPresupuestoId` (~1368);
+  - la sincronización de la fiesta desde el presupuesto (~1158).
+- **Las demás llamadas de servidor con `getFiestaById` y `saveFiesta({...fiesta, X})`.** Con el bloque 1 hecho, la
+  plata queda repuesta igual. Revisá que ninguna mande a propósito un campo de plata. Son:
+  - `agenda.ts:204`;
+  - `assistant.ts:1393,1431`;
+  - `buzon.ts:312,353,383`;
+  - `bebidas.actions.ts:49` y `fiesta/bebidas.actions.ts:14`;
+  - `carga-operativa.actions.ts:186,341`;
+  - `configuracion.actions.ts:24`;
+  - `documentos.actions.ts:141,187,422`;
+  - `entretenimiento.actions.ts:165,411`;
+  - `armar-web-con-ia.actions.ts:321,362`;
+  - `centro-de-control.ts:407`;
+  - `evento-en-vivo.ts:166,436`;
+  - `experience-total.ts:267`.
+- **Stock y costo.** La pantalla de tragos (`src/app/(app)/empresa/menus/tragos/page.tsx:238`) manda
+  `saveInsumo({...insumo, cantidadDisponible})` con el insumo entero. Eso vuelve atrás un ajuste de costo o un
+  descuento de botellas hecho en el medio. Que mande **sólo** `{ id, cantidadDisponible }`, y que `saveInsumo`
+  (`src/app/actions/insumos.ts:149`) acepte el cambio parcial.
+- **`savePlanPagosContrato`** (`src/app/actions/fiesta-actual.ts:193-196`) lee `contratoDatos` afuera del turno. Que
+  arme `contratoDatos` adentro, sobre `actual`.
+
+**Pregunta 106, llaves que no se pueden apagar:**
+
+- **Cambiar o resetear la clave** también sube `versionDeSesion` (bloque 3). `passwordChangedAt` hoy se escribe y
+  nadie lo lee.
+- **Enlace del presupuesto** (`generateBudgetToken` y `verifyBudgetToken`, `src/lib/auth/session-token.ts:176-186`;
+  `getPresupuestoById`, `src/app/actions/presupuestos.ts:152-190`).
+  - Hoy no vence, no se puede revocar y devuelve los cobros aunque el presupuesto esté archivado.
+  - El token pasa a llevar la `versionDeEnlace` del presupuesto, que es 0 si no existe.
+  - Al archivar o rechazar el presupuesto, y con un botón "Apagar enlace" en la pantalla del presupuesto, se sube
+    en 1.
+  - **Los enlaces que ya se mandaron siguen andando mientras no se apaguen**, porque los clientes los tienen
+    guardados. Con versión 0 se acepta el token de hoy.
+- **Control de estaciones del operador** (`src/lib/auth/entertainment-token.ts:46-100`): al usarlo, se mira también
+  que la estación siga habilitada y que la fiesta no esté cancelada, como ya hace el invitado en
+  `getPublicEntertainmentEvent`.
+- **`marcarLlegadaPersonal`** (`src/app/actions/personal-fiestas.ts:34`) sólo pide sesión y no mira quién es:
+  cualquiera con sesión marca la llegada de otro.
+  - Si el que marca tiene perfil "personal", el `empleadoId` tiene que ser el suyo.
+  - Los perfiles con permiso de personal pueden marcar a cualquiera.
+
+**Pruebas extra**, que van en las mismas pruebas de Jest de esta orden. Tienen que comprobar:
+
+- dos `addInvoiceId` a la vez dejan las dos facturas enlazadas, con una base de mentira que devuelva copias;
+- un enlace de presupuesto apagado ya no abre;
+- un enlace viejo sin versión sigue abriendo;
+- una persona del personal no puede marcar la llegada de otra.
+
+```comprobar
+# Bloque 6
+usa: actualizarFiesta en src/app/actions/fiesta/fiesta.actions.ts
+usa: versionDeEnlace en src/lib/auth/session-token.ts
+usa: versionDeEnlace en src/app/actions/presupuestos.ts
+usa: empleadoId en src/app/actions/personal-fiestas.ts
+prueba: src/__tests__/un-enlace-de-presupuesto-se-puede-apagar.test.ts
+```
+
 ## Pruebas finales
 
 Corré solas las cuatro de Jest. Después corré `npx tsc --noEmit`, `npx jest --silent` completo y
