@@ -381,43 +381,48 @@
         "unidad": "Botella"
     },
     {
-        "id": "ing-pina-colada",
-        "valorUnitarioEstimado": 0,
+        "id": "ing-cana-uruguaya",
+        "nombre": "Caña uruguaya",
         "tipoItem": "Insumo/Ingrediente",
-        "cantidadDisponible": 0,
-        "proveedor": "MAYORISTA",
         "categoria": "Bebidas",
-        "nombre": "Piña colada",
-        "unidad": "Botella"
+        "valorUnitarioEstimado": 0,
+        "unidad": "Botella",
+        "proveedor": "MAYORISTA"
     },
     {
-        "id": "ing-blue-curacao",
-        "valorUnitarioEstimado": 0,
+        "id": "ing-blue-curacao-sin-alcohol",
+        "nombre": "Jarabe Blue Curaçao sin alcohol",
         "tipoItem": "Insumo/Ingrediente",
-        "cantidadDisponible": 0,
-        "proveedor": "MAYORISTA",
         "categoria": "Bebidas",
-        "nombre": "Blue curaçao",
-        "unidad": "Botella"
+        "valorUnitarioEstimado": 0,
+        "unidad": "Botella",
+        "proveedor": "MAYORISTA"
     },
     {
-        "id": "ing-martini",
-        "valorUnitarioEstimado": 0,
+        "id": "ing-granadina-sin-alcohol",
+        "nombre": "Granadina sin alcohol",
         "tipoItem": "Insumo/Ingrediente",
-        "cantidadDisponible": 0,
-        "proveedor": "MAYORISTA",
         "categoria": "Bebidas",
-        "nombre": "Martini",
-        "unidad": "Botella"
+        "valorUnitarioEstimado": 0,
+        "unidad": "Botella",
+        "proveedor": "MAYORISTA"
     },
     {
-        "id": "ing-licor-frutilla",
-        "valorUnitarioEstimado": 0,
+        "id": "ing-jugo-anana",
+        "nombre": "Jugo de ananá",
         "tipoItem": "Insumo/Ingrediente",
-        "cantidadDisponible": 0,
-        "proveedor": "MAYORISTA",
         "categoria": "Bebidas",
-        "nombre": "Licor de frutilla",
-        "unidad": "Botella"
+        "valorUnitarioEstimado": 0,
+        "unidad": "Litro",
+        "proveedor": "MAYORISTA"
+    },
+    {
+        "id": "ing-soda",
+        "nombre": "Soda",
+        "tipoItem": "Insumo/Ingrediente",
+        "categoria": "Bebidas",
+        "valorUnitarioEstimado": 0,
+        "unidad": "Litro",
+        "proveedor": "MAYORISTA"
     }
 ]

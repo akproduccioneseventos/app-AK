@@ -16065,3 +16065,5 @@ usa: datosDelDialogo en src/app/actions/fiesta/armar-web-con-ia.actions.ts
 prueba: src/__tests__/orden-241-una-regla-no-guardada-no-dice-guardada.test.ts
 prueba: src/__tests__/orden-239-240-propuestas-cocina-encuestas.test.ts
 ```
+
+- 27/10/2026 — Carta definitiva de 12 tragos del dueño: alcohol principal 15 ml, versión sin alcohol guardada (recetaSinAlcohol, nombreSinAlcohol, soloMayores) y fotos en public/images/tragos. Reemplaza las recetas de 17 tragos. El selector de versión y el control de menores van por orden a Gemini.

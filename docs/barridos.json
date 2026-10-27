@@ -558,6 +558,10 @@
     "orden-241": {
       "fecha": "2026-10-27",
       "resultado": "Codex 238/703 (Centro de control): fiesta real sin 'Sofía' de relleno, sin respuestas inventadas, ID inexistente no se aprueba ni se aprende, aprobaciones por id, correo no queda enviado, regla no guardada no se anuncia. Barrido de la pregunta 104 en asistentes y monitores: ver orden-240."
+    },
+    "orden-244": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 92 (una tarea que falla devolviendo el error queda anotada como corrida). Barrido de toda la IA y las tareas automáticas: blog, recordatorios a invitados, botón de recordatorios de pago que no revisaba nada, métricas, dos rutas del despertador, lectura de comprobantes, testimonio de respaldo y web del evento. Todo va en la orden 244, bloque 4."
     }
   }
 }
