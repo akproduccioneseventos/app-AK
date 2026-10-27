@@ -1,5 +1,23 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27/10/2026 - Codex716-721: area barra, DOS causas abiertas/orden242
+
+- Mainc0add57f confirmado por conector; PR1368-0929 no cambia barra. Claude publico
+  bf0ba6c3 conserva blobs helper/accion/perfiles de main. Privados NUEVA CARTA/MENORES
+  NO CONTRASTADOS: no llamarlos funcionalidad ausente ni aprobarlos sin entrega.
+- 716 diez suites55PASS0FAIL;717 filtroreal5criterios4PASS1FAIL: Caipirinha default
+  conCachaca queda fuera de Con alcohol. B1Gemini, no se sirvio alcohol a un menor.
+- 71839casos33PASS6FAIL no6bugs:dos muestran B2;cuatro alcanzan fronteras posteriores,
+  dos con mock incompleto. 719 confirmaB2 firma/sesionreales+BD/cookiesdobles:7casos
+  5PASS2FAIL. Perfil explicito invalido+roleadmin pasa eventguard y panel privado.
+  No forja anonima ni cuenta real afectada. Firma alterada/ausente y personaladmin
+  SIrechazados;legadoSINperfil conserva acceso. B2Claude, NO reabrir230esAdministrador.
+- 720procedencia fuentesbarQA0929 equivalentesc0 salvoCRLF; 721matriz y limites.
+  AreaCONHALLAZGOS, no cambiar contador a limpia. No repetir72/87/620 ya probadas.
+- Sinappedit/build/navegador/SDK/stock real. AgenteBoole cerrado sin cobertura
+  verificable;principal reviso todo lo sensible. Todos los procesos propios cerrados.
+  DNSCLI caido;conectorGitHub disponible. Registrar/publicar242 en misma propuesta.
+
 ## 27/10/2026 - Codex715: PDFClub filtrado, orden241 paraGemini
 
 - Leidas17paginas y vista pagina10 del PDF del dueno; original compartido en

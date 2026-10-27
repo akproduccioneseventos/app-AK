@@ -1,0 +1,76 @@
+{
+  "sha": "c0add57f6237f666db97e7e902ef75f6c8d97479",
+  "qa": "C:/Users/Usuario/AppData/Local/Temp/ak-qa-709-dd1def6d",
+  "qaExportSource": "092906d666d73d3e895f8d3126e9f51bc18d72b1",
+  "sources": [
+    {
+      "file": "src/lib/barra-tecnologica.ts",
+      "gitSha256": "3af48eb3ac3e77b7e9d92a42034af48db3ec1dca51581d51c8e3e50119b5f8a8",
+      "sameAfterCRLF": true
+    },
+    {
+      "file": "src/app/actions/fiesta/barra-tecnologica.actions.ts",
+      "gitSha256": "8690b29e1ba75c8e6f1045710b8c7fd1e47cf1c11a771420347e8d2a03fcc4d5",
+      "sameAfterCRLF": true
+    },
+    {
+      "file": "src/lib/auth/perfiles.ts",
+      "gitSha256": "2e9b9a7afc0e7115e97cba603e09246fc2d965c22c9ac62fa219feaec84cf690",
+      "sameAfterCRLF": true
+    },
+    {
+      "file": "src/lib/auth/event-access.ts",
+      "gitSha256": "d46e58c8d99291c0e7c3067be3c24ca503201dd64d17a5801952008ed74a0c10",
+      "sameAfterCRLF": true
+    },
+    {
+      "file": "src/lib/auth/session-token.ts",
+      "gitSha256": "29da63836b6ab8935342facf92470e6892f6c11f30960287159e50dba0673eb4",
+      "sameAfterCRLF": true
+    },
+    {
+      "file": "src/lib/fiesta-defaults.ts",
+      "gitSha256": "6384cfacc43c88be942f0e1588a3d1796d15b4d2bc8e8eef2796ce5176549f65",
+      "sameAfterCRLF": true
+    },
+    {
+      "file": "src/types/fiesta.ts",
+      "gitSha256": "c7c81c35e5b9ba6da34164865d6a2685baa533da98b2d5da62111e093c68634a",
+      "sameAfterCRLF": true
+    },
+    {
+      "file": "src/types/barra-tecnologica.ts",
+      "gitSha256": "5017716c910be09a6f5df18e8fc87db9e01cf5e87dee68d074795be4b5007062",
+      "sameAfterCRLF": true
+    },
+    {
+      "file": "src/app/evento/barra/[fiestaId]/page.tsx",
+      "gitSha256": "60234116c179ba3bba81b41153c3f51b87de47961c6529c730aa96ce2cd86844",
+      "sameAfterCRLF": true
+    }
+  ],
+  "tests": [
+    {
+      "file": "716-barra-jest-resultados.json",
+      "suites": 10,
+      "passed": 55,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "718-barra-perfiles-resultados.json",
+      "suites": 1,
+      "passed": 33,
+      "failed": 6,
+      "pending": 0
+    },
+    {
+      "file": "719-barra-sesion-firmada-resultados.json",
+      "suites": 1,
+      "passed": 5,
+      "failed": 2,
+      "pending": 0
+    }
+  ],
+  "scope": "Source identity with LF/CRLF normalization, not acceptance. Expected failures retained; session cryptography local, no production auth/database/provider or native browser."
+}

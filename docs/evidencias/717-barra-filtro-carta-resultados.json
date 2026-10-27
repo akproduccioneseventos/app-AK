@@ -1,0 +1,80 @@
+{
+  "sha": "c0add57f6237f666db97e7e902ef75f6c8d97479",
+  "method": "Complete real helper and actual visibleDrinks AST expression with default menu from Git. No rendered UI, age enforcement, model, accounts or database.",
+  "cases": [
+    {
+      "id": "real_caipirinha_in_alcohol_filter",
+      "status": "FAIL",
+      "expected": "caipirinha",
+      "observed": [
+        "daiquiri-durazno",
+        "arizona",
+        "daiquiri-anana",
+        "daiquiri-frutilla",
+        "atomic-green",
+        "daiquiri-primavera",
+        "fernet-coca",
+        "atardecer",
+        "destornillador",
+        "ron-cola"
+      ],
+      "drink": {
+        "id": "caipirinha",
+        "nombre": "Caipirinha",
+        "imageUrl": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=600&auto=format&fit=crop",
+        "aiHint": "caipirinha lime cocktail",
+        "descripcion": "Cachaça tradicional con lima machacada y azúcar.",
+        "ingredientes": [
+          "Cachaça",
+          "Lima",
+          "Azúcar"
+        ],
+        "stockDisponible": 120,
+        "recetaIngredientes": [
+          {
+            "insumoId": "ing-cachaca",
+            "nombre": "Cachaça",
+            "cantidad": 0.08,
+            "unidad": "Botella"
+          },
+          {
+            "insumoId": "ing-lima",
+            "nombre": "Lima",
+            "cantidad": 1,
+            "unidad": "Unidad"
+          },
+          {
+            "insumoId": "ing-azucar",
+            "nombre": "Azúcar",
+            "cantidad": 0.01,
+            "unidad": "Kg"
+          }
+        ]
+      },
+      "tags": [
+        "Citrico"
+      ]
+    },
+    {
+      "id": "real_ron_control",
+      "status": "PASS"
+    },
+    {
+      "id": "nonalcohol_control",
+      "status": "PASS"
+    },
+    {
+      "id": "all_retains_menu",
+      "status": "PASS"
+    },
+    {
+      "id": "no_category_match",
+      "status": "PASS"
+    }
+  ],
+  "sources": {
+    "src/lib/barra-tecnologica.ts": "3af48eb3ac3e77b7e9d92a42034af48db3ec1dca51581d51c8e3e50119b5f8a8",
+    "src/lib/fiesta-defaults.ts": "6384cfacc43c88be942f0e1588a3d1796d15b4d2bc8e8eef2796ce5176549f65",
+    "src/app/evento/barra/[fiestaId]/page.tsx": "60234116c179ba3bba81b41153c3f51b87de47961c6529c730aa96ce2cd86844"
+  }
+}
