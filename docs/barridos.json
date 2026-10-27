@@ -428,6 +428,14 @@
     "107": {
       "fecha": "2026-10-27",
       "resultado": "barrida en src/lib/auth, src/lib/security, guardias, require-session, armado de la sesión, menú y acciones que usan perfilDe/puede: el armado de la cookie (simple-auth.ts:910, auth.ts:508,821,872,903) convierte un perfil roto en el del rol viejo; getMisPermisos, el menú (que además lee 'profile'), asistente proactivo, google-workspace y recortar-para-afuera no rechazan un perfil inválido. Sin fallbacks a admin/dueño en switches. Va en la orden 247, bloque 8."
+    },
+    "108": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en todos los delete* y forceDelete* de src/app/actions y src/lib: facturas y presupuestos (plata, y el presupuesto se borraba con cobros), proveedores, insumos, menús, activos y empleados (referencias huérfanas). crm, clientes, salones y fiestas no miran nada antes. Va en la orden 249."
+    },
+    "109": {
+      "fecha": "2026-10-27",
+      "resultado": "barrida en exportes, resúmenes, textos y avisos de plata: resumen del contador (gastos sin centavos) y rentabilidad de analytics (redondeo por partes). Lo demás con pesos enteros son ventas o facturado, decisión del dueño. Va en la orden 249."
     }
   },
   "hallazgos": {

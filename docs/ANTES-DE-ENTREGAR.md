@@ -244,3 +244,5 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 76. **¿Pusiste un "guardar con cuidado" sólo para algunos perfiles?** Mirá el otro lado: el dueño también abre pantallas viejas.
 77. **¿Tu permiso sale de una cookie o un enlace?** Fijate qué pasa si mañana se da de baja a esa persona: la llave vieja no puede seguir abriendo.
 78. **¿Pusiste un "si no es válido, usá esto otro"?** Que lo roto dé menos permisos, nunca más.
+79. **¿Borrás algo que antes revisaste?** La revisión y el borrado van juntos, en el mismo momento.
+80. **¿Sacás un monto para afuera (archivo, texto, aviso)?** Que tenga los mismos centavos que el reporte.
