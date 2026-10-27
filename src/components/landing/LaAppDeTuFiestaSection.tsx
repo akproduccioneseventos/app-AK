@@ -639,10 +639,10 @@ export function LaAppDeTuFiestaSection({
         {/* Cierre y Transparencia */}
         <div className="mt-12 rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 sm:p-8">
           <p className="font-medium text-slate-800">
-            ¿Querés ver cómo se adapta la app a tu tipo de fiesta?
+            ¿Querés ver la app funcionando con una fiesta como la tuya?
           </p>
           <p className="mt-1 text-xs text-slate-500">
-            Los módulos contratados se integran a tu presupuesto personalizado (cumpleaños de 15, bodas, empresariales o infantiles).
+            Te mostramos qué partes de la app usaría tu fiesta (15, boda, cumpleaños o empresa), según los servicios que elijas.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
             <a
@@ -651,7 +651,7 @@ export function LaAppDeTuFiestaSection({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 font-bold text-red-600 hover:text-red-700"
             >
-              Hablar con un asesor por WhatsApp
+              Pedinos que te la mostremos por WhatsApp
               <ChevronRight className="h-4 w-4" />
             </a>
           </div>
