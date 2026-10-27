@@ -538,6 +538,10 @@
     "orden-237": {
       "fecha": "2026-10-27",
       "resultado": "Devolución de la 1365 (pregunta 52: una entrega arrancada de una versión vieja choca y deshace lo nuevo). Barrido: las otras ramas abiertas de Gemini (ordenes-196-202, 205-206) también arrancan de un main viejo; ninguna se fusiona sin juntar antes la versión publicada y pasar la puerta."
+    },
+    "orden-244": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 92 (una tarea que falla devolviendo el error queda anotada como corrida). Barrido de toda la IA y las tareas automáticas: blog, recordatorios a invitados, botón de recordatorios de pago que no revisaba nada, métricas, dos rutas del despertador, lectura de comprobantes, testimonio de respaldo y web del evento. Todo va en la orden 244, bloque 4."
     }
   }
 }
