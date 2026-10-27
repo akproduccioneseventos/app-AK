@@ -79,4 +79,10 @@ describe('La carta de 12 tragos descuenta de verdad', () => {
   it('no quedan los insumos de las recetas viejas', () => {
     for (const id of ['ing-pina-colada', 'ing-blue-curacao', 'ing-martini', 'ing-licor-frutilla']) expect(porId.has(id)).toBe(false);
   });
+
+  // Pasó el 27/10/2026: la carta nueva entró sin stockDisponible y la lectura de la carta maestra
+  // pone 0 a lo que no lo trae, así que los 12 tragos salían "Agotado" en la barra.
+  it('ningún trago de fábrica sale agotado', () => {
+    for (const t of defaultCartaTragosData.items) expect(t.stockDisponible ?? 0).toBeGreaterThan(0);
+  });
 });

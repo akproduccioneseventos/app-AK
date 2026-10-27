@@ -271,6 +271,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Ron con durazno en almíbar y jugo de naranja, licuado con hielo.',
       ingredientes: ['Ron', 'Durazno en almíbar', 'Jugo de naranja', 'Azúcar'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.06, unidad: 'Litro' },
@@ -284,6 +285,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Ron con frutillas, licuado con hielo.',
       ingredientes: ['Ron', 'Frutillas', 'Azúcar'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
       ],
@@ -296,6 +298,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Ron con ananá y jugo de ananá, licuado con hielo.',
       ingredientes: ['Ron', 'Ananá', 'Jugo de ananá', 'Azúcar'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-jugo-anana', nombre: 'Jugo de ananá', cantidad: 0.06, unidad: 'Litro' },
@@ -309,6 +312,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Ron con durazno, ananá y jugo de naranja, licuado con hielo.',
       ingredientes: ['Ron', 'Durazno', 'Ananá', 'Jugo de naranja', 'Azúcar'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.06, unidad: 'Litro' },
@@ -322,6 +326,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Vodka con jarabe de Blue Curaçao sin alcohol y jugo de naranja.',
       ingredientes: ['Vodka', 'Jarabe Blue Curaçao sin alcohol', 'Jugo de naranja'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-blue-curacao-sin-alcohol', nombre: 'Jarabe Blue Curaçao sin alcohol', cantidad: 0.02, unidad: 'Botella' },
@@ -336,6 +341,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Caña uruguaya con limón machacado, azúcar, hielo picado y soda.',
       ingredientes: ['Caña uruguaya', 'Limón', 'Azúcar', 'Soda o agua con gas'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-cana-uruguaya', nombre: 'Caña uruguaya', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-soda', nombre: 'Soda', cantidad: 0.185, unidad: 'Litro' },
@@ -349,6 +355,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Vodka con jugo de naranja, jugo de ananá y granadina sin alcohol.',
       ingredientes: ['Vodka', 'Jugo de naranja', 'Jugo de ananá', 'Granadina sin alcohol', 'Jugo de naranja'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.15, unidad: 'Litro' },
@@ -364,6 +371,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Fernet con Coca-Cola y hielo.',
       ingredientes: ['Fernet', 'Coca-Cola'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-fernet', nombre: 'Fernet', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.185, unidad: 'Litro' },
@@ -378,6 +386,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Ron con jugo de naranja, jugo de ananá y granadina sin alcohol, en degradé.',
       ingredientes: ['Ron', 'Jugo de naranja', 'Jugo de ananá', 'Granadina sin alcohol', 'Jugo de naranja'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.15, unidad: 'Litro' },
@@ -393,6 +402,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Vodka con jugo de naranja y hielo.',
       ingredientes: ['Vodka', 'Jugo de naranja'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.185, unidad: 'Litro' },
@@ -407,6 +417,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Ron con Coca-Cola y hielo.',
       ingredientes: ['Ron', 'Coca-Cola'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.185, unidad: 'Litro' },
@@ -421,6 +432,7 @@ export const defaultCartaTragosData: CartaTragosData = {
       descripcion: 'Gin con refresco de pomelo y hielo.',
       ingredientes: ['Gin', 'Refresco de pomelo'],
       soloMayores: true,
+      stockDisponible: 120,
       recetaIngredientes: [
         { insumoId: 'ing-gin', nombre: 'Gin', cantidad: 0.02, unidad: 'Botella' },
         { insumoId: 'ing-pomelo', nombre: 'Gaseosa de Pomelo', cantidad: 0.185, unidad: 'Litro' },
