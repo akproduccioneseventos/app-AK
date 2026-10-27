@@ -602,6 +602,10 @@
     "auditoria-726": {
       "fecha": "2026-10-27",
       "resultado": "Pregunta 90 (control afuera, borrado después). Barrido de todos los borrados con control previo: facturas y presupuestos (plata; el presupuesto además se borraba con cobros adentro), proveedores, insumos, menús, activos y empleados (referencias huérfanas). Redondeos de plata: resumen del contador y rentabilidad de analytics. Todo en la orden 249."
+    },
+    "orden-250": {
+      "fecha": "2026-10-27",
+      "resultado": "Pregunta 92 (IA que se paga y no pasa por el tope ni avisa): al preparar la orden se vio que generarVisualizacionSalonAi y generarVisualizacionSalonReunion generan imágenes sin hayPresupuestoParaIA ni registrarConsumoIA. Buscado generateGeminiImage en src/: espejo mágico y salón IA sí lo cuentan; las dos de decoración no. Va en la orden 250, bloque 2."
     }
   }
 }

@@ -1357,6 +1357,7 @@ escribe la pregunta nueva en `COMO-AUDITAR.md` y se barre la app con ella.
 - Auditoria 717 (Caipirinha fuera de "Con alcohol") → pregunta 104
 - Orden 249 → pregunta 108
 - Auditoria 726 (factura borrada mientras se cobra; centavos del contador) → pregunta 108
+- Orden 250 → pregunta 92
 - Auditoria Gemini 20/10 (despertador bloqueado por la puerta) → pregunta 74
 - Auditoria Gemini 20/10 (eco de WhatsApp sin isEcho) → pregunta 75
 - Auditoria Gemini 20/10 (ingreso con Google sin perfil) → pregunta 76
